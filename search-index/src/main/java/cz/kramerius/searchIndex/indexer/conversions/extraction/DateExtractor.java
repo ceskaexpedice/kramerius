@@ -16,6 +16,8 @@ public class DateExtractor {
     private static final String REGEXP_YEAR = "\\[?[p,c]?(\\d{4})\\??\\]?"; //'1920', '1920]', '[1920', '[1920]', '[1920?]', '1920?]', 'p1920', 'c1920'
     private static final String REGEXP_YEAR_CCA = "\\[?ca\\s(\\d{4})\\]?"; //'[ca 1690]', 'ca 1690]', '[ca 1690',
     private static final String REGEXP_YEAR_PARTIAL = "[0-9]{1}[0-9ux\\-]{0,3}"; //194u, 18--, 19uu, 180-, 19u7
+    private static final String REGEXP_CENTURY = "\\[?(\\d{2})--\\??\\]?"; //'[18--]', '[18--?]', '18--?', '18--?]'
+    private static final String REGEXP_DECADE = "\\[?(\\d{3})-\\??\\]?"; //'[183-]', '[183-?]', '183-?', '183-?]', '183-'
 
     private static final String REGEXP_DAY_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.MM.RRRR-DD.MM.RRRR
     private static final String REGEXP_DAY_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.MM-DD.MM.RRRR
@@ -210,6 +212,20 @@ public class DateExtractor {
                 result.valueEnd = result.rangeEndYear.toString();
                 result.dateMin = MyDateTimeUtils.toYearStart(result.rangeStartYear);
                 result.dateMax = MyDateTimeUtils.toYearEnd(result.rangeEndYear);
+            }
+        } else if (matchesRegexp(result.value, REGEXP_DECADE)) { //'[183-]', '[183-?]', '183-?', '183-?]', '183-'
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_DECADE);
+            if (numbers != null) {
+                int century = numbers.get(0);
+                result.dateMin = MyDateTimeUtils.toYearStart(century * 10);
+                result.dateMax = MyDateTimeUtils.toYearEnd(century * 10 + 9);
+            }
+        } else if (matchesRegexp(result.value, REGEXP_CENTURY)) { //'[18--]', '[18--?]', '18--?', '18--?]'
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_CENTURY);
+            if (numbers != null) {
+                int century = numbers.get(0);
+                result.dateMin = MyDateTimeUtils.toYearStart(century * 100);
+                result.dateMax = MyDateTimeUtils.toYearEnd(century * 100 + 99);
             }
         } else if (matchesRegexp(result.value, REGEXP_YEAR_PARTIAL)) { //194u, 18--, 19uu, 180-, 19u7
             result.dateMin = MyDateTimeUtils.toYearStartFromPartialYear(result.value);

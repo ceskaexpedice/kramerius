@@ -80,6 +80,90 @@
         </out>
     </test>
 
+    <test name="[183-]">
+        <desc>Datum jako desetiletí s nejistotou 1</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[183-]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1839-12-31T23:59:59.999Z</field>
+            <field name="date.min">1830-01-01T00:00:00.001Z</field>
+            <field name="date.str">[183-]</field>
+        </out>
+    </test>
+
+    <test name="[183-?]">
+        <desc>Datum jako desetiletí s nejistotou 2: uuid:a62aac70-4d91-11e6-a5c5-005056827e51</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[183-?]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1839-12-31T23:59:59.999Z</field>
+            <field name="date.min">1830-01-01T00:00:00.001Z</field>
+            <field name="date.str">[183-?]</field>
+        </out>
+    </test>
+
+    <test name="[183-?">
+        <desc>Datum jako desetiletí s nejistotou 3</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[183-?</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1839-12-31T23:59:59.999Z</field>
+            <field name="date.min">1830-01-01T00:00:00.001Z</field>
+            <field name="date.str">[183-?</field>
+        </out>
+    </test>
+
+    <test name="183-?]">
+        <desc>Datum jako desetiletí s nejistotou 4</desc>
+        <in>
+            <originInfo>
+                <dateIssued>183-?]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1839-12-31T23:59:59.999Z</field>
+            <field name="date.min">1830-01-01T00:00:00.001Z</field>
+            <field name="date.str">183-?]</field>
+        </out>
+    </test>
+
+    <test name="183-?">
+        <desc>Datum jako desetiletí s nejistotou 5</desc>
+        <in>
+            <originInfo>
+                <dateIssued>183-?</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1839-12-31T23:59:59.999Z</field>
+            <field name="date.min">1830-01-01T00:00:00.001Z</field>
+            <field name="date.str">183-?</field>
+        </out>
+    </test>
+
+    <test name="183-">
+        <desc>Datum jako desetiletí s nejistotou 6</desc>
+        <in>
+            <originInfo>
+                <dateIssued>183-</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1839-12-31T23:59:59.999Z</field>
+            <field name="date.min">1830-01-01T00:00:00.001Z</field>
+            <field name="date.str">183-</field>
+        </out>
+    </test>
+
     <test name="18uu">
         <desc>Datum jako století</desc>
         <in>
@@ -115,6 +199,76 @@
             <field name="datum_end">1899</field>
             <field name="datum_str">18&#45;&#45;</field>
             -->
+        </out>
+    </test>
+
+    <test name="[18--?]">
+        <desc>Datum jako století s nejistotou 1: uuid:1bfd3af0-e6e4-11e4-9c07-001018b5eb5c</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[18--?]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1899-12-31T23:59:59.999Z</field>
+            <field name="date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="date.str">[18--?]</field>
+        </out>
+    </test>
+
+    <test name="18--?]">
+        <desc>Datum jako století s nejistotou 2: uuid:740c7810-0ac8-11e6-93aa-005056827e51</desc>
+        <in>
+            <originInfo>
+                <dateIssued>18--?]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1899-12-31T23:59:59.999Z</field>
+            <field name="date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="date.str">18--?]</field>
+        </out>
+    </test>
+
+    <test name="[18--?">
+        <desc>Datum jako století s nejistotou 3</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[18--?</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1899-12-31T23:59:59.999Z</field>
+            <field name="date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="date.str">[18--?</field>
+        </out>
+    </test>
+
+    <test name="18--?">
+        <desc>Datum jako století s nejistotou 4: uuid:f0abcf40-4d9b-11e6-a5c5-005056827e51</desc>
+        <in>
+            <originInfo>
+                <dateIssued>18--?</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1899-12-31T23:59:59.999Z</field>
+            <field name="date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="date.str">18--?</field>
+        </out>
+    </test>
+
+    <test name="[18--]">
+        <desc>Datum jako století s nejistotou 5: uuid:d83d3f00-6859-11e7-b92d-005056827e5</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[18--]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1899-12-31T23:59:59.999Z</field>
+            <field name="date.min">1800-01-01T00:00:00.001Z</field>
+            <field name="date.str">[18--]</field>
         </out>
     </test>
 
