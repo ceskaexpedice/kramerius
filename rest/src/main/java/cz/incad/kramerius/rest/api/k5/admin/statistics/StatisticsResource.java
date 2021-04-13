@@ -168,7 +168,7 @@ public class StatisticsResource {
                                   @QueryParam("uniqueipaddresses") String uniqueIpAddresses,
                                   @QueryParam("annualyear") String annual,
                                   @QueryParam("pids") String pids,
-                                  @DefaultValue("export.xml") @QueryParam("file") String file) {
+                                  @DefaultValue("export.data") @QueryParam("file") String file) {
 
 
         AnnualYearFilter annualYearFilter = new AnnualYearFilter();

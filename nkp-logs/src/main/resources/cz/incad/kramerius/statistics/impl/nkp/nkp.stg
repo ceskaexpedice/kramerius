@@ -130,17 +130,17 @@ function ShowNKPLogDirectory() {
             </tr>
             <tr>
                 <td>$bundle.("nkplog.folder.label")$</td>
-                <td><input id="nkp_folder" value="$nkpLogsDirectory$"  style="width:80%"  readonly> </input></td>
+                <td><input id="nkp_folder" value="$nkpLogsDirectory$"  style="width:80%" > </input></td>
                 <td><input type="button" onclick="directoryTree.openTree();" value="$bundle.("nkplog.folder.button.label")$"></input></td>
             </tr>
             <tr>
                 <td>$bundle.("nkplog.institution.label")$</td>
-                <td><input id="nkp_institution" val=""></input></td>
+                <td><input id="nkp_institution" value=""></input></td>
                 <td></td>
             </tr>
             <tr>
                 <td>$bundle.("nkplog.anonymize.label")$</td>
-                <td><input id="nkp_anonymize" val="username,session_eppn,dnnt_user"></input></td>
+                <td><input id="nkp_anonymize" value="username,session_eppn,dnnt_user,eduPersonUniqueId,affilation"></input></td>
                 <td></td>
             </tr>
         </tbody>

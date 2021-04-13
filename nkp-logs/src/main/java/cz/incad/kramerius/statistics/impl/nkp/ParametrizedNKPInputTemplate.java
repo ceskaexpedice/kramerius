@@ -40,7 +40,7 @@ public class ParametrizedNKPInputTemplate implements ProcessInputTemplate {
         InputStream iStream = this.getClass().getResourceAsStream("nkp.stg");
 
         TreeItem rootNode = TreeModelUtils.prepareTreeModel(homeFolder,new TreeModelFilter() {
-            String[] NAMES = { "lp","exported","deepZoom" ,"data_old", "data","data_back"};
+            String[] NAMES = { "lp","exported","deepZoom" , "data"};
             @Override
             public boolean accept(File file) {
                 String sname = file.getName();
