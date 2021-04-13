@@ -2,6 +2,8 @@ package cz.incad.Kramerius.views;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -222,14 +224,21 @@ public class ProcessesViewObject implements Initializable {
         } catch (TokenStreamException te) {
             te.printStackTrace();
             return null;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
-    private Tripple createTripple(List trpList) {
+    private Tripple createTripple(List trpList) throws UnsupportedEncodingException {
         if (trpList.size() == 3) {
             String name = (String) trpList.get(0);
             String op = (String) trpList.get(1);
             String val = (String) trpList.get(2);
+            // decode if name
+            if (name.equals("name")) {
+                val =  URLDecoder.decode(val, "UTF-8");
+            }
             Tripple trp = new Tripple(name, val, op);
             return trp;
         } else

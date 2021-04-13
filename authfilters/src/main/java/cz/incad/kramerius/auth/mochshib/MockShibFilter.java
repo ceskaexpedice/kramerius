@@ -2,6 +2,7 @@ package cz.incad.kramerius.auth.mochshib;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.Hashtable;
@@ -9,7 +10,7 @@ import java.util.logging.Level;
 
 public class MockShibFilter implements Filter {
 
-        public static  boolean ENABLED = true;
+        public static  String SHIB_KEY = "shib";
 
         public static final Hashtable<String,String> shibTable = new Hashtable<>();
         static {
@@ -35,11 +36,14 @@ public class MockShibFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        String shib = servletRequest.getParameter("shib");
-        if (shib != null && !shib.trim().equals("")) {
-            ENABLED = false;
+        String shib = servletRequest.getParameter(SHIB_KEY);
+        HttpSession session = ((HttpServletRequest) servletRequest).getSession(false);
+        if (shib != null && shib.equals("default")) {
+            session = ((HttpServletRequest) servletRequest).getSession(true);
+            session.setAttribute(SHIB_KEY, true);
         }
-        if (ENABLED) {
+
+        if (session != null &&  session.getAttribute(SHIB_KEY) != null ) {
             HttpServletRequest httpReq = (HttpServletRequest) servletRequest;
             Object o = Proxy.newProxyInstance(servletRequest.getClass().getClassLoader(), new Class[]{HttpServletRequest.class}, new MockHTTPServletInvocationHandler(shibTable, httpReq));
             filterChain.doFilter((ServletRequest) o, servletResponse);

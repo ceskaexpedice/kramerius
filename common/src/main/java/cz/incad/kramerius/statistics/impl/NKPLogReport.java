@@ -132,7 +132,7 @@ public class NKPLogReport implements StatisticReport {
 
                             String usersessionattributes = rs.getString("usersessionattributes");
                             if (usersessionattributes != null) {
-                                JSONObject uSessionMap =  new JSONObject(evaluatemap);
+                                JSONObject uSessionMap =  new JSONObject(usersessionattributes);
                                 for (Object key :
                                         uSessionMap.keySet()) {
                                     map.put(key.toString(), uSessionMap.get(key.toString()));
