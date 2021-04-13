@@ -164,6 +164,10 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             } else if ("LOGICAL".equalsIgnoreCase(sm.getTYPE())) {
                 singleVolumeMonograph = false;
                 processDiv(null, sm.getDiv());
+                // eMonograph has only one structMap without TYPE
+            } else if (sm.getTYPE() == null) {
+                processElectronicDiv(null, sm.getDiv());
+                return;
             } else {
                 log.warn("Unsupported StructMap type: " + sm.getTYPE()
                         + " for " + sm.getID());
@@ -318,7 +322,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return null;//we consider only div with associated metadata (DMDID)
         }
 
-        String model = mapModel(divType);
+        String model = mapModel(divType, false);
 
 
         String modsId = modsIdObj.getID();
@@ -366,9 +370,80 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         return foxml;
     }
 
+    private boolean singleVolumeEMonograph = true;
+    private Foxml processElectronicDiv(Foxml parent, DivType div) {
+        String divType = div.getTYPE();
+        MdSecType modsIdObj = (MdSecType) firstItem(div.getDMDID());
+
+        if ("TITLE".equalsIgnoreCase(divType) && modsIdObj != null) {
+            singleVolumeEMonograph = false;
+        }
+        
+        if ("DOCUMENT".equalsIgnoreCase(divType)) {
+            processElectronicDiv(parent, div.getDiv().get(0));
+            return null;
+        }
+        
+        if ("FILE".equalsIgnoreCase(divType) && modsIdObj == null) {
+                for (Fptr fptr : div.getFptr()) {
+                    FileType fileId = (FileType) fptr.getFILEID();
+                    FileDescriptor fileDesc = fileMap.get(fileId.getID());
+                    parent.addFiles(fileDesc);
+                }
+                return null;
+        }
+        
+       
+        String model = mapModel(divType, true);
+        String modsId = modsIdObj.getID();
+        String dcId = modsId.replaceFirst("MODS", "DC");
+
+        ModsDefinition mods = modsMap.get(modsId);
+        if (mods == null) {
+            throw new ServiceException("Cannot find mods: " + modsId);
+        }
+
+
+        String uuid = getUUIDfromMods(mods);
+        if (uuid == null) {
+            uuid = generateUUID();
+        }
+        String pid = pid(uuid);
+        String title = getTitlefromMods(mods);
+        RelsExt re = new RelsExt(pid, model);
+
+        re.addRelation(RelsExt.POLICY, policyID, true);
+
+        OaiDcType dc = dcMap.get(dcId);
+        if (dc == null) {
+            log.warn("DublinCore part missing for MODS " + modsId);
+            dc = createDC(pid, title);
+        }
+        setDCModelAndPolicy(dc, model, policyID);
+
+        Foxml foxml = new Foxml();
+        foxml.setPid(pid);
+        foxml.setTitle(title);
+        foxml.setDc(dc);
+        
+        foxml.setMods(mods);
+        foxml.setRe(re);
+        if (parent != null) {
+            String parentRelation = mapParentRelation(model);
+            parent.getRe().addRelation(parentRelation, pid, false);
+        }
+        String divID = div.getID();
+        objects.put(divID,foxml);
+
+        for (DivType partDiv : div.getDiv()) {
+            processElectronicDiv(foxml, partDiv);
+        }
+        return foxml;
+    }
+
     private Genre specialGenre = Genre.NONE;
 
-    private String mapModel(String divType) {
+    private String mapModel(String divType, Boolean isElectronic) {
         if ("PERIODICAL_TITLE".equalsIgnoreCase(divType)) {
             return MODEL_PERIODICAL;
         } else if ("PERIODICAL_VOLUME".equalsIgnoreCase(divType)) {
@@ -381,7 +456,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return MODEL_SUPPLEMENT;
         } else if ("PICTURE".equalsIgnoreCase(divType)) {
             return MODEL_PICTURE;
-        } else if ("VOLUME".equalsIgnoreCase(divType)) {
+        } else if ("VOLUME".equalsIgnoreCase(divType) && isElectronic == false) {
             if (singleVolumeMonograph) {
                 return checkSpecialGenreOrMonograph();
             } else {
@@ -391,6 +466,15 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return MODEL_INTERNAL_PART;
         } else if ("MONOGRAPH".equalsIgnoreCase(divType)) {
             return checkSpecialGenreOrMonograph();
+            //emonography
+        } else if ("TITLE".equalsIgnoreCase(divType) && isElectronic == true) {
+            return MODEL_MONOGRAPH;
+        } else if ("VOLUME".equalsIgnoreCase(divType) && isElectronic == true) {
+            if (singleVolumeEMonograph) {
+                return MODEL_MONOGRAPH;
+            } else {
+                return MODEL_MONOGRAPH_UNIT;
+            }
         }
         throw new ServiceException("Unsupported div type in logical structure: " + divType);
     }
