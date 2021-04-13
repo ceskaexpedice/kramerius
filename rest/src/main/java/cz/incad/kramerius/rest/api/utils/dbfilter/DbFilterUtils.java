@@ -16,10 +16,8 @@
  */
 package cz.incad.kramerius.rest.api.utils.dbfilter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import cz.incad.kramerius.utils.database.SQLFilter;
 import cz.incad.kramerius.utils.database.SQLFilter.Op;
@@ -57,25 +55,50 @@ public class DbFilterUtils {
         }
         return  SQLFilter.createFilter(types,tripples);
     }
-    
-//    public static Tripple createTripple(String trpl, FormalNamesMapping fnames, TypesMapping types) {
-//    	StringTokenizer tokenizer = new StringTokenizer(trpl, Op.EQ.getRawString()+Op.GT.getRawString()+Op.LT.getRawString(), true);
-//        if(tokenizer.hasMoreTokens()) {
-//        	String left = tokenizer.nextToken();
-//            Op op = tokenizer.hasMoreTokens() ? Op.findByString(tokenizer.nextToken()): null;
-//            String right = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : null;
-//            
-//            if (types.containsRawName(left)) {
-//                return  new Tripple(left, right, op.getRawString());
-//            } else {
-//            	return new Tripple(right, left, op.getRawString());
-//            }
-//            
-//        } 
-//        return null;
-//    }
-    
+
     /**
+     * Supports different operator must be first token in value s
+     * @param filterMap
+     * @return
+     */
+    public static SQLFilter simpleOperatorFilter(Map<String, String>filterMap, TypesMapping types) {
+        List<Tripple> tripples = new ArrayList<SQLFilter.Tripple>();
+        for (String key : filterMap.keySet()) {
+            String val = filterMap.get(key);
+            if (val != null ) {
+
+                String[] split = val.split("\\s+");
+                if (split.length > 0) {
+                    String rValue = Arrays.stream(Arrays.copyOfRange(split, 1, split.length, String[].class)).collect(Collectors.joining(" "));
+                    switch (split[0].trim()) {
+                        case "=":
+                            tripples.add(new Tripple(key, rValue, Op.EQ.name()));
+                        break;
+                        case ">":
+                            tripples.add(new Tripple(key, rValue, Op.GT.name()));
+                        break;
+                        case "<":
+                            tripples.add(new Tripple(key, rValue, Op.LT.name()));
+                            break;
+                        case "LIKE":
+                            tripples.add(new Tripple(key, rValue, Op.LIKE.name()));
+                            break;
+                        case "like":
+                            tripples.add(new Tripple(key, rValue, Op.LIKE.name()));
+                            break;
+                        default:
+                            tripples.add(new Tripple(key, val, Op.EQ.name()));
+                    }
+                } else {
+                    tripples.add(new Tripple(key, val, Op.EQ.name()));
+                }
+            }
+        }
+        return  SQLFilter.createFilter(types,tripples);
+    }
+
+
+	/**
      * Formal name <-> Raw name
      * @author pavels
      *

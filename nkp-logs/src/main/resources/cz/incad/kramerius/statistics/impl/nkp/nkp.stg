@@ -29,6 +29,7 @@ form(postfixdiv,bundle, nkpLogsDirectory, rootDirectory) ::=<<
 
 <div style="width:100%">
 
+
 <script language="JavaScript" type="text/javascript">
 <!--
         // send parameters to server
@@ -38,6 +39,7 @@ form(postfixdiv,bundle, nkpLogsDirectory, rootDirectory) ::=<<
             var vals = 'dateFrom='+\$('#nkp_date_from').val().escapeChars(charsThatMustBeEscaped)
                 +';dateTo='+   \$('#nkp_date_to').val().escapeChars(charsThatMustBeEscaped)
                 +';folder='+encodeURI(\$('#nkp_folder').val().escapeChars(charsThatMustBeEscaped))
+                +';anonymization='+encodeURI(\$('#nkp_anonymize').val().escapeChars(charsThatMustBeEscaped))
                 +';institution='+encodeURI(\$('#nkp_institution').val().escapeChars(charsThatMustBeEscaped));
 
 
@@ -133,7 +135,12 @@ function ShowNKPLogDirectory() {
             </tr>
             <tr>
                 <td>$bundle.("nkplog.institution.label")$</td>
-                <td><input id="nkp_institution" val="institution"></input></td>
+                <td><input id="nkp_institution" val=""></input></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>$bundle.("nkplog.anonymize.label")$</td>
+                <td><input id="nkp_anonymize" val="username,session_eppn,dnnt_user"></input></td>
                 <td></td>
             </tr>
         </tbody>

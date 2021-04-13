@@ -1,28 +1,22 @@
 package cz.incad.kramerius.rest.api.replication;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
+import cz.incad.kramerius.utils.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,6 +97,7 @@ public class CDKReplicationsResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Deprecated
     public Response getVirtualCollections() throws IOException {
         if (checkPermission()) {
             try {
@@ -402,4 +397,37 @@ public class CDKReplicationsResource {
     }
 
 
+    @GET
+    @Path("solr/select")
+    @Consumes({ MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
+    public Response selectXML(@Context UriInfo uriInfo) throws IOException {
+        return solrResponse(uriInfo,"xml");
+    }
+
+    @GET
+    @Path("solr/select")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response selectJSON(@Context UriInfo uriInfo) throws IOException {
+        return solrResponse(uriInfo,"json");
+    }
+
+    private Response solrResponse(@Context UriInfo uriInfo, String format) throws IOException {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        StringBuilder builder = new StringBuilder();
+        Set<String> keys = queryParameters.keySet();
+        for (String k : keys) {
+            for (String v : queryParameters.get(k)) {
+                String value = URLEncoder.encode(v, "UTF-8");
+                builder.append(k + "=" + value);
+                builder.append("&");
+            }
+        }
+        InputStream istream = this.solrAccess.request(builder.toString(), format);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        IOUtils.copyStreams(istream, bos);
+        String rawString = new String(bos.toByteArray(), "UTF-8");
+        return Response.ok().type(MediaType.APPLICATION_XML+ ";charset=utf-8").entity(rawString).build();
+    }
 }

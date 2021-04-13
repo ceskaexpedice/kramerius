@@ -52,7 +52,7 @@ public class ApplicationURL {
             if (header != null) {
                 String requestUri = request.getRequestURI();
                 String protocol = new URL(request.getRequestURL().toString()).getProtocol();
-                // check if header contains more than one value, if so, it takes first and print warning
+                // check if header contains more than one value, if so, it takes first
                 if (header.contains(",")) {
                     String[] split = header.split(",");
                     if (split.length > 1) {
