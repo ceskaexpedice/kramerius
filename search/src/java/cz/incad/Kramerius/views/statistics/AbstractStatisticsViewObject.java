@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.inject.name.Named;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
@@ -64,6 +65,7 @@ public abstract class AbstractStatisticsViewObject {
     static final int MAX_TITLE_LIMIT = 18;
 
     @Inject
+    @Named("database")
     StatisticsAccessLog statisticsAccessLog;
 
     @Inject

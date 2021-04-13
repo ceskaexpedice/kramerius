@@ -23,6 +23,7 @@ import static org.easymock.EasyMock.replay;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
@@ -37,7 +38,7 @@ public class FedoraAccess33ImplTest {
 
     @Test
     public void testGetFedoraAccessVersion33() throws IOException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         
         // fedora 3.3
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
@@ -54,7 +55,7 @@ public class FedoraAccess33ImplTest {
 
     @Test
     public void testIsStreamAvailable33() throws IOException, MalformedURLException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         // fedora 3.3
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(),acLog)
@@ -77,7 +78,7 @@ public class FedoraAccess33ImplTest {
 
     @Test
     public void testGetMimetypeForStream33() throws IOException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         // fedora 3.3
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(),acLog)

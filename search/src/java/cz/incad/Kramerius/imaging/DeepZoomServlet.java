@@ -17,23 +17,19 @@ import java.util.logging.Level;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
+import com.google.inject.name.Named;
 import cz.incad.kramerius.security.RightsReturnObject;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.Kramerius.imaging.utils.ZoomChangeFromReplicated;
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
@@ -71,9 +67,17 @@ public class DeepZoomServlet extends AbstractImageServlet {
     SolrAccess solrAccess;
     
     
+//    @Inject
+//    @Named("database")
+//    StatisticsAccessLog databaseAccessLog;
+//
+//    @Inject
+//    @Named("dnnt")
+//    StatisticsAccessLog dnntAccessLog;
+
     @Inject
-    StatisticsAccessLog accessLog;
-    
+    AggregatedAccessLogs aggregatedAccessLogs;
+
     @Override
     public void init() throws ServletException {
         super.init();
@@ -133,11 +137,12 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     private void renderDZI(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         try {
-            this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
         } catch (Exception e) {
             LOGGER.severe("cannot write statistic records");
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
+
 
         setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);

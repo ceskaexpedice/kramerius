@@ -27,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.sql.SQLException;
@@ -40,6 +39,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.google.inject.name.Named;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -83,7 +85,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
     DeepZoomTileSupport tileSupport;
 
     @Inject
-    StatisticsAccessLog accessLog;
+    AggregatedAccessLogs aggregatedAccessLogs;
 
     @Inject
     IsActionAllowed actionAllowed;
@@ -161,7 +163,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
 
     private void renderXMLDescriptor(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         try {
-            this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
         } catch (Exception e) {
             LOGGER.severe("cannot write statistic records");
             LOGGER.log(Level.SEVERE, e.getMessage(),e);

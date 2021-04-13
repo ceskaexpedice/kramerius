@@ -630,4 +630,21 @@
         </templates>
     </process>
 
+
+    <process>
+            <id>nkplogs</id>
+            <description>Generate access logs for NKP</description>
+            <!-- spoustena trida -->
+            <mainClass>cz.incad.kramerius.statistics.impl.nkp.NKPLogProcess</mainClass>
+            <!-- standardni vystup -->
+            <standardOs>lrOut</standardOs>
+            <!-- err vystup -->
+            <errOs>lrErr</errOs>
+            <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+            <templates>
+                <input class="cz.incad.kramerius.statistics.impl.nkp.ParametrizedNKPInputTemplate"></input>
+            </templates>
+    </process>
+
+
 </processes>

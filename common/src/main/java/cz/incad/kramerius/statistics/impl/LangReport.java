@@ -22,7 +22,6 @@ package cz.incad.kramerius.statistics.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +30,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -39,7 +39,6 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import static cz.incad.kramerius.statistics.StatisticReport.COUNT_KEY;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
@@ -184,4 +183,8 @@ public class LangReport implements StatisticReport{
         }
     }
 
+    @Override
+    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+        return true;
+    }
 }

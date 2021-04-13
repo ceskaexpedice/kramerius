@@ -47,8 +47,7 @@
     }
 
 </script>
-
-<fieldset style="border: 0px; margin: 0px; padding: 0px;">
+ <fieldset style="border: 0px; margin: 0px; padding: 0px;">
     <table style="width:100%">
         
         <thead>
@@ -67,7 +66,7 @@
                 <td></td>
                 <td></td>
             </tr>
-        	
+
             <tr>
                 <td><view:msg>statistics.report.dates.datefrom</view:msg>:</td>
                 <td><view:msg>statistics.report.dates.dateto</view:msg>:</td>
@@ -112,6 +111,7 @@
 </fieldset>
 
 <hr></hr>
+
 <fieldset  style="border: 0px; margin: 0px; padding: 0px;">
     <table style="width:100%">
         <thead>

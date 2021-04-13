@@ -24,6 +24,7 @@ import java.util.Stack;
 
 import javax.xml.transform.TransformerConfigurationException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.RelationshipTuple;
 
@@ -204,7 +205,7 @@ public class Consistency {
         }
     }
     
-    public static class NoStatistics implements StatisticsAccessLog {
+    public static class NoStatistics extends AggregatedAccessLogs {
 
         @Override
         public StatisticReport[] getAllReports() {

@@ -144,23 +144,24 @@ public class SolrAccessImpl implements SolrAccess {
     public ObjectModelsPath[] getPathOfModels(String pid) throws IOException {
         if (SpecialObjects.isSpecialObject(pid))
             return new ObjectModelsPath[] { ObjectModelsPath.REPOSITORY_PATH };
-        try {
-            Document doc = getSolrDataDocument(pid);
-            return getPathOfModels(doc);
-        } catch (XPathExpressionException e) {
-            throw new IOException(e);
-        }
+
+        Document doc = getSolrDataDocument(pid);
+        return getPathOfModels(doc);
     }
 
-    private ObjectModelsPath[] getPathOfModels(Document doc) throws XPathExpressionException {
-        synchronized (doc) {
-            List<String> disected = SolrUtils.disectModelPaths(doc);
-            ObjectModelsPath[] paths = new ObjectModelsPath[disected.size()];
-            for (int i = 0; i < paths.length; i++) {
-                String[] models = disected.get(i).split("/");
-                paths[i] = new ObjectModelsPath(models);
+    public ObjectModelsPath[] getPathOfModels(Document doc) throws IOException {
+        try {
+            synchronized (doc) {
+                List<String> disected = SolrUtils.disectModelPaths(doc);
+                ObjectModelsPath[] paths = new ObjectModelsPath[disected.size()];
+                for (int i = 0; i < paths.length; i++) {
+                    String[] models = disected.get(i).split("/");
+                    paths[i] = new ObjectModelsPath(models);
+                }
+                return paths;
             }
-            return paths;
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
         }
     }
 
@@ -177,25 +178,22 @@ public class SolrAccessImpl implements SolrAccess {
         } catch (LexerException e1) {
             throw new IOException(e1);
         }
-        try {
-            if (SpecialObjects.isSpecialObject(pid)) {
-                Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
-                map.put(ObjectPidsPath.class.getName(), new ObjectPidsPath[] { ObjectPidsPath.REPOSITORY_PATH });
-                map.put(ObjectModelsPath.class.getName(), new ObjectModelsPath[] { ObjectModelsPath.REPOSITORY_PATH });
-                return map;
-            } else {
-                Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
-                Document doc = getSolrDataDocument(pid);
-                ObjectModelsPath[] pathsOfModels = getPathOfModels(doc);
-                map.put(ObjectModelsPath.class.getName(), pathsOfModels);
 
-                ObjectPidsPath[] paths = getPath(parser.isDatastreamPid() ? parser.getDataStream() : null, doc);
-                map.put(ObjectPidsPath.class.getName(), paths);
+        if (SpecialObjects.isSpecialObject(pid)) {
+            Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
+            map.put(ObjectPidsPath.class.getName(), new ObjectPidsPath[] { ObjectPidsPath.REPOSITORY_PATH });
+            map.put(ObjectModelsPath.class.getName(), new ObjectModelsPath[] { ObjectModelsPath.REPOSITORY_PATH });
+            return map;
+        } else {
+            Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
+            Document doc = getSolrDataDocument(pid);
+            ObjectModelsPath[] pathsOfModels = getPathOfModels(doc);
+            map.put(ObjectModelsPath.class.getName(), pathsOfModels);
 
-                return map;
-            }
-        } catch (XPathExpressionException e) {
-            throw new IOException(e);
+            ObjectPidsPath[] paths = getPath(parser.isDatastreamPid() ? parser.getDataStream() : null, doc);
+            map.put(ObjectPidsPath.class.getName(), paths);
+
+            return map;
         }
     }
 

@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
 import org.xml.sax.SAXException;
@@ -35,7 +36,7 @@ public class _DocumentServiceTestPrepare {
     public static Injector prepareInjector(String pages, boolean turnOffPdfCheck) throws NoSuchMethodException,
             IOException, ParserConfigurationException, SAXException,
             LexerException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         Locale locale = Locale.getDefault();
         FedoraAccessImpl fa33 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
         ResourceBundleService bundleService = _DocumentServiceTestPrepare.prepareBundleService(locale);
@@ -65,7 +66,7 @@ public class _DocumentServiceTestPrepare {
         return solrAccess;
     }
 
-    public static FedoraAccessImpl prepareFedoraAccess(StatisticsAccessLog acLog)
+    public static FedoraAccessImpl prepareFedoraAccess(AggregatedAccessLogs acLog)
             throws NoSuchMethodException, IOException,
             ParserConfigurationException, SAXException, LexerException {
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)

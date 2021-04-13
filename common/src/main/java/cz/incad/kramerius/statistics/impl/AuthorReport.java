@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -38,7 +39,6 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import static cz.incad.kramerius.statistics.StatisticReport.COUNT_KEY;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
@@ -140,13 +140,13 @@ public class AuthorReport implements StatisticReport{
             Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();         
             final StringTemplate statRecord;
             
-            if (isUniqueSelected == false) {
+            if (isUniqueSelected) {
                 statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectAuthorReport");
+                        .getInstanceOf("selectAuthorReportUnique");
             }
             else {
-               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectAuthorReportUnique"); 
+                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+                        .getInstanceOf("selectAuthorReport");
             }
             
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
@@ -181,4 +181,8 @@ public class AuthorReport implements StatisticReport{
         }
     }
 
+    @Override
+    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+        return true;
+    }
 }

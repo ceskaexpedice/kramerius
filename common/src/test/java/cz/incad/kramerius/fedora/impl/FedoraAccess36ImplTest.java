@@ -29,6 +29,7 @@ import java.net.MalformedURLException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
@@ -49,7 +50,7 @@ public class FedoraAccess36ImplTest {
     /** Test getFedoraVersion method - 3.6.x */
     @Test
     public void testGetFedoraAccessVersion36() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         // fedora 3.4
         FedoraAccessImpl fa36 = createMockBuilder(FedoraAccessImpl.class)
@@ -65,7 +66,7 @@ public class FedoraAccess36ImplTest {
 
     @Test
     public void testIsStreamAvailable36() throws MalformedURLException, IOException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         // fedora 3.6
         FedoraAccessImpl fa36 = createMockBuilder(FedoraAccessImpl.class)
@@ -89,7 +90,7 @@ public class FedoraAccess36ImplTest {
 
     @Test
     public void testGetMimetypeForStream36() throws IOException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         // fedora 3.6
         FedoraAccessImpl fa36 = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(),acLog)

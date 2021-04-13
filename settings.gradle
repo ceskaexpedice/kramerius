@@ -16,7 +16,6 @@ include	'import-jaxb-srwdc'
 include	'import-mets' 
 
 
-
 	
 include	'indexer'
 //include	'k5indexer'
@@ -26,7 +25,9 @@ include	'search'
 include 'mw-process'
 include 'authfilters'
 include 'solr-migration'
+
 include 'dnntflag'
+include 'nkp-logs'
 	
 
 // filter property -DremoveProjs=projectA,projectB,..

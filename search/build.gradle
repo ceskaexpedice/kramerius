@@ -46,6 +46,8 @@ dependencies {
 
     compile project(':solr-migration')
 
+    compile project(':nkp-logs')
+
     compile 'javax.servlet:jstl:1.1.2'
     compile 'taglibs:standard:1.1.2'
     compile 'xalan:xalan:2.7.1'

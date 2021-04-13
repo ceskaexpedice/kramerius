@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
@@ -140,7 +141,7 @@ public class MovingWallTest {
 
 
     public EvaluatingResultState mw(Object[] uiParams, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), acLog)
         .addMockedMethod("getFedoraDescribeStream")

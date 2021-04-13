@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -195,5 +196,10 @@ public class PidsReport implements StatisticReport {
         } catch (SQLException ex) {
             Logger.getLogger(PidsReport.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override
+    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+        return true;
     }
 }

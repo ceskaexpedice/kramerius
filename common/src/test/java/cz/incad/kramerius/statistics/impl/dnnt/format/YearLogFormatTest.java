@@ -1,5 +1,6 @@
 package cz.incad.kramerius.statistics.impl.dnnt.format;
 
+import cz.incad.kramerius.statistics.accesslogs.dnnt.date.YearLogFormat;
 import junit.framework.Assert;
 import org.junit.Test;
 

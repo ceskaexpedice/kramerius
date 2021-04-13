@@ -18,6 +18,7 @@ import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.service.impl.SortingServiceImpl;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -673,7 +674,7 @@ class ImportModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-        bind(StatisticsAccessLog.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+        bind(AggregatedAccessLogs.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);

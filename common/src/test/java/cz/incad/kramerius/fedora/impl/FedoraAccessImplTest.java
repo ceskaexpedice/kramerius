@@ -33,6 +33,7 @@ import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
@@ -55,7 +56,7 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testIsFullthumbnailAvailableWithPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
@@ -78,7 +79,7 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testIsFullThumbnailAvailableWithoutPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
@@ -100,7 +101,7 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testIsFullImageAvailableWithPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
@@ -123,7 +124,7 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testIsFullImageAvailableWithoutPage() throws IOException, ParserConfigurationException, SAXException, LexerException {
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
         FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
         .addMockedMethod("getFedoraVersion")
@@ -145,7 +146,7 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testGetKrameriusModelName() throws IOException, ParserConfigurationException, SAXException, LexerException {
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
@@ -173,7 +174,7 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testGetDonator() throws IOException, ParserConfigurationException, SAXException, LexerException {
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
@@ -192,7 +193,7 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testFindFirstViewablePid_good() throws IOException, ParserConfigurationException, SAXException, LexerException {
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
         // test correct data - IMG_FULL in pages
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), aclog)
@@ -216,7 +217,7 @@ public class FedoraAccessImplTest {
      * @throws LexerException */
     @Test
     public void testFindFirstViewablePid_bad() throws IOException, ParserConfigurationException, SAXException, LexerException {
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         // test correct data - IMG_FULL in pages
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
@@ -242,7 +243,7 @@ public class FedoraAccessImplTest {
         
         final List<Integer> order = new ArrayList<Integer>();
 
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(),aclog)
@@ -286,7 +287,7 @@ public class FedoraAccessImplTest {
     
     @Test
     public void testProcessTree_SkipBranch2() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         final Map<String, Integer> mapping = new HashMap<String, Integer>();
         
@@ -349,7 +350,7 @@ public class FedoraAccessImplTest {
 
     @Test
     public void testProcessTree_StackAware() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
         final List<String> alist = new ArrayList<String>();
         
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)

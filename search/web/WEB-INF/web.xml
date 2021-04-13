@@ -33,6 +33,7 @@
         <filter-name>basic</filter-name>
         <url-pattern>/api/*</url-pattern>
         <url-pattern>/lr</url-pattern>
+        <url-pattern>/stats</url-pattern>
     </filter-mapping>
 
     <filter>

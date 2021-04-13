@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
@@ -60,7 +61,7 @@ import cz.incad.kramerius.utils.pid.LexerException;
  */
 public class ConsistencyTest {
 
-    class _NoStatistics implements StatisticsAccessLog {
+    class _NoStatistics extends AggregatedAccessLogs {
 
         /* (non-Javadoc)
          * @see cz.incad.kramerius.statistics.StatisticsAccessLog#reportAccess(java.lang.String, java.lang.String)

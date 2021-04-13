@@ -24,15 +24,12 @@ import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.version
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.database.VersionService;
-import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
@@ -64,6 +61,12 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
             } else if (versionCondition(version, "<", "6.0.0")) {
                 createStatisticTables(connection);
                 alterStatisticsTableStatAction(connection);
@@ -77,6 +80,12 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
             } else if (versionCondition(version, "=", "6.0.0")) {
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
@@ -89,6 +98,12 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
             } else if (versionCondition(version, "=", "6.1.0")) {
                 alterStatisticsTableSessionId(connection);
 
@@ -99,6 +114,12 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
             } else if ((versionCondition(version, ">", "6.1.0")) && (versionCondition(version, "<", "6.5.0"))) {
                 // Issue 619
                 alterStatisticsAuthorTablePrimaryKey(connection);
@@ -107,20 +128,39 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
             } else if (versionCondition(version, ">=", "6.5.0")&& (versionCondition(version, "<", "6.6.4"))) {
                 createFirstFunction(connection);
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
-            } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.5"))) {
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+            } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.6"))) {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
-            } else if (versionCondition(version, ">=", "6.6.5")) {
-                createLangsView(connection);
-                createTmpAuthorView(connection);
-                createAuthorsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+            } else if (versionCondition(version, ">=", "6.6.6")) {
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -128,6 +168,9 @@ public class StatisticDatabaseInitializator {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
+
+
+
 
     /**
      * @param con
@@ -171,6 +214,58 @@ public class StatisticDatabaseInitializator {
             DatabaseUtils.tryClose(prepareStatement);
         }
     }
+
+
+    public static void checkAndAddDNNTFlag(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","dnnt")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN dnnt BOOLEAN ;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+    public static void checkAndAddProvidedByDNNTFlag(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","providedByDNNT")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN providedByDNNT BOOLEAN ;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+
+    public static void checkAndAddEvaluateMap(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","evaluateMap")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN evaluateMap text;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+    public static void checkAndAddUserAttributesMap(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","userSessionAttributes")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN userSessionAttributes text;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+
 
     public static void alterStatisticsTableSessionId(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con

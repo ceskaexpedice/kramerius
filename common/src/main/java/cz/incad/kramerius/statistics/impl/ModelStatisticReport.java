@@ -22,9 +22,7 @@ package cz.incad.kramerius.statistics.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +30,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -52,7 +51,6 @@ import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.Offset;
-import javax.swing.JOptionPane;
 
 /**
  * @author pavels
@@ -251,6 +249,9 @@ public class ModelStatisticReport implements StatisticReport {
         }
     }
 
-    
-
+    @Override
+    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+        ModelFilter modelFilter = container.getFilter(ModelFilter.class);
+        return modelFilter.getModel() != null;
+    }
 }

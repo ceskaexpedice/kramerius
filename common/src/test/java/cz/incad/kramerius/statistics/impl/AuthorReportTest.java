@@ -19,6 +19,7 @@
  */
 package cz.incad.kramerius.statistics.impl;
 
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import junit.framework.Assert;
 
 import org.antlr.stringtemplate.StringTemplate;

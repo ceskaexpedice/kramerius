@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.easymock.EasyMock;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,8 +69,8 @@ public class JSONDecoratorsAggregateTest {
     public void duplicateCheck() throws IOException,
             ParserConfigurationException, SAXException, LexerException,
             SecurityException, NoSuchMethodException {
-        StatisticsAccessLog aclog = EasyMock
-                .createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock
+                .createMock(AggregatedAccessLogs.class);
 
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
                 .withConstructor(KConfiguration.getInstance(), aclog)
@@ -100,8 +101,8 @@ public class JSONDecoratorsAggregateTest {
     public void testApplyBasicPDF() throws IOException,
             ParserConfigurationException, SAXException, LexerException,
             SecurityException, NoSuchMethodException, JSONException {
-        StatisticsAccessLog aclog = EasyMock
-                .createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock
+                .createMock(AggregatedAccessLogs.class);
 
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
                 .withConstructor(KConfiguration.getInstance(), aclog)
@@ -155,8 +156,8 @@ public class JSONDecoratorsAggregateTest {
     public void testApplyBasic() throws IOException,
             ParserConfigurationException, SAXException, LexerException,
             SecurityException, NoSuchMethodException, JSONException {
-        StatisticsAccessLog aclog = EasyMock
-                .createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock
+                .createMock(AggregatedAccessLogs.class);
 
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
                 .withConstructor(KConfiguration.getInstance(), aclog)
@@ -209,8 +210,8 @@ public class JSONDecoratorsAggregateTest {
             ParserConfigurationException, SAXException, LexerException,
             SecurityException, NoSuchMethodException, JSONException {
 
-        StatisticsAccessLog aclog = EasyMock
-                .createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock
+                .createMock(AggregatedAccessLogs.class);
 
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
                 .withConstructor(KConfiguration.getInstance(), aclog)
@@ -281,8 +282,8 @@ public class JSONDecoratorsAggregateTest {
             ParserConfigurationException, SAXException, LexerException,
             SecurityException, NoSuchMethodException, JSONException {
 
-        StatisticsAccessLog aclog = EasyMock
-                .createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock
+                .createMock(AggregatedAccessLogs.class);
 
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
                 .withConstructor(KConfiguration.getInstance(), aclog)

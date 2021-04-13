@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.json.JSONException;
 
 import com.google.inject.Inject;
@@ -124,7 +125,7 @@ public class PrintPDFServlet extends GuiceServlet {
     Provider<User> userProvider;
 
     @Inject
-    StatisticsAccessLog statisticsAccessLog;
+    AggregatedAccessLogs statisticsAccessLog;
     
     
     @Override

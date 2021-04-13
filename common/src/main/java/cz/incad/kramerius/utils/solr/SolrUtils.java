@@ -63,7 +63,6 @@ public class SolrUtils   {
     public static final String PARENT_QUERY="q=parent_pid:";
 
     public static final String DNNT_FLAG = "dnnt";
-    public static final String DNNT_LABELS_EXTENDED_FLAG = "dnnt-labels-extended";
 
 
     // factory instance
@@ -205,9 +204,6 @@ public class SolrUtils   {
 
     }
 
-    public static String disectDNNTLabelsFlag(Element topElem)  {
-        return disectDNNTFlag(topElem, DNNT_LABELS_EXTENDED_FLAG);
-    }
 
 
 

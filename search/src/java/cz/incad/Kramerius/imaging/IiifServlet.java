@@ -12,6 +12,7 @@ import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -22,7 +23,6 @@ import org.json.JSONObject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -52,9 +52,16 @@ public class IiifServlet extends AbstractImageServlet {
     private transient FedoraAccess fedoraAccess;
 
 
-    @Inject
-    private StatisticsAccessLog accessLog;
+//    @Inject
+//    @Named("database")
+//    private StatisticsAccessLog databaseAccessLog;
+//
+//    @Inject
+//    @Named("dnnt")
+//    StatisticsAccessLog dnntAccessLog;
 
+    @Inject
+    AggregatedAccessLogs aggregatedAccessLogs;
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(IiifServlet.class.getName());
 
@@ -93,7 +100,7 @@ public class IiifServlet extends AbstractImageServlet {
 
                             // report access
                             try {
-                                this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+                                this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
                             } catch (Exception e) {
                                 LOGGER.severe("cannot write statistic records");
                                 LOGGER.log(Level.SEVERE, e.getMessage(),e);

@@ -35,6 +35,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.Assert;
 
 import org.custommonkey.xmlunit.Diff;
@@ -189,7 +190,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         //hyph-country="CZ" hyph-lang="cs"
         Locale locale = new Locale("cs","CZ");
 
@@ -250,7 +251,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         Locale locale = new Locale("cs","CZ");
 
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class)
@@ -321,7 +322,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         Locale locale = new Locale("cs","CZ");
 
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance(),acLog)
@@ -423,7 +424,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         Locale locale = new Locale("cs","CZ");
 
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance(),acLog)
@@ -534,7 +535,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         Locale locale = new Locale("cs","CZ");
 
         FedoraAccessImpl fa33 = createMockBuilder(FedoraAccessImpl.class).withConstructor(KConfiguration.getInstance(),acLog)
