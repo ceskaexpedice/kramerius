@@ -71,5 +71,8 @@ public interface StatisticsAccessLog {
      * @return
      */
     public StatisticReport getReportById(String reportId);
-    
+
+
+
+
 }

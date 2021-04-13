@@ -2,6 +2,8 @@ package cz.incad.kramerius.auth.thirdparty;
 
 import org.json.JSONObject;
 
+import java.util.Set;
+
 /**
  * Represents third party authenticated user
  * @author pavels
@@ -20,6 +22,10 @@ public interface UsersWrapper {
      * @return
      */
     public String getProperty(String key);
+
+    public Set<String> getPropertyKeys();
+
+
 
     /**
      * Returns json representation

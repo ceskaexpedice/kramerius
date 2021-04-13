@@ -19,7 +19,7 @@ package cz.incad.kramerius.impl;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.*;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
@@ -65,10 +65,10 @@ public class FedoraAccessImpl implements FedoraAccess {
     private StringTemplateGroup xpaths;
     private XPathFactory xPathFactory;
     
-    private StatisticsAccessLog accessLog;
-    
+    private AggregatedAccessLogs accessLog;
+
     @Inject
-    public FedoraAccessImpl(KConfiguration configuration,  @Nullable StatisticsAccessLog accessLog) throws IOException {
+    public FedoraAccessImpl(KConfiguration configuration,  @Nullable AggregatedAccessLogs accessLog) throws IOException {
         super();
         this.configuration = configuration;
         this.xPathFactory = XPathFactory.newInstance();
@@ -450,7 +450,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         try {
             pid = makeSureObjectPid(pid);
             if (this.accessLog != null && this.accessLog.isReportingAccess(pid,IMG_FULL_STREAM)) {
-                try {	
+                try {
                         this.accessLog.reportAccess(pid,IMG_FULL_STREAM);
                 } catch (Exception e) {
                         LOGGER.severe("cannot write statistic records");

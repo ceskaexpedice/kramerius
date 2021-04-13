@@ -33,10 +33,10 @@ package cz.incad.kramerius.security;
  */
 public interface Right {
 
-	/**
-	 * 	Returns ID of right
-	 * @return
-	 */
+    /**
+     * 	Returns ID of right
+     * @return
+     */
     public int getId();
     
     /**
@@ -88,8 +88,12 @@ public interface Right {
      * @return
      * @throws RightCriteriumException
      */
-    public EvaluatingResult evaluate(RightCriteriumContext ctx) throws RightCriteriumException;
-    
+    public EvaluatingResultState evaluate(RightCriteriumContext ctx, RightsManager rightsManager) throws RightCriteriumException;
+
+
+
+
+    public EvaluatingResultState mockEvaluate(RightCriteriumContext ctx, RightsManager rightsManager, DataMockExpectation dataExpectation) throws RightCriteriumException;
     
     /**
      * Sets fixed priority

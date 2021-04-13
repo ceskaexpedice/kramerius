@@ -17,46 +17,52 @@
 package cz.incad.kramerius.security.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.security.*;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
 
     private String requestedPID;
     private String requestedStream;
-    
     private String associatedPID;
     private User user;
     private FedoraAccess fedoraAccess;
     private SolrAccess solrAccess;
     private UserManager userManager;
-    
     private String remoteHost;
     private String remoteAddr;    
-    
-    public RightParamEvaluatingContextImpl(String reqPID, String reqStream, User user, FedoraAccess fedoraAccess, SolrAccess solrAccess, UserManager userManager, String remoteHost, String remoteAddr) {
+
+    private Map<String, String> map = new HashMap<>();
+
+    private SecuredActions action;
+
+    private IsActionAllowed rightsResolver;
+
+    private RightParamEvaluatingContextImpl(Builder builder) {
         super();
-        this.requestedPID = reqPID;
-        this.requestedStream = reqStream;
-        this.user = user;
-        this.fedoraAccess = fedoraAccess;
-        this.solrAccess = solrAccess;
-        this.remoteHost = remoteHost;
-        this.remoteAddr = remoteAddr;
-        this.userManager = userManager;
+
+        this.requestedPID = builder.requestedPID;
+        this.requestedStream = builder.requestedStream;
+        this.user = builder.user;
+        this.fedoraAccess = builder.fedoraAccess;
+        this.solrAccess = builder.solrAccess;
+        this.remoteHost = builder.remoteHost;
+        this.remoteAddr = builder.remoteAddr;
+        this.userManager = builder. userManager;
+        this.action = builder.action;
+        this.rightsResolver = builder.rightsResolver;
     }
 
     @Override
@@ -119,5 +125,97 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     @Override
     public SolrAccess getSolrAccess() {
         return this.solrAccess;
+    }
+
+    @Override
+    public SecuredActions getAction() {
+        return this.action;
+    }
+
+    @Override
+    public IsActionAllowed getRightsResolver() {
+        return this.rightsResolver;
+    }
+
+    @Override
+    public Map<String, String> getEvaluateInfoMap() {
+        return this.map;
+    }
+
+    public static class Builder {
+        protected String requestedPID;
+        protected String requestedStream;
+
+        protected String associatedPID;
+        protected User user;
+        protected FedoraAccess fedoraAccess;
+        protected SolrAccess solrAccess;
+        protected UserManager userManager;
+
+        protected String remoteHost;
+        protected String remoteAddr;
+
+        protected SecuredActions action;
+
+        protected IsActionAllowed rightsResolver;
+
+        public Builder() {}
+
+        public Builder setRequestedPid(String requestedPID) {
+            this.requestedPID = requestedPID;
+            return this;
+        }
+        public Builder setRequestedStream(String stream) {
+            this.requestedStream = stream;
+            return this;
+        }
+        public Builder setAssociatedPid(String assocPid) {
+            this.associatedPID = assocPid;
+            return this;
+        }
+
+        public Builder setUserManager(UserManager userManager) {
+            this.userManager = userManager;
+            return this;
+        }
+
+        public Builder setUser(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder setFedoraAccess(FedoraAccess fa) {
+            this.fedoraAccess = fa;
+            return this;
+        }
+
+        public Builder setSolrAccess(SolrAccess sa) {
+            this.solrAccess = sa;
+            return this;
+        }
+
+        public Builder setRemoteHost(String remoteHost) {
+            this.remoteHost = remoteHost;
+            return this;
+        }
+
+        public Builder setRemoteAddress(String remoteAddr) {
+            this.remoteAddr = remoteAddr;
+            return this;
+        }
+
+        public Builder setAction(String action) {
+            this.action = SecuredActions.findByFormalName(action);
+            return this;
+        }
+
+        public Builder setRightsResolver(IsActionAllowed resolver) {
+            this.rightsResolver = resolver;
+            return this;
+        }
+
+        public RightParamEvaluatingContextImpl build() {
+            return new RightParamEvaluatingContextImpl(this);
+        }
     }
 }

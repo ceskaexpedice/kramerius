@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.w3c.dom.Document;
 
 import com.google.common.collect.Ordering;
@@ -179,7 +180,7 @@ class SortingModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-        bind(StatisticsAccessLog.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+        bind(AggregatedAccessLogs.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);

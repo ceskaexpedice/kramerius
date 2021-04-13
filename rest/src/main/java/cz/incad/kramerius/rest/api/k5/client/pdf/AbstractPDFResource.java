@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -118,7 +119,7 @@ public class AbstractPDFResource {
     Provider<User> userProvider;
     
     @Inject
-    StatisticsAccessLog statisticsAccessLog;
+    AggregatedAccessLogs statisticsAccessLog;
     
     @GET
     @Path("conf")
@@ -291,7 +292,7 @@ public class AbstractPDFResource {
     private boolean canBeRenderedAsPDF(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPath(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth)) {
+            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth).flag()) {
                 return true;
             }
         }

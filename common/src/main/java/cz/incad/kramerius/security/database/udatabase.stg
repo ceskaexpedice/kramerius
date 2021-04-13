@@ -8,6 +8,21 @@ $if(params.(column))$ ($column$ in ($params.(column):{c| '$c$'};separator=","$))
 >>
 
 
+/** it takes all rights associated with user, groups filtered by action and criteriums **/
+findAllRightsWithGroupsAndCriteriums( userid, groupids,  action, criteriums) ::=<<
+select * from right_entity ent
+    left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
+    left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+
+    left join  user_entity users on  (ent.user_id = users.user_id)
+    left join  group_entity groups on  (ent.group_id = groups.group_id)
+
+where (ent."user_id"=$userid$
+     $if(first(groupids))$ or ent."group_id" in ($groupids:{grp| $grp$ };separator=","$ ) $endif$)
+     $if(criteriums)$  and "qname" in ($criteriums:{c|'$c$'};separator=","$) $endif$
+     and "action"='$action$'
+>>
+
 
 findAllRights( params) ::=<<
 select * from right_entity ent
@@ -29,6 +44,7 @@ where (ent."user_id"=$user$
      and uuid in ($pids:{pid|'$pid$'};separator=","$)
      and "action"='$action$'
 >>
+
 
 
 /**  hledani vsech prav */

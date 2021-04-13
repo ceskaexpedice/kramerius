@@ -3,6 +3,8 @@
     package cz.incad.kramerius.auth.thirdparty.shibb.rules;
     
     import java.util.*;
+    import cz.incad.kramerius.auth.thirdparty.shibb.rules.*;
+    import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.*;
 
 import antlr.TokenBuffer;
 import antlr.TokenStreamException;
@@ -17,21 +19,12 @@ import antlr.MismatchedTokenException;
 import antlr.SemanticException;
 import antlr.ParserSharedInputState;
 import antlr.collections.impl.BitSet;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.AttributeValue;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.Expr;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.ExpressionValue;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.ExpressionsBody;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.HeaderValue;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.MatchRule;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.PrincipalValue;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.RoleExpr;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.ShibRules;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.StringValue;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.UserExpr;
-import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.Value;
 
 public class ShibRuleParser extends antlr.LLkParser       implements ShibRuleParserTokenTypes
  {
+	 public void reportError(RecognitionException var1) {
+		 throw new RuntimeException(var1);
+	 }
 
     String getStringVal(String val) {
         if ( val.startsWith("\"") && (val.endsWith("\"")) ) {
@@ -65,8 +58,7 @@ public ShibRuleParser(ParserSharedInputState state) {
 	public final ShibRules  shibRules() throws RecognitionException, TokenStreamException {
 		ShibRules rules;
 		
-		rules = new ShibRules(); 
-		MatchRule rule;
+		rules = new ShibRules();  MatchRule rule;
 		
 		try {      // for error handling
 			{
@@ -113,13 +105,36 @@ public ShibRuleParser(ParserSharedInputState state) {
 	public final MatchRule  condition() throws RecognitionException, TokenStreamException {
 		MatchRule rule;
 		
+		Token  lre = null;
 		Token  re = null;
 		rule=new MatchRule(); Value l,r;
 		
 		try {      // for error handling
 			match(L_BRACKET);
-			l=value();
-			rule.setLeftOperand(l);
+			{
+			switch ( LA(1)) {
+			case STRING_LITERAL:
+			case HEADER_KWD:
+			case ATTRIBUTE_KWD:
+			case PRINCIPAL_KWD:
+			{
+				l=value();
+				rule.setLeftOperand(l);
+				break;
+			}
+			case REGEXP_LITERAL:
+			{
+				lre = LT(1);
+				match(REGEXP_LITERAL);
+				rule.setLeftOperand(new ExpressionValue(lre.getText()));
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			}
+			}
 			match(COMMA);
 			{
 			switch ( LA(1)) {
@@ -162,7 +177,7 @@ public ShibRuleParser(ParserSharedInputState state) {
 		try {      // for error handling
 			match(CURLYL_BRACKET);
 			{
-			_loop9:
+			_loop10:
 			do {
 				switch ( LA(1)) {
 				case USER_KWD:
@@ -180,7 +195,7 @@ public ShibRuleParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					break _loop9;
+					break _loop10;
 				}
 				}
 			} while (true);
@@ -365,8 +380,8 @@ public ShibRuleParser(ParserSharedInputState state) {
 		"NULL_TREE_LOOKAHEAD",
 		"\"match\"",
 		"L_BRACKET",
-		"COMMA",
 		"REGEXP_LITERAL",
+		"COMMA",
 		"R_BRACKET",
 		"CURLYL_BRACKET",
 		"CURLYR_BRACKET",
@@ -381,7 +396,6 @@ public ShibRuleParser(ParserSharedInputState state) {
 		"SL_COMMENT",
 		"ML_COMMENT",
 		"REXP_OR_COMMENT",
-		"NEWLINE",
 		"WS"
 	};
 	
@@ -401,7 +415,7 @@ public ShibRuleParser(ParserSharedInputState state) {
 	}
 	public static final BitSet _tokenSet_2 = new BitSet(mk_tokenSet_2());
 	private static final long[] mk_tokenSet_3() {
-		long[] data = { 320L, 0L};
+		long[] data = { 384L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_3 = new BitSet(mk_tokenSet_3());

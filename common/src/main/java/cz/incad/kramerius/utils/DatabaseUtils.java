@@ -88,11 +88,5 @@ public class DatabaseUtils {
         }
     }
     
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        Class.forName("org.postgresql.Driver");
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/kramerius4","fedoraAdmin","fedoraAdmin");
-        boolean tableExists = viewExists(con,"MONOGRAPH_T");
-        System.out.println(tableExists);
-        con.close();
-    }
+
 }

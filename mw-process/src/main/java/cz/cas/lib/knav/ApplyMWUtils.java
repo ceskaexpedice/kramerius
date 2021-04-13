@@ -20,7 +20,7 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
-import cz.incad.kramerius.security.EvaluatingResult;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.service.impl.PolicyServiceImpl;
@@ -79,7 +79,6 @@ public class ApplyMWUtils {
     /**
      * Human readable title of the process
      * 
-     * @param pid
      *            Proccess pid
      * @param sa
      *            SolrAccess
@@ -101,11 +100,8 @@ public class ApplyMWUtils {
                                     "str");
                             boolean hasGoodAttr = nameAttr != null
                                     && nameAttr.equals("dc.title");
-    
-                            if (isElmStr && hasGoodAttr) {
-                                return true;
-                            } else
-                                return false;
+
+                            return isElmStr && hasGoodAttr;
                         }
                     });
     
@@ -189,10 +185,7 @@ public class ApplyMWUtils {
             String firstPid, String firstModel, String userValue, String mode,
             CollectPidForIndexing coll) throws IOException,
             RightCriteriumException, XPathExpressionException {
-        ProcessCriteriumContext ctx = new ProcessCriteriumContext(onePid, fa,
-                sa);
-
-
+        ProcessCriteriumContext ctx = new ProcessCriteriumContext(onePid, fa, sa);
         MovingWall mw = new MovingWall();
         mw.setEvaluateContext(ctx);
         int wall = 0;
@@ -210,12 +203,13 @@ public class ApplyMWUtils {
         }
         ApplyMovingWall.LOGGER.info("Used value is: " + wall);
         mw.setCriteriumParamValues(new Object[] { "" + wall, mode, firstModel, firstPid });
-        EvaluatingResult result = mw.evalute();
+        EvaluatingResultState result = mw.evalute();
+
         String flagFromRELSEXT = ApplyMWUtils.disectFlagFromRELSEXT(onePid, fa);
-        if (result == EvaluatingResult.TRUE) {
+        if (result == EvaluatingResultState.TRUE) {
             ApplyMovingWall.LOGGER.info("Set policy flag for '" + onePid + "' to value true ");
             ApplyMWUtils.setPolicyFlag(onePid, true, fa, flagFromRELSEXT, coll);
-        } else if (result == EvaluatingResult.FALSE) {
+        } else if (result == EvaluatingResultState.FALSE) {
             // set private
             ApplyMovingWall.LOGGER.info("Set policy flag for '" + onePid + "' to value false");
             ApplyMWUtils.setPolicyFlag(onePid, false, fa, flagFromRELSEXT, coll);
@@ -246,8 +240,7 @@ public class ApplyMWUtils {
      * @throws IOException
      */
     public static void setPolicyFlag(String pid, boolean b, FedoraAccess fa,
-            String previousState, CollectPidForIndexing coll)
-            throws IOException {
+            String previousState, CollectPidForIndexing coll) {
         if (ApplyMWUtils.detectChange(b, previousState)) {
             PolicyServiceImpl policy = new PolicyServiceImpl();
             policy.setFedoraAccess(fa);
@@ -304,8 +297,7 @@ public class ApplyMWUtils {
         return wall;
     }
 
-    public static int defaultConfiguredWall( Configuration conf)
-            throws IOException {
+    public static int defaultConfiguredWall( Configuration conf) {
         int wall = conf.getInt("mwprocess.wall", 70);
         return wall;
     

@@ -2,6 +2,8 @@ package cz.incad.kramerius.impl;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -25,35 +27,68 @@ import java.util.concurrent.TimeUnit;
  */
 public class CachedFedoraAccessImpl extends FedoraAccessImpl implements FedoraAccess {
 
-    private static Cache<String, Document> cache;
 
-    private static final String CACHE_ALIAS = "FedoraRelsExtCache";
+    private static Cache<String, Document> xmlscache;
+
+    private static final String XMLS_CACHE_ALIAS = "FedoraXMLSCache";
 
     @Inject
-    public CachedFedoraAccessImpl(KConfiguration configuration, @Nullable StatisticsAccessLog accessLog,
+    public CachedFedoraAccessImpl(KConfiguration configuration, @Nullable AggregatedAccessLogs accessLog,
                                   CacheManager cacheManager) throws IOException {
         super(configuration, accessLog);
 
-        cache = cacheManager.getCache(CACHE_ALIAS, String.class, Document.class);
-        if (cache == null) {
-            cache = cacheManager.createCache(CACHE_ALIAS,
+
+        xmlscache = cacheManager.getCache(XMLS_CACHE_ALIAS, String.class, Document.class);
+        if (xmlscache == null) {
+            xmlscache = cacheManager.createCache(XMLS_CACHE_ALIAS,
                     CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, Document.class,
-                            ResourcePoolsBuilder.heap(1000).offheap(32, MemoryUnit.MB))
+                            ResourcePoolsBuilder.heap(3000).offheap(32, MemoryUnit.MB))
                             .withExpiry(Expirations.timeToLiveExpiration(
                                     Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }
+
+
+    }
+
+
+    private String cacheKey(String pid, String stream) {
+        return pid +"/"+stream;
     }
 
     @Override
     public Document getRelsExt(String pid) throws IOException {
-        Document relsExt = cache.get(pid);
-
+        Document relsExt = xmlscache.get(cacheKey(pid, FedoraUtils.RELS_EXT_STREAM));
         if (relsExt != null) { //cache hit
             return relsExt;
         } else { //cache miss
             relsExt = super.getRelsExt(pid);
-            cache.put(pid, relsExt);
+            xmlscache.put(cacheKey(pid, FedoraUtils.RELS_EXT_STREAM), relsExt);
             return relsExt;
         }
     }
+
+    @Override
+    public Document getBiblioMods(String pid) throws IOException {
+        Document mods = xmlscache.get(cacheKey(pid, FedoraUtils.BIBLIO_MODS_STREAM));
+        if (mods != null) { //cache hit
+            return mods;
+        } else { //cache miss
+            mods = super.getBiblioMods(pid);
+            xmlscache.put(cacheKey(pid, FedoraUtils.BIBLIO_MODS_STREAM), mods);
+            return mods;
+        }
+    }
+
+    @Override
+    public Document getDC(String pid) throws IOException {
+        Document dc = xmlscache.get(cacheKey(pid, FedoraUtils.DC_STREAM));
+        if (dc != null) { //cache hit
+            return dc;
+        } else { //cache miss
+            dc = super.getDC(pid);
+            xmlscache.put(cacheKey(pid, FedoraUtils.DC_STREAM), dc);
+            return dc;
+        }
+    }
+
 }

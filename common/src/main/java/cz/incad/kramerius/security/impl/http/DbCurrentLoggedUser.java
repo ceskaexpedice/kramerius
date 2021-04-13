@@ -23,11 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -94,7 +90,10 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             User user = userManager.findUserByLoginName(loginName);
             if (user != null) {
 
-            	List<Role> groupsList = new JDBCQueryTemplate<Role>(SecurityDBUtils.getConnection()) {
+                // third party authentication attributes
+                enahanceUserByThirdPartyParameters(user);
+
+                List<Role> groupsList = new JDBCQueryTemplate<Role>(SecurityDBUtils.getConnection()) {
                     @Override
                     public boolean handleRow(ResultSet rs, List<Role> retList) throws SQLException {
                         retList.add(SecurityDBUtils.createRole(rs));
@@ -106,7 +105,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 ((UserImpl) user).setGroups((Role[]) groupsList.toArray(new Role[groupsList.size()]));
 
                 // User user = k4principal.getUser();
-                cz.incad.kramerius.security.utils.UserUtils.associateCommonGroup(user, userManager);
+                UserUtils.associateCommonGroup(user, userManager);
 
                 HttpServletRequest request = this.provider.get();
                 HttpSession session = request.getSession(true);
@@ -115,12 +114,11 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 }
 
                 final Locale foundLocale = localeFromProfile(user);
-
+                // TODO: Remove - user's profile are not used anymore
                 final Map<String, String> PREPARED_PROFILE = new HashMap<String, String>();
                 PREPARED_PROFILE.put("columns", getColumnsFromProfile(user));
 
                 storeLoggedUser(user,  new HashMap<String, Object>(){{
-                    put(SHIB_USER_KEY,"false");
                     if (foundLocale != null) {
                         put("client_locale",foundLocale);
                     }
@@ -133,15 +131,19 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 User dbUser = (User) foundUser.get("user");
                 String dbPswd = (String) foundUser.get("pswd");
                 if (K4LoginModule.checkPswd(httpServletRequest.getParameter(UserUtils.USER_NAME_PARAM), dbPswd, httpServletRequest.getParameter(UserUtils.PSWD_PARAM).toCharArray())) {
+
+                    // third party authentication attributes
+                    enahanceUserByThirdPartyParameters(dbUser);
+
                     UserUtils.associateGroups(dbUser, userManager);
                     UserUtils.associateCommonGroup(dbUser, userManager);
                     final Locale foundLocale = localeFromProfile(dbUser);
 
+                    // TODO: Remove - user's profile are not used anymore
                     final Map<String, String> PREPARED_PROFILE = new HashMap<String, String>();
                     PREPARED_PROFILE.put("columns", getColumnsFromProfile(dbUser));
 
                     storeLoggedUser(dbUser,  new HashMap<String, Object>(){{
-                        put(SHIB_USER_KEY,"false");
                         if (foundLocale != null) {
                             put("client_locale",foundLocale);
                         }
@@ -184,6 +186,23 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
+
+
+    public void enahanceUserByThirdPartyParameters(User user) {
+        HttpSession session = this.provider.get().getSession();
+        Enumeration attributeNames = session.getAttributeNames();
+        while(attributeNames.hasMoreElements()) {
+            String attributeName = (String) attributeNames.nextElement();
+            if (attributeName.startsWith(UserUtils.THIRD_PARTY_SESSION_PARAMS)) {
+                String rawKey = attributeName.substring(UserUtils.THIRD_PARTY_SESSION_PARAMS.length());
+                String value = session.getAttribute(attributeName).toString();
+                user.addSessionAttribute(rawKey, value);
+            }
+        }
+    }
+
+
+
     public void storeLoggedUser(User user,  Map<String, Object> additionalValues) {
         try {
             HttpSession session = this.provider.get().getSession();

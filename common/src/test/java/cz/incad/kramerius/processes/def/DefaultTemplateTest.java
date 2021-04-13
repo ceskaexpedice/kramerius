@@ -61,6 +61,7 @@ public class DefaultTemplateTest {
     public static String BUNLDE = "# procesy\n" + "processes.defaultfields.first=prvni\n"
             + "processes.defaultfields.second=druhy\n" + "processes.defaultfields.third=treti\n";
 
+
     @Test
     public void shouldRenderTemplate() throws IOException, ParserConfigurationException, SAXException {
         Locale locale = new Locale("cs", "CZ");
@@ -94,6 +95,7 @@ public class DefaultTemplateTest {
 
         InputStream resStream = DefaultTemplateTest.class.getResourceAsStream("expecting.txt");
         Document expected = XMLUtils.parseDocument(resStream);
+        // remove whitespaces
         // different formatting in comments
         List<org.w3c.dom.Node> findNodesByType = XMLUtils.findNodesByType(expected.getDocumentElement(),
                 org.w3c.dom.Node.COMMENT_NODE);
@@ -113,7 +115,10 @@ public class DefaultTemplateTest {
             parentNode.removeChild(node);
             parsedComments.append(comm.getData());
         }
-        Assert.assertEquals(WhitespaceUtility.replace(expetedComments.toString()), WhitespaceUtility.replace(parsedComments.toString()));
+
+
+
+        Assert.assertEquals(WhitespaceUtility.remove(expetedComments.toString()), WhitespaceUtility.remove(parsedComments.toString()));
         Diff diff = XMLUnit.compareXML(parsedDocument, expected);
         Assert.assertTrue(diff.toString(), diff.similar());
 

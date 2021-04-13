@@ -10,3 +10,9 @@ cz.incad.kramerius.security.impl.criteria.DefaultDomainFilter
 cz.incad.kramerius.security.impl.criteria.StrictDomainFilter
 cz.incad.kramerius.security.impl.criteria.NegativeBenevolentModelFilter
 cz.incad.kramerius.security.impl.criteria.BenevolentModelFilter
+cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered
+cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag
+cz.incad.kramerius.security.impl.criteria.PDFDNNTFlag
+cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels
+cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered
+cz.incad.kramerius.security.impl.criteria.PDFDNNTLabels

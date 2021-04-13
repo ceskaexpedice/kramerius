@@ -24,17 +24,18 @@ import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.*;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -65,116 +66,132 @@ import org.xml.sax.SAXException;
 public class MovingWall extends AbstractCriterium implements RightCriterium {
 
     //encoding="marc"
-    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued[@encoding='marc']/text()","//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
+    public static String[] MODS_XPATHS={
+            "//mods:originInfo/mods:dateIssued[@encoding='marc']/text()",
+            "//mods:originInfo/mods:dateIssued/text()",
+            "//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()",
+            "//mods:part/mods:date/text()",
+            "//mods:date/text()"
+    };
 
     
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
+    static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
 
 
-	private XPathFactory xpfactory;
-	
-	public MovingWall() {
+    private XPathFactory xpfactory;
+
+    public MovingWall() {
         this.xpfactory = XPathFactory.newInstance();
-	}
-	
+    }
+
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
-        int length = getObjects().length;
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         int wallFromConf = Integer.parseInt((String)getObjects()[0]);
         
         // for criterium rights, only one parameter -> value of the wall
-        if (length == 1) {
-              return evalute(wallFromConf);
-        }
-        
-        String modeFromConf = (String)getObjects()[1];
-        String firstModel = (String)getObjects()[2];
-        String firstPid = (String)getObjects()[3];
-        String fedoraModel = null;
-        String parentPid = null;
-        Date pidDate = null;
-        Date parentDate = null;
-        
-        try {
-            ObjectPidsPath[] pathsToRoot = getEvaluateContext().getPathsToRoot();
-            EvaluatingResult result = null;
-            for (ObjectPidsPath pth : pathsToRoot) {
-                String[] pids = pth.getPathFromLeafToRoot();
-                for (String pid : pids) {
-                    
-                    if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
-                    
-                    try {
-                        Document doc = SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
-                        fedoraModel = SolrUtils.disectFedoraModel(doc);
-                        parentPid = SolrUtils.disectParentPid(doc);
-                        String datePid = SolrUtils.disectDate(doc);
-                        pidDate = parseDate(datePid);
-                        
-                        Document parentDoc = SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + parentPid + "\"");
-                        String dateParent = SolrUtils.disectDate(parentDoc);
-                        parentDate = parseDate(dateParent);
+        if ( getObjects().length == 1) {
+              return evaluate(wallFromConf);
+        } else {
+            // TODO: Discuss to melingerova;
+            if (checkIfMWIsSetToFindMonth(getObjects())) {
 
-                        // if article/page/periodicalitem was chosen first and it's public -> periodical/periodicalVolume must be public too
-                        if ((firstModel.equals("periodicalitem") || firstModel.equals("article") || firstModel.equals("page")) && (fedoraModel.equals("periodical") || fedoraModel.equals("periodicalvolume"))) {
-                            Date currentDate = new Date();
-                            Document firstDoc = SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + firstPid + "\"");
-                            Date firstDatePid = parseDate(SolrUtils.disectDate(firstDoc));
-                            return mwCalc(wallFromConf, modeFromConf, fedoraModel, parentDate, firstDatePid, currentDate);
-                        }
-                        
-                        if (fedoraModel != null && fedoraModel.equals("periodicalvolume")) {
-                            return mwCalcItem(wallFromConf, modeFromConf, pid);
-                        }
-                    
-                        if (fedoraModel != null && fedoraModel.equals("periodical")) {
-                            String pidVolume = getEvaluateContext().getFedoraAccess().getFirstVolumePid(pid);
-                            return  mwCalcItem(wallFromConf, modeFromConf, pidVolume);
-                        }
-                    
-                    } catch (ParserConfigurationException ex) {
-                        Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (SAXException ex) {
-                        Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (RecognitionException ex) {
-                        Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (TokenStreamException ex) {
-                        Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                   
-                    Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
-                    // try all xpaths on mods
-                    for (String xp : MODS_XPATHS) {
-                        result = resolveInternal(wallFromConf,modeFromConf,pid,fedoraModel,parentPid,parentDate,xp,biblioMods, this.xpfactory);
-                        if (result !=null) break;
-                    }
+                String modeFromConf = (String)getObjects()[1];
+                String firstModel = (String)getObjects()[2];
+                String firstPid = (String)getObjects()[3];
 
-                    if (result == null && fedoraModel != null) {
-                        Date currentDate = new Date();
-                        result = mwCalc(wallFromConf, modeFromConf, fedoraModel, parentDate, pidDate, currentDate);
-                    } 
-                    // TRUE or FALSE -> rozhodnul, nevratil NOT_APPLICABLE
-                    if (result != null && (result.equals(EvaluatingResult.TRUE) ||  result.equals(EvaluatingResult.FALSE))) return result; 
+                String fedoraModel = null;
+                String parentPid = null;
+                Date pidDate = null;
+                Date parentDate = null;
+
+                try {
+                    ObjectPidsPath[] pathsToRoot = getEvaluateContext().getPathsToRoot();
+                    EvaluatingResultState result = null;
+                    for (ObjectPidsPath pth : pathsToRoot) {
+                        String[] pids = pth.getPathFromLeafToRoot();
+                        for (String pid : pids) {
+
+                            if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
+
+                            try {
+                                Document doc =  getEvaluateContext().getSolrAccess().getSolrDataDocument(pid); //SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
+                                fedoraModel = SolrUtils.disectFedoraModel(doc);
+                                parentPid = SolrUtils.disectParentPid(doc);
+                                String datePid = SolrUtils.disectDate(doc);
+                                pidDate = parseDate(datePid);
+
+                                Document parentDoc = getEvaluateContext().getSolrAccess().getSolrDataDocument(parentPid); //SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + parentPid + "\"");
+                                String dateParent = SolrUtils.disectDate(parentDoc);
+                                parentDate = parseDate(dateParent);
+
+                                // if article/page/periodicalitem was chosen first and it's public -> periodical/periodicalVolume must be public too
+                                if ((firstModel.equals("periodicalitem") || firstModel.equals("article") || firstModel.equals("page")) && (fedoraModel.equals("periodical") || fedoraModel.equals("periodicalvolume"))) {
+                                    Date currentDate = new Date();
+                                    Document firstDoc = SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + firstPid + "\"");
+                                    Date firstDatePid = parseDate(SolrUtils.disectDate(firstDoc));
+                                    return mwCalc(wallFromConf, modeFromConf, fedoraModel, parentDate, firstDatePid, currentDate);
+                                }
+
+                                if (fedoraModel != null && fedoraModel.equals("periodicalvolume")) {
+                                    return mwCalcItem(wallFromConf, modeFromConf, pid);
+                                }
+
+                                if (fedoraModel != null && fedoraModel.equals("periodical")) {
+                                    String pidVolume = getEvaluateContext().getFedoraAccess().getFirstVolumePid(pid);
+                                    return  mwCalcItem(wallFromConf, modeFromConf, pidVolume);
+                                }
+
+                            } catch (ParserConfigurationException ex) {
+                                Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (SAXException ex) {
+                                Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (RecognitionException ex) {
+                                Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (TokenStreamException ex) {
+                                Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+
+                            Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
+                            // try all xpaths on mods
+                            for (String xp : MODS_XPATHS) {
+                                result = resolveInternal(wallFromConf,modeFromConf,pid,fedoraModel,parentPid,parentDate,xp,biblioMods, this.xpfactory);
+                                if (result !=null) break;
+                            }
+
+                            if (result == null && fedoraModel != null) {
+                                Date currentDate = new Date();
+                                result = mwCalc(wallFromConf, modeFromConf, fedoraModel, parentDate, pidDate, currentDate);
+                            }
+                            // TRUE or FALSE -> rozhodnul, nevratil NOT_APPLICABLE
+                            if (result != null && (result.equals(EvaluatingResultState.TRUE) ||  result.equals(EvaluatingResultState.FALSE))) return result;
+                        }
+                    }
+                    return result != null ? result :EvaluatingResultState.NOT_APPLICABLE;
+                } catch (NumberFormatException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage());
+                    return EvaluatingResultState.NOT_APPLICABLE;
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage());
+                    return EvaluatingResultState.NOT_APPLICABLE;
+                } catch (XPathExpressionException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage());
+                    return EvaluatingResultState.NOT_APPLICABLE;
                 }
             }
-            return result != null ? result :EvaluatingResult.NOT_APPLICABLE;
-        } catch (NumberFormatException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
         }
+
+        return EvaluatingResultState.NOT_APPLICABLE;
     }
 
-    
-    public EvaluatingResult evalute(int wallFromConf) throws RightCriteriumException {
+    private boolean checkIfMWIsSetToFindMonth(Object[] objects) {
+        return (objects.length == 4 &&  objects[1] != null && (objects[1].equals("year") || objects[1].equals("month")));
+    }
+
+
+    public EvaluatingResultState evaluate(int wallFromConf) throws RightCriteriumException {
         try {
             ObjectPidsPath[] pathsToRoot = getEvaluateContext().getPathsToRoot();
-            EvaluatingResult result = null;
+            EvaluatingResultState result = null;
             for (ObjectPidsPath pth : pathsToRoot) {
                 String[] pids = pth.getPathFromLeafToRoot();
                 for (String pid : pids) {
@@ -187,30 +204,39 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                         if (result !=null) break;
                     }
                     // TRUE or FALSE -> rozhodnul, nevratil NOT_APPLICABLE
-                    if (result != null && (result.equals(EvaluatingResult.TRUE) ||  result.equals(EvaluatingResult.FALSE))) return result; 
+                    if (result != null && (result.equals(EvaluatingResultState.TRUE) ||  result.equals(EvaluatingResultState.FALSE))) return result;
                 }
             }
-            return result != null ? result :EvaluatingResult.NOT_APPLICABLE;
+            return result != null ? result :EvaluatingResultState.NOT_APPLICABLE;
         } catch (NumberFormatException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         }   
     }
-    
-    public static EvaluatingResult resolveInternal(int wallFromConf, String modeFromConf, String pid, String fedoraModel, String parentPid, Date parentDate, String xpath, Document xmlDoc,XPathFactory xpfactory) throws IOException, XPathExpressionException {
-        if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResult.NOT_APPLICABLE;
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
+    }
+
+    public static EvaluatingResultState resolveInternal(int wallFromConf, String modeFromConf, String pid, String fedoraModel, String parentPid, Date parentDate, String xpath, Document xmlDoc,XPathFactory xpfactory) throws IOException, XPathExpressionException {
+        if (pid.equals(SpecialObjects.REPOSITORY.getPid())) return EvaluatingResultState.NOT_APPLICABLE;
         return evaluateDoc(wallFromConf, modeFromConf, fedoraModel, parentDate, xmlDoc, xpath, xpfactory);
     }
 
 
 
-    public static EvaluatingResult evaluateDoc(int wallFromConf, String modeFromConf, String fedoraModel, Date parentDate, Document xmlDoc, String xPathExpression,XPathFactory xpfactory) throws XPathExpressionException {
+    public static EvaluatingResultState evaluateDoc(int wallFromConf, String modeFromConf, String fedoraModel, Date parentDate, Document xmlDoc, String xPathExpression,XPathFactory xpfactory) throws XPathExpressionException {
         Object date = findDateString(xmlDoc, xPathExpression, xpfactory);
         if (date != null) {
             String patt = ((Text) date).getData();
@@ -220,20 +246,20 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                 if (parsed != null) {
                     return mwCalc(wallFromConf, modeFromConf, fedoraModel, parentDate, parsed, currentDate);
                 } else {
-                    return EvaluatingResult.NOT_APPLICABLE;
+                    return EvaluatingResultState.NOT_APPLICABLE;
                 }
             } catch (RecognitionException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             } catch (TokenStreamException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 LOGGER.log(Level.SEVERE,"Returning NOT_APPLICABLE");
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             }
             
         }
@@ -269,7 +295,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         return date;
     }
    
-    public EvaluatingResult mwCalcItem(int wallFromConf, String modeFromConf, String pidVolume) throws IOException, RecognitionException, TokenStreamException {
+    public EvaluatingResultState mwCalcItem(int wallFromConf, String modeFromConf, String pidVolume) throws IOException, RecognitionException, TokenStreamException {
         try {
             Document doc = SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pidVolume + "\"");
             Date dateVolume = parseDate(SolrUtils.disectDate(doc));
@@ -286,7 +312,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
             Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return EvaluatingResult.FALSE;
+        return EvaluatingResultState.FALSE;
     }
     /**
      * Computing moving wall
@@ -298,8 +324,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
      * @param currentDate Current date
      * @return
      */
-    
-    static EvaluatingResult mwCalc(int wallFromConf, String modeFromConf, String fedoraModel,
+    static EvaluatingResultState mwCalc(int wallFromConf, String modeFromConf, String fedoraModel,
             Date parentDate, Date parsed, Date currentDate) {
 
         if (parsed == null) {
@@ -313,49 +338,52 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
         // Pocita se na cele roky. Odvolavam se na komentar p. Zabicky  
         // https://github.com/ceskaexpedice/kramerius/issues/38 se pocita zed na cele roky
-        
+
         int yearFromMetadata = calFromMetadata.get(Calendar.YEAR);
         int currentYear = currentCal.get(Calendar.YEAR);
-        
+
         int monthFromMetadata = calFromMetadata.get(Calendar.MONTH);
         int currentMonth = currentCal.get(Calendar.MONTH);
-        
+
         if (modeFromConf == null) {
             modeFromConf = "year";
         }
-        
+
         if (modeFromConf.equals("month") && fedoraModel != null && (fedoraModel.equals("article") || fedoraModel.equals("page"))) {
-           calFromMetadata.setTime(parentDate);
-           yearFromMetadata = calFromMetadata.get(Calendar.YEAR);
-           monthFromMetadata = calFromMetadata.get(Calendar.MONTH);
+            calFromMetadata.setTime(parentDate);
+            yearFromMetadata = calFromMetadata.get(Calendar.YEAR);
+            monthFromMetadata = calFromMetadata.get(Calendar.MONTH);
         }
         if (modeFromConf.equals("year")) {
             if ((currentYear - yearFromMetadata) >= wallFromConf) {
-                return EvaluatingResult.TRUE;
+                return EvaluatingResultState.TRUE;
             } else {
-                return EvaluatingResult.FALSE;
+                return EvaluatingResultState.FALSE;
             }
         }
+
         if (modeFromConf.equals("month")) {
-            if (12*(currentYear - yearFromMetadata) + (currentMonth - monthFromMetadata) >= wallFromConf) {
-                return EvaluatingResult.TRUE;
+            if (12 * (currentYear - yearFromMetadata) + (currentMonth - monthFromMetadata) >= wallFromConf) {
+                return EvaluatingResultState.TRUE;
             } else {
-                return EvaluatingResult.FALSE;
+                return EvaluatingResultState.FALSE;
             }
         }
-        return EvaluatingResult.FALSE;
+
+        return EvaluatingResultState.FALSE;
     }
 
-    public static Date tryToParseDates(String patt)
-            throws RecognitionException, TokenStreamException, IOException {
+
+
+    public static Date tryToParseDates(String patt) throws RecognitionException, TokenStreamException, IOException {
         try {
             return ndkDates(patt);
         } catch (Exception e) {
             try {
-                // normalize text and test again; remove all characters under 127 
+                // normalize text and test again; remove all characters under 127
                 return ndkDates(normalizedString(patt));
             } catch (Exception e1) {
-                // try to parse custom 
+                // try to parse custom
                 List<String> patterns = readCustomizedPatterns();
                 return customizedDates(patt, patterns);
             }
@@ -378,7 +406,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         }
         return builder.toString();
     }
-    
+
     public static List<String> readCustomizedPatterns() throws IOException {
         List<String> retvals = new ArrayList<String>();
         BufferedReader buffReader = null;
@@ -398,9 +426,9 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
             IOUtils.tryClose(buffReader);
         }
         return retvals;
-        
+
     }
-    
+
     /**
      * Parse customized dates
      * @param patt Read date from data
@@ -421,7 +449,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         }
         return null;
     }
-    
+
     /**
      * NDK dates - NDK specifications
      * @param patt REad date from data
@@ -436,7 +464,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         return parsed;
     }
 
-    
+
 
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {
@@ -465,7 +493,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
             }
         } else return false;
     }
-    
-    
-    
+
+
+
 }

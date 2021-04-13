@@ -24,15 +24,12 @@ import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.version
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.database.VersionService;
-import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
@@ -64,6 +61,12 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
             } else if (versionCondition(version, "<", "6.0.0")) {
                 createStatisticTables(connection);
                 alterStatisticsTableStatAction(connection);
@@ -77,6 +80,12 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
             } else if (versionCondition(version, "=", "6.0.0")) {
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
@@ -89,6 +98,12 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
             } else if (versionCondition(version, "=", "6.1.0")) {
                 alterStatisticsTableSessionId(connection);
 
@@ -99,6 +114,12 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
             } else if ((versionCondition(version, ">", "6.1.0")) && (versionCondition(version, "<", "6.5.0"))) {
                 // Issue 619
                 alterStatisticsAuthorTablePrimaryKey(connection);
@@ -107,20 +128,39 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
             } else if (versionCondition(version, ">=", "6.5.0")&& (versionCondition(version, "<", "6.6.4"))) {
                 createFirstFunction(connection);
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
-            } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.5"))) {
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+            } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.6"))) {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
-            } else if (versionCondition(version, ">=", "6.6.5")) {
-                createLangsView(connection);
-                createTmpAuthorView(connection);
-                createAuthorsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+            } else if (versionCondition(version, ">=", "6.6.6")) {
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -129,8 +169,11 @@ public class StatisticDatabaseInitializator {
         }
     }
 
+
+
+
     /**
-     * @param connection
+     * @param con
      * @throws SQLException
      */
     private static void createDatesDurationViews(Connection con) throws SQLException {
@@ -171,6 +214,58 @@ public class StatisticDatabaseInitializator {
             DatabaseUtils.tryClose(prepareStatement);
         }
     }
+
+
+    public static void checkAndAddDNNTFlag(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","dnnt")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN dnnt BOOLEAN ;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+    public static void checkAndAddProvidedByDNNTFlag(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","providedByDNNT")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN providedByDNNT BOOLEAN ;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+
+    public static void checkAndAddEvaluateMap(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","evaluateMap")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN evaluateMap text;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+    public static void checkAndAddUserAttributesMap(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","userSessionAttributes")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN userSessionAttributes text;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+
 
     public static void alterStatisticsTableSessionId(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con
@@ -335,6 +430,14 @@ public class StatisticDatabaseInitializator {
 
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
+                try {
+                    JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
+                    dropTemplate.setUseReturningKeys(false);
+                    dropTemplate.executeUpdate("DROP VIEW _authors_view");
+                } catch (SQLException e){
+                    LOGGER.info("Cannot DROP VIEW _authors_view:" + e);
+                }
+
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
@@ -366,11 +469,19 @@ public class StatisticDatabaseInitializator {
 
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
+                try {
+                    JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
+                    dropTemplate.setUseReturningKeys(false);
+                    dropTemplate.executeUpdate("DROP VIEW _langs_view");
+                } catch (SQLException e){
+                    LOGGER.info("Cannot DROP VIEW _langs_view:" + e);
+                }
+
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
                         "CREATE or REPLACE VIEW _langs_view AS " +
-                            "(SELECT t1.record_id, pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address "
+                            "(SELECT  pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address, t1.record_id "
                             + "FROM "
                                 + "(SELECT * FROM "
                                     + "(SELECT  sta.record_id as record_id, dta.pid as pid, dta.model as model, sta.session_id as session_id, sta.date as date, dta.rights as rights, sta.stat_action as stat_action,dta.lang as lang1, remote_ip_address as remote_ip_address "

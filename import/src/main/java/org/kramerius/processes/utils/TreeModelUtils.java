@@ -32,25 +32,28 @@ import org.kramerius.processes.filetree.TreeModelFilter;
  * @author pavels
  */
 public class TreeModelUtils {
+    public static TreeItem prepareTreeModel(File homeFolder, TreeModelFilter filter) {
+        return prepareTreeModel(homeFolder, filter, new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isDirectory();
+            }
+        });
+    }
 
     /**
      * Creates tree model
      * @param homeFolder
      * @return
      */
-    public static TreeItem prepareTreeModel(File homeFolder, TreeModelFilter filter) {
+    public static TreeItem prepareTreeModel(File homeFolder, TreeModelFilter filter, FileFilter fileFilter) {
         TreeItem rootNode = new TreeItem(homeFolder.getPath(), homeFolder.getName());
         Stack<TreeItemFileMap> pStack = new Stack<TreeItemFileMap>();
         pStack.push(new TreeItemFileMap(rootNode, homeFolder));
         while (!pStack.isEmpty()) {
             TreeItemFileMap pair = pStack.pop();
             File folder = pair.getFoder();
-            File[] lFiles = folder.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    return pathname.isDirectory();
-                }
-            });
+            File[] lFiles = folder.listFiles(fileFilter);
             if (lFiles != null) {
                 for (File subFolder : lFiles) {
                     if ((filter == null) || filter.accept(subFolder)) {
@@ -64,4 +67,6 @@ public class TreeModelUtils {
         }
         return rootNode;
     }
+
+
 }

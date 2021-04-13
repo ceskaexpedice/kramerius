@@ -1,4 +1,12 @@
+//apply plugin: 'application'
+apply plugin: 'java'
 
+/*
+application {
+    mainClassName = "cz.incad.kramerius.services.ParallelMigrateSolrIndexImpl"
+}*/
+
+//mainClassName = "cz.incad.kramerius.services.ParallelMigrateSolrIndexImpl"
 
 dependencies {
     compile project(':security-core')
@@ -7,3 +15,11 @@ dependencies {
     compile project(':indexer') 
    
 }
+
+
+//tasks.withType(CreateStartScripts).each { task ->
+//    task.doLast {
+//        task.windowsScript.write task.windowsScript.text.replaceFirst(/(set CLASSPATH=%APP_HOME%\\lib\\).*/, { "${it[1]}*" })
+//        task.unixScript.write task.unixScript.text.replaceFirst(/(CLASSPATH=.APP_HOME\/lib\/).*/, { "CLASSPATH=\$(echo \$APP_HOME/lib/*.jar | tr ' ' ':')" })
+//    }
+//}

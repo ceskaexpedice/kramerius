@@ -113,8 +113,8 @@ public class LRResource {
     public static SimpleDateFormat FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS");
 
     
-    private static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
-    private static final String TOKEN_ATTRIBUTE_KEY = "token";
+    public static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
+    public static final String TOKEN_ATTRIBUTE_KEY = "token";
 
     
     private static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LRResource.class.getName());
@@ -561,8 +561,8 @@ public class LRResource {
                         if (StringUtils.isAnyString(filterUUID)) filterMap.put("uuid", filterUUID);
                         if (StringUtils.isAnyString(filterPid)) filterMap.put("pid", filterPid);
                         if (StringUtils.isAnyString(filterDef)) filterMap.put("def", filterDef);
-                        if (StringUtils.isAnyString(filterState)) filterMap.put("state", filterState);
-                        if (StringUtils.isAnyString(filterBatchState)) filterMap.put("batchState", filterBatchState);
+                        if (StringUtils.isAnyString(filterState)) filterMap.put("status", ""+States.valueOf(filterState).getVal());
+                        if (StringUtils.isAnyString(filterBatchState)) filterMap.put("batch_status",  ""+BatchStates.valueOf(filterBatchState).getVal());
                         if (StringUtils.isAnyString(filterName)) filterMap.put("name", filterName);
                         if (StringUtils.isAnyString(filterUserId)) filterMap.put("userid", filterUserId);
                         if (StringUtils.isAnyString(filterUserFirstname)) filterMap.put("userFirstname", filterUserFirstname);
@@ -704,13 +704,13 @@ public class LRResource {
 
 
     boolean permit(IsActionAllowed rightsResolver, User user) {
-        boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) : false;
+        boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() : false;
         return permited;
     }
 
     boolean permit(IsActionAllowed rightsResolver, SecuredActions action, User user) {
-        boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) || 
-                            (action != null && rightsResolver.isActionAllowed(user, action.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH))) : false ;
+        boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() ||
+                            (action != null && rightsResolver.isActionAllowed(user, action.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag())) : false ;
         return permited;
     }
 

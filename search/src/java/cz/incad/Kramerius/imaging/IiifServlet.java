@@ -11,6 +11,9 @@ import cz.incad.kramerius.rest.api.k5.client.item.utils.IIIFUtils;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import org.apache.commons.io.IOUtils;
@@ -20,7 +23,6 @@ import org.json.JSONObject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -49,6 +51,18 @@ public class IiifServlet extends AbstractImageServlet {
     @Named("cachedFedoraAccess")
     private transient FedoraAccess fedoraAccess;
 
+
+//    @Inject
+//    @Named("database")
+//    private StatisticsAccessLog databaseAccessLog;
+//
+//    @Inject
+//    @Named("dnnt")
+//    StatisticsAccessLog dnntAccessLog;
+
+    @Inject
+    AggregatedAccessLogs aggregatedAccessLogs;
+
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(IiifServlet.class.getName());
 
 
@@ -71,7 +85,7 @@ public class IiifServlet extends AbstractImageServlet {
             ObjectPidsPath[] paths = solrAccess.getPath(pid);
             boolean permited = false;
             for (ObjectPidsPath pth : paths) {
-                permited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth);
+                permited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth).flag();
                 if (permited) break;
             }
 
@@ -83,6 +97,16 @@ public class IiifServlet extends AbstractImageServlet {
                         String nextToken = tokenizer.nextToken();
                         url.append("/").append(nextToken);
                         if ("info.json".equals(nextToken)) {
+
+                            // report access
+                            try {
+                                this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+                            } catch (Exception e) {
+                                LOGGER.severe("cannot write statistic records");
+                                LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                            }
+
+
                             resp.setContentType("application/ld+json");
                             resp.setCharacterEncoding("UTF-8");
                             HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
@@ -97,6 +121,8 @@ public class IiifServlet extends AbstractImageServlet {
                             return;
                         }
                     }
+
+
                     copyFromImageServer(url.toString(),resp);
                 } catch (JSONException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage());

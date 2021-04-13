@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Class for access to SOLR
@@ -60,14 +61,26 @@ public interface SolrAccess {
     public ObjectPidsPath[] getPath(String pid) throws IOException;
 
     /**
-     * Returns all paths disected from given SOLR data
+     * Returns all paths from given Solr data (Ended by datastream if datastream is defined)
      * 
-     * @param datastreamName datastream name
+     * @param datastreamName datastream name  - could be null
      * @param solrDataDoc Parsed SOLR document
      * @return disected path
      * @throws IOException IO error has been occurred
      */
     public ObjectPidsPath[] getPath(String datastreamName, Document solrDataDoc) throws IOException;
+
+
+    /**
+     * Returns all paths from given Solr data (Ended by datastream if datastream is defined)
+     *
+     * @param datastreamName datastream name could be null
+     * @param solrDocParentElement Solr hit element
+     * @return disected path
+     * @throws IOException IO error has been occurred
+     */
+    public ObjectPidsPath[] getPath(String datastreamName, Element solrDocParentElement) throws IOException;
+
 
     /**
      * Returns all model's paths
@@ -77,6 +90,9 @@ public interface SolrAccess {
      * @throws IOException IO error gas been occurred
      */
     public ObjectModelsPath[] getPathOfModels(String pid) throws IOException;
+
+    public ObjectModelsPath[] getPathOfModels(Document doc) throws IOException;
+
 
     /**
      * Wrapper allows to return ObjectPidPaths and ObjectModelsPath in one response

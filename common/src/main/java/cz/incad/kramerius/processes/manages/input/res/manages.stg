@@ -29,7 +29,7 @@ form(states,batchStates,bundle) ::=<<
                 vals = vals+';batchState='+batchState;    
             }
 
-            var url = "lr?action=form_post&def=delete_processes&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=delete_processes&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             if (console) console.log(url);
             processStarter("delete_processes").start(url);
         }

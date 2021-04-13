@@ -1,0 +1,157 @@
+/** templates for metsimport process */
+group nkplogs;
+
+/** jedna polozka stromu */
+treeNode(item) ::=<<
+    $if(item.leaf)$
+
+    <li id="$item.id$"><a href="#">$item.itemName$</a></li>
+
+    $else$
+    <li id="$item.id$">
+    <a href="#">$item.itemName$</a>
+    $tree(root=item)$
+    </li>
+    $endif$
+
+>>
+
+
+/** strom */
+tree(root) ::=<<
+    <ul>
+        $root.children:{item|$treeNode(item=item)$}$
+    </ul>
+>>
+
+
+form(postfixdiv,bundle, nkpLogsDirectory, rootDirectory) ::=<<
+
+<div style="width:100%">
+
+<script language="JavaScript" type="text/javascript">
+<!--
+        // send parameters to server
+        window.onProcessFormSend = function() {
+            var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
+
+            var vals = 'dateFrom='+\$('#nkp_date_from').val().escapeChars(charsThatMustBeEscaped)
+                +';dateTo='+   \$('#nkp_date_to').val().escapeChars(charsThatMustBeEscaped)
+                +';folder='+encodeURI(\$('#nkp_folder').val().escapeChars(charsThatMustBeEscaped))
+                +';institution='+encodeURI(\$('#nkp_institution').val().escapeChars(charsThatMustBeEscaped));
+
+
+            var url = "lr?action=form_post&def=nkplogs&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
+            processStarter("nkplogs").start(url);
+        }
+
+
+        \$( "#nkp_date_from" ).datepicker({
+            dateFormat: 'yy.mm.dd'
+        });
+
+        \$( "#nkp_date_to" ).datepicker({
+            dateFormat: 'yy.mm.dd'
+        });
+
+
+
+ // show directory dialog
+function ShowNKPLogDirectory() {
+    this.dialog = null;
+}
+
+
+ ShowNKPLogDirectory.prototype.openTree=function() {
+
+            if (this.dialog) {
+                this.dialog.dialog('open');
+            } else {
+                this.dialog = \$("#_selectNKPLogFolderDialog").dialog({
+                bgiframe: true,
+                width:  450,
+                height:  400,
+                modal: true,
+                title: '',
+                buttons:
+                    [{
+                        text:dictionary['common.ok'],
+                        click:bind(function() {
+                            \$("#nkp_folder").val(\$("#_selectedNKPLogFolder").text());
+                            this.dialog.dialog("close");
+                        },this)
+                    },{
+                        text:dictionary['common.close'],
+                        click:bind(function() {
+                            this.dialog.dialog("close");
+                        },this)
+                    }]
+                });
+
+
+
+    	      \$(function () {
+	    	       \$("#_selectNKPLogFolderTree_$postfixdiv$").jstree({
+    	    	        "plugins" : [ "themes", "html_data", "ui" ]
+        	    	})
+            		.bind("select_node.jstree", function (event, data) {
+                		var p = data.rslt.obj.attr("id");
+		                \$("#_selectedNKPLogFolder").text(p);
+    		        });
+	    	    });
+
+
+            }
+
+
+        }
+
+
+        var directoryTree = new ShowNKPLogDirectory();
+-->
+</script>
+
+
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend>$bundle.("parametrizeddeleteprocesses.filtr")$</legend>
+    <table style="width:100%">
+        <tbody>
+            <tr>
+                <td width="15%"> $bundle.("nkplog.datefrom.label")$</td>
+                <td width="60%"><input id="nkp_date_from"></input></td>
+                <td width="25%"></td>
+            </tr>
+            <tr>
+                <td>$bundle.("nkplog.dateto.label")$</td>
+                <td><input id="nkp_date_to"></input></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>$bundle.("nkplog.folder.label")$</td>
+                <td><input id="nkp_folder" value="$nkpLogsDirectory$"  style="width:80%"  readonly> </input></td>
+                <td><input type="button" onclick="directoryTree.openTree();" value="$bundle.("nkplog.folder.button.label")$"></input></td>
+            </tr>
+            <tr>
+                <td>$bundle.("nkplog.institution.label")$</td>
+                <td><input id="nkp_institution" val="institution"></input></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</fieldset>
+
+
+ <div id="_selectNKPLogFolderDialog" style="display:none">
+        <h3>  $bundle.("import.selection.dialog")$</h3>
+        <div id="_selectNKPLogFolderTree_$postfixdiv$">
+            $tree(root=rootDirectory)$
+        </div>
+
+        <div id="_selectedNKPLogFolder" style="display:none"></div>
+    </div>
+</div>
+
+
+>>
+
+

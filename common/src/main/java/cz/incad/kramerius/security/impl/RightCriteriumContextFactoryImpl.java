@@ -21,11 +21,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.RightCriteriumContextFactory;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.*;
 
 public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFactory {
     
@@ -73,8 +69,18 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
     }
     
     @Override
-    public RightCriteriumContext create(String requestedPID, String requestedStream,  User user, String remoteHost, String remoteAddr) {
-        RightCriteriumContext ctx = new RightParamEvaluatingContextImpl(requestedPID, requestedStream, user, this.fedoraAccess, this.solrAccess, this.userManager, remoteHost, remoteAddr);
+    public RightCriteriumContext create(String requestedPID, String requestedStream, User user, String remoteHost, String remoteAddr, IsActionAllowed rightsResolver) {
+        //RightCriteriumContext ctx = new RightParamEvaluatingContextImpl(requestedPID, requestedStream, user, this.fedoraAccess, this.solrAccess, this.userManager, remoteHost, remoteAddr);
+        RightCriteriumContext ctx = new RightParamEvaluatingContextImpl.Builder()
+                                        .setRequestedPid(requestedPID)
+                                        .setRequestedStream(requestedStream)
+                                        .setUser(user)
+                                        .setFedoraAccess(this.fedoraAccess)
+                                        .setSolrAccess(this.solrAccess)
+                                        .setUserManager(this.userManager)
+                                        .setRemoteHost(remoteHost)
+                                        .setRemoteAddress(remoteAddr)
+                                        .setRightsResolver(rightsResolver).build();
         return ctx;
     }
 }

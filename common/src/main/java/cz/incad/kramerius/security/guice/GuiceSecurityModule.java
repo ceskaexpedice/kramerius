@@ -33,7 +33,6 @@ import cz.incad.kramerius.security.impl.DatabaseRightsManager;
 import cz.incad.kramerius.security.impl.DatabaseUserManager;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 import cz.incad.kramerius.security.impl.RightCriteriumWrapperFactoryImpl;
-import cz.incad.kramerius.security.impl.ScriptCriteriumLoaderImpl;
 
 /**
  * Base abstract module for security in K4

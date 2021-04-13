@@ -38,7 +38,7 @@ form(rootNode) ::=<<
             var vals = 'inputFolder='+\$('#inputFolder').val()
                         +';processName='+\$('#processName').val();
             
-            var url = "lr?action=form_post&def=wmock&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=wmock&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("wmock").start(url);
                                     
         }

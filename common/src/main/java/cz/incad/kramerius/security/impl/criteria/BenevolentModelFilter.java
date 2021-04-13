@@ -22,13 +22,7 @@ import java.util.logging.Logger;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.*;
 
 /**
  * @author pavels
@@ -40,17 +34,26 @@ public class BenevolentModelFilter  extends AbstractCriterium implements RightCr
 
     
     /* (non-Javadoc)
-     * @see cz.incad.kramerius.security.RightCriterium#evalute()
+     * @see cz.incad.kramerius.security.RightCriterium#evaluate()
      */
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         return evaluateInternal(getObjects(), getEvaluateContext());
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
     }
 
     /**
      * @return
      */
-    static EvaluatingResult evaluateInternal(Object[] params, RightCriteriumContext ctx) {
+    static EvaluatingResultState evaluateInternal(Object[] params, RightCriteriumContext ctx) {
         try {
             FedoraAccess fa = ctx.getFedoraAccess();
             ObjectPidsPath[] pathsToRoot = ctx
@@ -60,13 +63,13 @@ public class BenevolentModelFilter  extends AbstractCriterium implements RightCr
                 for (String pid : pids) {
                     if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
                     String modelName = fa.getKrameriusModelName(pid);
-                    if (containsModelName(params,modelName)) return EvaluatingResult.TRUE;
+                    if (containsModelName(params,modelName)) return EvaluatingResultState.TRUE;
                 }
             }
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 

@@ -2,6 +2,7 @@ package cz.incad.kramerius.utils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
@@ -51,7 +52,20 @@ public class ApplicationURL {
             if (header != null) {
                 String requestUri = request.getRequestURI();
                 String protocol = new URL(request.getRequestURL().toString()).getProtocol();
-                url = createURL(header, protocol, requestUri);
+                // check if header contains more than one value, if so, it takes first and print warning
+                if (header.contains(",")) {
+                    String[] split = header.split(",");
+                    if (split.length > 1) {
+                        LOGGER.fine(String.format("x-forwarded-host contains more than one value: %s. " +
+                                "Picking up the first one", Arrays.toString(split)));
+                        url = createURL(split[0], protocol, requestUri);
+                    } else {
+                        url = createURL(header, protocol, requestUri);
+                    }
+
+                } else {
+                    url = createURL(header, protocol, requestUri);
+                }
             }
             return applicationURL(url);
         } catch (MalformedURLException e) {

@@ -56,7 +56,6 @@ public class ProcessUtils {
      */
     public static String getLrServlet() {
         String lrServlet = KConfiguration.getInstance().getApplicationURL() + '/' + LR_SERVLET_NAME;
-//        LOGGER.info("APPURL :"+KConfiguration.getInstance().getApplicationURL());
         return lrServlet;
     }
 

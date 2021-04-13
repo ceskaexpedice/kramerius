@@ -36,6 +36,11 @@ public class ShibbolethContextImpl  implements ShibbolethContext {
     }
 
     @Override
+    public void associateSessionAttribute(String key, String value) {
+        this.userImpl.addSessionAttribute(key, value);
+    }
+
+    @Override
     public void associateRole(String rname) {
       Role grole = this.userManager.findRoleByName(rname);
       Role[] groups = this.userImpl.getGroups() == null ? new Role[0]:this.userImpl.getGroups();

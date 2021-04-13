@@ -34,6 +34,8 @@
         margin: 0;
         padding: 0;
         line-height: 16px;
+        display: block;
+        clear: both;
     }
     
     #context_items_selection li{
@@ -47,7 +49,7 @@
         height: 16px;
         overflow:hidden;
         text-indent: -99999px;
-        display:block;
+        display:inline-block;
         float:left;
     }
 
@@ -155,7 +157,8 @@
 <script  src="js/underscore-min.js" language="javascript" type="text/javascript"></script>
 <link href="js/prettify.css" type="text/css" rel="stylesheet" />
 <script type="text/javascript" src="js/prettify.js"></script>
-<script src="js/mods.js" type="text/javascript" ></script>
+
+
 <script type="text/javascript">
     
     var policyPublic = ${policyPublic};
@@ -552,7 +555,7 @@
     function addParamsToPid(structs, params){
         var u = "";
         for (var i=0;  i < structs.length; i++){
-            u = u +"{"+ structs[i].pid.replaceAll(":","\\:")+ ";" + params + "}";
+            u = u +encodeURI("{")+ encodeURI(structs[i].pid.replaceAll(":","\\:"))+ ";" + params + encodeURI("}");
             if (i < structs.length-1) {
                 u = u + ";";
             }
@@ -657,7 +660,7 @@
           var action;
           var coll;
           var hasChanges = false;
-          urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={virtualcollections;";
+          urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"virtualcollections;";
           if(pids.length==1){
               var pidpath = getPidPath(pids[0]);
               var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
@@ -681,10 +684,10 @@
                           urlbuffer=urlbuffer + ";";
                       }
                       j++;
-                      urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(coll, ":","\\:")+"}";
+                      urlbuffer=urlbuffer+encodeURI("{")+action+";"+encodeURI(replaceAll(pid, ":","\\:"))+";"+encodeURI(replaceAll(coll, ":","\\:"))+encodeURI("}");
                   }
               });
-              urlbuffer=urlbuffer+"}";
+              urlbuffer=urlbuffer+encodeURI("}");
           }else{
               var j = 0;
               hasChanges = true;
@@ -703,10 +706,10 @@
                           urlbuffer=urlbuffer + ";";
                       }
                       j++;
-                      urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(coll, ":","\\:")+"}";
+                      urlbuffer=urlbuffer+encodeURI("{")+action+";"+encodeURI(replaceAll(pid, ":","\\:"))+";"+encodeURI(replaceAll(coll, ":","\\:"))+encodeURI("}");
                   });
               }
-              urlbuffer=urlbuffer+"}";
+              urlbuffer=urlbuffer+encodeURI("}");
 
           }
 
@@ -809,9 +812,9 @@
               var escapedTitle = replaceAll(title, ',', '');
               escapedTitle = replaceAll(escapedTitle, '\n', '');
               escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-              urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
+              urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+encodeURI(escapedTitle);
           }else{
-              urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
+              urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"reindex;"
               for(var i=0; i<pids.length; i++){
                   var pidpath = getPidPath(pids[i]);
                   var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
@@ -820,12 +823,12 @@
                   var escapedTitle = replaceAll(title, ',', '');
                   escapedTitle = replaceAll(escapedTitle, '\n', '');
                   escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-                  urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
+                  urlbuffer=urlbuffer+encodeURI("{")+action+";"+encodeURI(replaceAll(pid, ":","\\:"))+";"+encodeURI(replaceAll(escapedTitle, ":","\\:"))+encodeURI("}");
                   if (i<pids.length-1) {
                       urlbuffer=urlbuffer+";"
                   }
               }
-              urlbuffer=urlbuffer+"}";
+              urlbuffer=urlbuffer+encodeURI("}");
           }
 
           processStarter("reindex").start(urlbuffer);
@@ -848,7 +851,7 @@
                   escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
                   urlbuffer = "lr?action=start&def=reindex&out=text&params="+action+","+pid+","+escapedTitle;
               }else{
-                  urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={reindex;"
+                  urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"reindex;"
                   for(var i=0; i<pids.length; i++){
                       var pidpath = getPidPath(pids[i]);
                       var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
@@ -856,12 +859,12 @@
                       var escapedTitle = replaceAll(title, ',', '');
                       escapedTitle = replaceAll(escapedTitle, '\n', '');
                       escapedTitle = escapedTitle.replace(/ +(?= )/g,'');
-                      urlbuffer=urlbuffer+"{"+action+";"+replaceAll(pid, ":","\\:")+";"+replaceAll(escapedTitle, ":","\\:")+"}";
+                      urlbuffer=urlbuffer+encodeURI("{")+action+";"+encodeURI(replaceAll(pid, ":","\\:"))+";"+replaceAll(escapedTitle, ":","\\:")+encodeURI("}");
                       if (i<pids.length-1) {
                           urlbuffer=urlbuffer+";"
                       }
                   }
-                  urlbuffer=urlbuffer+"}";
+                  urlbuffer=urlbuffer+encodeURI("}");
               }
 
               processStarter("reindex").start(urlbuffer);
@@ -871,23 +874,20 @@
 
       function serverSort() {
           var structs = pidstructs();
-          var u = "lr?action=start&def=sort&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+"}";
-          
-          showConfirmDialog(dictionary['administrator.dialogs.sort.confirm'], function(){
+          var u = "lr?action=start&def=sort&out=text&nparams="+encodeURI("{")+encodeURI(structs[0].pid.replaceAll(":","\\:"))+encodeURI("}");
           processStarter("sort").start(u);
           
-        });
       }
 
       function deletePid(){
 		  var pids = getAffectedPids();
 
           showConfirmDialog(dictionary['administrator.dialogs.deleteconfirm'], function(){
-              var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams={delete;"
+            var urlbuffer = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"delete;"
               for(var i=0; i<pids.length; i++){
                   var pidpath = getPidPath(pids[i]);
                   var pid = pidpath.substring(pidpath.lastIndexOf("/") + 1);
-                  urlbuffer=urlbuffer+"{"+replaceAll(pid, ":","\\:")+";"+replaceAll(pidpath, ":","\\:")+"}";
+                urlbuffer=urlbuffer+encodeURI("{")+encodeURI(replaceAll(pid, ":","\\:"))+";"+encodeURI(replaceAll(pidpath, ":","\\:"))+encodeURI("}");
                   if (i<pids.length-1) {
                       urlbuffer=urlbuffer+";"
                   }
@@ -901,52 +901,53 @@
       function exportFOXML(){
           var structs = pidstructs();
           if (structs.length > 1) {
-              var u = "lr?action=start&def=aggregate&out=text&nparams={export;";
+              var u = "lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"export;";
               showConfirmYesNoDialog(dictionary['administrator.dialogs.exportFOXML.confirm'], 
                   function(){
                       u = u + addParamsToPid(structs, "true");
-                      u = u + "}";
+				  u = u + encodeURI("}");
                       processStarter("export").start(u);
                    },
                   function(){
                       u = u + addParamsToPid(structs, "false");
-                      u = u + "}";
+                      u = u + encodeURI("}");
                       processStarter("export").start(u);
                    });
           } else {
-              var u = "lr?action=start&def=export&out=text&nparams={" + structs[0].pid.replaceAll(":","\\:");
+              var u = "lr?action=start&def=export&out=text&nparams=%7B" + encodeURI(structs[0].pid.replaceAll(":","\\:"));
               showConfirmYesNoDialog(dictionary['administrator.dialogs.exportFOXML.confirm'], 
                   function(){
-                      u += ";true}";
+                      u += ";true%7D";
                       processStarter("export").start(u);
                    },
                   function(){
-                      u += ";false}";
+                      u += ";false%7D";
                       processStarter("export").start(u);
                    });
           }
       }
 
+      /** DISABLED
       function exportToCD(img, i18nServlet, country,language) {
           var structs = pidstructs();
           if (structs.length > 0) {
-              var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
+              var u = "lr?action=start&def=static_export_CD&out=text&nparams="+encodeURI("{")+""+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+encodeURI("}");
               processStarter("static_export_CD").start(u);
           }
       }
       function exportToDVD(img, i18nServlet, country,language) {
           var structs = pidstructs();
           if (structs.length > 0) {
-              var u = "lr?action=start&def=static_export_CD&out=text&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+"}";
+              var u = "lr?action=start&def=static_export_CD&out=text&nparams="+encodeURI("{")+""+structs[0].pid.replaceAll(":","\\:")+";"+img+";"+i18nServlet+";"+country+";"+language+ encodeURI("}");
               processStarter("static_export_DVD").start(u);
           }
-      }
+      }*/
 
 
       function applyMovingWall(){
           var structs = pidstructs();
           if (structs.length > 1) {
-              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={applymw;",structs)+"}";
+              var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"applymw;",structs)+encodeURI("}");
               processStarter("applymw").start(u);
           } else {
               var u = urlWithPids("lr?action=start&def=applymw&out=text&nparams=",structs);
@@ -957,14 +958,14 @@
 
       function generateDeepZoomTiles(){
           var structs = pidstructs();
-          var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={generateDeepZoomTiles;",structs);
+          var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"generateDeepZoomTiles;",structs);
           processStarter("generateDeepZoomTiles").start(u);
       }
 
       function deleteGeneratedDeepZoomTiles(){
           var pids = getAffectedPids();
           var structs = pidstructs();
-          var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams={deleteGeneratedDeepZoomTiles;",structs);
+          var u = urlWithPids("lr?action=start&def=aggregate&out=text&nparams="+encodeURI("{")+"deleteGeneratedDeepZoomTiles;",structs);
           processStarter("deleteGeneratedDeepZoomTiles").start(u);
       }
 
@@ -1016,7 +1017,7 @@
           function _url(/** String */baseUrl, /** Array */ pids) {
               return baseUrl+""+reduce(function(base, item, status) {
                   
-                  base = base+"{"+item.pid.replaceAll(":","\\:")+ (status.last ? "}": "};");
+                  base = base+encodeURI("{")+encodeURI(item.pid.replaceAll(":","\\:"))+ (status.last ? encodeURI("}"): encodeURI("}")+";");
                   return base;
               }, "",pids)+"";        
           }
@@ -1028,12 +1029,12 @@
           var checkbox = $("#changeFlag #level");
           this.level = checkbox.attr('checked');
           if (this.aggregate) {
-              u = "lr?action=start&out=text&def=aggregate&out=text&nparams={"+ this.policyName +";";
+              u = "lr?action=start&out=text&def=aggregate&out=text&nparams="+encodeURI("{")+ this.policyName +";";
               u = u + addParamsToPid(structs, this.level);
-              u = u + "}";
+              u = u + encodeURI("}");
           }
           else {
-              u = "lr?action=start&out=text&def="+this.policyName+"&nparams={"+structs[0].pid.replaceAll(":","\\:")+";"+this.level+"}";
+              u = "lr?action=start&out=text&def="+this.policyName+"&nparams="+encodeURI("{"+structs[0].pid.replaceAll(":","\\:"))+";"+this.level+encodeURI("}");
           }
           
           processStarter(this.policyName).start(u);
