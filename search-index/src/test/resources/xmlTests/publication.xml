@@ -180,12 +180,8 @@
         </in>
         <out>
             <field name="geographic_names.facet">Česko</field>
-            <field name="geographic_names.facet">Česko</field>
-            <field name="geographic_names.facet">Czechia</field>
             <field name="geographic_names.facet">Czechia</field>
             <field name="geographic_names.search">Česko</field>
-            <field name="geographic_names.search">Česko</field>
-            <field name="geographic_names.search">Czechia</field>
             <field name="geographic_names.search">Czechia</field>
             <field name="keywords.facet">Veřejné knihovny</field>
             <field name="keywords.facet">Funkce knihoven</field>

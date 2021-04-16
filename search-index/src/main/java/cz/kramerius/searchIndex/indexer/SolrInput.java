@@ -18,12 +18,20 @@ public class SolrInput {
 
     public void addField(String name, String value) {
         if (value != null) {
+            value = value.trim();
+            if (value.isEmpty()) {
+                value = null;
+            }
+        }
+        if (value != null) {
             List<String> fieldValues = fields.get(name);
             if (fieldValues == null) {
                 fieldValues = new ArrayList<>();
                 fields.put(name, fieldValues);
             }
-            fieldValues.add(value);
+            if (!fieldValues.contains(value)) { //we don't want duplicate values
+                fieldValues.add(value);
+            }
             outDoc = null;//reset outDoc after every chanage
         }
     }
