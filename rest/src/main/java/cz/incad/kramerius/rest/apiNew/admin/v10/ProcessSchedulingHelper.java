@@ -13,6 +13,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -60,7 +61,15 @@ public class ProcessSchedulingHelper {
         //tohle vypada, ze se je k nicemu, ve vysledku se to jen uklada do databaze do processes.params_mapping a to ani ne vzdy
         // select planned, params_mapping from processes where params_mapping!='' order by planned desc limit 10;
         //newProcess.setLoggedUserKey(loggedUserKey);
-        newProcess.setParameters(params);
+
+        //process auth token is passed as a param, because running process may need to schedule another process
+        List<String> paramsWithAuthToken = new ArrayList<>();
+        paramsWithAuthToken.add(newProcessAuthToken);
+        for (String param : params) {
+            paramsWithAuthToken.add(param);
+        }
+
+        newProcess.setParameters(paramsWithAuthToken);
         //newProcess.setUser(user);
         newProcess.setOwnerId(ownerId);
         newProcess.setOwnerName(ownerName);
@@ -114,5 +123,25 @@ public class ProcessSchedulingHelper {
         return definition;
     }
 
+    //TODO: move to config
+    public List<String> processParamsSolr() {
+        List<String> params = new ArrayList<>();
+        params.add("localhost:8983/solr");//solrBaseUrl
+        params.add("search");//solrCollection
+        params.add("false");//solrUseHttps
+        params.add("krameriusIndexer");//solrLogin
+        params.add("krameriusIndexerRulezz");//solrPassword
+        return params;
+    }
+
+    //TODO: move to config
+    public List<String> processParamsKramerius(ClientAuthHeaders clientAuthHeaders) {
+        List<String> params = new ArrayList<>();
+        params.add("http://localhost:8080/search");
+        params.add(clientAuthHeaders.getClient());
+        params.add(clientAuthHeaders.getUid());
+        params.add(clientAuthHeaders.getAccessToken());
+        return params;
+    }
 
 }

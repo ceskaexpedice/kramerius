@@ -587,16 +587,14 @@ public class ProcessResource extends AdminApiResource {
                 String userId = originalProcess.getOwnerId();
                 String userName = originalProcess.getOwnerName();
                 String batchToken = originalProcess.getBatchToken();
-                List<String> paramsList = new ArrayList<>();
                 String newProcessAuthToken = UUID.randomUUID().toString();
-                paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
+                List<String> paramsList = new ArrayList<>();
                 paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
                 return scheduleProcess(defid, paramsList, userId, userName, batchToken, newProcessAuthToken);
             } else { //run by user (through web client)
                 String batchToken = UUID.randomUUID().toString();
                 List<String> paramsList = new ArrayList<>();
                 String newProcessAuthToken = UUID.randomUUID().toString();
-                paramsList.add(newProcessAuthToken); //TODO: presunout mimo paremetry procesu, ale spravovane komponentou, co procesy spousti
                 paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
                 //authentication
                 AuthenticatedUser user = getAuthenticatedUserByOauth();
@@ -662,9 +660,9 @@ public class ProcessResource extends AdminApiResource {
 
                 List<String> result = new ArrayList<>();
                 //Kramerius
-                result.addAll(processParamsKramerius(clientAuthHeaders));
+                result.addAll(processSchedulingHelper.processParamsKramerius(clientAuthHeaders));
                 //Solr
-                result.addAll(processParamsSolr());
+                result.addAll(processSchedulingHelper.processParamsSolr());
                 //indexation params
                 result.add(type);//indexation type
                 result.add(pid);//indexation's root pid
@@ -683,9 +681,9 @@ public class ProcessResource extends AdminApiResource {
 
                 List<String> result = new ArrayList<>();
                 //Kramerius
-                result.addAll(processParamsKramerius(clientAuthHeaders));
+                result.addAll(processSchedulingHelper.processParamsKramerius(clientAuthHeaders));
                 //Solr
-                result.addAll(processParamsSolr());
+                result.addAll(processSchedulingHelper.processParamsSolr());
                 //indexation params
                 result.add(type); //indexation type
                 result.add(pid); //indexation's root pid
@@ -771,33 +769,10 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    //TODO: from config
-    private List<String> processParamsSolr() {
-        List<String> params = new ArrayList<>();
-        params.add("localhost:8983/solr");//solrBaseUrl
-        params.add("search");//solrCollection
-        params.add("false");//solrUseHttps
-        params.add("krameriusIndexer");//solrLogin
-        params.add("krameriusIndexerRulezz");//solrPassword
-        return params;
-    }
-
-    //TODO: from config
-    private List<String> processParamsKramerius(ClientAuthHeaders clientAuthHeaders) {
-        List<String> params = new ArrayList<>();
-        params.add("http://localhost:8080/search");
-        params.add(clientAuthHeaders.getClient());
-        params.add(clientAuthHeaders.getUid());
-        params.add(clientAuthHeaders.getAccessToken());
-        return params;
-    }
-
-
     //TODO: proverit fungovani
     private SecuredActions securedAction(String processType, LRProcessDefinition definition) {
         return definition.getSecuredAction() != null ? SecuredActions.findByFormalName(definition.getSecuredAction()) : SecuredActions.findByFormalName(processType);
     }
-
 
     private LocalDateTime parseLocalDateTime(String string) {
         if (string == null) {

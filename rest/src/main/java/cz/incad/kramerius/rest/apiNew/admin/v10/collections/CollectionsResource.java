@@ -72,7 +72,7 @@ public class CollectionsResource extends AdminApiResource {
             Document foxml = foxmlBuilder.buildFoxml(collection, null);
             krameriusRepositoryApi.getLowLevelApi().ingestObject(foxml);
             //schedule reindexation - new collection (only object)
-            scheduleReindexation(collection.pid, user, "OBJECT", UUID.randomUUID().toString());
+            scheduleReindexation(collection.pid, user, "OBJECT", UUID.randomUUID().toString(), false, "sbírka " + collection.pid);
             return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -190,8 +190,8 @@ public class CollectionsResource extends AdminApiResource {
                 krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
                 //rebuild and update rels-ext (because of "standalone")
                 krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
-                //schedule reindexation - colection (only object)
-                scheduleReindexation(pid, user, "OBJECT", UUID.randomUUID().toString());
+                //schedule reindexation - l (only object)
+                scheduleReindexation(pid, user, "OBJECT", UUID.randomUUID().toString(), false, "sbírka " + pid);
             }
             return Response.ok().build();
         } catch (WebApplicationException e) {
@@ -202,19 +202,19 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    /**
-     * @param objectPid
-     * @param user
-     * @param indexationType
-     * @see cz.kramerius.searchIndex.indexerProcess.IndexationType
-     */
-    private void scheduleReindexation(String objectPid, AuthenticatedUser user, String indexationType, String batchToken) {
-        List<String> paramsList = new ArrayList<>();
+    private void scheduleReindexation(String objectPid, AuthenticatedUser user, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
         String newProcessAuthToken = UUID.randomUUID().toString();
-        paramsList.add(newProcessAuthToken);
+        List<String> paramsList = new ArrayList<>();
+        //Kramerius
+        paramsList.addAll(processSchedulingHelper.processParamsKramerius(extractClientAuthHeders()));
+        //Solr
+        paramsList.addAll(processSchedulingHelper.processParamsSolr());
+        //indexation params
         paramsList.add(indexationType);
         paramsList.add(objectPid);
-        processSchedulingHelper.scheduleProcess("new_indexer", paramsList, user.getId(), user.getName(), batchToken, newProcessAuthToken);
+        paramsList.add(Boolean.toString(ignoreInconsistentObjects));
+        paramsList.add(title);
+        processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, user.getId(), user.getName(), batchToken, newProcessAuthToken);
     }
 
     /**
@@ -267,10 +267,11 @@ public class CollectionsResource extends AdminApiResource {
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
             foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
-            //schedule reindexations - 1. collection (only object) , 2. newly added item (whole tree and foster trees)
+            //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
             String batchToken = UUID.randomUUID().toString();
-            scheduleReindexation(collectionPid, user, "OBJECT", batchToken);
-            scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken);
+            //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky
+            scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
+            //scheduleReindexation(collectionPid, user, "OBJECT", batchToken, false, "sbírka " + collectionPid);
             return Response.status(Response.Status.CREATED).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -304,10 +305,11 @@ public class CollectionsResource extends AdminApiResource {
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
             foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
-            //schedule reindexations - 1. collection (only object) , 2. item that was removed (whole tree and foster trees)
+            //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
             String batchToken = UUID.randomUUID().toString();
-            scheduleReindexation(collectionPid, user, "OBJECT", batchToken);
-            scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken);
+            //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky
+            scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
+            //scheduleReindexation(collectionPid, user, "OBJECT", batchToken, false, "sbírka " + collectionPid);
             return Response.status(Response.Status.OK).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -349,11 +351,12 @@ public class CollectionsResource extends AdminApiResource {
             }
             //delete collection object form repository
             krameriusRepositoryApi.getLowLevelApi().deleteObject(pid);
-            //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees)
+            //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees), 3. no need to reindex collections owning this one
             String batchToken = UUID.randomUUID().toString();
-            scheduleReindexation(pid, user, "OBJECT", batchToken);
+            scheduleReindexation(pid, user, "OBJECT", batchToken, false, "sbírka " + pid);
             for (String childPid : childrenPids) {
-                scheduleReindexation(childPid, user, "TREE_AND_FOSTER_TREES", batchToken);
+                //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky
+                scheduleReindexation(childPid, user, "TREE_AND_FOSTER_TREES", batchToken, true, childPid);
             }
             return Response.ok().build();
         } catch (WebApplicationException e) {
