@@ -65,7 +65,7 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing role '%s')", user.getName(), role); //403
             }
             Collection collection = extractCollectionFromJson(collectionDefinition);
-            if (collection.name == null || collection.name.isEmpty()) {
+            if ((collection.nameCz == null || collection.nameCz.isEmpty()) && (collection.nameEn == null || collection.nameEn.isEmpty())) {
                 throw new BadRequestException("name can't be empty");
             }
             collection.pid = "uuid:" + UUID.randomUUID().toString();
@@ -180,7 +180,7 @@ public class CollectionsResource extends AdminApiResource {
             Collection current = fetchCollectionFromRepository(pid, true, false);
 
             Collection updated = current.withUpdatedDataModifiableByClient(extractCollectionFromJson(collectionDefinition));
-            if (updated.name == null || updated.name.isEmpty()) {
+            if ((updated.nameCz == null || updated.nameCz.isEmpty()) && (updated.nameEn == null || updated.nameEn.isEmpty())) {
                 throw new BadRequestException("name can't be empty");
             }
             if (!current.equalsInDataModifiableByClient(updated)) {
@@ -375,12 +375,18 @@ public class CollectionsResource extends AdminApiResource {
         collection.modified = krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(pid);
         //data from MODS
         Document mods = krameriusRepositoryApi.getMods(pid, false);
-        collection.name = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo/title");
-        collection.description = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract");
+        collection.nameCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[@lang='cze']/title");
+        collection.nameEn = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[@lang='eng']/title");
+        collection.descriptionCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract[@lang='cze']");
+        collection.descriptionEn = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract[@lang='eng']");
         if (withContent) {
-            String contentHtmlEscaped = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note");
+            String contentHtmlCzEscaped = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[@lang='cze']");
+            if (contentHtmlCzEscaped != null) {
+                collection.contentCz = StringEscapeUtils.unescapeHtml(contentHtmlCzEscaped);
+            }
+            String contentHtmlEscaped = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[@lang='eng']");
             if (contentHtmlEscaped != null) {
-                collection.content = StringEscapeUtils.unescapeHtml(contentHtmlEscaped);
+                collection.contentEn = StringEscapeUtils.unescapeHtml(contentHtmlEscaped);
             }
         }
         //data from RELS-EXT

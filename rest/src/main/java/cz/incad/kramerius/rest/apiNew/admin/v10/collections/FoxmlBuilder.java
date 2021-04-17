@@ -39,7 +39,7 @@ public class FoxmlBuilder {
         //label
         Element propertyLabel = addFoxmlElement(objectProperties, "property");
         propertyLabel.addAttribute("NAME", "info:fedora/fedora-system:def/model#label");
-        propertyLabel.addAttribute("VALUE", collection.name);
+        propertyLabel.addAttribute("VALUE", collection.nameCz != null ? collection.nameCz : collection.nameEn);
         //state
         Element propertyState = addFoxmlElement(objectProperties, "property");
         propertyState.addAttribute("NAME", "info:fedora/fedora-system:def/model#state");
@@ -87,16 +87,37 @@ public class FoxmlBuilder {
         Element modsCollection = document.addElement(new QName("modsCollection", NS_MODS));
         Element mods = addModsElement(modsCollection, "mods");
         mods.addAttribute("version", "3.4");
-        Element tileInfo = addModsElement(mods, "titleInfo");
-        Element title = addModsElement(tileInfo, "title");
-        title.addText(collection.name);
-        if (collection.description != null) {
-            Element abstractEl = addModsElement(mods, "abstract");
-            abstractEl.addText(collection.description);
+        if (collection.nameCz != null) {
+            Element tileInfo = addModsElement(mods, "titleInfo");
+            tileInfo.addAttribute("lang", "cze");
+            Element title = addModsElement(tileInfo, "title");
+            title.addText(collection.nameCz);
         }
-        if (collection.content != null) {
+        if (collection.nameEn != null) {
+            Element tileInfo = addModsElement(mods, "titleInfo");
+            tileInfo.addAttribute("lang", "eng");
+            Element title = addModsElement(tileInfo, "title");
+            title.addText(collection.nameEn);
+        }
+        if (collection.descriptionCz != null) {
+            Element abstractEl = addModsElement(mods, "abstract");
+            abstractEl.addAttribute("lang", "cze");
+            abstractEl.addText(collection.descriptionCz);
+        }
+        if (collection.descriptionEn != null) {
+            Element abstractEl = addModsElement(mods, "abstract");
+            abstractEl.addAttribute("lang", "eng");
+            abstractEl.addText(collection.descriptionEn);
+        }
+        if (collection.contentCz != null) {
             Element note = addModsElement(mods, "note");
-            note.addText(StringEscapeUtils.escapeHtml(collection.content));
+            note.addAttribute("lang", "cze");
+            note.addText(StringEscapeUtils.escapeHtml(collection.contentCz));
+        }
+        if (collection.contentEn != null) {
+            Element note = addModsElement(mods, "note");
+            note.addAttribute("lang", "eng");
+            note.addText(StringEscapeUtils.escapeHtml(collection.contentEn));
         }
         return document;
     }
