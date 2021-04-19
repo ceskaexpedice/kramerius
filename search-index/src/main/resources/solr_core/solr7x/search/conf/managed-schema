@@ -656,7 +656,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="ds.img_full.mime" type="string" indexed="true" stored="true"/>
 
         <!--kratky popis sbirky-->
-        <field name="collection.desc" type="string" indexed="true" stored="true"/>
+        <field name="collection.desc" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="collection.is_standalone" type="boolean" indexed="true" stored="true"/>
 
         <!--OTHER-->

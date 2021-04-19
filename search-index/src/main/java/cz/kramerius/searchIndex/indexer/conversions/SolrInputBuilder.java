@@ -502,9 +502,17 @@ public class SolrInputBuilder {
 
         if ("collection".equals(model)) {
             //collection.desc
-            String abstractFromTitleInfo = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract").selectSingleNode(modsRootEl));
-            if (abstractFromTitleInfo != null) {
-                addSolrField(solrInput, "collection.desc", abstractFromTitleInfo);
+            String abstractFromTitleInfoCz = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract[@lang='cze']").selectSingleNode(modsRootEl));
+            if (abstractFromTitleInfoCz != null) {
+                addSolrField(solrInput, "collection.desc", abstractFromTitleInfoCz);
+            }
+            String abstractFromTitleInfoEn = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract[@lang='eng']").selectSingleNode(modsRootEl));
+            if (abstractFromTitleInfoEn != null) {
+                addSolrField(solrInput, "collection.desc", abstractFromTitleInfoEn);
+            }
+            String abstractFromTitleInfoNoLang = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract[not(@lang)]").selectSingleNode(modsRootEl));
+            if (abstractFromTitleInfoNoLang != null) {
+                addSolrField(solrInput, "collection.desc", abstractFromTitleInfoNoLang);
             }
             //collection.is_standalone
             String standaloneStr = toStringOrNull(Dom4jUtils.buildXpath("Description/standalone").selectSingleNode(relsExtRootEl));
