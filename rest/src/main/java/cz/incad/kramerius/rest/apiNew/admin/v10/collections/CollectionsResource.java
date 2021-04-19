@@ -377,16 +377,28 @@ public class CollectionsResource extends AdminApiResource {
         Document mods = krameriusRepositoryApi.getMods(pid, false);
         collection.nameCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[@lang='cze']/title");
         collection.nameEn = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[@lang='eng']/title");
+        if (collection.nameCz == null) { //fallback for older data without @lang
+            collection.nameCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[not(@lang)]/title");
+        }
         collection.descriptionCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract[@lang='cze']");
         collection.descriptionEn = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract[@lang='eng']");
+        if (collection.descriptionCz == null) {//fallback for older data without @lang
+            collection.descriptionCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract[not(@lang)]");
+        }
         if (withContent) {
-            String contentHtmlCzEscaped = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[@lang='cze']");
-            if (contentHtmlCzEscaped != null) {
-                collection.contentCz = StringEscapeUtils.unescapeHtml(contentHtmlCzEscaped);
+            String contentHtmlEscapedCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[@lang='cze']");
+            if (contentHtmlEscapedCz != null) {
+                collection.contentCz = StringEscapeUtils.unescapeHtml(contentHtmlEscapedCz);
             }
-            String contentHtmlEscaped = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[@lang='eng']");
-            if (contentHtmlEscaped != null) {
-                collection.contentEn = StringEscapeUtils.unescapeHtml(contentHtmlEscaped);
+            String contentHtmlEscapedEn = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[@lang='eng']");
+            if (contentHtmlEscapedEn != null) {
+                collection.contentEn = StringEscapeUtils.unescapeHtml(contentHtmlEscapedEn);
+            }
+            if (collection.contentCz == null) { //fallback for older data without @lang
+                String contentHtmlCzEscapedNoLang = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[not(@lang)]");
+                if (contentHtmlCzEscapedNoLang != null) {
+                    collection.contentCz = StringEscapeUtils.unescapeHtml(contentHtmlCzEscapedNoLang);
+                }
             }
         }
         //data from RELS-EXT
