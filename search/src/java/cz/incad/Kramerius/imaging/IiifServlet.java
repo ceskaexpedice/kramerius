@@ -97,16 +97,7 @@ public class IiifServlet extends AbstractImageServlet {
                         String nextToken = tokenizer.nextToken();
                         url.append("/").append(nextToken);
                         if ("info.json".equals(nextToken)) {
-
-                            // report access
-                            try {
-                                this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
-                            } catch (Exception e) {
-                                LOGGER.severe("cannot write statistic records");
-                                LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                            }
-
-
+                            reportAccess(pid);
                             resp.setContentType("application/ld+json");
                             resp.setCharacterEncoding("UTF-8");
                             HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
@@ -121,8 +112,6 @@ public class IiifServlet extends AbstractImageServlet {
                             return;
                         }
                     }
-
-
                     copyFromImageServer(url.toString(),resp);
                 } catch (JSONException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage());
@@ -143,5 +132,13 @@ public class IiifServlet extends AbstractImageServlet {
     @Override
     public boolean turnOnIterateScaling() {
         return false;
+    }
+
+    private void reportAccess(String pid) {
+        try {
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
+        }
     }
 }
