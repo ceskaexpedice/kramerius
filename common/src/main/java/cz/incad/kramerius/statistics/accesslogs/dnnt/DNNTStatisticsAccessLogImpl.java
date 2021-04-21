@@ -15,7 +15,6 @@ import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.date.DNNTStatisticsDateFormat;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.date.YearLogFormat;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
@@ -37,21 +36,33 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+
 public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
 
     // access logger for kibana processing
     public static Logger KRAMERIUS_LOGGER_FOR_KIBANA = Logger.getLogger("kramerius.access");
-
-
-    public static String[] MODS_XPATHS={"//mods:originInfo/mods:dateIssued[@encoding='marc']/text()","//mods:originInfo/mods:dateIssued/text()","//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()","//mods:part/mods:date/text()"};
-
-
+    protected ThreadLocal<ReportedAction> reportedAction = new ThreadLocal<ReportedAction>();
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DNNTStatisticsAccessLogImpl.class.getName());
 
-    //public static  XPathFactory xpfactory;
+    private static final String[] MODS_DATE_XPATHS = {
+            "//mods:part/mods:date/text()",
+            "//mods:originInfo/mods:dateIssued/text()",
+            "//mods:originInfo/mods:dateIssued[@encoding='marc']/text()",
+            "//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()"
+    };
 
-
-    protected ThreadLocal<ReportedAction> reportedAction = new ThreadLocal<ReportedAction>();
+    private static final List<XPathExpression> MODS_DATE_XPATH_EXPRS = new ArrayList<XPathExpression>() {{
+        XPathFactory xpfactory = XPathFactory.newInstance();
+        XPath xpath = xpfactory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        for (String strExpr : MODS_DATE_XPATHS) {
+            try {
+                add(xpath.compile(strExpr));
+            } catch (XPathExpressionException e) {
+                LOGGER.log(Level.SEVERE, "Can't compile XPath expression \"" + strExpr + "\"!", e);
+            }
+        }
+    }};
 
     @Inject
     SolrAccess solrAccess;
@@ -64,19 +75,7 @@ public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
     Provider<HttpServletRequest> requestProvider;
 
     @Inject
-    LoggedUsersSingleton loggedUsersSingleton;
-
-    @Inject
     Provider<User> userProvider;
-
-    @Inject
-    Set<StatisticReport> reports;
-
-
-    public DNNTStatisticsAccessLogImpl() {
-        //this.xpfactory = XPathFactory.newInstance();
-    }
-
 
     @Override
     public void reportAccess(String pid, String streamName) throws IOException {
@@ -97,11 +96,9 @@ public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
 
         // WRITE TO LOG - kibana processing
         if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
-            // dat to sem
-            //new DNNTStatisticSupport(this.requestProvider, this.userProvider, new YearLogFormat()).log(pid,rootTitle,dctitle,solrDate, findModsDate(paths, fedoraAccess) , dnnt,policy, dcPublishers ,sAuthors, paths, mpaths);
-            log(pid,rootTitle,dctitle,solrDate, findModsDate(paths, fedoraAccess) , dnnt,policy, dcPublishers ,sAuthors, paths, mpaths);
+            log(pid, rootTitle, dctitle, solrDate, findModsDate(paths, fedoraAccess),
+                    dnnt, policy, dcPublishers, sAuthors, paths, mpaths);
         }
-
     }
 
     public static  List<String> solrAuthors(String rootPid, SolrAccess solrAccess) throws IOException {
@@ -173,32 +170,41 @@ public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
         return null;
     }
 
-    public static String  findModsDate(ObjectPidsPath[] paths,FedoraAccess fedoraAccess) {
-        XPathFactory xpfactory = XPathFactory.newInstance();
-        try {
-            for (int i = 0; i < paths.length; i++) {
-                String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
-                for (int j = 0; j < pathFromLeafToRoot.length; j++) {
-                    String detailPid = pathFromLeafToRoot[j];
-                    for (String xPathExpression : MODS_XPATHS) {
-                        XPath xpath = xpfactory.newXPath();
-                        xpath.setNamespaceContext(new FedoraNamespaceContext());
-                        XPathExpression expr = xpath.compile(xPathExpression);
-                        Object date = expr.evaluate( fedoraAccess.getBiblioMods(detailPid), XPathConstants.NODE);
-                        if (date != null) return ((Text) date).getData();
-                    }
-                }
+    public static String findModsDate(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) {
+        for (ObjectPidsPath path : paths) {
+            String[] pathFromLeafToRoot = path.getPathFromLeafToRoot();
+            for (String detailPid : pathFromLeafToRoot) {
+                String modsDate = findModsDateOfPid(detailPid, fedoraAccess);
+                if (modsDate != null)
+                    return modsDate;
             }
-            return null;
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-            return null;
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-            return null;
         }
+        return null;
     }
 
+    private static String findModsDateOfPid(String pid, FedoraAccess fedoraAccess) {
+        Document biblioMods;
+        try {
+            biblioMods = fedoraAccess.getBiblioMods(pid);
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Can't get BIBLIO_MODS datastream of " + pid, e);
+            return null;
+        }
+
+        synchronized (MODS_DATE_XPATH_EXPRS) {
+            for (XPathExpression expr : MODS_DATE_XPATH_EXPRS) {
+                try {
+                    Object date = expr.evaluate(biblioMods, XPathConstants.NODE);
+                    if (date != null)
+                        return ((Text) date).getData();
+                } catch (XPathExpressionException e) {
+                    LOGGER.log(Level.WARNING,
+                            "An exception occurred while parsing a date from BIBLIO_MODS datastream of " + pid, e);
+                }
+            }
+        }
+        return null;
+    }
 
     public void log(String pid, String rootTitle, String dcTitle, String solrDate, String modsDate, String dnntFlag, String policy, List<String> dcPublishers, List<String> dcAuthors, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths) throws IOException {
         User user = this.userProvider.get();
@@ -320,9 +326,9 @@ public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
     }
 
     private  String getDate(DNNTStatisticsDateFormat dateFormat, String publishedDate)  {
-        if (dateFormat != null) {
+        if (dateFormat != null && publishedDate != null)
             return dateFormat.format(publishedDate);
-        } else return null;
+        else
+            return null;
     }
-
 }
