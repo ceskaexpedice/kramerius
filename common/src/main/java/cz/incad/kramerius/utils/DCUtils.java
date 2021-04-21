@@ -19,7 +19,6 @@ import cz.incad.kramerius.document.model.DCConent;
  */
 public class DCUtils {
 
-    
     /**
      * Returns dc content from given document
      * @param doc parsed DC stream
@@ -46,7 +45,6 @@ public class DCUtils {
         if (identsFromDC != null) content.setIdentifiers(identsFromDC);
         
         return content;
-         
     }
 
     /**
@@ -70,9 +68,6 @@ public class DCUtils {
             return policy;
         } else return null;
     }
-
-
-
 
     /**
      * Returns title from dc stream
@@ -139,26 +134,25 @@ public class DCUtils {
         else return null;
     }
 
-    
     public static String[] identifierlsFromDC(org.w3c.dom.Document dc) {
         ArrayList<String> idents = findElmTexts(dc, "identifier");
         return (String[]) idents.toArray(new String[idents.size()]);
     }
     
     public static ArrayList<String> findElmTexts(org.w3c.dom.Document dc, String elmName) {
-        ArrayList<String> texts  = new ArrayList<String>();
-        Element documentElement = dc.getDocumentElement();
-        NodeList childNodes = documentElement.getChildNodes();
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            Node item = childNodes.item(i);
-            if (item.getNodeType() == Node.ELEMENT_NODE) {
-                if (item.getLocalName().equals(elmName)) {
-                    texts.add(item.getTextContent().trim());
+        synchronized (dc) {
+            ArrayList<String> texts  = new ArrayList<String>();
+            Element documentElement = dc.getDocumentElement();
+            NodeList childNodes = documentElement.getChildNodes();
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node item = childNodes.item(i);
+                if (item.getNodeType() == Node.ELEMENT_NODE) {
+                    if (item.getLocalName().equals(elmName)) {
+                        texts.add(item.getTextContent().trim());
+                    }
                 }
             }
+            return texts;
         }
-        return texts;
     }
-
-
 }
