@@ -78,9 +78,7 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 public class PDFResource extends AbstractPDFResource  {
 
     public static Logger LOGGER = Logger.getLogger(PDFResource.class.getName());
-    
 
-    
     /**
      * Paper size
      * @author pavels
@@ -118,8 +116,7 @@ public class PDFResource extends AbstractPDFResource  {
             return rect;
         }
     }
-    
-    
+
     /**
      * Returns informations about resouce (how many pages can be generated and if resource is busy)
      * @return
@@ -157,8 +154,6 @@ public class PDFResource extends AbstractPDFResource  {
             throw new GenericApplicationException(e.getMessage());
         }
     }
-
-    
 
     /**
      * Print only part of image 
@@ -204,14 +199,8 @@ public class PDFResource extends AbstractPDFResource  {
                         FileOutputStream fos = new FileOutputStream(fileToDelete);
                         KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), fos);
                         fos.close();
-                        
-                        try {
-                            this.mostDesirable.saveAccess(pid, new Date());
-                            this.statisticsAccessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
-                        } catch (Exception e) {
-                            LOGGER.severe("cannot write statistic records");
-                            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                        }
+
+                        reportAccess(pid);
                         
                         StreamingOutput stream = streamingOutput(fileToDelete,format);
                         return Response
@@ -242,9 +231,9 @@ public class PDFResource extends AbstractPDFResource  {
                 PDFExlusiveGenerateSupport.PDF_SEMAPHORE.release();
         }
     }
-    
+
     /**
-     * Generate pdf from selection 
+     * Generate pdf from selection
      * @param pidsParam List of pids
      * @param pageType First page type. Possible values TEXT, IMAGE
      * @param format Page format. Possible values : A0,...A5, B0,...B5, LETTER, POSTCARD
@@ -287,7 +276,6 @@ public class PDFResource extends AbstractPDFResource  {
                                 }
                             }
                         };
-
                         SimpleDateFormat sdate = new SimpleDateFormat(
                                 "yyyyMMdd_mmhhss");
                         return Response
@@ -296,11 +284,9 @@ public class PDFResource extends AbstractPDFResource  {
                                         "attachment; filename="
                                                 + sdate.format(new Date()) + ".pdf")
                                 .entity(stream).type("application/pdf").build();
-
                     } else {
                         return Response.status(Response.Status.BAD_REQUEST).build();
                     }
-
                 } catch (MalformedURLException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
@@ -326,10 +312,8 @@ public class PDFResource extends AbstractPDFResource  {
         }
     }
 
-
-    
     /**
-     * Generate whole document 
+     * Generate whole document
      * @param pid PID of generating document
      * @param number Number of pages (whole document or maximum number of pages)
      * @param pageType Type of firt page. Possible values: TEXT,IMAGE
@@ -348,15 +332,13 @@ public class PDFResource extends AbstractPDFResource  {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
             if (acquired) {
                 try {
-
-
                     AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage
                             .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
 
                     // max number test
                     int n = ConfigurationUtils.checkNumber(number);
                     Rectangle formatRect = formatRect(format);
-                    
+
                     final File generatedPdf = super.parent(pid, n, formatRect, fp);
 
                     final InputStream fis = new FileInputStream(generatedPdf);
@@ -413,7 +395,6 @@ public class PDFResource extends AbstractPDFResource  {
         }
     }
 
-    
     public static BufferedImage partOfImage(BufferedImage bufferedImage, HttpServletRequest req,
             String pid) throws MalformedURLException, IOException, JSONException, XPathExpressionException {
 
@@ -431,7 +412,6 @@ public class PDFResource extends AbstractPDFResource  {
         return KrameriusImageSupport.partOfImage(bufferedImage, xPerctDouble, yPerctDouble,
                 widthPerctDouble, heightPerctDouble);
     }
-
 
     private static StreamingOutput streamingOutput(final File file, final String format) {
         return new StreamingOutput() {
@@ -453,7 +433,7 @@ public class PDFResource extends AbstractPDFResource  {
                     document.add(image);
 
                     document.close();
-                    
+
                 } catch (Exception e) {
                     throw new WebApplicationException(e);
                 } finally {
@@ -462,8 +442,6 @@ public class PDFResource extends AbstractPDFResource  {
             }
         };
     }
-    
-
 
     public static Rectangle formatRect(String format) {
         Rectangle formatRect =  Size.A4.getRectangle();
@@ -478,6 +456,13 @@ public class PDFResource extends AbstractPDFResource  {
         }
         return formatRect;
     }
-    
 
+    private void reportAccess(String pid) {
+        try {
+            this.mostDesirable.saveAccess(pid, new Date());
+            this.statisticsAccessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
+        }
+    }
 }

@@ -65,15 +65,6 @@ public class DeepZoomServlet extends AbstractImageServlet {
     
     @Inject
     SolrAccess solrAccess;
-    
-    
-//    @Inject
-//    @Named("database")
-//    StatisticsAccessLog databaseAccessLog;
-//
-//    @Inject
-//    @Named("dnnt")
-//    StatisticsAccessLog dnntAccessLog;
 
     @Inject
     AggregatedAccessLogs aggregatedAccessLogs;
@@ -86,7 +77,6 @@ public class DeepZoomServlet extends AbstractImageServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            
             String requestURL = req.getRequestURL().toString();
             String zoomUrl = disectZoom(requestURL);
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
@@ -136,14 +126,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     }
 
     private void renderDZI(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
-        try {
-            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
-        } catch (Exception e) {
-            LOGGER.severe("cannot write statistic records");
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        }
-
-
+        reportAccess(pid);
         setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
@@ -162,8 +145,6 @@ public class DeepZoomServlet extends AbstractImageServlet {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
-    
-
 
     private void renderIIPDZIDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
         String urlForStream = getURLForStream(uuid, url);
@@ -185,7 +166,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
             int levelsOverTile = KConfiguration.getInstance().getConfiguration().getInt("deepZoom.numberStepsOverTile", 1);
             int tileLevel = tileSupport.getClosestLevel(new Dimension(rawDim.width, rawDim.height), tileSupport.getTileSize(), 1);
             Dimension scaledDimension = tileSupport.getScaledDimension(rawDim, tileLevel+levelsOverTile);
-            
+
             cacheService.writeDeepZoomDescriptor(uuid, scaledDimension, tileSupport.getTileSize());
         }
         InputStream inputStream = cacheService.getDeepZoomDescriptorStream(uuid);
@@ -245,11 +226,11 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 String srow = tokenizer.nextToken();
                 Dimension originalResolution = cacheService.getResolutionFromFile(pid);
                 int maxLevels = tileSupport.getLevels(originalResolution, 1);
-                
+
                 Dimension scaledResolution = tileSupport.getScaledDimension(originalResolution, ilevel,maxLevels);
                 if ((scaledResolution.width <= tileSupport.getTileSize()) && (scaledResolution.height <= tileSupport.getTileSize())) {
                     // obrazek se vejde na jednu dlazdici, vracime velky nahled
-                    
+
                     if (fedoraAccess.isFullthumbnailAvailable(pid)) {
                         String mimeType = this.fedoraAccess.getFullThumbnailMimeType(pid);
                         resp.setContentType(mimeType);
@@ -260,9 +241,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
                         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                     }
 
-                    
+
                 } else {
-                    // bereme z cache nebo pocitame, vykresulejeme, ukladame a vracime 
+                    // bereme z cache nebo pocitame, vykresulejeme, ukladame a vracime
                     boolean tilePresent = cacheService.isDeepZoomTilePresent(pid, ilevel, Integer.parseInt(srow), Integer.parseInt(scol));
                     if (!tilePresent) {
                         // File dFile = cacheService.getDeepZoomLevelsFile(uuid);
@@ -335,11 +316,17 @@ public class DeepZoomServlet extends AbstractImageServlet {
         boolean highQuality = KConfiguration.getInstance().getConfiguration().getBoolean("deepZoom.iterateScaling", true);
         return highQuality;
     }
-    
-    
+
     private boolean useFromReplicated() {
         boolean useFromReplicated = KConfiguration.getInstance().getConfiguration().getBoolean("zoom.useFromReplicated",false);
         return useFromReplicated;
     }
 
+    private void reportAccess(String pid) {
+        try {
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
+        }
+    }
 }

@@ -162,12 +162,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
     }
 
     private void renderXMLDescriptor(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
-        try {
-            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
-        } catch (Exception e) {
-            LOGGER.severe("cannot write statistic records");
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
-        }
+        reportAccess(pid);
 
         setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
@@ -367,6 +362,14 @@ public class ZoomifyServlet extends AbstractImageServlet {
             tileUrl.setAttribute("y", y);
             tileUrl.setAttribute("ext", ext);
             copyFromImageServer(tileUrl.toString(), resp);
+        }
+    }
+
+    private void reportAccess(String pid) {
+        try {
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
         }
     }
 }
