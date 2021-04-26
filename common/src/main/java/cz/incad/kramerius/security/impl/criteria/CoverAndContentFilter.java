@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  */
 public class CoverAndContentFilter extends AbstractCriterium implements RightCriterium {
 
-    Logger LOGGER = java.util.logging.Logger.getLogger(CoverAndContentFilter.class.getName());
+    private static final Logger LOGGER = java.util.logging.Logger.getLogger(CoverAndContentFilter.class.getName());
     private static XPathExpression modsTypeExpr = null;
     private static final List<String> allowedPageTypes = Arrays.asList(
             "FrontCover", "TableOfContents", "FrontJacket", "TitlePage", "jacket"
@@ -51,14 +51,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
             } else {
                 return EvaluatingResultState.TRUE;
             }
-
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResultState.NOT_APPLICABLE;
-        } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResultState.NOT_APPLICABLE;
-        } catch (ParserConfigurationException e) {
+        } catch (IOException | SAXException | ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return EvaluatingResultState.NOT_APPLICABLE;
         }
@@ -66,7 +59,8 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
 
     private EvaluatingResultState checkTypeElement(Document mods) throws IOException {
         try {
-            if (modsTypeExpr == null) initModsTypeExpr();
+            if (modsTypeExpr == null)
+                initModsTypeExpr();
             String type = modsTypeExpr.evaluate(mods);
             if (allowedPageTypes.contains(type)) {
                 return EvaluatingResultState.TRUE;
@@ -111,5 +105,4 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     public SecuredActions[] getApplicableActions() {
         return new SecuredActions[]{SecuredActions.READ};
     }
-
 }
