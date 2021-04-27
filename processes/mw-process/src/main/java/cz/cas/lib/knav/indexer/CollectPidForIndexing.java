@@ -54,7 +54,7 @@ public class CollectPidForIndexing {
 
     public static String planBatchIndexer(String...args) {
         Client c = Client.create();
-        WebResource r = c.resource(ProcessUtils.getApiPoint()+"?def=batchindexer");
+        WebResource r = c.resource(ProcessUtils.getOldApiEndpointProcesses()+"?def=batchindexer");
         r.addFilter(new TokensFilter());
    
         JSONObject object = new JSONObject();

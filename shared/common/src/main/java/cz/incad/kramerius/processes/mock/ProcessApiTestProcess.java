@@ -19,13 +19,16 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 /**
- * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (new_process-api-test)
+ * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (new_process_api_test)
  */
 public class ProcessApiTestProcess {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessApiTestProcess.class.getName());
 
-    public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token";
+    public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token"; //just for processes
+    public static final String API_AUTH_HEADER_CLIENT = "client";
+    public static final String API_AUTH_HEADER_UID = "uid";
+    public static final String API_AUTH_HEADER_ACCESS_TOKEN = "access-token";
 
     public static void main(String[] args) throws IOException {
         long start = System.currentTimeMillis();
@@ -42,13 +45,17 @@ public class ProcessApiTestProcess {
         LOGGER.info("args: " + Arrays.asList(args));
         int argsIndex = 0;
         String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+        //Kramerius
+        String krameriusApiAuthClient = args[argsIndex++];
+        String krameriusApiAuthUid = args[argsIndex++];
+        String krameriusApiAuthAccessToken = args[argsIndex++];
+
         int durationInSeconds = Integer.valueOf(args[argsIndex++]);
         int processesInBatch = Integer.valueOf(args[argsIndex++]);
         FinalState finalState = FinalState.valueOf(args[argsIndex++]);
 
         //zmena nazvu
-        ProcessStarter.updateName(String.format("Proces pro testování správy procesů (%s=%ds, %s=%s, %s=%d)",
-                "duration", durationInSeconds, "processesInBatch", finalState, processesInBatch));
+        ProcessStarter.updateName(String.format("Proces pro testování správy procesů (duration=%ds, processesInBatch=%s, finalState=%s)", durationInSeconds, processesInBatch, finalState));
 
         //cekani n sekund
         try {
@@ -60,7 +67,7 @@ public class ProcessApiTestProcess {
         }
 
         if (processesInBatch > 1) {
-            scheduleNextProcessInBatch(authToken, durationInSeconds, processesInBatch - 1, finalState);
+            scheduleNextProcessInBatch(authToken, durationInSeconds, processesInBatch - 1, finalState, krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);
         }
 
         LOGGER.info("total duration: " + Utils.formatTime(System.currentTimeMillis() - start));
@@ -81,7 +88,7 @@ public class ProcessApiTestProcess {
         }
     }
 
-    public static void scheduleNextProcessInBatch(String authToken, int durationInSeconds, int remainingProcessesInBatch, FinalState finalState) {
+    public static void scheduleNextProcessInBatch(String authToken, int durationInSeconds, int remainingProcessesInBatch, FinalState finalState, String krameriusApiAuthClient, String krameriusApiAuthUid, String krameriusApiAuthAccessToken) {
         //v starem api to funguje tak, ze proces zavola servlet (lr), stejne jako to dela externi klient, dokonce i pro zmeny stavu procesu apod.
         //viz IndexerProcessStarter.spawnIndexer
         //tohle ted mame podobne, akorat se mi nelibi, jakym zpusobem volaji procesy lr servlet
@@ -91,9 +98,9 @@ public class ProcessApiTestProcess {
         //cili bych omezil to, co muze byt proces.
         //Ted obecna trida, co ma main() a tak nema jinou moznost (pro zmenu nazvu apod.), nez volat staticke metody odevsad, cimz tak k sobe ve vysledku muze nabalit pulku Krameria kvuli zavislostem
         Client client = Client.create();
-        WebResource resource = client.resource(ProcessUtils.getNewAdminApiProcessesEndpoint());
+        WebResource resource = client.resource(ProcessUtils.getNewAdminApiEndpoint() + "/processes");
         JSONObject data = new JSONObject();
-        data.put("defid", "new_process-api-test");
+        data.put("defid", "new_process_api_test");
         JSONObject params = new JSONObject();
         params.put("duration", durationInSeconds);
         params.put("processesInBatch", remainingProcessesInBatch);
@@ -105,9 +112,9 @@ public class ProcessApiTestProcess {
                     .accept(MediaType.APPLICATION_JSON)
                     .type(MediaType.APPLICATION_JSON)
                     .header(API_AUTH_HEADER_AUTH_TOKEN, authToken)
-                    //.header(API_AUTH_HEADER_CLIENT, authClient)
-                    //.header(API_AUTH_HEADER_UID, authUid)
-                    //.header(API_AUTH_HEADER_ACCESS_TOKEN, authAccessToken)
+                    .header(API_AUTH_HEADER_CLIENT, krameriusApiAuthClient)
+                    .header(API_AUTH_HEADER_UID, krameriusApiAuthUid)
+                    .header(API_AUTH_HEADER_ACCESS_TOKEN, krameriusApiAuthAccessToken)
                     .entity(data.toString(), MediaType.APPLICATION_JSON)
                     .post(String.class);
             //System.out.println("response: " + response);

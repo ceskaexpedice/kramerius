@@ -192,4 +192,7 @@ public class Dom4jUtils {
         return null;
     }
 
+    public static String getNamespaceUri(String prefix) {
+        return NAMESPACE_URIS.get(prefix);
+    }
 }

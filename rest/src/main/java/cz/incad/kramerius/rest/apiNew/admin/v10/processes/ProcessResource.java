@@ -1,10 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.processes;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.States;
+import cz.incad.kramerius.processes.*;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
@@ -577,9 +574,10 @@ public class ProcessResource extends AdminApiResource {
             if (processDefinition.has("params")) {
                 params = processDefinition.getJSONObject("params");
             }
-            ClientAuthHeaders clientAuthHeaders = extractClientAuthHeders();
+            //authentication & authorization
+            ClientAuthHeaders clientAuthHeaders = extractClientAuthHeaders();
             if (processAuthToken != null) { //run by process (so the new process will be it's sibling in same batch)
-                //authentication & authorization
+                //System.out.println("process auth token found");
                 ProcessManager.ProcessAboutToScheduleSibling originalProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(processAuthToken);
                 if (originalProcess == null) {
                     throw new UnauthorizedException("invalid token"); //401
@@ -592,6 +590,7 @@ public class ProcessResource extends AdminApiResource {
                 paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
                 return scheduleProcess(defid, paramsList, userId, userName, batchToken, newProcessAuthToken);
             } else { //run by user (through web client)
+                //System.out.println("process auth token NOT found");
                 String batchToken = UUID.randomUUID().toString();
                 List<String> paramsList = new ArrayList<>();
                 String newProcessAuthToken = UUID.randomUUID().toString();
@@ -638,29 +637,32 @@ public class ProcessResource extends AdminApiResource {
 
     private List<String> paramsToList(String id, JSONObject params, ClientAuthHeaders clientAuthHeaders) {
         switch (id) {
-            case "new_process-api-test": {
+            case "new_process_api_test": {
                 //duration (of every process in the batch) in seconds
-                Integer duration = extractOptionalPositiveInteger(params, "duration", 1);
+                Integer duration = extractOptionalParamPositiveInteger(params, "duration", 1);
                 //number of processes in the batch
-                Integer processesInBatch = extractOptionalPositiveInteger(params, "processesInBatch", 1);
+                Integer processesInBatch = extractOptionalParamPositiveInteger(params, "processesInBatch", 1);
                 //final state of every process in the batch (including random)
-                ProcessApiTestProcess.FinalState finalState = extractOptionalFinalState(params, "finalState", ProcessApiTestProcess.FinalState.FINISHED);
+                String finalState = extractOptionalParamWithValueFromEnum(params, "finalState", ProcessApiTestProcess.FinalState.class, ProcessApiTestProcess.FinalState.FINISHED.name());
 
                 List<String> result = new ArrayList<>();
+                //Kramerius APIs
+                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//protoze spousti podprocesy
+                //test process params
                 result.add(duration.toString());
                 result.add(processesInBatch.toString());
-                result.add(finalState.name());
+                result.add(finalState);
                 return result;
             }
             case "new_indexer_index_object": {
-                String type = extractMandatoryIndexationType(params, "type");
-                String pid = extractMandatoryPid(params, "pid", "uuid:");
-                Boolean ignoreInconsistentObjects = extractOptionalBoolean(params, "ignoreInconsistentObjects", false);
-                String title = extractOptionalString(params, "title", null);
+                String type = extractMandatoryParamWithValueFromEnum(params, "type", IndexationType.class);
+                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                Boolean ignoreInconsistentObjects = extractOptionalParamBoolean(params, "ignoreInconsistentObjects", false);
+                String title = extractOptionalParamString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
-                //Kramerius
-                result.addAll(processSchedulingHelper.processParamsKramerius(clientAuthHeaders));
+                //Kramerius APIs
+                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders)); //pro pristup k repozitari pres verejne rest api
                 //Solr
                 result.addAll(processSchedulingHelper.processParamsSolr());
                 //indexation params
@@ -671,17 +673,17 @@ public class ProcessResource extends AdminApiResource {
                 return result;
             }
             case "new_indexer_index_model": {
-                String type = extractMandatoryIndexationType(params, "type");
-                String pid = extractMandatoryPid(params, "pid", "model:");
-                Boolean ignoreInconsistentObjects = extractOptionalBoolean(params, "ignoreInconsistentObjects", false);
-                Boolean indexNotIndexed = extractOptionalBoolean(params, "indexNotIndexed", true);
-                Boolean indexRunningOrError = extractOptionalBoolean(params, "indexRunningOrError", false);
-                Boolean indexIndexedOutdated = extractOptionalBoolean(params, "indexIndexedOutdated", false);
-                Boolean indexIndexed = extractOptionalBoolean(params, "indexIndexed", false);
+                String type = extractMandatoryParamWithValueFromEnum(params, "type", IndexationType.class);
+                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "model:");
+                Boolean ignoreInconsistentObjects = extractOptionalParamBoolean(params, "ignoreInconsistentObjects", false);
+                Boolean indexNotIndexed = extractOptionalParamBoolean(params, "indexNotIndexed", true);
+                Boolean indexRunningOrError = extractOptionalParamBoolean(params, "indexRunningOrError", false);
+                Boolean indexIndexedOutdated = extractOptionalParamBoolean(params, "indexIndexedOutdated", false);
+                Boolean indexIndexed = extractOptionalParamBoolean(params, "indexIndexed", false);
 
                 List<String> result = new ArrayList<>();
-                //Kramerius
-                result.addAll(processSchedulingHelper.processParamsKramerius(clientAuthHeaders));
+                //Kramerius APIs
+                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
                 //Solr
                 result.addAll(processSchedulingHelper.processParamsSolr());
                 //indexation params
@@ -694,13 +696,29 @@ public class ProcessResource extends AdminApiResource {
                 result.add(indexIndexed.toString());//if indexed objects should be indexed
                 return result;
             }
+            case "set_policy": {
+                String scope = extractMandatoryParamWithValueFromEnum(params, "scope", SetPolicyProcess.Scope.class);
+                String policy = extractMandatoryParamWithValueFromEnum(params, "policy", SetPolicyProcess.Policy.class);
+                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                String title = extractOptionalParamString(params, "title", null);
+
+                List<String> result = new ArrayList<>();
+                //Kramerius APIs
+                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
+                //set-policy params
+                result.add(scope);
+                result.add(policy);
+                result.add(pid);
+                result.add(title);
+                return result;
+            }
             default: {
                 throw new BadRequestException("unsupported process id '%s'", id);
             }
         }
     }
 
-    private Integer extractOptionalPositiveInteger(JSONObject params, String paramName, int defaultValue) {
+    private Integer extractOptionalParamPositiveInteger(JSONObject params, String paramName, int defaultValue) {
         if (params.has(paramName)) {
             try {
                 int processesInBatch = params.getInt(paramName);
@@ -717,11 +735,11 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    private String extractOptionalString(JSONObject params, String paramName, String defaultValue) {
+    private String extractOptionalParamString(JSONObject params, String paramName, String defaultValue) {
         return params.has(paramName) ? params.getString(paramName) : defaultValue;
     }
 
-    private Boolean extractOptionalBoolean(JSONObject params, String paramName, boolean defaultValue) {
+    private Boolean extractOptionalParamBoolean(JSONObject params, String paramName, boolean defaultValue) {
         if (params.has(paramName)) {
             return params.getBoolean(paramName);
         } else {
@@ -729,43 +747,47 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    private ProcessApiTestProcess.FinalState extractOptionalFinalState(JSONObject params, String paramName, ProcessApiTestProcess.FinalState finished) {
-        String finalStateStr = extractOptionalString(params, paramName, null);
-        if (finalStateStr == null) {
-            return finished;
+    private String extractMandatoryParamWithValuePrefixed(JSONObject params, String paramName, String prefix) {
+        String value = extractOptionalParamString(params, paramName, null);
+        if (value == null) {
+            throw new BadRequestException("missing mandatory parameter %s: ", paramName);
         } else {
-            try {
-                return ProcessApiTestProcess.FinalState.valueOf(finalStateStr);
-            } catch (IllegalArgumentException e) {
-                throw new BadRequestException("invalid value of %s: '%s'", paramName, finalStateStr);
+            if (!value.toLowerCase().startsWith(prefix)) {
+                throw new BadRequestException("invalid value of %s (doesn't start with '%s') : '%s'", paramName, prefix, value);
             }
+            return value;
         }
     }
 
-
-    private String extractMandatoryPid(JSONObject params, String paramName, String prefix) {
-        String pid = extractOptionalString(params, paramName, null);
-        if (pid == null) {
-            throw new BadRequestException("missing mandatory parameter %s: ", paramName);
+    private String extractOptionalParamWithValueFromEnum(JSONObject params, String paramName, Class enumClass, String defaultValue) {
+        String value = extractOptionalParamString(params, paramName, defaultValue);
+        if (value == null) {
+            return null;
         } else {
-            if (!pid.toLowerCase().startsWith(prefix)) {
-                throw new BadRequestException("invalid value of %s (doesn't start with '%s') : '%s'", paramName, prefix, pid);
+            Object[] enumConstants = enumClass.getEnumConstants();
+            for (int i = 0; i < enumConstants.length; i++) {
+                String enumValue = enumConstants[i].toString();
+                if (value.equals(enumValue)) {
+                    return value;
+                }
             }
-            return pid;
+            throw new BadRequestException("invalid value of %s: '%s'", paramName, value);
         }
     }
 
-    private String extractMandatoryIndexationType(JSONObject params, String paramName) {
-        String type = extractOptionalString(params, paramName, null);
-        if (type == null) {
+    private String extractMandatoryParamWithValueFromEnum(JSONObject params, String paramName, Class enumClass) {
+        String value = extractOptionalParamString(params, paramName, null);
+        if (value == null) {
             throw new BadRequestException("missing mandatory parameter %s: ", paramName);
         } else {
-            try {
-                IndexationType.valueOf(type);
-            } catch (IllegalArgumentException e) {
-                throw new BadRequestException("invalid value of %s: '%s'", paramName, type);
+            Object[] enumConstants = enumClass.getEnumConstants();
+            for (int i = 0; i < enumConstants.length; i++) {
+                String enumValue = enumConstants[i].toString();
+                if (value.equals(enumValue)) {
+                    return value;
+                }
             }
-            return type;
+            throw new BadRequestException("invalid value of %s: '%s'", paramName, value);
         }
     }
 

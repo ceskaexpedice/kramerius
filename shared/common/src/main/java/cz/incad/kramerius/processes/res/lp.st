@@ -17,33 +17,22 @@
 
     </process>
 
+    <!--deprecated - jen proto, aby bylo mozne zobrazit zaznamy starsich procesu-->
     <process>
-        <!-- identifikator  -->
-        <id>new_process_api_test</id>
-        <!-- popis -->
+        <id>process-api-test</id>
         <description>Proces pro testování nové správy procesů</description>
-        <!-- spoustena trida -->
         <mainClass>cz.incad.kramerius.processes.mock.ProcessApiTestProcess</mainClass>
-        <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
-        <!-- chybovy vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
-        <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
-        <!--<parameters>duration processesInBatch finalState</parameters>-->
         <checkErrorStream>false</checkErrorStream>
     </process>
 
     <process>
-        <!-- identifikator  -->
-        <id>new_indexer_index_object</id>
-        <!-- popis -->
-        <description>(re)indexace objektu v novém vyhledávacím indexu</description>
-        <!-- spoustena trida -->
-        <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexObject</mainClass>
-        <!-- standardni vystup -->
+        <id>new_process_api_test</id>
+        <description>Proces pro testování nové správy procesů</description>
+        <mainClass>cz.incad.kramerius.processes.mock.ProcessApiTestProcess</mainClass>
         <standardOs>lrOut</standardOs>
-        <!-- chybovy vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
@@ -61,18 +50,25 @@
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <checkErrorStream>false</checkErrorStream>
     </process>
-    update processes set defid='new_indexer_index_object' where defid='new_indexer' and process_id>209730;
+
+    <process>
+        <id>new_indexer_index_object</id>
+        <description>(re)indexace objektu v novém vyhledávacím indexu</description>
+        <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexObject</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
+        <!--<parameters>duration processesInBatch finalState</parameters>-->
+        <checkErrorStream>false</checkErrorStream>
+    </process>
 
     <process>
         <!-- identifikator  -->
         <id>new_indexer_index_model</id>
-        <!-- popis -->
         <description>(re)indexace modelu v novém vyhledávacím indexu</description>
-        <!-- spoustena trida -->
         <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexModel</mainClass>
-        <!-- standardni vystup -->
         <standardOs>lrOut</standardOs>
-        <!-- chybovy vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
@@ -283,6 +279,7 @@
         <errOs>lrErr</errOs>
     </process>
 
+    <!--deprecated - očekává datastream DC a spouští indexaci do starého indexu -->
     <process>
         <id>setpublic</id>
         <description>Set public</description>
@@ -297,6 +294,7 @@
         -->
     </process>
 
+    <!--deprecated - očekává datastream DC a spouští indexaci do starého indexu -->
     <process>
         <id>setprivate</id>
         <description>Set private</description>
@@ -309,6 +307,16 @@
             <parameter>private</parameter>
         </parameters>
         -->
+    </process>
+
+    <process>
+        <id>set_policy</id>
+        <description>nastavení viditelnosti (POLICY) objektu, případně i potomků, na public/private</description>
+        <mainClass>cz.incad.kramerius.processes.SetPolicyProcess</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <checkErrorStream>false</checkErrorStream>
     </process>
 
 

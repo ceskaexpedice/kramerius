@@ -9,6 +9,7 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.solr.SolrModule;
@@ -51,7 +52,6 @@ public class NewIndexerProcessIndexModel {
         int argsIndex = 0;
         String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //Kramerius
-        String krameriusBackendBaseUrl = args[argsIndex++];
         String krameriusApiAuthClient = args[argsIndex++];
         String krameriusApiAuthUid = args[argsIndex++];
         String krameriusApiAuthAccessToken = args[argsIndex++];
@@ -99,7 +99,7 @@ public class NewIndexerProcessIndexModel {
         FedoraAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepositoryAccess);
 
         //access to resource index through new public APIs
-        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
+        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
 
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
         Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out, ignoreInconsistentObjects);

@@ -178,7 +178,7 @@ public class PolicyServiceImpl implements PolicyService {
         return nodes;
     }
 
-    
+
     public FedoraAccess getFedoraAccess() {
         return fedoraAccess;
     }
@@ -220,8 +220,10 @@ public class PolicyServiceImpl implements PolicyService {
      * args[1] - uuid of the root item (withou uuid: prefix)
      * args[0] - policy to set (public, private)
      * @throws IOException
+     * @deprecated
+     * @see cz.incad.kramerius.processes.SetPolicyProcess
      */
-
+    @Deprecated
     public static void main(String[] args) throws IOException {
         LOGGER.info("PolicyService: "+Arrays.toString(args));
         if (args.length >= 2) {

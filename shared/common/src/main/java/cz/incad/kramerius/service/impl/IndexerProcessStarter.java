@@ -63,7 +63,7 @@ public class IndexerProcessStarter {
     
     public static String planIndexProcess(String...args) {
         Client c = Client.create();
-        WebResource r = c.resource(ProcessUtils.getApiPoint()+"?def=reindex");
+        WebResource r = c.resource(ProcessUtils.getOldApiEndpointProcesses()+"?def=reindex");
         r.addFilter(new TokensFilter());
 
         JSONObject object = new JSONObject();

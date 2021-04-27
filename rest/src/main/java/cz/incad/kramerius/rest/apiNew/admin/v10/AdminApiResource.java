@@ -43,12 +43,12 @@ public abstract class AdminApiResource extends ApiResource {
     @Inject
     RightsResolver rightsResolver;
 
-    public ClientAuthHeaders extractClientAuthHeders() {
+    public ClientAuthHeaders extractClientAuthHeaders() {
         return ClientAuthHeaders.extract(requestProvider);
     }
 
     public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
-        ClientAuthHeaders authHeaders = extractClientAuthHeders();
+        ClientAuthHeaders authHeaders = extractClientAuthHeaders();
         //System.out.println(authHeaders);
         try {
             URL url = new URL(AUTH_URL);

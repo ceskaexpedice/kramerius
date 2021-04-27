@@ -134,10 +134,8 @@ public class ProcessSchedulingHelper {
         return params;
     }
 
-    //TODO: move to config
-    public List<String> processParamsKramerius(ClientAuthHeaders clientAuthHeaders) {
+    public List<String> processParamsKrameriusAdminApiCredentials(ClientAuthHeaders clientAuthHeaders) {
         List<String> params = new ArrayList<>();
-        params.add("http://localhost:8080/search");
         params.add(clientAuthHeaders.getClient());
         params.add(clientAuthHeaders.getUid());
         params.add(clientAuthHeaders.getAccessToken());

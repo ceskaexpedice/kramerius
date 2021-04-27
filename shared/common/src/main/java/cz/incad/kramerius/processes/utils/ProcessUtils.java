@@ -43,22 +43,25 @@ public class ProcessUtils {
     /** Lr servlet name.  This coresponds with web.xml  */
     public static final String LR_SERVLET_NAME="lr";
 
-    public static String getApiPoint() {
-
+    public static String getCoreBaseUrl() {
         String applicationURL = KConfiguration.getInstance().getApplicationURL();
-        if (!applicationURL.endsWith("/")) {
-            applicationURL += '/';
+        if (applicationURL.endsWith("/")) { //normalize to "../search", not "../search/"
+            applicationURL = applicationURL.substring(0, applicationURL.length() - 1);
         }
-        String api = applicationURL +  "api/v4.6/processes";
+        return applicationURL;
+    }
+
+    public static String getNewAdminApiEndpoint() {
+        String api = getCoreBaseUrl() + "/api/admin/v1.0";
         return api;
     }
 
-    public static String getNewAdminApiProcessesEndpoint() {
+    public static String getOldApiEndpointProcesses() {
         String applicationURL = KConfiguration.getInstance().getApplicationURL();
-        if (!applicationURL.endsWith("/")) {
-            applicationURL += '/';
+        if (applicationURL.endsWith("/")) { //normalize to "../search", not "../search/"
+            applicationURL = applicationURL.substring(0, applicationURL.length() - 1);
         }
-        String api = applicationURL +  "api/v6.0/admin/processes";
+        String api = applicationURL + "/api/v4.6/processes";
         return api;
     }
 
