@@ -35,7 +35,10 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
         // necessary to have checked access to fedora.
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class)
                 .in(Scopes.SINGLETON);
-        bind(AggregatedAccessLogs.class).to(NoStatistics.class).in(Scopes.SINGLETON);
+
+        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(DeepZoomTileSupport.class).to(TileSupportImpl.class);
 
