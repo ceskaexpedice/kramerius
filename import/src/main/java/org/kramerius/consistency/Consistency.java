@@ -24,6 +24,8 @@ import java.util.Stack;
 
 import javax.xml.transform.TransformerConfigurationException;
 
+import com.google.inject.name.Names;
+import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.fedora.api.FedoraAPIM;
 import org.fedora.api.RelationshipTuple;
@@ -201,7 +203,11 @@ public class Consistency {
         protected void configure() {
             bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
             bind(FedoraAccess.class).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-            bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
+
+            bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+            bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+
+
         }
     }
     

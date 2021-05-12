@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
+import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
 import org.w3c.dom.Document;
 
 import com.google.common.collect.Ordering;
@@ -180,7 +182,11 @@ class SortingModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-        bind(AggregatedAccessLogs.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+
+        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(DatabaseStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
+        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(DNNTStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
+
+        bind(AggregatedAccessLogs.class).in(Scopes.SINGLETON);
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);

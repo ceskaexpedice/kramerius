@@ -433,7 +433,7 @@ public class StatisticDatabaseInitializator {
                 try {
                     JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
                     dropTemplate.setUseReturningKeys(false);
-                    dropTemplate.executeUpdate("DROP VIEW _authors_view");
+                    dropTemplate.executeUpdate("DROP VIEW IF EXISTS _authors_view");
                 } catch (SQLException e){
                     LOGGER.info("Cannot DROP VIEW _authors_view:" + e);
                 }
@@ -472,7 +472,7 @@ public class StatisticDatabaseInitializator {
                 try {
                     JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
                     dropTemplate.setUseReturningKeys(false);
-                    dropTemplate.executeUpdate("DROP VIEW _langs_view");
+                    dropTemplate.executeUpdate("DROP VIEW IF EXISTS _langs_view");
                 } catch (SQLException e){
                     LOGGER.info("Cannot DROP VIEW _langs_view:" + e);
                 }
