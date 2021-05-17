@@ -428,6 +428,25 @@
         </out>
     </test>
 
+    <test name="neznámý typ">
+        <desc></desc>
+        <in>
+            <identifier type="xxx">123</identifier>
+        </in>
+        <out>
+            <field name="id_other">xxx:123</field>
+        </out>
+    </test>
+
+    <test name="neznámý typ, prefix v hodnotě">
+        <desc></desc>
+        <in>
+            <identifier type="xxx">aBc:123</identifier>
+        </in>
+        <out>
+            <field name="id_other">xxx:aBc:123</field>
+        </out>
+    </test>
 
     <test name="prázdná hodnota 1">
         <desc></desc>
