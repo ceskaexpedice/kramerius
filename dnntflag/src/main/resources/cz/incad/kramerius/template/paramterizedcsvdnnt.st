@@ -28,7 +28,7 @@ tree(root) ::=<<
 
 
 
-form(postfixdiv, csvRootDirectory,csvfile, bundle, process,labelProcess) ::=<<
+form(postfixdiv, csvRootDirectory,csvfile, bundle, process,labelProcess, allLabels) ::=<<
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript">
@@ -48,28 +48,14 @@ form(postfixdiv, csvRootDirectory,csvfile, bundle, process,labelProcess) ::=<<
 
             var label =  \$('#label').val();
 
-            var dnntLabelsEnabled =  \$( "#dnnt_label_enabled:checked" ).length ==1 ? true : false;
-
-            //alert('dnntLabelEnabled '+dnntLabelsEnabled);
-
             var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
-            if (!dnntLabelsEnabled) {
-                var vals = 'csvfile='+\$('#csvfile').val().escapeChars(charsThatMustBeEscaped);
-                var url = "lr?action=form_post&def="+legacyprocess+"&paramsMapping={"+vals+"}&out=text";
-                //alert('process '+legacyprocess);
-                //alert('url '+url);
-                processStarter(legacyprocess).start(url);
-            } else {
-                var vals = 'csvfile='+\$('#csvfile').val().escapeChars(charsThatMustBeEscaped)
-                        +';label='+ \$('#label').val();
-                var url = "lr?action=form_post&def="+labelProcess+"&paramsMapping={"+vals+"}&out=text";
 
-                //alert('process '+labelProcess);
-                //alert('url '+url);
+            var vals = 'csvfile='+\$('#csvfile').val().escapeChars(charsThatMustBeEscaped)
+                    +';label='+ \$('#label').val();
+            var url = "lr?action=form_post&def="+labelProcess+"&paramsMapping={"+vals+"}&out=text";
 
-                processStarter(labelProcess).start(url);
+            processStarter(labelProcess).start(url);
 
-            }
 
         }
 
@@ -143,12 +129,13 @@ form(postfixdiv, csvRootDirectory,csvfile, bundle, process,labelProcess) ::=<<
 
     <div>
     <label for="dnnt_label_enabled">$bundle.("import.selection.dnnt.labels.enabled")$:</label>
-    <input type="checkbox" id="dnnt_label_enabled"></input>
     </div>
 
-    <div id="dnnt_label_div" style="display:none">
+    <div id="dnnt_label_div" >
     <label for="label">Label:</label>
-    <input style="width:80%" type="text"  id="label" value=""></input>
+    <select  id="label">
+        $allLabels:{oneLabel | <option value="$oneLabel$">$oneLabel$</option> };separator="\n"$
+    </select>
     </div>
 </fieldset>
 

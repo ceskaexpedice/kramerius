@@ -4,6 +4,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
+import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.labels.LabelsManager;
+import cz.incad.kramerius.security.labels.LabelsManagerException;
 import cz.incad.kramerius.service.ResourceBundleService;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -14,6 +17,7 @@ import org.kramerius.processes.utils.TreeModelUtils;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract  class AbstractDNNTCSVInputTemplate implements ProcessInputTemplate {
 
@@ -23,48 +27,57 @@ public abstract  class AbstractDNNTCSVInputTemplate implements ProcessInputTempl
     @Inject
     Provider<Locale> localeProvider;
 
+    @Inject
+    LabelsManager labelsManager;
+
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
-        InputStream iStream = this.getClass().getResourceAsStream(templateName());
-        StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
-        StringTemplate template = templateGroup.getInstanceOf("form");
-        ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localeProvider.get());
+        try {
+            InputStream iStream = this.getClass().getResourceAsStream(templateName());
+            StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
+            StringTemplate template = templateGroup.getInstanceOf("form");
+            ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localeProvider.get());
 
 
-        TreeItem rootNode = TreeModelUtils.prepareTreeModel(rootDirectory(), new TreeModelFilter() {
-            String[] NAMES = {"lp", "exported", "deepZoom"};
+            TreeItem rootNode = TreeModelUtils.prepareTreeModel(rootDirectory(), new TreeModelFilter() {
+                String[] NAMES = {"lp", "exported", "deepZoom"};
 
-            @Override
-            public boolean accept(File file) {
-                String sname = file.getName();
-                for (String nm : NAMES) {
-                    if (nm.equals(sname)) return false;
+                @Override
+                public boolean accept(File file) {
+                    String sname = file.getName();
+                    for (String nm : NAMES) {
+                        if (nm.equals(sname)) return false;
+                    }
+                    return true;
                 }
-                return true;
-            }
-        }, new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                if (pathname.isDirectory()) return true;
-                else {
-                    if (pathname.getName().startsWith(".")) return false;
-                    else return pathname.getName().toLowerCase().endsWith(".csv") ?  true : false;
+            }, new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    if (pathname.isDirectory()) return true;
+                    else {
+                        if (pathname.getName().startsWith(".")) return false;
+                        else return pathname.getName().toLowerCase().endsWith(".csv") ?  true : false;
+                    }
                 }
-            }
-        });
+            });
 
-        Random randomGenerator = new Random();
-        int idPostfix = randomGenerator.nextInt(2000);
+            Random randomGenerator = new Random();
+            int idPostfix = randomGenerator.nextInt(2000);
 
-        template.setAttribute("csvRootDirectory", rootNode);
-        template.setAttribute("bundle", resourceBundleMap(resbundle));
-        template.setAttribute("csvfile", csvFile().getAbsolutePath());
-        template.setAttribute("postfixdiv",""+idPostfix);
+            template.setAttribute("csvRootDirectory", rootNode);
+            template.setAttribute("bundle", resourceBundleMap(resbundle));
+            template.setAttribute("csvfile", csvFile().getAbsolutePath());
+            template.setAttribute("postfixdiv",""+idPostfix);
 
-        template.setAttribute("process", process());
-        template.setAttribute("labelProcess", labeledProcess());
+            template.setAttribute("process", process());
+            template.setAttribute("labelProcess", labeledProcess());
 
-        writer.write(template.toString());
+            template.setAttribute("allLabels", labelsManager.getLabels().stream().map(Label::getName).collect(Collectors.toList()));
+
+            writer.write(template.toString());
+        } catch (LabelsManagerException e) {
+            throw new IOException(e.getMessage(), e);
+        }
     }
 
 

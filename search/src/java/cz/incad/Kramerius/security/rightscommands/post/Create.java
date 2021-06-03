@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -77,7 +78,7 @@ public class Create extends ServletRightsCommand {
                 hasRight = true;
                 break;
             } else {
-                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         } 
         // root object
@@ -85,7 +86,7 @@ public class Create extends ServletRightsCommand {
             if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, new ObjectPidsPath(pid)).flag()) {
                 hasRight = true;
             } else {
-                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         }
         

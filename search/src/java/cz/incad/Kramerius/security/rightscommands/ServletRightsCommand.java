@@ -26,15 +26,15 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.labels.impl.LabelImpl;
+import cz.incad.kramerius.utils.StringUtils;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
 import cz.incad.Kramerius.security.RightsServlet;
 import cz.incad.Kramerius.security.ServletCommand;
-import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.utils.IOUtils;
@@ -67,9 +67,14 @@ public abstract class ServletRightsCommand extends ServletCommand {
 
     public RightImpl right(Map data, String pid) {
         RightCriteriumWrapper criterium = this.criteriumWrapperFactory.createCriteriumWrapper((String)data.get("condition"));
+
         if (criterium !=null)  criterium.setCriteriumParams(param(data));
         Role role = this.userManager.findRoleByName((String) data.get("role"));
         if (role == null) throw new RuntimeException("cannot find role '"+role+"'");
+
+        if (criterium.getRightCriterium() instanceof RightCriteriumLabelAware && data.containsKey("label")) {
+            criterium.setLabel(label(data));
+        }
 
         String indexString = data.get("ident").toString();
         
@@ -80,27 +85,40 @@ public abstract class ServletRightsCommand extends ServletCommand {
         return right;
     }
 
+
+    public Label label(Map data) {
+        Map label = (Map) data.get("label");
+        String labelId = (String) label.get("ident");
+        String description = (String) label.get("description");
+        String name = (String) label.get("name");
+        String priority = (String) label.get("priority");
+        return  (labelId != null && StringUtils.isAnyString(labelId))  ?
+            new LabelImpl(Integer.parseInt(labelId), name, description, priority) :
+                new LabelImpl(name, description, priority);
+
+    }
+
     public RightCriteriumParams param(Map data) {
-            Map param = (Map) data.get("param");
-            
-            String id = (String) param.get("ident");
-            String shortDsc = (String) param.get("shortDesc");
-            List objects = (List)param.get("objects");
-            if (objects != null &&  objects.size() > 0) {
-                RightCriteriumParams params = null;
-                if ((id != null) && (!id.equals("")) && (Integer.parseInt(id) > 0)) {
-                    params = rightsManager.findParamById(Integer.parseInt(id));
-                    params.setObjects(objects.toArray(new Object[objects.size()]));
-                    params.setShortDescription(shortDsc);
-                } else {
-                    params = new RightCriteriumParamsImpl(-1);
-                    params.setObjects(objects.toArray(new Object[objects.size()]));
-                    params.setShortDescription(shortDsc);
-                }
-                return params;
-            }  else return null;
-            
+        RightCriteriumParams params = null;
+
+        Map param = (Map) data.get("param");
+        String id = (String) param.get("ident");
+        String shortDsc = (String) param.get("shortDesc");
+        List objects = (List)param.get("objects");
+        if (objects != null &&  objects.size() > 0) {
+            if ((id != null) && (!id.equals("")) && (Integer.parseInt(id) > 0)) {
+                params = rightsManager.findParamById(Integer.parseInt(id));
+                params.setObjects(objects.toArray(new Object[objects.size()]));
+                params.setShortDescription(shortDsc);
+            } else {
+                params = new RightCriteriumParamsImpl(-1);
+                params.setObjects(objects.toArray(new Object[objects.size()]));
+                params.setShortDescription(shortDsc);
+            }
         }
+
+        return params;
+    }
 
 
 }

@@ -14,6 +14,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.filters.StatisticsFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONObject;
 
@@ -52,8 +53,8 @@ public class NKPLogProcess {
 
         Client client = Client.create();
 
-        Date start = StatisticReport.DATE_FORMAT.parse(from);
-        Date end = StatisticReport.DATE_FORMAT.parse(to);
+        Date start = StringUtils.isAnyString(to) ? StatisticReport.DATE_FORMAT.parse(from) : new Date();
+        Date end = StringUtils.isAnyString(to) ? StatisticReport.DATE_FORMAT.parse(to) : new Date();
         Date processingDate = start;
 
         while(processingDate.before(end)) {

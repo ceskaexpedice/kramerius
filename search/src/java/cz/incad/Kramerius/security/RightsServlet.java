@@ -29,6 +29,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cz.incad.Kramerius.security.rightscommands.post.*;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -39,28 +40,15 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.Kramerius.security.rightscommands.post.Create;
-import cz.incad.Kramerius.security.rightscommands.post.Delete;
-import cz.incad.Kramerius.security.rightscommands.post.DeleteCriteriumParams;
-import cz.incad.Kramerius.security.rightscommands.post.Edit;
-import cz.incad.Kramerius.security.rightscommands.post.RenameCriteriumParams;
-import cz.incad.Kramerius.security.userscommands.get.EditRoleHtml;
-import cz.incad.Kramerius.security.userscommands.get.ShowRolesHtml;
 import cz.incad.Kramerius.security.utils.UserFieldParser;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.AbstractUser;
 import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
-import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -124,9 +112,9 @@ public class RightsServlet extends GuiceServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //TODO: ochranit akci
+
+
       String action = req.getParameter("action");
-        
         try {
             PostCommandsEnum command = PostCommandsEnum.valueOf(action);
             command.doAction(getInjector());
@@ -142,8 +130,12 @@ public class RightsServlet extends GuiceServlet {
         edit(Edit.class),
         create(Create.class),
         deleteparams(DeleteCriteriumParams.class),
-        renameparams(RenameCriteriumParams.class);
-        
+        renameparams(RenameCriteriumParams.class),
+        createlabel(CreateOrEditLabel.class),
+        changepriority(ChangeProrityLabel.class),
+        deletelabel(DeleteLabel.class),
+        importlabelsfromsolr(ImportLabelsFromSolr.class);
+
         
         private Class<? extends ServletCommand> commandClass;
         
@@ -220,50 +212,6 @@ public class RightsServlet extends GuiceServlet {
 
 
 
-    /*
-    public static RightCriteriumWrapper criteriumFromPost(RightsManager rightsManager, HttpServletRequest req, RightCriteriumParams params, RightCriteriumWrapperFactory factory) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        String rightCriteriumId = req.getParameter("rightCriteriumId");
-        String criteriumHidden = req.getParameter("criteriumHidden");
-        if (criteriumHidden.equals(NONE_CONSTANT)) return null;
-        
-        RightCriteriumWrapper rightCriterium = null;
-        if ((rightCriteriumId != null) && (!rightCriteriumId.equals("")) && (Integer.parseInt(rightCriteriumId) > 0)) {
-            rightCriterium = rightsManager.findRightCriteriumById(Integer.parseInt(rightCriteriumId));
-            if (!rightCriterium.getRightCriterium().getQName().equals(criteriumHidden)) {
-                rightCriterium = factory.createCriteriumWrapper(criteriumHidden);
-            }
-        } else if ((!criteriumHidden.equals(NONE_CONSTANT) && (!"".equals(criteriumHidden.trim())))){
-            rightCriterium = factory.createCriteriumWrapper(criteriumHidden);
-
-        }
-        if ((rightCriterium != null) && (rightCriterium.getRightCriterium().isParamsNecessary())){
-            rightCriterium.setCriteriumParams(params);
-        }
-        return rightCriterium;
-    }*/
-
-
-
-    /*
-    public static RightCriteriumParams criteriumParamsFromPost(RightsManager rightsManager, HttpServletRequest req) {
-        String critParamId = req.getParameter("rightCriteriumParamId");
-        String paramsHidden = req.getParameter("paramsHidden");
-        String paramsShortHidden = req.getParameter("paramsShortDescriptionHidden");
-        String paramsLongDescHidden = req.getParameter("paramsLongDescriptionHidden");
-
-        RightCriteriumParams params = null;
-        if ((critParamId != null) && (!critParamId.equals("")) && (Integer.parseInt(critParamId) > 0)) {
-            params = rightsManager.findParamById(Integer.parseInt(critParamId));
-            params.setObjects(paramsHidden.split(";"));
-            params.setShortDescription(paramsShortHidden);
-        } else {
-            params = new RightCriteriumParamsImpl(-1);
-            params.setObjects(paramsHidden.split(";"));
-            params.setShortDescription(paramsShortHidden);
-            params.setLongDescription(paramsLongDescHidden);
-        }
-        return params;
-    }*/
 
     
 }

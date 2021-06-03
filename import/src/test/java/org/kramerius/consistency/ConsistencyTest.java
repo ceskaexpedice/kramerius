@@ -30,6 +30,9 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.google.inject.Scopes;
+import com.google.inject.name.Names;
+import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.Assert;
 
@@ -172,6 +175,7 @@ public class ConsistencyTest {
         
     }
 
+
     static class _Module extends AbstractModule {
 
         private FedoraAccess fedoraAccess;
@@ -192,5 +196,7 @@ public class ConsistencyTest {
             bind(SolrAccess.class).toInstance(solrAccess);
         }
     }
+
+
 
 }

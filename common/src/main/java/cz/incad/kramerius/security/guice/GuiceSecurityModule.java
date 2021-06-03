@@ -33,6 +33,8 @@ import cz.incad.kramerius.security.impl.DatabaseRightsManager;
 import cz.incad.kramerius.security.impl.DatabaseUserManager;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 import cz.incad.kramerius.security.impl.RightCriteriumWrapperFactoryImpl;
+import cz.incad.kramerius.security.labels.LabelsManager;
+import cz.incad.kramerius.security.labels.impl.DatabaseLabelsManagerImpl;
 
 /**
  * Base abstract module for security in K4
@@ -45,7 +47,9 @@ public class GuiceSecurityModule extends AbstractModule {
         bind(RightsManager.class).to(DatabaseRightsManager.class);
         bind(UserManager.class).to(DatabaseUserManager.class);
         bind(RightCriteriumContextFactory.class).to(RightCriteriumContextFactoryImpl.class);
-        
+        bind(LabelsManager.class).to(DatabaseLabelsManagerImpl.class);
+
+
         // bind criterium loaders
         Multibinder<RightCriteriumLoader> criteriumLoders = Multibinder.newSetBinder(binder(), RightCriteriumLoader.class);
         criteriumLoders.addBinding().to(ClassRightCriteriumLoaderImpl.class).asEagerSingleton();
@@ -54,13 +58,6 @@ public class GuiceSecurityModule extends AbstractModule {
         // wrapper factory
         bind(RightCriteriumWrapperFactory.class).to(RightCriteriumWrapperFactoryImpl.class);
         
-        // init databases annotation
-        /*
-        InitSecurityDatabaseMethodInterceptor initDb = new InitSecurityDatabaseMethodInterceptor();
-        bindInterceptor(Matchers.any(), Matchers.annotatedWith(InitSecurityDatabase.class), 
-                  initDb);
-        requestInjection(initDb);
-        */
     }
     
 }

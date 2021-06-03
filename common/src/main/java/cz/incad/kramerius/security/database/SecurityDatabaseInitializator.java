@@ -18,13 +18,10 @@ package cz.incad.kramerius.security.database;
 
 import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,8 +29,6 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.antlr.stringtemplate.StringTemplate;
-
-import com.ibm.icu.util.StringTokenizer;
 
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
@@ -95,10 +90,10 @@ public class SecurityDatabaseInitializator {
                 insertPrintRight(connection);
                 updateUserEntityTable(connection);
                 updateShowItems(connection);
-                
-                // delete session keys in table; consider about moving this method
-                LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
-                
+
+                // labels table
+                makeSureThatLabelsTable(connection);
+
             } else { 
                 String v = versionService.getVersion();
 
@@ -141,8 +136,8 @@ public class SecurityDatabaseInitializator {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+                    // labels table
+                    makeSureThatLabelsTable(connection);
 
                 } else if (versionCondition(v, "=", "5.3.0")){
                     // right for criteria params manage
@@ -167,8 +162,9 @@ public class SecurityDatabaseInitializator {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+                    // labels table
+                    makeSureThatLabelsTable(connection);
+
                 } else if (versionCondition(v, "=", "5.4.0")){
                     // k4 replication rights
                     insertRightK4ReplicationExport(connection);
@@ -189,8 +185,9 @@ public class SecurityDatabaseInitializator {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+                    // labels table
+                    makeSureThatLabelsTable(connection);
+
                 } else if (versionCondition(v, "=", "5.5.0")){
                     // mets ndk import
                     insertNDKMetsImport(connection);
@@ -206,8 +203,9 @@ public class SecurityDatabaseInitializator {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+                    // labels table
+                    makeSureThatLabelsTable(connection);
+
                 } else if (versionCondition(v, "=", "5.6.0")){
                     // replikator k3
                     insertReplikatorK3(connection);
@@ -221,8 +219,9 @@ public class SecurityDatabaseInitializator {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+                    // labels table
+                    makeSureThatLabelsTable(connection);
+
 
                 } else if (versionCondition(v, "=", "5.7.0")){
                     // insert aggregate process right
@@ -234,9 +233,9 @@ public class SecurityDatabaseInitializator {
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
-                    
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
+                    // labels table
+                    makeSureThatLabelsTable(connection);
 
                 } else if (versionCondition(v, "=", "5.8.0")){
                     // insert aggregate process right
@@ -249,8 +248,8 @@ public class SecurityDatabaseInitializator {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+                    // labels table
+                    makeSureThatLabelsTable(connection);
 
                 } else if (versionCondition(v, "=", "5.9.0")){
                     // insert statistics right
@@ -261,8 +260,8 @@ public class SecurityDatabaseInitializator {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+                    // labels table
+                    makeSureThatLabelsTable(connection);
 
                 } else if ((versionCondition(v, ">", "5.9.0")) && (versionCondition(v, "<", "6.3.0"))){
                     //sort right
@@ -270,34 +269,34 @@ public class SecurityDatabaseInitializator {
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
-                    
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
+                    // labels table
+                    makeSureThatLabelsTable(connection);
 
                 } else if (versionCondition(v, "=", "6.3.0"))  {
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+                    // labels table
+                    makeSureThatLabelsTable(connection);
 
                 } else if (versionCondition(v, "=", "6.6.0"))  {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
-                    
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
+                    // labels table
+                    makeSureThatLabelsTable(connection);
 
                 } else if (versionCondition(v, ">", "6.6.0") && versionCondition(v, "<=", "6.6.2"))  {
                     updateShowItems(connection);
+                    // labels table
+                    makeSureThatLabelsTable(connection);
 
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
                 } else if (versionCondition(v, ">", "6.6.2")) {
-                    
-                    // delete session keys in table; consider about moving this method
-                    LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
+                    // labels table
+                    makeSureThatLabelsTable(connection);
                 }
             }
         } catch (SQLException e) {
@@ -343,21 +342,19 @@ public class SecurityDatabaseInitializator {
         return template.executeUpdate(sql);
     }
 
-    // Viz issue 
     private static int updateUserEntityTable(Connection connection) throws SQLException {
         String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("updateUserEntities").toString();
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
         template.setUseReturningKeys(false);
         return template.executeUpdate(sql);
     }
-    // Viz issue 
+
     private static int updateShowItems(Connection connection) throws SQLException {
         String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("updateShowItems").toString();
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection,false);
         template.setUseReturningKeys(false);
         return template.executeUpdate(sql);
     }
-
 
     /**
      * @param connection
@@ -399,6 +396,12 @@ public class SecurityDatabaseInitializator {
         if (!DatabaseUtils.tableExists(connection, "PROFILES")) {
             // create tables for public users - 4.5.0 - version
             createPublicUsersAndProfilesTables(connection); // Zavislost na active users
+        }
+    }
+
+    public static void makeSureThatLabelsTable(Connection connection) throws SQLException, IOException {
+        if (!DatabaseUtils.tableExists(connection, "LABELS_ENTITY")) {
+            createLabelsTable(connection);
         }
     }
     
@@ -487,7 +490,8 @@ public class SecurityDatabaseInitializator {
         template.setUseReturningKeys(false);
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
-    
+
+
     public static void createPublicUsersAndProfilesTables(Connection connection) throws SQLException, IOException {
         InputStream is = SecurityDatabaseInitializator.class.getResourceAsStream("res/initpublicusers.sql");
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
@@ -495,9 +499,16 @@ public class SecurityDatabaseInitializator {
         String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
         template.executeUpdate(sqlScript);
     }
-    
-    
-    
+
+    public static void createLabelsTable(Connection connection) throws SQLException, IOException {
+        InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/initlabels.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+    }
+
+
+
     public static void alterSecurityTableActiveColumn(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
                 "ALTER TABLE USER_ENTITY ADD COLUMN DEACTIVATED BOOLEAN"); 

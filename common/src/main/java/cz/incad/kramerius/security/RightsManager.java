@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.security.labels.Label;
 
 /** 
  * Rights management
@@ -214,4 +215,6 @@ public interface RightsManager {
      * @return Map that contains associtaion PID -> SecuredAction
      */
     public List<Map<String,String>> findObjectUsingParams(int paramId);
+
+    public List<Map<String,String>>  findObjectUsingLabel(int labelid);
 }

@@ -114,8 +114,8 @@ public class ClientUserResource {
             try {
                 EvaluatingResultState result = right.mockEvaluate(ctx, this.databaseRightsManager, DataMockExpectation.EXPECT_DATA_VAUE_EXISTS);
                 if (result.equals(EvaluatingResultState.TRUE)) {
-                    RightCriteriumParams criteriumParams = right.getCriteriumWrapper().getCriteriumParams();
-                    evaluatedObjects.addAll(Arrays.stream(criteriumParams.getObjects()).map(Object::toString).collect(Collectors.toList()));
+                    String name = right.getCriteriumWrapper().getLabel().getName();
+                    evaluatedObjects.add(name);
                 }
             } catch (RightCriteriumException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);

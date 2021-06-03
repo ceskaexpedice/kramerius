@@ -25,7 +25,7 @@ tree(root) ::=<<
 >>
 
 
-form(postfixdiv,bundle, nkpLogsDirectory, rootDirectory) ::=<<
+form(postfixdiv,bundle, nkpLogsDirectory, rootDirectory, dateFrom, dateTo) ::=<<
 
 <div style="width:100%">
 
@@ -120,12 +120,12 @@ function ShowNKPLogDirectory() {
         <tbody>
             <tr>
                 <td width="15%"> $bundle.("nkplog.datefrom.label")$</td>
-                <td width="60%"><input id="nkp_date_from"></input></td>
+                <td width="60%"><input id="nkp_date_from" value="$dateFrom$"></input></td>
                 <td width="25%"></td>
             </tr>
             <tr>
                 <td>$bundle.("nkplog.dateto.label")$</td>
-                <td><input id="nkp_date_to"></input></td>
+                <td><input id="nkp_date_to" value="$dateTo$"></input></td>
                 <td></td>
             </tr>
             <tr>
@@ -140,7 +140,7 @@ function ShowNKPLogDirectory() {
             </tr>
             <tr>
                 <td>$bundle.("nkplog.anonymize.label")$</td>
-                <td><input id="nkp_anonymize" value="username,session_eppn,dnnt_user,eduPersonUniqueId,affilation"></input></td>
+                <td><input id="nkp_anonymize" value="username,session_eppn,dnnt_user,eduPersonUniqueId,affilation,remoteAddr"></input></td>
                 <td></td>
             </tr>
         </tbody>

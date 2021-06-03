@@ -77,7 +77,8 @@ task gitcall(type: Exec) {
 }
 
 
-task infofile(dependsOn: gitcall) << {
+task infofile(dependsOn: gitcall) {
+	doLast {
         def parentFolder = new File("$buildDir/resources/main")
         parentFolder.mkdirs()
 
@@ -92,6 +93,7 @@ task infofile(dependsOn: gitcall) << {
         def hashStr = gitcall.hash
 
         println "Created build file ${buildInfoFile.absolutePath} with version ${versionStr} and hash ${hashStr} "
+	}
 }
 
 processResources.dependsOn infofile

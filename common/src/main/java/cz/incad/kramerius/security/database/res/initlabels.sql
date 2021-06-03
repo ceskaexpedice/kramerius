@@ -1,0 +1,27 @@
+-- creating sequence for column LABELS_ENTITY.LABEL33_ID --
+CREATE SEQUENCE IF NOT EXISTS LABEL_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0;
+
+
+-- creating table LABELS_ENTITY --
+CREATE TABLE LABELS_ENTITY (
+   LABEL_ID INT NOT NULL,
+   LABEL_NAME TEXT NOT NULL,
+   LABEL_GROUP TEXT NOT NULL,
+   LABEL_DESCRIPTION TEXT NOT NULL,
+   LABEL_PRIORITY INTEGER,
+   PRIMARY KEY (LABEL_ID)
+);
+
+-- creating unique index --
+CREATE UNIQUE INDEX LABELS_ENTITY_UIDX  ON LABELS_ENTITY (LABEL_NAME, LABEL_GROUP);
+
+-- labelPrirority must be unique --
+-- CREATE UNIQUE INDEX LABELS_ENTITY_PRIORITY_UIDX  ON LABELS_ENTITY (LABEL_PRIORITY);
+
+-- add foreign key from criterium entity --
+ALTER TABLE rights_criterium_entity add column LABEL_ID INT;
+
+-- Add foreign key - criterium and label --
+ALTER TABLE rights_criterium_entity ADD CONSTRAINT rights_criterium_entity_label_entity_fk
+    FOREIGN KEY (LABEL_ID) REFERENCES LABELS_ENTITY(LABEL_ID)
+

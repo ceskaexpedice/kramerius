@@ -29,6 +29,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.labels.LabelsManager;
+import cz.incad.kramerius.security.labels.LabelsManagerException;
 
 
 public class DisplayRightView extends AbstractRightsView {
@@ -47,7 +50,9 @@ public class DisplayRightView extends AbstractRightsView {
 
     @Inject
     RightsManager rightsManager;
-    
+
+    @Inject
+    LabelsManager labelsManager;
     
     Right right;
     
@@ -182,7 +187,12 @@ public class DisplayRightView extends AbstractRightsView {
         RightCriteriumParams[] allParams = this.rightsManager.findAllParams();
         return Arrays.asList(allParams);    
     }
-    
+
+
+    public List<Label> getLabels() throws LabelsManagerException {
+        return this.labelsManager.getLabels();
+    }
+
     public Actions getAction() {
         String parameter = this.requestProvider.get().getParameter(ACTION);
         if (parameter == null) return Actions.create;

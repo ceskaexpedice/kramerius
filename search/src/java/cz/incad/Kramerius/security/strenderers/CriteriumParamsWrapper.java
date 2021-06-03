@@ -18,6 +18,7 @@ package cz.incad.Kramerius.security.strenderers;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.antlr.stringtemplate.StringTemplate;
 
@@ -99,7 +100,7 @@ public class CriteriumParamsWrapper implements RightCriteriumParams {
 
     @Override
     public String toString() {
-        if ((criteriumParams != null) && (criteriumParams.getObjects() != null)) {
+        if ((criteriumParams != null) && (criteriumParams.getObjects() != null) && criteriumParams.getId() > -1) {
             return criteriumParams.getShortDescription() +Arrays.asList(criteriumParams.getObjects());
         } else return "";
     }

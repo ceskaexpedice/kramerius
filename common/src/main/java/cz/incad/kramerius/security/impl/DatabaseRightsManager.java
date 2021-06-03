@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.labels.impl.LabelImpl;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -226,7 +228,7 @@ public class DatabaseRightsManager implements RightsManager {
             
             @Override
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
-                //userId - blby
+
                 int userId = rs.getInt("user_id");
                 int groupId = rs.getInt("group_id");
 
@@ -431,6 +433,8 @@ public class DatabaseRightsManager implements RightsManager {
     @InitSecurityDatabase
     public int insertRight(final Right right) throws SQLException {
         final RightCriteriumWrapper criteriumWrapper = right.getCriteriumWrapper();
+        final Label label = getLabel(criteriumWrapper);
+
         final RightCriteriumParams params = criteriumWrapper != null ? criteriumWrapper.getCriteriumParams() : null;
         final Connection con = provider.get();
         return (Integer) new JDBCTransactionTemplate(con, true).updateWithTransaction(new JDBCCommand() {
@@ -448,7 +452,9 @@ public class DatabaseRightsManager implements RightsManager {
                     return -1;
                 }
             }
-        }, new JDBCCommand() {
+        },
+
+        new JDBCCommand() {
 
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
@@ -463,7 +469,10 @@ public class DatabaseRightsManager implements RightsManager {
                     return -1;
                 }
             }
-        }, new JDBCCommand() {
+        },
+
+
+        new JDBCCommand() {
 
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
@@ -472,7 +481,12 @@ public class DatabaseRightsManager implements RightsManager {
         });
     }
 
-    
+    private Label getLabel(RightCriteriumWrapper criteriumWrapper) {
+        if (criteriumWrapper.getRightCriterium() instanceof RightCriteriumLabelAware) {
+            return ((RightCriteriumLabelAware)criteriumWrapper).getLabel();
+        } else return null;
+    }
+
 
     @InitSecurityDatabase
     public void updateRight(final Right right) throws SQLException {
@@ -798,7 +812,26 @@ public class DatabaseRightsManager implements RightsManager {
         }.executeQuery(template.toString(), new Integer(paramId));
         return vals;
     }
-    
+
+
+    @Override
+    public  List<Map<String,String>>  findObjectUsingLabel(int labelid) {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("select_object_using_label");
+        List<Map<String,String>> vals = new JDBCQueryTemplate<Map<String,String>>(this.provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Map<String,String>> returnsList) throws SQLException {
+                String pid = rs.getString("pid");
+                String action = rs.getString("action");
+                Map<String, String> map = new HashMap<String, String>(); {
+                    map.put("pid", pid);
+                    map.put("action", action);
+                }
+                returnsList.add(map);
+                return true;
+            }
+        }.executeQuery(template.toString(), new Integer(labelid));
+        return  vals;
+    }
 }
 
 

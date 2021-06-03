@@ -78,10 +78,8 @@ public class DNNTBatchUtils {
 
         Element labels = document.createElement("field");
         labels.setAttribute("name", "dnnt-labels");
-        labels.setAttribute("update", addRemoveFlag ? "add" : "remove");
+        labels.setAttribute("update", addRemoveFlag ? "add-distinct" : "remove");
         labels.setTextContent(label);
-
-
 
 
         doc.appendChild(labels);

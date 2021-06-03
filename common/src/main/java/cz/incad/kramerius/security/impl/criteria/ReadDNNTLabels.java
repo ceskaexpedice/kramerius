@@ -3,17 +3,20 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.security.labels.Label;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ReadDNNTLabels extends AbstractCriterium {
+public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumLabelAware{
 
     public static final String PROVIDED_BY_DNNT_LABEL = "providedByLabel";
 
     public transient static final Logger LOGGER = Logger.getLogger(ReadDNNTLabels.class.getName());
+
+    private Label label;
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
@@ -26,7 +29,7 @@ public class ReadDNNTLabels extends AbstractCriterium {
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                     SolrAccess solrAccess = ctx.getSolrAccess();
                     Document doc = solrAccess.getSolrDataDocument(pid);
-                    String label = CriteriaDNNTUtils.getMatchedLabel(doc,  getObjects());
+                    String label = CriteriaDNNTUtils.getMatchedLabel(doc, getObjects());
                     if (label != null) {
                         // select label
                         getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, label);
@@ -57,7 +60,7 @@ public class ReadDNNTLabels extends AbstractCriterium {
 
     @Override
     public boolean isParamsNecessary() {
-        return true;
+        return false;
     }
 
     @Override
@@ -67,11 +70,27 @@ public class ReadDNNTLabels extends AbstractCriterium {
 
     @Override
     public boolean isRootLevelCriterum() {
-        return false;
+        return true;
     }
 
     @Override
     public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException {
         //checkContainsCriteriumPDFDNNT(this.evalContext, manager);
+    }
+
+
+    @Override
+    public boolean isLabelAssignable() {
+        return true;
+    }
+
+    @Override
+    public void setLabel(Label label) {
+        this.label = label;
+    }
+
+    @Override
+    public Label getLabel() {
+        return this.label;
     }
 }

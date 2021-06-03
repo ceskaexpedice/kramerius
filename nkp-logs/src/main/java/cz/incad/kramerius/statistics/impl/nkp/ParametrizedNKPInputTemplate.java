@@ -16,14 +16,14 @@ import org.kramerius.processes.filetree.TreeModelFilter;
 import org.kramerius.processes.utils.TreeModelUtils;
 
 import java.io.*;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ParametrizedNKPInputTemplate implements ProcessInputTemplate {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedNKPInputTemplate.class.getName());
+
+    static final SimpleDateFormat FORMAT = new SimpleDateFormat("yy.MM.dd");
 
     @Inject
     KConfiguration configuration;
@@ -36,7 +36,14 @@ public class ParametrizedNKPInputTemplate implements ProcessInputTemplate {
 
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
-        File homeFolder = new File(Constants.WORKING_DIR);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.DAY_OF_YEAR,-1);
+
+        String folder = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.root.dir", Constants.WORKING_DIR);
+        File homeFolder = new File(folder);
+
         InputStream iStream = this.getClass().getResourceAsStream("nkp.stg");
 
         TreeItem rootNode = TreeModelUtils.prepareTreeModel(homeFolder,new TreeModelFilter() {
@@ -63,6 +70,10 @@ public class ParametrizedNKPInputTemplate implements ProcessInputTemplate {
 
         template.setAttribute("nkpLogsDirectory", homeFolder.getAbsolutePath());
         template.setAttribute("rootDirectory",  rootNode);
+        template.setAttribute("dateFrom",  FORMAT.format(cal.getTime()));
+        template.setAttribute("dateTo",  FORMAT.format(new Date()));
+
+
 
         writer.write(template.toString());
     }

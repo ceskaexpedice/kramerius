@@ -82,5 +82,11 @@ public abstract class AbstractCriterium implements RightCriterium {
     public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException {
         // DO nothing
     }
+
+    @Override
+    public boolean isLabelAssignable() {
+        return false;
+    }
+
 }
 

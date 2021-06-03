@@ -65,6 +65,8 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(RolesEditor.class);
         adminItems.addBinding().to(GlobalRightsAdministration.class);
         adminItems.addBinding().to(CriteriaEditor.class);
+        adminItems.addBinding().to(LabelsEditor.class);
+
         // administrace
         // prava
         adminItems.addBinding().to(CollectionsRightsAdministration.class);

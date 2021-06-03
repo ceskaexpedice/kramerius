@@ -102,6 +102,13 @@ public interface RightCriterium extends Serializable  {
 
 
     /**
+     * Is label's assignable
+     * @return
+     */
+    public boolean isLabelAssignable();
+
+
+    /**
      * Validate given params
      * @param vals User defined parameters which should be validated
      * @return returns result of validation

@@ -16,9 +16,11 @@
  */
 package cz.incad.kramerius.security;
 
+import cz.incad.kramerius.security.labels.Label;
+
 /**
  * This is internal class for wrapping real right criterium (class or script) 
- * which can have additional informations such as database id, etc..
+ * that can have additional information such as database id, etc..
  * 
  * @author pavels
  */
@@ -73,5 +75,10 @@ public interface RightCriteriumWrapper {
     public CriteriumType getCriteriumType();
 
 
+    public boolean isLabelAwareCriterium();
+
+    public Label getLabel();
+
+    public void setLabel(Label label);
 
 }
