@@ -3,16 +3,18 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.security.labels.Label;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class PDFDNNTLabels extends AbstractCriterium {
+public class PDFDNNTLabels extends AbstractCriterium implements RightCriteriumLabelAware{
 
     public transient  static final Logger LOGGER = Logger.getLogger(PDFDNNTLabels.class.getName());
 
+    private Label label;
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
@@ -24,7 +26,7 @@ public class PDFDNNTLabels extends AbstractCriterium {
                 ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccess().getPath(requestedPid);
                 for (ObjectPidsPath path : paths) {
                     RightsReturnObject obj = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), requestedPid, null, path);
-                    if (CriteriaDNNTUtils.allowedByReadDNNTLabelsRight(obj, getObjects())) return EvaluatingResultState.FALSE;
+                    if (CriteriaDNNTUtils.allowedByReadDNNTLabelsRight(obj, getLabel())) return EvaluatingResultState.FALSE;
                 }
             }
         } catch (IOException e) {
@@ -33,6 +35,16 @@ public class PDFDNNTLabels extends AbstractCriterium {
 
         // not applicable
         return EvaluatingResultState.NOT_APPLICABLE;
+    }
+
+    @Override
+    public Label getLabel() {
+        return this.label;
+    }
+
+    @Override
+    public void setLabel(Label label) {
+        this.label = label;
     }
 
     @Override
@@ -64,4 +76,11 @@ public class PDFDNNTLabels extends AbstractCriterium {
     public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException {
         //allowedByReadDNNTFlagRight(this.evalContext, manager);
     }
+
+
+    @Override
+    public boolean isLabelAssignable() {
+        return true;
+    }
+
 }

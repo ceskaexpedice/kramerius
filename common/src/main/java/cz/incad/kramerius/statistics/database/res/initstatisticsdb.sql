@@ -33,6 +33,6 @@ create table statistic_access_log_detail_authors(
    AUTHOR_NAME VARCHAR(1024), 
    DETAIL_ID INT NOT NULL REFERENCES statistic_access_log_detail(detail_id),
    RECORD_ID INT NOT NULL REFERENCES statistics_access_log(record_ID),
-   PRIMARY KEY(detail_ID)
+   PRIMARY KEY(author_id)
 );
  

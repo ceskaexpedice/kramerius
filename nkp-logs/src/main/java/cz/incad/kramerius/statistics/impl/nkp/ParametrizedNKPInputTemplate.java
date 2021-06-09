@@ -23,7 +23,7 @@ public class ParametrizedNKPInputTemplate implements ProcessInputTemplate {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedNKPInputTemplate.class.getName());
 
-    static final SimpleDateFormat FORMAT = new SimpleDateFormat("yy.MM.dd");
+    static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy.MM.dd");
 
     @Inject
     KConfiguration configuration;

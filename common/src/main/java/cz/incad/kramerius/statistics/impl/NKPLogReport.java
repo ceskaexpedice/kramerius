@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.statistics.ReportedAction;
@@ -17,6 +16,7 @@ import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 import org.antlr.stringtemplate.StringTemplate;
@@ -32,9 +32,11 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -58,9 +60,8 @@ public class NKPLogReport implements StatisticReport {
     SolrAccess solrAccess;
 
     @Inject
-    @Named("securedFedoraAccess")
+    @Named("cachedFedoraAccess")
     FedoraAccess fedoraAccess;
-
 
 
 
@@ -97,118 +98,12 @@ public class NKPLogReport implements StatisticReport {
 
                 @SuppressWarnings("rawtypes")
                 List params = StatisticUtils.jdbcParams(dateFilter);
-                //statRecord.setAttribute("paging", true);
                 String sql = statRecord.toString();
                 Connection conn = connectionProvider.get();
-                new JDBCQueryTemplate<Map<String,Object>>(conn) {
-                    @Override
-                    public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
-                        String pid = rs.getString("pid");
 
-                        Map<String, Object> map = null;
-                        try {
-                            Document solrDoc = solrAccess.getSolrDataDocument(pid);
-
-                            map = new HashMap<>();
-
-                            map.put("pid",pid);
-                            Timestamp date = rs.getTimestamp("date");
-
-                            map.put("date",ACCESS_DATE_FORMAT.format(date));
-                            map.put("remoteAddr",rs.getString("remote_ip_address"));
-                            map.put("username",rs.getString("user"));
-                            //map.put("email","-not-defined-");
-                            map.put("dnnt",rs.getBoolean("dnnt"));
-                            map.put("providedByDnnt",rs.getBoolean("providedByDnnt"));
-
-                            String evaluatemap = rs.getString("evaluatemap");
-                            if (evaluatemap != null) {
-                                JSONObject evalmap =  new JSONObject(evaluatemap);
-                                for (Object key : evalmap.keySet()) {
-                                    map.put(key.toString(), evalmap.get(key.toString()));
-
-                                }
-                            }
-
-                            String usersessionattributes = rs.getString("usersessionattributes");
-                            if (usersessionattributes != null) {
-                                JSONObject uSessionMap =  new JSONObject(usersessionattributes);
-                                for (Object key :
-                                        uSessionMap.keySet()) {
-                                    map.put(key.toString(), uSessionMap.get(key.toString()));
-                                }
-                            }
-
-                            String rights = rs.getString("rights");
-                            if (rights.contains(":")) {
-                                map.put("policy", rights.split(":")[1]);
-                            } else {
-                                map.put("policy",rights);
-                            }
-
-                            ObjectPidsPath[] paths = solrAccess.getPath(null, solrDoc);
-                            ObjectModelsPath[] mpaths = solrAccess.getPathOfModels(solrDoc);
-
-                            map.put("rootTitle", SElemUtils.selem("str", "root_title", solrDoc));
-                            map.put("rootPid", SElemUtils.selem("str", "root_pid", solrDoc));
-                            map.put("dcTitle", SElemUtils.selem("str", "dc.title", solrDoc));
-
-                            map.put("solrDate", new YearLogFormat().format(SElemUtils.selem("str", "datum_str", solrDoc)));
-                            String modsDate = DNNTStatisticsAccessLogImpl.findModsDate(paths, fedoraAccess);
-                            if (modsDate != null) map.put("publishedDate", new YearLogFormat().format(modsDate));
-
-                            List<String> sAuthors = DNNTStatisticsAccessLogImpl.solrAuthors(SElemUtils.selem("str", "root_pid", solrDoc), solrAccess);
-                            if (!sAuthors.isEmpty()) {
-                                JSONArray authorsArray = new JSONArray();
-                                for (int i=0,ll=sAuthors.size();i<ll;i++) {
-                                    authorsArray.put(sAuthors.get(i));
-                                }
-                                map.put("authors",authorsArray);
-                            }
-
-
-                            List<String> dcPublishers = DNNTStatisticsAccessLogImpl.dcPublishers(paths, fedoraAccess);
-                            if (!dcPublishers.isEmpty()) {
-                                JSONArray publishersArray = new JSONArray();
-                                for (int i=0,ll=dcPublishers.size();i<ll;i++) {
-                                    publishersArray.put(dcPublishers.get(i));
-                                }
-                                map.put("publishers",publishersArray);
-                            }
-
-
-                            JSONArray pidsArray = new JSONArray();
-                            for (int i = 0; i < paths.length; i++) {
-                                pidsArray.put(Arrays.stream(paths[i].getPathFromRootToLeaf()).collect(Collectors.joining("/")));
-                            }
-                            map.put("pids_path",pidsArray);
-
-                            JSONArray modelsArray = new JSONArray();
-                            for (int i = 0; i < mpaths.length; i++) {
-                                modelsArray.put(Arrays.stream(mpaths[i].getPathFromRootToLeaf()).collect(Collectors.joining("/")));
-                            }
-                            map.put("models_path",modelsArray);
-
-                            if (paths.length > 0) {
-                                String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
-                                if (pathFromRootToLeaf.length > 0) {
-                                    map.put("rootPid",pathFromRootToLeaf[0]);
-                                }
-                            }
-
-                            if (mpaths.length > 0) {
-                                String[] mpathFromRootToLeaf = mpaths[0].getPathFromRootToLeaf();
-                                if (mpathFromRootToLeaf.length > 0) {
-                                    map.put("rootModel",mpathFromRootToLeaf[0]);
-                                }
-                            }
-                        } catch (IOException e) {
-                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                        }
-                        sup.processReportRecord(map);
-                        return super.handleRow(rs, returnsList);
-                    }
-                }.executeQuery(sql.toString(),params.toArray());
+                new StastisticsIteration(sql, params, conn, collectedRecord-> {
+                    logReport(collectedRecord, sup);
+                }).iterate();
 
             } else {
                 throw new UnsupportedOperationException("Full report is not supported. Please, use dateFrom and dateTo");
@@ -220,7 +115,99 @@ public class NKPLogReport implements StatisticReport {
 
     }
 
+    static class StastisticsIteration extends JDBCQueryTemplate<Object> {
 
+
+        private Record currentRecord = new Record();
+
+        private Consumer<Record> consumer;
+        private String sql;
+        private List params;
+
+        public StastisticsIteration(String sql, List params, Connection connection, Consumer<Record> consumer) {
+            super(connection);
+            this.consumer = consumer;
+            this.params = params;
+            this.sql = sql;
+        }
+
+        public void iterate() {
+            executeQuery(sql,params.toArray());
+            if (currentRecord != null && currentRecord.pid != null) consumer.accept(currentRecord);
+        }
+
+        @Override
+        public boolean handleRow(ResultSet rs, List<Object> returnsList) throws SQLException {
+            try {
+                int recordId = rs.getInt("slrecord_id");
+                int detailId = rs.getInt("sddetail_id");
+                int authorId = rs.getInt("saauthor_id");
+                int publisherId = rs.getInt("sppublisher_id");
+
+                if (currentRecord.isDifferent(recordId)) {
+                    if (currentRecord.recordId != -1) {
+                        consumer.accept(currentRecord);
+                    }
+                    currentRecord = Record.load(rs);
+                }
+
+                if (currentRecord.lastDetail() == null || currentRecord.lastDetail().isDifferent(detailId)) {
+                    currentRecord.details.add(Detail.load(rs));
+                }
+
+                if (authorId != -1) {
+                    currentRecord.lastDetail().authors.add(Author.load(rs));
+                }
+                if (publisherId != -1) {
+                    currentRecord.lastDetail().publishers.add(Publisher.load(rs));
+                }
+
+
+
+
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+            return super.handleRow(rs, returnsList);
+        }
+
+    }
+
+
+
+    void logReport(Record record, StatisticsReportSupport sup) {
+
+        Map map = record.toMap();
+
+        // publshers or solrdate
+        if (!map.containsKey("publishers") || !map.containsKey("solrDate")) {
+            try {
+                boolean disbleFedoraAccess = KConfiguration.getInstance().getConfiguration().getBoolean("nkp.logs.disablefedoraaccess", false);
+                if (!disbleFedoraAccess) {
+                    // only one place where we are connecting
+                    Document solrDoc = solrAccess.getSolrDataDocument(record.pid);
+                    if (solrDoc != null) {
+
+                        map.put("solrDate", new YearLogFormat().format(SElemUtils.selem("str", "datum_str", solrDoc)));
+
+                        ObjectPidsPath[] paths = solrAccess.getPath(null, solrDoc);
+                        List<String> dcPublishers = DNNTStatisticsAccessLogImpl.dcPublishers(paths, fedoraAccess);
+                        if (!dcPublishers.isEmpty()) {
+                            JSONArray publishersArray = new JSONArray();
+                            for (int i=0,ll=dcPublishers.size();i<ll;i++) {
+                                publishersArray.put(dcPublishers.get(i));
+                            }
+                            map.put("publishers",publishersArray);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            }
+
+        }
+        sup.processReportRecord(map);
+    }
 
     @Override
     public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer filters) {
@@ -229,12 +216,242 @@ public class NKPLogReport implements StatisticReport {
     }
 
 
-    public Map<String, Object> toMap(JSONObject object) {
-        Map<String, Object> results = new HashMap<String, Object>();
-        object.keySet().forEach(key ->{
-            Object o = object.get(key.toString());
-            results.put(key.toString(), o);
-        });
-        return results;
+    static class Record {
+
+        private int recordId=-1;
+        private String pid;
+        private String date;
+        private String remoteIpAddress;
+        private String user;
+        private String requestedUrl;
+        private boolean dnnt;
+        private boolean providedbydnnt;
+        private String evaluateMap;
+        private String userSessionAttributes;
+
+        private List<Detail> details = new ArrayList<>();
+
+        Map toMap() {
+            Map map = new HashMap();
+            map.put("pid", this.pid);
+            map.put("date", this.date);
+            map.put("remoteAddr", this.remoteIpAddress);
+            if (this.user != null) map.put("username", this.user);
+            map.put("dnnt",this.dnnt);
+            map.put("providedByDnnt", this.providedbydnnt);
+            if (this.evaluateMap != null) {
+                JSONObject evalmap =  new JSONObject(this.evaluateMap);
+                for (Object key : evalmap.keySet()) {
+                    map.put(key.toString(), evalmap.get(key.toString()));
+                }
+            }
+            if (this.userSessionAttributes != null) {
+                JSONObject uSessionMap =  new JSONObject(userSessionAttributes);
+                for (Object key : uSessionMap.keySet()) {
+                    map.put(key.toString(), uSessionMap.get(key.toString()));
+                }
+            }
+
+            if (!this.details.isEmpty()) {
+                // filter branch 0
+                List<Detail> firstBranch = this.details.stream().filter(detail -> {
+                    return detail.branchId == 0;
+                }).collect(Collectors.toList());
+
+                List<Detail> secondBranch = this.details.stream().filter(detail -> {
+                    return detail.branchId == 1;
+                }).collect(Collectors.toList());
+
+                map.put("rootTitle", firstBranch.get(firstBranch.size() -1).title);
+                map.put("dcTitle",  firstBranch.get(0).title);
+
+                map.put("rootPid", firstBranch.get(firstBranch.size() -1).pid);
+                map.put("rootModel", firstBranch.get(firstBranch.size() -1).model);
+
+                map.put("policy", firstBranch.get(0).rights);
+
+                List<String> pidPaths = new ArrayList<>();
+                List<String> modelPaths = new ArrayList<>();
+
+                List<String> firstBranchPids = firstBranch.stream().map(detail -> {
+                    return detail.pid;
+                }).collect(Collectors.toList());
+                Collections.reverse(firstBranchPids);
+                pidPaths.add(firstBranchPids.stream().collect(Collectors.joining("/")));
+
+                if(!secondBranch.isEmpty()) {
+                    List<String> secondBranchPids = secondBranch.stream().map(detail -> {
+                        return detail.pid;
+                    }).collect(Collectors.toList());
+                    Collections.reverse(secondBranchPids);
+                    pidPaths.add(secondBranchPids.stream().collect(Collectors.joining("/")));
+                }
+
+                List<String> firstBranchModels = firstBranch.stream().map(detail -> {
+                    return detail.model;
+                }).collect(Collectors.toList());
+                Collections.reverse(firstBranchModels);
+                modelPaths.add(firstBranchModels.stream().collect(Collectors.joining("/")));
+
+                if(!secondBranch.isEmpty()) {
+                    List<String> secondBranchModels = secondBranch.stream().map(detail -> {
+                        return detail.model;
+                    }).collect(Collectors.toList());
+                    Collections.reverse(secondBranchModels);
+                    modelPaths.add(secondBranchModels.stream().collect(Collectors.joining("/")));
+                }
+
+
+                //map.put("models_path", )
+                map.put("models_path", modelPaths);
+                map.put("pids_path", pidPaths);
+
+                Optional<String> issuedDate = details.stream().map(detail -> {
+                    return detail.issuedDate;
+                }).filter(Objects::nonNull).findFirst();
+
+                if (issuedDate.isPresent()) {
+                    map.put("publishedDate", issuedDate.get());
+                }
+
+                Optional<String> solrDate = details.stream().map(detail -> {
+                    return detail.solrDate;
+                }).filter(Objects::nonNull).findFirst();
+
+                if (solrDate.isPresent()) {
+                    map.put("solrDate", solrDate.get());
+                }
+
+                List<String> publishers = details.stream().map(detail -> {
+                    return detail.publishers;
+                }).flatMap(Collection::stream).map(publisher -> {
+                    return publisher.publisher;
+                }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+
+                if (!publishers.isEmpty()) {
+                    map.put("publishers", publishers);
+                }
+
+                List<String> authors = details.stream().map(detail -> {
+                    return detail.authors;
+                }).flatMap(Collection::stream).map(author -> {
+                    return author.author;
+                }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+
+                if (!authors.isEmpty()) {
+                    map.put("authors", authors);
+                }
+            }
+            return map;
+        }
+
+
+
+        private static  Record load(ResultSet rs) throws SQLException {
+            Record nrecord = new Record();
+            nrecord.recordId= rs.getInt("slrecord_id");
+            nrecord.pid = rs.getString("slpid");
+            nrecord.date = ACCESS_DATE_FORMAT.format(rs.getTimestamp("sldate"));
+            nrecord.remoteIpAddress=rs.getString("slremote_ip_address");
+            nrecord.user=rs.getString("slUSER");
+            nrecord.dnnt=rs.getBoolean("sldnnt");
+            nrecord.providedbydnnt=rs.getBoolean("slprovidedByDnnt");
+            nrecord.evaluateMap=rs.getString("slevaluatemap");
+            nrecord.userSessionAttributes=rs.getString("slusersessionattributes");
+            return nrecord;
+        }
+
+        public boolean isDifferent(int rId) {
+            return this.recordId != rId;
+        }
+
+
+        public Detail lastDetail() {
+            return details.isEmpty() ? null : details.get(details.size() -1);
+        }
+    }
+
+    static class Detail {
+
+        int detailId=-1;
+        String pid;
+        String model;
+        String issuedDate;
+        String solrDate;
+        String rights;
+        String title;
+        int branchId;
+
+        private List<Author> authors = new ArrayList<>();
+        private List<Publisher> publishers = new ArrayList<>();
+
+        private static Detail load(ResultSet rs) throws SQLException {
+            Detail detail = new Detail();
+            detail.detailId = rs.getInt("sddetail_id");
+            detail.pid = rs.getString("sdpid");
+            detail.model = rs.getString("sdmodel");
+            detail.issuedDate = new YearLogFormat().format(rs.getString("sdissued_date"));
+            detail.solrDate = new YearLogFormat().format(rs.getString("sdsolr_date"));
+            String rights = rs.getString("sdrights");
+            detail.rights= rights != null ? rights.contains(":") ? rights.split(":")[1] : rights : null;
+            detail.title= rs.getString("sdtitle");
+            detail.branchId = rs.getInt("sdbranch_id");
+            return detail;
+        }
+
+        public Author lastAuthor() {
+            return authors.isEmpty() ? null : authors.get(authors.size() -1);
+        }
+
+        public Publisher lastPublisher() {
+            return publishers.isEmpty() ? null : publishers.get(publishers.size() -1);
+        }
+
+        public boolean isDifferent(int dId) {
+            return this.detailId != dId;
+        }
+    }
+
+    static class Author {
+
+        int authorId=-1;
+        String author;
+
+        private static Author load(ResultSet rs) throws SQLException {
+            int authorId = rs.getInt("saauthor_id");
+            if (authorId != -1) {
+                Author author = new Author();
+                author.authorId = rs.getInt("saauthor_id");
+                author.author = rs.getString("saauthor_name");
+                return author;
+            } else return null;
+        }
+
+        public boolean isDifferent(int aId) {
+            return authorId != aId;
+        }
+
+    }
+
+    static class Publisher {
+
+        int publisherId=-1;
+        String publisher;
+
+
+        private static Publisher load(ResultSet rs) throws SQLException {
+            int publisherId = rs.getInt("sppublisher_id");
+            if (publisherId != -1) {
+                Publisher publisher = new Publisher();
+                publisher.publisherId = rs.getInt("sppublisher_id");
+                publisher.publisher = rs.getString("sppublisher_name");
+                return publisher;
+            } else return null;
+        }
+
+        public boolean isDifferent(int pId) {
+            return publisherId != pId;
+        }
+
     }
 }

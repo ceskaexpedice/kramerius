@@ -36,9 +36,9 @@
 
     <input type="hidden" name="label-id" id="label-id" value="${label.id}" />
 
-    <tr><td width="100%"><label for="label-name"><view:msg>administrator.menu.dialogs.only_newer</view:msg></label></td></tr>
+    <tr><td width="100%"><label for="label-name"><view:msg>common.name</view:msg></label></td></tr>
     <tr><td width="100%"><input id="label-name" type="text" value="${label.name}" onkeyup="" style="width:100%" id="label-name"></input></td></tr>
-    <tr><td width="100%"><label for="label-description"><view:msg>administrator.menu.dialogs.only_newer</view:msg></label></td></tr>
+    <tr><td width="100%"><label for="label-description"><view:msg>common.description</view:msg></label></td></tr>
     <tr><td width="100%"><textarea id="label-description" type="text" style="width:100%" id="label-description">${label.description}</textarea></td></tr>
 
 </table>

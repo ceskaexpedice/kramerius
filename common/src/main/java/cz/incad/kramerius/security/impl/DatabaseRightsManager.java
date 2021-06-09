@@ -482,8 +482,8 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
     private Label getLabel(RightCriteriumWrapper criteriumWrapper) {
-        if (criteriumWrapper.getRightCriterium() instanceof RightCriteriumLabelAware) {
-            return ((RightCriteriumLabelAware)criteriumWrapper).getLabel();
+        if (criteriumWrapper != null && criteriumWrapper.getRightCriterium() !=null && criteriumWrapper.getRightCriterium() instanceof RightCriteriumLabelAware) {
+            return ((RightCriteriumLabelAware)criteriumWrapper.getRightCriterium()).getLabel();
         } else return null;
     }
 

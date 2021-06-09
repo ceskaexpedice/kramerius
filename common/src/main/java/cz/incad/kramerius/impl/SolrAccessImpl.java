@@ -58,6 +58,8 @@ public class SolrAccessImpl implements SolrAccess {
         }
     }
 
+
+
     @Override
     public ObjectPidsPath[] getPath(String pid) throws IOException {
         if (SpecialObjects.isSpecialObject(pid))

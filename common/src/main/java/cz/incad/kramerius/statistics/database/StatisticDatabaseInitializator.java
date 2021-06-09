@@ -67,6 +67,10 @@ public class StatisticDatabaseInitializator {
                 checkAndAddEvaluateMap(connection);
                 checkAndAddUserAttributesMap(connection);
 
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+                checkDateIndex(connection);
+
             } else if (versionCondition(version, "<", "6.0.0")) {
                 createStatisticTables(connection);
                 alterStatisticsTableStatAction(connection);
@@ -86,6 +90,11 @@ public class StatisticDatabaseInitializator {
                 checkAndAddEvaluateMap(connection);
                 checkAndAddUserAttributesMap(connection);
 
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+                checkDateIndex(connection);
+
+
             } else if (versionCondition(version, "=", "6.0.0")) {
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
@@ -104,6 +113,11 @@ public class StatisticDatabaseInitializator {
                 checkAndAddEvaluateMap(connection);
                 checkAndAddUserAttributesMap(connection);
 
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+                checkDateIndex(connection);
+
+
             } else if (versionCondition(version, "=", "6.1.0")) {
                 alterStatisticsTableSessionId(connection);
 
@@ -120,6 +134,10 @@ public class StatisticDatabaseInitializator {
                 checkAndAddEvaluateMap(connection);
                 checkAndAddUserAttributesMap(connection);
 
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+                checkDateIndex(connection);
+
             } else if ((versionCondition(version, ">", "6.1.0")) && (versionCondition(version, "<", "6.5.0"))) {
                 // Issue 619
                 alterStatisticsAuthorTablePrimaryKey(connection);
@@ -134,6 +152,10 @@ public class StatisticDatabaseInitializator {
                 checkAndAddEvaluateMap(connection);
                 checkAndAddUserAttributesMap(connection);
 
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+                checkDateIndex(connection);
+
             } else if (versionCondition(version, ">=", "6.5.0")&& (versionCondition(version, "<", "6.6.4"))) {
                 createFirstFunction(connection);
                 createLastFunction(connection);
@@ -146,6 +168,11 @@ public class StatisticDatabaseInitializator {
                 checkAndAddEvaluateMap(connection);
                 checkAndAddUserAttributesMap(connection);
 
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+                checkDateIndex(connection);
+
+
             } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.6"))) {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
@@ -156,11 +183,20 @@ public class StatisticDatabaseInitializator {
                 checkAndAddEvaluateMap(connection);
                 checkAndAddUserAttributesMap(connection);
 
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+                checkDateIndex(connection);
+
             } else if (versionCondition(version, ">=", "6.6.6")) {
                 checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
                 checkAndAddEvaluateMap(connection);
                 checkAndAddUserAttributesMap(connection);
+
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+                checkDateIndex(connection);
+
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -265,7 +301,29 @@ public class StatisticDatabaseInitializator {
         }
     }
 
+    public static void checkAndAddSolrDate(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistic_access_log_detail","solr_date")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistic_access_log_detail ADD COLUMN solr_date TEXT;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
 
+    public static void checkDateIndex(Connection con) throws SQLException {
+        if (!DatabaseUtils.indexExists(con, "statistics_access_log","date")) {
+            PreparedStatement prepareStatement = con.prepareStatement("CREATE INDEX date_index on statistics_access_log(date);");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
 
     public static void alterStatisticsTableSessionId(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con
@@ -311,6 +369,10 @@ public class StatisticDatabaseInitializator {
 
     }
 
+
+
+
+
     /**
      * @param connection
      * @throws IOException
@@ -322,8 +384,25 @@ public class StatisticDatabaseInitializator {
         template.setUseReturningKeys(false);
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
-    
-    
+
+
+    /**
+     * Check if publisher table exists
+     * @param connection Connection
+     * @throws SQLException
+     * @throws IOException
+     */
+    private static void checkPublisherTables(Connection connection) throws SQLException, IOException {
+        if (!DatabaseUtils.tableExists(connection, "STATISTIC_ACCESS_LOG_DETAIL_PUBLISHERS")) {
+            InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initpublishersdb.sql");
+            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+            template.setUseReturningKeys(false);
+            template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+        }
+    }
+
+
+
     /**
      * Create first aggregation function first(col)
      */

@@ -2,7 +2,9 @@ package cz.incad.kramerius.security.labels.impl;
 
 import cz.incad.kramerius.security.labels.Label;
 
-public class LabelImpl implements Label {
+import java.io.Serializable;
+
+public class LabelImpl implements Label, Serializable {
 
     private int id = -1;
     private String name;

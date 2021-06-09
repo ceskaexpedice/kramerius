@@ -24,17 +24,15 @@ public class ReadDNNTLabelsIPFiltered extends AbstractCriterium implements Right
         try {
             RightCriteriumContext ctx =  getEvaluateContext();
             String pid = ctx.getRequestedPid();
-            // only for READ action
             if (!SpecialObjects.isSpecialObject(pid)) {
-
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                     SolrAccess solrAccess = ctx.getSolrAccess();
                     Document doc = solrAccess.getSolrDataDocument(pid);
-                    String label = CriteriaDNNTUtils.getMatchedLabel(doc,  getObjects());
-                    if (label != null)  {
+                    boolean applied = CriteriaDNNTUtils.matchLabel(doc,  getLabel());
+                    if (applied)  {
                         EvaluatingResultState result = matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
                         if (result.equals(EvaluatingResultState.TRUE)) {
-                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, label);
+                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, getLabel().getName());
                         }
                         return result;
 

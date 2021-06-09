@@ -158,15 +158,22 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
                     String kModel = fedoraAccess.getKrameriusModelName(detailPid);
                     Document dc = dcMap.containsKey(detailPid) ? dcMap.get(detailPid) : fedoraAccess.getDC(detailPid);
+                    Document sDoc = this.solrAccess.getSolrDataDocument(pid);
+
+
 
                     Object dateFromDC = DCUtils.dateFromDC(dc);
                     dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);
-                    
+
+                    Object dateFromSolr = SElemUtils.selem("str", "datum_str", solrDoc);
+                    dateFromSolr = dateFromSolr != null ? dateFromSolr :  new JDBCUpdateTemplate.NullObject(String.class);
+
                     Object languageFromDc = DCUtils.languageFromDC(dc);
                     languageFromDc = languageFromDc != null ? languageFromDc : new JDBCUpdateTemplate.NullObject(String.class);
                                       
                     Object title = DCUtils.titleFromDC(dc);
                     title = title != null ? title : new JDBCUpdateTemplate.NullObject(String.class);
+
 
                     Object rights = DCUtils.rightsFromDC(dc);
                     rights = rights != null ? rights : new JDBCUpdateTemplate.NullObject(String.class);
@@ -182,12 +189,12 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                     
                     if (!languagesFromMods.isEmpty()) {
                         for (String languageFromMods : languagesFromMods) {
-                            InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, languageFromMods, title, pathIndex);
+                            InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, dateFromSolr, languageFromMods, title, pathIndex);
                             commands.add(insertDetail);
                         }
                     }
                     else {
-                        InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, languageFromDc, title, pathIndex); 
+                        InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, dateFromSolr, languageFromDc, title, pathIndex);
                         commands.add(insertDetail);
                     }
                     
@@ -391,10 +398,11 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
         private Object language = null;
         private Object title = null;
         private Object date = null;
+        private Object solrDate = null;
         private int pathIndex = 0;
         private Object rights=null;
         
-        public InsertDetail(String detailPid, String kModel,Object rights ,Object date, Object language, Object title, int pathIndex) {
+        public InsertDetail(String detailPid, String kModel,Object rights ,Object date, Object solrDate, Object language, Object title, int pathIndex) {
             super();
             this.detailPid = detailPid;
             this.kModel = kModel;
@@ -403,6 +411,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             this.date = date;
             this.rights = rights;
             this.pathIndex = pathIndex;
+            this.solrDate = solrDate;
         }
 
         @Override
@@ -417,7 +426,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             
             //(detail_ID, PID,model,ISSUED_DATE,RIGHTS, LANG, TITLE, BRANCH_ID,RECORD_ID)
             int detail_id  = new JDBCUpdateTemplate(con, false)
-                .executeUpdate(sql, detailPid, kModel, date, rights , language, title, pathIndex,record_id);
+                .executeUpdate(sql, detailPid, kModel, date, solrDate, rights , language, title, pathIndex,record_id);
             
             previousResult.put("detail_id", detail_id);
             

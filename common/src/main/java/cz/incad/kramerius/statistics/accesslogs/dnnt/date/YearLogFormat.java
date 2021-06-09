@@ -22,6 +22,8 @@ public class YearLogFormat implements DNNTStatisticsDateFormat{
 
     @Override
     public String format(String date) {
+        // check if given date is null
+        if (date == null) return null;
         // try to parse by default ndk parser
         List<String> years = fullYears(date);
         if (years.isEmpty()) {

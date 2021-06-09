@@ -29,10 +29,11 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                     SolrAccess solrAccess = ctx.getSolrAccess();
                     Document doc = solrAccess.getSolrDataDocument(pid);
-                    String label = CriteriaDNNTUtils.getMatchedLabel(doc, getObjects());
-                    if (label != null) {
+
+                    boolean applied =  CriteriaDNNTUtils.matchLabel(doc, getLabel());
+                    if (applied) {
                         // select label
-                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, label);
+                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, getLabel().getName());
                         return EvaluatingResultState.TRUE;
                     }
                 }

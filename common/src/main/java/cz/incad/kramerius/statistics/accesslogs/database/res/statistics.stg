@@ -13,8 +13,8 @@ insert into statistics_access_log
 
 insertStatisticRecordDetail() ::=<<
 insert into statistic_access_log_detail
-      (detail_ID, PID,model,ISSUED_DATE,RIGHTS, LANG, TITLE, BRANCH_ID,RECORD_ID)
-values(nextval('statistic_access_log_detail_id_sequence'),?,?,?,?,?,?, ?,?);
+      (detail_ID, PID,model,ISSUED_DATE, SOLR_DATE,RIGHTS, LANG, TITLE, BRANCH_ID,RECORD_ID)
+values(nextval('statistic_access_log_detail_id_sequence'),?,?,?,?,?,?,?, ?,?);
 >>
 
 
@@ -371,9 +371,45 @@ $if(paging)$ $paging()$ $endif$
 
 
 /** nkp logs */
+/*
+ *   select * from statistics_access_log sl
+ *   join statistic_access_log_detail sd on sd.record_id = sl.record_id
+ */
 //nkpLogsReport(action, fromDefined, toDefined) ::=<<
 nkpLogsReport(action, paging, fromDefined, toDefined, visibility, ipaddr) ::=<<
-    select * from statistics_access_log sl
-    join statistic_access_log_detail sd on sd.record_id = sl.record_id
-    WHERE sl.pid = sd.pid $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
+select
+	sl.record_id as slrecord_id,
+	sl.pid as slpid,
+	sl.date as sldate,
+	sl.remote_ip_address as slremote_ip_address,
+	sl."USER" as sluser,
+	sl.stat_action as slstat_action,
+	sl.dnnt as sldnnt,
+	sl.providedbydnnt as slprovidedbydnnt,
+	sl.evaluatemap as slevaluatemap,
+	sl.usersessionattributes as slusersessionattributes,
+
+	sd.detail_id as sddetail_id,
+	sd.pid as sdpid,
+	sd.model as sdmodel,
+	sd.issued_date as sdissued_date,
+	sd.solr_date as sdsolr_date,
+	sd.rights as sdrights,
+	sd.lang as sdlang,
+	sd.title as sdtitle,
+	sd.branch_id as sdbranch_id,
+
+	sa.author_id as saauthor_id,
+	sa.author_name as saauthor_name,
+
+	sp.publisher_id as sppublisher_id,
+	sp.publisher_name as sppublisher_name
+
+	from statistics_access_log sl
+join statistic_access_log_detail sd using(record_id)
+left join statistic_access_log_detail_authors sa using(detail_id)
+left join statistic_access_log_detail_publishers sp using(detail_id)
+WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
+order by sl.record_id, sd.detail_id, sd.branch_id, sa.author_id
+
 >>

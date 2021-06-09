@@ -3,6 +3,7 @@ package cz.incad.kramerius.security.impl.criteria.utils;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.*;
+import cz.incad.kramerius.security.labels.Label;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.w3c.dom.Document;
 
@@ -38,16 +39,13 @@ public class CriteriaDNNTUtils {
     }
 
     // allowed by dnntlabel right
-    public static boolean allowedByReadDNNTLabelsRight(RightsReturnObject obj, Object[] givenObjects) {
+
+    public static boolean allowedByReadDNNTLabelsRight(RightsReturnObject obj, Label label) {
         if (obj.getRight() != null && obj.getRight().getCriteriumWrapper() != null) {
             if (obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabels.class.getName()) ||
                     obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabelsIPFiltered.class.getName())) {
-                Object[] rightObjects = obj.getRight().getCriteriumWrapper().getCriteriumParams().getObjects();
-                for (Object go : givenObjects) {
-                    for (Object objFromRight :  rightObjects) {
-                        if (go.equals(rightObjects)) return true;
-                    }
-                }
+                String s = obj.getEvaluateInfoMap().get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL);
+                return label != null && label.getName() != null && s != null && s.equals(label.getName());
             }
         }
         return false;
@@ -111,14 +109,12 @@ public class CriteriaDNNTUtils {
         checkContainsCriterium(ctx, manager, PDFDNNTFlag.class);
     }
 
-    public static String getMatchedLabel(Document solrDoc, Object[] rightsParams) {
+    public static boolean matchLabel(Document solrDoc, Label label) {
         List<String> indexedLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
-        if (indexedLabels != null) {
-            for (Object obj :  rightsParams) {
-                String label = obj.toString();
-                if (indexedLabels.contains(label)) return label;
-            }
+        if (indexedLabels != null && label != null) {
+            String labelName = label.getName();
+            if (indexedLabels.contains(labelName)) return true;
         }
-        return null;
+        return false;
     }
 }

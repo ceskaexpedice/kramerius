@@ -63,7 +63,35 @@ public class DatabaseUtils {
             tryClose(pstm);
         }
     }
-    
+
+    public static boolean indexExists(Connection con, String tableName, String columnName) throws SQLException {
+        String sql = "select t.relname as table_name, i.relname as index_name, a.attname as column_name\n" +
+                "from\n" +
+                "    pg_class t,\n" +
+                "    pg_class i,\n" +
+                "    pg_index ix,\n" +
+                "    pg_attribute a\n" +
+                "where\n" +
+                "    t.oid = ix.indrelid\n" +
+                "    and i.oid = ix.indexrelid\n" +
+                "    and a.attrelid = t.oid\n" +
+                "    and a.attnum = ANY(ix.indkey)\n" +
+                "    and t.relkind = 'r'\n" +
+                "   \tand t.relname = ?\n" +
+                "\tand a.attname =?";
+        PreparedStatement pstm = con.prepareStatement(sql);
+        pstm.setString(1, tableName);
+        pstm.setString(2, columnName);
+        ResultSet rs = null;
+        try {
+            rs = pstm.executeQuery();
+            return rs.next();
+        } finally {
+            tryClose(pstm);
+            if (rs != null) tryClose(rs);
+        }
+    }
+
     public static void tryClose(Connection c) {
         try {
             c.close();
