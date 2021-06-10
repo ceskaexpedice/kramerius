@@ -39,6 +39,7 @@ form(postfixdiv,bundle, nkpLogsDirectory, rootDirectory, dateFrom, dateTo) ::=<<
             var vals = 'dateFrom='+\$('#nkp_date_from').val().escapeChars(charsThatMustBeEscaped)
                 +';dateTo='+   \$('#nkp_date_to').val().escapeChars(charsThatMustBeEscaped)
                 +';folder='+encodeURI(\$('#nkp_folder').val().escapeChars(charsThatMustBeEscaped))
+                +';visibility='+encodeURI(\$('#nkp_visibility').val().escapeChars(charsThatMustBeEscaped))
                 +';anonymization='+encodeURI(\$('#nkp_anonymize').val().escapeChars(charsThatMustBeEscaped))
                 +';institution='+encodeURI(\$('#nkp_institution').val().escapeChars(charsThatMustBeEscaped));
 
@@ -132,6 +133,18 @@ function ShowNKPLogDirectory() {
                 <td>$bundle.("nkplog.folder.label")$</td>
                 <td><input id="nkp_folder" value="$nkpLogsDirectory$"  style="width:80%" > </input></td>
                 <td><input type="button" onclick="directoryTree.openTree();" value="$bundle.("nkplog.folder.button.label")$"></input></td>
+            </tr>
+            <tr>
+                <td>$bundle.("nkplog.folder.label")$</td>
+                <td>
+                <select id="nkp_visibility">
+                	   <option value="all" selected="selected">$bundle.("common.all")$</option>
+                	   <option value="public">$bundle.("k3replication.defaultrights.public")$</option>
+                	   <option value="private">$bundle.("k3replication.defaultrights.private")$</option>
+                </select>
+
+                </td>
+                <td></td>
             </tr>
             <tr>
                 <td>$bundle.("nkplog.institution.label")$</td>

@@ -1,5 +1,6 @@
 package cz.incad.kramerius.utils;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -78,7 +79,11 @@ public class DNNTBatchUtils {
 
         Element labels = document.createElement("field");
         labels.setAttribute("name", "dnnt-labels");
-        labels.setAttribute("update", addRemoveFlag ? "add-distinct" : "remove");
+
+        boolean distinctsupport = KConfiguration.getInstance().getConfiguration().getBoolean("dnnt.solr.label.distinctsupport",false);
+        String addCommand = distinctsupport ? "add-distinct" : "add";
+
+        labels.setAttribute("update", addRemoveFlag ? addCommand: "remove");
         labels.setTextContent(label);
 
 

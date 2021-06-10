@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -33,6 +34,7 @@ import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
+import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
@@ -43,8 +45,13 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
  */
 public class StatisticDatabaseInitializator {
 
+    static List<String> EMBEDDED_LABELS = Arrays.asList(
+        "dnntt", "dnnto", "covid"
+    );
+
     static java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(StatisticDatabaseInitializator.class.getName());
+
 
     public static void initDatabase(Connection connection, VersionService versionService) {
         try {
@@ -70,6 +77,7 @@ public class StatisticDatabaseInitializator {
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
                 checkDateIndex(connection);
+
 
             } else if (versionCondition(version, "<", "6.0.0")) {
                 createStatisticTables(connection);
@@ -138,6 +146,7 @@ public class StatisticDatabaseInitializator {
                 checkAndAddSolrDate(connection);
                 checkDateIndex(connection);
 
+
             } else if ((versionCondition(version, ">", "6.1.0")) && (versionCondition(version, "<", "6.5.0"))) {
                 // Issue 619
                 alterStatisticsAuthorTablePrimaryKey(connection);
@@ -155,6 +164,7 @@ public class StatisticDatabaseInitializator {
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
                 checkDateIndex(connection);
+
 
             } else if (versionCondition(version, ">=", "6.5.0")&& (versionCondition(version, "<", "6.6.4"))) {
                 createFirstFunction(connection);
@@ -187,6 +197,7 @@ public class StatisticDatabaseInitializator {
                 checkAndAddSolrDate(connection);
                 checkDateIndex(connection);
 
+
             } else if (versionCondition(version, ">=", "6.6.6")) {
                 checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
@@ -197,6 +208,7 @@ public class StatisticDatabaseInitializator {
                 checkAndAddSolrDate(connection);
                 checkDateIndex(connection);
 
+
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -205,7 +217,32 @@ public class StatisticDatabaseInitializator {
         }
     }
 
+    private static void checkLabelExists(Connection connection) {
+        EMBEDDED_LABELS.stream().forEach( label-> {
+                List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
+                    @Override
+                    public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                        returnsList.add(rs.getString("label_name"));
+                        return super.handleRow(rs, returnsList);
+                    }
+                }.executeQuery("select * from labels_entity where = ?", label);
+                if (labels.isEmpty()) {
+                    try {
+                        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                        template.setUseReturningKeys(false);
+                        template.executeUpdate(
+                                "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
+                                        "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, '', (select coalesce(max(label_priority),0)+1 from labels_entity))",
+                                label);
 
+                    } catch (SQLException e) {
+                        LOGGER.log(Level.SEVERE,String.format("Cannot create embedded label %s", label));
+
+                    }
+                }
+            }
+        );
+    }
 
 
     /**
@@ -368,6 +405,7 @@ public class StatisticDatabaseInitializator {
         new JDBCTransactionTemplate(con, false).updateWithTransaction(deletePKCommand, createPKCommand);
 
     }
+
 
 
 

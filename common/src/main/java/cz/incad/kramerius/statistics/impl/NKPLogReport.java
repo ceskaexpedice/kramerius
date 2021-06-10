@@ -16,6 +16,7 @@ import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
@@ -88,6 +89,7 @@ public class NKPLogReport implements StatisticReport {
         try {
 
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
 
             if (dateFilter.getFromDate() != null && dateFilter.getToDate() != null) {
                 final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("nkpLogsReport");
@@ -95,6 +97,8 @@ public class NKPLogReport implements StatisticReport {
 
                 statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
                 statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
+                statRecord.setAttribute("visibility", visFilter.asMap());
+
 
                 @SuppressWarnings("rawtypes")
                 List params = StatisticUtils.jdbcParams(dateFilter);

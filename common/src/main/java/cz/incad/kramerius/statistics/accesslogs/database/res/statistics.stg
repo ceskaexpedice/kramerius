@@ -24,6 +24,12 @@ insert into statistic_access_log_detail_authors
 values(nextval('statistic_access_log_detail_authors_ID_SEQUENCE'),?,?,?);
 >>
 
+insertStatisticRecordDetailPublisher() ::=<<
+insert into statistic_access_log_detail_publishers
+      (publisher_id,publisher_name,DETAIL_ID,RECORD_ID)
+values(nextval('statistic_access_log_detail_publishers_ID_SEQUENCE'),?,?,?);
+>>
+
 exportAllRecord() ::=<<
 
 select 
@@ -375,7 +381,7 @@ $if(paging)$ $paging()$ $endif$
  *   select * from statistics_access_log sl
  *   join statistic_access_log_detail sd on sd.record_id = sl.record_id
  */
-//nkpLogsReport(action, fromDefined, toDefined) ::=<<
+//nkpLogsReport(action, fromDefined, toDefined,visibility) ::=<<
 nkpLogsReport(action, paging, fromDefined, toDefined, visibility, ipaddr) ::=<<
 select
 	sl.record_id as slrecord_id,
@@ -409,7 +415,7 @@ select
 join statistic_access_log_detail sd using(record_id)
 left join statistic_access_log_detail_authors sa using(detail_id)
 left join statistic_access_log_detail_publishers sp using(detail_id)
-WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$
+WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ $visibilityFilter(visibility=visibility)$
 order by sl.record_id, sd.detail_id, sd.branch_id, sa.author_id
 
 >>

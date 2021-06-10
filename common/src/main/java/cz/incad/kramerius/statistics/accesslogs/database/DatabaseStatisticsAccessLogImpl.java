@@ -203,6 +203,12 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                         InsertAuthor insertAuth = new InsertAuthor(cr);
                         commands.add(insertAuth);
                     }
+
+                    String[] publishersFromDC = DCUtils.publishersFromDC(dc);
+                    for (String p : publishersFromDC) {
+                        InsertPublisher inserPublisher = new InsertPublisher(p);
+                        commands.add(inserPublisher);
+                    }
                 }
             }
             //  WRITE TO DATABASE
@@ -460,7 +466,34 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             return previousResult;
         }
     }
-    
+
+
+    public static class InsertPublisher extends JDBCCommand {
+
+        private String publisher;
+
+        public InsertPublisher(String publisher) {
+            super();
+            this.publisher = publisher;
+        }
+
+
+        @Override
+        public Object executeJDBCCommand(Connection con) throws SQLException {
+            Map<String, Integer> previousResult = (Map<String, Integer>) getPreviousResult();
+            if (previousResult == null) previousResult = new HashMap<String, Integer>();
+
+            final StringTemplate detail = stGroup.getInstanceOf("insertStatisticRecordDetailPublisher");
+            String sql = detail.toString();
+            int record_id = previousResult.get("record_id");
+            int detail_id = previousResult.get("detail_id");
+
+            new JDBCUpdateTemplate(con, false)
+                    .executeUpdate(sql, this.publisher, detail_id, record_id);
+
+            return previousResult;
+        }
+    }
 
     public static StringTemplateGroup stGroup;
     static {

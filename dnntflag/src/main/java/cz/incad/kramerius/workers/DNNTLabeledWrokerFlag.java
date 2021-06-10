@@ -38,7 +38,7 @@ public class DNNTLabeledWrokerFlag extends DNNTWorker {
         String pidPathQuery = "pid_path:("+pidPaths.stream().map(it -> "\"" + it + "\"").collect(Collectors.joining(" OR "))+")";
         return this.addRemoveFlag ?
                 KConfiguration.getInstance().getConfiguration().getString( DNNT_LABEL_QUERY,"("+pidPathQuery+" -dnnt-labels:[* TO *]) || ("+pidPathQuery+" NOT dnnt-labels:\""+this.label+"\")")  :
-                KConfiguration.getInstance().getConfiguration().getString( DNNT_LABEL_QUERY,"("+pidPathQuery+" dnnt-labels:[* TO *]) || ("+pidPathQuery+" dnnt-labels:\""+this.label+"\")");
+                KConfiguration.getInstance().getConfiguration().getString( DNNT_LABEL_QUERY_UNSET,"("+pidPathQuery+" dnnt-labels:[* TO *]) || ("+pidPathQuery+" dnnt-labels:\""+this.label+"\")");
     }
 
 

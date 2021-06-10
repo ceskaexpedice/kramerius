@@ -44,9 +44,13 @@ public class NKPLogProcess {
                                 @ParameterName("dateTo")String to,
                                 @ParameterName("folder")String folder,
                                 @ParameterName("institution")String institution,
+                                @ParameterName("visibility")String visibility,
                                 @ParameterName("anonymization")String anonymization
             ) throws ParseException, IOException, NoSuchAlgorithmException {
 
+
+
+        LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to,folder,institution,visibility,anonymization));
 
         List<String> annonymizationKeys = anonymization != null ? Arrays.asList(anonymization.split(",")) : new ArrayList<>();
 
@@ -55,6 +59,7 @@ public class NKPLogProcess {
 
         Date start = StringUtils.isAnyString(to) ? StatisticReport.DATE_FORMAT.parse(from) : new Date();
         Date end = StringUtils.isAnyString(to) ? StatisticReport.DATE_FORMAT.parse(to) : new Date();
+
         Date processingDate = start;
 
         while(processingDate.before(end)) {
@@ -63,7 +68,7 @@ public class NKPLogProcess {
             localDateTime = localDateTime.plusDays(1);
             Date nextDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-            String url = KConfiguration.getInstance().getConfiguration().getString("api.point")+(KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("admin/statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=ALL", StatisticReport.DATE_FORMAT.format(processingDate), StatisticReport.DATE_FORMAT.format(nextDate));
+            String url = KConfiguration.getInstance().getConfiguration().getString("api.point")+(KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("admin/statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=%s", StatisticReport.DATE_FORMAT.format(processingDate), StatisticReport.DATE_FORMAT.format(nextDate), visibility);
             WebResource r = client.resource(url);
             String authHeader = System.getProperty(ProcessStarter.AUTH_TOKEN_KEY);
             String groupHeader = System.getProperty(ProcessStarter.TOKEN_KEY);
