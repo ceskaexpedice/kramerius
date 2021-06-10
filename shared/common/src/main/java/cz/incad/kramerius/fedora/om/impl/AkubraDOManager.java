@@ -239,12 +239,14 @@ public class AkubraDOManager {
         }
     }
 
-    public void deleteObject(String pid) throws IOException {
+    public void deleteObject(String pid, boolean includingManagedDatastreams) throws IOException {
         Lock lock = getWriteLock(pid);
         try {
             DigitalObject object = readObjectFromStorage(pid);
-            for (DatastreamType datastreamType : object.getDatastream()) {
-                removeManagedStream(datastreamType);
+            if(includingManagedDatastreams) {
+                for (DatastreamType datastreamType : object.getDatastream()) {
+                    removeManagedStream(datastreamType);
+                }
             }
             try {
                 storage.removeObject(pid);

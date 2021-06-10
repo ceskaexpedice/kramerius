@@ -89,11 +89,13 @@ public abstract class Repository {
     /**
      * Deletes object, possibly without removing relations pointing at this object (from Resource index)
      * @param pid
+     * @param includingManagedDatastreams if true, also managed datastreams of this object will be removed from the Repository (files in Akubra)
      * @param includingRelationsWithItAsTarget if true, also relations with this object as a target will be removed from Resource index.
      *                                         Which might not be desirable, for example if you want to replace the object with newer version, but keep relations pointing at it.
+     *
      * @throws RepositoryException
      */
-    public abstract void deleteobject(String pid, boolean includingRelationsWithItAsTarget) throws RepositoryException;
+    public abstract void deleteobject(String pid, boolean includingManagedDatastreams, boolean includingRelationsWithItAsTarget) throws RepositoryException;
 
     /**
      * Returns processing index feeder

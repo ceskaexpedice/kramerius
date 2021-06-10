@@ -294,7 +294,7 @@ public class RepositoryApiImpl implements RepositoryApi {
         appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);
         updateLastModifiedTimestamp(foxml);
         DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
-        akubraRepository.deleteobject(pid, false);
+        akubraRepository.deleteobject(pid, false, false);
         akubraRepository.ingestObject(updatedDigitalObject);
         akubraRepository.commitTransaction();
     }
