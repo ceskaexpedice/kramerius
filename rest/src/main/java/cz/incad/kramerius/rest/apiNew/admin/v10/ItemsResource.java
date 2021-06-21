@@ -6,7 +6,9 @@ import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.java.Pair;
+import cz.kramerius.shared.Dom4jUtils;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.json.JSONArray;
@@ -33,6 +35,7 @@ public class ItemsResource extends AdminApiResource {
     private static final String ROLE_READ_ITEMS = "kramerius_admin";
     private static final String ROLE_READ_FOXML = "kramerius_admin";
     private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
+    private static final String ROLE_EDIT_OBJECTS = "kramerius_admin";
 
     /**
      * Returns array of pids (with titles) that have given model. Only partial array with offset & limit.
@@ -188,10 +191,17 @@ public class ItemsResource extends AdminApiResource {
             }
 
             checkObjectExists(pid);
-            krameriusRepositoryApi.getLowLevelApi().deleteObject(pid);
+            String model = krameriusRepositoryApi.getModel(pid);
+            //other objects can reference images belonging to other objects (pages),
+            //some of the reference are managed, so deleting for example collection should not include deleting file with thumbnail
+            boolean deleteManagedDatastreamsData = "page".equals(model);
+            krameriusRepositoryApi.getLowLevelApi().deleteObject(pid, deleteManagedDatastreamsData);
             //TODO: schedule indexation of the affected objects
             return Response.ok().build();
-        } catch (RepositoryException | IOException e) {
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
@@ -366,6 +376,47 @@ public class ItemsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+
+    @PUT
+    @Path("{pid}/streams/IMG_THUMB")
+    public Response setImgThumb(@PathParam("pid") String targetPid, @QueryParam("sourcePid") String sourcePid) {
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
+            String role = ROLE_EDIT_OBJECTS;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getName(), role); //403
+            }
+            //check target object
+            checkSupportedObjectPid(targetPid);
+            checkObjectExists(targetPid);
+            String targetModel = krameriusRepositoryApi.getModel(targetPid);
+            if ("page".equals(targetModel)) {
+                throw new BadRequestException("target's model cannot be page (target is %s)", targetPid);
+            }
+            //check source object
+            checkSupportedObjectPid(sourcePid);
+            checkObjectExists(sourcePid);
+            String sourceModel = krameriusRepositoryApi.getModel(sourcePid);
+            if (!"page".equals(sourceModel)) {
+                throw new BadRequestException("source's model must be page (source is %s with model:%s)", targetPid, sourceModel);
+            }
+            //copy whole datastream xml, with all datastreamVersions; datastreamVersion from repository always contains reference reference:
+            //exterenal with CONTROL_GROUP="E" and contentLocation TYPE="URL"
+            // or
+            // internal with CONTROL_GROUP="M" and contentLocation TYPE="INTERNAL_ID"
+            Document srcThumbDs = krameriusRepositoryApi.getLowLevelApi().getDatastreamXml(sourcePid, "IMG_THUMB");
+            krameriusRepositoryApi.getLowLevelApi().setDatastreamXml(targetPid, "IMG_THUMB", srcThumbDs);
+            return Response.ok().build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
 
     //TODO: operace pro nastavení/změnu url pro IMG_THUMB
     //výhledově možná kromě url taky nahrát obrázek samotný

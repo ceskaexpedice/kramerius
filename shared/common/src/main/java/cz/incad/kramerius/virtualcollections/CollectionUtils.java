@@ -163,7 +163,7 @@ public class CollectionUtils {
         Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(),(repo)->{
             try {
                 CollectionUtils.removeDocumentsFromCollection(pid, repo);
-                repo.deleteobject(pid);
+                repo.deleteObject(pid);
             } catch (Exception e) {
                 throw new RepositoryException(e);
             }
@@ -175,7 +175,7 @@ public class CollectionUtils {
         Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(),(repo)->{
             try {
                 CollectionUtils.removeDocumentsFromCollection(pid, repo);
-                repo.deleteobject(pid);
+                repo.deleteObject(pid);
             } catch (Exception e) {
                 throw new RepositoryException(e);
             }

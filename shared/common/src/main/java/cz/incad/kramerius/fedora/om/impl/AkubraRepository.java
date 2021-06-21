@@ -182,14 +182,14 @@ public class AkubraRepository extends Repository {
     }
 
     @Override
-    public void deleteobject(String pid, boolean includingManagedDatastreams, boolean includingRelationsWithItAsTarget) throws RepositoryException {
+    public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams, boolean deleteRelationsWithThisAsTarget) throws RepositoryException {
         try {
-            this.manager.deleteObject(pid, includingManagedDatastreams);
+            this.manager.deleteObject(pid, deleteDataOfManagedDatastreams);
             try {
                 // delete relations with this object as a source
                 this.feeder.deleteByRelationsForPid(pid);
                 // possibly delete relations with this object as a target
-                if (includingRelationsWithItAsTarget) {
+                if (deleteRelationsWithThisAsTarget) {
                     this.feeder.deleteByTargetPid(pid);
                 }
                 // delete this object's description
@@ -203,8 +203,8 @@ public class AkubraRepository extends Repository {
     }
 
     @Override
-    public void deleteobject(String pid) throws RepositoryException {
-        deleteobject(pid, true, true);
+    public void deleteObject(String pid) throws RepositoryException {
+        deleteObject(pid, true, true);
     }
 
     @Override

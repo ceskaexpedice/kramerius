@@ -68,7 +68,7 @@ public class FedoraCollectionsManagerImplTest {
         List<Collection> collections = inst.getCollections();
         collections.stream().forEach((col)->{
             try {
-                repository.deleteobject(col.getPid());
+                repository.deleteObject(col.getPid());
             } catch (RepositoryException e) {
                 throw new  RuntimeException(e);
             }
@@ -96,7 +96,7 @@ public class FedoraCollectionsManagerImplTest {
         Assert.assertFalse(collections.get(0).isCanLeaveFlag());
         Assert.assertTrue(collections.get(0).getLabel().equals("The new title"));
 
-        repository.deleteobject(pid);
+        repository.deleteObject(pid);
 
     }
 

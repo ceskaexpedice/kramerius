@@ -391,7 +391,7 @@ public class Import {
                 if (updateExisting) {
                     log.info("Replacing existing object " + pid);
                     try {
-                        repo.deleteobject(pid);
+                        repo.deleteObject(pid);
                         log.info("purged old object " + pid);
                     } catch (Exception ex) {
                         log.severe("Cannot purge object " + pid + ", skipping: " + ex);
@@ -558,7 +558,7 @@ public class Import {
             repo.ingestObject(dob);
         } catch (RepositoryException e) {
             if (updateExisting && repo.objectExists(dob.getPID())) {
-                repo.deleteobject(dob.getPID());
+                repo.deleteObject(dob.getPID());
                 repo.ingestObject(dob);
             } else {
                 throw e;

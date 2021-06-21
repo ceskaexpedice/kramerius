@@ -57,7 +57,7 @@ public class DeleteServiceImplTest  {
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         RepositoryDatastream stream = object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -109,7 +109,7 @@ public class DeleteServiceImplTest  {
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         RepositoryDatastream stream = object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));

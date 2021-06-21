@@ -350,8 +350,8 @@ public class CollectionsResource extends AdminApiResource {
                 System.out.println(childPid);
                 childrenPids.add(childPid);
             }
-            //delete collection object form repository
-            krameriusRepositoryApi.getLowLevelApi().deleteObject(pid);
+            //delete collection object form repository (not managed datastreams, since those for IMG_THUMB are referenced from other objects - pages)
+            krameriusRepositoryApi.getLowLevelApi().deleteObject(pid, false);
             //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees), 3. no need to reindex collections owning this one
             String batchToken = UUID.randomUUID().toString();
             scheduleReindexation(pid, user, "OBJECT", batchToken, false, "sbírka " + pid);

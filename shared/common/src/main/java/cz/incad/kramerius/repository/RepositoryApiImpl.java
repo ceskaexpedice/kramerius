@@ -123,6 +123,21 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
+    public Document getDatastreamXml(String pid, String dsId) throws RepositoryException, IOException {
+        RepositoryObject object = akubraRepository.getObject(pid);
+        if (object.streamExists(dsId)) {
+            Document foxml = Utils.inputstreamToDocument(object.getFoxml(), true);
+            Element dcEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", dsId)).selectSingleNode(foxml);
+            Element detached = (Element) dcEl.detach();
+            Document result = DocumentHelper.createDocument();
+            result.add(detached);
+            return result;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public InputStream getLatestVersionOfDatastream(String pid, String dsId) throws RepositoryException, IOException {
         RepositoryObject object = akubraRepository.getObject(pid);
         if (object.streamExists(dsId)) {
@@ -294,7 +309,22 @@ public class RepositoryApiImpl implements RepositoryApi {
         appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);
         updateLastModifiedTimestamp(foxml);
         DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
-        akubraRepository.deleteobject(pid, false, false);
+        akubraRepository.deleteObject(pid, false, false);
+        akubraRepository.ingestObject(updatedDigitalObject);
+        akubraRepository.commitTransaction();
+    }
+
+    @Override
+    public void setDatastreamXml(String pid, String dsId, Document ds) throws RepositoryException, IOException {
+        Document foxml = getFoxml(pid);
+        Element originalDsEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", dsId)).selectSingleNode(foxml);
+        if (originalDsEl != null) {
+            originalDsEl.detach();
+        }
+        foxml.getRootElement().add(ds.getRootElement().detach());
+        updateLastModifiedTimestamp(foxml);
+        DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
+        akubraRepository.deleteObject(pid, false, false);
         akubraRepository.ingestObject(updatedDigitalObject);
         akubraRepository.commitTransaction();
     }
@@ -343,8 +373,8 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
-    public void deleteObject(String pid) throws RepositoryException, IOException {
-        akubraRepository.deleteobject(pid);
+    public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams) throws RepositoryException, IOException {
+        akubraRepository.deleteObject(pid, deleteDataOfManagedDatastreams, true);
         akubraRepository.commitTransaction();
     }
 

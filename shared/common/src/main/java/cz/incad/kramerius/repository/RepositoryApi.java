@@ -49,6 +49,11 @@ public interface RepositoryApi {
 
     public String getDatastreamMimetype(String pid, String dsId) throws RepositoryException, IOException;
 
+    /**
+     * @return part of FOXML that contains definition of the datastream. I.e. root element datastream with subelement(s) datastreamVersion.
+     */
+    public Document getDatastreamXml(String pid, String dsId) throws RepositoryException, IOException;
+
     public InputStream getLatestVersionOfDatastream(String pid, String dsId) throws RepositoryException, IOException;
 
     public Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId) throws RepositoryException, IOException;
@@ -76,8 +81,13 @@ public interface RepositoryApi {
     //UPDATE
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException;
 
+    /**
+     * @param ds part of FOXML that contains definition of the datastream. I.e. root element datastream with subelement(s) datastreamVersion.
+     */
+    public void setDatastreamXml(String pid, String dsId, Document ds) throws RepositoryException, IOException;
+
     //DELETE
-    public void deleteObject(String pid) throws RepositoryException, IOException;
+    public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams) throws RepositoryException, IOException;
 
 
     class Triplet {

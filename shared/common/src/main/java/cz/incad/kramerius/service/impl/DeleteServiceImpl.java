@@ -80,7 +80,7 @@ public class DeleteServiceImpl implements DeleteService {
             if (purge) {
                 LOGGER.info("Purging object: " + p);
                 try {
-                    fedoraAccess.getInternalAPI().deleteobject(p);
+                    fedoraAccess.getInternalAPI().deleteObject(p);
                 } catch (RepositoryException e) {
                     LOGGER.log(Level.WARNING, "Error while deleting " + p + " due " + e.getMessage(), e);
                 }

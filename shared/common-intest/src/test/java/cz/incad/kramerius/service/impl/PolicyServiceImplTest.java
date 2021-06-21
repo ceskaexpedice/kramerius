@@ -54,7 +54,7 @@ public class PolicyServiceImplTest {
             try {
 
                 if (repository.objectExists("uuid:"+ident)) {
-                    repository.deleteobject("uuid:"+ident);
+                    repository.deleteObject("uuid:"+ident);
                 }
 
                 RepositoryObject object = repository.createOrFindObject("uuid:"+ident);

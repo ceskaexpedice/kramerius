@@ -17,7 +17,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.Hash;
 import org.junit.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,8 +27,6 @@ import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -63,7 +60,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         boolean trueFlag = repository.objectExists("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
         Assert.assertTrue(trueFlag);
 
-        repository.deleteobject("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
+        repository.deleteObject("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
         boolean falseFlag = repository.objectExists("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
         Assert.assertFalse(falseFlag);
 
@@ -76,7 +73,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8")) {
-            repository.deleteobject("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
+            repository.deleteObject("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:d1e8361c-8933-4c24-b7c9-7a1c65c83ba8");
         RepositoryDatastream stream = object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -106,7 +103,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         RepositoryDatastream stream = object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -150,7 +147,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -206,7 +203,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -234,7 +231,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -329,7 +326,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -359,7 +356,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -392,7 +389,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -415,7 +412,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -424,7 +421,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
 
         QueryResponse response = solrServer.query(new SolrQuery("source:\"uuid:5035a48a-5e2e-486c-8127-2fa650842e46\"").setRows(100));
         Assert.assertTrue(response.getResults().getNumFound() == 37);
-        repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+        repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
 
         feeder.commit();
 
@@ -440,7 +437,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -449,7 +446,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
 
 
         try {
-            repository.deleteobject("uuid:86c0425f-11fd-406b-8def-6726ad87982b");
+            repository.deleteObject("uuid:86c0425f-11fd-406b-8def-6726ad87982b");
             Assert.fail();
         } catch (RepositoryException e) {
             // ok
