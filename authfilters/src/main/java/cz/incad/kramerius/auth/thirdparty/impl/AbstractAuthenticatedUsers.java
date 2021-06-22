@@ -12,13 +12,15 @@ import javax.servlet.http.HttpSession;
 
 import cz.incad.kramerius.auth.thirdparty.AuthenticatedUsers;
 import cz.incad.kramerius.auth.thirdparty.UsersWrapper;
+import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.UserUtils;
 
 public abstract class AbstractAuthenticatedUsers<T extends UsersWrapper> implements AuthenticatedUsers {
 
     protected Map<String, String> credentials = new HashMap<String, String>();
+    protected UserManager usersManager;
 
-    
+
     public synchronized HttpServletRequest updateRequest(final HttpServletRequest req) {
         final Object userName = req.getSession().getAttribute(UserUtils.USER_NAME_PARAM);
         final Object password = req.getSession().getAttribute(UserUtils.PSWD_PARAM);
@@ -68,7 +70,15 @@ public abstract class AbstractAuthenticatedUsers<T extends UsersWrapper> impleme
     public synchronized String getUserPassword(String userName) {
         return this.credentials.get(userName);
     }
-    
+
+    public UserManager getUserManager() {
+        return this.usersManager;
+    }
+
+    public void setUserManager(UserManager uMan) {
+        this.usersManager = uMan;
+    }
+
     protected abstract String updateExistingUser(String userName, T wrapper) throws Exception;
     
     
@@ -84,15 +94,18 @@ public abstract class AbstractAuthenticatedUsers<T extends UsersWrapper> impleme
     public synchronized String storeUserPropertiesToSession(HttpServletRequest req, String userName) throws Exception {
         String password = null;
         T wrapper = createUserWrapper(req, userName);
-    
+
+        // don't store or update to database
+        /*
         if (checkIfUserExists(userName)) {
             password = updateExistingUser(userName, wrapper);
         } else {
             password = createNewUser(userName, wrapper);
-        }
+        }*/
     
-        this.credentials.put(userName, password);
-    
+        //this.credentials.put(userName, password);
+
+
         req.getSession().setAttribute(UserUtils.USER_NAME_PARAM, userName);
         req.getSession().setAttribute(UserUtils.PSWD_PARAM, password);
     
@@ -104,6 +117,9 @@ public abstract class AbstractAuthenticatedUsers<T extends UsersWrapper> impleme
 
             req.getSession().setAttribute(UserUtils.THIRD_PARTY_SESSION_PARAMS +it, wrapper.getProperty(it));
         });
+
+        req.getSession().setAttribute(UserUtils.LOGGED_USER_PARAM, wrapper.toUser(this.usersManager));
+        req.getSession().setAttribute(UserUtils.THIRD_PARTY_USER, Boolean.TRUE.toString());
 
         return password;
     }

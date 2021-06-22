@@ -23,16 +23,6 @@ import cz.incad.kramerius.security.utils.UserUtils;
 
 public class InternalAuthenticatedUsersImpl extends ShibAuthenticatedUsers {
 
-    private UserManager usersManager;
-
-    public UserManager getUserManager() {
-        return this.usersManager;
-    }
-
-    public void setUserManager(UserManager uMan) {
-        this.usersManager = uMan;
-    }
-    
     @Override
     protected String updateExistingUser(String userName, ShibbolethUserWrapper w) throws SQLException {
         User u = this.usersManager.findUserByLoginName(userName);

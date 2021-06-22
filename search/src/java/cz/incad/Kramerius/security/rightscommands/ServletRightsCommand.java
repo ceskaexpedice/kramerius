@@ -68,7 +68,7 @@ public abstract class ServletRightsCommand extends ServletCommand {
     public RightImpl right(Map data, String pid) {
         RightCriteriumWrapper criterium = this.criteriumWrapperFactory.createCriteriumWrapper((String)data.get("condition"));
 
-        if (criterium !=null)  criterium.setCriteriumParams(param(data));
+        if (criterium !=null  &&  criterium.getRightCriterium() != null && criterium.getRightCriterium().isParamsNecessary())  criterium.setCriteriumParams(param(data));
         Role role = this.userManager.findRoleByName((String) data.get("role"));
         if (role == null) throw new RuntimeException("cannot find role '"+role+"'");
 

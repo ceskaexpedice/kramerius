@@ -4,17 +4,30 @@ group statistics;
 
 insertStatisticRecord() ::=<<
 insert into statistics_access_log
-    (record_ID, PID,DATE,REMOTE_IP_ADDRESS,"USER",REQUESTED_URL,STAT_ACTION, SESSION_ID, dnnt, providedbydnnt, evaluateMap, userSessionAttributes)
-    values(nextval('statistics_access_log_ID_SEQUENCE'),?,?,?,?,?,?,?,?,?,?,?);
+    (record_ID, PID,DATE,REMOTE_IP_ADDRESS,"USER",REQUESTED_URL,STAT_ACTION, SESSION_ID, dnnt, providedbydnnt, evaluateMap, userSessionAttributes,dbversion)
+    values(nextval('statistics_access_log_ID_SEQUENCE'),?,?,?,?,?,?,?,?,?,?,?,?);
 >>
 
 
 
 
-insertStatisticRecordDetail() ::=<<
+insertStatisticRecordDetail(identifiers) ::=<<
 insert into statistic_access_log_detail
-      (detail_ID, PID,model,ISSUED_DATE, SOLR_DATE,RIGHTS, LANG, TITLE, BRANCH_ID,RECORD_ID)
-values(nextval('statistic_access_log_detail_id_sequence'),?,?,?,?,?,?,?, ?,?);
+      (detail_ID, PID,model,ISSUED_DATE, SOLR_DATE,RIGHTS, LANG, TITLE, BRANCH_ID,RECORD_ID, ISSN, ISBN, CCNB)
+values(nextval('statistic_access_log_detail_id_sequence'),
+?, --PID
+?, --model
+?, --issued_date
+?, --solr_date
+?, --rights
+?, --lang
+?, --title
+?, --branch_id
+?, --record_id
+?, --issn
+?, --isbn
+?  --ccnb
+);
 >>
 
 
@@ -394,6 +407,7 @@ select
 	sl.providedbydnnt as slprovidedbydnnt,
 	sl.evaluatemap as slevaluatemap,
 	sl.usersessionattributes as slusersessionattributes,
+	sl.dbversion as sldbversion,
 
 	sd.detail_id as sddetail_id,
 	sd.pid as sdpid,
@@ -404,6 +418,9 @@ select
 	sd.lang as sdlang,
 	sd.title as sdtitle,
 	sd.branch_id as sdbranch_id,
+	sd.issn as sdissn,
+	sd.isbn as sdisbn,
+	sd.ccnb as sdccnb,
 
 	sa.author_id as saauthor_id,
 	sa.author_name as saauthor_name,

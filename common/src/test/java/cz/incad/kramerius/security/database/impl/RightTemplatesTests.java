@@ -137,8 +137,7 @@ public class RightTemplatesTests {
     }
 
     @Test
-    @Ignore
-    public void testInsertCriteriumTemplate() {
+    public void testInsertCriterium() {
         Injector injector = injector();
         RightCriteriumWrapperFactory wrapperFactory = injector.getInstance(RightCriteriumWrapperFactory.class);
         RightCriteriumWrapper mw = wrapperFactory.createCriteriumWrapper(MovingWall.class.getName());
@@ -147,22 +146,21 @@ public class RightTemplatesTests {
         template1.setAttribute("criteriumWrapper", mw);
         template1.setAttribute("type", mw.getCriteriumType().getVal());
 
+        // no params
         String sql1 = template1.toString();
         String expectedSql = "        insert into rights_criterium_entity(crit_id,qname,\"type\", label_id)\n"
                 + "        values(nextval('crit_id_sequence'),\n"
                 + "            'cz.incad.kramerius.security.impl.criteria.MovingWall',\n" + "            1, NULL )  ";
+        Assert.assertEquals(expectedSql.replaceAll("\\s+", "").trim(), sql1.replaceAll("\\s+","").trim());
 
 
-        Assert.assertEquals(expectedSql.replaceAll("\\s+", " ").trim(), sql1.replaceAll("\\s+"," ").trim());
 
         RightCriteriumParamsImpl paramsImpl = new RightCriteriumParamsImpl(2);
         paramsImpl.setObjects(new String[] { "1", "2", "3" });
         mw.setCriteriumParams(paramsImpl);
-
         StringTemplate template2 = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRightCriterium");
         template2.setAttribute("criteriumWrapper", mw);
         template2.setAttribute("type", mw.getCriteriumType().getVal());
-
         String sql2 = template2.toString();
         String expectedSql2 = " \n"
                 + "        insert into rights_criterium_entity(crit_id,qname, \"type\",citeriumparam, label_id)\n"
@@ -170,13 +168,39 @@ public class RightTemplatesTests {
                 + "            'cz.incad.kramerius.security.impl.criteria.MovingWall',\n" + "            1,\n"
                 + "            2, NULL )  ";
 
-        Assert.assertEquals(expectedSql2.replaceAll("\\s+"," "), sql2.replaceAll("\\s+", " "));
+        Assert.assertEquals(expectedSql2.replaceAll("\\s+",""), sql2.replaceAll("\\s+", ""));
+
+
     }
 
 
     @Test
-    @Ignore
-    public void testInsertCriteriumLabelTemplate() {
+    public void testInsertCriteriumLabel2() {
+        Injector injector = injector();
+        RightCriteriumWrapperFactory wrapperFactory = injector.getInstance(RightCriteriumWrapperFactory.class);
+        RightCriteriumWrapper lb = wrapperFactory.createCriteriumWrapper(ReadDNNTLabelsIPFiltered.class.getName());
+
+        RightCriteriumParamsImpl paramsImpl = new RightCriteriumParamsImpl(2);
+        paramsImpl.setObjects(new String[] { "1", "2", "3" });
+        lb.setCriteriumParams(paramsImpl);
+
+        StringTemplate template1 = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRightCriterium");
+        template1.setAttribute("criteriumWrapper", lb);
+        template1.setAttribute("type", lb.getCriteriumType().getVal());
+
+        String sql1 = template1.toString();
+        String expected = "        insert into rights_criterium_entity(crit_id,qname, \"type\",citeriumparam, label_id)\n" +
+                "        values(nextval('crit_id_sequence'),\n" +
+                "            'cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered',\n" +
+                "            1,\n" +
+                "            2\n" +
+                " , NULL )\n";
+
+        Assert.assertEquals(expected.replaceAll("\\s+", "").trim(), sql1.replaceAll("\\s+", "").trim());
+    }
+
+    @Test
+    public void testInsertCriteriumLabel() {
         Injector injector = injector();
         RightCriteriumWrapperFactory wrapperFactory = injector.getInstance(RightCriteriumWrapperFactory.class);
         RightCriteriumWrapper lb = wrapperFactory.createCriteriumWrapper(ReadDNNTLabelsIPFiltered.class.getName());
@@ -188,8 +212,24 @@ public class RightTemplatesTests {
         template1.setAttribute("type", lb.getCriteriumType().getVal());
 
         String sql1 = template1.toString();
+        Assert.assertEquals("insert into rights_criterium_entity(crit_id,qname,\"type\", label_id) values(nextval('crit_id_sequence'), 'cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered', 1, 4 )".replaceAll("\\s+","").trim(), sql1.replaceAll("\\s+","").trim());
 
-        Assert.assertEquals("insert into rights_criterium_entity(crit_id,qname,\"type\", label_id) values(nextval('crit_id_sequence'), 'cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered', 1, 4 )", sql1.replaceAll("\\s+"," ").trim());
+
+        RightCriteriumParamsImpl paramsImpl = new RightCriteriumParamsImpl(2);
+        paramsImpl.setObjects(new String[] { "1", "2", "3" });
+        lb.setCriteriumParams(paramsImpl);
+        String sql2 = template1.toString();
+
+        String expected = "insert into rights_criterium_entity(crit_id,qname, \"type\",citeriumparam, label_id)\n" +
+                "        values(nextval('crit_id_sequence'),\n" +
+                "            'cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered',\n" +
+                "            1,\n" +
+                "            2\n" +
+                " , 4 )";
+
+
+        Assert.assertEquals(sql2.replaceAll("\\s+", "").trim(),expected.replaceAll("\\s+", "").trim());
+
     }
 
     @Test

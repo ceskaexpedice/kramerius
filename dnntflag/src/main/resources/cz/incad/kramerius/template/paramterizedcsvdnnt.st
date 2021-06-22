@@ -127,9 +127,6 @@ form(postfixdiv, csvRootDirectory,csvfile, bundle, process,labelProcess, allLabe
 <fieldset style="margin-top:10px;border: 1px solid gray;">
     <legend style="border:none">$bundle.("import.selection.dnnt.labels")$</legend>
 
-    <div>
-    <label for="dnnt_label_enabled">$bundle.("import.selection.dnnt.labels.enabled")$:</label>
-    </div>
 
     <div id="dnnt_label_div" >
     <label for="label">Label:</label>

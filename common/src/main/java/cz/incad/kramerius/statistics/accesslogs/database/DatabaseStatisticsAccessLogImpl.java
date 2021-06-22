@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.*;
 
 import cz.incad.kramerius.*;
+import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
 import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;
@@ -70,7 +71,6 @@ import javax.xml.xpath.XPathExpressionException;
  */
 public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
-
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
 
 
@@ -97,6 +97,9 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
     @Inject
     Set<StatisticReport> reports;
 
+    @Inject
+    VersionService versionService;
+
     private XPathFactory xpfactory;
 
 
@@ -106,9 +109,6 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
-        // reportAccess
-
-
 
         ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
         ObjectModelsPath[] mpaths = this.solrAccess.getPathOfModels(pid);
@@ -119,21 +119,17 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             if (connection == null)
                 throw new NotReadyException("connection not ready");
 
-            Map<String, Document> dcMap = new HashMap<>();
-            Map<String, Document> modsMap = new HashMap<>();
-
             List<JDBCCommand> commands = new ArrayList<>();
 
             Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
-
-
             String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
 
             User user = this.userProvider.get();
             RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
             boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
 
-            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get(), dnnt != null ? Boolean.parseBoolean(dnnt) : false, providedByDnnt, rightsReturnObject.getEvaluateInfoMap(), user.getSessionAttributes()));
+
+            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get(), dnnt != null ? Boolean.parseBoolean(dnnt) : false, providedByDnnt, rightsReturnObject.getEvaluateInfoMap(), user.getSessionAttributes(), versionService.getVersion()));
             for (int i = 0, ll = paths.length; i < ll; i++) {
 
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -141,26 +137,13 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                 }
                 final int pathIndex = i;
 
-                // TODO: Remove it
                 String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
-                for (int j = 0; j < pathFromLeafToRoot.length; j++) {
-                    final String detailPid = pathFromLeafToRoot[j];
-                    Document dc = fedoraAccess.getDC(detailPid);
-                    fedoraAccess.getDC(detailPid);
-                    dcMap.put(detailPid, dc);
-
-                    Document biblioMods = fedoraAccess.getBiblioMods(detailPid);
-                    modsMap.put(detailPid, biblioMods);
-                }
-
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                     final String detailPid = pathFromLeafToRoot[j];
 
                     String kModel = fedoraAccess.getKrameriusModelName(detailPid);
-                    Document dc = dcMap.containsKey(detailPid) ? dcMap.get(detailPid) : fedoraAccess.getDC(detailPid);
+                    Document dc = fedoraAccess.getDC(detailPid);
                     Document sDoc = this.solrAccess.getSolrDataDocument(pid);
-
-
 
                     Object dateFromDC = DCUtils.dateFromDC(dc);
                     dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);
@@ -174,30 +157,37 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                     Object title = DCUtils.titleFromDC(dc);
                     title = title != null ? title : new JDBCUpdateTemplate.NullObject(String.class);
 
-
                     Object rights = DCUtils.rightsFromDC(dc);
                     rights = rights != null ? rights : new JDBCUpdateTemplate.NullObject(String.class);
                     
-                    Document mods =  fedoraAccess.getBiblioMods(pid);
-                    ArrayList<String> languagesFromMods = null;
-                   
+
+                    Document mods =  fedoraAccess.getBiblioMods(detailPid);
+                    List<String> languagesFromMods = null;
+
+                    Map<String, List<String>> identifiers = null;
+                    try {
+                        identifiers = ModsUtils.identifiersFromMods(mods);
+                    } catch (XPathExpressionException e) {
+                        Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+                    }
+
                     try {
                         languagesFromMods = ModsUtils.languagesFromMods(mods);
                     } catch (XPathExpressionException ex) {
-                        Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     }
                     
                     if (!languagesFromMods.isEmpty()) {
                         for (String languageFromMods : languagesFromMods) {
-                            InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, dateFromSolr, languageFromMods, title, pathIndex);
+                            InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, dateFromSolr, languageFromMods, title, identifiers, pathIndex);
                             commands.add(insertDetail);
                         }
                     }
                     else {
-                        InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, dateFromSolr, languageFromDc, title, pathIndex);
+                        InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, dateFromSolr, languageFromDc, title, identifiers, pathIndex);
                         commands.add(insertDetail);
                     }
-                    
+
                     String[] creatorsFromDC = DCUtils.creatorsFromDC(dc);
                     for (String cr : creatorsFromDC) {
                         InsertAuthor insertAuth = new InsertAuthor(cr);
@@ -341,8 +331,10 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
         private Map evaluateMap;
         private Map userSesionAttributes;
+        private String dbversion;
 
-        public InsertRecord(String pid,LoggedUsersSingleton loggedUserSingleton, Provider<HttpServletRequest> requestProvider, Provider<User> userProvider, ReportedAction action, boolean dnnt, boolean providedByDnnt, Map evaulateMap, Map userSesionAttributes) {
+
+        public InsertRecord(String pid,LoggedUsersSingleton loggedUserSingleton, Provider<HttpServletRequest> requestProvider, Provider<User> userProvider, ReportedAction action, boolean dnnt, boolean providedByDnnt, Map evaulateMap, Map userSesionAttributes, String dbversion) {
             super();
             this.loggedUserSingleton = loggedUserSingleton;
             this.requestProvider = requestProvider;
@@ -350,11 +342,14 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             this.pid = pid;
             this.action = action;
 
+            this.dbversion = dbversion;
+
             this.dnnt = dnnt;
             this.providedByDnnt = providedByDnnt;
 
             this.evaluateMap = evaulateMap;
             this.userSesionAttributes = userSesionAttributes;
+
         }
 
 
@@ -368,8 +363,6 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             String sessionId = requestProvider.get().getSession().getId();
             boolean logged = loggedUserSingleton.isLoggedUser(requestProvider);
             Object user = logged ? userProvider.get().getLoginname() : new JDBCUpdateTemplate.NullObject(String.class);
-
-
 
             String url = disectedURL(requestProvider); //requestProvider.get().getRequestURL().toString() +"?"+requestProvider.get().getQueryString();
             int record_id  = new JDBCUpdateTemplate(con, false)
@@ -385,7 +378,8 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                     dnnt,
                     providedByDnnt,
                     evaluateMap != null && !evaluateMap.isEmpty() ?  new JSONObject(evaluateMap).toString() : new JDBCUpdateTemplate.NullObject(String.class),
-                    userSesionAttributes != null && !userSesionAttributes.isEmpty() ? new JSONObject(userSesionAttributes).toString() :new JDBCUpdateTemplate.NullObject(String.class)
+                    userSesionAttributes != null && !userSesionAttributes.isEmpty() ? new JSONObject(userSesionAttributes).toString() :new JDBCUpdateTemplate.NullObject(String.class),
+                    dbversion
             );
 
 
@@ -407,8 +401,12 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
         private Object solrDate = null;
         private int pathIndex = 0;
         private Object rights=null;
-        
-        public InsertDetail(String detailPid, String kModel,Object rights ,Object date, Object solrDate, Object language, Object title, int pathIndex) {
+
+        private String[] isbn = new String[0];
+        private String[] issn  = new String[0];
+        private String[] ccnb  = new String[0];
+
+        public InsertDetail(String detailPid, String kModel,Object rights ,Object date, Object solrDate, Object language, Object title, Map<String,List<String>> modsIdents, int pathIndex) {
             super();
             this.detailPid = detailPid;
             this.kModel = kModel;
@@ -418,6 +416,16 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             this.rights = rights;
             this.pathIndex = pathIndex;
             this.solrDate = solrDate;
+
+            if (modsIdents.containsKey(ISBN_MODS_KEY)) {
+                isbn = modsIdents.get(ISBN_MODS_KEY).toArray(new String[ modsIdents.get(ISBN_MODS_KEY).size() ]);
+            }
+            if (modsIdents.containsKey(ISSN_MODS_KEY)) {
+                issn =  modsIdents.get(ISSN_MODS_KEY).toArray(new String[ modsIdents.get(ISSN_MODS_KEY).size() ]);
+            }
+            if (modsIdents.containsKey(CCNB_MODS_KEY)) {
+                ccnb = modsIdents.get(CCNB_MODS_KEY).toArray(new String[ modsIdents.get(CCNB_MODS_KEY).size() ]);
+            }
         }
 
         @Override
@@ -427,12 +435,10 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
             final StringTemplate detail = stGroup.getInstanceOf("insertStatisticRecordDetail");
             String sql = detail.toString();
-
             int record_id = previousResult.get("record_id");
             
-            //(detail_ID, PID,model,ISSUED_DATE,RIGHTS, LANG, TITLE, BRANCH_ID,RECORD_ID)
             int detail_id  = new JDBCUpdateTemplate(con, false)
-                .executeUpdate(sql, detailPid, kModel, date, solrDate, rights , language, title, pathIndex,record_id);
+                .executeUpdate(sql, detailPid, kModel, date, solrDate, rights , language, title, pathIndex,record_id, issn, isbn, ccnb);
             
             previousResult.put("detail_id", detail_id);
             

@@ -6,6 +6,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
@@ -26,10 +27,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -39,12 +37,16 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.versionCondition;
+
 
 /**
  * Creates report for NKP
  *
  */
 public class NKPLogReport implements StatisticReport {
+
+    public static List<String> EXPECTED_FIELDS = Arrays.asList("");
 
     public static final SimpleDateFormat ACCESS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
@@ -64,6 +66,8 @@ public class NKPLogReport implements StatisticReport {
     @Named("cachedFedoraAccess")
     FedoraAccess fedoraAccess;
 
+    @Inject
+    VersionService versionService;
 
 
     @Override
@@ -180,20 +184,20 @@ public class NKPLogReport implements StatisticReport {
 
 
     void logReport(Record record, StatisticsReportSupport sup) {
-
         Map map = record.toMap();
 
-        // publshers or solrdate
-        if (!map.containsKey("publishers") || !map.containsKey("solrDate")) {
+        Object dbversion = map.get("dbversion");
+        if (dbversion != null) map.remove("dbversion");
+        if (dbversion == null || versionCondition(dbversion.toString(), "<", "6.6.6")) {
             try {
                 boolean disbleFedoraAccess = KConfiguration.getInstance().getConfiguration().getBoolean("nkp.logs.disablefedoraaccess", false);
                 if (!disbleFedoraAccess) {
                     // only one place where we are connecting
                     Document solrDoc = solrAccess.getSolrDataDocument(record.pid);
                     if (solrDoc != null) {
-
+                        // fill solr date
                         map.put("solrDate", new YearLogFormat().format(SElemUtils.selem("str", "datum_str", solrDoc)));
-
+                        // fill publishers
                         ObjectPidsPath[] paths = solrAccess.getPath(null, solrDoc);
                         List<String> dcPublishers = DNNTStatisticsAccessLogImpl.dcPublishers(paths, fedoraAccess);
                         if (!dcPublishers.isEmpty()) {
@@ -203,6 +207,10 @@ public class NKPLogReport implements StatisticReport {
                             }
                             map.put("publishers",publishersArray);
                         }
+
+                        // fill identifiers
+                        Map<String, List<String>> identifiers = DNNTStatisticsAccessLogImpl.identifiers(paths, fedoraAccess);
+                        identifiers.keySet().forEach(key-> map.put(key, identifiers.get(key)));
                     }
                 }
             } catch (IOException e) {
@@ -232,6 +240,8 @@ public class NKPLogReport implements StatisticReport {
         private boolean providedbydnnt;
         private String evaluateMap;
         private String userSessionAttributes;
+        private String dbversion;
+
 
         private List<Detail> details = new ArrayList<>();
 
@@ -255,6 +265,8 @@ public class NKPLogReport implements StatisticReport {
                     map.put(key.toString(), uSessionMap.get(key.toString()));
                 }
             }
+
+            map.put("dbversion", this.dbversion);
 
             if (!this.details.isEmpty()) {
                 // filter branch 0
@@ -345,6 +357,22 @@ public class NKPLogReport implements StatisticReport {
                 if (!authors.isEmpty()) {
                     map.put("authors", authors);
                 }
+
+                List<String> isbn = details.stream().map(detail -> {
+                    return detail.isbn;
+                }).flatMap(Collection::stream).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+                if (!isbn.isEmpty()) map.put("isbn", isbn);
+
+                List<String> issn = details.stream().map(detail -> {
+                    return detail.issn;
+                }).flatMap(Collection::stream).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+                if (!issn.isEmpty()) map.put("issn", issn);
+
+                List<String> ccnb = details.stream().map(detail -> {
+                    return detail.ccnb;
+                }).flatMap(Collection::stream).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+                if (!ccnb.isEmpty()) map.put("ccnb", ccnb);
+
             }
             return map;
         }
@@ -362,6 +390,8 @@ public class NKPLogReport implements StatisticReport {
             nrecord.providedbydnnt=rs.getBoolean("slprovidedByDnnt");
             nrecord.evaluateMap=rs.getString("slevaluatemap");
             nrecord.userSessionAttributes=rs.getString("slusersessionattributes");
+            nrecord.dbversion = rs.getString("sldbversion");
+
             return nrecord;
         }
 
@@ -386,6 +416,10 @@ public class NKPLogReport implements StatisticReport {
         String title;
         int branchId;
 
+        List<String> issn = new ArrayList<>();
+        List<String> isbn = new ArrayList<>();
+        List<String> ccnb = new ArrayList<>();
+
         private List<Author> authors = new ArrayList<>();
         private List<Publisher> publishers = new ArrayList<>();
 
@@ -400,6 +434,25 @@ public class NKPLogReport implements StatisticReport {
             detail.rights= rights != null ? rights.contains(":") ? rights.split(":")[1] : rights : null;
             detail.title= rs.getString("sdtitle");
             detail.branchId = rs.getInt("sdbranch_id");
+
+            Array sdissn = rs.getArray("sdissn");
+            if (sdissn != null) {
+                String[] sdissnArray = (String[]) sdissn.getArray();
+                if (sdissnArray != null) detail.issn.addAll(Arrays.stream(sdissnArray).collect(Collectors.toList()));
+            }
+
+            Array sdisbn = rs.getArray("sdisbn");
+            if (sdisbn != null) {
+                String[] sdisbnArray = (String[]) sdisbn.getArray();
+                if (sdisbnArray != null) detail.isbn.addAll(Arrays.stream(sdisbnArray).collect(Collectors.toList()));
+            }
+
+            Array sdccnb = rs.getArray("sdccnb");
+            if (sdccnb != null) {
+                String[] sdccnbArray = (String[]) sdccnb.getArray();
+                if (sdccnbArray != null) detail.ccnb.addAll(Arrays.stream(sdccnbArray).collect(Collectors.toList()));
+            }
+
             return detail;
         }
 

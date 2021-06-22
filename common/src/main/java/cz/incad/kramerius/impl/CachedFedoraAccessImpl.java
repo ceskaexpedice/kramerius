@@ -28,6 +28,10 @@ import java.util.concurrent.TimeUnit;
 public class CachedFedoraAccessImpl extends FedoraAccessImpl implements FedoraAccess {
 
 
+    // as configuration parameters
+    private static final int NUMBER_OF_CACHE_ENTRIES = 3000;
+    private static final int SIZE_OF_CACHE = 32;
+
     private static Cache<String, Document> xmlscache;
 
     private static final String XMLS_CACHE_ALIAS = "FedoraXMLSCache";
@@ -42,7 +46,7 @@ public class CachedFedoraAccessImpl extends FedoraAccessImpl implements FedoraAc
         if (xmlscache == null) {
             xmlscache = cacheManager.createCache(XMLS_CACHE_ALIAS,
                     CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, Document.class,
-                            ResourcePoolsBuilder.heap(3000).offheap(32, MemoryUnit.MB))
+                            ResourcePoolsBuilder.heap(NUMBER_OF_CACHE_ENTRIES).offheap(SIZE_OF_CACHE, MemoryUnit.MB))
                             .withExpiry(Expirations.timeToLiveExpiration(
                                     Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }

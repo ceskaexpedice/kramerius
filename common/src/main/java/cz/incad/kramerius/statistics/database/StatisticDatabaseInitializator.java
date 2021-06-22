@@ -76,7 +76,6 @@ public class StatisticDatabaseInitializator {
 
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
-                checkDateIndex(connection);
 
 
             } else if (versionCondition(version, "<", "6.0.0")) {
@@ -100,7 +99,6 @@ public class StatisticDatabaseInitializator {
 
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
-                checkDateIndex(connection);
 
 
             } else if (versionCondition(version, "=", "6.0.0")) {
@@ -123,7 +121,6 @@ public class StatisticDatabaseInitializator {
 
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
-                checkDateIndex(connection);
 
 
             } else if (versionCondition(version, "=", "6.1.0")) {
@@ -144,7 +141,6 @@ public class StatisticDatabaseInitializator {
 
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
-                checkDateIndex(connection);
 
 
             } else if ((versionCondition(version, ">", "6.1.0")) && (versionCondition(version, "<", "6.5.0"))) {
@@ -163,7 +159,6 @@ public class StatisticDatabaseInitializator {
 
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
-                checkDateIndex(connection);
 
 
             } else if (versionCondition(version, ">=", "6.5.0")&& (versionCondition(version, "<", "6.6.4"))) {
@@ -180,7 +175,6 @@ public class StatisticDatabaseInitializator {
 
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
-                checkDateIndex(connection);
 
 
             } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.6"))) {
@@ -195,7 +189,6 @@ public class StatisticDatabaseInitializator {
 
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
-                checkDateIndex(connection);
 
 
             } else if (versionCondition(version, ">=", "6.6.6")) {
@@ -206,16 +199,49 @@ public class StatisticDatabaseInitializator {
 
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
-                checkDateIndex(connection);
-
-
             }
+
+            // check if date column contains index, if not, creates it
+            checkDateIndex(connection);
+            // check if labels_entity table exists, if not creates it
+            checkLabelExists(connection);
+            // check if statistics table contains columns for issn, isbn, ccnb, if not, create them
+            checkIsbnIssnCcnb(connection);
+            // check if statistics table contains column for dbversion, if not crates it
+            checkLogVersionColumn(connection);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
+
+    private static void checkLogVersionColumn(Connection connection) {
+        try {
+            if (!DatabaseUtils.columnExists(connection, "statistics_access_log", "dbversion")) {
+                InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initdebversioncolumn.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            }
+        } catch (SQLException | IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+    }
+
+    private static void checkIsbnIssnCcnb(Connection connection) {
+        try {
+            if (!DatabaseUtils.columnExists(connection, "statistic_access_log_detail", "issn")) {
+                InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initidentifierscolumn.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            }
+        } catch (SQLException | IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+    }
+
 
     private static void checkLabelExists(Connection connection) {
         EMBEDDED_LABELS.stream().forEach( label-> {
@@ -225,7 +251,7 @@ public class StatisticDatabaseInitializator {
                         returnsList.add(rs.getString("label_name"));
                         return super.handleRow(rs, returnsList);
                     }
-                }.executeQuery("select * from labels_entity where = ?", label);
+                }.executeQuery("select * from labels_entity where label_name = ?", label);
                 if (labels.isEmpty()) {
                     try {
                         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);

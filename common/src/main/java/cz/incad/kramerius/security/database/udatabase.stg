@@ -261,14 +261,20 @@ insertRightCriterium(criteriumWrapper, type) ::=<<
         values(nextval('crit_id_sequence'),
             '$criteriumWrapper.rightCriterium.qName$',
             $type$,
-            $criteriumWrapper.criteriumParams.id$,
-            $if(criteriumWrapper.labelAwareCriterium)$ $criteriumWrapper.label.id$ $else$ NULL $endif$)
+            $criteriumWrapper.criteriumParams.id$
+            $if(criteriumWrapper.labelAwareCriterium)$
+                $if(criteriumWrapper.label.id)$ , $criteriumWrapper.label.id$ $else$ , NULL $endif$
+                $else$ , NULL
+            $endif$)
     $else$
         insert into rights_criterium_entity(crit_id,qname,"type", label_id)
         values(nextval('crit_id_sequence'),
             '$criteriumWrapper.rightCriterium.qName$',
-            $type$,
-            $if(criteriumWrapper.labelAwareCriterium)$ $criteriumWrapper.label.id$ $else$ NULL $endif$)
+            $type$
+            $if(criteriumWrapper.labelAwareCriterium)$
+                $if(criteriumWrapper.label.id)$ , $criteriumWrapper.label.id$ $else$ , NULL $endif$
+                $else$ , NULL
+            $endif$)
     $endif$
 >>
 

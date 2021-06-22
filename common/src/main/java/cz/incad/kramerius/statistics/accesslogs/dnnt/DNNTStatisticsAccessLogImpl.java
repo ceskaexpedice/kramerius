@@ -4,14 +4,15 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.*;
+import cz.incad.kramerius.pdf.utils.ModsUtils;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
+import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.date.DNNTStatisticsDateFormat;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.date.YearLogFormat;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
@@ -37,32 +38,13 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
-public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
+public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
+
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DNNTStatisticsAccessLogImpl.class.getName());
 
     // access logger for kibana processing
     public static Logger KRAMERIUS_LOGGER_FOR_KIBANA = Logger.getLogger("kramerius.access");
-    protected ThreadLocal<ReportedAction> reportedAction = new ThreadLocal<ReportedAction>();
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DNNTStatisticsAccessLogImpl.class.getName());
 
-    private static final String[] MODS_DATE_XPATHS = {
-            "//mods:part/mods:date/text()",
-            "//mods:originInfo/mods:dateIssued/text()",
-            "//mods:originInfo/mods:dateIssued[@encoding='marc']/text()",
-            "//mods:originInfo[@transliteration='publisher']/mods:dateIssued/text()"
-    };
-
-    private static final List<XPathExpression> MODS_DATE_XPATH_EXPRS = new ArrayList<XPathExpression>() {{
-        XPathFactory xpfactory = XPathFactory.newInstance();
-        XPath xpath = xpfactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
-        for (String strExpr : MODS_DATE_XPATHS) {
-            try {
-                add(xpath.compile(strExpr));
-            } catch (XPathExpressionException e) {
-                LOGGER.log(Level.SEVERE, "Can't compile XPath expression \"" + strExpr + "\"!", e);
-            }
-        }
-    }};
 
     @Inject
     SolrAccess solrAccess;
@@ -91,13 +73,16 @@ public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
         String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
         String policy = SElemUtils.selem("str", "dostupnost", solrDoc);
 
+
         List<String> sAuthors = solrAuthors(rootPid, solrAccess);
         List<String> dcPublishers = dcPublishers(paths, fedoraAccess);
+
+
 
         // WRITE TO LOG - kibana processing
         if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
             log(pid, rootTitle, dctitle, solrDate, findModsDate(paths, fedoraAccess),
-                    dnnt, policy, dcPublishers, sAuthors, paths, mpaths);
+                    dnnt, policy, dcPublishers, sAuthors, paths, mpaths, identifiers(paths, fedoraAccess));
         }
     }
 
@@ -182,6 +167,31 @@ public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
         return null;
     }
 
+    public static Map<String, List<String>> identifiers(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) throws IOException {
+        try {
+            Map<String,List<String>> retmap = new HashMap<>();
+            for (ObjectPidsPath path : paths) {
+                String[] pathFromLeafToRoot = path.getPathFromLeafToRoot();
+                for (String detailPid : pathFromLeafToRoot) {
+                    Map<String, List<String>> map = ModsUtils.identifiersFromMods(fedoraAccess.getBiblioMods(detailPid));
+                    Arrays.asList(ISBN_MODS_KEY,ISSN_MODS_KEY,CCNB_MODS_KEY).stream().forEach(key-> {
+                        if (map.containsKey(key)) {
+                            if (retmap.containsKey(key)) {
+                                retmap.get(key).addAll(map.get(key));
+                            } else {
+                                retmap.put(key, map.get(key));
+                            }
+                        }
+                    });
+                }
+            }
+            return retmap;
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        }
+    }
+
+
     private static String findModsDateOfPid(String pid, FedoraAccess fedoraAccess) {
         Document biblioMods;
         try {
@@ -206,7 +216,8 @@ public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
         return null;
     }
 
-    public void log(String pid, String rootTitle, String dcTitle, String solrDate, String modsDate, String dnntFlag, String policy, List<String> dcPublishers, List<String> dcAuthors, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths) throws IOException {
+    public void log(String pid, String rootTitle, String dcTitle, String solrDate, String modsDate, String dnntFlag, String policy, List<String> dcPublishers, List<String> dcAuthors, ObjectPidsPath[] paths,
+                    ObjectModelsPath[] mpaths, Map<String, List<String>> identifiers) throws IOException {
         User user = this.userProvider.get();
         RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
         boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
@@ -226,7 +237,8 @@ public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
                 dcAuthors,
                 dcPublishers,
                 paths,
-                mpaths
+                mpaths,
+                identifiers
         );
 
         DNNTStatisticsAccessLogImpl.KRAMERIUS_LOGGER_FOR_KIBANA.log(Level.INFO, jObject.toString());
@@ -248,7 +260,8 @@ public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
                              List<String> dcAuthors,
                              List<String> dcPublishers,
                              ObjectPidsPath[] paths,
-                             ObjectModelsPath[] mpaths) throws IOException {
+                             ObjectModelsPath[] mpaths,
+                             Map<String, List<String>> identifiers) throws IOException {
 
         LocalDateTime date = LocalDateTime.now();
         String timestamp = date.format(DateTimeFormatter.ISO_DATE_TIME);
@@ -322,6 +335,7 @@ public class DNNTStatisticsAccessLogImpl  implements StatisticsAccessLog {
             }
         }
 
+        identifiers.keySet().forEach(key-> {jObject.put(key, identifiers.get(key).stream().filter(Objects::nonNull).distinct().collect(Collectors.toList()));});
         return jObject;
     }
 
