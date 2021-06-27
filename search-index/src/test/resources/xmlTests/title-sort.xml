@@ -56,4 +56,52 @@
         </out>
     </test>
 
+    <test name="primary title from titleInfo with @type=uniform">
+        <desc>Největší váhu pro detekci primárního názvu má titleInfo type='uniform'</desc>
+        <in>
+            <titleInfo>
+                <title>no type</title>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title>alternative</title>
+            </titleInfo>
+            <titleInfo type="translated">
+                <title>translated</title>
+            </titleInfo>
+            <titleInfo type="uniform">
+                <title>uniform</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">uniform</field>
+            <field name="title.sort">UNIFORM</field>
+            <field name="titles.search">no type</field>
+            <field name="titles.search">alternative</field>
+            <field name="titles.search">translated</field>
+            <field name="titles.search">uniform</field>
+        </out>
+    </test>
+
+    <test name="primary title from titleInfo without @type over @type=alternative or @translated">
+        <desc>Větší váhu pro detekci primárního názvu má titleInfo bez @type před @type s jinou hodnotou, než 'uniform' (alternative, translated, ...)</desc>
+        <in>
+            <titleInfo>
+                <title>no type</title>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title>alternative</title>
+            </titleInfo>
+            <titleInfo type="translated">
+                <title>translated</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">no type</field>
+            <field name="title.sort">NO TYPE</field>
+            <field name="titles.search">no type</field>
+            <field name="titles.search">alternative</field>
+            <field name="titles.search">translated</field>
+        </out>
+    </test>
+
 </testSuite>
