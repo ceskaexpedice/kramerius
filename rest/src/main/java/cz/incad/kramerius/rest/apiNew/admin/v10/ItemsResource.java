@@ -379,7 +379,7 @@ public class ItemsResource extends AdminApiResource {
 
     @PUT
     @Path("{pid}/streams/IMG_THUMB")
-    public Response setImgThumb(@PathParam("pid") String targetPid, @QueryParam("sourcePid") String sourcePid) {
+    public Response setImgThumb(@PathParam("pid") String targetPid, @QueryParam("srcPid") String sourcePid) {
         try {
             //authentication
             AuthenticatedUser user = getAuthenticatedUserByOauth();
@@ -396,6 +396,9 @@ public class ItemsResource extends AdminApiResource {
                 throw new BadRequestException("target's model cannot be page (target is %s)", targetPid);
             }
             //check source object
+            if (sourcePid == null || sourcePid.isEmpty()) {
+                throw new BadRequestException("missing mandatory query param 'srcPid'");
+            }
             checkSupportedObjectPid(sourcePid);
             checkObjectExists(sourcePid);
             String sourceModel = krameriusRepositoryApi.getModel(sourcePid);
