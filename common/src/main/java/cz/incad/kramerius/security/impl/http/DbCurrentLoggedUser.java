@@ -189,6 +189,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
 
     public void enahanceUserByThirdPartyParameters(User user) {
+        // session attributes; TODO: move it
         HttpSession session = this.provider.get().getSession();
         Enumeration attributeNames = session.getAttributeNames();
         while(attributeNames.hasMoreElements()) {

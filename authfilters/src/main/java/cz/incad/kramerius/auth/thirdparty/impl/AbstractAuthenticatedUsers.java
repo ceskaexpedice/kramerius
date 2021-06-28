@@ -1,6 +1,7 @@
 package cz.incad.kramerius.auth.thirdparty.impl;
 
 import java.security.Principal;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpSession;
 
 import cz.incad.kramerius.auth.thirdparty.AuthenticatedUsers;
 import cz.incad.kramerius.auth.thirdparty.UsersWrapper;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.UserUtils;
 
@@ -114,12 +116,24 @@ public abstract class AbstractAuthenticatedUsers<T extends UsersWrapper> impleme
 
         wrapper.getPropertyKeys().stream().filter(it -> !it.equals(UserUtils.FIRST_NAME_KEY) &&  !it.equals(UserUtils.LAST_NAME_KEY)).forEach(it-> {
             String property = wrapper.getProperty(it);
-
             req.getSession().setAttribute(UserUtils.THIRD_PARTY_SESSION_PARAMS +it, wrapper.getProperty(it));
         });
 
-        req.getSession().setAttribute(UserUtils.LOGGED_USER_PARAM, wrapper.toUser(this.usersManager));
+        User user = wrapper.toUser(this.usersManager);
+        req.getSession().setAttribute(UserUtils.LOGGED_USER_PARAM, user);
         req.getSession().setAttribute(UserUtils.THIRD_PARTY_USER, Boolean.TRUE.toString());
+
+        // TODO: move it; change before release
+        HttpSession session = req.getSession();
+        Enumeration attributeNames = session.getAttributeNames();
+        while(attributeNames.hasMoreElements()) {
+            String attributeName = (String) attributeNames.nextElement();
+            if (attributeName.startsWith(UserUtils.THIRD_PARTY_SESSION_PARAMS)) {
+                String rawKey = attributeName.substring(UserUtils.THIRD_PARTY_SESSION_PARAMS.length());
+                String value = session.getAttribute(attributeName).toString();
+                user.addSessionAttribute(rawKey, value);
+            }
+        }
 
         return password;
     }

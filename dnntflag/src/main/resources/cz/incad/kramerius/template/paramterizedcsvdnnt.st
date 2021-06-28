@@ -50,7 +50,7 @@ form(postfixdiv, csvRootDirectory,csvfile, bundle, process,labelProcess, allLabe
 
             var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
 
-            var vals = 'csvfile='+\$('#csvfile').val().escapeChars(charsThatMustBeEscaped)
+            var vals = 'csvfile='+encodeURIComponent(\$('#csvfile').val().escapeChars(charsThatMustBeEscaped))
                     +';label='+ \$('#label').val();
             var url = "lr?action=form_post&def="+labelProcess+"&paramsMapping={"+vals+"}&out=text";
 

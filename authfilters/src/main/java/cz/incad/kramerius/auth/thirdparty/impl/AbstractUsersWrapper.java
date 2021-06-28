@@ -20,7 +20,7 @@ public abstract class AbstractUsersWrapper implements UsersWrapper {
         String calculatedName = this.getCalculatedName();
         String firsname = this.getProperty(UserUtils.FIRST_NAME_KEY);
         String lastname = this.getProperty(UserUtils.LAST_NAME_KEY);
-        return new UserImpl(-1, firsname, lastname, calculatedName, -1);
+        return new UserImpl(1, firsname, lastname, calculatedName, -1);
     }
 
     public JSONObject toJSON(String pass) {
