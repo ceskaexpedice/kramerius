@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * CoverAndContentFilter
@@ -32,7 +33,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     private static XPathExpression modsTypeExpr = null;
     private static final List<String> allowedPageTypes = Arrays.asList(
             "FrontCover", "TableOfContents", "FrontJacket", "TitlePage", "jacket"
-    );
+    ).stream().map(String::toLowerCase).collect(Collectors.toList());
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
@@ -62,7 +63,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
             if (modsTypeExpr == null)
                 initModsTypeExpr();
             String type = modsTypeExpr.evaluate(mods);
-            if (allowedPageTypes.contains(type)) {
+            if (allowedPageTypes.contains(type.toLowerCase())) {
                 return EvaluatingResultState.TRUE;
             } else {
                 return EvaluatingResultState.NOT_APPLICABLE;
