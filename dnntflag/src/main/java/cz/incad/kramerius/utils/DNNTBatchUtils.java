@@ -80,12 +80,10 @@ public class DNNTBatchUtils {
         Element labels = document.createElement("field");
         labels.setAttribute("name", "dnnt-labels");
 
-        boolean distinctsupport = KConfiguration.getInstance().getConfiguration().getBoolean("dnnt.solr.label.distinctsupport",false);
-        String addCommand = distinctsupport ? "add-distinct" : "add";
-
-        labels.setAttribute("update", addRemoveFlag ? addCommand: "remove");
+        String addCommand = KConfiguration.getInstance().getConfiguration().getString("dnnt.solr.label.addcommand","add");
+        String deleteCommand = KConfiguration.getInstance().getConfiguration().getString("dnnt.solr.label.removecommand","removeregex");
+        labels.setAttribute("update", addRemoveFlag ? addCommand : deleteCommand);
         labels.setTextContent(label);
-
 
         doc.appendChild(labels);
 

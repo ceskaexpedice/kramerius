@@ -4,8 +4,10 @@ group statistics;
 
 insertStatisticRecord() ::=<<
 insert into statistics_access_log
-    (record_ID, PID,DATE,REMOTE_IP_ADDRESS,"USER",REQUESTED_URL,STAT_ACTION, SESSION_ID, dnnt, providedbydnnt, evaluateMap, userSessionAttributes,dbversion)
-    values(nextval('statistics_access_log_ID_SEQUENCE'),?,?,?,?,?,?,?,?,?,?,?,?);
+    (record_ID, PID,DATE,REMOTE_IP_ADDRESS,"USER",REQUESTED_URL,STAT_ACTION, SESSION_ID, dnnt, providedbydnnt, evaluateMap, userSessionAttributes,
+    dbversion,dnnt_labels
+    )
+    values(nextval('statistics_access_log_ID_SEQUENCE'),?,?,?,?,?,?,?,?,?,?,?,?,?);
 >>
 
 
@@ -408,6 +410,8 @@ select
 	sl.evaluatemap as slevaluatemap,
 	sl.usersessionattributes as slusersessionattributes,
 	sl.dbversion as sldbversion,
+	sl.dnnt_labels as sldnnt_labels,
+
 
 	sd.detail_id as sddetail_id,
 	sd.pid as sdpid,

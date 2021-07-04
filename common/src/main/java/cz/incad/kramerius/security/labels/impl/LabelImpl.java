@@ -19,6 +19,7 @@ public class LabelImpl implements Label, Serializable {
         this.description = description;
         this.group = group;
         this.labelPrirority = labelPrirority;
+        validateName(name);
     }
 
     public LabelImpl(String name, String description, String group, int labelPrirority) {
@@ -26,12 +27,14 @@ public class LabelImpl implements Label, Serializable {
         this.description = description;
         this.group = group;
         this.labelPrirority = labelPrirority;
+        validateName(name);
     }
 
     public LabelImpl(String name, String description, String group) {
         this.description = description;
         this.name = name;
         this.group = group;
+        validateName(name);
     }
 
     public LabelImpl(int id, String name, String description, String group) {
@@ -39,6 +42,13 @@ public class LabelImpl implements Label, Serializable {
         this.description = description;
         this.name = name;
         this.group = group;
+        validateName(name);
+    }
+
+    private void validateName(String name) {
+        if (!Label.ACCEPTABLE_LABEL_NAME_REGEXP.matcher(name).matches()) {
+            throw new IllegalArgumentException("Label name must contain only a characters, digits and following set of chars [./-_:]");
+        }
     }
 
     @Override

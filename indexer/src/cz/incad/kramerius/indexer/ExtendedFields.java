@@ -114,17 +114,17 @@ public class ExtendedFields {
             String[] path = pidPath.split("/");
             for (String p : path) {
                 String dnnt = DnntSingleton.getInstance().dnnt(p, fo.fa);
+                dnntLabels.addAll(DnntSingleton.getInstance().dnntLabels(p, fo.fa));
                 if (dnnt != null) {
                     if (dnnt.equals("true")) {
                         this.dnnt = dnnt;
-                        dnntLabels.addAll(DnntSingleton.getInstance().dnntLabels(p, fo.fa));
                     }
                 }
             }
         }
 
-        if (this.dnnt != null && this.dnnt.equals("true")) {
-            this.dnntLabels = dnntLabels;
+        if (dnntLabels.size() > 0) {
+            this.dnntLabels = new ArrayList<>(new LinkedHashSet<>(dnntLabels));
         }
     }
 

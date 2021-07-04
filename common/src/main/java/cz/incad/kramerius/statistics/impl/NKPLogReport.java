@@ -21,6 +21,7 @@ import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
+import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -46,7 +47,9 @@ import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.version
  */
 public class NKPLogReport implements StatisticReport {
 
-    public static List<String> EXPECTED_FIELDS = Arrays.asList("");
+    public static final String RUNTIME_ATTRS = "runtimeAttributes";
+    public static final String MISSING_ATTRS = "missingAttributes";
+    //public static List<String> EXPECTED_FIELDS = Arrays.asList("");
 
     public static final SimpleDateFormat ACCESS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
@@ -101,7 +104,8 @@ public class NKPLogReport implements StatisticReport {
 
                 statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
                 statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-                statRecord.setAttribute("visibility", visFilter.asMap());
+                // visibility must be filtered in the runtime
+                //statRecord.setAttribute("visibility", visFilter.asMap());
 
 
                 @SuppressWarnings("rawtypes")
@@ -110,7 +114,7 @@ public class NKPLogReport implements StatisticReport {
                 Connection conn = connectionProvider.get();
 
                 new StastisticsIteration(sql, params, conn, collectedRecord-> {
-                    logReport(collectedRecord, sup);
+                    logReport(collectedRecord, sup, visFilter);
                 }).iterate();
 
             } else {
@@ -183,42 +187,89 @@ public class NKPLogReport implements StatisticReport {
 
 
 
-    void logReport(Record record, StatisticsReportSupport sup) {
-        Map map = record.toMap();
+    void logReport(Record record, StatisticsReportSupport sup, VisibilityFilter visibilityFilter) {
 
-        Object dbversion = map.get("dbversion");
-        if (dbversion != null) map.remove("dbversion");
-        if (dbversion == null || versionCondition(dbversion.toString(), "<", "6.6.6")) {
-            try {
-                boolean disbleFedoraAccess = KConfiguration.getInstance().getConfiguration().getBoolean("nkp.logs.disablefedoraaccess", false);
-                if (!disbleFedoraAccess) {
-                    // only one place where we are connecting
-                    Document solrDoc = solrAccess.getSolrDataDocument(record.pid);
-                    if (solrDoc != null) {
-                        // fill solr date
-                        map.put("solrDate", new YearLogFormat().format(SElemUtils.selem("str", "datum_str", solrDoc)));
-                        // fill publishers
-                        ObjectPidsPath[] paths = solrAccess.getPath(null, solrDoc);
-                        List<String> dcPublishers = DNNTStatisticsAccessLogImpl.dcPublishers(paths, fedoraAccess);
-                        if (!dcPublishers.isEmpty()) {
-                            JSONArray publishersArray = new JSONArray();
-                            for (int i=0,ll=dcPublishers.size();i<ll;i++) {
-                                publishersArray.put(dcPublishers.get(i));
-                            }
-                            map.put("publishers",publishersArray);
-                        }
+        // Must be filtered in runtime
+        boolean selected = visibilityFilter.getSelected().equals(VisibilityFilter.VisbilityType.ALL);
+        if (!selected) {
 
-                        // fill identifiers
-                        Map<String, List<String>> identifiers = DNNTStatisticsAccessLogImpl.identifiers(paths, fedoraAccess);
-                        identifiers.keySet().forEach(key-> map.put(key, identifiers.get(key)));
-                    }
-                }
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            List<Detail> firstBranch = record.details.stream().filter(detail -> {
+                return detail.branchId == 0;
+            }).collect(Collectors.toList());
+
+            Detail detail = firstBranch.get(0);
+            if (detail != null && detail.rights != null) {
+                String trim = detail.rights.trim();
+                selected = trim.contains(visibilityFilter.getSelected().name().toLowerCase());
             }
-
         }
-        sup.processReportRecord(map);
+
+
+        if (selected) {
+            // disable solr and fedora access
+            // disable solr and fedora access
+            boolean disbleFedoraAccess = KConfiguration.getInstance().getConfiguration().getBoolean("nkp.logs.disablefedoraaccess", false);
+            Map map = record.toMap();
+            Object dbversion = map.get("dbversion");
+            if (dbversion != null) map.remove("dbversion");
+            if (dbversion == null || versionCondition(dbversion.toString(), "<", "6.6.6")) {
+                try {
+                    if (!disbleFedoraAccess) {
+                        // only one place where we are connecting
+                        Document solrDoc = solrAccess.getSolrDataDocument(record.pid);
+                        if (solrDoc != null) {
+
+                            map.put(DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY, new YearLogFormat().format(SElemUtils.selem("str", "datum_str", solrDoc)));
+                            // fill publishers
+                            ObjectPidsPath[] paths = solrAccess.getPath(null, solrDoc);
+                            List<String> dcPublishers = DNNTStatisticsAccessLogImpl.dcPublishers(paths, fedoraAccess);
+                            if (!dcPublishers.isEmpty()) {
+                                JSONArray publishersArray = new JSONArray();
+                                for (int i=0,ll=dcPublishers.size();i<ll;i++) {
+                                    publishersArray.put(dcPublishers.get(i));
+                                }
+                                map.put(DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY ,publishersArray);
+                            }
+
+                            // fill identifiers
+                            Map<String, List<String>> identifiers = DNNTStatisticsAccessLogImpl.identifiers(paths, fedoraAccess);
+                            identifiers.keySet().forEach(key-> map.put(key, identifiers.get(key)));
+
+                            List<String> dnntLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
+                            map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
+
+                            String s = SolrUtils.disectDNNTFlag(solrDoc.getDocumentElement());
+                            if (s != null) {
+                                map.put(DNNTStatisticsAccessLogImpl.DNNT_KEY, Boolean.valueOf(s));
+                            }
+
+                            List<String> runtimeFileds = new ArrayList<>(Arrays.asList(DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY ,
+                                                                                        DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
+                                                                                        DNNTStatisticsAccessLogImpl.DNNT_KEY,
+                                                                                        DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
+                                                                                        DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
+                            identifiers.keySet().forEach(runtimeFileds::add);
+
+                            map.put(RUNTIME_ATTRS, runtimeFileds);
+                            map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel"));
+                        }
+                    }
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
+            } else if (dbversion != null && versionCondition(dbversion.toString(), "=", "6.6.6")) {
+
+                try {
+                    Document solrDoc = solrAccess.getSolrDataDocument(record.pid);
+                    List<String> dnntLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
+                    map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
+                    map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
+            }
+            sup.processReportRecord(map);
+        }
     }
 
     @Override
@@ -236,11 +287,13 @@ public class NKPLogReport implements StatisticReport {
         private String remoteIpAddress;
         private String user;
         private String requestedUrl;
-        private boolean dnnt;
-        private boolean providedbydnnt;
+        private Boolean dnnt;
+        private Boolean providedbydnnt;
         private String evaluateMap;
         private String userSessionAttributes;
         private String dbversion;
+
+        private List<String> dnntLabels = new ArrayList<>();
 
 
         private List<Detail> details = new ArrayList<>();
@@ -251,8 +304,8 @@ public class NKPLogReport implements StatisticReport {
             map.put("date", this.date);
             map.put("remoteAddr", this.remoteIpAddress);
             if (this.user != null) map.put("username", this.user);
-            map.put("dnnt",this.dnnt);
-            map.put("providedByDnnt", this.providedbydnnt);
+            if (this.dnnt != null)  map.put("dnnt",this.dnnt);
+            if (this.providedbydnnt != null) map.put("providedByDnnt", this.providedbydnnt);
             if (this.evaluateMap != null) {
                 JSONObject evalmap =  new JSONObject(this.evaluateMap);
                 for (Object key : evalmap.keySet()) {
@@ -386,11 +439,22 @@ public class NKPLogReport implements StatisticReport {
             nrecord.date = ACCESS_DATE_FORMAT.format(rs.getTimestamp("sldate"));
             nrecord.remoteIpAddress=rs.getString("slremote_ip_address");
             nrecord.user=rs.getString("slUSER");
-            nrecord.dnnt=rs.getBoolean("sldnnt");
-            nrecord.providedbydnnt=rs.getBoolean("slprovidedByDnnt");
+
+            // test on 9.2
+            nrecord.dnnt= (Boolean) rs.getObject("sldnnt");// rs.getBoolean("sldnnt");
+            // if null; must be provided by dnnt false
+            nrecord.providedbydnnt= rs.getBoolean("slprovidedByDnnt");
+
             nrecord.evaluateMap=rs.getString("slevaluatemap");
             nrecord.userSessionAttributes=rs.getString("slusersessionattributes");
             nrecord.dbversion = rs.getString("sldbversion");
+
+                                                    // sldnnt_labels
+            Array dnntLabels = rs.getArray("sldnnt_labels");
+            if (dnntLabels != null) {
+                String[] sdissnArray = (String[]) dnntLabels.getArray();
+                if (sdissnArray != null) nrecord.dnntLabels.addAll(Arrays.stream(sdissnArray).collect(Collectors.toList()));
+            }
 
             return nrecord;
         }

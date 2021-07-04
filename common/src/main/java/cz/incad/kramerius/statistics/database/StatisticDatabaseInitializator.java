@@ -209,12 +209,30 @@ public class StatisticDatabaseInitializator {
             checkIsbnIssnCcnb(connection);
             // check if statistics table contains column for dbversion, if not crates it
             checkLogVersionColumn(connection);
+
+            // check if labels exists
+            checkLabelsColumns(connection);
+
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
+
+    private static void checkLabelsColumns(Connection connection) {
+        try {
+            if (!DatabaseUtils.columnExists(connection, "statistics_access_log", "dnnt_labels")) {
+                InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initlabelscolumn.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            }
+        } catch (SQLException | IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+    }
+
 
     private static void checkLogVersionColumn(Connection connection) {
         try {

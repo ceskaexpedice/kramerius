@@ -1,6 +1,10 @@
 package cz.incad.kramerius.security.labels;
 
+import java.util.regex.Pattern;
+
 public interface Label {
+
+    public static final Pattern ACCEPTABLE_LABEL_NAME_REGEXP= Pattern.compile("[a-zA-Z][a-zA-Z_0-9-/:]+");
 
     public static int DEFAULT_PRIORITY = 1;
 

@@ -1026,13 +1026,21 @@ LabelsManage.prototype.createOrEditLabel = function(id) {
 						var labelname = $("#label-name").val();
 						var labeldescription = $("#label-description").val();
 
-						$.post("rights?action=createlabel", {createlabel:{
-							id: labelid,
-							name: labelname,
-							description: labeldescription
+						// validation
+						var validated = /^[a-zA-Z][a-zA-Z_0-9-/:]+$/.test(labelname);
+						if (validated) {
+							$.post("rights?action=createlabel", {createlabel:{
+									id: labelid,
+									name: labelname,
+									description: labeldescription
 
-						}}, this.refresh);
-						this.newLabelDialog.dialog("close");
+								}}, this.refresh);
+							this.newLabelDialog.dialog("close");
+						} else {
+							$("#label_error").html(dictionary['labels.dialog.button.name.error']);
+
+						}
+
 					},this)
 				},{
 					text:dictionary['common.close'],

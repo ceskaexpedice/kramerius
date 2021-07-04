@@ -21,6 +21,7 @@ import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -39,6 +40,18 @@ import java.util.stream.Collectors;
 
 
 public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
+
+    public static final String PUBLISHERS_KEY = "publishers";
+    public static final String DNNT_LABELS_KEY = "dnnt-labels";
+    public static final String PIDS_PATH_KEY = "pids_path";
+    public static final String DNNT_KEY = "dnnt";
+    public static final String PROVIDED_BY_DNNT_KEY = "providedByDnnt";
+    public static final String POLICY_KEY = "policy";
+    public static final String MODELS_PATH_KEY = "models_path";
+    public static final String ROOT_PID_KEY = "rootPid";
+    public static final String ROOT_MODEL_KEY = "rootModel";
+    public static final String AUTHORS_KEY = "authors";
+    public static final String SOLR_DATE_KEY = "solrDate";
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DNNTStatisticsAccessLogImpl.class.getName());
 
@@ -73,18 +86,18 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
         String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
         String policy = SElemUtils.selem("str", "dostupnost", solrDoc);
 
+        List<String> labels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
 
         List<String> sAuthors = solrAuthors(rootPid, solrAccess);
         List<String> dcPublishers = dcPublishers(paths, fedoraAccess);
 
-
-
         // WRITE TO LOG - kibana processing
         if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
             log(pid, rootTitle, dctitle, solrDate, findModsDate(paths, fedoraAccess),
-                    dnnt, policy, dcPublishers, sAuthors, paths, mpaths, identifiers(paths, fedoraAccess));
+                    dnnt, policy, dcPublishers, sAuthors, paths, mpaths, identifiers(paths, fedoraAccess), labels);
         }
     }
+
 
     public static  List<String> solrAuthors(String rootPid, SolrAccess solrAccess) throws IOException {
         List<String> sAuthors = new ArrayList<>();
@@ -217,7 +230,7 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
     }
 
     public void log(String pid, String rootTitle, String dcTitle, String solrDate, String modsDate, String dnntFlag, String policy, List<String> dcPublishers, List<String> dcAuthors, ObjectPidsPath[] paths,
-                    ObjectModelsPath[] mpaths, Map<String, List<String>> identifiers) throws IOException {
+                    ObjectModelsPath[] mpaths, Map<String, List<String>> identifiers, List<String> labels) throws IOException {
         User user = this.userProvider.get();
         RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
         boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
@@ -238,7 +251,8 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
                 dcPublishers,
                 paths,
                 mpaths,
-                identifiers
+                identifiers,
+                labels
         );
 
         DNNTStatisticsAccessLogImpl.KRAMERIUS_LOGGER_FOR_KIBANA.log(Level.INFO, jObject.toString());
@@ -261,7 +275,9 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
                              List<String> dcPublishers,
                              ObjectPidsPath[] paths,
                              ObjectModelsPath[] mpaths,
-                             Map<String, List<String>> identifiers) throws IOException {
+                             Map<String, List<String>> identifiers,
+                             List<String> labels
+                             ) throws IOException {
 
         LocalDateTime date = LocalDateTime.now();
         String timestamp = date.format(DateTimeFormatter.ISO_DATE_TIME);
@@ -276,16 +292,16 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
         jObject.put("rootTitle",rootTitle);
         jObject.put("dcTitle",dcTitle);
 
-        if (dnntFlag != null )  jObject.put("dnnt", dnntFlag.trim().toLowerCase().equals("true"));
+        if (dnntFlag != null )  jObject.put(DNNT_KEY, dnntFlag.trim().toLowerCase().equals("true"));
 
         // info from criteriums
         rightEvaluationAttribute.keySet().stream().forEach(key->{ jObject.put(key, rightEvaluationAttribute.get(key)); });
 
-        jObject.put("providedByDnnt", providedByDnnt);
-        jObject.put("policy", policy);
+        jObject.put(PROVIDED_BY_DNNT_KEY, providedByDnnt);
+        jObject.put(POLICY_KEY, policy);
 
 
-        if (solrDate != null)  jObject.put("solrDate", solrDate);
+        if (solrDate != null)  jObject.put(SOLR_DATE_KEY, solrDate);
         if (modsDate != null) jObject.put("publishedDate", modsDate);
 
 
@@ -299,7 +315,7 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
             for (int i=0,ll=dcAuthors.size();i<ll;i++) {
                 authorsArray.put(dcAuthors.get(i));
             }
-            jObject.put("authors",authorsArray);
+            jObject.put(AUTHORS_KEY,authorsArray);
         }
 
         if (!dcPublishers.isEmpty()) {
@@ -307,31 +323,40 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
             for (int i=0,ll=dcPublishers.size();i<ll;i++) {
                 publishersArray.put(dcPublishers.get(i));
             }
-            jObject.put("publishers",publishersArray);
+            jObject.put(PUBLISHERS_KEY,publishersArray);
+        }
+
+        if (!labels.isEmpty()) {
+
+            JSONArray solrLabels = new JSONArray();
+            for (int i=0,ll=labels.size();i<ll;i++) {
+                solrLabels.put(labels.get(i));
+            }
+            jObject.put(DNNT_LABELS_KEY,solrLabels);
         }
 
         JSONArray pidsArray = new JSONArray();
         for (int i = 0; i < paths.length; i++) {
             pidsArray.put(Arrays.stream(paths[i].getPathFromRootToLeaf()).collect(Collectors.joining("/")));
         }
-        jObject.put("pids_path",pidsArray);
+        jObject.put(PIDS_PATH_KEY,pidsArray);
 
         JSONArray modelsArray = new JSONArray();
         for (int i = 0; i < mpaths.length; i++) {
             modelsArray.put(Arrays.stream(mpaths[i].getPathFromRootToLeaf()).collect(Collectors.joining("/")));
         }
-        jObject.put("models_path",modelsArray);
+        jObject.put(MODELS_PATH_KEY,modelsArray);
         if (paths.length > 0) {
             String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
             if (pathFromRootToLeaf.length > 0) {
-                jObject.put("rootPid",pathFromRootToLeaf[0]);
+                jObject.put(ROOT_PID_KEY,pathFromRootToLeaf[0]);
             }
         }
 
         if (mpaths.length > 0) {
             String[] mpathFromRootToLeaf = mpaths[0].getPathFromRootToLeaf();
             if (mpathFromRootToLeaf.length > 0) {
-                jObject.put("rootModel",mpathFromRootToLeaf[0]);
+                jObject.put(ROOT_MODEL_KEY,mpathFromRootToLeaf[0]);
             }
         }
 

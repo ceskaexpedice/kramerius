@@ -523,6 +523,29 @@
         <securedaction>dnnt_admin</securedaction>
     </process>
 
+    <!-- Set dnnt flag - backward compatibility -->
+    <process>
+        <id>dnntset</id>
+        <description>DNNT SET/UNSET flag</description>
+        <mainClass>cz.incad.kramerius.plain.DNNTPidFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- Unset dnnt flag - backward compatibility -->
+    <process>
+        <id>dnntunset</id>
+        <description>Unset the DNNT flag</description>
+        <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>false</parameters>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+
+
     <!-- Set/unset dnnt flag -->
     <process>
         <id>dnntflag</id>

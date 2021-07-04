@@ -37,7 +37,9 @@ import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
 import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
+import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -124,12 +126,16 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             Document solrDoc = this.solrAccess.getSolrDataDocument(pid);
             String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
 
+            List<String> dnntLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
+
+
+
             User user = this.userProvider.get();
             RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
             boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
 
 
-            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get(), dnnt != null ? Boolean.parseBoolean(dnnt) : false, providedByDnnt, rightsReturnObject.getEvaluateInfoMap(), user.getSessionAttributes(), versionService.getVersion()));
+            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get(), dnnt != null ? Boolean.parseBoolean(dnnt) : false, providedByDnnt, rightsReturnObject.getEvaluateInfoMap(), user.getSessionAttributes(), versionService.getVersion(), dnntLabels));
             for (int i = 0, ll = paths.length; i < ll; i++) {
 
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -333,8 +339,9 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
         private Map userSesionAttributes;
         private String dbversion;
 
+        private String[] dnnt_labels;
 
-        public InsertRecord(String pid,LoggedUsersSingleton loggedUserSingleton, Provider<HttpServletRequest> requestProvider, Provider<User> userProvider, ReportedAction action, boolean dnnt, boolean providedByDnnt, Map evaulateMap, Map userSesionAttributes, String dbversion) {
+        public InsertRecord(String pid,LoggedUsersSingleton loggedUserSingleton, Provider<HttpServletRequest> requestProvider, Provider<User> userProvider, ReportedAction action, boolean dnnt, boolean providedByDnnt, Map evaulateMap, Map userSesionAttributes, String dbversion, List<String> dnnt_labels) {
             super();
             this.loggedUserSingleton = loggedUserSingleton;
             this.requestProvider = requestProvider;
@@ -350,6 +357,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             this.evaluateMap = evaulateMap;
             this.userSesionAttributes = userSesionAttributes;
 
+            this.dnnt_labels = dnnt_labels != null ? dnnt_labels.toArray(new String[dnnt_labels.size()]) : new String[0];
         }
 
 
@@ -379,7 +387,8 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                     providedByDnnt,
                     evaluateMap != null && !evaluateMap.isEmpty() ?  new JSONObject(evaluateMap).toString() : new JDBCUpdateTemplate.NullObject(String.class),
                     userSesionAttributes != null && !userSesionAttributes.isEmpty() ? new JSONObject(userSesionAttributes).toString() :new JDBCUpdateTemplate.NullObject(String.class),
-                    dbversion
+                    dbversion,
+                    dnnt_labels
             );
 
 

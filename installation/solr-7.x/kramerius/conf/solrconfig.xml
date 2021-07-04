@@ -341,6 +341,7 @@
 
    -->
     <autoCommit>
+	  <maxDocs>${solr.autoCommit.maxDocs:20000}</maxDocs>
       <maxTime>${solr.autoCommit.maxTime:-1}</maxTime>
       <openSearcher>false</openSearcher>
     </autoCommit>
