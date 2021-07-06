@@ -10,8 +10,17 @@ import java.util.List;
 
 public class AuthorsExtractor {
 
-    public List<AuthorInfo> extractAuthors(Element modsEl, String model) {
-        List<Node> nameEls = Dom4jUtils.buildXpath("mods/name").selectNodes(modsEl);
+    public List<AuthorInfo> extractPrimaryAuthors(Element modsEl, String model) {
+        List<Node> nameEls = Dom4jUtils.buildXpath("mods/name[@usage='primary']").selectNodes(modsEl);
+        return extractAuthors(nameEls, model);
+    }
+
+    public List<AuthorInfo> extractNonPrimaryAuthors(Element modsEl, String model) {
+        List<Node> nameEls = Dom4jUtils.buildXpath("mods/name[not(@usage='primary')]").selectNodes(modsEl);
+        return extractAuthors(nameEls, model);
+    }
+
+    private List<AuthorInfo> extractAuthors(List<Node> nameEls, String model) {
         List<AuthorInfo> result = new ArrayList<>();
         for (Node nameEl : nameEls) {
             String namePartNoTypeEl = toStringOrNull(Dom4jUtils.buildXpath("namePart[not(@type)]").selectSingleNode(nameEl));

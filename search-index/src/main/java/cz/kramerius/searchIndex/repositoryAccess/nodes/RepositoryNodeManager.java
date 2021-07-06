@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RepositoryNodeManager {
 
@@ -130,8 +131,10 @@ public class RepositoryNodeManager {
             DateInfo dateInfo = mergeDateInfos(ownParent, myDateInfo);
             List<String> myLanguages = extractLanguagesFromMods(model, modsDoc);
             List<String> languages = mergeLanguages(ownParent, fosterParents, myLanguages);
-            List<AuthorInfo> myAuthors = extractAuthorsFromMods(model, modsDoc);
-            List<AuthorInfo> authors = mergeAuthors(ownParent, fosterParents, myAuthors);
+            List<AuthorInfo> myPrimaryAuthors = extractPrimaryAuthorsFromMods(model, modsDoc);
+            List<AuthorInfo> myOtherAuthors = extractNonPrimaryAuthorsFromMods(model, modsDoc);
+            List<AuthorInfo> primaryAuthors = mergePrimaryAuthors(ownParent, fosterParents, myPrimaryAuthors);
+            List<AuthorInfo> otherAuthors = mergeOtherAuthors(ownParent, fosterParents, myOtherAuthors);
 
             //pids of all foster parents
             List<String> fosterParentsPids = toPidList(fosterParents);
@@ -171,7 +174,7 @@ public class RepositoryNodeManager {
                     ownParentPid, ownParentModel, ownParentTitle, positionInOwnParent,
                     fosterParentsPids, fosterParentsOfTypeCollectionPids, anyAncestorsOfTypeCollectionPids,
                     ownChildren, fosterChildren,
-                    languages, authors, dateInfo
+                    languages, primaryAuthors, otherAuthors, dateInfo
             );
         } catch (IOException | ResourceIndexException e) {
             throw new RuntimeException(e);
@@ -205,21 +208,34 @@ public class RepositoryNodeManager {
         return list;
     }
 
-    private List<AuthorInfo> mergeAuthors(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<AuthorInfo> myAuthors) {
-        //fill set
-        Set<AuthorInfo> set = new HashSet<>();
-        if (!myAuthors.isEmpty()) { //prefer this object' authors
-            set.addAll(myAuthors);
+    private List<AuthorInfo> mergePrimaryAuthors(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<AuthorInfo> myPrimaryAuthors) {
+        //fill list
+        List<AuthorInfo> authors = new ArrayList<>();
+        if (!myPrimaryAuthors.isEmpty()) { //prefer this object' authors
+            authors.addAll(myPrimaryAuthors);
         } else if (ownParent != null) { //but use parent's if there aren't any authors of this object
-            set.addAll(ownParent.getAuthors());
+            authors.addAll(ownParent.getPrimaryAuthors());
         }
         for (RepositoryNode fosterParent : fosterParents) { //also use authors of all foster parents (typically articles)
-            set.addAll(fosterParent.getAuthors());
+            authors.addAll(fosterParent.getPrimaryAuthors());
         }
-        //return list
-        List<AuthorInfo> list = new ArrayList<>();
-        list.addAll(set);
-        return list;
+        //return list without duplicates
+        return authors.stream().distinct().collect(Collectors.toList());
+    }
+
+    private List<AuthorInfo> mergeOtherAuthors(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<AuthorInfo> myOtherAuthors) {
+        //fill set
+        List<AuthorInfo> authors = new ArrayList<>();
+        if (!myOtherAuthors.isEmpty()) { //prefer this object' authors
+            authors.addAll(myOtherAuthors);
+        } else if (ownParent != null) { //but use parent's if there aren't any authors of this object
+            authors.addAll(ownParent.getOtherAuthors());
+        }
+        for (RepositoryNode fosterParent : fosterParents) { //also use authors of all foster parents (typically articles)
+            authors.addAll(fosterParent.getOtherAuthors());
+        }
+        //return list without duplicates
+        return authors.stream().distinct().collect(Collectors.toList());
     }
 
     private Integer extractPositionInParent(String childPid, RepositoryNode parent) {
@@ -259,9 +275,15 @@ public class RepositoryNodeManager {
         return languages;
     }
 
-    private List<AuthorInfo> extractAuthorsFromMods(String model, Document modsDoc) throws IOException {
+    private List<AuthorInfo> extractPrimaryAuthorsFromMods(String model, Document modsDoc) throws IOException {
         AuthorsExtractor extractor = new AuthorsExtractor();
-        List<AuthorInfo> authors = extractor.extractAuthors(modsDoc.getRootElement(), model);
+        List<AuthorInfo> authors = extractor.extractPrimaryAuthors(modsDoc.getRootElement(), model);
+        return authors;
+    }
+
+    private List<AuthorInfo> extractNonPrimaryAuthorsFromMods(String model, Document modsDoc) throws IOException {
+        AuthorsExtractor extractor = new AuthorsExtractor();
+        List<AuthorInfo> authors = extractor.extractNonPrimaryAuthors(modsDoc.getRootElement(), model);
         return authors;
     }
 

@@ -17,7 +17,7 @@
     </test>
 
 
-    <test name="Na name parametrech nezáleží I">
+    <test name="Name atributy (type, usage) nepovinné I">
         <desc>Parametry u name nejsou povinné - bez type, usage</desc>
         <in>
             <name>
@@ -31,7 +31,7 @@
         </out>
     </test>
 
-    <test name="Na name parametrech nezáleží II">
+    <test name="Name atributy (type, usage) nepovinné II">
         <desc>Parametry u name nejsou povinné - s type, usage</desc>
         <in>
             <name type="personal" usage="primary">
@@ -45,6 +45,31 @@
         </out>
     </test>
 
+    <test name="Atribut usage='primary' ovlivní pořadí">
+        <desc>Jména s usage='primary' mají větší prioritu a budou na vyšších pozicích v polích authors.*</desc>
+        <in>
+            <name>
+                <namePart>Adam</namePart>
+            </name>
+            <name usage="primary">
+                <namePart>Bára</namePart>
+            </name>
+            <name>
+                <namePart>Cyril</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="authors">Bára</field>
+            <field name="authors">Adam</field>
+            <field name="authors">Cyril</field>
+            <field name="authors.facet">Bára</field>
+            <field name="authors.facet">Adam</field>
+            <field name="authors.facet">Cyril</field>
+            <field name="authors.search">Bára</field>
+            <field name="authors.search">Adam</field>
+            <field name="authors.search">Cyril</field>
+        </out>
+    </test>
 
     <test name="family + given">
         <desc></desc>
@@ -364,5 +389,38 @@
         </out>
     </test>
 
+    <test name="Zachování pořadí autorů, usage='primary' prioritně">
+        <desc>Pořadí autorů je převzato z MODS, pouze autoři v elementech name s usage='primary' jsou před autory bez usage='primary'. Příklad:
+            uuid:af1460e0-9be2-11e4-a808-005056827e52
+        </desc>
+        <in>
+            <name type="personal">
+                <namePart>Miklínová, Galina</namePart>
+            </name>
+            <name type="personal">
+                <namePart>Medek, Vladimír</namePart>
+            </name>
+            <name type="personal" usage="primary">
+                <namePart>Rowling, J. K.</namePart>
+            </name>
+            <name type="personal" usage="primary">
+                <namePart>Fleming, Ian</namePart>
+            </name>
+        </in>
+        <out>
+            <field name="authors">Rowling, J. K.</field>
+            <field name="authors">Fleming, Ian</field>
+            <field name="authors">Miklínová, Galina</field>
+            <field name="authors">Medek, Vladimír</field>
+            <field name="authors.facet">Rowling, J. K.</field>
+            <field name="authors.facet">Fleming, Ian</field>
+            <field name="authors.facet">Miklínová, Galina</field>
+            <field name="authors.facet">Medek, Vladimír</field>
+            <field name="authors.search">Rowling, J. K.</field>
+            <field name="authors.search">Fleming, Ian</field>
+            <field name="authors.search">Miklínová, Galina</field>
+            <field name="authors.search">Medek, Vladimír</field>
+        </out>
+    </test>
 
 </testSuite>

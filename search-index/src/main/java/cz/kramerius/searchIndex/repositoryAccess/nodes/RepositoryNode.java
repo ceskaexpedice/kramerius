@@ -39,7 +39,8 @@ public class RepositoryNode {
 
     //data from predecessors in the tree and possibly from foster parents' predecessors in their trees
     private final List<String> languages;
-    private final List<AuthorInfo> authors;
+    private final List<AuthorInfo> primaryAuthors;
+    private final List<AuthorInfo> otherAuthors;
     private final DateInfo dateInfo;
 
     public RepositoryNode(String pid, String model, Title title,
@@ -48,7 +49,7 @@ public class RepositoryNode {
                           String ownParentPid, String ownParentModel, Title ownParentTitle, Integer positionInOwnParent,
                           List<String> pidsOfFosterParents, List<String> pidsOfFosterParentsOfTypeCollection, List<String> pidsOfAnyAncestorsOfTypeCollection,
                           List<String> pidsOfOwnChildren, List<String> pidsOfFosterChildren,
-                          List<String> languages, List<AuthorInfo> authors, DateInfo dateInfo) {
+                          List<String> languages, List<AuthorInfo> primaryAuthors, List<AuthorInfo> otherAuthors, DateInfo dateInfo) {
         this.pid = pid;
         this.model = model;
         this.title = title;
@@ -66,8 +67,9 @@ public class RepositoryNode {
         this.pidsOfAnyAncestorsOfTypeCollection = pidsOfAnyAncestorsOfTypeCollection;
         this.pidsOfOwnChildren = pidsOfOwnChildren;
         this.pidsOfFosterChildren = pidsOfFosterChildren;
-        this.languages = languages == null ? Collections.emptyList() : languages;
-        this.authors = authors == null ? Collections.emptyList() : authors;
+        this.languages = languages;
+        this.primaryAuthors = primaryAuthors;
+        this.otherAuthors = otherAuthors;
         this.dateInfo = dateInfo;
 
     }
@@ -161,11 +163,15 @@ public class RepositoryNode {
     }
 
     public List<String> getLanguages() {
-        return languages;
+        return languages == null ? Collections.emptyList() : languages;
     }
 
-    public List<AuthorInfo> getAuthors() {
-        return authors;
+    public List<AuthorInfo> getPrimaryAuthors() {
+        return primaryAuthors == null ? Collections.emptyList() : primaryAuthors;
+    }
+
+    public List<AuthorInfo> getOtherAuthors() {
+        return otherAuthors == null ? Collections.emptyList() : otherAuthors;
     }
 
     public DateInfo getDateInfo() {

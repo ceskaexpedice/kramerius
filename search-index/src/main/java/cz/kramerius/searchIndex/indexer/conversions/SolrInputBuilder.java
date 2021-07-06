@@ -108,7 +108,12 @@ public class SolrInputBuilder {
             addSolrField(solrInput, "languages.facet", language);
         }
         //authors
-        for (AuthorInfo author : parentNode.getAuthors()) {
+        for (AuthorInfo author : parentNode.getPrimaryAuthors()) {
+            solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+            solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
+            solrInput.addField("authors.search", author.getName());
+        }
+        for (AuthorInfo author : parentNode.getOtherAuthors()) {
             solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
             solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
             solrInput.addField("authors.search", author.getName());
@@ -258,7 +263,12 @@ public class SolrInputBuilder {
                 addSolrField(solrInput, "languages.facet", language);
             }
             //authors
-            for (AuthorInfo author : repositoryNode.getAuthors()) {
+            for (AuthorInfo author : repositoryNode.getPrimaryAuthors()) {
+                solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+                solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
+                solrInput.addField("authors.search", author.getName());
+            }
+            for (AuthorInfo author : repositoryNode.getOtherAuthors()) {
                 solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
                 solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
                 solrInput.addField("authors.search", author.getName());

@@ -122,7 +122,8 @@ public class XmlTestBuilder {
                     .build();
 
             List<String> languages = new LanguagesExtractor().extractLanguages(test.getInDoc().getRootElement(), null);
-            List<AuthorInfo> authors = new AuthorsExtractor().extractAuthors(test.getInDoc().getRootElement(), null);
+            List<AuthorInfo> primaryAuthors = new AuthorsExtractor().extractPrimaryAuthors(test.getInDoc().getRootElement(), null);
+            List<AuthorInfo> otherAuthors = new AuthorsExtractor().extractNonPrimaryAuthors(test.getInDoc().getRootElement(), null);
             DateInfo dateInfo = new DateExtractor().extractDateInfoFromMultipleSources(test.getInDoc().getRootElement(), null);
             RepositoryNode node = new RepositoryNode(
                     null, test.getDocType(), null,
@@ -131,7 +132,7 @@ public class XmlTestBuilder {
                     null, null, null, null,
                     null, null, null,
                     null, null,
-                    languages, authors, dateInfo
+                    languages, primaryAuthors, otherAuthors, dateInfo
             );
             SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
@@ -171,7 +172,7 @@ public class XmlTestBuilder {
                     null, null, null, null,
                     null, null, null,
                     null, null,
-                    null, null, null
+                    null, null, null, null
             );
             SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
