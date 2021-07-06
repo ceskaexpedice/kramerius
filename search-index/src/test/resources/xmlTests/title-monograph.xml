@@ -368,6 +368,66 @@
         </out>
     </test>
 
+    <test name="title nonsort: fixing wrong entry (missing space) I">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>The</nonSort>
+                <title>Moon</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">The Moon</field>
+            <field name="title.sort">MOON</field>
+            <field name="titles.search">The Moon</field>
+        </out>
+    </test>
+
+    <test name="title nonsort: fixing wrong entry (missing space) II">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>El</nonSort>
+                <title>Niño</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">El Niño</field>
+            <field name="title.sort">NIN|O</field>
+            <field name="titles.search">El Niño</field>
+        </out>
+    </test>
+
+    <test name="title nonsort: fixing wrong entry (missing space) III">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>Das</nonSort>
+                <title>Boot</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">Das Boot</field>
+            <field name="title.sort">BOOT</field>
+            <field name="titles.search">Das Boot</field>
+        </out>
+    </test>
+
+    <test name="title nonsort: fixing wrong entry (missing space) IV">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <nonSort>Il</nonSort>
+                <title>sogno di Scipione</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">Il sogno di Scipione</field>
+            <field name="title.sort">SOGNO DI SCIPIONE</field>
+            <field name="titles.search">Il sogno di Scipione</field>
+        </out>
+    </test>
+
     <test name="multiple titles I">
         <desc>Více názvů, první je použit jako hlavní.</desc>
         <in>

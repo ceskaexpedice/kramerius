@@ -67,8 +67,8 @@ public class SolrInputBuilder {
         addSolrField(solrInput, "root.pid", parentNode.getRootPid());
         addSolrField(solrInput, "root.model", parentNode.getRootModel());
         if (parentNode.getRootTitle() != null) {
-            addSolrField(solrInput, "root.title", parentNode.getRootTitle().value);
-            addSolrField(solrInput, "root.title.sort", sortingNormalizer.normalize(parentNode.getRootTitle().value));
+            addSolrField(solrInput, "root.title", parentNode.getRootTitle().toString());
+            addSolrField(solrInput, "root.title.sort", sortingNormalizer.normalize(parentNode.getRootTitle().getValueWithoutNonsort()));
         }
         addSolrField(solrInput, "own_parent.pid", parentNode.getPid());
         addSolrField(solrInput, "own_parent.model", parentNode.getModel());
@@ -78,7 +78,7 @@ public class SolrInputBuilder {
 
         addSolrField(solrInput, "rels_ext_index.sort", pageNumber);
         if (parentNode.getTitle() != null) {
-            addSolrField(solrInput, "own_parent.title", parentNode.getTitle().value);
+            addSolrField(solrInput, "own_parent.title", parentNode.getTitle().toString());
         }
 
         //level je uroven ve vlastnim strome, pocitano od 0
@@ -196,8 +196,8 @@ public class SolrInputBuilder {
             addSolrField(solrInput, "root.pid", repositoryNode.getRootPid());
             addSolrField(solrInput, "root.model", repositoryNode.getRootModel());
             if (repositoryNode.getRootTitle() != null) {
-                addSolrField(solrInput, "root.title", repositoryNode.getRootTitle().value);
-                addSolrField(solrInput, "root.title.sort", sortingNormalizer.normalize(repositoryNode.getRootTitle().value));
+                addSolrField(solrInput, "root.title", repositoryNode.getRootTitle().toString());
+                addSolrField(solrInput, "root.title.sort", sortingNormalizer.normalize(repositoryNode.getRootTitle().getValueWithoutNonsort()));
             }
 
             addSolrField(solrInput, "own_parent.pid", repositoryNode.getOwnParentPid());
@@ -211,7 +211,7 @@ public class SolrInputBuilder {
                 addSolrField(solrInput, "rels_ext_index.sort", thisObjectsPositionInParent.toString());
             }
             if (repositoryNode.getOwnParentTitle() != null) {
-                addSolrField(solrInput, "own_parent.title", repositoryNode.getOwnParentTitle().value);
+                addSolrField(solrInput, "own_parent.title", repositoryNode.getOwnParentTitle().toString());
             }
             if (repositoryNode.getPidsOfFosterParents() != null) {
                 for (String fosterParent : repositoryNode.getPidsOfFosterParents()) {
@@ -279,12 +279,12 @@ public class SolrInputBuilder {
         TitlesExtractor titlesExtractor = new TitlesExtractor();
         Title primaryTitle = titlesExtractor.extractPrimaryTitle(modsRootEl, model);
         if (primaryTitle != null) {
-            solrInput.addField("title.search", primaryTitle.nonsort != null ? primaryTitle.nonsort + primaryTitle.value : primaryTitle.value);
-            solrInput.addField("title.sort", sortingNormalizer.normalize(primaryTitle.value));
+            solrInput.addField("title.search", primaryTitle.toString());
+            solrInput.addField("title.sort", sortingNormalizer.normalize(primaryTitle.getValueWithoutNonsort()));
         }
         List<Title> allTitles = titlesExtractor.extractAllTitles(modsRootEl, model);
         for (Title title : allTitles) {
-            solrInput.addField("titles.search", title.nonsort != null ? title.nonsort + title.value : title.value);
+            solrInput.addField("titles.search", title.toString());
         }
 
         //keywords

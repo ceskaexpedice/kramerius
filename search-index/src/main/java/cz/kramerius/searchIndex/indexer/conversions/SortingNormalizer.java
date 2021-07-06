@@ -129,12 +129,27 @@ public class SortingNormalizer {
         t.put('ö', "O|");
         t.put('ß', "S|");
         t.put('ü', "U|");
-        //german uper case
+        //german upper case
         t.put('Ä', "A|");
         t.put('Ö', "O|");
         t.put('ẞ', "S|");
         t.put('Ü', "U|");
-
+        //spanish upper case
+        t.put('Ñ', "N|");
+        t.put('Á', "A|");
+        t.put('É', "E|");
+        t.put('Í', "I|");
+        t.put('Ó', "O|");
+        t.put('Ú', "U|");
+        t.put('Ü', "U|");
+        //spanish lower case
+        t.put('ñ', "N|");
+        t.put('á', "A|");
+        t.put('é', "E|");
+        t.put('í', "I|");
+        t.put('ó', "O|");
+        t.put('ú', "U|");
+        t.put('ü', "U|");
         return t;
     }
 
@@ -162,7 +177,7 @@ public class SortingNormalizer {
             //pozor, tohle rozbije slova jako nadzvukový (cs), odzemok (sk)
             normalized = normalized.replaceAll("DZ", "D|");
             //replace multiple white spaces with single space
-            normalized = normalized.replaceAll("\\s+"," ");
+            normalized = normalized.replaceAll("\\s+", " ");
             //final trim
             normalized = normalized.trim();
             return normalized;
