@@ -20,6 +20,7 @@ import cz.kramerius.adapters.IResourceIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import cz.kramerius.searchIndex.indexerProcess.Indexer;
+import cz.kramerius.searchIndex.indexerProcess.ProgressListener;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
@@ -111,6 +112,7 @@ public class NewIndexerProcessIndexModel {
         int nowIgnored = 0;
         int nowIndexed = 0;
         int nowErrors = 0;
+        final int[] totalObjectProcessed = {0};
 
         String cursor = "*";
         int limit = 100;
@@ -124,27 +126,43 @@ public class NewIndexerProcessIndexModel {
                 String title = titlePidPair.getFirst();
                 String pid = titlePidPair.getSecond();
                 //report(String.format("indexing %s: %s", pid, title));
-                //TODO: maybe use progresslistener and inform about every 1000 or so indexed
                 try {
-                    indexer.indexByObjectPid(pid, type, null);
+                    indexer.indexByObjectPid(pid, type, new ProgressListener() {
+                        @Override
+                        public void onProgress(int processed) {
+                            totalObjectProcessed[0]++;
+                            //log number of objects processed so far
+                            if (totalObjectProcessed[0] < 100 && totalObjectProcessed[0] % 10 == 0 ||
+                                    totalObjectProcessed[0] < 1000 && totalObjectProcessed[0] % 100 == 0 ||
+                                    totalObjectProcessed[0] % 1000 == 0
+                            ) {
+                                LOGGER.info("objects processed so far: " + totalObjectProcessed[0]);
+                            }
+                        }
+
+                        @Override
+                        public void onFinished(int processed) {
+
+                        }
+                    });
                     nowIndexed++;
                 } catch (Throwable e) {
                     e.printStackTrace();
                     nowErrors++;
                 }
             }
-            report("Processed " + processed + " top-level objects");
         }
 
         report(" ");
         report("Top-level summary");
         report("===========================================");
-        report(" Top-level objects processed: " + processed);
-        report(" Top-level objects indexed  : " + nowIndexed);
-        report(" Top-level objects ignored  : " + nowIgnored);
-        report(" Top-level objects erroneous: " + nowErrors);
+        report(" Top-level objects processed:   " + processed);
+        report(" Top-level objects indexed:     " + nowIndexed);
+        report(" Top-level objects ignored:     " + nowIgnored);
+        report(" Top-level objects erroneous:   " + nowErrors);
+        report(" Top-level objects erroneous:   " + nowErrors);
+        report("     Total objects processed:   " + totalObjectProcessed[0]);
         report("===========================================");
-        report(" ");
     }
 
     private static List<Pair<String, String>> filter(SolrAccess solrAccess, List<Pair<String, String>> titlePidPairs, Filters filters) throws IOException {

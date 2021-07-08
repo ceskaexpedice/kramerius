@@ -15,6 +15,7 @@ import cz.kramerius.adapters.IResourceIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import cz.kramerius.searchIndex.indexerProcess.Indexer;
+import cz.kramerius.searchIndex.indexerProcess.ProgressListener;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
@@ -85,8 +86,22 @@ public class NewIndexerProcessIndexObject {
 
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
         Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out, ignoreInconsistentObjects);
-        //TODO: maybe use progresslistener and inform about every 1000 or so indexed
-        indexer.indexByObjectPid(pid, IndexationType.valueOf(type), null);
+        indexer.indexByObjectPid(pid, IndexationType.valueOf(type), new ProgressListener() {
+            @Override
+            public void onProgress(int processed) {
+                //log number of objects processed so far
+                if (processed < 100 && processed % 10 == 0 ||
+                        processed < 1000 && processed % 100 == 0 ||
+                        processed % 1000 == 0
+                ) {
+                    LOGGER.info("objects processed so far: " + processed);
+                }
+            }
+
+            @Override
+            public void onFinished(int processed) {
+            }
+        });
     }
 
     //["Quartet A minor", " op. 51", " no. 2. Andante moderato"] => "Quartet A minor, op. 51, no. 2 Andante moderato"

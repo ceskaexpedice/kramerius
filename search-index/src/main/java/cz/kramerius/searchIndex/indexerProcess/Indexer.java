@@ -87,8 +87,8 @@ public class Indexer {
                 setFullIndexationInProgress(pid);
             }
             RepositoryNode node = nodeManager.getKrameriusNode(pid);
-            indexObjectWithCounters(pid, node, counters, setFullIndexationInProgress);
-            processChildren(pid, node, counters, type, true);
+            indexObjectWithCounters(pid, node, counters, setFullIndexationInProgress, progressListener);
+            processChildren(pid, node, counters, type, true, progressListener);
             if (setFullIndexationInProgress) {
                 clearFullIndexationInProgress(pid);
             }
@@ -98,15 +98,16 @@ public class Indexer {
             if (shutDown) {
                 report("Indexer was shut down during execution");
             }
-            report("Summary for " + pid);
+            report("Summary* for " + pid);
             report("=======================================");
             report(" objects processed: " + counters.getProcessed());
-            report(" objects indexed  : " + counters.getIndexed());
-            report(" objects removed  : " + counters.getRemoved());
+            report(" objects indexed:   " + counters.getIndexed());
+            report(" objects removed:   " + counters.getRemoved());
             report(" objects erroneous: " + counters.getErrors());
             report(" *counters include pages from pdf, i.e. not real objects in repository");
             report(" records processing duration: " + formatTime(System.currentTimeMillis() - start));
             report("=======================================");
+            report("");
             if (progressListener != null) {
                 progressListener.onFinished(counters.getProcessed());
             }
@@ -133,7 +134,7 @@ public class Indexer {
         solrIndexer.setSingleFieldValue(pid, "full_indexation_in_progress", null, false);
     }
 
-    private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean setFullIndexationInProgress) {
+    private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean setFullIndexationInProgress, ProgressListener progressListener) {
         try {
             counters.incrementProcessed();
             boolean objectAvailable = repositoryNode != null;
@@ -172,6 +173,10 @@ public class Indexer {
         } catch (SolrServerException e) {
             counters.incrementErrors();
             report(" Solr server error", e);
+        } finally {
+            if (progressListener != null) {
+                progressListener.onProgress(counters.getProcessed());
+            }
         }
     }
 
@@ -201,7 +206,7 @@ public class Indexer {
                 .replaceAll("\\s+", " ");
     }
 
-    private void processChildren(String parentPid, RepositoryNode parentNode, Counters counters, IndexationType type, boolean isIndexationRoot) {
+    private void processChildren(String parentPid, RepositoryNode parentNode, Counters counters, IndexationType type, boolean isIndexationRoot, ProgressListener progressListener) {
         if (parentNode == null) {
             System.err.println("object not found in repository (or found in inconsistent state), ignoring it's children: " + parentPid);
             return;
@@ -215,7 +220,7 @@ public class Indexer {
                 if (isIndexationRoot) {
                     for (String childPid : parentNode.getPidsOfOwnChildren()) {
                         RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                        indexObjectWithCounters(childPid, childNode, counters, false); //index own child
+                        indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                     }
                 }
             }
@@ -223,8 +228,8 @@ public class Indexer {
             case TREE: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    indexObjectWithCounters(childPid, childNode, counters, false); //index own child
-                    processChildren(childPid, childNode, counters, type, false); //process own child's tree
+                    indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
+                    processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
                 }
             }
             break;
@@ -233,9 +238,9 @@ public class Indexer {
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                     boolean isNewer = true; //TODO: detect
                     if (isNewer) {
-                        indexObjectWithCounters(childPid, childNode, counters, false); //index own child
+                        indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                     }
-                    processChildren(childPid, childNode, counters, type, false); //process own child's tree
+                    processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
                 }
             }
             break;
@@ -244,8 +249,8 @@ public class Indexer {
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                     boolean isNewer = true; //TODO: detect
                     if (isNewer) {
-                        indexObjectWithCounters(childPid, childNode, counters, false); //index own child
-                        processChildren(childPid, childNode, counters, type, false); //process own child's tree
+                        indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
+                        processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
                     }
                 }
             }
@@ -255,9 +260,9 @@ public class Indexer {
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                     boolean isPage = true; //TODO: detect
                     if (isPage) {
-                        indexObjectWithCounters(childPid, childNode, counters, false); //index own child
+                        indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                     } else {
-                        processChildren(childPid, childNode, counters, type, false); //process own child's tree
+                        processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
                     }
                 }
             }
@@ -267,8 +272,8 @@ public class Indexer {
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                     boolean isPage = false; //TODO: detect
                     if (!isPage) {
-                        indexObjectWithCounters(childPid, childNode, counters, false); //index own child
-                        processChildren(childPid, childNode, counters, type, false); //process own child's tree
+                        indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
+                        processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
                     }
                 }
             }
@@ -276,13 +281,13 @@ public class Indexer {
             case TREE_AND_FOSTER_TREES: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) {
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    indexObjectWithCounters(childPid, childNode, counters, false); //index own child
-                    processChildren(childPid, childNode, counters, type, false); //process own child's tree
+                    indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
+                    processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
                 }
                 for (String childPid : parentNode.getPidsOfFosterChildren()) {
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    indexObjectWithCounters(childPid, childNode, counters, false); //index foster child
-                    processChildren(childPid, childNode, counters, type, false); //process foster child's tree
+                    indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index foster child
+                    processChildren(childPid, childNode, counters, type, false, progressListener); //process foster child's tree
                 }
             }
         }
