@@ -19,7 +19,7 @@ public class LabelImpl implements Label, Serializable {
         this.description = description;
         this.group = group;
         this.labelPrirority = labelPrirority;
-        validateName(name);
+        //validateName(name);
     }
 
     public LabelImpl(String name, String description, String group, int labelPrirority) {
@@ -27,14 +27,14 @@ public class LabelImpl implements Label, Serializable {
         this.description = description;
         this.group = group;
         this.labelPrirority = labelPrirority;
-        validateName(name);
+        //validateName(name);
     }
 
     public LabelImpl(String name, String description, String group) {
         this.description = description;
         this.name = name;
         this.group = group;
-        validateName(name);
+        //validateName(name);
     }
 
     public LabelImpl(int id, String name, String description, String group) {
@@ -42,7 +42,7 @@ public class LabelImpl implements Label, Serializable {
         this.description = description;
         this.name = name;
         this.group = group;
-        validateName(name);
+        //validateName(name);
     }
 
     private void validateName(String name) {

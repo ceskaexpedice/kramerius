@@ -253,19 +253,33 @@ public class NKPLogReport implements StatisticReport {
                             map.put(RUNTIME_ATTRS, runtimeFileds);
                             map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel"));
                         }
+                    } else {
+                        map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel",
+                                DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY ,
+                                DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
+                                DNNTStatisticsAccessLogImpl.DNNT_KEY,
+                                DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
+                                DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY
+                                ));
+
                     }
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
             } else if (dbversion != null && versionCondition(dbversion.toString(), "=", "6.6.6")) {
-
-                try {
-                    Document solrDoc = solrAccess.getSolrDataDocument(record.pid);
-                    List<String> dnntLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
-                    map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
-                    map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                if (!disbleFedoraAccess) {
+                    try {
+                        Document solrDoc = solrAccess.getSolrDataDocument(record.pid);
+                        if (solrDoc != null) {
+                            List<String> dnntLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
+                            map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
+                            map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+                        }
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                } else {
+                    map.put(MISSING_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
                 }
             }
             sup.processReportRecord(map);

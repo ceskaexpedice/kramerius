@@ -249,6 +249,7 @@ public class DatabaseLabelsManagerImpl implements LabelsManager {
     private Label createLabelFromResultSet(ResultSet rs) throws SQLException {
         int labelId = rs.getInt("label_id");
         String name = rs.getString("LABEL_NAME");
+        if (name == null) name ="";
         String groupName = rs.getString("LABEL_GROUP");
         String description = rs.getString("LABEL_DESCRIPTION");
         int priority = rs.getInt("LABEL_PRIORITY");
