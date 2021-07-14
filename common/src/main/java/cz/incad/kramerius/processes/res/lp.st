@@ -663,7 +663,7 @@
             <standardOs>lrOut</standardOs>
             <!-- err vystup -->
             <errOs>lrErr</errOs>
-            <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+            <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
             <templates>
                 <input class="cz.incad.kramerius.statistics.impl.nkp.ParametrizedNKPInputTemplate"></input>
             </templates>

@@ -75,44 +75,60 @@ public class NKPLogProcess {
 
 
             WebResource.Builder builder = r.header("auth-token", authHeader).header("token", groupHeader).accept(MediaType.APPLICATION_JSON);
-            String content = builder.get(String.class);
+            InputStream clientResponse = builder.get(InputStream.class);
+
 
             File outputFolder = new File(folder);
             if (!outputFolder.exists())  outputFolder.mkdirs();
             if (outputFolder.exists()) {
 
-                StringBuilder stringBuilder = new StringBuilder();
+                File outputFile = new File(outputFolder, String.format("statistics-%s-%s.log", institution, StatisticReport.DATE_FORMAT.format(processingDate)));
+                FileOutputStream fos = new FileOutputStream(outputFile);
+                try(OutputStreamWriter fileWriter = new OutputStreamWriter(fos, "UTF-8")) {
 
-                BufferedReader bufferedReader = new BufferedReader(new StringReader(content));
-                String line = null;
-                while((line = bufferedReader.readLine()) != null) {
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientResponse, "UTF-8"));
+                    String line = null;
+                    while ((line = bufferedReader.readLine()) != null) {
 
-                    JSONObject lineJSONObject = new JSONObject(line);
-                    annonymizationKeys.stream().forEach(key-> {
-                        if (lineJSONObject.has(key)) {
-                            Object o = lineJSONObject.get(key);
-                            if (o instanceof  String) {
-                                String stringToBeHashed = o.toString();
-                                String newVal = null;
-                                if (stringToBeHashed.contains("@")) {
-                                    String[] split = stringToBeHashed.split("@");
-                                    newVal = String.format("%s@%s", hashVal(split[0]), hashVal(split[1]));
-                                } else {
-                                    newVal = hashVal(stringToBeHashed);
+                        JSONObject lineJSONObject = new JSONObject(line);
+                        annonymizationKeys.stream().forEach(key -> {
+                            if (lineJSONObject.has(key)) {
+                                Object o = lineJSONObject.get(key);
+                                if (o instanceof String) {
+                                    String stringToBeHashed = o.toString();
+                                    String newVal = null;
+                                    if (stringToBeHashed.contains("@")) {
+                                        String[] split = stringToBeHashed.split("@");
+                                        newVal = String.format("%s@%s", hashVal(split[0]), hashVal(split[1]));
+                                    } else {
+                                        newVal = hashVal(stringToBeHashed);
+                                    }
+                                    lineJSONObject.put(key, newVal);
                                 }
-                                lineJSONObject.put(key, newVal);
                             }
-                        }
-                    });
+                        });
 
-                    stringBuilder.append(lineJSONObject.toString()).append("\n");
+                        fileWriter.write(lineJSONObject.toString()+"\n");
+
+                        // memory dump
+                        boolean nkpLogMemoryDump = KConfiguration.getInstance().getConfiguration().getBoolean("nkp.logs.memorydump",false);
+                        if (nkpLogMemoryDump) {
+                            Runtime runtime = Runtime.getRuntime();
+                            long freeMemory = runtime.freeMemory();
+                            long totalMemory = runtime.totalMemory();
+
+                            long usedMemory = totalMemory - freeMemory;
+
+                            long maxMemory = runtime.maxMemory();
+                            double ratioA = (double) usedMemory/(double) totalMemory;
+                            double ratioB = (double) usedMemory/(double) maxMemory;
+
+                            LOGGER.info(String.format("Free memory (bytes) %d,Used memory (bytes) %d, Total memory(bytes) %d, Max memory (bytes) %d, ratio (used/totalmemory)  %f,ratio (used/maxmemory)  %f", freeMemory, usedMemory, totalMemory, maxMemory, ratioA,ratioB));
+                        }
+                    }
                 }
 
-
-                File outputFile = new File(outputFolder, String.format("statistics-%s-%s.log", institution, StatisticReport.DATE_FORMAT.format(processingDate)));
                 LOGGER.info(String.format("Storing log to file %s",outputFile.getAbsolutePath()));
-                IOUtils.saveToFile(stringBuilder.toString(), outputFile);
-                //IOUtils.saveToFile(jsonObject.toString(), outputFile);
             }
             processingDate = nextDate;
 
