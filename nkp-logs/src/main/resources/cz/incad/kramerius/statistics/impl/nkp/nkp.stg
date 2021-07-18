@@ -135,7 +135,7 @@ function ShowNKPLogDirectory() {
                 <td><input type="button" onclick="directoryTree.openTree();" value="$bundle.("nkplog.folder.button.label")$"></input></td>
             </tr>
             <tr>
-                <td>$bundle.("nkplog.folder.label")$</td>
+                <td>$bundle.("k3replication.defaultrights.fields")$</td>
                 <td>
                 <select id="nkp_visibility">
                 	   <option value="all" selected="selected">$bundle.("common.all")$</option>
