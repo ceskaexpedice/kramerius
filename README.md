@@ -17,7 +17,7 @@ je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárn
 
 Aktuální ostrá verze 5 vychází koncepčně z verze 4, která byla vyvíjena a průběžně publikována od roku 2009. Navazuje funkčností na předchozí verzi systému Kramerius končící označením 4.8.6. Od verze 4 je jako jádro systému použit open source repozitář [Fedora](http://www.fedora-commons.org). Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
 
-V testování je verze 7, ve které došlo k významnému vývojové mu kroku zejména z pohledu využitého repozitáře. Nové řešení jádra by mělo zajistit rychlejší práci s velkým množstvím objektů. Ostré nasazení je předpokládáno v průběhu roku 2019.
+V testování je verze 7, ve které došlo k významnému vývojové mu kroku zejména z pohledu využitého repozitáře. Nové řešení jádra by mělo zajistit rychlejší práci s velkým množstvím objektů. Ostré nasazení je předpokládáno v průběhu roku 2021.
 
 Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer, který však není doporučován, vzhledem k tomu, že nepodporuje standardy.
 
