@@ -1,14 +1,12 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.RepositoryApi;
+import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.java.Pair;
-import cz.kramerius.shared.Dom4jUtils;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.json.JSONArray;
@@ -18,7 +16,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -299,6 +296,23 @@ public class ItemsResource extends AdminApiResource {
     @GET
     @Path("{pid}/streams/{dsid}")
     public Response getDatastream(@PathParam("pid") String pid, @PathParam("dsid") String dsid) {
+        return getDatastreamImpl(pid, dsid);
+    }
+
+    /**
+     * This method is necessary only because Jersey doesn't recognize getDatastream for BIBLIO_MODS when setMODS also exist.
+     * I.e. strange collision between {pid}/streams/{dsid} and {pid}/streams/BIBLIO_MODS
+     *
+     * @param pid
+     * @return
+     */
+    @GET
+    @Path("{pid}/streams/BIBLIO_MODS")
+    public Response getDatastreamMods(@PathParam("pid") String pid) {
+        return getDatastreamImpl(pid, "BIBLIO_MODS");
+    }
+
+    private Response getDatastreamImpl(String pid, String dsId) {
         try {
             checkSupportedObjectPid(pid);
             //authentication
@@ -309,8 +323,8 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getName(), role); //403
             }
 
-            checkObjectAndDatastreamExist(pid, dsid);
-            switch (dsid) {
+            checkObjectAndDatastreamExist(pid, dsId);
+            switch (dsId) {
                 case "BIBLIO_MODS":
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
@@ -420,7 +434,30 @@ public class ItemsResource extends AdminApiResource {
         }
     }
 
+    @PUT
+    @Path("{pid}/streams/BIBLIO_MODS")
+    @Consumes(MediaType.APPLICATION_XML)
+    public Response setMODS(@PathParam("pid") String pid, InputStream xml) {
+        try {
+            //authentication
+            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //authorization
+            String role = ROLE_EDIT_OBJECTS;
+            if (!user.getRoles().contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getName(), role); //403
+            }
+            //check target object
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            Document mods = Utils.inputstreamToDocument(xml, true);
+            krameriusRepositoryApi.updateMods(pid, mods);
+            return Response.ok().build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
 
-    //TODO: operace pro nastavení/změnu url pro IMG_THUMB
-    //výhledově možná kromě url taky nahrát obrázek samotný
 }
