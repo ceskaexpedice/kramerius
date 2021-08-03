@@ -69,20 +69,19 @@ public class TitlesExtractor {
     }
 
     public Title extractTitleFromTitleInfos(Element modsEl) {
-        List<Node> titleInfoTypeUniformEls = Dom4jUtils.buildXpath("mods/titleInfo[@type='uniform']").selectNodes(modsEl);
         List<Node> titleInfoNoTypeEls = Dom4jUtils.buildXpath("mods/titleInfo[not(@type)]").selectNodes(modsEl);
+        List<Node> titleInfoTypeUniformEls = Dom4jUtils.buildXpath("mods/titleInfo[@type='uniform']").selectNodes(modsEl);
         List<Node> titleInfoAllEls = Dom4jUtils.buildXpath("mods/titleInfo").selectNodes(modsEl);
-
-        if (!titleInfoTypeUniformEls.isEmpty()) {
-            Title fromTypeUniform = extractTitleFromTitleInfo(titleInfoTypeUniformEls.get(0));
-            if (fromTypeUniform != null && !fromTypeUniform.toString().isEmpty()) {
-                return fromTypeUniform;
-            }
-        }
         if (!titleInfoNoTypeEls.isEmpty()) {
             Title noTypeEls = extractTitleFromTitleInfo(titleInfoNoTypeEls.get(0));
             if (noTypeEls != null && !noTypeEls.toString().isEmpty()) {
                 return noTypeEls;
+            }
+        }
+        if (!titleInfoTypeUniformEls.isEmpty()) {
+            Title fromTypeUniform = extractTitleFromTitleInfo(titleInfoTypeUniformEls.get(0));
+            if (fromTypeUniform != null && !fromTypeUniform.toString().isEmpty()) {
+                return fromTypeUniform;
             }
         }
         if (!titleInfoAllEls.isEmpty()) {

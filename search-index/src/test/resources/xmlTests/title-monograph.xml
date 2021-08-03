@@ -621,21 +621,21 @@
         </out>
     </test>
 
-    <test name="title_search: @type=uniform has priority over not(@type)">
+    <test name="title_search: not(@type) has priority over @type=uniform">
         <desc></desc>
         <in>
-            <titleInfo>
-                <title>NoType</title>
-            </titleInfo>
             <titleInfo type="uniform">
                 <title>Uniform</title>
             </titleInfo>
+            <titleInfo>
+                <title>NoType</title>
+            </titleInfo>
         </in>
         <out>
-            <field name="title.search">Uniform</field>
-            <field name="title.sort">UNIFORM</field>
-            <field name="titles.search">NoType</field>
+            <field name="title.search">NoType</field>
+            <field name="title.sort">NOTYPE</field>
             <field name="titles.search">Uniform</field>
+            <field name="titles.search">NoType</field>
         </out>
     </test>
 

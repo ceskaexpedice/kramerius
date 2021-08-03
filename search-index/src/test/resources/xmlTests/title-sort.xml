@@ -56,12 +56,35 @@
         </out>
     </test>
 
-    <test name="primary title from titleInfo with @type=uniform">
-        <desc>Největší váhu pro detekci primárního názvu má titleInfo type='uniform'</desc>
+    <test name="primary title from titleInfo without @type">
+        <desc>Největší váhu pro detekci primárního názvu má titleInfo bez @type</desc>
         <in>
+            <titleInfo type="alternative">
+                <title>alternative</title>
+            </titleInfo>
+            <titleInfo type="translated">
+                <title>translated</title>
+            </titleInfo>
+            <titleInfo type="uniform">
+                <title>uniform</title>
+            </titleInfo>
             <titleInfo>
                 <title>no type</title>
             </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">no type</field>
+            <field name="title.sort">NO TYPE</field>
+            <field name="titles.search">alternative</field>
+            <field name="titles.search">translated</field>
+            <field name="titles.search">uniform</field>
+            <field name="titles.search">no type</field>
+        </out>
+    </test>
+
+    <test name="primary title from titleInfo with @type=uniform over @type=alternative or @translated">
+        <desc>Větší váhu pro detekci primárního názvu má titleInfo s type='uniform' před @type s jinou hodnotou (alternative, translated, ...)</desc>
+        <in>
             <titleInfo type="alternative">
                 <title>alternative</title>
             </titleInfo>
@@ -75,32 +98,9 @@
         <out>
             <field name="title.search">uniform</field>
             <field name="title.sort">UNIFORM</field>
-            <field name="titles.search">no type</field>
             <field name="titles.search">alternative</field>
             <field name="titles.search">translated</field>
             <field name="titles.search">uniform</field>
-        </out>
-    </test>
-
-    <test name="primary title from titleInfo without @type over @type=alternative or @translated">
-        <desc>Větší váhu pro detekci primárního názvu má titleInfo bez @type před @type s jinou hodnotou, než 'uniform' (alternative, translated, ...)</desc>
-        <in>
-            <titleInfo>
-                <title>no type</title>
-            </titleInfo>
-            <titleInfo type="alternative">
-                <title>alternative</title>
-            </titleInfo>
-            <titleInfo type="translated">
-                <title>translated</title>
-            </titleInfo>
-        </in>
-        <out>
-            <field name="title.search">no type</field>
-            <field name="title.sort">NO TYPE</field>
-            <field name="titles.search">no type</field>
-            <field name="titles.search">alternative</field>
-            <field name="titles.search">translated</field>
         </out>
     </test>
 
