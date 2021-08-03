@@ -48,7 +48,7 @@
         <in>
             <titleInfo>
                 <title>Wanderer im Riesengebirge</title>
-                <nonSort>Der </nonSort>
+                <nonSort xml:space="preserve">Der </nonSort>
             </titleInfo>
         </in>
         <out>

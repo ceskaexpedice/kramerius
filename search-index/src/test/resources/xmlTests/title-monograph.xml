@@ -243,15 +243,11 @@
         </out>
     </test>
 
-
-    <!--TODO: jeste zjistit, jak je to s timhle:
-    <nonSort xml:space="preserve">A  </nonSort>-->
-
     <test name="title nonsort I">
         <desc></desc>
         <in>
             <titleInfo>
-                <nonSort>The </nonSort>
+                <nonSort xml:space="preserve">The </nonSort>
                 <title>Babička</title>
             </titleInfo>
         </in>
@@ -282,7 +278,7 @@
         <desc></desc>
         <in>
             <titleInfo>
-                <nonSort>Los </nonSort>
+                <nonSort xml:space="preserve">Los </nonSort>
                 <title>Tři mušketýři</title>
                 <partNumber>Díl II</partNumber>
             </titleInfo>
@@ -298,7 +294,7 @@
         <desc></desc>
         <in>
             <titleInfo>
-                <nonSort>NonSort </nonSort>
+                <nonSort xml:space="preserve">NonSort </nonSort>
                 <title>Title</title>
                 <subTitle>Subtitle</subTitle>
                 <partNumber>PartNumber</partNumber>
@@ -318,7 +314,7 @@
         <desc></desc>
         <in>
             <titleInfo>
-                <nonSort>NonSort </nonSort>
+                <nonSort xml:space="preserve">NonSort </nonSort>
                 <title>Title</title>
                 <subTitle>Subtitle</subTitle>
                 <partName>PartName</partName>
@@ -337,7 +333,7 @@
         <desc></desc>
         <in>
             <titleInfo>
-                <nonSort>NonSort </nonSort>
+                <nonSort xml:space="preserve">NonSort </nonSort>
                 <title>Title</title>
                 <subTitle>Subtitle</subTitle>
                 <partNumber>PartNumber</partNumber>
@@ -354,7 +350,7 @@
         <desc></desc>
         <in>
             <titleInfo>
-                <nonSort>NonSort </nonSort>
+                <nonSort xml:space="preserve">NonSort </nonSort>
                 <title>Title</title>
                 <partName>PartName</partName>
             </titleInfo>
@@ -425,6 +421,102 @@
             <field name="title.search">Il sogno di Scipione</field>
             <field name="title.sort">SOGNO DI SCIPIONE</field>
             <field name="titles.search">Il sogno di Scipione</field>
+        </out>
+    </test>
+
+    <test name="title nonsort: new implementation 1: (ending with '[ ')">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:c596f342-c97d-4ca2-84ec-4039976336a9/streams/BIBLIO_MODS</desc>
+        <in>
+            <titleInfo>
+                <nonSort xml:space="preserve">[ </nonSort>
+                <title>Theologiae scholastico-dogmaticae</title>
+                <partName>De Sacramentis in genere</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="part.name">De Sacramentis in genere</field>
+            <field name="title.search">[Theologiae scholastico-dogmaticae. De Sacramentis in genere</field>
+            <field name="title.sort">THEOLOGIAE SH|OLASTICO DOGMATICAE DE SACRAMENTIS IN GENERE</field>
+            <field name="titles.search">[Theologiae scholastico-dogmaticae. De Sacramentis in genere</field>
+        </out>
+    </test>
+
+    <test name="title nonsort: new implementation 2: (ending with '[')">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:cf276e6e-dd63-4fb4-854a-21833aad6e51/streams/BIBLIO_MODS</desc>
+        <in>
+            <titleInfo>
+                <title>Písnička nová historická]
+                </title>
+                <nonSort>[</nonSort>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">[Písnička nová historická]</field>
+            <field name="title.sort">PI|SNIC|KA NOVA| HISTORICKA|</field>
+            <field name="titles.search">[Písnička nová historická]</field>
+        </out>
+    </test>
+
+    <test name="title nonsort: new implementation 3: (ending with '&quot;')">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:5ac9c190-a730-11e7-920d-005056827e51/streams/BIBLIO_MODS</desc>
+        <in>
+            <titleInfo>
+                <nonSort>"</nonSort>
+                <title>Milá Pampeliško" - "Lieber Hugo"</title>
+                <subTitle>die Korrespondenz zwischen Hugo (sowie Bibi) Haas und Friedrich Torberg</subTitle>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">"Milá Pampeliško" - "Lieber Hugo": die Korrespondenz zwischen Hugo (sowie Bibi) Haas und Friedrich Torberg</field>
+            <field name="title.sort">MILA| PAMPELIS|KO LIEBER HUGO DIE KORRESPONDENZ ZWISH|EN HUGO SOWIE BIBI HAAS UND FRIEDRIH| TORBERG</field>
+            <field name="titles.search">"Milá Pampeliško" - "Lieber Hugo": die Korrespondenz zwischen Hugo (sowie Bibi) Haas und Friedrich Torberg</field>
+        </out>
+    </test>
+
+    <test name="title nonsort: new implementation 4: (ending with '&quot; ')">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:5ac9c190-a730-11e7-920d-005056827e51/streams/BIBLIO_MODS</desc>
+        <in>
+            <titleInfo>
+                <nonSort xml:space="preserve">" </nonSort>
+                <title>Milá Pampeliško" - "Lieber Hugo"</title>
+                <subTitle>die Korrespondenz zwischen Hugo (sowie Bibi) Haas und Friedrich Torberg</subTitle>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">"Milá Pampeliško" - "Lieber Hugo": die Korrespondenz zwischen Hugo (sowie Bibi) Haas und Friedrich Torberg</field>
+            <field name="title.sort">MILA| PAMPELIS|KO LIEBER HUGO DIE KORRESPONDENZ ZWISH|EN HUGO SOWIE BIBI HAAS UND FRIEDRIH| TORBERG</field>
+            <field name="titles.search">"Milá Pampeliško" - "Lieber Hugo": die Korrespondenz zwischen Hugo (sowie Bibi) Haas und Friedrich Torberg</field>
+        </out>
+    </test>
+
+    <test name="title nonsort: new implementation 5: (ending with ''')">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:0caf9d40-1e2f-11e5-8cc8-005056827e52/streams/BIBLIO_MODS</desc>
+        <in>
+            <titleInfo>
+                <nonSort>L'</nonSort>
+                <title>assommoir</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">L'assommoir</field>
+            <field name="title.sort">ASSOMMOIR</field>
+            <field name="titles.search">L'assommoir</field>
+        </out>
+    </test>
+
+    <test name="title nonsort: new implementation 5: (ending with '' ')">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:d6862d96-440b-4044-af24-b503831b1bac/streams/BIBLIO_MODS</desc>
+        <in>
+            <titleInfo>
+                <nonSort xml:space="preserve">L' </nonSort>
+                <title>Amante di Tutte</title>
+                <subTitle>Dramma Giocoso per Musica.</subTitle>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">L'Amante di Tutte: Dramma Giocoso per Musica.</field>
+            <field name="title.sort">AMANTE DI TUTTE DRAMMA GIOCOSO PER MUSICA</field>
+            <field name="titles.search">L'Amante di Tutte: Dramma Giocoso per Musica.</field>
         </out>
     </test>
 
