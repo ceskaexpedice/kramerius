@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.security.labels.Label;
 
 /** 
  * Rights management
@@ -55,7 +56,7 @@ public interface RightsManager {
      * @param user User
      * @return Returns result of interpretation
      */
-    public EvaluatingResult resolve(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
+    public RightsReturnObject resolve(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
     
     // interpretuje prava skrz celou cestu.  Od listu az ke korenu.
     /**
@@ -67,7 +68,7 @@ public interface RightsManager {
      * @param user User
      * @return Returns all results for all objects in given path
      */
-    public EvaluatingResult[] resolveAllPath(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
+    public RightsReturnObject[] resolveAllPath(RightCriteriumContext ctx, String pid, ObjectPidsPath path, String action, User user) throws RightCriteriumException;
 
     
     // najde prava pro skupinu
@@ -88,13 +89,23 @@ public interface RightsManager {
      */
     public Right[] findAllRights(String[] pids, String action);
 
+
+    /**
+     * Fill all rights associated with user and criterum names
+     *
+     * @param actionName
+     * @param criteriumNames
+     * @return
+     */
+    public Right[] findAllRightByCriteriumNames(String actionName, String[] criteriumNames, User user);
+
+
     
-    // DAO methods - DAt to jinam !!
-    // najde vsechny parametry 
     /**
      * Find all params
      */
     public RightCriteriumParams[] findAllParams();
+
 
     
     /**
@@ -204,4 +215,6 @@ public interface RightsManager {
      * @return Map that contains associtaion PID -> SecuredAction
      */
     public List<Map<String,String>> findObjectUsingParams(int paramId);
+
+    public List<Map<String,String>>  findObjectUsingLabel(int labelid);
 }

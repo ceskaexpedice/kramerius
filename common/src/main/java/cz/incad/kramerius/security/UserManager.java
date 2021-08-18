@@ -33,24 +33,49 @@ import cz.incad.kramerius.utils.database.SQLFilter;
  */
 public interface UserManager {
 
+    /** Static property for not logged user */
     public static final String NOT_LOGGED_USER="not_logged";
     
-	/**
-	 * Method can validate given username and password. If username or password is invalid method returns <code>null</code> otherwise  it returns user object. 
-	 * <br>
-	 * This method is used by login module
-	 * @param loginName Login name of user
-	 * @param passwd Password of user
-	 * 
-	 * @see User
-	 * @see K4LoginModule
-	 */
+    /**
+     * Method can validate given username and password. If username or password is invalid method returns <code>null</code> otherwise  it returns user object.
+     * <br>
+     * This method is used by login module
+     * @param loginName Login name of user
+     * @param passwd Password of user
+     *
+     * @see User
+     * @see K4LoginModule
+     */
     public User validateUser(String loginName, String passwd);
-    
-    
+
+
+    /**
+     * Reads and returns  users
+     * @param ordering User's ordering
+     * @param typeOfOrdering Type of Ordering ACS or DESC
+     * @param offset paging offset
+     * @param filter Filtering
+     * @return
+     * @see Ordering
+     * @see TypeOfOrdering
+     * @see Offset
+     * @see SQLFilter
+     */
     public List<User> filterUsers(Ordering ordering,TypeOfOrdering typeOfOrdering, Offset offset,SQLFilter filter);
 
-	public List<Role> filterRoles(Ordering ordering,TypeOfOrdering typeOfOrdering, Offset offset, SQLFilter filter);
+    /**
+     * Reads and returns roles
+     * @param ordering User's ordering
+     * @param typeOfOrdering Type of Ordering ACS or DESC
+     * @param offset paging offset
+     * @param filter Filtering
+     * @return
+     * @see Ordering
+     * @see TypeOfOrdering
+     * @see Offset
+     * @see SQLFilter
+     */
+    public List<Role> filterRoles(Ordering ordering,TypeOfOrdering typeOfOrdering, Offset offset, SQLFilter filter);
 
 
     
@@ -278,8 +303,14 @@ public interface UserManager {
      * @throws SQLException SQL error has been occurred
      */
     public void activateUser(User user) throws SQLException;
-    
-    
+
+
+    /**
+     * Validate password
+     * @param userId User id
+     * @param pswd Given password
+     * @return Returns true if the given password has been matched with stored password
+     */
     public boolean validatePassword(int userId, String pswd);
     
     /**

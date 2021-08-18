@@ -20,13 +20,15 @@ import java.io.IOException;
 
 import cz.incad.Kramerius.exts.menu.main.impl.AbstractMainMenuItem;
 import cz.incad.Kramerius.exts.menu.main.impl.pub.PublicMainMenuItem;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUtils;
 
 public class SaveProfile extends AbstractMainMenuItem implements PublicMainMenuItem {
 
     @Override
     public boolean isRenderable() {
-        return true;
+        return (!ShibbolethUtils.isUnderShibbolethSession(this.requestProvider.get()));
     }
+
 
     @Override
     public String getRenderedItem() throws IOException {

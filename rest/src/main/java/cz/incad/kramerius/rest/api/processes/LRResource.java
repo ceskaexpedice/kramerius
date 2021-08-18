@@ -99,22 +99,22 @@ import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
  */
 @Path("/v4.6/processes")
 public class LRResource {
-	
+
     
-	public static TypesMapping TYPES = new TypesMapping(); static {
-		TYPES.map("status", new SQLFilter.IntegerConverter());
+    public static TypesMapping TYPES = new TypesMapping(); static {
+        TYPES.map("status", new SQLFilter.IntegerConverter());
                 TYPES.map("pid", new SQLFilter.IntegerConverter());
-		TYPES.map("batch_status", new SQLFilter.IntegerConverter());
-		TYPES.map("planned", new SQLFilter.DateConvereter());
-		TYPES.map("started", new SQLFilter.DateConvereter());
-		TYPES.map("finished", new SQLFilter.DateConvereter());
-	}
-	
+        TYPES.map("batch_status", new SQLFilter.IntegerConverter());
+        TYPES.map("planned", new SQLFilter.DateConvereter());
+        TYPES.map("started", new SQLFilter.DateConvereter());
+        TYPES.map("finished", new SQLFilter.DateConvereter());
+    }
+
     public static SimpleDateFormat FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS");
 
     
-    private static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
-    private static final String TOKEN_ATTRIBUTE_KEY = "token";
+    public static final String AUTH_TOKEN_HEADER_KEY = "auth-token";
+    public static final String TOKEN_ATTRIBUTE_KEY = "token";
 
     
     private static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LRResource.class.getName());
@@ -531,17 +531,21 @@ public class LRResource {
             @QueryParam("userid")  String filterUserId,
             @QueryParam("userFirstname")  String filterUserFirstname,
             @QueryParam("userSurname")  String filterUserSurname,
+            @QueryParam("planned")  String filterPlanned,
+            @QueryParam("started")  String filterStarted,
+            @QueryParam("finished")  String filterFinished,
+
             @QueryParam("offset") String of,
             @QueryParam("resultSize") String resultSize,
             @QueryParam("ordering") @DefaultValue("ASC")String ordering) {
-    	
-    	
-    	if (ordering != null) {
-        	ordering = ordering.toUpperCase();
-        	if (!ordering.equals("ASC") && !ordering.equals("DESC")) {
-        		ordering = "ASC";
-        	}
-    	}
+
+
+        if (ordering != null) {
+            ordering = ordering.toUpperCase();
+            if (!ordering.equals("ASC") && !ordering.equals("DESC")) {
+                ordering = "ASC";
+            }
+        }
 
         //LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
         String loggedUserKey = findLoggedUserKey();
@@ -560,15 +564,20 @@ public class LRResource {
                     Map<String, String> filterMap = new HashMap<String, String>(); {
                         if (StringUtils.isAnyString(filterUUID)) filterMap.put("uuid", filterUUID);
                         if (StringUtils.isAnyString(filterPid)) filterMap.put("pid", filterPid);
-                        if (StringUtils.isAnyString(filterDef)) filterMap.put("def", filterDef);
-                        if (StringUtils.isAnyString(filterState)) filterMap.put("state", filterState);
-                        if (StringUtils.isAnyString(filterBatchState)) filterMap.put("batchState", filterBatchState);
+                        if (StringUtils.isAnyString(filterDef)) filterMap.put("defid", filterDef);
+                        if (StringUtils.isAnyString(filterState)) filterMap.put("status", ""+States.valueOf(filterState).getVal());
+                        if (StringUtils.isAnyString(filterBatchState)) filterMap.put("batch_status",  ""+BatchStates.valueOf(filterBatchState).getVal());
                         if (StringUtils.isAnyString(filterName)) filterMap.put("name", filterName);
-                        if (StringUtils.isAnyString(filterUserId)) filterMap.put("userid", filterUserId);
-                        if (StringUtils.isAnyString(filterUserFirstname)) filterMap.put("userFirstname", filterUserFirstname);
-                        if (StringUtils.isAnyString(filterUserSurname)) filterMap.put("userSurname", filterUserSurname);
+                        if (StringUtils.isAnyString(filterUserId)) filterMap.put("loginname", filterUserId);
+                        if (StringUtils.isAnyString(filterUserFirstname)) filterMap.put("firstname", filterUserFirstname);
+                        if (StringUtils.isAnyString(filterUserSurname)) filterMap.put("surname", filterUserSurname);
+                        if (StringUtils.isAnyString(filterPlanned)) filterMap.put("planned", filterPlanned);
+                        if (StringUtils.isAnyString(filterStarted)) filterMap.put("started", filterStarted);
+                        if (StringUtils.isAnyString(filterFinished)) filterMap.put("finished", filterFinished);
+
                     };
-                    SQLFilter filter = DbFilterUtils.simpleFilter(filterMap, TYPES);
+                    //SQLFilter filter = DbFilterUtils.simpleFilter(filterMap, TYPES);
+                    SQLFilter filter = DbFilterUtils.simpleOperatorFilter(filterMap, TYPES);
                     List<LRProcess> lrProcesses = this.lrProcessManager.getLongRunningProcessesAsGrouped(lrProcessOrdering(LRProcessOrdering.PLANNED.name()), typeOfOrdering(ordering), offset(of, resultSize), filter);
                     JSONArray retList = new JSONArray();
 
@@ -704,13 +713,13 @@ public class LRResource {
 
 
     boolean permit(IsActionAllowed rightsResolver, User user) {
-        boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) : false;
+        boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() : false;
         return permited;
     }
 
     boolean permit(IsActionAllowed rightsResolver, SecuredActions action, User user) {
-        boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) || 
-                            (action != null && rightsResolver.isActionAllowed(user, action.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH))) : false ;
+        boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() ||
+                            (action != null && rightsResolver.isActionAllowed(user, action.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag())) : false ;
         return permited;
     }
 

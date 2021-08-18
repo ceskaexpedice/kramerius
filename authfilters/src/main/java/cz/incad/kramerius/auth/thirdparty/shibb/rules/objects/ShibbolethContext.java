@@ -7,14 +7,16 @@ import cz.incad.kramerius.security.impl.UserImpl;
 
 public interface ShibbolethContext {
 
-    public void associateFirstName(String firstName);
+    void associateFirstName(String firstName);
     
-    public void associateLastName(String lastName);
-    
-    public void associateRole(String rname);
-    
-    public boolean isRoleAssociated(String rname);
+    void associateLastName(String lastName);
 
-    public HttpServletRequest getHttpServletRequest();
+    void associateSessionAttribute(String key, String value);
+
+    void associateRole(String rname);
+    
+    boolean isRoleAssociated(String rname);
+
+    HttpServletRequest getHttpServletRequest();
     
 }

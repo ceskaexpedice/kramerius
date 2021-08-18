@@ -25,7 +25,7 @@ dialogscripts(ctx)  ::=<<
                     var password = \$('#password').val().escapeChars(charsThatMustBeEscaped);
                     var restartUUID = "$ctx.lrProcess.uUID$".escapeChars(charsThatMustBeEscaped);;
                     
-                    var url = "lr?action=form_post&def=k4_replication&paramsMapping={url="+handle+";username="+user+";pswd="+password+";previousProcess="+restartUUID+"}&out=text";
+                    var url = "lr?action=form_post&def=k4_replication&paramsMapping="+encodeURI("{")+"url="+encodeURIComponent(handle)+";username="+encodeURIComponent(user)+";pswd="+encodeURI(password)+";previousProcess="+restartUUID+encodeURI("}")+"&out=text";
                     
                     processStarter("k4_replication").start(url, function() {
                           window.close();

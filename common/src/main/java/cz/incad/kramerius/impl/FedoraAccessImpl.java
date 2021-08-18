@@ -19,7 +19,7 @@ package cz.incad.kramerius.impl;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.*;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
@@ -65,10 +65,10 @@ public class FedoraAccessImpl implements FedoraAccess {
     private StringTemplateGroup xpaths;
     private XPathFactory xPathFactory;
     
-    private StatisticsAccessLog accessLog;
-    
+    private AggregatedAccessLogs accessLog;
+
     @Inject
-    public FedoraAccessImpl(KConfiguration configuration,  @Nullable StatisticsAccessLog accessLog) throws IOException {
+    public FedoraAccessImpl(KConfiguration configuration,  @Nullable AggregatedAccessLogs accessLog) throws IOException {
         super();
         this.configuration = configuration;
         this.xPathFactory = XPathFactory.newInstance();
@@ -449,13 +449,8 @@ public class FedoraAccessImpl implements FedoraAccess {
     public InputStream getImageFULL(String pid) throws IOException {
         try {
             pid = makeSureObjectPid(pid);
-            if (this.accessLog != null && this.accessLog.isReportingAccess(pid,IMG_FULL_STREAM)) {
-                try {	
-                        this.accessLog.reportAccess(pid,IMG_FULL_STREAM);
-                } catch (Exception e) {
-                        LOGGER.severe("cannot write statistic records");
-                        LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
+            if (this.accessLog != null && this.accessLog.isReportingAccess(pid, IMG_FULL_STREAM)) {
+                reportAccess(pid, IMG_FULL_STREAM);
             }
 
             HttpURLConnection con = referencedDataStream(pid, IMG_FULL_STREAM);
@@ -534,25 +529,17 @@ public class FedoraAccessImpl implements FedoraAccess {
         }
     }
 
-    
-    
     @Override
     public boolean isObjectAvailable(String pid) throws IOException {
         try {
-            Document parseDocument = XMLUtils.parseDocument(getFedoraDataStreamsList(makeSureObjectPid(pid)), true);
+            XMLUtils.parseDocument(getFedoraDataStreamsList(makeSureObjectPid(pid)), true);
             return true;
-        } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e);
-        } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e);
-        } catch (LexerException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (ParserConfigurationException | SAXException | LexerException e) {
+            LOGGER.log(Level.WARNING, "Cannot parse XML document of " + pid, e);
             throw new IOException(e);
         } catch (FileNotFoundException e) {
             return false;
-        } 
+        }
     }
 
     @Override
@@ -758,7 +745,6 @@ public class FedoraAccessImpl implements FedoraAccess {
     private FedoraAPIM APIMport;
     private FedoraAPIA APIAport;
     private ObjectFactory of;
-
     @Override
     public FedoraAPIA getAPIA() {
         if (APIAport == null) {
@@ -821,7 +807,7 @@ public class FedoraAccessImpl implements FedoraAccess {
 //        if (treePredicates == null) {
 //            treePredicates = new ArrayList<String>();
 //            String prefix = KConfiguration.getInstance().getProperty("fedora.predicatesPrefix");
-//            
+//
 //            String[] preds = KConfiguration.getInstance().getPropertyList("fedora.treePredicates");
 //            for (String s : preds) {
 //                LOGGER.log(Level.INFO, prefix+s);
@@ -833,7 +819,6 @@ public class FedoraAccessImpl implements FedoraAccess {
     private List<String> getTreePredicates() {
         return Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.treePredicates"));
     }
-
     @Override
     public void processSubtree(String pid, TreeNodeProcessor processor) throws ProcessSubtreeException, IOException {
         try {
@@ -868,7 +853,7 @@ public class FedoraAccessImpl implements FedoraAccess {
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         XPathExpression expr = xpath.compile("/rdf:RDF/rdf:Description/*");
         NodeList nodes = (NodeList) expr.evaluate(relsExt, XPathConstants.NODESET);
-        
+
         if(pidStack.contains(pid)){
             LOGGER.log(Level.WARNING, "Cyclic reference on "+pid);
             return breakProcessing;
@@ -970,28 +955,21 @@ public class FedoraAccessImpl implements FedoraAccess {
             throw new IOException(e);
         }
     }
-    
-    
-    
+
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
             pid = makeSureObjectPid(pid);
-            if (this.accessLog != null && this.accessLog.isReportingAccess(pid,datastreamName)) {
-                try {
-                        this.accessLog.reportAccess(pid,datastreamName);
-                } catch (Exception e) {
-                    LOGGER.severe("cannot write statistic records");
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
+            if (this.accessLog != null && this.accessLog.isReportingAccess(pid, datastreamName)) {
+                reportAccess(pid, datastreamName);
             }
-            
+
             HttpURLConnection con = referencedDataStream(pid, datastreamName);
             if (con == null) {
                 String streamLocation =  configuration.getFedoraHost() + "/get/" + pid + "/" + datastreamName;
                 con = (HttpURLConnection) openConnection(streamLocation, configuration.getFedoraUser(), configuration.getFedoraPass());
             }
-            
+
             con.connect();
             if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 InputStream thumbInputStream = con.getInputStream();
@@ -1021,7 +999,7 @@ public class FedoraAccessImpl implements FedoraAccess {
                     URLConnection directConnection = openConnection(dsLocation.getTextContent().trim(), "", "");
                     if (directConnection instanceof HttpURLConnection) {
                         con = (HttpURLConnection) directConnection;
-                    } 
+                    }
                 }
             }
         }
@@ -1194,5 +1172,11 @@ public class FedoraAccessImpl implements FedoraAccess {
         return (oneNode != null && oneNode.getNodeType() == Node.TEXT_NODE) ? ((Text) oneNode).getData() : "";
     }
 
-
+    private void reportAccess(String pid, String streamName) {
+        try {
+            this.accessLog.reportAccess(pid, streamName);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid + ", stream name: " + streamName, e);
+        }
+    }
 }

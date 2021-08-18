@@ -35,13 +35,12 @@ public class FedoraOperations {
     String foxmlFormat;
     FedoraAccess fa;
     IResourceIndex rindex;
-    UTFSort utf_sort;
+    UTFSort utfSort;
 
     public FedoraOperations() throws Exception {
         fa = new FedoraAccessImpl(KConfiguration.getInstance(),null);
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
-        utf_sort = new UTFSort();
-        utf_sort.init();
+        utfSort = new UTFSort();
     }
 
     public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {
@@ -227,9 +226,8 @@ public class FedoraOperations {
         }
     }
 
-    public String prepareCzech(String s) throws Exception {
-        //return removeDiacritic(s).toLowerCase().replace("ch", "hz");
-        return utf_sort.translate(s);
+    public String prepareCzech(String s) {
+        return utfSort.translate(s);
     }
 
     public String getDatastreamText(String pid, String dsId, String pageNum) throws Exception {

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -132,7 +133,11 @@ public class PidsReport implements StatisticReport {
                 updateTemplate
                     .executeUpdate(sql);
             }
-            conn.close();
+            // if table exists; we have to close connection manually
+            if (!conn.isClosed()) {
+                conn.close();
+            }
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
@@ -184,11 +189,17 @@ public class PidsReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql, params.toArray());
-            conn.close();
+            //conn.close();
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException ex) {
             Logger.getLogger(PidsReport.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override
+    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+        return true;
     }
 }

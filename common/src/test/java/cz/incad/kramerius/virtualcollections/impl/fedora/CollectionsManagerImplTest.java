@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.w3c.dom.Document;
@@ -31,7 +32,7 @@ import junit.framework.TestCase;
 public class CollectionsManagerImplTest extends TestCase {
 
     public void testVirtualCollections() throws ClassNotFoundException, InstantiationException, IllegalAccessException, Exception {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), acLog)
@@ -134,7 +135,7 @@ public class CollectionsManagerImplTest extends TestCase {
     
     
     public void testVirtualCollectionsWithLongTexts() throws ClassNotFoundException, InstantiationException, IllegalAccessException, Exception {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         FedoraAccessImpl fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(), acLog)

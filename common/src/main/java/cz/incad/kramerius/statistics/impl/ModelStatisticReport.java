@@ -22,9 +22,7 @@ package cz.incad.kramerius.statistics.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +30,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -52,7 +51,6 @@ import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.Offset;
-import javax.swing.JOptionPane;
 
 /**
  * @author pavels
@@ -113,7 +111,7 @@ public class ModelStatisticReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql, params.toArray());
-            conn.close();
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
             return models;
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -138,9 +136,9 @@ public class ModelStatisticReport implements StatisticReport {
             }
         }.executeQuery(sql);
         try {
-            conn.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(ModelStatisticReport.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return returns;
     }
@@ -180,7 +178,11 @@ public class ModelStatisticReport implements StatisticReport {
                 updateTemplate
                     .executeUpdate(sql);
             }
-            conn.close();
+            // if viewExists; we have to close connection manually
+            if (!conn.isClosed()) {
+                conn.close();
+            }
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
@@ -238,7 +240,7 @@ public class ModelStatisticReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql,params.toArray());
-            conn.close();
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
@@ -247,6 +249,9 @@ public class ModelStatisticReport implements StatisticReport {
         }
     }
 
-    
-
+    @Override
+    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+        ModelFilter modelFilter = container.getFilter(ModelFilter.class);
+        return modelFilter.getModel() != null;
+    }
 }

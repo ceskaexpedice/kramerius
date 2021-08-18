@@ -10,11 +10,11 @@ contextScript(defaultValue) ::=<<
             var vals = 'userValue='+\$('#userValue').val()
                         +';mode='+\$('input[name=mode]:checked').val()
                         +';pids='+reduce(function(base, item, status) {
-                             base = base+item.pid.replaceAll(":","\\\\:")+ (status.last ? "": ",");
+                             base = base+encodeURI(item.pid.replaceAll(":","\\\\:"))+ (status.last ? "": ",");
                             return base;
             }, "",pidstructs());;
 
-            var url = "lr?action=form_post&def=parametrizedapplymw&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=parametrizedapplymw&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("parametrizedapplymw").start(url);
         }
     -->        
@@ -27,7 +27,7 @@ iterateRepoScript(defaultValue) ::=<<
         window.onProcessFormSend = function() {
             var vals = 'userValue='+\$('#userValue').val()
                        + ';mode='+\$('input[name=mode]:checked').val();
-            var url = "lr?action=form_post&def=parametrized_iterated_appliedmw&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=parametrized_iterated_appliedmw&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("parametrized_iterated_appliedmw").start(url);
         }
     -->        

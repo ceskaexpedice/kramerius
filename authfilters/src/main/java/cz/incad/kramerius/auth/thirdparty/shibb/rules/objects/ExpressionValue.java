@@ -40,9 +40,16 @@ public class ExpressionValue implements Value {
 
     @Override
     public boolean match(Value val, HttpServletRequest request) {
-        return val.getValue(request).matches(this.exp);
+        String value = val.getValue(request);
+        if (value != null)  return val.getValue(request).matches(this.exp);
+        else return false;
     }
- 
-    
-    
+
+
+    @Override
+    public String toString() {
+        return "regexp(" +
+                "exp='" + exp + '\'' +
+                ')';
+    }
 }

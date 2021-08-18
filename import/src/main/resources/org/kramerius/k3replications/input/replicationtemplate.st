@@ -93,7 +93,7 @@ form(migrationDirectory,targetDirectory,importRootDirectory,visibility,otherSett
                 +';ingestSkip='+ingestSkip;
     
                 
-            var url = "lr?action=form_post&def=k3_replication&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=k3_replication&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("k3_replication").start(url);
         }
 

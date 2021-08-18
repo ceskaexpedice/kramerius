@@ -30,106 +30,106 @@ import cz.incad.kramerius.security.User;
  * @author pavels
  */
 public interface LRProcess {
-	
-	/**
-	 * Parameters to process
-	 * @return parameters
-	 */
-	public List<String> getParameters();
 
-	/**
-	 * Runtime parameters of this process
-	 * @param params new params
-	 */
-	public void setParameters(List<String> params);
-	
-	
-	/**
-	 * Return unique identifier of LRPprocess
-	 * @return UUID of process
-	 */
-	public String getUUID();
-	
-	/**
-	 * Return process pid
-	 * @return System PID of process
-	 */
-	public String getPid();
+    /**
+     * Parameters to process
+     * @return parameters
+     */
+    public List<String> getParameters();
 
-	/**
-	 * Method for setting proceses's pid
-	 * @param pid new system PID
-	 */
-	public void setPid(String pid);
-	
-	/**
-	 * Process definintion id
-	 * @see LRProcessDefinition#getId()
-	 * @return returns definition identification
-	 */
-	public String getDefinitionId();
+    /**
+     * Runtime parameters of this process
+     * @param params new params
+     */
+    public void setParameters(List<String> params);
 
-	//TODO: Vyhodit
-	/**
-	 * Returns process description
-	 */
-	@Deprecated
-	public String getDescription();
 
-	/**
-	 * Plan process to start
-	 * @param paramsMapping Parameters mapping
-	 */
-	public void planMe(Properties paramsMapping, String ipAddress);
+    /**
+     * Return unique identifier of LRPprocess
+     * @return UUID of process
+     */
+    public String getUUID();
 
-	
-	
-	/**
-	 * This method starts underlaying os process and change state from PLANNED to RUNNING;<br>
-	 * @see States#PLANNED 
+    /**
+     * Return process pid
+     * @return System PID of process
+     */
+    public String getPid();
+
+    /**
+     * Method for setting proceses's pid
+     * @param pid new system PID
+     */
+    public void setPid(String pid);
+
+    /**
+     * Process definintion id
+     * @see LRProcessDefinition#getId()
+     * @return returns definition identification
+     */
+    public String getDefinitionId();
+
+    //TODO: Vyhodit
+    /**
+     * Returns process description
+     */
+    @Deprecated
+    public String getDescription();
+
+    /**
+     * Plan process to start
+     * @param paramsMapping Parameters mapping
+     */
+    public void planMe(Properties paramsMapping, String ipAddress);
+
+
+
+    /**
+     * This method starts underlaying os process and change state from PLANNED to RUNNING;<br>
+     * @see States#PLANNED
      * @see States#RUNNING
-	 * @param wait Wait until process stopped
-	 * @param additionalJarFiles Aditional classpath
-	 */
-	public void startMe(boolean wait, String krameriusAppLib, String... additionalJarFiles);
-	
-	/**
-	 * Stops underlaying os process
-	 */
-	public void stopMe();
-	
-	/**
-	 * Returns timestamp start of process
-	 * @return returns start timestamp
-	 */
-	public long getStartTime();
-	
-	
-	/**
-	 * Set time of the start of the process 
-	 * @param start new start timestamp
-	 */
-	public void setStartTime(long start);
-	
-	/**
-	 * Return planned timestamp
-	 * @return planned timestamp
-	 */
-	public long getPlannedTime();
-	
-	/**
-	 * Sets planned timestamp
-	 * @param ptime planned timestamp
-	 */
-	public void setPlannedTime(long ptime);
+     * @param wait Wait until process stopped
+     * @param additionalJarFiles Aditional classpath
+     */
+    public void startMe(boolean wait, String krameriusAppLib, String... additionalJarFiles);
 
-	/**
+    /**
+     * Stops underlaying os process
+     */
+    public void stopMe();
+
+    /**
+     * Returns timestamp start of process
+     * @return returns start timestamp
+     */
+    public long getStartTime();
+
+
+    /**
+     * Set time of the start of the process
+     * @param start new start timestamp
+     */
+    public void setStartTime(long start);
+
+    /**
+     * Return planned timestamp
+     * @return planned timestamp
+     */
+    public long getPlannedTime();
+
+    /**
+     * Sets planned timestamp
+     * @param ptime planned timestamp
+     */
+    public void setPlannedTime(long ptime);
+
+    /**
      * Returns finished timestamp
      * @return finished timestamp
      */
     public long getFinishedTime();
 
-	
+
     /**
      * Sets finished timestamp
      * @param new  finished timestamp
@@ -137,28 +137,28 @@ public interface LRProcess {
     public void setFinishedTime(long finishedtime);
     
     
-	//TODO: Vyhodit
+    //TODO: Vyhodit
     /**
      * Returns true if underlaying process can be stopped
      */
     @Deprecated
-	public boolean canBeStopped();
-	
-	/**
-	 * Returns current processes state
-	 * @return current process state
-	 * @see States
-	 */
-	public States getProcessState();
-	
-	
-	/**
-	 * Setting process's state
-	 * @param st new process state
-	 */
-	public void setProcessState(States st);
+    public boolean canBeStopped();
 
-	/**
+    /**
+     * Returns current processes state
+     * @return current process state
+     * @see States
+     */
+    public States getProcessState();
+
+
+    /**
+     * Setting process's state
+     * @param st new process state
+     */
+    public void setProcessState(States st);
+
+    /**
      * Returns current batch state
      * @return batch state
      */
@@ -171,72 +171,72 @@ public interface LRProcess {
     public void setBatchState(BatchStates st);
     
     
-	/**
-	 * Returns true, if the process is alive
-	 * @return true if process is alive
-	 */
-	public boolean isLiveProcess();
+    /**
+     * Returns true, if the process is alive
+     * @return true if process is alive
+     */
+    public boolean isLiveProcess();
 
-	/**
-	 * Returns process name
-	 * @return name of process
-	 */
-	public String getProcessName();
-	
-	/**
-	 * Sets process name
-	 * @param nm new process name
-	 */
-	public void setProcessName(String nm);
-	
-	/**
-	 * Returns stdout as stream
-	 * @return Standard output stream
-	 * @throws FileNotFoundException OutputStream file doesn't exist
-	 */
-	public InputStream getStandardProcessOutputStream() throws FileNotFoundException;
+    /**
+     * Returns process name
+     * @return name of process
+     */
+    public String getProcessName();
 
-	/**
-	 * Returns errout as stream
-	 * @return err output stream
-	 * @throws FileNotFoundException ErrStream file doesn't exist
-	 */
-	public InputStream getErrorProcessOutputStream() throws FileNotFoundException;
-	
-	/**
-	 * Retunrs stdout as RandomAccessFile
-	 * @return stdout RandomAccessFile
-	 * @throws FileNotFoundException Stdout file doens't exist
-	 */
-	public RandomAccessFile getStandardProcessRAFile() throws FileNotFoundException;
-	
-	/**
-	 * Returns errout as RandomAccessFile
-	 * @return Err file as RandomAccessFile
-	 * @throws FileNotFoundException Err file doesn't exist
-	 */
-	public RandomAccessFile getErrorProcessRAFile() throws FileNotFoundException;
-	
-	
-	/**
-	 * Returns process working directory (property 'user.dir')
-	 * @return process working directory
-	 */
-	public File processWorkingDirectory();
-	
+    /**
+     * Sets process name
+     * @param nm new process name
+     */
+    public void setProcessName(String nm);
 
-	/**
-	 * Returns user associated with process
-	 * @return associated user
-	 */
-	@Deprecated
+    /**
+     * Returns stdout as stream
+     * @return Standard output stream
+     * @throws FileNotFoundException OutputStream file doesn't exist
+     */
+    public InputStream getStandardProcessOutputStream() throws FileNotFoundException;
+
+    /**
+     * Returns errout as stream
+     * @return err output stream
+     * @throws FileNotFoundException ErrStream file doesn't exist
+     */
+    public InputStream getErrorProcessOutputStream() throws FileNotFoundException;
+
+    /**
+     * Retunrs stdout as RandomAccessFile
+     * @return stdout RandomAccessFile
+     * @throws FileNotFoundException Stdout file doens't exist
+     */
+    public RandomAccessFile getStandardProcessRAFile() throws FileNotFoundException;
+
+    /**
+     * Returns errout as RandomAccessFile
+     * @return Err file as RandomAccessFile
+     * @throws FileNotFoundException Err file doesn't exist
+     */
+    public RandomAccessFile getErrorProcessRAFile() throws FileNotFoundException;
+
+
+    /**
+     * Returns process working directory (property 'user.dir')
+     * @return process working directory
+     */
+    public File processWorkingDirectory();
+
+
+    /**
+     * Returns user associated with process
+     * @return associated user
+     */
+    @Deprecated
     public User getUser();
     
     /**
      * Associate user with this process
      * @param user new user
      */
-	@Deprecated
+    @Deprecated
     public void setUser(User user);
     
     /**

@@ -20,14 +20,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -101,12 +94,16 @@ public class RightWrapper implements Right{
     }
     
 
-    public EvaluatingResult evaluate(RightCriteriumContext ctx) throws RightCriteriumException {
+    public EvaluatingResultState evaluate(RightCriteriumContext ctx, RightsManager rightsManager) throws RightCriteriumException {
         throw new IllegalStateException();
     }
-    
-    
-    
+
+
+    @Override
+    public EvaluatingResultState mockEvaluate(RightCriteriumContext ctx, RightsManager rightsManager, DataMockExpectation dataExpectation) throws RightCriteriumException {
+        return right.mockEvaluate(ctx, rightsManager, dataExpectation);
+    }
+
     public boolean isEditable() {
         return editable;
     }

@@ -284,29 +284,17 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         return template.toString();
     }
 
-    // protected String getPathForInternalStream(String uuid) throws
-    // SQLException, IOException {
-    // return FedoraDatabaseUtils.getRelativeDataStreamPathAsString(uuid,
-    // this.fedora3Provider);
-    // }
 
-    // public String getThumbnailIIPUrl(String uuid) throws SQLException,
-    // UnsupportedEncodingException, IOException, XPathExpressionException {
-    // String dataStreamPath = getPathForFullImageStream(uuid);
-    // StringTemplate fUrl = stGroup().getInstanceOf("fullthumb");
-    // setStringTemplateModel(uuid, dataStreamPath, fUrl, fedoraAccess);
-    // fUrl.setAttribute("height",
-    // "hei="+KConfiguration.getInstance().getConfiguration().getInt("scaledHeight",
-    // FedoraUtils.THUMBNAIL_HEIGHT));
-    // return fUrl.toString();
-    // }
-
-    public static StringTemplateGroup stGroup() {
+    static StringTemplateGroup IIP_FORWARD = null;
+    static {
         InputStream is = AbstractImageServlet.class
                 .getResourceAsStream("imaging/iipforward.stg");
-        StringTemplateGroup grp = new StringTemplateGroup(
+        IIP_FORWARD = new StringTemplateGroup(
                 new InputStreamReader(is), DefaultTemplateLexer.class);
-        return grp;
+    }
+
+    public static StringTemplateGroup stGroup() {
+        return IIP_FORWARD;
     }
 
     public static void setStringTemplateModel(String uuid,

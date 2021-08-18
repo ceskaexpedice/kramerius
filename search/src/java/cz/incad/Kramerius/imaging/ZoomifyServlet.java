@@ -27,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.sql.SQLException;
@@ -40,6 +39,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.google.inject.name.Named;
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -83,7 +85,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
     DeepZoomTileSupport tileSupport;
 
     @Inject
-    StatisticsAccessLog accessLog;
+    AggregatedAccessLogs aggregatedAccessLogs;
 
     @Inject
     IsActionAllowed actionAllowed;
@@ -123,7 +125,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
                 ObjectPidsPath[] paths = solrAccess.getPath(pid);
                 boolean premited = false;
                 for (ObjectPidsPath pth : paths) {
-                    premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
+                    premited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth).flag();
                     if (premited) break;
                 }
                 
@@ -160,14 +162,9 @@ public class ZoomifyServlet extends AbstractImageServlet {
     }
 
     private void renderXMLDescriptor(String pid, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
-	    try {
-	    	this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
-        } catch (Exception e) {
-			LOGGER.severe("cannot write statistic records");
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-		}
-    	
-    	setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
+        reportAccess(pid);
+
+        setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         mostDesirable.saveAccess(pid, new java.util.Date());
 
@@ -252,11 +249,11 @@ public class ZoomifyServlet extends AbstractImageServlet {
 
     
     private void renderIIPrenderXMLDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
-    	String urlForStream = getURLForStream(uuid, url);
-    	if (useFromReplicated()) {
-    		Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
-    		urlForStream = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
-    	}
+        String urlForStream = getURLForStream(uuid, url);
+        if (useFromReplicated()) {
+            Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+            urlForStream = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
+        }
         if (urlForStream != null) {
             StringTemplate dziUrl = stGroup().getInstanceOf("zoomify");
             if (urlForStream.endsWith("/")) urlForStream = urlForStream.substring(0, urlForStream.length()-1);
@@ -265,10 +262,10 @@ public class ZoomifyServlet extends AbstractImageServlet {
         }
     }
 
-	private boolean useFromReplicated() {
-		boolean useFromReplicated = KConfiguration.getInstance().getConfiguration().getBoolean("zoom.useFromReplicated",false);
-		return useFromReplicated;
-	}
+    private boolean useFromReplicated() {
+        boolean useFromReplicated = KConfiguration.getInstance().getConfiguration().getBoolean("zoom.useFromReplicated",false);
+        return useFromReplicated;
+    }
     
     private void renderTile(String pid, String slevel, String x, String y, String ext, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
@@ -352,8 +349,8 @@ public class ZoomifyServlet extends AbstractImageServlet {
     private void renderIIPTile(String uuid, String slevel, String x,String y, String ext, HttpServletResponse resp, String url) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
         String dataStreamUrl = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-    		Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
-    		dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
+            Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+            dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
         }
         if (dataStreamUrl != null) {
             StringTemplate tileUrl = stGroup().getInstanceOf("zoomifytile");
@@ -365,6 +362,14 @@ public class ZoomifyServlet extends AbstractImageServlet {
             tileUrl.setAttribute("y", y);
             tileUrl.setAttribute("ext", ext);
             copyFromImageServer(tileUrl.toString(), resp);
+        }
+    }
+
+    private void reportAccess(String pid) {
+        try {
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
         }
     }
 }

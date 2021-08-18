@@ -16,6 +16,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.impl.DocumentServiceImpl;
+import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.pdf.GeneratePDFService;
@@ -28,6 +29,7 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class PDFModule extends AbstractModule {
@@ -38,7 +40,16 @@ public class PDFModule extends AbstractModule {
                 .in(Scopes.SINGLETON);
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class)
                 .in(Scopes.SINGLETON);
-        bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
+
+        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+
+
+        bind(AggregatedAccessLogs.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+
+
+
+
         bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
         bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class).in(Scopes.SINGLETON);
         bind(DocumentService.class).to(DocumentServiceImpl.class);
@@ -55,7 +66,7 @@ public class PDFModule extends AbstractModule {
         return new File(dirName);
     }
 
-    public static class NoStatistics implements StatisticsAccessLog {
+    public static class NoStatistics extends AggregatedAccessLogs {
 
         @Override
         public void reportAccess(String pid, String streamName) throws IOException {

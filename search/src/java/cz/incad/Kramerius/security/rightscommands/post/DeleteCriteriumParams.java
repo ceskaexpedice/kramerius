@@ -44,16 +44,11 @@ public class DeleteCriteriumParams extends ServletRightsCommand {
             Map values = new HashMap();
             Enumeration parameterNames = req.getParameterNames();
 
-            while (parameterNames.hasMoreElements()) {
-                String key = (String) parameterNames.nextElement();
-                String value = req.getParameter(key);
-                SimpleJSONObjects simpleJSONObjects = new SimpleJSONObjects();
-                simpleJSONObjects.createMap(key, values, value);
-            }
+            Delete.parametersToJson(req, values, parameterNames);
 
             Object paramsToDelete = values.get("deletedparams");
 
-            if (this.actionAllowed.isActionAllowed(SecuredActions.CRITERIA_RIGHTS_MANAGE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))) {
+            if (this.actionAllowed.isActionAllowed(SecuredActions.CRITERIA_RIGHTS_MANAGE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid())).flag()) {
                 rightsManager.deleteRightCriteriumParams(Integer.parseInt(paramsToDelete.toString()));
                 
             } else {

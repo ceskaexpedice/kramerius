@@ -1,5 +1,7 @@
 package org.kramerius.importmets.convertor;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.log4j.Logger;
 import org.kramerius.alto.Alto;
@@ -29,6 +31,7 @@ import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +55,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             throws ServiceException {
         try {
             policyID = config.isDefaultVisibility() ? POLICY_PUBLIC : POLICY_PRIVATE;
-            
+          
             boolean shutTemporaryImageServer = config.isImageServerShut();
             boolean useImageServerConf = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
             if (useImageServerConf && shutTemporaryImageServer) {
@@ -61,7 +64,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             else {
                 useImageServer = useImageServerConf;
             }
-            
+          
             loadModsAndDcMap(mets);
             loadFileMap(mets);
             processStructMap(mets);
@@ -173,7 +176,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                 processPages(sm);
             } else if ("LOGICAL".equalsIgnoreCase(sm.getTYPE())) {
                 singleVolumeMonograph = false;
-                processDiv(null, sm.getDiv());
+                processDiv(null, null, sm.getDiv());
                 // eMonograph has only one structMap without TYPE
             } else if (sm.getTYPE() == null) {
                 processElectronicDiv(null, sm.getDiv());
@@ -188,11 +191,27 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
     }
 
     private Map<String, String> filePageMap = new HashMap<String, String>();
+    private Multimap<String, FileDescriptor> audioFilesMap = ArrayListMultimap.create();
+
+    private void collectAudioFiles(DivType pageDiv){
+        for (Fptr fptr : pageDiv.getFptr()) {
+            FileType fileId = (FileType) fptr.getFILEID();
+            FileDescriptor fileDesc = fileMap.get(fileId.getID());
+            if (fileDesc == null) {
+                throw new ServiceException("Invalid audiofile pointer:" + fileId.getID());
+            }
+            audioFilesMap.put(pageDiv.getID(),fileDesc);
+        }
+    }
 
     private void processPages(StructMapType sm) {
         DivType issueDiv = sm.getDiv();
         for (DivType pageDiv : issueDiv.getDiv()) {
             String type = pageDiv.getTYPE();
+            if (type != null && (type.equalsIgnoreCase("sound")|| type.equalsIgnoreCase("soundpart"))){
+                collectAudioFiles(pageDiv);
+                continue;
+            }
             BigInteger order = pageDiv.getORDER();
             String pageTitle = pageDiv.getORDERLABEL();
 
@@ -305,7 +324,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
 
     private boolean singleVolumeMonograph = false;
 
-    private Foxml processDiv(Foxml parent, DivType div) {
+    private Foxml processDiv(Foxml parent, String parentModel, DivType div) {
         String divType = div.getTYPE();
         if ("PAGE".equalsIgnoreCase(divType)) return null;//divs for PAGES are processed from physical map and structlinks
         MdSecType modsIdObj = (MdSecType) firstItem(div.getDMDID());
@@ -315,13 +334,13 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             List<DivType> volumeDivs = div.getDiv();
             if (volumeDivs == null) return null;
             if (volumeDivs.size() == 1) {//process volume as top level
-                processDiv(null, volumeDivs.get(0));
+                processDiv(null, null,volumeDivs.get(0));
                 return null;
             }
             if (volumeDivs.size() > 1) {//if monograph div contains more subdivs, first is supposed to be the volume, the rest are supplements that will be nested in the volume.
-                Foxml volume = processDiv(null, volumeDivs.get(0));
+                Foxml volume = processDiv(null, null,volumeDivs.get(0));
                 for (int i = 1; i < volumeDivs.size(); i++) {
-                    processDiv(volume, volumeDivs.get(i));
+                    processDiv(volume, null, volumeDivs.get(i));
                 }
             }
             return null;
@@ -369,13 +388,17 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         foxml.setRe(re);
         if (parent != null) {
             String parentRelation = mapParentRelation(model);
-            parent.getRe().addRelation(parentRelation, pid, false);
+            if (RelsExt.CONTAINS_TRACK.equalsIgnoreCase(parentRelation)&& MODEL_SOUND_RECORDING.equalsIgnoreCase(parentModel)){
+                parent.getRe().addRelation(RelsExt.HAS_TRACK, pid, false);
+            } else {
+                parent.getRe().addRelation(parentRelation, pid, false);
+            }
         }
         String divID = div.getID();
         objects.put(divID, foxml);
 
         for (DivType partDiv : div.getDiv()) {
-            processDiv(foxml, partDiv);
+            processDiv(foxml, model, partDiv);
         }
         return foxml;
     }
@@ -453,7 +476,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
 
     private Genre specialGenre = Genre.NONE;
 
-    private String mapModel(String divType, Boolean isElectronic) {
+    private String mapModel(String divType, boolean isElectronic) {
         if ("PERIODICAL_TITLE".equalsIgnoreCase(divType)) {
             return MODEL_PERIODICAL;
         } else if ("PERIODICAL_VOLUME".equalsIgnoreCase(divType)) {
@@ -466,7 +489,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return MODEL_SUPPLEMENT;
         } else if ("PICTURE".equalsIgnoreCase(divType)) {
             return MODEL_PICTURE;
-        } else if ("VOLUME".equalsIgnoreCase(divType) && isElectronic == false) {
+        } else if ("VOLUME".equalsIgnoreCase(divType) && !isElectronic) {
             if (singleVolumeMonograph) {
                 return checkSpecialGenreOrMonograph();
             } else {
@@ -477,14 +500,20 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         } else if ("MONOGRAPH".equalsIgnoreCase(divType)) {
             return checkSpecialGenreOrMonograph();
             //emonography
-        } else if ("TITLE".equalsIgnoreCase(divType) && isElectronic == true) {
+        } else if ("TITLE".equalsIgnoreCase(divType) && isElectronic) {
             return MODEL_MONOGRAPH;
-        } else if ("VOLUME".equalsIgnoreCase(divType) && isElectronic == true) {
+        } else if ("VOLUME".equalsIgnoreCase(divType) && isElectronic) {
             if (singleVolumeEMonograph) {
                 return MODEL_MONOGRAPH;
             } else {
                 return MODEL_MONOGRAPH_UNIT;
             }
+        } else if ("SOUNDCOLLECTION".equalsIgnoreCase(divType)) {
+            return MODEL_SOUND_RECORDING;
+        } else if ("SOUNDRECORDING".equalsIgnoreCase(divType)) {
+            return MODEL_SOUND_UNIT;
+        } else if ("SOUNDPART".equalsIgnoreCase(divType)) {
+            return MODEL_TRACK;
         }
         throw new ServiceException("Unsupported div type in logical structure: " + divType);
     }
@@ -516,6 +545,10 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return RelsExt.HAS_INT_COMP_PART;
         } else if (MODEL_MONOGRAPH_UNIT.equalsIgnoreCase(model)) {
             return RelsExt.HAS_UNIT;
+        } else if (MODEL_SOUND_UNIT.equalsIgnoreCase(model)) {
+            return RelsExt.HAS_SOUND_UNIT;
+        }else if (MODEL_TRACK.equalsIgnoreCase(model)) {
+            return RelsExt.CONTAINS_TRACK;
         }
         throw new ServiceException("Unsupported model mapping in logical structure: " + model);
     }
@@ -594,7 +627,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                 String to = smLink.getTo();
                 if (from == null || to == null) continue;
                 Foxml target = objects.get(to);
-                if (target == null) {
+                if (target == null && !(to.startsWith("DIV_STOPA") || to.startsWith("DIV_AUDIO"))) {
                     log.warn("Invalid structLink from: " + from + " to: " + to);
                     continue;
                 }
@@ -606,6 +639,16 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                 if (from.startsWith("ISSUE") || from.startsWith("VOLUME") || from.startsWith("SUPPLEMENT")) {
                     if (pagesFirst) {
                         part.getRe().insertPage(target.getPid());
+                    } else {
+                        part.getRe().addRelation(RelsExt.HAS_PAGE, target.getPid(), false);
+                    }
+                } else if(from.startsWith("SOUNDCOLLECTION")|| from.startsWith("SOUNDRECORDING") || from.startsWith("SOUNDPART")){
+                    if (to.startsWith("DIV_STOPA") || to.startsWith("DIV_AUDIO")){
+                        Collection<FileDescriptor> fileDescriptors = audioFilesMap.get(to);
+                        for (FileDescriptor fileDescriptor : fileDescriptors) {
+                            part.addFiles(fileDescriptor);
+                        }
+
                     } else {
                         part.getRe().addRelation(RelsExt.HAS_PAGE, target.getPid(), false);
                     }

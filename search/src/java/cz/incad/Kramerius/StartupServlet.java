@@ -94,6 +94,9 @@ public class StartupServlet extends GuiceServlet {
             // statistics tables
             StatisticDatabaseInitializator.initDatabase(connection, versionService);
 
+            // delete session keys
+            LoggedUserDatabaseInitializator.deleteAllSessionKeys(connection);
+
             // stores new db version to doatabase
             versionService.updateNewVersion();
 

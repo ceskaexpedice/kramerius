@@ -16,19 +16,21 @@
  */
 package cz.incad.kramerius.security;
 
-import java.util.Map;
 
+import cz.incad.kramerius.security.impl.criteria.CriteriaPrecoditionException;
+
+import java.io.Serializable;
 
 /**
  * Represents user defined right criterium ( defined in java in this case ). 
  * 
  * Implementation must resolve user request to secured resource and return one of trhee possible 
- * results TRUE, FALSE, NOT_APPLICABLE {@link EvaluatingResult}.  
+ * results TRUE, FALSE, NOT_APPLICABLE {@link EvaluatingResultState}.
  * 
  * @see RightCriteriumLoader
  * @author pavels
  */
-public interface RightCriterium {
+public interface RightCriterium extends Serializable  {
     
     /**
      * Returns unique name of criterium.  
@@ -53,8 +55,16 @@ public interface RightCriterium {
      * @return Result of evaluation
      * @throws RightCriteriumException Something happen during evaluate
      */
-    public EvaluatingResult evalute() throws RightCriteriumException;
-    
+    public EvaluatingResultState evalute() throws RightCriteriumException;
+
+
+    /**
+     * Perfrom evaluation without accessing title
+     * @return
+     * @throws RightCriteriumException
+     * @param dataMockExpectation
+     */
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException;
 
     /**
      * Returns criterium hint. 
@@ -90,8 +100,50 @@ public interface RightCriterium {
      */
     public SecuredActions[] getApplicableActions();
 
-    
+
+    /**
+     * Is label's assignable
+     * @return
+     */
+    public boolean isLabelAssignable();
+
+
+    /**
+     * Validate given params
+     * @param vals User defined parameters which should be validated
+     * @return returns result of validation
+     */
     public boolean validateParams(Object[] vals);
 
+    /**
+     * Validate params encoded in one string (used when the kramerius is about the loaded parametres from the database)
+     * @param encodedVals
+     * @return returns result of the validation
+     */
     public boolean validateParams(String encodedVals);
+
+    /**
+     * Returns true if this criterium could be applied only on the root object
+     * @return
+     */
+    public boolean isRootLevelCriterum();
+
+
+    /**
+     * Check criterium precondition.
+     * This is the point where criterium can check whether certain precondition is applied.
+     * For example:
+     *      DNNT flag must be set with actions READ and PDF_RESOURCE.  The set with only one of them is not allowed.
+     *      In that case the DNNT is responsible for checking this stuff in the implementation of this method
+     *
+     * @param manager
+     * @throws CriteriaPrecoditionException
+     */
+    // mozna zmenit
+    public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException;
+
+    //public boolean isBypassed();
+
+
+
 }

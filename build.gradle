@@ -46,7 +46,7 @@ dependencies {
     // editor dependency
     editors group: "cz.incad.kramerius", name: "editor", version: "5.1.1", ext: "war"
     // rightseditor dependency
-    editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
+    editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.1", ext: "war"
 }
 
 
@@ -57,7 +57,7 @@ repositories {
 
 allprojects {
     group = 'cz.incad.kramerius'
-    version = '5.4.2'
+    version = '5.7.3'
 }
 
 /**
@@ -131,9 +131,6 @@ subprojects {
         mavenCentral()
 
 
-        maven {
-            url "http://download.java.net/maven/2/"
-        }
 
         maven {
             url "http://m2.duraspace.org/content/repositories/releases"
@@ -168,13 +165,19 @@ subprojects {
             url "http://repo.jfrog.org/artifactory/libs-releases/"
         }
 
+        /*
         maven {
             url "https://maven.atlassian.com/content/groups/public"
-        }
+        }*/
 
         maven {
             url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
         }
+
+        /*
+        maven {
+            url "http://download.java.net/maven/2/"
+        }*/
 
     }
 
@@ -227,6 +230,16 @@ task distZip(type: Zip, dependsOn: 'zipInstallDir') {
         it.path = it.path.replace('-5.1.0.war', '.war')
     }
 }
+
+task distZipWOEditors(type: Zip, dependsOn: 'zipInstallDir') {
+    description "Create  distributions zip without editors"
+    baseName "kramerius"
+    group "Distribution"
+    from { 'search/build/libs' }
+    from { 'security-core/build/libs' }
+    from { 'build/installation' }
+}
+
 /**
  * Patch distribution task
  */

@@ -28,17 +28,24 @@ import cz.incad.kramerius.security.Right;
 
 public class SortingRightsUtils {
 
+    // check checkDnnt
     public static Right[] sortRights(Right[] findRights, ObjectPidsPath path) {
 
-        ArrayList<Right> noCriterium = new ArrayList<Right>();
-        ArrayList<Right> negativeFixedPriorty = new ArrayList<Right>();
-        ArrayList<Right> positiveFixedPriority = new ArrayList<Right>();
-        
-        ArrayList<Right> dynamicHintMin = new ArrayList<Right>();
-        ArrayList<Right> dynamicHintNormal = new ArrayList<Right>();
-        ArrayList<Right> dynamicHintMax = new ArrayList<Right>();
-        
-        ArrayList<Right> processing = new ArrayList<Right>(Arrays.asList(findRights));
+        ArrayList<Right> noCriterium = new ArrayList<>();
+        ArrayList<Right> negativeFixedPriorty = new ArrayList<>();
+        ArrayList<Right> positiveFixedPriority = new ArrayList<>();
+
+
+        // dnnt labels must be sortec according labels
+        ArrayList<Right> dnntExclusiveMin = new ArrayList<>();
+        ArrayList<Right> dnntExclusiveMax = new ArrayList<>();
+
+
+        ArrayList<Right> dynamicHintMin = new ArrayList<>();
+        ArrayList<Right> dynamicHintNormal = new ArrayList<>();
+        ArrayList<Right> dynamicHintMax = new ArrayList<>();
+
+        ArrayList<Right> processing = new ArrayList<>(Arrays.asList(findRights));
         // vyzobani pravidel bez kriterii 
         for (Iterator iterator = processing.iterator(); iterator.hasNext();) {
             Right right = (Right) iterator.next();
@@ -62,6 +69,11 @@ public class SortingRightsUtils {
         for (Right right : processing) {
             if (right.getCriteriumWrapper().getRightCriterium() != null) {
                 switch (right.getCriteriumWrapper().getRightCriterium().getPriorityHint()) {
+                    case DNNT_EXCLUSIVE_MIN: {
+                        dnntExclusiveMin.add(right);
+                    }
+                    break;
+
                     case MIN: {
                         dynamicHintMin.add(right);
                     }
@@ -76,6 +88,11 @@ public class SortingRightsUtils {
                         dynamicHintMax.add(right);
                     }
                     break;
+
+                    case DNNT_EXCLUSIVE_MAX: {
+                        dnntExclusiveMax.add(right);
+                    }
+                    break;
                 }
             }
         }
@@ -86,15 +103,35 @@ public class SortingRightsUtils {
         SortingRightsUtils.sortByPID(dynamicHintMax, path);
         SortingRightsUtils.sortByPID(dynamicHintNormal, path);
         SortingRightsUtils.sortByPID(dynamicHintMin, path);
-        
-        ArrayList<Right> result = new ArrayList<Right>();
+
+
+        // sort by label priority
+        SortingRightsUtils.sortByLabelPriority(dnntExclusiveMin);
+        SortingRightsUtils.sortByLabelPriority(dnntExclusiveMax);
+
+
+
+
+        ArrayList<Right> result = new ArrayList<>();
+        // how to exclusive
+        // dnnt exclusive max
+        result.addAll(dnntExclusiveMax);
+
         result.addAll(noCriterium);
         result.addAll(positiveFixedPriority);
+
         result.addAll(dynamicHintMax);
         result.addAll(dynamicHintNormal);
         result.addAll(dynamicHintMin);
+
+
+        // not allowed in case of  DNNT is in place
         result.addAll(negativeFixedPriorty);
-        
+
+        // the last one  - dnnt
+        result.addAll(dnntExclusiveMin);
+
+
         return (Right[]) result.toArray(new Right[result.size()]);
     }
 
@@ -112,7 +149,23 @@ public class SortingRightsUtils {
         });
     }
 
+    public static void sortByLabelPriority(final List<Right> list) {
+
+        Collections.sort(list, new Comparator<Right>() {
+
+            @Override
+            public int compare(Right o1, Right o2) {
+                int o1Priority = o1.getCriteriumWrapper() != null && o1.getCriteriumWrapper().getLabel() != null ? o1.getCriteriumWrapper().getLabel().getPriority() : -1;
+                int o2Priority = o2.getCriteriumWrapper() != null && o2.getCriteriumWrapper().getLabel() != null ? o2.getCriteriumWrapper().getLabel().getPriority() : -1;
+
+                return (o1Priority<o2Priority ? -1 : (o1Priority==o2Priority ? 0 : 1));
+            }
+
+        });
+
+    }
     public static void sortByPID(final List<Right> list, final ObjectPidsPath path) {
+
         Collections.sort(list, new Comparator<Right>() {
             
             List<String> pathStrings = Arrays.asList(path.getPathFromLeafToRoot());

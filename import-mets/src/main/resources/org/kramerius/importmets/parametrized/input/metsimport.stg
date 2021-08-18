@@ -45,7 +45,7 @@ form(convertDirectory,targetDirectory,convertRootDirectory, visibility,otherSett
                 +';ingestSkip='+ ingestSkip
                 +';shutImageServer='+ shutImageServer;
 
-            var url = "lr?action=form_post&def=ndkmets&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=ndkmets&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("ndkmets").start(url);
         }
 

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 //TODO: remove
+@Deprecated
 class VirtualCollection {
     
     protected String label;

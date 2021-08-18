@@ -4,7 +4,6 @@ import java.util.logging.Level;
 
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,7 +22,7 @@ import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 public class RemoteUsersUtils {
 
     public static JSONArray getUser(String userName)
-            throws ConfigurationException, JSONException {
+            throws JSONException {
         Client c = Client.create();
         String url = KConfiguration.getInstance().getConfiguration()
                 .getString("api.point")
@@ -80,7 +79,7 @@ public class RemoteUsersUtils {
         }
     }
 
-    public static String createUser(JSONObject jsonObject) throws Exception {
+    public static String createUser(JSONObject jsonObject) {
         String url = KConfiguration.getInstance().getConfiguration()
                 .getString("api.point") + "/admin/users";
         Client c = Client.create();
@@ -96,7 +95,7 @@ public class RemoteUsersUtils {
         return t;
     }
 
-    public static String deleteUser(String usr) throws Exception {
+    public static String deleteUser(String usr) {
         String url = KConfiguration.getInstance().getConfiguration()
                 .getString("api.point") + "/admin/users/"+usr;
         Client c = Client.create();
@@ -111,19 +110,5 @@ public class RemoteUsersUtils {
         return t;
     }
 
-    public static void main(String[] args) throws JSONException, Exception {
-        String str = "_third_party_googleplus_114387057939312155006";
-        JSONArray user = getUser(str);
-        System.out.println(user);
-        System.out.println(user.length());
-        
-        
-        //        String str = "{\"lname\":\"_tthird_party_googleplus_114387057939312155006\",\"firstname\":\"Pavel\",\"password\":\".dlPGvYJT4iW\",\"surname\":\"Stastny\"}";
-//
-//        String createUser = createUser(new JSONObject(str));
-//        System.out.println(createUser);
-        
-    }
-    
-    
+
 }

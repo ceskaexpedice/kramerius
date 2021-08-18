@@ -3,10 +3,8 @@
     package cz.incad.kramerius.auth.thirdparty.shibb.rules;
     
     import java.util.*;
-    // Generated from ANTLR tool
-
-
-
+    import cz.incad.kramerius.auth.thirdparty.shibb.rules.*;
+    import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.*;
 
 import java.io.InputStream;
 import antlr.TokenStreamException;
@@ -114,13 +112,8 @@ tryAgain:
 					theRetToken=_returnToken;
 					break;
 				}
-				case '\n':  case '\r':
-				{
-					mNEWLINE(true);
-					theRetToken=_returnToken;
-					break;
-				}
-				case '\t':  case ' ':
+				case '\t':  case '\n':  case '\u000c':  case '\r':
+				case ' ':
 				{
 					mWS(true);
 					theRetToken=_returnToken;
@@ -241,8 +234,8 @@ tryAgain:
 		int _saveIndex;
 		
 		{
-		int _cnt27=0;
-		_loop27:
+		int _cnt28=0;
+		_loop28:
 		do {
 			if ((_tokenSet_0.member(LA(1)))) {
 				{
@@ -250,10 +243,10 @@ tryAgain:
 				}
 			}
 			else {
-				if ( _cnt27>=1 ) { break _loop27; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
+				if ( _cnt28>=1 ) { break _loop28; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
 			}
 			
-			_cnt27++;
+			_cnt28++;
 		} while (true);
 		}
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {
@@ -270,7 +263,7 @@ tryAgain:
 		
 		match('"');
 		{
-		_loop31:
+		_loop32:
 		do {
 			if ((_tokenSet_1.member(LA(1)))) {
 				{
@@ -278,7 +271,7 @@ tryAgain:
 				}
 			}
 			else {
-				break _loop31;
+				break _loop32;
 			}
 			
 		} while (true);
@@ -298,7 +291,7 @@ tryAgain:
 		
 		match('/');
 		{
-		_loop35:
+		_loop36:
 		do {
 			if ((_tokenSet_2.member(LA(1)))) {
 				{
@@ -306,7 +299,7 @@ tryAgain:
 				}
 			}
 			else {
-				break _loop35;
+				break _loop36;
 			}
 			
 		} while (true);
@@ -326,7 +319,7 @@ tryAgain:
 		
 		match("//");
 		{
-		_loop39:
+		_loop40:
 		do {
 			if ((_tokenSet_3.member(LA(1)))) {
 				{
@@ -334,7 +327,7 @@ tryAgain:
 				}
 			}
 			else {
-				break _loop39;
+				break _loop40;
 			}
 			
 		} while (true);
@@ -378,7 +371,7 @@ tryAgain:
 		
 		match("/*");
 		{
-		_loop45:
+		_loop46:
 		do {
 			if (((LA(1)=='*'))&&( LA(2)!='/' )) {
 				match('*');
@@ -408,7 +401,7 @@ tryAgain:
 				}
 			}
 			else {
-				break _loop45;
+				break _loop46;
 			}
 			
 		} while (true);
@@ -426,10 +419,10 @@ tryAgain:
 		_ttype = REXP_OR_COMMENT;
 		int _saveIndex;
 		
-		boolean synPredMatched48 = false;
+		boolean synPredMatched49 = false;
 		if (((LA(1)=='/'))) {
-			int _m48 = mark();
-			synPredMatched48 = true;
+			int _m49 = mark();
+			synPredMatched49 = true;
 			inputState.guessing++;
 			try {
 				{
@@ -437,22 +430,22 @@ tryAgain:
 				}
 			}
 			catch (RecognitionException pe) {
-				synPredMatched48 = false;
+				synPredMatched49 = false;
 			}
-			rewind(_m48);
+			rewind(_m49);
 inputState.guessing--;
 		}
-		if ( synPredMatched48 ) {
+		if ( synPredMatched49 ) {
 			mML_COMMENT(false);
 			if ( inputState.guessing==0 ) {
 				_ttype = Token.SKIP;
 			}
 		}
 		else {
-			boolean synPredMatched50 = false;
+			boolean synPredMatched51 = false;
 			if (((LA(1)=='/'))) {
-				int _m50 = mark();
-				synPredMatched50 = true;
+				int _m51 = mark();
+				synPredMatched51 = true;
 				inputState.guessing++;
 				try {
 					{
@@ -460,12 +453,12 @@ inputState.guessing--;
 					}
 				}
 				catch (RecognitionException pe) {
-					synPredMatched50 = false;
+					synPredMatched51 = false;
 				}
-				rewind(_m50);
+				rewind(_m51);
 inputState.guessing--;
 			}
-			if ( synPredMatched50 ) {
+			if ( synPredMatched51 ) {
 				mSL_COMMENT(false);
 				if ( inputState.guessing==0 ) {
 					_ttype = Token.SKIP;newline();
@@ -488,74 +481,60 @@ inputState.guessing--;
 			_returnToken = _token;
 		}
 		
-	public final void mNEWLINE(boolean _createToken) throws RecognitionException, CharStreamException, TokenStreamException {
-		int _ttype; Token _token=null; int _begin=text.length();
-		_ttype = NEWLINE;
-		int _saveIndex;
-		
-		boolean synPredMatched53 = false;
-		if (((LA(1)=='\r'))) {
-			int _m53 = mark();
-			synPredMatched53 = true;
-			inputState.guessing++;
-			try {
-				{
-				match('\r');
-				match('\n');
-				}
-			}
-			catch (RecognitionException pe) {
-				synPredMatched53 = false;
-			}
-			rewind(_m53);
-inputState.guessing--;
-		}
-		if ( synPredMatched53 ) {
-			match('\r');
-			match('\n');
-		}
-		else if ((LA(1)=='\r')) {
-			match('\r');
-		}
-		else if ((LA(1)=='\n')) {
-			match('\n');
-			if ( inputState.guessing==0 ) {
-				newline();  _ttype = Token.SKIP;
-			}
-		}
-		else {
-			throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
-		}
-		
-		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {
-			_token = makeToken(_ttype);
-			_token.setText(new String(text.getBuffer(), _begin, text.length()-_begin));
-		}
-		_returnToken = _token;
-	}
-	
 	public final void mWS(boolean _createToken) throws RecognitionException, CharStreamException, TokenStreamException {
 		int _ttype; Token _token=null; int _begin=text.length();
 		_ttype = WS;
 		int _saveIndex;
 		
 		{
-		switch ( LA(1)) {
-		case ' ':
-		{
-			match(' ');
-			break;
-		}
-		case '\t':
-		{
-			match('\t');
-			break;
-		}
-		default:
-		{
-			throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
-		}
-		}
+		int _cnt55=0;
+		_loop55:
+		do {
+			switch ( LA(1)) {
+			case ' ':
+			{
+				match(' ');
+				break;
+			}
+			case '\t':
+			{
+				match('\t');
+				break;
+			}
+			case '\u000c':
+			{
+				match('\f');
+				break;
+			}
+			case '\n':  case '\r':
+			{
+				{
+				if ((LA(1)=='\r')) {
+					match("\r\n");
+				}
+				else if ((LA(1)=='\r')) {
+					match('\r');
+				}
+				else if ((LA(1)=='\n')) {
+					match('\n');
+				}
+				else {
+					throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
+				}
+				
+				}
+				if ( inputState.guessing==0 ) {
+					newline();
+				}
+				break;
+			}
+			default:
+			{
+				if ( _cnt55>=1 ) { break _loop55; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
+			}
+			}
+			_cnt55++;
+		} while (true);
 		}
 		if ( inputState.guessing==0 ) {
 			_ttype = Token.SKIP;
@@ -570,7 +549,7 @@ inputState.guessing--;
 	
 	private static final long[] mk_tokenSet_0() {
 		long[] data = new long[1024];
-		data[0]=-2306004658897823240L;
+		data[0]=-2306004658897827336L;
 		data[1]=-2882303761517117441L;
 		for (int i = 2; i<=510; i++) { data[i]=-1L; }
 		data[511]=9223372036854775807L;

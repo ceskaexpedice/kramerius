@@ -24,6 +24,7 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GenerateDeepZoomCacheModule extends AbstractModule {
@@ -34,7 +35,10 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
         // necessary to have checked access to fedora.
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(FedoraAccessImpl.class)
                 .in(Scopes.SINGLETON);
-        bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
+
+        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(DeepZoomTileSupport.class).to(TileSupportImpl.class);
 
@@ -45,7 +49,7 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
         bind(DeepZoomFlagService.class).to(DeepZoomFlagServiceImpl.class).in(Scopes.SINGLETON);
     }
 
-    public static class NoStatistics implements StatisticsAccessLog {
+    public static class NoStatistics extends AggregatedAccessLogs {
 
         @Override
         public StatisticReport[] getAllReports() {

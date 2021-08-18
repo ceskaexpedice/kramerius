@@ -260,10 +260,10 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
 	if (this.id) { url += "&id="+this.id; }
 	
 	if (this.actions) {
-		url=url+"&actions={"+reduce(function(base, item, status) {
+		url=url+"&actions="+encodeURI("{")+reduce(function(base, item, status) {
 	    	base = base+item+ (status.last ? "": ";");
 	        return base;
-	    }, "",this.actions)+"}";        
+	    }, "",this.actions)+encodeURI("}");
 	}
 	
 
@@ -274,8 +274,8 @@ AffectedObjectsRights.prototype.openDialog = function(/** array of struct */pids
     	} else {
     		$(document.body).append('<div id="'+this.dialogId()+'"></div>')
         	this.dialog = $('#'+this.dialogId()).dialog({
-                width:750,
-                height:450,
+                width:900,
+                height:500,
                 modal:true,
                 title:"",
                 buttons: [
@@ -321,11 +321,11 @@ AffectedObjectsRights.prototype.createSecurityActionTab = function(/** String */
  */
 AffectedObjectsRights.prototype.url = function(/** String */baseUrl, /** Array */ pids) {
 	if (!pids) pids = this.pids;
-	baseUrl = baseUrl+"{"+reduce(function(base, item, status) {
-    	base = base+item.pid.replaceAll(":","\\:")+ (status.last ? "": ";");
+	baseUrl = baseUrl+encodeURI("{")+reduce(function(base, item, status) {
+    	base = base+encodeURI(item.pid.replaceAll(":","\\:"))+ (status.last ? "": ";");
         return base;
         
-    }, "",pids)+"}";        
+    }, "",pids)+encodeURI("}");
 	return baseUrl;
 }
 
@@ -688,11 +688,11 @@ function GlobalActions() {
 // volano z hlavniho menu .
 GlobalActions.prototype.rigthsForAction=function(action,pid) {
 	// affected rights secured actions 
-	findObjectsDialog().securedActionTabs[action] = findObjectsDialog().createSecurityActionTab(action,"inc/admin/_display_rights_for_global_actions.jsp?pids={uuid\\:1}&securedaction="+action);
+	findObjectsDialog().securedActionTabs[action] = findObjectsDialog().createSecurityActionTab(action,"inc/admin/_display_rights_for_global_actions.jsp?pids="+encodeURIComponent("{uuid\\:1}")+"&securedaction="+action);
 	findObjectsDialog().securedActionTabs[action].retrieve = findObjectsDialog().securedActionTabs[action].retrieveGlobalContent;
 	
 	var pids = (pid ? pid : "{uuid\\:1}");
-	var url = "inc/admin/_display_rights_for_global_actions.jsp?pids="+pids+"&securedaction="+action;
+	var url = "inc/admin/_display_rights_for_global_actions.jsp?pids="+encodeURIComponent(pids)+"&securedaction="+action;
 	$.get(url, bind(function(data) {
 		if (this.actionDialog) {
 			this.actionDialog.dialog('open');
@@ -923,3 +923,136 @@ CriteriumsSearch.prototype.renameCriterium=function(id,oldname) {
 }
 
 var criteriumsSearcher = new CriteriumsSearch();
+
+
+/** Labels */
+function LabelsManage() {}
+
+
+/**
+ * Show all criteriums
+ */
+LabelsManage.prototype.showLabels = function() {
+	$.get("inc/admin/_labels_manage.jsp", bind(function(data){
+		if (this.dialog) {
+			this.dialog.dialog('open');
+		} else {
+			$(document.body).append('<div id="labelsDialogs"></div>')
+			this.dialog = $('#labelsDialogs').dialog({
+				width:720,
+				height:480,
+				modal:true,
+				title:dictionary['rights.dialog.criteriumparams.title'],
+				buttons: [{
+					text:dictionary['common.close'],
+					click:function() {
+						$(this).dialog("close");
+					}
+				}]
+			});
+		}
+		$('#labelsDialogs').html(data);
+	},this));
+}
+
+LabelsManage.prototype.removeLabel = function(id, name,used) {
+	if (!used) {
+		showConfirmDialog(dictionary['labels.dialog.button.edit']+':'+name, bind(function(){
+			$.post("rights?action=deletelabel", {deletelabel:{
+					id: id
+				}}, this.refresh);
+		}, this));
+	}
+}
+
+
+LabelsManage.prototype.importFromSolr = function() {
+	showConfirmDialog(dictionary['labels.dialog.button.importfromsolr'], bind(function(){
+		$.post("rights?action=importlabelsfromsolr", {}, this.refresh);
+	}, this));
+}
+
+LabelsManage.prototype.refresh = function() {
+	$("#labels-content").hide();
+	$("#labels-content-reloading").show();
+
+	$.get("inc/admin/_labels_manage.jsp", bind(function(data){
+
+		$('#labelsDialogs').html(data);
+
+		$("#labels-content").show();
+		$("#labels-content-reloading").hide();
+
+	},this));
+}
+
+LabelsManage.prototype.moveUp = function(id) {
+	var first = $("#label-button-moveup-"+id).parent().hasClass("first");
+	if (!first) {
+		$.post("rights?action=changepriority", {changepriority:{
+				id: id,
+				direction: "UP",
+		}}, this.refresh);
+	}
+}
+
+LabelsManage.prototype.moveDown = function(id) {
+	var last = $("#label-button-moveup-"+id).parent().hasClass("last");
+	if (!last) {
+		$.post("rights?action=changepriority", {changepriority:{
+				id: id,
+				direction: "DOWN",
+			}}, this.refresh);
+	}
+}
+
+LabelsManage.prototype.createOrEditLabel = function(id) {
+	var u = "inc/admin/_label_new.jsp";
+	if (id) { u += "?id="+id; }
+	$.get(u, bind(function(data){
+		if (this.newLabelDialog) {
+			this.newLabelDialog.dialog('open');
+		} else {
+			$(document.body).append('<div id="newLabelDialog"></div>')
+			this.newLabelDialog = $('#newLabelDialog').dialog({
+				width:500,
+				height:400,
+				modal:true,
+				title:dictionary['rights.dialog.criteriumparams.title'],
+				buttons: [{
+					text:dictionary['common.ok'],
+					click:bind(function() {
+						var labelid = $("#label-id").val();
+						var labelname = $("#label-name").val();
+						var labeldescription = $("#label-description").val();
+
+						// validation
+						var validated = /^[a-zA-Z][a-zA-Z_0-9-/:]+$/.test(labelname);
+						if (validated) {
+							$.post("rights?action=createlabel", {createlabel:{
+									id: labelid,
+									name: labelname,
+									description: labeldescription
+
+								}}, this.refresh);
+							this.newLabelDialog.dialog("close");
+						} else {
+							$("#label_error").html(dictionary['labels.dialog.button.name.error']);
+
+						}
+
+					},this)
+				},{
+					text:dictionary['common.close'],
+					click:bind(function() {
+						this.newLabelDialog.dialog("close");
+					},this)
+				}]
+			});
+		}
+		$('#newLabelDialog').html(data);
+	},this));
+}
+
+
+var labelsManager = new LabelsManage();

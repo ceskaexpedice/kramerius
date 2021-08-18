@@ -3,20 +3,14 @@ package cz.incad.kramerius.rest.api.k5.client.item.decorators.details;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.BiblioModsUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
-import cz.incad.kramerius.rest.api.k5.client.utils.RELSEXTDecoratorUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
-import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -26,8 +20,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-
-import static cz.incad.kramerius.rest.api.k5.client.item.decorators.CollectionsDecorator.findCollections;
 
 /**
  * Created by pstastny on 11/7/2017.

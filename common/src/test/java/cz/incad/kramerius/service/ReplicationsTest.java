@@ -32,6 +32,7 @@ import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.FedoraAccessImpl;
 import cz.incad.kramerius.service.impl.ReplicationServiceImpl;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -70,15 +71,15 @@ import static org.easymock.EasyMock.replay;
  */
 public class ReplicationsTest {
 
-	private Injector injector = null;
-	
-	public Injector getInjector() {
+    private Injector injector = null;
+
+    public Injector getInjector() {
 		return injector;
 	}
 
     @Test
     public void testExportPageDrobnystky() throws IOException, ParserConfigurationException, SAXException, LexerException, ReplicateException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
 
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
             .withConstructor(KConfiguration.getInstance(),acLog)
@@ -176,7 +177,7 @@ public class ReplicationsTest {
     
     @Test
     public void testPrepareExportDrobnustky() throws IOException, ParserConfigurationException, SAXException, LexerException, ReplicateException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getRelsExt")
@@ -208,7 +209,7 @@ public class ReplicationsTest {
 
     @Test
     public void testPrepareExportNarodniListy() throws IOException, ParserConfigurationException, SAXException, LexerException, ReplicateException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         FedoraAccess fa = createMockBuilder(FedoraAccessImpl.class)
         .withConstructor(KConfiguration.getInstance(),acLog)
         .addMockedMethod("getRelsExt")

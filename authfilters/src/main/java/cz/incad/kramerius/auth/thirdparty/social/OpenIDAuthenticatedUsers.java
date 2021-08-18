@@ -42,7 +42,7 @@ public class OpenIDAuthenticatedUsers extends AbstractAuthenticatedUsers<OpenIdU
     }
 
     @Override
-    public String updateExistingUser(String userName,OpenIdUserWrapper wrapper) throws Exception {
+    public String updateExistingUser(String userName,OpenIdUserWrapper wrapper) {
         String password = GeneratePasswordUtils.generatePswd();
         JSONArray users = RemoteUsersUtils.getUser(userName);
         JSONObject jsonObject = users.getJSONObject(0);
@@ -51,14 +51,14 @@ public class OpenIDAuthenticatedUsers extends AbstractAuthenticatedUsers<OpenIdU
         return password;
     }
 
-    public boolean checkIfUserExists(String userName) throws Exception {
+    public boolean checkIfUserExists(String userName) {
         JSONArray users = RemoteUsersUtils.getUser(userName);
         return users.length() > 0 ;
         
     }
 
     @Override
-    protected String createNewUser(String user, OpenIdUserWrapper w) throws Exception {
+    protected String createNewUser(String user, OpenIdUserWrapper w) {
         String password = GeneratePasswordUtils.generatePswd();
         JSONObject json = w.toJSON(password);
         RemoteUsersUtils.createUser( json);
@@ -66,7 +66,7 @@ public class OpenIDAuthenticatedUsers extends AbstractAuthenticatedUsers<OpenIdU
     }
 
     @Override
-    protected OpenIdUserWrapper createUserWrapper(HttpServletRequest req, String userName) throws Exception {
+    protected OpenIdUserWrapper createUserWrapper(HttpServletRequest req, String userName) {
         Profile profile = OpenIDFlag.flagFromRequest(req).profile(req);
         return new OpenIdUserWrapper(userName,profile);
     }

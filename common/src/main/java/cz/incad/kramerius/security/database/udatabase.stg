@@ -8,10 +8,26 @@ $if(params.(column))$ ($column$ in ($params.(column):{c| '$c$'};separator=","$))
 >>
 
 
+/** it takes all rights associated with user, groups filtered by action and criteriums **/
+findAllRightsWithGroupsAndCriteriums( userid, groupids,  action, criteriums) ::=<<
+select * from right_entity ent
+    left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
+    left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+    left join labels_entity lbl on (crit.label_id=lbl.label_id)
+
+    left join  user_entity users on  (ent.user_id = users.user_id)
+    left join  group_entity groups on  (ent.group_id = groups.group_id)
+
+where (ent."user_id"=$userid$
+     $if(first(groupids))$ or ent."group_id" in ($groupids:{grp| $grp$ };separator=","$ ) $endif$)
+     $if(criteriums)$  and "qname" in ($criteriums:{c|'$c$'};separator=","$) $endif$
+     and "action"='$action$'
+>>
+
 
 findAllRights( params) ::=<<
 select * from right_entity ent
-left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id) left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id) left join  user_entity users on  (ent.user_id = users.user_id) left join  group_entity groups on  (ent.group_id = groups.group_id)
+left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id) left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id) left join labels_entity lbl on (crit.label_id=lbl.label_id) left join  user_entity users on  (ent.user_id = users.user_id) left join  group_entity groups on  (ent.group_id = groups.group_id)
 $if(params.keys)$ where $params.keys:{p| $_in(column=p, params=params)$ };separator=" and "$ $endif$   
 >>
 
@@ -20,6 +36,7 @@ findRightFromWithGroups(user, groups, pids, action) ::=<<
 select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+    left join labels_entity lbl on (crit.label_id=lbl.label_id)
 
     left join  user_entity users on  (ent.user_id = users.user_id)
     left join  group_entity groups on  (ent.group_id = groups.group_id)
@@ -31,11 +48,14 @@ where (ent."user_id"=$user$
 >>
 
 
+
 /**  hledani vsech prav */
 findAllRightsFromWithGroups(pids, action) ::=<<
     select * from right_entity ent
         left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
         left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
+        left join labels_entity lbl on (crit.label_id=lbl.label_id)
+
 
     left join  user_entity users on  (ent.user_id = users.user_id)
     left join  group_entity groups on  (ent.group_id = groups.group_id)
@@ -50,7 +70,8 @@ findRightsForGroup(groups, pids, action) ::=<<
 select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
-    
+    left join labels_entity lbl on (crit.label_id=lbl.label_id)
+
         left join  user_entity users on  (ent.user_id = users.user_id)
     left join  group_entity groups on  (ent.group_id = groups.group_id)
     
@@ -73,7 +94,9 @@ findRightById() ::=<<
 select * from right_entity ent
     left join rights_criterium_entity crit on (ent.rights_crit=crit.crit_id)
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
-where ent.right_id=?  
+    left join labels_entity lbl on (crit.label_id=lbl.label_id)
+
+where ent.right_id=?
 >>
 
 /** hledani uzivatele dle jmena a hesla */
@@ -213,12 +236,14 @@ findUserByLoginName() ::=<<
 
 /** vlozi nove kriterium param */
 insertRightCriteriumParams(params) ::=<<
-    insert into criterium_param_entity(crit_param_id,short_desc,long_desc, vals) 
+    insert into criterium_param_entity(crit_param_id,short_desc,long_desc, vals)
     values(
         nextval('crit_param_id_sequence'),
         '$params.shortDescription$',
         '$params.longDescription$',
         '$params.objects:{object| $object$};separator=";"$'
+
+
     )
 >>
 
@@ -232,17 +257,25 @@ updateRightCriteriumParams(params) ::=<<
 /** vlozi nove kriterium */
 insertRightCriterium(criteriumWrapper, type) ::=<<
     $if(criteriumWrapper.criteriumParams)$ 
-        insert into rights_criterium_entity(crit_id,qname, "type",citeriumparam)
+        insert into rights_criterium_entity(crit_id,qname, "type",citeriumparam, label_id)
         values(nextval('crit_id_sequence'),
             '$criteriumWrapper.rightCriterium.qName$',
             $type$,
-            $criteriumWrapper.criteriumParams.id$ )
+            $criteriumWrapper.criteriumParams.id$
+            $if(criteriumWrapper.labelAwareCriterium)$
+                $if(criteriumWrapper.label.id)$ , $criteriumWrapper.label.id$ $else$ , NULL $endif$
+                $else$ , NULL
+            $endif$)
     $else$
-        insert into rights_criterium_entity(crit_id,qname,"type")
+        insert into rights_criterium_entity(crit_id,qname,"type", label_id)
         values(nextval('crit_id_sequence'),
             '$criteriumWrapper.rightCriterium.qName$',
-            $type$)
-    $endif$  
+            $type$
+            $if(criteriumWrapper.labelAwareCriterium)$
+                $if(criteriumWrapper.label.id)$ , $criteriumWrapper.label.id$ $else$ , NULL $endif$
+                $else$ , NULL
+            $endif$)
+    $endif$
 >>
 
 
@@ -251,6 +284,7 @@ updateRightCriterium(criteriumWrapper) ::=<<
     UPDATE rights_criterium_entity
         SET  qname='$criteriumWrapper.rightCriterium.qName$', 
         citeriumparam=$if(criteriumWrapper.criteriumParams)$ $criteriumWrapper.criteriumParams.id$ $else$ NULL $endif$
+        label_id = $if(criteriumWrapper.labelAwareCriterium)$ $criteriumWrapper.label.id$ $else$ NULL $endif$
      WHERE crit_id=$criteriumWrapper.id$;
 >>
 
@@ -456,6 +490,14 @@ select_object_using_param() ::=<<
     where p.crit_param_id= ? 
 >>
 
+/** vyhleda vsechny objekty, ktere pouzivaji dany label */
+select_object_using_label() ::=<<
+    select r.uuid as pid ,r.action  as action from right_entity r
+        join rights_criterium_entity c on (c.crit_id = r.rights_crit)
+        left join  criterium_param_entity p on (c.citeriumparam= p.crit_param_id)
+        join labels_entity l on (c.label_id= l.label_id)
+    where l.label_id = ?
+>>
 
 /** associate role */
 associateRole() ::=<<

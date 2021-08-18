@@ -59,16 +59,16 @@ import cz.incad.kramerius.utils.pid.PIDParser;
  */
 public class ExternalReferencesFormat extends AbstractReplicationFormat {
 
-	@Inject
-	Provider<HttpServletRequest> requestProvider;
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
 
-	
+
     @Override
     public byte[] formatFoxmlData(byte[] input, Object... params) throws ReplicateException{
         try {
-        	
-        	Document document = XMLUtils.parseDocument(new ByteArrayInputStream(input), true);
-        	processDOM(document);
+
+            Document document = XMLUtils.parseDocument(new ByteArrayInputStream(input), true);
+            processDOM(document);
             return serializeToBytes(document);
         } catch (ParserConfigurationException e) {
             throw new ReplicateException(e);
@@ -80,54 +80,54 @@ public class ExternalReferencesFormat extends AbstractReplicationFormat {
             throw new ReplicateException(e);
         } catch (DOMException e) {
             throw new ReplicateException(e);
-		} catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new ReplicateException(e);
-		}
+        }
     }
 
 
 
-	protected void processDOM(Document document) throws ReplicateException, MalformedURLException, URISyntaxException {
-		Element docElement = document.getDocumentElement();
-		if (docElement.getLocalName().equals("digitalObject")) {
-		    List<Element> datastreamsElements = XMLUtils.getElements(docElement, new XMLUtils.ElementsFilter() {
-		        
-		        @Override
-		        public boolean acceptElement(Element elm) {
-		            String elmName = elm.getLocalName();
-		            return elmName.equals("datastream") && elm.hasAttribute("CONTROL_GROUP") && elm.getAttribute("CONTROL_GROUP").equals("E");
-		        }
-		    });
-		    
-		    for (Element datStreamElm : datastreamsElements) {
-		        processDataStreamVersions(document, datStreamElm);
-		    }
-		    
-		    List<Element> relsExt = XMLUtils.getElements(
-		    		docElement, new XMLUtils.ElementsFilter() {
-		    			
-		    			@Override
-		    			public boolean acceptElement(Element elm) {
-		    				String elmName = elm.getLocalName();
-		    				String idName = elm.getAttribute("ID");
-		    				return elmName.equals("datastream")
-		    						&& idName.equals(FedoraUtils.RELS_EXT_STREAM);
-		    			}
-		    		});
-				
-				if (!relsExt.isEmpty()) {
-					original(document,relsExt.get(0));
-				}
+    protected void processDOM(Document document) throws ReplicateException, MalformedURLException, URISyntaxException {
+        Element docElement = document.getDocumentElement();
+        if (docElement.getLocalName().equals("digitalObject")) {
+            List<Element> datastreamsElements = XMLUtils.getElements(docElement, new XMLUtils.ElementsFilter() {
 
-				
-		} else { 
-		    throw new ReplicateException("Not valid FOXML");
-		}
-	}
+                @Override
+                public boolean acceptElement(Element elm) {
+                    String elmName = elm.getLocalName();
+                    return elmName.equals("datastream") && elm.hasAttribute("CONTROL_GROUP") && elm.getAttribute("CONTROL_GROUP").equals("E");
+                }
+            });
+
+            for (Element datStreamElm : datastreamsElements) {
+                processDataStreamVersions(document, datStreamElm);
+            }
+
+            List<Element> relsExt = XMLUtils.getElements(
+                    docElement, new XMLUtils.ElementsFilter() {
+
+                        @Override
+                        public boolean acceptElement(Element elm) {
+                            String elmName = elm.getLocalName();
+                            String idName = elm.getAttribute("ID");
+                            return elmName.equals("datastream")
+                                    && idName.equals(FedoraUtils.RELS_EXT_STREAM);
+                        }
+                    });
+
+                if (!relsExt.isEmpty()) {
+                    original(document,relsExt.get(0));
+                }
 
 
+        } else {
+            throw new ReplicateException("Not valid FOXML");
+        }
+    }
 
-	private void processDataStreamVersions(Document document, Element dataStreamElm) throws ReplicateException {
+
+
+    private void processDataStreamVersions(Document document, Element dataStreamElm) throws ReplicateException {
         List<Element> versions = XMLUtils.getElements(dataStreamElm, new XMLUtils.ElementsFilter() {
             
             @Override
@@ -144,7 +144,7 @@ public class ExternalReferencesFormat extends AbstractReplicationFormat {
                     URL url = new URL(found.getAttribute("REF"));
                     String protocol = url.getProtocol();
                     if (protocol.equals("file")) {
-                        changeDatastreamVersion(document, dataStreamElm, version, url);
+                        ReplicationUtils.binaryContentForStream(document, dataStreamElm, version, url);
                     }
                 } catch (MalformedURLException e) {
                     throw new ReplicateException(e);
@@ -155,64 +155,64 @@ public class ExternalReferencesFormat extends AbstractReplicationFormat {
         }
     }
 
-    private void changeDatastreamVersion(Document document, Element datastream, Element version, URL url) throws IOException {
-        InputStream is = null; 
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            URLConnection urlConnection = url.openConnection();
-            is = urlConnection.getInputStream();
-            IOUtils.copyStreams(is, bos);
-            version.setAttribute("SIZE", ""+bos.size());
-            version.removeChild(XMLUtils.findElement( version,"contentLocation",version.getNamespaceURI()));
-            Element binaryContent = document.createElementNS(version.getNamespaceURI(), "binaryContent");
-            document.adoptNode(binaryContent);
-            binaryContent.setTextContent(new String(Base64.encodeBase64(bos.toByteArray())));
-            version.appendChild(binaryContent);
-            
-            datastream.setAttribute("CONTROL_GROUP", "M");
-            
-        } finally {
-            IOUtils.tryClose(is);
+//    private void changeDatastreamVersion(Document document, Element datastream, Element version, URL url) throws IOException {
+//        InputStream is = null;
+//        try {
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            URLConnection urlConnection = url.openConnection();
+//            is = urlConnection.getInputStream();
+//            IOUtils.copyStreams(is, bos);
+//            version.setAttribute("SIZE", ""+bos.size());
+//            version.removeChild(XMLUtils.findElement( version,"contentLocation",version.getNamespaceURI()));
+//            Element binaryContent = document.createElementNS(version.getNamespaceURI(), "binaryContent");
+//            document.adoptNode(binaryContent);
+//            binaryContent.setTextContent(new String(Base64.encodeBase64(bos.toByteArray())));
+//            version.appendChild(binaryContent);
+//
+//            datastream.setAttribute("CONTROL_GROUP", "M");
+//
+//        } finally {
+//            IOUtils.tryClose(is);
+//        }
+//    }
+    
+    
+    private void original(Document document, Element element) throws DOMException, MalformedURLException, URISyntaxException {
+        Element original = document.createElementNS(
+                FedoraNamespaces.KRAMERIUS_URI, "replicatedFrom");
+        document.adoptNode(original);
+        original.setTextContent(makeHANDLE(document).toURI().toString());
+
+        List<Element> rdfversions = XMLUtils.getElementsRecursive(element , new XMLUtils.ElementsFilter() {
+
+            @Override
+            public boolean acceptElement(Element el) {
+                String localName = el.getLocalName();
+                String namespace = el.getNamespaceURI();
+                if (namespace.equals(FedoraNamespaces.RDF_NAMESPACE_URI)) {
+                    return localName.equals("Description");
+                }
+                return false;
+            }
+        });
+
+        for (Element desc : rdfversions) {
+            desc.appendChild(original);
         }
     }
-    
-    
-	private void original(Document document, Element element) throws DOMException, MalformedURLException, URISyntaxException {
-		Element original = document.createElementNS(
-				FedoraNamespaces.KRAMERIUS_URI, "replicatedFrom");
-		document.adoptNode(original);
-		original.setTextContent(makeHANDLE(document).toURI().toString());
 
-		List<Element> rdfversions = XMLUtils.getElementsRecursive(element , new XMLUtils.ElementsFilter() {
-			
-			@Override
-			public boolean acceptElement(Element el) {
-				String localName = el.getLocalName();
-				String namespace = el.getNamespaceURI();
-				if (namespace.equals(FedoraNamespaces.RDF_NAMESPACE_URI)) {
-					return localName.equals("Description");
-				}
-				return false;
-			}
-		});
-		
-		for (Element desc : rdfversions) {
-			desc.appendChild(original);
-		}
-	}
 
-	
 
-	private URL makeHANDLE(Document doc) throws MalformedURLException {
-		HttpServletRequest req = this.requestProvider.get();
-		String pid = doc.getDocumentElement().getAttribute("PID");
-		String imgServ =  ApplicationURL.applicationURL(req)+"/handle/"+pid;
-		return new URL(imgServ);
-	}
+    private URL makeHANDLE(Document doc) throws MalformedURLException {
+        HttpServletRequest req = this.requestProvider.get();
+        String pid = doc.getDocumentElement().getAttribute("PID");
+        String imgServ =  ApplicationURL.applicationURL(req)+"/handle/"+pid;
+        return new URL(imgServ);
+    }
 
-	@Override
-	public byte[] formatFoxmlData(byte[] input)
-			throws ReplicateException {
-		return formatFoxmlData(input, new Object[0]);
-	}
+    @Override
+    public byte[] formatFoxmlData(byte[] input)
+            throws ReplicateException {
+        return formatFoxmlData(input, new Object[0]);
+    }
 }

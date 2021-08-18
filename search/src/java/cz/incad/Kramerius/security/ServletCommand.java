@@ -44,6 +44,7 @@ import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.labels.LabelsManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.users.NotActivatedUsersSingleton;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -89,6 +90,9 @@ public abstract class ServletCommand {
     
     @Inject
     protected NotActivatedUsersSingleton notActivatedUsersSingleton;
+
+    @Inject
+    protected LabelsManager labelsManager;
     
     public abstract void doCommand() throws IOException;
 

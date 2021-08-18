@@ -238,6 +238,27 @@ function importPeriodicals() {
     });
 }
 
+function dnntFlagSet() {
+    showConfirmDialog(dictionary['administrator.menu.dialogs.dnnt.title'], function(){
+        var url = "lr?action=start&def=dnntset&out=text";
+        processStarter("dnntset").start(url);
+    });
+}
+
+function dnntFlagUnset() {
+    showConfirmDialog(dictionary['administrator.menu.dialogs.dnnt.unset.title'], function(){
+        var url = "lr?action=start&def=dnntunset&out=text";
+        processStarter("dnntunset").start(url);
+    });
+}
+
+function dnntCSVExport() {
+    showConfirmDialog(dictionary['administrator.menu.dialogs.dnnt.csvexport.title'], function(){
+        var url = "lr?action=start&def=dnntexport&out=text";
+        processStarter("dnntexport").start(url);
+    });
+}
+
 function replaceAll(txt, replace, with_this) {
 	  return txt.replace(new RegExp(replace, 'g'),with_this);
 }
@@ -763,13 +784,13 @@ ParameterizedProcess.prototype.open = function(definition, paramsMapping) {
     
     paramsMapping = paramsMapping ? paramsMapping : {};
 
-    var pMappingsUrl = "{"+reduce(function(base, element, status) {
+    var pMappingsUrl = encodeURI("{")+reduce(function(base, element, status) {
     	if (!status.first) {
         	base = base + ";";
         }
     	base = base + element;
     	return base; 
-    }, "", this._asArr(paramsMapping))+"}";
+    }, "", this._asArr(paramsMapping))+encodeURI("{");
     		  
     var url = "lr?action=form_get&def="+definition;
 

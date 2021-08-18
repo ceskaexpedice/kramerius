@@ -30,6 +30,7 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.SolrAccess;
 import org.easymock.EasyMock;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -158,6 +159,9 @@ public class DataPrepare {
         return resStream;
     }
 
+
+
+
     public static void narodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             String pid = NARODNI_LISTY[i];
@@ -186,6 +190,25 @@ public class DataPrepare {
         String path = "/cz/incad/kramerius/fedora/res/"+objectId+".xml";
         InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
         expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
+    }
+
+
+    public static void solrDoc(SolrAccess sa, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
+        PIDParser pidParser = new PIDParser(pid);
+        pidParser.objectPid();
+        String objectId = pidParser.getObjectId();
+        String path = "/cz/incad/kramerius/solr/res/"+objectId+".xml";
+        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
+        try {
+            Document document = XMLUtils.parseDocument(resStream, false);
+            expect(sa.getSolrDataDocument(pid)).andReturn(document).anyTimes();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void imgFull(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {

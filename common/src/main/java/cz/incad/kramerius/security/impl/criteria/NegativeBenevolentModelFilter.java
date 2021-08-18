@@ -16,11 +16,7 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.*;
 
 /**
  * @author pavels
@@ -29,12 +25,21 @@ import cz.incad.kramerius.security.SecuredActions;
 public class NegativeBenevolentModelFilter  extends AbstractCriterium implements RightCriterium {
 
     /* (non-Javadoc)
-     * @see cz.incad.kramerius.security.RightCriterium#evalute()
+     * @see cz.incad.kramerius.security.RightCriterium#evaluate()
      */
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
-        EvaluatingResult result = BenevolentModelFilter.evaluateInternal(getObjects(), getEvaluateContext());
-        return result.equals(EvaluatingResult.TRUE) ? EvaluatingResult.NOT_APPLICABLE : EvaluatingResult.TRUE;
+    public EvaluatingResultState evalute() throws RightCriteriumException {
+        EvaluatingResultState result = BenevolentModelFilter.evaluateInternal(getObjects(), getEvaluateContext());
+        return result.equals(EvaluatingResultState.TRUE) ? EvaluatingResultState.NOT_APPLICABLE : EvaluatingResultState.TRUE;
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
     }
 
     /* (non-Javadoc)

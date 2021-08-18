@@ -1,12 +1,6 @@
 package cz.incad.kramerius.utils;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.logging.Level;
 
 import java.util.logging.Logger;
@@ -63,7 +57,35 @@ public class DatabaseUtils {
             tryClose(pstm);
         }
     }
-    
+
+    public static boolean indexExists(Connection con, String tableName, String columnName) throws SQLException {
+        String sql = "select t.relname as table_name, i.relname as index_name, a.attname as column_name\n" +
+                "from\n" +
+                "    pg_class t,\n" +
+                "    pg_class i,\n" +
+                "    pg_index ix,\n" +
+                "    pg_attribute a\n" +
+                "where\n" +
+                "    t.oid = ix.indrelid\n" +
+                "    and i.oid = ix.indexrelid\n" +
+                "    and a.attrelid = t.oid\n" +
+                "    and a.attnum = ANY(ix.indkey)\n" +
+                "    and t.relkind = 'r'\n" +
+                "   \tand t.relname = ?\n" +
+                "\tand a.attname =?";
+        PreparedStatement pstm = con.prepareStatement(sql);
+        pstm.setString(1, tableName);
+        pstm.setString(2, columnName);
+        ResultSet rs = null;
+        try {
+            rs = pstm.executeQuery();
+            return rs.next();
+        } finally {
+            tryClose(pstm);
+            if (rs != null) tryClose(rs);
+        }
+    }
+
     public static void tryClose(Connection c) {
         try {
             c.close();
@@ -88,11 +110,5 @@ public class DatabaseUtils {
         }
     }
     
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        Class.forName("org.postgresql.Driver");
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/kramerius4","fedoraAdmin","fedoraAdmin");
-        boolean tableExists = viewExists(con,"MONOGRAPH_T");
-        System.out.println(tableExists);
-        con.close();
-    }
+
 }

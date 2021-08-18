@@ -54,4 +54,11 @@ public class RoleExpr implements Expr {
 //        grpList.add(grole);
 //        ((UserImpl)user).setGroups(grpList.toArray(new Role[grpList.size()]));
     }
+
+    @Override
+    public String toString() {
+        return "role(" +
+                "value=" + value +
+                ')';
+    }
 }

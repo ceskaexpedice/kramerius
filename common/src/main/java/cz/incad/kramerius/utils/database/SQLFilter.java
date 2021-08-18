@@ -215,16 +215,28 @@ public class SQLFilter {
     
     public static class DateConvereter implements ConverterAndFormatter {
 
-        public static SimpleDateFormat FORMATTER = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-        
+        public static SimpleDateFormat FORMATTER_1 = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS");
+        public static SimpleDateFormat FORMATTER_2 = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        public static SimpleDateFormat FORMATTER_3 = new SimpleDateFormat("MM/dd/yyyy");
+
         @Override
         public Object convert(String strVal) {
+            LOGGER.fine("parsing date "+strVal+" ");
             try {
-                LOGGER.fine("parsing date "+strVal+" ");
-                Timestamp timestamp = new Timestamp(FORMATTER.parse(strVal).getTime());
+                Timestamp timestamp = new Timestamp(FORMATTER_1.parse(strVal).getTime());
                 return timestamp;
             } catch (ParseException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                try {
+                    Timestamp timestamp = new Timestamp(FORMATTER_2.parse(strVal).getTime());
+                    return timestamp;
+                } catch (ParseException e1) {
+                    try {
+                        Timestamp timestamp = new Timestamp(FORMATTER_3.parse(strVal).getTime());
+                        return timestamp;
+                    } catch (ParseException e2) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+                }
             }
             return null;
         }
@@ -233,18 +245,18 @@ public class SQLFilter {
         public String format(Object val) {
             Timestamp tmsp = (Timestamp) val;
             Date date = new Date(tmsp.getTime());
-            return FORMATTER.format(date);
+            return FORMATTER_2.format(date);
         }
     }
     
     public String getFormattedValue(Tripple tripple) {
-    	ConverterAndFormatter convert = this.typesMapping.getConvert(tripple.getName());
-    	if (convert != null) {
-    		return  convert.format(tripple.getVal());
-    	} else {
-    		// default is string converter
-    		return new StringConverter().format(tripple.getVal());
-    	}
+        ConverterAndFormatter convert = this.typesMapping.getConvert(tripple.getName());
+        if (convert != null) {
+            return  convert.format(tripple.getVal());
+        } else {
+            // default is string converter
+            return new StringConverter().format(tripple.getVal());
+        }
     }
     
     /**
@@ -351,44 +363,44 @@ public class SQLFilter {
         }
     }
 
-	public static class TypesAssociation {
-		private String rawName;
-		private ConverterAndFormatter convert;
-		
-		public TypesAssociation(String rn, ConverterAndFormatter c) {
-			this.rawName = rn;
-			this.convert = c;
-		}
-		
-		public String getRawName() {
-			return rawName;
-		}
-	
-		public ConverterAndFormatter getConvert() {
-			return convert;
-		}
-	}
+    public static class TypesAssociation {
+        private String rawName;
+        private ConverterAndFormatter convert;
 
-	public static class TypesMapping {
-	
-		private List<TypesAssociation> mappings = new ArrayList<TypesAssociation>();
-		
-		public void map(String rname, ConverterAndFormatter c) {
-			this.mappings.add(new TypesAssociation(rname, c));
-		}
-		
-		public boolean containsRawName(String rname) {
-			return getConvert(rname) != null;
-		}
-		
-		public ConverterAndFormatter getConvert(String rname) {
-			for (TypesAssociation ts : this.mappings) {
-				if (ts.getRawName().equals(rname)) return ts.getConvert();
-			}
-			return null;
-		}
-		
-	}
+        public TypesAssociation(String rn, ConverterAndFormatter c) {
+            this.rawName = rn;
+            this.convert = c;
+        }
+
+        public String getRawName() {
+            return rawName;
+        }
+
+        public ConverterAndFormatter getConvert() {
+            return convert;
+        }
+    }
+
+    public static class TypesMapping {
+
+        private List<TypesAssociation> mappings = new ArrayList<TypesAssociation>();
+
+        public void map(String rname, ConverterAndFormatter c) {
+            this.mappings.add(new TypesAssociation(rname, c));
+        }
+
+        public boolean containsRawName(String rname) {
+            return getConvert(rname) != null;
+        }
+
+        public ConverterAndFormatter getConvert(String rname) {
+            for (TypesAssociation ts : this.mappings) {
+                if (ts.getRawName().equals(rname)) return ts.getConvert();
+            }
+            return null;
+        }
+
+    }
     
     
     

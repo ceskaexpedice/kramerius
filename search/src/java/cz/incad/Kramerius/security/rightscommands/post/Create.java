@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -47,14 +48,9 @@ public class Create extends ServletRightsCommand {
             //Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager, criteriumWrapperFactory);
             Map values = new HashMap();
             Enumeration parameterNames = req.getParameterNames();
-            
-            while(parameterNames.hasMoreElements()) {
-                String key = (String) parameterNames.nextElement();
-                String value = req.getParameter(key);
-                SimpleJSONObjects simpleJSONObjects = new SimpleJSONObjects();
-                simpleJSONObjects.createMap(key, values, value);
-            }
-            
+
+            Delete.parametersToJson(req, values, parameterNames);
+
             List affectedObjects = (List) values.get("affectedObjects");
             for (int i = 0; i < affectedObjects.size(); i++) {
                 String pid = affectedObjects.get(i).toString();
@@ -78,19 +74,19 @@ public class Create extends ServletRightsCommand {
         
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
+            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i]).flag()) {
                 hasRight = true;
                 break;
             } else {
-                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         } 
         // root object
         if (paths.length  == 0) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, new ObjectPidsPath(pid))) {
+            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, new ObjectPidsPath(pid)).flag()) {
                 hasRight = true;
             } else {
-                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         }
         

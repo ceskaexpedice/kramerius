@@ -16,25 +16,8 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import java.io.IOException;
-import java.util.logging.Level;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaRELSEXTUtils;
 
 /**
  * Kontroluje priznak v metadatech RELS-EXT. 
@@ -43,51 +26,32 @@ import cz.incad.kramerius.security.SpecialObjects;
  * @author pavels
  *
  */
-public class PolicyFlag extends AbstractCriterium {
+public class PolicyFlag extends AbstractRELSExtCriterium {
 
-    java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PolicyFlag.class.getName());
+    static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PolicyFlag.class.getName());
     
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
-        try {
-            FedoraAccess fa = getEvaluateContext().getFedoraAccess();
-            String requestedPID = getEvaluateContext().getRequestedPid();
-            if (!requestedPID.equals(SpecialObjects.REPOSITORY.getPid())) {
-                Document relsExt = fa.getRelsExt(requestedPID);
-                return checkPolicyElement(relsExt);
-            } else return EvaluatingResult.TRUE;
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResult.TRUE;
-        }
+    public EvaluatingResultState evalute() throws RightCriteriumException {
+        String path = "//kramerius:policy/text()";
+        String expectedValue = "policy:private";
+        EvaluatingResultState rState = CriteriaRELSEXTUtils.evaluateState(getEvaluateContext(), path, expectedValue);
+        // false must be remmaped to NOT_APPLICABLE
+        if (rState.equals(EvaluatingResultState.FALSE)) return EvaluatingResultState.NOT_APPLICABLE;
+        else return rState;
     }
 
-//    @Override
-//    public boolean validate(Object[] objs) {
-//        return true;
-//    }
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
+    }
 
     @Override
     public RightCriteriumPriorityHint getPriorityHint() {
         return RightCriteriumPriorityHint.NORMAL;
-    }
-    
-    private EvaluatingResult checkPolicyElement(Document relsExt) throws IOException {
-        try {
-            XPathFactory xpfactory = XPathFactory.newInstance();
-            XPath xpath = xpfactory.newXPath();
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
-            XPathExpression expr = xpath.compile("//kramerius:policy/text()");
-            Object policy = expr.evaluate(relsExt, XPathConstants.STRING);
-            if ((policy != null) && (policy.toString().trim().equals("policy:private"))) {
-                return EvaluatingResult.FALSE;
-            } else {
-                return EvaluatingResult.TRUE;
-            }
-                
-        } catch (XPathExpressionException e) {
-            throw new IOException(e);
-        }
     }
 
     @Override
