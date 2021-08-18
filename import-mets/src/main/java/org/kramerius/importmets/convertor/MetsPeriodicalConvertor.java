@@ -52,6 +52,16 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             throws ServiceException {
         try {
             policyID = config.isDefaultVisibility() ? POLICY_PUBLIC : POLICY_PRIVATE;
+            
+            boolean shutTemporaryImageServer = config.isImageServerShut();
+            boolean useImageServerConf = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
+            if (useImageServerConf && shutTemporaryImageServer) {
+                useImageServer = false;
+            }
+            else {
+                useImageServer = useImageServerConf;
+            }
+            
             loadModsAndDcMap(mets);
             loadFileMap(mets);
             processStructMap(mets);

@@ -24,6 +24,8 @@ public class ConvertorConfig {
     
     private boolean defaultVisibility = false;
     
+    private boolean shutImageServer = false;
+
     private String contract;
 
 
@@ -80,6 +82,14 @@ public class ConvertorConfig {
 
     public void setDefaultVisibility(boolean defaultVisibility) {
         this.defaultVisibility = defaultVisibility;
+    }
+    
+    public boolean isImageServerShut() {
+        return shutImageServer;
+    }
+
+    public void setShutImageServer(boolean shutImageServer) {
+        this.shutImageServer = shutImageServer;
     }
 
     public Connection getDbConnection() {

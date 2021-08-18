@@ -67,3 +67,32 @@ noFedoraNoIndexer() ::=<<
     <input type="checkbox" id="startIndexer" name="startIndexer" value="indexer" disabled="disabled">$bundle.("k3replication.indexerstart")$</input>
 </fieldset>
 >>
+
+
+importFedoraNoIndexerNDK() ::=<<
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
+    <input type="checkbox" id="importToFedora" name="importToFedora" value="importToFedora" checked>$bundle.("k3replication.importtofedora")$</input>
+    <input type="checkbox" id="startIndexer" name="startIndexer" value="indexer">$bundle.("k3replication.indexerstart")$</input>
+    <input type="checkbox" id="shutImageServer" name="shutImageServer" value="shutImageServer">$bundle.("k3replication.imageserver")$</input>
+</fieldset>
+>>
+
+importFedoraStartIndexerNDK() ::=<<
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
+    <input type="checkbox" id="importToFedora" name="importToFedora" value="importToFedora" checked>$bundle.("k3replication.importtofedora")$</input>
+    <input type="checkbox" id="startIndexer" name="startIndexer" value="indexer" checked>$bundle.("k3replication.indexerstart")$</input>
+    <input type="checkbox" id="shutImageServer" name="shutImageServer" value="shutImageServer">$bundle.("k3replication.imageserver")$</input>
+</fieldset>
+>>
+
+
+noFedoraNoIndexerNDK() ::=<<
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("k3replication.othersettings.fields")$</legend>
+    <input type="checkbox" id="importToFedora" name="importToFedora" value="importToFedora">$bundle.("k3replication.importtofedora")$</input>
+    <input type="checkbox" id="startIndexer" name="startIndexer" value="indexer" disabled="disabled">$bundle.("k3replication.indexerstart")$</input>
+    <input type="checkbox" id="shutImageServer" name="shutImageServer" value="shutImageServer">$bundle.("k3replication.imageserver")$</input>
+</fieldset>
+>>

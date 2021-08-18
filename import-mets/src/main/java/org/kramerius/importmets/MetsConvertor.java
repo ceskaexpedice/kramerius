@@ -38,10 +38,9 @@ public class MetsConvertor {
     private static boolean foundvalidPSP = false;
 
     public static void main(String[] args) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException,UnsupportedEncodingException {
-
-        if (args.length  != 3) {
+        if (args.length  > 4) {
             System.out.println("ANL METS to FOXML conversion tool.\n");
-            System.out.println("Usage: conversion-tool defaultVisibility <input-folder> <output-folder>");
+            System.out.println("Usage: conversion-tool defaultVisibility input-folder output-folder temporary-shut-image-server");
             throw new RuntimeException("bad usage");
         } else {
             boolean defaultVisibility = Boolean.parseBoolean(args[0]);
@@ -53,13 +52,18 @@ public class MetsConvertor {
                 importRoot = args[1];
             }
             String exportRoot = null;
-            if (args.length == 3) {
+            if (args.length >= 3) {
                 exportRoot = args[2];
             } else {
                 exportRoot = importRoot + "-converted";
             }
+            
+            boolean shutImageServer = false;
+            if (args.length == 4) {
+                shutImageServer = Boolean.parseBoolean(args[3]);
+            }
             initMarshallers();
-            checkAndConvertDirectory(importRoot, exportRoot,  defaultVisibility);
+            checkAndConvertDirectory(importRoot, exportRoot,  defaultVisibility, shutImageServer);
             if (!foundvalidPSP){
                 throw new RuntimeException("No valid PSP found.");
             }
@@ -90,7 +94,7 @@ public class MetsConvertor {
         }
     }
 
-    private static void checkAndConvertDirectory(String importRoot, String exportRoot, boolean defaultVisibility)throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    private static void checkAndConvertDirectory(String importRoot, String exportRoot, boolean defaultVisibility, boolean shutImageServer)throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         File importFolder = new File(importRoot);
 
         if (!importFolder.exists()) {
@@ -108,11 +112,11 @@ public class MetsConvertor {
             for(File child: importFolder.listFiles()){
                 if (child.isDirectory()){
                     String subFolder = System.getProperty("file.separator")+child.getName();
-                    checkAndConvertDirectory(importRoot+subFolder, exportRoot+subFolder, defaultVisibility);
+                    checkAndConvertDirectory(importRoot+subFolder, exportRoot+subFolder, defaultVisibility, shutImageServer);
                 }
             }
         }else{
-            convert(importRoot, exportRoot, defaultVisibility);
+            convert(importRoot, exportRoot, defaultVisibility, shutImageServer);
         }
 
     }
@@ -134,7 +138,7 @@ public class MetsConvertor {
     }
 
 
-    private static String convert(String importRoot, String exportRoot, boolean defaultVisibility) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    private static String convert(String importRoot, String exportRoot, boolean defaultVisibility, boolean shutImageServer) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         System.setProperty("java.awt.headless", "true");
         StringBuffer convertedURI = new StringBuffer();
 
@@ -171,10 +175,9 @@ public class MetsConvertor {
         config.setMarshaller(marshaller);
         config.setExportFolder(exportFolder);
         config.setImportFolder(importRoot);
-
         config.setDefaultVisibility(defaultVisibility);
-
         config.setContract(packageid);
+        config.setShutImageServer(shutImageServer);
 
         if ( KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerDirectorySubfolders", false)){
             config.setImgTree();
