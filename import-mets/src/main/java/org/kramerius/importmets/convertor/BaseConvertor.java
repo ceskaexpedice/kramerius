@@ -1000,7 +1000,7 @@ public abstract class BaseConvertor {
         try {
             String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
             boolean convertToJPG = KConfiguration.getInstance().getConfiguration().getBoolean("convert.originalToJPG", false);
-            if (useImageServer) 
+            if (useImageServer) {
                 streamType = "external";
                 convertToJPG = false;
             }
@@ -1119,7 +1119,7 @@ public abstract class BaseConvertor {
     private DatastreamType createThumbnailStream(BufferedImage img, String filename) throws ServiceException {
         try {
             String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.thumbnails", "encoded");
-            if (useImageServer) 
+            if (useImageServer) {
                 streamType = "external";
             }
             DatastreamType stream = new DatastreamType();
@@ -1195,7 +1195,7 @@ public abstract class BaseConvertor {
     private DatastreamType createPreviewStream(BufferedImage img, String filename) throws ServiceException {
         try {
             String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.previews", "encoded");
-            if (useImageServer) 
+            if (useImageServer) {
                 streamType = "external";
             }
             DatastreamType stream = new DatastreamType();
