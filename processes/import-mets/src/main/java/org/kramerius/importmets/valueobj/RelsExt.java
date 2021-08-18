@@ -29,6 +29,12 @@ public class RelsExt {
 
     public static final String HAS_DONATOR = "hasDonator";
 
+    public static final String HAS_SOUND_UNIT = "hasSoundUnit";
+
+    public static final String CONTAINS_TRACK = "containsTrack";
+
+    public static final String HAS_TRACK = "hasTrack";
+
     public static final String IS_ON_PAGE = "isOnPage";
 
     public static final String POLICY = "policy";
