@@ -475,7 +475,9 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return MODEL_PERIODICAL_ITEM;
         } else if ("ARTICLE".equalsIgnoreCase(divType)) {
             return MODEL_ARTICLE;
-        } else if ("SUPPLEMENT".equalsIgnoreCase(divType)) {
+        } else if ("SUPPLEMENT".equalsIgnoreCase(divType) //DMF Zvuk-Gramofonové_desky 0.4; DMF Zvuk-Fonografické_válečky 0.2;
+                || "SUPPL".equalsIgnoreCase(divType) //DMF Zvuk-Gramofonové_desky 0.3; DMF Zvuk-Fonografické_válečky 0.1;
+        ) {
             return MODEL_SUPPLEMENT;
         } else if ("PICTURE".equalsIgnoreCase(divType)) {
             return MODEL_PICTURE;
