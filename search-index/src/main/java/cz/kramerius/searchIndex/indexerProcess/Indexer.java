@@ -139,8 +139,8 @@ public class Indexer {
             counters.incrementProcessed();
             boolean objectAvailable = repositoryNode != null;
             if (!objectAvailable) {
-                report("object not found in repository (or found in inconsistent state), removing from index");
-                System.err.println("object not found in repository (or found in inconsistent state), removing from index");
+                report("object not found in repository (or found in inconsistent state), removing from index: " + pid);
+                System.err.println("object not found in repository (or found in inconsistent state), removing from index: " + pid);
                 solrIndexer.deleteById(pid);
                 counters.incrementRemoved();
                 report("");
