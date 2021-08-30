@@ -4,13 +4,14 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 
 import java.io.IOException;
 
 /**
  * Created by pstastny on 10/19/2017.
  */
-public class NullStatisticsAccessLogImpl implements StatisticsAccessLog {
+public class NullStatisticsAccessLogImpl extends AggregatedAccessLogs {
 
     public NullStatisticsAccessLogImpl() {
     }

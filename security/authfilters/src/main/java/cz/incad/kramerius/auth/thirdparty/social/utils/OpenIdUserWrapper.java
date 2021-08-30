@@ -5,6 +5,10 @@ import org.brickred.socialauth.Profile;
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractUsersWrapper;
 import cz.incad.kramerius.security.utils.UserUtils;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 public class OpenIdUserWrapper extends AbstractUsersWrapper {
 
     private Profile p;
@@ -19,6 +23,11 @@ public class OpenIdUserWrapper extends AbstractUsersWrapper {
     @Override
     public String getCalculatedName() {
         return this.calcName;
+    }
+
+    @Override
+    public Set<String> getPropertyKeys() {
+        return new HashSet<>(Arrays.asList(UserUtils.FIRST_NAME_KEY, UserUtils.LAST_NAME_KEY));
     }
 
     @Override

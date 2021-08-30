@@ -652,6 +652,7 @@ public abstract class BaseConvertor {
      */
     private void addBase64Streams(DigitalObject foxmlObject, FileDescriptor[] files, Foxml foxmlModel) throws ServiceException {
         boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
+        boolean usePdfServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.usePdfServer", false);
 
         if (files != null) {
             for (FileDescriptor f : files) {
@@ -687,6 +688,31 @@ public abstract class BaseConvertor {
                                     }
                                 }
                                 break;
+                            case PDF:
+                                BufferedImage imgPdf = null;
+                                try{
+                                    if (!usePdfServer){
+                                        imgPdf = readImage(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
+                                    }
+                                } catch (Exception e) {
+                                    throw new ServiceException("Problem with file: "+f.getFilename(),e);
+                                }
+                                DatastreamType fullStreamPDF = this.createFullStreamPDF(f.getFilename());
+                                
+                                if (fullStreamPDF != null) {
+                                    addCheckedDataStream(foxmlObject, fullStreamPDF);
+                                }
+                                DatastreamType thumbnailStreamPDF = this.createThumbnailStreamPDF(imgPdf, f.getFilename());
+                                if (thumbnailStreamPDF != null) {
+                                    addCheckedDataStream(foxmlObject, thumbnailStreamPDF);
+                                }
+                                if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.generatePreview", true)){
+                                    DatastreamType previewStreamPdf = this.createPreviewStreamPdf(imgPdf, f.getFilename());
+                                    if (previewStreamPdf != null) {
+                                        addCheckedDataStream(foxmlObject, previewStreamPdf);
+                                    }
+                                }
+                                break;
                             case ALTO:
                                 DatastreamType altoStream = this.createAltoStream( f.getFilename());
                                 if (altoStream != null) {
@@ -706,7 +732,7 @@ public abstract class BaseConvertor {
                                 DatastreamType imageAdmStream = this.createImageMetaStream(getBase64StreamId(f.getFilename()) + "_ADM", f.getImageMetaData());
                                 addCheckedDataStream(foxmlObject, imageAdmStream);
                                 }*/ //TODO support for AMD
-                                break;
+                                break; 
                         }
                     } else {
                         if (f.getFilename() != null){
@@ -827,7 +853,7 @@ public abstract class BaseConvertor {
     protected static final String ALTO_GRP = "ALTOGRP";
     protected static final String TXT_GRP = "TXTGRP";
     protected static final String AMD_METS_GRP = "TECHMDGRP";
-
+    protected static final String OC_GRP = "OC_EBGRP";
 
     protected StreamFileType getFileType(String filegrp){
         if (MC_GRP.equalsIgnoreCase(filegrp)){
@@ -840,6 +866,8 @@ public abstract class BaseConvertor {
             return StreamFileType.OCR;
         } else if (AMD_METS_GRP.equalsIgnoreCase(filegrp)){
             return StreamFileType.AMD;
+        } else if (OC_GRP.equalsIgnoreCase(filegrp)){
+            return StreamFileType.PDF;
         }
         throw new ServiceException("Unknown fileGrp: "+filegrp);
     }
@@ -1208,6 +1236,248 @@ public abstract class BaseConvertor {
             throw new ServiceException(e);
         }
     }
+    
+     
+    /**
+     * Vytvori datastream obsahujici base64 zakodovana binarni data pro full - PDF
+     *
+     * @param filename
+     * @return stream
+     */
+    private DatastreamType createFullStreamPDF(String filename) throws ServiceException {
+        try {
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
+            boolean usePdfServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.usePdfServer", false);
+            if (usePdfServer) {
+                streamType = "external";
+            }
+            DatastreamType stream = new DatastreamType();
+            stream.setID(FedoraUtils.IMG_FULL_STREAM);
+            if ("external".equalsIgnoreCase(streamType)){
+                stream.setCONTROLGROUP("E");
+            }else{
+                stream.setCONTROLGROUP("M");
+            }
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+
+            DatastreamVersionType version = new DatastreamVersionType();
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setID(FedoraUtils.IMG_FULL_STREAM + STREAM_VERSION_SUFFIX);
+            
+            String mime = getImageMime(filename);
+            version.setMIMETYPE(mime);
+            
+
+            File pageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + filename);
+
+            if ("encoded".equalsIgnoreCase(streamType)){
+                byte[] binaryContent  = FileUtils.readFileToByteArray(pageFile);
+                version.setBinaryContent(binaryContent);
+            }else{//external or referenced
+                String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "img";
+                
+                // TODO - using pdfServer - edit in the future
+                if (usePdfServer){
+                    //String externalImagesDirectory = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory");
+                    //binaryDirectory = externalImagesDirectory + getConfig().getImgTreePath()+ System.getProperty("file.separator") + getConfig().getContract();
+                }
+
+                // Destination directory
+                File dir = IOUtils.checkDirectory(binaryDirectory);
+                // Move file to new directory
+                File target = new File(dir, pageFile.getName());
+                FileUtils.copyFile(pageFile, target);
+
+                ContentLocationType cl = new ContentLocationType();
+                
+                // TODO - using pdfServer - edit in the future
+                if (usePdfServer) {
+                    //String pdfsPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.pdfServerPdfsURLPrefix")+ getConfig().getImgTreeUrl();
+                    //String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.pdfServerSuffix.big");
+
+                    //if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdfServerSuffix.removeFilenameExtensions", false)) {
+                    //    String pageFileNameWithoutExtension = FilenameUtils.removeExtension(pageFile.getName());
+                    //    cl.setREF(pdfsPrefix + "/" + PathEncoder.encPath(getConfig().getContract() + "/" + pageFileNameWithoutExtension) + suffix);
+                    //} else {
+                    //    cl.setREF(pdfsPrefix + "/" + PathEncoder.encPath(getConfig().getContract() + "/" + pageFile.getName()) + suffix);
+                    //}
+
+                }   else{
+                    String externalPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.externalStreamsUrlPrefix");
+                    if (externalPrefix!= null && !"".equals(externalPrefix)){
+                        cl.setREF(externalPrefix + "/" + PathEncoder.encPath(getConfig().getContract() + "/img/" + pageFile.getName()));
+                    }else{
+                        cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX + fixWindowsFileURL(target.getAbsolutePath())));
+                    }
+                }
+                cl.setTYPE("URL");
+                version.setContentLocation(cl);
+            }
+            stream.getDatastreamVersion().add(version);
+            return stream;
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+    
+    /**
+     * Vytvori datastream obsahujici base64 zakodovana binarni data pro thumbnail - PDF
+     *
+     * @param img
+     * @param filename
+     * @return stream
+     */
+    private DatastreamType createThumbnailStreamPDF(BufferedImage img, String filename) throws ServiceException {
+        try {
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.thumbnails", "encoded");
+            boolean usePdfServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.usePdfServer", false);
+            
+            if (usePdfServer){
+                streamType = "external";
+            }
+            DatastreamType stream = new DatastreamType();
+            stream.setID(FedoraUtils.IMG_THUMB_STREAM);
+            if ("external".equalsIgnoreCase(streamType)){
+                stream.setCONTROLGROUP("E");
+            }else{
+                stream.setCONTROLGROUP("M");
+            }
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+
+            DatastreamVersionType version = new DatastreamVersionType();
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setID(FedoraUtils.IMG_THUMB_STREAM + STREAM_VERSION_SUFFIX);
+
+            version.setMIMETYPE("image/jpeg");
+
+            byte[] binaryContent = null;
+            if (!usePdfServer){
+                binaryContent = scaleImage(img, 0, FedoraUtils.THUMBNAIL_HEIGHT);
+                if (binaryContent== null || binaryContent.length == 0) {
+                    return null;
+                }
+            }
+
+            if ("encoded".equalsIgnoreCase(streamType)){
+                version.setBinaryContent(binaryContent);
+            }else{//external or referenced
+                ContentLocationType cl = new ContentLocationType();
+                if (!usePdfServer){
+                    String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "thumbnail";
+                    // Destination directory
+                    File dir = IOUtils.checkDirectory(binaryDirectory);
+                    // Move file to new directory
+                    File target = new File(dir, filename.substring(filename.lastIndexOf("/"), filename.lastIndexOf('.'))+".jpg");
+                    FileUtils.writeByteArrayToFile(target, binaryContent);
+                    String externalPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.externalStreamsUrlPrefix");
+                    if (externalPrefix!= null && !"".equals(externalPrefix)){
+                        cl.setREF(externalPrefix + "/" + PathEncoder.encPath(getConfig().getContract() + "/thumbnail/" + filename.substring(filename.lastIndexOf("/"), filename.lastIndexOf('.')) + ".jpg"));
+                    }else{
+                        cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                    }
+                // TODO - using pdfServer - edit in the future
+                }else{
+                    // String pdfsPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.pdfServerPdfsURLPrefix") + getConfig().getImgTreeUrl();
+                    // String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.pdfServerSuffix.thumb");
+                    //if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdfServerSuffix.removeFilenameExtensions", false)) {
+                    //    String pageFileNameWithoutExtension = FilenameUtils.removeExtension(filename.substring(filename.lastIndexOf("/")));
+                    //    cl.setREF(pdfsPrefix + "/"+PathEncoder.encPath(getConfig().getContract() + pageFileNameWithoutExtension + suffix));
+                    //} else {
+                    //    cl.setREF(pdfsPrefix + "/" + PathEncoder.encPath(getConfig().getContract() + filename.substring(filename.lastIndexOf("/"))) + suffix);
+                    //}
+                }
+                cl.setTYPE("URL");
+                version.setContentLocation(cl);
+            }
+
+            stream.getDatastreamVersion().add(version);
+
+            return stream;
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+    
+    /**
+     * Vytvori datastream obsahujici base64 zakodovana binarni data pro preview - PDF
+     *
+     * @param img
+     * @param filename
+     * @return stream
+     */
+    private DatastreamType createPreviewStreamPdf(BufferedImage img, String filename) throws ServiceException {
+        try {
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.previews", "encoded");
+            boolean usePdfServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.usePdfServer", false);
+            if (usePdfServer){
+                streamType = "external";
+            }
+            DatastreamType stream = new DatastreamType();
+            stream.setID(FedoraUtils.IMG_PREVIEW_STREAM);
+            if ("external".equalsIgnoreCase(streamType)){
+                stream.setCONTROLGROUP("E");
+            }else{
+                stream.setCONTROLGROUP("M");
+            }
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+
+            DatastreamVersionType version = new DatastreamVersionType();
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setID(FedoraUtils.IMG_PREVIEW_STREAM + STREAM_VERSION_SUFFIX);
+
+            version.setMIMETYPE("image/jpeg");
+
+            int previewSize =  KConfiguration.getInstance().getConfiguration().getInt("convert.previewSize", FedoraUtils.PREVIEW_HEIGHT);
+            byte[] binaryContent = null;
+            if (!usePdfServer){
+                binaryContent = scaleImage(img,previewSize, previewSize);
+                if (binaryContent == null || binaryContent.length == 0) {
+                    return null;
+                }
+            }
+            if ("encoded".equalsIgnoreCase(streamType)){
+                version.setBinaryContent(binaryContent);
+            }else{//external or referenced
+                ContentLocationType cl = new ContentLocationType();
+                if (!usePdfServer){
+                    String binaryDirectory = getConfig().getExportFolder() + System.getProperty("file.separator") + "preview";
+                    // Destination directory
+                    File dir = IOUtils.checkDirectory(binaryDirectory);
+                    // Move file to new directory
+                    File target = new File(dir, filename.substring(filename.lastIndexOf("/"), filename.lastIndexOf('.')) + ".jpg");
+                    FileUtils.writeByteArrayToFile(target, binaryContent);
+                    String externalPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.externalStreamsUrlPrefix");
+                    if (externalPrefix!= null && !"".equals(externalPrefix)){
+                        cl.setREF(externalPrefix + "/" + PathEncoder.encPath(getConfig().getContract() + "/preview/" + filename.substring(filename.lastIndexOf("/"), filename.lastIndexOf('.')) + ".jpg"));
+                    }else{
+                        cl.setREF(PathEncoder.encPath(FILE_SCHEME_PREFIX+fixWindowsFileURL(target.getAbsolutePath())));
+                    }
+                    // TODO - using pdfServer - edit in the future
+                }else{
+                    //String pdfsPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.pdfServerPdfsURLPrefix") + getConfig().getImgTreeUrl();
+                    //String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.pdfServerSuffix.preview");
+                    //if(KConfiguration.getInstance().getConfiguration().getBoolean("convert.pdfServerSuffix.removeFilenameExtensions", false)) {
+                    //    String pageFileNameWithoutExtension = FilenameUtils.removeExtension(filename.substring(filename.lastIndexOf("/")));
+                    //    cl.setREF(pdfsPrefix +"/" + PathEncoder.encPath(getConfig().getContract() + pageFileNameWithoutExtension + suffix));
+                    //} else {
+                    //    cl.setREF(pdfsPrefix + "/" + PathEncoder.encPath(getConfig().getContract() + filename.substring(filename.lastIndexOf("/"))) + suffix);
+                    //}
+                }
+                cl.setTYPE("URL");
+                version.setContentLocation(cl);
+            }
+
+            stream.getDatastreamVersion().add(version);
+
+            return stream;
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+    
 
 
     private DatastreamType createAltoStream(String filename) throws ServiceException {

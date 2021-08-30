@@ -44,7 +44,7 @@ class ShibRuleParser extends Parser;
 
     condition returns [MatchRule rule]
     {rule=new MatchRule(); Value l,r;}:
-     L_BRACKET l=value { rule.setLeftOperand(l); } COMMA  (r=value {rule.setRightOperand(r);} | re:REGEXP_LITERAL {rule.setRightOperand(new ExpressionValue(re.getText()));})  R_BRACKET;
+     L_BRACKET l=value { rule.setLeftOperand(l); } |  lre:REGEXP_LITERAL {rule.setLeftOperand(new ExpressionValue(lre.getText()));})  COMMA  (r=value {rule.setRightOperand(r);} | re:REGEXP_LITERAL {rule.setRightOperand(new ExpressionValue(re.getText()));})  R_BRACKET;
 
     body returns [ExpressionsBody body]
     {body = new ExpressionsBody(); Expr c,ms; }:
@@ -136,9 +136,25 @@ REGEXP_LITERAL {$setType(REGEXP_LITERAL);};
 
 
 
-NEWLINE : ('\r''\n')=> '\r''\n' //DOS
-        | '\r'                  //MAC
-        | '\n'                  //UNIX
-        { newline();  $setType(Token.SKIP);}
-        ;
-WS      : (' '|'\t') { $setType(Token.SKIP); } ;
+//NEWLINE : ('\r''\n')=> '\r''\n' //DOS
+//        | '\r'                  //MAC
+//        | '\n'                  //UNIX
+//        {  $setType(Token.SKIP);}
+//        ;
+//WS      : (' '|'\t') { $setType(Token.SKIP); } ;
+
+
+// Whitespace -- ignored
+WS	:	(	' '
+		|	'\t'
+		|	'\f'
+			// handle newlines
+		|	(	options {generateAmbigWarnings=false;}
+			:	"\r\n"  // Evil DOS
+			|	'\r'    // Macintosh
+			|	'\n'    // Unix (the right way)
+			)
+			{ newline(); }
+		)+
+		{ _ttype = Token.SKIP; }
+	;

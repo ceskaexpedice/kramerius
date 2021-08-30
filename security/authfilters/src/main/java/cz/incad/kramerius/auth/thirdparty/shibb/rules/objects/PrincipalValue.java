@@ -34,4 +34,9 @@ public class PrincipalValue implements Value {
     public boolean match(Value val, HttpServletRequest request) {
         return getValue(request).equals(val.getValue(request));
     }
+
+    @Override
+    public String toString() {
+        return "principal()";
+    }
 }

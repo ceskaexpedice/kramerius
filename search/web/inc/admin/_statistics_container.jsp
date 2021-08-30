@@ -47,8 +47,7 @@
     }
 
 </script>
-
-<fieldset style="border: 0px; margin: 0px; padding: 0px;">
+ <fieldset style="border: 0px; margin: 0px; padding: 0px;">
     <table style="width:100%">
         
         <thead>
@@ -67,7 +66,7 @@
                 <td></td>
                 <td></td>
             </tr>
-        	
+
             <tr>
                 <td><view:msg>statistics.report.dates.datefrom</view:msg>:</td>
                 <td><view:msg>statistics.report.dates.dateto</view:msg>:</td>
@@ -112,6 +111,7 @@
 </fieldset>
 
 <hr></hr>
+
 <fieldset  style="border: 0px; margin: 0px; padding: 0px;">
     <table style="width:100%">
         <thead>
@@ -166,7 +166,7 @@
                 <a href="javascript:statistics.langXML(_action(),_visibility(),$('#report_date_from').val(),$('#report_date_to').val(), _ip_address(), _ip_address_unique());" class="buttons"><view:msg>common.format.XML</view:msg></a>
             </td>
         </tr>
-
+        
         <tr><td colspan="3"> <hr/></td></tr>    
         <tr>
             <td colspan="2"><strong><view:msg>statistics.report.annualreport</view:msg></strong></td>

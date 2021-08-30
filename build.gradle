@@ -50,7 +50,7 @@ dependencies {
     // editor dependency
     // editors group: "cz.incad.kramerius", name: "editor", version: "5.1.1", ext: "war"
     // rightseditor dependency
-    editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
+    editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.1", ext: "war"
 }
 
 
@@ -141,9 +141,6 @@ allprojects {
         mavenCentral()
 
 
-        maven {
-            url "http://download.java.net/maven/2/"
-        }
 
         maven {
             url "http://m2.duraspace.org/content/repositories/releases"
@@ -190,6 +187,10 @@ allprojects {
         maven {
             url "https://jitpack.io"
         }
+        /*
+        maven {
+            url "http://download.java.net/maven/2/"
+        }*/
 
     }
 

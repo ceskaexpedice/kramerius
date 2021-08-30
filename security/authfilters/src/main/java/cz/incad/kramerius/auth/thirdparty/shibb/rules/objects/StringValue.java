@@ -42,7 +42,12 @@ public class StringValue implements Value {
     public boolean match(Value val, HttpServletRequest request) {
         return this.value.equals(val.getValue(request));
     }
-    
-    
-    
+
+
+    @Override
+    public String toString() {
+        return "string(" +
+                "value='" + value + '\'' +
+                ')';
+    }
 }

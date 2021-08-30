@@ -28,7 +28,8 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.utils.BasicAuthenticationFilter;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
+
 
 /**
  * Simple testing utility

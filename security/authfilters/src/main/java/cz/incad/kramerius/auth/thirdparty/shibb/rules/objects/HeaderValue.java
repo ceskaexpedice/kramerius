@@ -41,12 +41,20 @@ public class HeaderValue implements Value {
     @Override
     public boolean match(Value val, HttpServletRequest request) {
         String thisVal = getValue(request);
-        String foreignVal = val.getValue(request);
-        if (thisVal != null && foreignVal != null) {
-            return thisVal.equals(foreignVal);
-        } else if (thisVal == null && foreignVal == null) {
-            return true;
-        } else return false;
+        if (val instanceof  ExpressionValue)  {
+            return val.match(this,request);
+        } else {
+            String foreignVal = val.getValue(request);
+            if (thisVal != null && foreignVal != null) {
+                return thisVal.equals(foreignVal);
+            } else return thisVal == null && foreignVal == null;
+        }
     }
-    
+
+    @Override
+    public String toString() {
+        return "header(" +
+                "key='" + key + '\'' +
+                ')';
+    }
 }

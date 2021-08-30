@@ -18,6 +18,7 @@ package cz.incad.kramerius;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Document;
@@ -38,6 +39,7 @@ public interface SolrAccess {
      * @throws IOException IO error has been occurred
      */
     public Document getSolrDataDocument(String pid) throws IOException;
+
 
     /**
      * Returns SOLR data document for given handle
@@ -90,6 +92,9 @@ public interface SolrAccess {
      * @throws IOException IO error gas been occurred
      */
     public ObjectModelsPath[] getPathOfModels(String pid) throws IOException;
+
+    public ObjectModelsPath[] getPathOfModels(Document doc) throws IOException;
+
 
     /**
      * Wrapper allows to return ObjectPidPaths and ObjectModelsPath in one response

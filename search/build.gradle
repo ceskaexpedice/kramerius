@@ -39,7 +39,6 @@ dependencies {
     compile project(':security:authfilters')
 
     compile project(':processes:mw-process')
-    compile project(':processes:static-export')
     compile project(':processes:indexer')
     compile project(':processes:import')
     compile project(':processes:import-mets')
@@ -47,12 +46,15 @@ dependencies {
     compile project(':processes:data-migration')
 
     compile project(':processes:dnntflag')
+    compile project(':processes:nkp-logs')
 
 
     compile 'javax.servlet:jstl:1.1.2'   
     compile 'taglibs:standard:1.1.2'   
     compile 'xalan:xalan:2.7.1'   
-    compile 'net.sf:simplecaptcha:1.2.1'   
+    compile 'net.sf:simplecaptcha:1.2.1'
+
+
     compile 'xerces:xercesImpl:2.9.1'
     compile 'com.foxtrottechnologies:javadjvu:0.8.09'
     compile 'com.foxtrottechnologies:djvuframe:0.8.09'
@@ -89,8 +91,8 @@ task infofile(dependsOn: gitcall)  {
         props.setProperty('hash', gitcall.hash)
 
         props.store(buildInfoFile.newWriter(), null)
-        println "Created build file ${buildInfoFile.absolutePath}"
-    }
+        println "Created build file ${buildInfoFile.absolutePath} with version ${project.version.toString()} and hash ${gitcall.hash} "
+	}
 }
 
 processResources.dependsOn infofile

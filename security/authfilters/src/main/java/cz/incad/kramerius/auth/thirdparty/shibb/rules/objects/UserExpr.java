@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
+import cz.incad.kramerius.security.utils.UserUtils;
 
 /**
  * Perform set attributes to actual logged user (firstname and surname)
@@ -28,8 +29,8 @@ import cz.incad.kramerius.security.impl.UserImpl;
  */
 public class UserExpr implements Expr {
 
-    public static final String FIRSTNAME = "firstname";
-    public static final String SURNAME ="surname";
+//    public static final String FIRSTNAME = "firstname";
+//    public static final String SURNAME ="surname";
 
     private String userField;
     private Value value;
@@ -44,12 +45,22 @@ public class UserExpr implements Expr {
     @Override
     public void evaluate(ShibbolethContext ctx) {
         //User user = ctx.getUser();
-        if (userField.equals(FIRSTNAME)) {
+        if (userField.equals(UserUtils.FIRST_NAME_KEY)) {
             String firstName = this.value.getValue(ctx.getHttpServletRequest());
             ctx.associateFirstName(firstName);
-        } else if (userField.equals(SURNAME)) {
+        } else if (userField.equals(UserUtils.LAST_NAME_KEY)) {
             String sName = this.value.getValue(ctx.getHttpServletRequest());
             ctx.associateLastName(sName);
-        } else throw new IllegalStateException("illegal key '"+userField);
+        } else {
+            ctx.associateSessionAttribute(userField,  this.value.getValue(ctx.getHttpServletRequest()));
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "user{" +
+                "field='" + userField + '\'' +
+                ", value=" + value +
+                '}';
     }
 }

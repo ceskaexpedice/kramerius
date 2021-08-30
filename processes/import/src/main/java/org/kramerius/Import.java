@@ -47,6 +47,11 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import cz.incad.kramerius.utils.*;
+
+
+import static cz.incad.kramerius.utils.XMLUtils.*;
+import static cz.incad.kramerius.FedoraNamespaces.*;
 
 
 public class Import {
@@ -278,6 +283,19 @@ public class Import {
                                 DatastreamVersionType dsversion = ds.getDatastreamVersion().get(0);
                                 if (dsversion.getXmlContent() != null) {
                                     Element element = dsversion.getXmlContent().getAny().get(0);
+									if (dsName.equals(FedoraUtils.DC_STREAM)) {
+                                        String rights = DCUtils.rightsFromDC(element);
+                                        if (rights != null) {
+                                            Element elm = findElement(element, "rights", DC_NAMESPACE_URI);
+                                            if (elm == null) {
+                                                elm = element.getOwnerDocument().createElementNS(DC_NAMESPACE_URI, "rights");
+                                                element.appendChild(elm);
+                                            }
+                                            elm.setTextContent(rights);
+                                        }
+                                    }
+
+
                                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                                     Source xmlSource = new DOMSource(element);
                                     Result outputTarget = new StreamResult(outputStream);
@@ -861,4 +879,20 @@ class TitlePidTuple {
         return "Title:" + title + " PID:" + pid;
     }
 }
-
+//class ImportModule extends AbstractModule {
+//
+//    @Override
+//    protected void configure() {
+//        bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+//
+//        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+//        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+//
+//
+//        bind(AggregatedAccessLogs.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+//        bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
+//        bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
+//        bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);
+//    }
+//}
+//

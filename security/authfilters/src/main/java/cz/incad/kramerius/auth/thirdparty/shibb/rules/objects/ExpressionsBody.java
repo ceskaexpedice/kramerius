@@ -18,12 +18,15 @@ package cz.incad.kramerius.auth.thirdparty.shibb.rules.objects;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Represents expression body block
  * @author pavels
  */
 public class ExpressionsBody implements Expr {
+
+    public static final Logger LOGGER = Logger.getLogger(ExpressionsBody.class.getName());
 
     // expressions inside block
     private List<Expr> expressions = new ArrayList<Expr>();
@@ -57,6 +60,7 @@ public class ExpressionsBody implements Expr {
      */
     public void evaluate( ShibbolethContext ctx) {
         for (Expr expr : this.expressions) {
+            LOGGER.fine(expr::toString);
             expr.evaluate(ctx);
         }
     }

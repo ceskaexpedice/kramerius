@@ -63,7 +63,7 @@ public enum OpenIDFlag {
     },
     LOGGED {
         @Override
-        public OpenIDFlag next(HttpServletRequest req) throws Exception {
+        public OpenIDFlag next(HttpServletRequest req) {
             req.getSession(true).setAttribute(STATE_KEY, STORED.name());
             return OpenIDFlag.STORED;
             
@@ -72,20 +72,20 @@ public enum OpenIDFlag {
     
     STORED {
         @Override
-        public OpenIDFlag next(HttpServletRequest req) throws Exception {
+        public OpenIDFlag next(HttpServletRequest req) {
             req.getSession(true).setAttribute(STATE_KEY, STORED.name());
             return OpenIDFlag.STORED;
         }
     };
 
-    public  SocialAuthManager authManager(HttpServletRequest req) throws Exception {
+    public  SocialAuthManager authManager(HttpServletRequest req) {
         Object attribute = req.getSession(true).getAttribute(MANAGER_KEY);
-        return (SocialAuthManager) (attribute != null ? attribute : null);
+        return (SocialAuthManager) (attribute);
     }
 
-    public  Profile profile(HttpServletRequest req) throws Exception {
+    public  Profile profile(HttpServletRequest req) {
         Object attribute = req.getSession(true).getAttribute(PROFILE_KEY);
-        return (Profile) (attribute != null ? attribute : null);
+        return (Profile) (attribute);
     }
 
 

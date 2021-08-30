@@ -71,6 +71,11 @@ public class ModelStatisticsDetail {
         
         StringBuilder builder = new StringBuilder();
         List<DCConent> contents = dcs.get(pid);
+        
+        if (contents == null) {
+            return builder.toString();
+        }
+        
         for (int i = 0,ll=contents.size(); i < ll; i++) {
             DCConent dcConent = contents.get(i);
             String model = dcConent.getType();

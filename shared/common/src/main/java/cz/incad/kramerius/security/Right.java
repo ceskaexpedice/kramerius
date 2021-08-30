@@ -89,7 +89,9 @@ public interface Right {
      * @throws RightCriteriumException
      */
     public EvaluatingResultState evaluate(RightCriteriumContext ctx, RightsManager rightsManager) throws RightCriteriumException;
-    
+
+
+    public EvaluatingResultState mockEvaluate(RightCriteriumContext ctx, RightsManager rightsManager, DataMockExpectation dataExpectation) throws RightCriteriumException;
     
     /**
      * Sets fixed priority

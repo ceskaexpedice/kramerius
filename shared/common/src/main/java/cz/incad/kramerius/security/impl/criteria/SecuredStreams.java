@@ -16,16 +16,17 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
-import cz.incad.kramerius.security.EvaluatingResultState;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.*;
 
 public class SecuredStreams extends AbstractCriterium implements RightCriterium {
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
+        return EvaluatingResultState.TRUE;
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         return EvaluatingResultState.TRUE;
     }
 
@@ -44,5 +45,5 @@ public class SecuredStreams extends AbstractCriterium implements RightCriterium 
         return new SecuredActions[] {SecuredActions.READ};
     }
 
-    
+
 }

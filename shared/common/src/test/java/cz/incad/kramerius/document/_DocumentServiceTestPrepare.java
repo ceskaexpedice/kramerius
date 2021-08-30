@@ -17,6 +17,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+
 import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
 import org.ehcache.CacheManager;
@@ -40,7 +42,7 @@ public class _DocumentServiceTestPrepare {
     public static Injector prepareInjector(String pages, boolean turnOffPdfCheck) throws NoSuchMethodException,
             IOException, ParserConfigurationException, SAXException,
             LexerException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         Locale locale = Locale.getDefault();
         FedoraAccessAkubraImpl fa4 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
 

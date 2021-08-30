@@ -232,8 +232,11 @@ public class IterationUtils {
         public void end();
     }
 
-    static Element executeQuery(Client client, String url, String query) throws ParserConfigurationException, SAXException, IOException {
+    public static Element executeQuery(Client client, String url, String query) throws ParserConfigurationException, SAXException, IOException {
         LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] processing %s", query));
+        if (!query.contains("wt")) {
+            query =query+ "&wt=xml";
+        }
         WebResource r = client.resource(url+(url.endsWith("/") ? "" : "/")+ query);
         String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
         Document parseDocument = XMLUtils.parseDocument(new StringReader(t));

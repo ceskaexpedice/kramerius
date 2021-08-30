@@ -18,6 +18,7 @@ package cz.incad.kramerius.auth.thirdparty.shibb.rules.objects;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,6 +29,9 @@ import javax.servlet.http.HttpServletRequest;
  * @author pavels
  */
 public class MatchRule implements Expr {
+
+    public static final Logger LOGGER = Logger.getLogger(MatchRule.class.getName());
+
 
     private Value leftOperand;
     private Value rightOperand;
@@ -100,13 +104,21 @@ public class MatchRule implements Expr {
     /**
      * Evaluate match rule
      * @param ctx Runtime context
-     * @see ShibContext
      */
     public void evaluate( ShibbolethContext ctx) {
         if (this.leftOperand.match(this.rightOperand, ctx.getHttpServletRequest())) {
+            LOGGER.fine(this::toString);
             if (body != null) {
                 this.body.evaluate(ctx);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "match(" +
+                "left=" + leftOperand +
+                ", right=" + rightOperand +
+                ')';
     }
 }

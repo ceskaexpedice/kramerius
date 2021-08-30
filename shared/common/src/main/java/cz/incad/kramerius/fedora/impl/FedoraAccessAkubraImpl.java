@@ -13,6 +13,7 @@ import cz.incad.kramerius.fedora.om.impl.AkubraRepository;
 import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -33,16 +34,17 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
     private AkubraDOManager manager;
     private Repository repository;
     private ProcessingIndexFeeder feeder;
+    private AggregatedAccessLogs accessLog;
 
 
     @Inject
-    public FedoraAccessAkubraImpl(KConfiguration configuration, ProcessingIndexFeeder feeder, @Nullable StatisticsAccessLog accessLog, @Named("akubraCacheManager") CacheManager cacheManager) throws IOException {
+    public FedoraAccessAkubraImpl(KConfiguration configuration, ProcessingIndexFeeder feeder, @Nullable AggregatedAccessLogs accessLog, @Named("akubraCacheManager") CacheManager cacheManager) throws IOException {
         super(configuration, accessLog);
         try {
             this.manager = new AkubraDOManager(configuration, cacheManager);
             this.feeder = feeder;
             this.repository = AkubraRepository.build(feeder, this.manager);
-
+            this.accessLog = accessLog;
 
         } catch (Exception e) {
             throw new IOException(e);
@@ -127,6 +129,12 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
+			
+			pid = makeSureObjectPid(pid);
+            if (this.accessLog != null && this.accessLog.isReportingAccess(pid, datastreamName)) {
+                reportAccess(pid, datastreamName);
+            }
+			
             DigitalObject object = manager.readObjectFromStorage(pid);
             if (object != null) {
                 DatastreamVersionType stream = AkubraUtils.getLastStreamVersion(object, datastreamName);
@@ -156,11 +164,7 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
 
     @Override
     public InputStream getImageFULL(String pid) throws IOException {
-        try {
-            return getDataStream(makeSureObjectPid(pid), FedoraUtils.IMG_FULL_STREAM);
-        } catch (LexerException e) {
-            throw new IOException(e);
-        }
+        return getDataStream(pid, FedoraUtils.IMG_FULL_STREAM);
     }
 
 
@@ -395,6 +399,14 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
     @Override
     public void shutdown() {
         manager.shutdown();
+    }
+
+    private void reportAccess(String pid, String streamName) {
+        try {
+            this.accessLog.reportAccess(pid, streamName);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid + ", stream name: " + streamName, e);
+        }
     }
 
 

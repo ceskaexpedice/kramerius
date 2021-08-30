@@ -1,0 +1,32 @@
+/** Organization **/
+match(header("affilation"),/.*mzk.*/) { 
+	user("organization", "MZK") 
+}
+
+match(header("affilation"),/.*nkp.*/) { 
+	user("organization", "NKP") 
+}
+
+match(header("affilation"),/.*knav.*/) { 
+	user("organization", "KNAV") 
+}
+
+/**
+ * Pravidlo se aplikuje pokud ma v affilation havicce zamestnanec
+ */
+match(header("affilation"),/.*staff.*/) { 
+	// first name
+	user("firstname",header("remote_user")) 
+	// surname
+	user("surname", "Testovaci") 
+	user("affilation", header("affilation")) 
+	user("note_6", "From MZK") 
+    role("k4_admins") 
+}
+
+/** podchyceni admin uzivatele */
+match(header("affilation"),/.*staff.*/) { 
+	role("dalsi_role")
+	user("mujadmin", "true")
+}
+

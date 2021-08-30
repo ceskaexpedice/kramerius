@@ -6,6 +6,7 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import junit.framework.Assert;
@@ -35,7 +36,7 @@ public class FedoraAccess4xImplTest {
     @Test
     public void testFindFirstViewablePid_good() throws IOException, ParserConfigurationException, SAXException, LexerException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
         HazelcastServerNode.ensureHazelcastNode();
@@ -62,7 +63,7 @@ public class FedoraAccess4xImplTest {
     @Test
     public void testFindFirstViewablePid_bad() throws IOException, ParserConfigurationException, SAXException, LexerException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
         HazelcastServerNode.ensureHazelcastNode();
@@ -89,7 +90,7 @@ public class FedoraAccess4xImplTest {
 
         final List<Integer> order = new ArrayList<>();
 
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
         HazelcastServerNode.ensureHazelcastNode();
@@ -138,7 +139,7 @@ public class FedoraAccess4xImplTest {
     @Test
     public void testProcessTree_SkipBranch2() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
-        StatisticsAccessLog aclog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
         HazelcastServerNode.ensureHazelcastNode();

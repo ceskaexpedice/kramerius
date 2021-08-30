@@ -16,12 +16,8 @@
  */
 package cz.incad.kramerius.security.impl.criteria;
 
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaRELSEXTUtils;
-
-import cz.incad.kramerius.security.EvaluatingResultState;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
 
 /**
  * Kontroluje priznak v metadatech RELS-EXT. 
@@ -42,6 +38,15 @@ public class PolicyFlag extends AbstractRELSExtCriterium {
         // false must be remmaped to NOT_APPLICABLE
         if (rState.equals(EvaluatingResultState.FALSE)) return EvaluatingResultState.NOT_APPLICABLE;
         else return rState;
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
     }
 
     @Override

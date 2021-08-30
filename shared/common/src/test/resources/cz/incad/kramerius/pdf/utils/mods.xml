@@ -1,0 +1,138 @@
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+    <mods:mods xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xlink="http://www.w3.org/1999/xlink" version="3.5">
+        <mods:classification authority="udc">821.162.3</mods:classification>
+        <mods:classification authority="udc">82:114</mods:classification>
+        <mods:classification authority="udc">82:911.5</mods:classification>
+        <mods:classification authority="udc">82.091</mods:classification>
+        <mods:classification authority="udc">82:7.04</mods:classification>
+        <mods:classification authority="udc">808.1-028.44</mods:classification>
+        <mods:classification authority="udc">82.07</mods:classification>
+        <mods:classification authority="udc">(048.8)</mods:classification>
+        <mods:classification authority="Konspekt">11</mods:classification>
+        <mods:classification authority="udc" edition="Konspekt">821.162.3.09</mods:classification>
+        <mods:genre>volume</mods:genre>
+        <mods:genre authority="rdacontent">text</mods:genre>
+        <mods:genre authority="czenas">monografie</mods:genre>
+        <mods:genre authority="eczenas">monographs</mods:genre>
+        <mods:identifier type="uuid">2d433337-df02-4666-bd68-117d86553a44</mods:identifier>
+        <mods:identifier type="ccnb">cnb002830834</mods:identifier>
+        <mods:identifier type="isbn">978-80-7363-745-3</mods:identifier>
+        <mods:identifier type="isbn">978-80-7464-830-4</mods:identifier>
+        <mods:identifier type="urnnbn">urn:nbn:cz:aba007-0002ei</mods:identifier>
+        <mods:language>
+            <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+        </mods:language>
+        <mods:language objectPart="summary or subtitle">
+            <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
+        </mods:language>
+        <mods:location>
+            <mods:physicalLocation authority="siglaADR">ABA007</mods:physicalLocation>
+            <mods:shelfLocator>E 80342</mods:shelfLocator>
+        </mods:location>
+        <mods:name authorityURI="http://aut.nkp.cz" type="personal" usage="primary" valueURI="http://aut.nkp.cz/jn20001227629">
+            <mods:namePart>Tomášek, Martin</mods:namePart>
+            <mods:namePart type="date">1969-</mods:namePart>
+            <mods:role>
+                <mods:roleTerm authority="marcrelator" type="code">aut</mods:roleTerm>
+            </mods:role>
+        </mods:name>
+        <mods:note altRepGroup="00" type="statement of responsibility">Martin Tomášek.</mods:note>
+        <mods:note type="bibliography">Obsahuje bibliografii, bibliografické odkazy a rejstřík</mods:note>
+        <mods:note type="language">Anglické resumé</mods:note>
+        <mods:originInfo>
+            <mods:place>
+                <mods:placeTerm authority="marccountry" type="code">xr</mods:placeTerm>
+            </mods:place>
+            <mods:dateIssued encoding="marc">2016</mods:dateIssued>
+            <mods:edition>První vydání</mods:edition>
+            <mods:issuance>monographic</mods:issuance>
+        </mods:originInfo>
+        <mods:originInfo eventType="publication">
+            <mods:place>
+                <mods:placeTerm type="text">Praha :</mods:placeTerm>
+            </mods:place>
+            <mods:publisher>Dokořán ;</mods:publisher>
+            <mods:dateIssued>2016.</mods:dateIssued>
+            <mods:issuance>monographic</mods:issuance>
+        </mods:originInfo>
+        <mods:part type="volume"></mods:part>
+        <mods:physicalDescription>
+            <mods:form authority="marcform">print</mods:form>
+            <mods:form authority="rdamedia" type="media">bez média</mods:form>
+            <mods:form authority="rdacarrier" type="carrier">svazek</mods:form>
+            <mods:extent>375 stran : ilustrace.</mods:extent>
+        </mods:physicalDescription>
+        <mods:recordInfo>
+            <mods:recordContentSource authority="marcorg">ABA007</mods:recordContentSource>
+            <mods:recordCreationDate encoding="iso8601">20161025T112201</mods:recordCreationDate>
+            <mods:recordChangeDate encoding="iso8601">20161025T125809</mods:recordChangeDate>
+            <mods:recordIdentifier source="CZ PrAS">002076760</mods:recordIdentifier>
+            <mods:languageOfCataloging>
+                <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+            </mods:languageOfCataloging>
+            <mods:recordOrigin>Converted from MARCXML to MODS version 3.5 using MARC21slim2MODS3-5.xsl
+                (Revision 1.97 2014/05/21, ProArc patch 9.313 2015/07/11)</mods:recordOrigin>
+            <mods:descriptionStandard>rda</mods:descriptionStandard>
+        </mods:recordInfo>
+        <mods:subject authority="Konspekt">
+            <mods:topic>Česká literatura (o ní)</mods:topic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:temporal>19. století</mods:temporal>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:topic>česká literatura</mods:topic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:topic>prostor v literatuře</mods:topic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:topic>krajina v literatuře</mods:topic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:topic>literární inspirace</mods:topic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:topic>literární náměty</mods:topic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:topic>deskripce (literatura)</mods:topic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:topic>vnímání literárního díla</mods:topic>
+        </mods:subject>
+        <mods:subject authority="czenas">
+            <mods:topic>interpretace a přijetí literárního díla</mods:topic>
+        </mods:subject>
+        <mods:subject authority="eczenas">
+            <mods:topic>Czech literature</mods:topic>
+        </mods:subject>
+        <mods:subject authority="eczenas">
+            <mods:topic>space in literature</mods:topic>
+        </mods:subject>
+        <mods:subject authority="eczenas">
+            <mods:topic>landscapes in literature</mods:topic>
+        </mods:subject>
+        <mods:subject authority="eczenas">
+            <mods:topic>literary inspiration</mods:topic>
+        </mods:subject>
+        <mods:subject authority="eczenas">
+            <mods:topic>literary themes</mods:topic>
+        </mods:subject>
+        <mods:subject authority="eczenas">
+            <mods:topic>description (literature)</mods:topic>
+        </mods:subject>
+        <mods:subject authority="eczenas">
+            <mods:topic>perception of literature</mods:topic>
+        </mods:subject>
+        <mods:subject authority="eczenas">
+            <mods:topic>interpretation and reception of literature</mods:topic>
+        </mods:subject>
+        <mods:targetAudience authority="marctarget">adult</mods:targetAudience>
+        <mods:titleInfo>
+            <mods:title>Krajiny tvořené slovy</mods:title>
+            <mods:subTitle>k topologii české literatury devatenáctého století</mods:subTitle>
+        </mods:titleInfo>
+        <mods:typeOfResource>text</mods:typeOfResource>
+    </mods:mods>
+</mods:modsCollection>

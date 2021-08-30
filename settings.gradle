@@ -18,13 +18,16 @@ include	'processes:import-mets'
 include 'processes:mw-process'
 include	'processes:indexer'
 include 'processes:solr-migration'
-include	'processes:static-export'
 include 'processes:data-migration'
 include 'processes:migration'
 include 'processes:dnntflag'
+include 'processes:nkp-logs'
 
 include 'security:security-core'
 include 'security:authfilters'
+
+//include 'authfilters'
+//include 'solr-migration'
 
 
 

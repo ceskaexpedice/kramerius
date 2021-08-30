@@ -20,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
-import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -41,9 +40,13 @@ public interface StatisticReport {
     public static final String TITLE_KEY = "title";
     public static final String MODEL_KEY = "model";
     public static final String ACTION_KEY = "action";
+    public static final String LANG_KEY = "lang";
+    public static final String AUTHOR_NAME_KEY = "author_name";
 
     public static final String DATE_FROM = "from";
     public static final String DATE_TO = "to";
+
+
 
     /**
      * Returns reporting page
@@ -84,6 +87,15 @@ public interface StatisticReport {
      * 
      * @param sup
      */
-    public void processAccessLog(ReportedAction action, StatisticsReportSupport sup,
-            StatisticsFiltersContainer container) throws StatisticsReportException;
+    public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer container) throws StatisticsReportException;
+
+    /**
+     * Returns true if report is possible
+     * @param action Reporting action
+     * @param container Filters container
+     */
+    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container);
+
+
+
 }

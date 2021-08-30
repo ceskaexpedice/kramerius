@@ -1,6 +1,8 @@
 package cz.cas.lib.knav;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -16,6 +18,7 @@ public class ProcessCriteriumContext implements RightCriteriumContext {
     private String pid;
     private FedoraAccess fa;
     private SolrAccess sa;
+    private Map<String, String> map = new HashMap<>();
     
     public ProcessCriteriumContext(String pid, FedoraAccess fa, SolrAccess sa) {
         super();
@@ -91,5 +94,10 @@ public class ProcessCriteriumContext implements RightCriteriumContext {
     @Override
     public RightsResolver getRightsResolver() {
         throw new UnsupportedOperationException("unsupported for this context");
+    }
+
+    @Override
+    public Map<String, String> getEvaluateInfoMap() {
+        return this.map;
     }
 }

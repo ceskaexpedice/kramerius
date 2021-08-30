@@ -11,6 +11,9 @@ import cz.incad.kramerius.rest.api.k5.client.item.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import org.apache.commons.io.IOUtils;
@@ -48,6 +51,18 @@ public class IiifServlet extends AbstractImageServlet {
     @Named("cachedFedoraAccess")
     private transient FedoraAccess fedoraAccess;
 
+
+//    @Inject
+//    @Named("database")
+//    private StatisticsAccessLog databaseAccessLog;
+//
+//    @Inject
+//    @Named("dnnt")
+//    StatisticsAccessLog dnntAccessLog;
+
+    @Inject
+    AggregatedAccessLogs aggregatedAccessLogs;
+
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(IiifServlet.class.getName());
 
 
@@ -78,6 +93,7 @@ public class IiifServlet extends AbstractImageServlet {
                         String nextToken = tokenizer.nextToken();
                         url.append("/").append(nextToken);
                         if ("info.json".equals(nextToken)) {
+                            reportAccess(pid);
                             resp.setContentType("application/ld+json");
                             resp.setCharacterEncoding("UTF-8");
                             HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
@@ -112,5 +128,13 @@ public class IiifServlet extends AbstractImageServlet {
     @Override
     public boolean turnOnIterateScaling() {
         return false;
+    }
+
+    private void reportAccess(String pid) {
+        try {
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
+        }
     }
 }

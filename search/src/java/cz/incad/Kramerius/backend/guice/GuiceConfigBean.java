@@ -40,7 +40,6 @@ import cz.incad.kramerius.service.guice.I18NModule;
 import cz.incad.kramerius.service.guice.MailModule;
 import cz.incad.kramerius.service.guice.ServicesModule;
 import cz.incad.kramerius.solr.SolrModule;
-import cz.incad.kramerius.statistics.DatabaseStatisticsModule;
 import cz.incad.kramerius.users.guice.LoggedUsersModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -73,7 +72,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
     	        new RepoModule(), // repo module
                 new SolrModule(),
                 new ResourceIndexModule(),
-                new DatabaseStatisticsModule(),
+                //new DatabaseStatisticsModule(),
 
     	        new BaseModule(), // base  module
                 

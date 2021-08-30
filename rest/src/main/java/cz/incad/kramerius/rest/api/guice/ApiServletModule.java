@@ -30,6 +30,7 @@ import cz.incad.kramerius.rest.api.k5.admin.users.UsersResource;
 import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
+import cz.incad.kramerius.rest.api.k5.client.debug.HTTPHeaders;
 import cz.incad.kramerius.rest.api.k5.client.feedback.FeedbackResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrAuthorDecorate;
@@ -95,6 +96,9 @@ public class ApiServletModule extends JerseyServletModule {
         bind(VirtualCollectionsResource.class);
 
         bind(StatisticsResource.class);
+
+        // debug resource
+        bind(HTTPHeaders.class);
 
         bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
                 .asEagerSingleton();

@@ -76,7 +76,7 @@ public class JDBCUpdateTemplate {
         try {
             pstm = createPreparedStatement(connection,sql);
             for (int i = 0; i < params.length; i++) {
-                setParam(i+1, params[i], pstm);
+                setParam(i+1, params[i], pstm, connection);
             }
             pstm.executeUpdate();
             rs = pstm.getGeneratedKeys();
@@ -153,7 +153,7 @@ public class JDBCUpdateTemplate {
         } else throw new IllegalArgumentException("unsupported type of argument "+clz);
     }
     
-    private void setParam(int i, Object object, PreparedStatement pstm) throws SQLException {
+    private void setParam(int i, Object object, PreparedStatement pstm, Connection connection) throws SQLException {
         if (object instanceof String) {
             String string = (String) object;
             pstm.setString(i, string);
@@ -173,9 +173,25 @@ public class JDBCUpdateTemplate {
             setNullParam(i, (NullObject)object, pstm);
         } else if (object.getClass().isArray()) {
             int length = Array.getLength(object);
-            for (int j = 0; j < length; j++) {
-                setParam(i+j, Array.get(object, j), pstm);
+            if (length  > 0) {
+                Object first = Array.get(object, 0);
+                Object[] dest = new Object[length];
+                System.arraycopy(object, 0, dest, 0, length);
+                if (first instanceof  String) {
+                    pstm.setArray(i,connection.createArrayOf("TEXT", dest));
+                } else if (first instanceof  Integer) {
+                    pstm.setArray(i, connection.createArrayOf("INTEGER", dest));
+                } else if (first instanceof  Date) {
+                    pstm.setArray(i, connection.createArrayOf("DATE", dest));
+                } else if (first instanceof  Timestamp) {
+                    pstm.setArray(i, connection.createArrayOf("TIMESTAMP", dest));
+                } else if (first instanceof  Boolean) {
+                    pstm.setArray(i, connection.createArrayOf("BOOLEAN", dest));
+                } else  throw new IllegalArgumentException("unsupported type of argument "+object.getClass().getName());
+            } else  {
+                pstm.setArray(i, null);
             }
+
         } else throw new IllegalArgumentException("unsupported type of argument "+object.getClass().getName());
     }
     

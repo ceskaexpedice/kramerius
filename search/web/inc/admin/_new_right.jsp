@@ -25,7 +25,7 @@
             <c:if test="${newRight.action.name =='edit'}">
                 <view:msg>rights.dialog.editright.title</view:msg> <strong> <view:msg>rights.action.${newRight.securedAction}.formalName</view:msg> </strong> - <i><view:msg>rights.action.${newRight.securedAction}</view:msg></i>
              </c:if>
-            
+
             <!--  na vybrane objekty-->
         </p>
     </div>
@@ -52,6 +52,14 @@
                               </c:forEach>
                          ]
                     },
+                    label:{
+                        <c:if test="${newRight.right.criteriumWrapper.labelAwareCriterium}">
+                            ident: ${newRight.right.criteriumWrapper.label.id},
+                            name: '${newRight.right.criteriumWrapper.label.name}',
+                            description: '${newRight.right.criteriumWrapper.label.description}',
+                            priority: ${newRight.right.criteriumWrapper.label.priority}
+                        </c:if>
+                    },
                     priority:${newRight.priority}, 
                     role:'${newRight.appliedRole}'
                 },
@@ -64,10 +72,24 @@
                              <c:forEach var="criterium" items="${newRight.criteriums}" varStatus="status">
                              ${status.index > 0 ? "," :""}      "${criterium.rightCriterium.QName}": {
                                  paramsNecessary: ${criterium.rightCriterium.paramsNecessary},
-                                 rootLevelCriterum: ${criterium.rightCriterium.rootLevelCriterum}
+                                 rootLevelCriterum: ${criterium.rightCriterium.rootLevelCriterum},
+                                 isLabelAssignable: ${criterium.rightCriterium.labelAssignable}
                             }
                              </c:forEach>
                      },
+                    labels:[
+                        <c:forEach var="label" items="${newRight.labels}" varStatus="status">
+                        ${status.index > 0 ? "," :""}
+                        {
+                            ident: ${label.id},
+                            name: '${label.name}',
+                            description: '${label.description}',
+                            priority: ${label.priority}
+                        }
+                        </c:forEach>
+
+
+                    ],
                      params:[
                                                   
                          <c:forEach var="criterium" items="${newRight.rightCriteriumParams}" varStatus="status">
@@ -161,12 +183,17 @@
                                <ul>
                                    <li><a href="#create" data-key="create"><input name="tab" id="create-check" type="checkbox"></input><span>Vytvorit nove parametry</span></a></li>
                                    <li><a href="#edit" data-key="edit"><input name="tab" id="edit-check" type="checkbox"></input><span>Pouzit jiz drive vytvorene parametry</span></a></li>
+                                   <li><a href="#label" data-key="label"><input name="tab" id="label-check" type="checkbox"></input><span>Asociovat label</span></a></li>
+
                                </ul>
                                <div id="create" data-key="create">
                                     <jsp:include page="_criterium_params_create_include.jsp"/>        
                                </div>
                                <div id="edit" data-key="edit">
                                     <jsp:include page="_criterium_params_reuse_include.jsp"/>        
+                               </div>
+                               <div id="label" data-key="label">
+                                   <jsp:include page="_criterium_label_inlcude.jsp"/>
                                </div>
                            </div>
                         </div>

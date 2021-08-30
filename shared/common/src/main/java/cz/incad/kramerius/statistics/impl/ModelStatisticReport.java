@@ -22,9 +22,7 @@ package cz.incad.kramerius.statistics.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +30,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -52,7 +51,6 @@ import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.Offset;
-import javax.swing.JOptionPane;
 
 /**
  * @author pavels
@@ -100,7 +98,8 @@ public class ModelStatisticReport implements StatisticReport {
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
             String sql = statRecord.toString();
-            List<Map<String, Object>> returns = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+            Connection conn = connectionProvider.get();
+            List<Map<String, Object>> models = new JDBCQueryTemplate<Map<String, Object>>(conn) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
                     Map<String, Object> val = new HashMap<>();
@@ -112,10 +111,13 @@ public class ModelStatisticReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql, params.toArray());
-
-            return returns;
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
+            return models;
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return new ArrayList<Map<String, Object>>();
+        } catch (SQLException ex) {
+            Logger.getLogger(ModelStatisticReport.class.getName()).log(Level.SEVERE, null, ex);
             return new ArrayList<Map<String, Object>>();
         }
     }
@@ -124,7 +126,8 @@ public class ModelStatisticReport implements StatisticReport {
     public List<String> getOptionalValues() {
         final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModels");
         String sql = statRecord.toString();
-        List<String> returns = new JDBCQueryTemplate<String>(connectionProvider.get()) {
+        Connection conn = connectionProvider.get();
+        List<String> returns = new JDBCQueryTemplate<String>(conn) {
             @Override
             public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
                 String model = rs.getString("model");
@@ -132,7 +135,11 @@ public class ModelStatisticReport implements StatisticReport {
                 return super.handleRow(rs, returnsList);
             }
         }.executeQuery(sql);
-
+        try {
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return returns;
     }
 
@@ -161,15 +168,21 @@ public class ModelStatisticReport implements StatisticReport {
             statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
             
             String sql = statRecord.toString();
-
+            Connection conn = connectionProvider.get();
+            
             String viewName =  "statistics_grouped_by_sessionandpid_"+modelFilter.getModel();
-            boolean tableExists = DatabaseUtils.viewExists(connectionProvider.get(),viewName.toUpperCase());
+            boolean tableExists = DatabaseUtils.viewExists(conn,viewName.toUpperCase());
             if (!tableExists) {
                 JDBCUpdateTemplate updateTemplate = new JDBCUpdateTemplate(connectionProvider.get(), true);
                 updateTemplate.setUseReturningKeys(false);
                 updateTemplate
                     .executeUpdate(sql);
             }
+            // if viewExists; we have to close connection manually
+            if (!conn.isClosed()) {
+                conn.close();
+            }
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
@@ -209,7 +222,9 @@ public class ModelStatisticReport implements StatisticReport {
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
             String sql = statRecord.toString();
-            new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+            Connection conn = connectionProvider.get();
+            
+            new JDBCQueryTemplate<Map<String, Object>>(conn) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
                     Map<String, Object> val = new HashMap<String, Object>();
@@ -225,12 +240,18 @@ public class ModelStatisticReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql,params.toArray());
+            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
+        } catch (SQLException ex) {
+            Logger.getLogger(ModelStatisticReport.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    
-
+    @Override
+    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+        ModelFilter modelFilter = container.getFilter(ModelFilter.class);
+        return modelFilter.getModel() != null;
+    }
 }

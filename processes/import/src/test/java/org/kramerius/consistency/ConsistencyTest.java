@@ -37,6 +37,7 @@ import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
@@ -68,7 +69,7 @@ public class ConsistencyTest {
 
     @Test
     public void shouldPassProcess() throws IOException, ProcessSubtreeException, LexerException, ParserConfigurationException, SAXException, RepositoryException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
@@ -149,6 +150,7 @@ public class ConsistencyTest {
         
     }
 
+
     static class _Module extends AbstractModule {
 
         private FedoraAccess fedoraAccess;
@@ -178,5 +180,7 @@ public class ConsistencyTest {
             bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         }
     }
+
+
 
 }

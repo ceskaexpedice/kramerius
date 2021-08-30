@@ -22,17 +22,21 @@ package cz.incad.Kramerius.statistics.formatters.guice;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
-import cz.incad.Kramerius.statistics.formatters.main.StatisticsExportMainLogFormatter;
-import cz.incad.Kramerius.statistics.formatters.main.impl.CSVFormatter;
-import cz.incad.Kramerius.statistics.formatters.main.impl.XMLFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.StatisticsReportFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.annual.AnnualCSVFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.author.AuthorCSVFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.author.AuthorXMLFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.lang.LangCSVFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.lang.LangXMLFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.model.ModelCSVFormatter;
-import cz.incad.Kramerius.statistics.formatters.report.model.ModelXMLFormatter;
+import cz.incad.kramerius.statistics.formatters.main.StatisticsExportMainLogFormatter;
+import cz.incad.kramerius.statistics.formatters.main.impl.CSVFormatter;
+import cz.incad.kramerius.statistics.formatters.main.impl.XMLFormatter;
+import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
+import cz.incad.kramerius.statistics.formatters.report.annual.AnnualCSVFormatter;
+import cz.incad.kramerius.statistics.formatters.report.author.AuthorCSVFormatter;
+import cz.incad.kramerius.statistics.formatters.report.author.AuthorXMLFormatter;
+import cz.incad.kramerius.statistics.formatters.report.lang.LangCSVFormatter;
+import cz.incad.kramerius.statistics.formatters.report.lang.LangXMLFormatter;
+import cz.incad.kramerius.statistics.formatters.report.model.ModelCSVFormatter;
+import cz.incad.kramerius.statistics.formatters.report.model.ModelXMLFormatter;
+import cz.incad.kramerius.statistics.formatters.report.nkp.NKPJSONFormatter;
+import cz.incad.kramerius.statistics.formatters.report.nkp.NKPXMLFormatter;
+import cz.incad.kramerius.statistics.formatters.report.pids.PidsCSVFormatter;
+import cz.incad.kramerius.statistics.formatters.report.pids.PidsXMLFormatter;
 
 /**
  * @author pavels
@@ -61,5 +65,11 @@ public class FormatterModule extends AbstractModule {
         reportFormatter.addBinding().to(AuthorXMLFormatter.class);
 
         reportFormatter.addBinding().to(AnnualCSVFormatter.class);
+        
+        reportFormatter.addBinding().to(PidsCSVFormatter.class);
+        reportFormatter.addBinding().to(PidsXMLFormatter.class);
+
+        reportFormatter.addBinding().to(NKPXMLFormatter.class);
+        reportFormatter.addBinding().to(NKPJSONFormatter.class);
     }
 }

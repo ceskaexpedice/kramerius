@@ -33,7 +33,7 @@ form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExist
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript"> 
-    <!--    
+    <!--
 	
 	
 	
@@ -140,6 +140,7 @@ form(postfixdiv, importDirectory,importRootDirectory,  startIndexer, updateExist
     <input type="checkbox" id="replaceMODs" name="replaceMODs" value="replaceMODs">$bundle.("import.replaceMODs")$</input>
 
     </div>
+
 </fieldset>
 
 

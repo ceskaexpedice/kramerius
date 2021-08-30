@@ -142,6 +142,8 @@
           <td width="140px" align="center"
            style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.criterium</view:msg></strong></td>
           <td align="center" style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.criteriumparams</view:msg></strong></td>
+          <td align="center" style="border-top: 1px solid black;"><strong>Associated label</strong></td>
+
           <td width="80px" align="center"
            style="border-top: 1px solid black;"><strong><view:msg>rights.dialog.table.column.change</view:msg></strong></td>
          </tr>
@@ -183,6 +185,18 @@
            ${right.criteriumWrapper!=null ?
            right.criteriumWrapper.criteriumParams : '' }</div>
            </td>
+
+           <td>
+            <div
+                    style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;font-size:8pt; font-style: italic">
+              <strong>${right.criteriumWrapper != null &&  right.criteriumWrapper.labelAwareCriterium ? right.criteriumWrapper.label.name.concat(' (').concat(right.criteriumWrapper.label.priority).concat(')') : '' }</strong>
+
+            </div>
+           </td>
+
+
+
+
            <td>
            <table>
 

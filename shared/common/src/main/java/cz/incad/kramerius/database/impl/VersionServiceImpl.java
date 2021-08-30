@@ -41,7 +41,8 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
  */
 public class VersionServiceImpl implements VersionService {
     
-    
+    String version = null;
+
     @Inject
     @Named("kramerius4")
     Provider<Connection> connectionProvider = null;
@@ -51,18 +52,22 @@ public class VersionServiceImpl implements VersionService {
     public String getVersion() throws SQLException {
         Connection connection = this.connectionProvider.get();
         try {
-            boolean versionTable = DatabaseUtils.tableExists(connection, "DBVERSIONS");
-            if (versionTable) {
-                List<String> ids = new JDBCQueryTemplate<String>(connection, false) {
-                    @Override
-                    public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-                        returnsList.add(rs.getString("ver"));
-                        return false;
-                    }
-                }.executeQuery("select DBVER_ID, ver from DBVERSIONS v join MAX_VERSION_VIEW mv " +
-                		"on (v.DBVER_ID = mv.MAX_ID) ");
-                return ids != null && ids.size() > 0 ? ids.get(0).trim() : null;
-            } else return null;
+            if (this.version == null) {
+                boolean versionTable = DatabaseUtils.tableExists(connection, "DBVERSIONS");
+                if (versionTable) {
+                    List<String> ids = new JDBCQueryTemplate<String>(connection, false) {
+                        @Override
+                        public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                            returnsList.add(rs.getString("ver"));
+                            return false;
+                        }
+                    }.executeQuery("select DBVER_ID, ver from DBVERSIONS v join MAX_VERSION_VIEW mv " +
+                            "on (v.DBVER_ID = mv.MAX_ID) ");
+
+                    this.version = ids != null && ids.size() > 0 ? ids.get(0).trim() : null;
+                }
+            }
+            return this.version;
         } finally {
                 if (connection != null) DatabaseUtils.tryClose(connection);
         }

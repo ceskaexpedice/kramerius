@@ -22,7 +22,7 @@ public class CriteriaRELSEXTUtils {
         return expr.evaluate(relsExt, XPathConstants.STRING);
     }
 
-    protected static EvaluatingResultState checkValue(Document relsExt, String path, String expectedValue) throws IOException {
+    static EvaluatingResultState checkValue(Document relsExt, String path, String expectedValue) throws IOException {
         try {
             Object policy = valueFromRELSEXT(relsExt, path);
             if ((policy != null) && (policy.toString().trim().equals(expectedValue))) {
