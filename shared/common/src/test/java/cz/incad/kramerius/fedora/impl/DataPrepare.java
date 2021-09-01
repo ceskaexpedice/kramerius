@@ -202,7 +202,7 @@ public class DataPrepare {
 //        InputStream resStream = FedoraAccessImpl.class.getResourceAsStream(path);
 //        try {
 //            Document document = XMLUtils.parseDocument(resStream, false);
-//            expect(sa.getDataByPidInXml(pid)).andReturn(document).anyTimes();
+//            expect(sa.getSolrDataByPid(pid)).andReturn(document).anyTimes();
 //        } catch (ParserConfigurationException e) {
 //            e.printStackTrace();
 //        } catch (SAXException e) {

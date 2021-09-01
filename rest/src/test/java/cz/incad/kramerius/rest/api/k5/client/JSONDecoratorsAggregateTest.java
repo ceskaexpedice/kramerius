@@ -63,7 +63,6 @@ import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.rest.api.guice.ApiServletModule;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
@@ -134,7 +133,7 @@ public class JSONDecoratorsAggregateTest {
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
                 .addMockedMethod(
-                        SolrAccess.class.getMethod("requestWithSelectInInputStream", String.class,
+                        SolrAccess.class.getMethod("requestWithSelectReturningInputStream", String.class,
                                 String.class)).createMock();
 
         SolrMemoization memo = EasyMock.createMock(SolrMemoization.class);
@@ -195,7 +194,7 @@ public class JSONDecoratorsAggregateTest {
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
                 .addMockedMethod(
-                        SolrAccess.class.getMethod("requestWithSelectInInputStream", String.class,
+                        SolrAccess.class.getMethod("requestWithSelectReturningInputStream", String.class,
                                 String.class)).createMock();
 
         SolrMemoization memo = EasyMock.createMock(SolrMemoization.class);
@@ -252,9 +251,9 @@ public class JSONDecoratorsAggregateTest {
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
                 .addMockedMethod(
-                        SolrAccess.class.getMethod("requestWithSelectInInputStream", String.class,
+                        SolrAccess.class.getMethod("requestWithSelectReturningInputStream", String.class,
                                 String.class))
-                .addMockedMethod("getDataByPidInXml").createMock();
+                .addMockedMethod("getSolrDataByPid").createMock();
 
         solrDataDocument(sa, DataPrepare.DROBNUSTKY_PIDS[0] + "/@2");
 
@@ -336,9 +335,9 @@ public class JSONDecoratorsAggregateTest {
 
         SolrAccess sa = createMockBuilder(SolrAccessImpl.class)
                 .addMockedMethod(
-                        SolrAccess.class.getMethod("requestWithSelectInInputStream", String.class,
+                        SolrAccess.class.getMethod("requestWithSelectReturningInputStream", String.class,
                                 String.class))
-                .addMockedMethod("getDataByPidInXml").createMock();
+                .addMockedMethod("getSolrDataByPid").createMock();
 
         solrDataDocument(sa, DataPrepare.DROBNUSTKY_PIDS[0]);
 

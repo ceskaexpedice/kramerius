@@ -74,7 +74,7 @@ public interface IResourceIndex {
     public List<String> getParentsPids(String pid) throws ResourceIndexException;
 
 
-    public ObjectPidsPath[] getPath(String pid) throws ResourceIndexException;
+    public ObjectPidsPath[] getPaths(String pid) throws ResourceIndexException;
     /**
      * Returns true if the pid exists in underlaying resource index db
      * @param pid

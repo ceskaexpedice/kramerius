@@ -196,7 +196,7 @@ public abstract class AbstractSocialButton {
 
     Document getSolrDocument() throws IOException {
         if (solrData == null) {
-            this.solrData = solrAccess.getDataByPidInXml(getPID());
+            this.solrData = solrAccess.getSolrDataByPid(getPID());
         }
         return this.solrData;
     }

@@ -88,7 +88,7 @@ public class SearchResource {
     private String buildSearchResponseJson(UriInfo uriInfo) {
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
-            String solrResponseJson = this.solrAccess.requestWithSelectInString(solrQuery, "json");
+            String solrResponseJson = this.solrAccess.requestWithSelectReturningString(solrQuery, "json");
             String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
             JSONObject jsonObject = buildJsonFromRawSolrResponse(solrResponseJson, uri, this.jsonDecoratorAggregates.getDecorators());
             return jsonObject.toString();
@@ -112,7 +112,7 @@ public class SearchResource {
     private String buildSearchResponseXml(UriInfo uriInfo) {
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
-            String solrResponseXml = this.solrAccess.requestWithSelectInString(solrQuery, "xml");
+            String solrResponseXml = this.solrAccess.requestWithSelectReturningString(solrQuery, "xml");
             Document domObject = buildXmlFromRawSolrResponse(solrResponseXml);
             StringWriter strWriter = new StringWriter();
             XMLUtils.print(domObject, strWriter);

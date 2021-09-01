@@ -42,7 +42,7 @@ import java.util.Map;
 public class SolrAccessImpl implements SolrAccess {
 
     @Override
-    public Document getDataByPidInXml(String pid) throws IOException {
+    public Document getSolrDataByPid(String pid) throws IOException {
         if (SpecialObjects.isSpecialObject(pid))
             return null;
         if (CollectionPidUtils.isCollectionPid(pid)) {
@@ -71,7 +71,7 @@ public class SolrAccessImpl implements SolrAccess {
 
             String processPid = parser.isDatastreamPid() ? parser.getParentObjectPid() : parser.getObjectPid();
 
-            Document solrData = getDataByPidInXml(processPid);
+            Document solrData = getSolrDataByPid(processPid);
             return getPidPaths(parser.isDatastreamPid() ? parser.getDataStream() : null, solrData);
 
         } catch (LexerException e) {
@@ -127,7 +127,7 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public Document getDataByHandleInXml(String handle) throws IOException {
+    public Document getSolrDataByHandle(String handle) throws IOException {
         try {
             handle = URLEncoder.encode(handle, "UTF-8");
             return SolrUtils.getSolrDataInternal(SolrUtils.HANDLE_QUERY + handle);
@@ -140,13 +140,14 @@ public class SolrAccessImpl implements SolrAccess {
 
     @Override
     public ObjectModelsPath[] getModelPaths(String pid) throws IOException {
-        if (SpecialObjects.isSpecialObject(pid))
+        if (SpecialObjects.isSpecialObject(pid)) {
             return new ObjectModelsPath[]{ObjectModelsPath.REPOSITORY_PATH};
-        Document doc = getDataByPidInXml(pid);
-        return getPathOfModels(doc);
+        }
+        Document doc = getSolrDataByPid(pid);
+        return getModelPaths(doc);
     }
 
-    public ObjectModelsPath[] getPathOfModels(Document doc) throws IOException {
+    public ObjectModelsPath[] getModelPaths(Document doc) throws IOException {
         try {
             synchronized (doc) {
                 List<String> disected = SolrUtils.disectModelPaths(doc);
@@ -182,8 +183,8 @@ public class SolrAccessImpl implements SolrAccess {
             return map;
         } else {
             Map<String, AbstractObjectPath[]> map = new HashMap<String, AbstractObjectPath[]>();
-            Document doc = getDataByPidInXml(pid);
-            ObjectModelsPath[] pathsOfModels = getPathOfModels(doc);
+            Document doc = getSolrDataByPid(pid);
+            ObjectModelsPath[] pathsOfModels = getModelPaths(doc);
             map.put(ObjectModelsPath.class.getName(), pathsOfModels);
 
             ObjectPidsPath[] paths = getPidPaths(parser.isDatastreamPid() ? parser.getDataStream() : null, doc);
@@ -192,7 +193,7 @@ public class SolrAccessImpl implements SolrAccess {
         }
     }
 
-    public Document requestWithSelectInXml(String query) throws IOException {
+    public Document requestWithSelectReturningXml(String query) throws IOException {
         try {
             return SolrUtils.getSolrDataInternal(query);
         } catch (ParserConfigurationException e) {
@@ -203,16 +204,16 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public JSONObject requestWithSelectInJson(String query) throws IOException {
+    public JSONObject requestWithSelectReturningJson(String query) throws IOException {
         throw new UnsupportedOperationException("not implemented");
     }
 
-    public InputStream requestWithSelectInInputStream(String req, String type) throws IOException {
+    public InputStream requestWithSelectReturningInputStream(String req, String type) throws IOException {
         return SolrUtils.getSolrDataInternal(req, type);
     }
 
     @Override
-    public String requestWithSelectInString(String query, String type) throws IOException {
+    public String requestWithSelectReturningString(String query, String type) throws IOException {
         throw new UnsupportedOperationException("not implemented");
     }
 
@@ -227,7 +228,7 @@ public class SolrAccessImpl implements SolrAccess {
     }
 
     @Override
-    public Document getDataByParentPid(String parentPid, String offset) throws IOException {
+    public Document getSolrDataByParentPid(String parentPid, String offset) throws IOException {
         if (SpecialObjects.isSpecialObject(parentPid))
             return null;
         if (CollectionPidUtils.isCollectionPid(parentPid)) {

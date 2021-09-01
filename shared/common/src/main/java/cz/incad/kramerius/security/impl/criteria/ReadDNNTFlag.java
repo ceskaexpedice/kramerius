@@ -1,7 +1,5 @@
 package cz.incad.kramerius.security.impl.criteria;
 
-import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.*;
-
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
@@ -25,7 +23,7 @@ public class ReadDNNTFlag extends AbstractCriterium {
             if (!SpecialObjects.isSpecialObject(pid)) {
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                     SolrAccess solrAccess = ctx.getSolrAccess();
-                    Document doc = solrAccess.getDataByPidInXml(pid);
+                    Document doc = solrAccess.getSolrDataByPid(pid);
                     String val = SolrUtils.disectDNNTFlag(doc.getDocumentElement());
                     return (val !=  null && val.equals("true")) ? EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
 

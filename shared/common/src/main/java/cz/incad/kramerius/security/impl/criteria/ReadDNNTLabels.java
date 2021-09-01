@@ -28,7 +28,7 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
 
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                     SolrAccess solrAccess = ctx.getSolrAccess();
-                    Document doc = solrAccess.getDataByPidInXml(pid);
+                    Document doc = solrAccess.getSolrDataByPid(pid);
 
                     boolean applied =  CriteriaDNNTUtils.matchLabel(doc, getLabel());
                     if (applied) {

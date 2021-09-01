@@ -13,7 +13,6 @@ import cz.incad.kramerius.statistics.formatters.utils.StringUtils;
 import cz.incad.kramerius.statistics.impl.NKPLogReport;
 import org.w3c.dom.Document;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -64,10 +63,10 @@ public class NKPXMLFormatter implements StatisticsReportFormatter {
 
             String pid = (String) record.get("pid");
 
-            Document solrDoc = this.solrAccess.getDataByPidInXml(pid);
+            Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
 
             ObjectPidsPath[] paths = this.solrAccess.getPidPaths(null, solrDoc);
-            ObjectModelsPath[] mpaths = this.solrAccess.getPathOfModels(solrDoc);
+            ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(solrDoc);
 
             String rootTitle  = SElemUtils.selem("str", "root_title", solrDoc);
             String rootPid  = SElemUtils.selem("str", "root_pid", solrDoc);

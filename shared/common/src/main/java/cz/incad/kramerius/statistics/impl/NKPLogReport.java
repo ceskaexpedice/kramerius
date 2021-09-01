@@ -36,7 +36,6 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.versionCondition;
 
@@ -216,7 +215,7 @@ public class NKPLogReport implements StatisticReport {
                 try {
                     if (!disbleFedoraAccess) {
                         // only one place where we are connecting
-                        Document solrDoc = solrAccess.getDataByPidInXml(record.pid);
+                        Document solrDoc = solrAccess.getSolrDataByPid(record.pid);
                         if (solrDoc != null) {
 
                             map.put(DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY, new YearLogFormat().format(SElemUtils.selem("str", "datum_str", solrDoc)));
@@ -269,7 +268,7 @@ public class NKPLogReport implements StatisticReport {
             } else if (dbversion != null && versionCondition(dbversion.toString(), "=", "6.6.6")) {
                 if (!disbleFedoraAccess) {
                     try {
-                        Document solrDoc = solrAccess.getDataByPidInXml(record.pid);
+                        Document solrDoc = solrAccess.getSolrDataByPid(record.pid);
                         if (solrDoc != null) {
                             List<String> dnntLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
                             map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);

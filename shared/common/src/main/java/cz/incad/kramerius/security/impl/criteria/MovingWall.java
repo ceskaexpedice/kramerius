@@ -234,7 +234,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
     private Document solrDocument(String pid) throws IOException, ParserConfigurationException, SAXException {
         SolrAccess solrAccess = this.getEvaluateContext().getSolrAccess();
-        return solrAccess.getDataByPidInXml(pid);
+        return solrAccess.getSolrDataByPid(pid);
         //return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
     }
 

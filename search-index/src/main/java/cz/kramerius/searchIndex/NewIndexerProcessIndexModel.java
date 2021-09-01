@@ -179,7 +179,7 @@ public class NewIndexerProcessIndexModel {
             }
         }
         String query = "fl=pid,indexer_version,full_indexation_in_progress&rows=" + titlePidPairs.size() + "&q=" + URLEncoder.encode(q, "UTF-8");
-        JSONObject jsonObject = solrAccess.requestWithSelectInJson(query);
+        JSONObject jsonObject = solrAccess.requestWithSelectReturningJson(query);
         JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
         Map<String, JSONObject> docByPid = new HashMap<>();
         for (int i = 0; i < docs.length(); i++) {

@@ -235,7 +235,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     private ObjectPidsPath[] ensurePidPathForUnindexedObjects(String pid, ObjectPidsPath[] paths) throws IOException {
         if (paths.length == 0) {
             try {
-                paths = this.resourceIndex.getPath(pid);
+                paths = this.resourceIndex.getPaths(pid);
             } catch (ResourceIndexException e) {
                 throw new IOException(e);
             }

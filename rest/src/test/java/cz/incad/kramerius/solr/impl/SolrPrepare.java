@@ -84,7 +84,7 @@ public class SolrPrepare {
                     + ".xml";
             URL urlREs = SolrPrepare.class.getResource(path);
             Document parsedDoc = XMLUtils.parseDocument(urlREs.openStream());
-            EasyMock.expect(solrAccess.getDataByPidInXml(pid))
+            EasyMock.expect(solrAccess.getSolrDataByPid(pid))
                     .andReturn(parsedDoc).anyTimes();
 
         } else {
@@ -95,7 +95,7 @@ public class SolrPrepare {
             URL urlREs = SolrPrepare.class.getResource("/solr/res/" + objectId
                     + ".xml");
             Document parsedDoc = XMLUtils.parseDocument(urlREs.openStream());
-            EasyMock.expect(solrAccess.getDataByPidInXml(pid))
+            EasyMock.expect(solrAccess.getSolrDataByPid(pid))
                     .andReturn(parsedDoc).anyTimes();
         }
     }

@@ -74,10 +74,10 @@ public class HandleServlet extends GuiceServlet {
                 try {
                     PIDParser parser = new PIDParser(pid);
                     parser.objectPid();
-                    return solrAccess.getDataByPidInXml(parser.getObjectId());
+                    return solrAccess.getSolrDataByPid(parser.getObjectId());
                 } catch (LexerException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    return solrAccess.getDataByPidInXml(pid);
+                    return solrAccess.getSolrDataByPid(pid);
                 }
             }
 
@@ -93,7 +93,7 @@ public class HandleServlet extends GuiceServlet {
 
             @Override
             Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException {
-                return solrAccess.getDataByHandleInXml(handle);
+                return solrAccess.getSolrDataByHandle(handle);
             }
 
             @Override

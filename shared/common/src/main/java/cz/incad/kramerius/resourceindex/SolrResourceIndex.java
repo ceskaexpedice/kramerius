@@ -199,7 +199,7 @@ public class SolrResourceIndex implements IResourceIndex {
     }
 
     @Override
-    public ObjectPidsPath[] getPath(String pid) throws ResourceIndexException {
+    public ObjectPidsPath[] getPaths(String pid) throws ResourceIndexException {
         if (SpecialObjects.isSpecialObject(pid))
             return new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH};
         if (CollectionPidUtils.isCollectionPid(pid)) {

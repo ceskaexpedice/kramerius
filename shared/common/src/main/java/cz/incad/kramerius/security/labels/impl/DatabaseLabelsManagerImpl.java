@@ -11,7 +11,6 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
-import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -260,7 +259,7 @@ public class DatabaseLabelsManagerImpl implements LabelsManager {
     @Override
     public void refreshLabelsFromSolr() throws LabelsManagerException{
         try {
-            Document request = this.solrAccess.requestWithSelectInXml("facet.field=dnnt-labels&fl=dnnt-labels&q=*%3A*&rows=0&facet=on");
+            Document request = this.solrAccess.requestWithSelectReturningXml("facet.field=dnnt-labels&fl=dnnt-labels&q=*%3A*&rows=0&facet=on");
             Element dnntLabelsFromSolr = XMLUtils.findElement(request.getDocumentElement(), new XMLUtils.ElementsFilter() {
                 @Override
                 public boolean acceptElement(Element element) {

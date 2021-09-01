@@ -32,7 +32,7 @@ public class InternalPartDecorateTest extends TestCase {
         SolrMemoizationImpl memoization = new SolrMemoizationImpl();
         SolrAccess sa = EasyMock.createMock(SolrAccess.class);
 
-        EasyMock.expect(sa.getDataByPidInXml("uuid:0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359")).andReturn(document).anyTimes();
+        EasyMock.expect(sa.getSolrDataByPid("uuid:0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359")).andReturn(document).anyTimes();
 
         EasyMock.replay(sa);
 

@@ -61,7 +61,7 @@ public class ResourceIndexImplAbstract implements IResourceIndex {
     }
 
     @Override
-    public ObjectPidsPath[] getPath(String pid) throws ResourceIndexException {
+    public ObjectPidsPath[] getPaths(String pid) throws ResourceIndexException {
         throw new UnsupportedOperationException("Not implemented");
     }
 

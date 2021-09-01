@@ -23,7 +23,7 @@ public class PDFDNNTFlag extends AbstractCriterium {
             requestedPid = this.getEvaluateContext().getRequestedPid();
             if (requestedPid != null && !SpecialObjects.isSpecialObject(requestedPid)) {
                 // only if
-                String s = SolrUtils.disectDNNTFlag(this.evalContext.getSolrAccess().getDataByPidInXml(requestedPid).getDocumentElement());
+                String s = SolrUtils.disectDNNTFlag(this.evalContext.getSolrAccess().getSolrDataByPid(requestedPid).getDocumentElement());
                 if (s != null && s.equals("true")) {
                     RightsResolver rightsResolver = this.getEvaluateContext().getRightsResolver();
                     ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccess().getPidPaths(requestedPid);

@@ -109,7 +109,7 @@ public class ItemResource {
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
             if (paths.length == 0) {
-                paths = this.resourceIndex.getPath(pid);
+                paths = this.resourceIndex.getPaths(pid);
             }
             for (ObjectPidsPath path : paths) {
                 if (this.rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, path).flag()) {

@@ -36,7 +36,7 @@ public class SOLRDecoratorUtils {
                 pid = PIDSupport.convertToSOLRType(pid);
             }
             List<Document> docs = new ArrayList<Document>();
-            context.put(key, solrAccess.getDataByPidInXml(pid));
+            context.put(key, solrAccess.getSolrDataByPid(pid));
         }
     }
 
@@ -50,8 +50,8 @@ public class SOLRDecoratorUtils {
             if (PIDSupport.isComposedPID(pid)) {
                 pid = PIDSupport.convertToSOLRType(pid);
             }
-            Document doc = solrAccess.request(query);
-            context.put(key, solrAccess.getDataByPidInXml(pid));
+            Document doc = solrAccess.requestWithSelectReturningXml(query);
+            context.put(key, solrAccess.getSolrDataByPid(pid));
         }
         return (Document) context.get(key);
     }*/
@@ -67,7 +67,7 @@ public class SOLRDecoratorUtils {
             if (PIDSupport.isComposedPID(pid)) {
                 pid = PIDSupport.convertToSOLRType(pid);
             }
-            context.put(key, solrAccess.getDataByPidInXml(pid));
+            context.put(key, solrAccess.getSolrDataByPid(pid));
         }
         return (Document) context.get(key);
     }*/

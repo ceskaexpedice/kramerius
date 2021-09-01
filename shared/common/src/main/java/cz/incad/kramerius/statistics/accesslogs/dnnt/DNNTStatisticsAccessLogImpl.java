@@ -74,10 +74,10 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
 
     @Override
     public void reportAccess(String pid, String streamName) throws IOException {
-        Document solrDoc = this.solrAccess.getDataByPidInXml(pid);
+        Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
 
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(null, solrDoc);
-        ObjectModelsPath[] mpaths = this.solrAccess.getPathOfModels(solrDoc);
+        ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(solrDoc);
 
         String rootTitle  = SElemUtils.selem("str", "root_title", solrDoc);
         String rootPid  = SElemUtils.selem("str", "root_pid", solrDoc);
@@ -102,7 +102,7 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
     public static  List<String> solrAuthors(String rootPid, SolrAccess solrAccess) throws IOException {
         List<String> sAuthors = new ArrayList<>();
         if (rootPid != null) {
-            Document rootSolrDoc = solrAccess.getDataByPidInXml(rootPid);
+            Document rootSolrDoc = solrAccess.getSolrDataByPid(rootPid);
             Element array = XMLUtils.findElement(rootSolrDoc.getDocumentElement(), new XMLUtils.ElementsFilter() {
                 @Override
                 public boolean acceptElement(Element element) {

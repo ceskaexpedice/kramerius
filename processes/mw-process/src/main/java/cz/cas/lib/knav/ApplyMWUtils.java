@@ -87,7 +87,7 @@ public class ApplyMWUtils {
         try {
             if (pids.length == 0)
                 return null;
-            Document solrDoc = sa.getDataByPidInXml(pids[0]);
+            Document solrDoc = sa.getSolrDataByPid(pids[0]);
             Element foundElm = XMLUtils.findElement(
                     solrDoc.getDocumentElement(),
                     new XMLUtils.ElementsFilter() {

@@ -27,7 +27,7 @@ public class ReadDNNTLabelsIPFiltered extends AbstractCriterium implements Right
             if (!SpecialObjects.isSpecialObject(pid)) {
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                     SolrAccess solrAccess = ctx.getSolrAccess();
-                    Document doc = solrAccess.getDataByPidInXml(pid);
+                    Document doc = solrAccess.getSolrDataByPid(pid);
                     boolean applied = CriteriaDNNTUtils.matchLabel(doc,  getLabel());
                     if (applied)  {
                         EvaluatingResultState result = matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;

@@ -81,7 +81,7 @@ public class ApplyMWUtils {
         try {
             if (pids.length == 0)
                 return null;
-            Document solrDoc = sa.getDataByPidInXml(pids[0]);
+            Document solrDoc = sa.getSolrDataByPid(pids[0]);
             Element foundElm = XMLUtils.findElement(
                     solrDoc.getDocumentElement(),
                     new XMLUtils.ElementsFilter() {
@@ -273,7 +273,7 @@ public class ApplyMWUtils {
      */
     public static int configuredWall(SolrAccess sa, String onePid, Configuration conf)
             throws IOException {
-        ObjectModelsPath[] pathOfModels = sa.getPathOfModels(onePid);
+        ObjectModelsPath[] pathOfModels = sa.getModelPaths(onePid);
         ObjectModelsPath path = pathOfModels[0];
         String[] models = path.getPathFromLeafToRoot();
         int wall = defaultConfiguredWall( conf);

@@ -19,24 +19,18 @@
  */
 package cz.incad.kramerius.statistics.accesslogs.database;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.*;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +41,6 @@ import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
 import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;
-import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.antlr.stringtemplate.StringTemplate;
@@ -74,10 +67,8 @@ import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
-import org.w3c.dom.Element;
 
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
 /**
@@ -136,7 +127,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
             List<JDBCCommand> commands = new ArrayList<>();
 
-            Document solrDoc = this.solrAccess.getDataByPidInXml(pid);
+            Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
             String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
 
             List<String> dnntLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
@@ -162,7 +153,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
                     String kModel = fedoraAccess.getKrameriusModelName(detailPid);
                     Document dc = fedoraAccess.getDC(detailPid);
-                    Document sDoc = this.solrAccess.getDataByPidInXml(pid);
+                    Document sDoc = this.solrAccess.getSolrDataByPid(pid);
 
                     Object dateFromDC = DCUtils.dateFromDC(dc);
                     dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);

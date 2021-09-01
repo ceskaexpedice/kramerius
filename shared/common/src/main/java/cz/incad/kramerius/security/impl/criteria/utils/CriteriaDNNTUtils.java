@@ -29,7 +29,7 @@ public class CriteriaDNNTUtils {
         try {
             SolrAccess solrAccess = ctx.getSolrAccess();
             String pid = ctx.getRequestedPid();
-            Document doc = solrAccess.getDataByPidInXml(pid);
+            Document doc = solrAccess.getSolrDataByPid(pid);
             String val = SolrUtils.disectDNNTFlag(doc.getDocumentElement());
             return (val !=  null && val.equals("true")) ? EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {

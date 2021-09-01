@@ -42,7 +42,7 @@ public class LabelsManageView extends AbstractRightsView {
     public List<LabelListItemView> getLabels() {
         try {
 
-            Document request = this.solrAccess.requestWithSelectInXml("facet.field=dnnt-labels&fl=dnnt-labels&q=*%3A*&rows=0&facet=on");
+            Document request = this.solrAccess.requestWithSelectReturningXml("facet.field=dnnt-labels&fl=dnnt-labels&q=*%3A*&rows=0&facet=on");
 
             Element dnntLabelsFromSolr = XMLUtils.findElement(request.getDocumentElement(), new XMLUtils.ElementsFilter() {
                 @Override

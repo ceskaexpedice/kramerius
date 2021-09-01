@@ -49,7 +49,7 @@ public class SolrAccessImplNewIndex implements SolrAccess {
     private final SolrUtils utils = new SolrUtils(KConfiguration.getInstance().getSolrHostNew());
 
     @Override
-    public Document getDataByPidInXml(String pid) throws IOException {
+    public Document getSolrDataByPid(String pid) throws IOException {
         //TODO: allow special object pids?
         //TODO: allow datastreams pids?
         String query = "q=" + URLEncoder.encode("pid:" + pid.replace(":", "\\:"), "UTF-8");
@@ -94,7 +94,7 @@ public class SolrAccessImplNewIndex implements SolrAccess {
     }
 
     @Override
-    public Document getDataByHandleInXml(String handle) throws IOException {
+    public Document getSolrDataByHandle(String handle) throws IOException {
         throw new UnsupportedOperationException("not implemented");
     }
 
@@ -104,7 +104,7 @@ public class SolrAccessImplNewIndex implements SolrAccess {
     }
 
     @Override
-    public ObjectModelsPath[] getPathOfModels(Document doc) throws IOException {
+    public ObjectModelsPath[] getModelPaths(Document solrData) throws IOException {
         throw new UnsupportedOperationException("not implemented");
     }
 
@@ -114,23 +114,23 @@ public class SolrAccessImplNewIndex implements SolrAccess {
     }
 
     @Override
-    public Document requestWithSelectInXml(String query) throws IOException {
+    public Document requestWithSelectReturningXml(String query) throws IOException {
         return utils.requestWithSelectReturningXml(query);
     }
 
     @Override
-    public JSONObject requestWithSelectInJson(String query) throws IOException {
+    public JSONObject requestWithSelectReturningJson(String query) throws IOException {
         return utils.requestWithSelectReturningJson(query);
     }
 
 
     @Override
-    public InputStream requestWithSelectInInputStream(String query, String type) throws IOException {
+    public InputStream requestWithSelectReturningInputStream(String query, String type) throws IOException {
         return utils.requestWithSelectReturningStream(query, type);
     }
 
     @Override
-    public String requestWithSelectInString(String query, String type) throws IOException {
+    public String requestWithSelectReturningString(String query, String type) throws IOException {
         return utils.requestWithSelectReturningString(query, type);
     }
 
@@ -140,7 +140,7 @@ public class SolrAccessImplNewIndex implements SolrAccess {
     }
 
     @Override
-    public Document getDataByParentPid(String parentPid, String offset) throws IOException {
+    public Document getSolrDataByParentPid(String parentPid, String offset) throws IOException {
         throw new UnsupportedOperationException("not implemented");
     }
 

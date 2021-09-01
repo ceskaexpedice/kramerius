@@ -15,7 +15,6 @@ import javax.ws.rs.core.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.utils.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -137,7 +136,7 @@ public class CDKReplicationsResource {
                     date = FORMAT.format(new Date());
                 }
                 // TODO: permissions
-                Document document = this.solrAccess.requestWithSelectInXml(makeRequestURL(
+                Document document = this.solrAccess.requestWithSelectReturningXml(makeRequestURL(
                         date, offset, rows));
                 return Response.ok().entity(document).build();
             } else
@@ -178,7 +177,7 @@ public class CDKReplicationsResource {
             throws ReplicateException, UnsupportedEncodingException {
         try {
             if (checkPermission()) {
-                Document solrDoc = this.solrAccess.getDataByPidInXml(pid);
+                Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
                 return Response.ok().entity(solrDoc).build();
             } else
                 throw new ActionNotAllowed("action is not allowed");
@@ -204,7 +203,7 @@ public class CDKReplicationsResource {
             throws ReplicateException, UnsupportedEncodingException {
         try {
             if (checkPermission()) {
-                Document solrDoc = this.solrAccess.getDataByPidInXml(pid+"/"+page);
+                Document solrDoc = this.solrAccess.getSolrDataByPid(pid+"/"+page);
                 return Response.ok().entity(solrDoc).build();
             } else
                 throw new ActionNotAllowed("action is not allowed");
@@ -372,7 +371,7 @@ public class CDKReplicationsResource {
 
                             ByteArrayOutputStream stream = new ByteArrayOutputStream();
                             zipOutputStream.putNextEntry(new ZipEntry(pid));
-                            Document solrDoc = this.solrAccess.getDataByPidInXml(pid);
+                            Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
                             XMLUtils.print(solrDoc, stream);
 
                             byte[] bytes = stream.toByteArray();
@@ -424,7 +423,7 @@ public class CDKReplicationsResource {
                 builder.append("&");
             }
         }
-        InputStream istream = this.solrAccess.requestWithSelectInInputStream(builder.toString(), format);
+        InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), format);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copyStreams(istream, bos);
         String rawString = new String(bos.toByteArray(), "UTF-8");
