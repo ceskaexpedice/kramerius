@@ -29,7 +29,7 @@ public interface Value {
      * @param request HTTP Request
      * @return
      */
-    public String getValue(HttpServletRequest request);
+    String getValue(HttpServletRequest request);
     
     /**
      * Returns true if given value is equals to this one
@@ -37,5 +37,5 @@ public interface Value {
      * @param request HTTP request
      * @return
      */
-    public boolean match(Value val, HttpServletRequest request);
+    boolean match(Value val, HttpServletRequest request);
 }

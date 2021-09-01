@@ -43,8 +43,11 @@ public class GuiceModelInjector extends AbstractModule {
                     new RepoModule(),
                     new ResourceIndexModule(),
                     new SolrModule(),
-                    new GuiceModelInjector()
-
+                    new GuiceModelInjector(),
+                    new ResourceIndexModule(),
+                    new RepoModule(),
+                    new NullStatisticsModule()
+                    //Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
             );
         }
         return _injectorInstance;

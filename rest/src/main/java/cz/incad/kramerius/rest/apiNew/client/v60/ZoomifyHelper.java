@@ -59,6 +59,7 @@ public class ZoomifyHelper {
     DeepZoomTileSupport tileSupport;
 
     @Inject
+    @Named("database") //TODO: je tohle spravne? jeste existuje AggregatedAccessLogs a DNNTStatisticsAccessLogImpl
     StatisticsAccessLog accessLog;
 
     @Inject

@@ -38,6 +38,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+
 import org.easymock.EasyMock;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
@@ -72,8 +74,8 @@ public class JSONDecoratorsAggregateTest {
     public void duplicateCheck() throws IOException,
             ParserConfigurationException, SAXException, LexerException,
             SecurityException, NoSuchMethodException {
-        StatisticsAccessLog aclog = EasyMock
-                .createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock
+                .createMock(AggregatedAccessLogs.class);
 
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
@@ -110,9 +112,9 @@ public class JSONDecoratorsAggregateTest {
     @Test
     public void testApplyBasicPDF() throws IOException,
             ParserConfigurationException, SAXException, LexerException,
-            SecurityException, NoSuchMethodException {
-        StatisticsAccessLog aclog = EasyMock
-                .createMock(StatisticsAccessLog.class);
+            SecurityException, NoSuchMethodException, JSONException {
+        AggregatedAccessLogs aclog = EasyMock
+                .createMock(AggregatedAccessLogs.class);
 
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
@@ -175,8 +177,8 @@ public class JSONDecoratorsAggregateTest {
     public void testApplyBasic() throws IOException,
             ParserConfigurationException, SAXException, LexerException,
             SecurityException, NoSuchMethodException, JSONException {
-        StatisticsAccessLog aclog = EasyMock
-                .createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock
+                .createMock(AggregatedAccessLogs.class);
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
@@ -235,8 +237,8 @@ public class JSONDecoratorsAggregateTest {
             ParserConfigurationException, SAXException, LexerException,
             SecurityException, NoSuchMethodException, JSONException {
 
-        StatisticsAccessLog aclog = EasyMock
-                .createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock
+                .createMock(AggregatedAccessLogs.class);
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
@@ -252,7 +254,7 @@ public class JSONDecoratorsAggregateTest {
                 .addMockedMethod(
                         SolrAccess.class.getMethod("requestWithSelectInInputStream", String.class,
                                 String.class))
-                .addMockedMethod("getSolrDataDocument").createMock();
+                .addMockedMethod("getDataByPidInXml").createMock();
 
         solrDataDocument(sa, DataPrepare.DROBNUSTKY_PIDS[0] + "/@2");
 
@@ -314,8 +316,8 @@ public class JSONDecoratorsAggregateTest {
             SecurityException, NoSuchMethodException, JSONException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
-        StatisticsAccessLog aclog = EasyMock
-                .createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs aclog = EasyMock
+                .createMock(AggregatedAccessLogs.class);
 
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
@@ -336,7 +338,7 @@ public class JSONDecoratorsAggregateTest {
                 .addMockedMethod(
                         SolrAccess.class.getMethod("requestWithSelectInInputStream", String.class,
                                 String.class))
-                .addMockedMethod("getSolrDataDocument").createMock();
+                .addMockedMethod("getDataByPidInXml").createMock();
 
         solrDataDocument(sa, DataPrepare.DROBNUSTKY_PIDS[0]);
 
@@ -431,19 +433,6 @@ public class JSONDecoratorsAggregateTest {
                     binder(), JSONDecorator.class);
 
             ApiServletModule.decoratorsBindings(decs);
-
-            // decs.addBinding().to(HandleDecorate.class);
-            // decs.addBinding().to(ItemSolrTitleDecorate.class);
-            // decs.addBinding().to(SolrContextDecorate.class);
-            //
-            // decs.addBinding().to(SolrDateDecorate.class);
-            // decs.addBinding().to(SolrISSNDecorate.class);
-            // decs.addBinding().to(SolrLanguageDecorate.class);
-            //
-            // decs.addBinding().to(SolrDataNode.class);
-            //
-            // decs.addBinding().to(ZoomDecorate.class);
-            // decs.addBinding().to(PDFDecorate.class);
         }
 
         @Provides

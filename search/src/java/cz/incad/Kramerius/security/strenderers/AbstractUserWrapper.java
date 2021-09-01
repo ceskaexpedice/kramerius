@@ -172,4 +172,19 @@ public class AbstractUserWrapper implements User, Role {
     public boolean hasSuperAdministratorRole() {
         return ((User)this.user).hasSuperAdministratorRole();
     }
+
+    @Override
+    public Map<String, String> getSessionAttributes() {
+        return ((User)this.user).getSessionAttributes();
+    }
+
+    @Override
+    public void addSessionAttribute(String key, String value) {
+        // unsupported here
+    }
+
+    @Override
+    public void removeSessionAttribute(String key) {
+        // unsupported here
+    }
 }

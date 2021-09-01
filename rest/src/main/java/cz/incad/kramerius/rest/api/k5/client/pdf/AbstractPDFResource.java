@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,8 +62,7 @@ public class AbstractPDFResource {
         IMAGES, TEXT;
     }
 
-    public static final Logger LOGGER = Logger
-            .getLogger(AbstractPDFResource.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(AbstractPDFResource.class.getName());
 
     @Inject
     @Named("TEXT")
@@ -118,7 +118,7 @@ public class AbstractPDFResource {
     Provider<User> userProvider;
     
     @Inject
-    StatisticsAccessLog statisticsAccessLog;
+    AggregatedAccessLogs statisticsAccessLog;
     
     @GET
     @Path("conf")
@@ -148,7 +148,6 @@ public class AbstractPDFResource {
 
         File parentFile = null;
         File firstPageFile = null;
-        
         try {
             // abstract document
             parentFile = File.createTempFile("body", "pdf");
@@ -160,15 +159,9 @@ public class AbstractPDFResource {
             // most desirable
             for (String p : pids) {
                 this.mostDesirable.saveAccess(p, new Date());
-                try {
-                    this.statisticsAccessLog.reportAccess(p, FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
-                } catch (Exception e) {
-                    LOGGER.severe("cannot write statistic records");
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
+                reportAccess(p);
             }
 
-            
             if (fp == FirstPage.IMAGES) {
                 this.imageFirstPage.selection(rdoc, fpageFos, pids, fmap);
             } else {
@@ -184,39 +177,24 @@ public class AbstractPDFResource {
         } finally {
             saveDeleteFile(parentFile, firstPageFile);
         }
-        
     }
 
     public File parent(String pid, int n, Rectangle rect, FirstPage fp) throws DocumentException,
-            IOException, NumberFormatException,
-            ProcessSubtreeException {
-
+            IOException, NumberFormatException, ProcessSubtreeException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
-
-
         Map<String, AbstractObjectPath[]> pathsMap = solrAccess.getModelAndPidPaths(pid);
-
         ObjectPidsPath[] paths = (ObjectPidsPath[]) pathsMap.get(ObjectPidsPath.class.getName());
-        ObjectModelsPath[] models = (ObjectModelsPath[]) pathsMap.get(ObjectModelsPath.class.getName());;
-
         final ObjectPidsPath path = AbstractPDFResource.selectOnePath(pid, paths);
-        
+
         File parentFile = null;
         File firstPageFile = null;
         try {
-            
             PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, n, new int[] {(int)rect.getWidth(), (int)rect.getHeight()});
             checkRenderedPDFDoc(rdoc);
-            
-            
+
             this.mostDesirable.saveAccess(pid, new Date());
             for (AbstractPage p : rdoc.getPages()) {
-                try {
-                    this.statisticsAccessLog.reportAccess(p.getUuid(), FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
-                } catch (Exception e) {
-                    LOGGER.severe("cannot write statistic records");
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
+                reportAccess(p.getUuid());
             }
 
             parentFile = File.createTempFile("body", "pdf");
@@ -245,7 +223,6 @@ public class AbstractPDFResource {
         }
     }
 
-
     private void checkRenderedPDFDoc(PreparedDocument rdoc) throws IOException {
         List<AbstractPage> pages = rdoc.getPages();
         for (AbstractPage apage : pages) {
@@ -255,7 +232,6 @@ public class AbstractPDFResource {
         }
     }
 
-
     private static void saveDeleteFile(File ... files) {
         for (File f : files) {
             if (f != null) {
@@ -264,10 +240,7 @@ public class AbstractPDFResource {
         }
     }
 
-
-
-    static ObjectPidsPath selectOnePath(String requestedPid,
-            ObjectPidsPath[] paths) {
+    static ObjectPidsPath selectOnePath(String requestedPid, ObjectPidsPath[] paths) {
         ObjectPidsPath path;
         if (paths.length > 0) {
             path = paths[0];
@@ -277,16 +250,13 @@ public class AbstractPDFResource {
         return path;
     }
 
-    static void mergeToOutput(OutputStream fos, File bodyFile,
-            File firstPageFile) throws IOException {
+    static void mergeToOutput(OutputStream fos, File bodyFile, File firstPageFile) throws IOException {
         PDFMergerUtility utility = new PDFMergerUtility();
         utility.addSource(firstPageFile);
         utility.addSource(bodyFile);
         utility.setDestinationStream(fos);
         utility.mergeDocuments();
     }
-
-    
 
     private boolean canBeRenderedAsPDF(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
@@ -298,8 +268,11 @@ public class AbstractPDFResource {
         return false;
     }
 
-
- 
-    
-    
+    private void reportAccess(String pid) {
+        try {
+            this.statisticsAccessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
+        }
+    }
 }

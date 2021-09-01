@@ -17,6 +17,8 @@
 package cz.incad.kramerius.security.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import cz.incad.kramerius.security.*;
 
@@ -35,6 +37,8 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private UserManager userManager;
     private String remoteHost;
     private String remoteAddr;    
+
+    private Map<String, String> map = new HashMap<>();
 
     private SecuredActions action;
 
@@ -127,6 +131,10 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         return this.rightsResolver;
     }
 
+    @Override
+    public Map<String, String> getEvaluateInfoMap() {
+        return this.map;
+    }
 
     public static class Builder {
         protected String requestedPID;

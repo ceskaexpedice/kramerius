@@ -18,12 +18,7 @@ package cz.incad.kramerius.security.impl.criteria;
 
 import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils.*;
 
-import cz.incad.kramerius.security.EvaluatingResultState;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils;
+import cz.incad.kramerius.security.*;
 
 /**
  * Omezujici filter -> Pokud je z daneho rozsahu - pusti dal. Pokud neni - zakaze
@@ -42,8 +37,12 @@ public class StrictIPAddresFilter extends AbstractIPAddressFilter implements Rig
         return result;
     }
 
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        return evalute();
+    }
 
-//    @Override
+    //    @Override
 //    public boolean validate(Object[] objs) {
 //        if ((objs != null) && (objs.length == 1)) {
 //            String val = (String) objs[0];

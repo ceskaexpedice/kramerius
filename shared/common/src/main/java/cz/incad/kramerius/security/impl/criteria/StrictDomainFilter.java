@@ -19,6 +19,7 @@ package cz.incad.kramerius.security.impl.criteria;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.security.DataMockExpectation;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.SecuredActions;
@@ -37,6 +38,11 @@ public class StrictDomainFilter extends AbstractDomainFilter  {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return EvaluatingResultState.FALSE;
         }
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        return evalute();
     }
 
     @Override

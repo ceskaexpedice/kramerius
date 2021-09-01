@@ -33,6 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Default version service implementation
@@ -41,7 +42,11 @@ import java.util.logging.Level;
  */
 public class VersionServiceImpl implements VersionService {
 
-    private static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(VersionServiceImpl.class.getName());
+    private static Logger LOGGER = java.util.logging.Logger.getLogger(VersionServiceImpl.class.getName());
+
+    private static final boolean VERSION_CACHING_ENABLED = false; //nevypada to, ze by se updateNewVersion(), proto verze cachovaní vypnuto
+
+    String versionCached = null;
 
     @Inject
     @Named("kramerius4")
@@ -49,28 +54,40 @@ public class VersionServiceImpl implements VersionService {
 
     @Override
     public String getVersion() throws SQLException {
-        Connection connection = this.connectionProvider.get();
-        try {
-            boolean versionTable = DatabaseUtils.tableExists(connection, "DBVERSIONS");
-            if (versionTable) {
-                List<String> ids = new JDBCQueryTemplate<String>(connection, false) {
-                    @Override
-                    public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-                        returnsList.add(rs.getString("ver"));
-                        return false;
-                    }
-                }.executeQuery("select DBVER_ID, ver from DBVERSIONS v join MAX_VERSION_VIEW mv " +
-                        "on (v.DBVER_ID = mv.MAX_ID) ");
-                return ids != null && ids.size() > 0 ? ids.get(0).trim() : null;
-            } else return null;
-        } finally {
-            if (connection != null) DatabaseUtils.tryClose(connection);
+        if (VERSION_CACHING_ENABLED && versionCached != null) {
+            return versionCached;
+        } else {
+            String version = detectVersion();
+            if (VERSION_CACHING_ENABLED) {
+                this.versionCached = version;
+            }
+            return version;
         }
     }
 
+    private String detectVersion() throws SQLException {
+        Connection connection = this.connectionProvider.get();
+        boolean versionTableExists = DatabaseUtils.tableExists(connection, "DBVERSIONS");
+        if (versionTableExists) {
+            List<String> ids = new JDBCQueryTemplate<String>(connection, false) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                    returnsList.add(rs.getString("ver"));
+                    return false;
+                }
+            }.executeQuery("select DBVER_ID, ver from DBVERSIONS v join MAX_VERSION_VIEW mv " +
+                    "on (v.DBVER_ID = mv.MAX_ID) ");
+            return ids != null && ids.size() > 0 ? ids.get(0).trim() : null;
+        } else {
+            return null;
+        }
+    }
 
     @Override
     public void updateNewVersion() throws IOException, SQLException {
+        if (VERSION_CACHING_ENABLED) {
+            this.versionCached = null;
+        }
         InputStream is = this.getClass().getResourceAsStream("res/current.db.version");
         String version = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
         String curVersion = getVersion();

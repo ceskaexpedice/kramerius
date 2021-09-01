@@ -42,7 +42,7 @@ public class ShibbolethUtils {
         Enumeration headerNames = httpServletRequest.getHeaderNames();
         while(headerNames.hasMoreElements()) {
             String hname = (String) headerNames.nextElement();
-            if (hname.contains(SHIB_PROVIDER_KEY)) {
+            if (hname.toLowerCase().contains(SHIB_PROVIDER_KEY.toLowerCase())) {
                 String headerValue = httpServletRequest.getHeader(hname);
                 if ((headerValue != null) && (!headerValue.trim().equals(""))) {
                     foundIdentityProvider = true;
@@ -69,7 +69,7 @@ public class ShibbolethUtils {
         Enumeration headerNames = httpServletRequest.getHeaderNames();
         while(headerNames.hasMoreElements()) {
             String hname = (String) headerNames.nextElement();
-            if (hname.contains(SHIB_SESSION_KEY)) {
+            if (hname.toLowerCase().contains(SHIB_SESSION_KEY.toLowerCase())) {
                 String headerValue = httpServletRequest.getHeader(hname);
                 if ((headerValue != null) && (!headerValue.trim().equals(""))) {
                     return headerValue;

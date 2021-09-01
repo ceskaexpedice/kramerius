@@ -113,19 +113,41 @@ public class RightImpl implements Right, Serializable {
                 rCrit.setCriteriumParamValues(this.crit.getCriteriumParams().getObjects());
             }
 
-            try {
-                // precondition
-                rCrit.checkPrecodition(rightsManager);
-            } catch (CriteriaPrecoditionException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            }
+            checkPrecondition(rightsManager, rCrit);
 
             EvaluatingResultState result = rCrit.evalute();
             rCrit.setEvaluateContext(null);
             rCrit.setCriteriumParamValues(new Object[] {});
             return result;
-        // kdyz neni zadne kriterium, pak je akce povolena
         } else return EvaluatingResultState.TRUE;
+    }
+
+
+    @Override
+    public EvaluatingResultState mockEvaluate(RightCriteriumContext ctx, RightsManager rightsManager, DataMockExpectation dataExpectation) throws RightCriteriumException {
+        if (this.crit != null){
+            RightCriterium rCrit = this.crit.getRightCriterium();
+            rCrit.setEvaluateContext(ctx);
+            if (this.crit.getCriteriumParams() != null) {
+                rCrit.setCriteriumParamValues(this.crit.getCriteriumParams().getObjects());
+            }
+
+            checkPrecondition(rightsManager, rCrit);
+
+            EvaluatingResultState result = rCrit.mockEvaluate(dataExpectation);
+            rCrit.setEvaluateContext(null);
+            rCrit.setCriteriumParamValues(new Object[] {});
+            return result;
+        } else return EvaluatingResultState.TRUE;
+    }
+
+    private void checkPrecondition(RightsManager rightsManager, RightCriterium rCrit) {
+        try {
+            // precondition
+            rCrit.checkPrecodition(rightsManager);
+        } catch (CriteriaPrecoditionException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
     }
 
     @Override

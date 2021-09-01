@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2012 Pavel Stastny
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,9 +26,18 @@ import cz.incad.kramerius.rest.api.k5.admin.users.UsersResource;
 import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
+import cz.incad.kramerius.rest.api.k5.client.debug.HTTPHeaders;
 import cz.incad.kramerius.rest.api.k5.client.feedback.FeedbackResource;
 import cz.incad.kramerius.rest.api.k5.client.feeder.FeederResource;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.*;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrAuthorDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrMimeDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrPolicyDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootModelDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootPidDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrTitleDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
+import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
 import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
 import cz.incad.kramerius.rest.api.k5.client.info.InfoResource;
 import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
@@ -95,6 +104,9 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.collections.CollectionsResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.ConfigResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.ItemsResource.class);
+
+        // debug resource
+        bind(HTTPHeaders.class);
 
         bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
                 .asEagerSingleton();

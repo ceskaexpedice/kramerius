@@ -106,6 +106,9 @@ public interface SolrAccess {
      */
     public ObjectModelsPath[] getModelPaths(String pid) throws IOException;
 
+    //TODO: document (does the Document inlcude <response><result>...?), also probably rename to getModelPaths
+    public ObjectModelsPath[] getPathOfModels(Document doc) throws IOException;
+
     /**
      * Wrapper allows to return ObjectPidPaths and ObjectModelsPath in one response
      * Example:

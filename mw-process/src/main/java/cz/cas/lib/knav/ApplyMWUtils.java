@@ -73,7 +73,6 @@ public class ApplyMWUtils {
     /**
      * Human readable title of the process
      * 
-     * @param pid
      *            Proccess pid
      * @param sa
      *            SolrAccess
@@ -82,7 +81,7 @@ public class ApplyMWUtils {
         try {
             if (pids.length == 0)
                 return null;
-            Document solrDoc = sa.getSolrDataDocument(pids[0]);
+            Document solrDoc = sa.getDataByPidInXml(pids[0]);
             Element foundElm = XMLUtils.findElement(
                     solrDoc.getDocumentElement(),
                     new XMLUtils.ElementsFilter() {
@@ -95,11 +94,8 @@ public class ApplyMWUtils {
                                     "str");
                             boolean hasGoodAttr = nameAttr != null
                                     && nameAttr.equals("dc.title");
-    
-                            if (isElmStr && hasGoodAttr) {
-                                return true;
-                            } else
-                                return false;
+
+                            return isElmStr && hasGoodAttr;
                         }
                     });
     
@@ -144,12 +140,12 @@ public class ApplyMWUtils {
         Set<String> pids = fa.getPids(masterPid);
 
         String[] root;
-        ObjectPidsPath[] path = sa.getPath(masterPid);
-        if(path == null) {
+        ObjectPidsPath[] pidPaths = sa.getPidPaths(masterPid);
+        if(pidPaths == null) {
             root = new String[1];
             root[0] = masterPid;
         } else {
-            root = path[path.length - 1].getPathFromRootToLeaf();
+            root = pidPaths[pidPaths.length - 1].getPathFromRootToLeaf();
         }
         for (int i = 0; i < root.length; i++) {
             if("policy:private".equals(disectFlagFromRELSEXT(root[i],fa))){
@@ -177,10 +173,7 @@ public class ApplyMWUtils {
     public static void process(FedoraAccess fa, SolrAccess sa, String onePid, String userValue,
             CollectPidForIndexing coll) throws IOException,
             RightCriteriumException, XPathExpressionException {
-        ProcessCriteriumContext ctx = new ProcessCriteriumContext(onePid, fa,
-                sa);
-
-
+        ProcessCriteriumContext ctx = new ProcessCriteriumContext(onePid, fa, sa);
         MovingWall mw = new MovingWall();
         mw.setEvaluateContext(ctx);
         int wall = 0;
@@ -197,8 +190,9 @@ public class ApplyMWUtils {
                     .getConfiguration());
         }
         ApplyMovingWall.LOGGER.info("Used value is: " + wall);
-        mw.setCriteriumParamValues(new Object[] { "" + wall });
+        mw.setCriteriumParamValues(new Object[] { "" + wall, mode, firstModel, firstPid });
         EvaluatingResultState result = mw.evalute();
+
         String flagFromRELSEXT = ApplyMWUtils.disectFlagFromRELSEXT(onePid, fa);
         if (result == EvaluatingResultState.TRUE) {
             ApplyMovingWall.LOGGER.info("Set policy flag for '" + onePid + "' to value true ");
@@ -234,8 +228,7 @@ public class ApplyMWUtils {
      * @throws IOException
      */
     public static void setPolicyFlag(String pid, boolean b, FedoraAccess fa,
-            String previousState, CollectPidForIndexing coll)
-            throws IOException {
+            String previousState, CollectPidForIndexing coll) {
         if (ApplyMWUtils.detectChange(b, previousState)) {
             PolicyServiceImpl policy = new PolicyServiceImpl();
             policy.setFedoraAccess(fa);
@@ -292,8 +285,7 @@ public class ApplyMWUtils {
         return wall;
     }
 
-    public static int defaultConfiguredWall( Configuration conf)
-            throws IOException {
+    public static int defaultConfiguredWall( Configuration conf) {
         int wall = conf.getInt("mwprocess.wall", 70);
         return wall;
     

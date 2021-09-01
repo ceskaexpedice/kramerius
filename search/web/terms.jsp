@@ -19,10 +19,10 @@
             String i18nServlet = I18NServlet.i18nServlet(request) + "?action=bundle&lang="+lctx.getLocale().getLanguage()+"&country="+lctx.getLocale().getCountry()+"&name=labels";
             pageContext.setAttribute("i18nServlet", i18nServlet);
             String t = request.getParameter("t");
-            UTFSort utf_sort = new UTFSort();
-            //utf_sort.init();
+            UTFSort utfSort = new UTFSort();
+            //utfSort.init();
 
-            String term = utf_sort.translate(t);
+            String term = utfSort.translate(t);
             String including = request.getParameter("i");
             if (including==null){
                 including = "true";

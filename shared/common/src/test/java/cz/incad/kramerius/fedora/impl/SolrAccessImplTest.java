@@ -47,7 +47,7 @@ public class SolrAccessImplTest {
         }};
 
     	SolrAccessImpl solr = createMockBuilder(SolrAccessImpl.class)
-        		.addMockedMethod("getSolrDataDocument")
+        		.addMockedMethod("getDataByPidInXml")
         		.createMock();
 
         EasyMock.expect(solr.getDataByPidInXml("uuid:0xAAA")).andReturn(SolrUtilsTest.solrPDFDocument());
@@ -65,7 +65,7 @@ public class SolrAccessImplTest {
     public void testGetSolrSimplePath() throws IOException, ParserConfigurationException, SAXException {
         // SolrAccess 
         SolrAccessImpl solr = createMockBuilder(SolrAccessImpl.class)
-        		.addMockedMethod("getSolrDataDocument")
+        		.addMockedMethod("getDataByPidInXml")
         		.createMock();
         
         EasyMock.expect(solr.getDataByPidInXml("uuid:0xAAA")).andReturn(SolrUtilsTest.solrDocument());
@@ -96,7 +96,7 @@ public class SolrAccessImplTest {
     public void testGetSolrPathWithStream() throws IOException, ParserConfigurationException, SAXException {
         // SolrAccess 
         SolrAccessImpl solr = createMockBuilder(SolrAccessImpl.class)
-        .addMockedMethod("getSolrDataDocument")
+        .addMockedMethod("getDataByPidInXml")
         .createMock();
         
         EasyMock.expect(solr.getDataByPidInXml("uuid:0xAAA")).andReturn(SolrUtilsTest.solrDocument());

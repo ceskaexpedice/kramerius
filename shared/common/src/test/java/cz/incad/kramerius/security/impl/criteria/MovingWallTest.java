@@ -167,10 +167,10 @@ public class MovingWallTest {
 //        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
 //        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
 //        for (String key : keys) {
-//            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key)}).anyTimes();
+//            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key)}).anyTimes();
 //        }
 //
-//        EasyMock.expect(solrAccess.getSolrDataDocument("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(null).anyTimes();
+//        EasyMock.expect(solrAccess.getDataByPidInXml("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")).andReturn(null).anyTimes();
 //
 //        replay(fa4,feeder, solrAccess,acLog);
 //

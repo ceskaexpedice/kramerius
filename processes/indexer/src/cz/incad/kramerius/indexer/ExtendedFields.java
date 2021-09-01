@@ -65,13 +65,14 @@ public class ExtendedFields {
 
     FedoraAccess fa;
     FedoraOperations fo;
+    // dnnt flag
+    private String dnnt;
+    private List<String> dnntLabels;
 
     // geo coordinates range
     private List<String> coordinates;
 
     private BiblioModsDateParser dateParser;
-    // dnnt flag
-    private String dnnt;
 
     public ExtendedFields(FedoraOperations fo) throws IOException {
         this.fo = fo;
@@ -105,8 +106,24 @@ public class ExtendedFields {
         // coordinates
         this.coordinates = ParsingCoordinates.processBibloModsCoordinates(biblioMods, this.factory);
         // dnnt
-        String rootPid = pid_paths.get(0).split("/")[0];
-        this.dnnt = DnntSingleton.getInstance().dnnt(rootPid, fo.fa);
+
+        List<String> dnntLabels = new ArrayList<>();
+        for(String pidPath: pid_paths) {
+            String[] path = pidPath.split("/");
+            for (String p : path) {
+                String dnnt = DnntSingleton.getInstance().dnnt(p, fo.fa);
+                dnntLabels.addAll(DnntSingleton.getInstance().dnntLabels(p, fo.fa));
+                if (dnnt != null) {
+                    if (dnnt.equals("true")) {
+                        this.dnnt = dnnt;
+                    }
+                }
+            }
+        }
+
+        if (dnntLabels.size() > 0) {
+            this.dnntLabels = new ArrayList<>(new LinkedHashSet<>(dnntLabels));
+        }
     }
 
 
@@ -258,10 +275,19 @@ public class ExtendedFields {
             sb.append("<field name=\"datum_end\">").append(datum_end).append("</field>");
         }
 
+
         if (this.dnnt != null && StringUtils.isAnyString(this.dnnt)) {
             sb.append("<field name=\"dnnt\">").append(dnnt).append("</field>");
+
+            if (this.dnntLabels != null) {
+                dnntLabels.stream().forEach(label-> {
+                    sb.append("<field name=\"dnnt-labels\">").append(label).append("</field>");
+                });
+            }
+
         }
 
+        // dnnt labels
 
         if (this.coordinates != null) {
             coordinates.stream().forEach((loc)->{

@@ -35,4 +35,5 @@ public interface StatisticsAccessLogSupport {
      * @param detail
      */
     public void processDetailRecord(Map<String, Object> detail);
+
 }

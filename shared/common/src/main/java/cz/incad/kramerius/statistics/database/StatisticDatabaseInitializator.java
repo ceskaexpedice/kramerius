@@ -24,18 +24,17 @@ import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.version
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.database.VersionService;
-import cz.incad.kramerius.security.database.InitSecurityDatabaseMethodInterceptor;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
+import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
@@ -46,8 +45,13 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
  */
 public class StatisticDatabaseInitializator {
 
+    static List<String> EMBEDDED_LABELS = Arrays.asList(
+        "dnntt", "dnnto", "covid"
+    );
+
     static java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(StatisticDatabaseInitializator.class.getName());
+
 
     public static void initDatabase(Connection connection, VersionService versionService) {
         try {
@@ -64,6 +68,16 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+
+
             } else if (versionCondition(version, "<", "6.0.0")) {
                 createStatisticTables(connection);
                 alterStatisticsTableStatAction(connection);
@@ -77,6 +91,16 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+
+
             } else if (versionCondition(version, "=", "6.0.0")) {
                 alterStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
@@ -89,6 +113,16 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+
+
             } else if (versionCondition(version, "=", "6.1.0")) {
                 alterStatisticsTableSessionId(connection);
 
@@ -99,6 +133,16 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+
+
             } else if ((versionCondition(version, ">", "6.1.0")) && (versionCondition(version, "<", "6.5.0"))) {
                 // Issue 619
                 alterStatisticsAuthorTablePrimaryKey(connection);
@@ -107,27 +151,143 @@ public class StatisticDatabaseInitializator {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+
+
             } else if (versionCondition(version, ">=", "6.5.0")&& (versionCondition(version, "<", "6.6.4"))) {
                 createFirstFunction(connection);
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
-            } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.5"))) {
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+
+
+            } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.6"))) {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 createLangsView(connection);
-            } else if (versionCondition(version, ">=", "6.6.5")) {
-                createLangsView(connection);
-                createTmpAuthorView(connection);
-                createAuthorsView(connection);
+
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
+
+
+            } else if (versionCondition(version, ">=", "6.6.6")) {
+                checkAndAddDNNTFlag(connection);
+                checkAndAddProvidedByDNNTFlag(connection);
+                checkAndAddEvaluateMap(connection);
+                checkAndAddUserAttributesMap(connection);
+
+                checkPublisherTables(connection);
+                checkAndAddSolrDate(connection);
             }
+
+            // check if date column contains index, if not, creates it
+            checkDateIndex(connection);
+            // check if labels_entity table exists, if not creates it
+            checkLabelExists(connection);
+            // check if statistics table contains columns for issn, isbn, ccnb, if not, create them
+            checkIsbnIssnCcnb(connection);
+            // check if statistics table contains column for dbversion, if not crates it
+            checkLogVersionColumn(connection);
+
+            // check if labels exists
+            checkLabelsColumns(connection);
+
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
+
+    private static void checkLabelsColumns(Connection connection) {
+        try {
+            if (!DatabaseUtils.columnExists(connection, "statistics_access_log", "dnnt_labels")) {
+                InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initlabelscolumn.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            }
+        } catch (SQLException | IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+    }
+
+
+    private static void checkLogVersionColumn(Connection connection) {
+        try {
+            if (!DatabaseUtils.columnExists(connection, "statistics_access_log", "dbversion")) {
+                InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initdebversioncolumn.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            }
+        } catch (SQLException | IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+    }
+
+    private static void checkIsbnIssnCcnb(Connection connection) {
+        try {
+            if (!DatabaseUtils.columnExists(connection, "statistic_access_log_detail", "issn")) {
+                InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initidentifierscolumn.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            }
+        } catch (SQLException | IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+        }
+    }
+
+
+    private static void checkLabelExists(Connection connection) {
+        EMBEDDED_LABELS.stream().forEach( label-> {
+                List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
+                    @Override
+                    public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                        returnsList.add(rs.getString("label_name"));
+                        return super.handleRow(rs, returnsList);
+                    }
+                }.executeQuery("select * from labels_entity where label_name = ?", label);
+                if (labels.isEmpty()) {
+                    try {
+                        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                        template.setUseReturningKeys(false);
+                        template.executeUpdate(
+                                "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
+                                        "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, '', (select coalesce(max(label_priority),0)+1 from labels_entity))",
+                                label);
+
+                    } catch (SQLException e) {
+                        LOGGER.log(Level.SEVERE,String.format("Cannot create embedded label %s", label));
+
+                    }
+                }
+            }
+        );
+    }
+
 
     /**
      * @param con
@@ -169,6 +329,80 @@ public class StatisticDatabaseInitializator {
             LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
         } finally {
             DatabaseUtils.tryClose(prepareStatement);
+        }
+    }
+
+
+    public static void checkAndAddDNNTFlag(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","dnnt")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN dnnt BOOLEAN ;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+    public static void checkAndAddProvidedByDNNTFlag(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","providedByDNNT")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN providedByDNNT BOOLEAN ;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+
+    public static void checkAndAddEvaluateMap(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","evaluateMap")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN evaluateMap text;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+    public static void checkAndAddUserAttributesMap(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log","userSessionAttributes")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN userSessionAttributes text;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+    public static void checkAndAddSolrDate(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistic_access_log_detail","solr_date")) {
+            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistic_access_log_detail ADD COLUMN solr_date TEXT;");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
+        }
+    }
+
+    public static void checkDateIndex(Connection con) throws SQLException {
+        if (!DatabaseUtils.indexExists(con, "statistics_access_log","date")) {
+            PreparedStatement prepareStatement = con.prepareStatement("CREATE INDEX date_index on statistics_access_log(date);");
+            try {
+                int r = prepareStatement.executeUpdate();
+                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+            } finally {
+                DatabaseUtils.tryClose(prepareStatement);
+            }
         }
     }
 
@@ -216,6 +450,11 @@ public class StatisticDatabaseInitializator {
 
     }
 
+
+
+
+
+
     /**
      * @param connection
      * @throws IOException
@@ -227,8 +466,25 @@ public class StatisticDatabaseInitializator {
         template.setUseReturningKeys(false);
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
-    
-    
+
+
+    /**
+     * Check if publisher table exists
+     * @param connection Connection
+     * @throws SQLException
+     * @throws IOException
+     */
+    private static void checkPublisherTables(Connection connection) throws SQLException, IOException {
+        if (!DatabaseUtils.tableExists(connection, "STATISTIC_ACCESS_LOG_DETAIL_PUBLISHERS")) {
+            InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initpublishersdb.sql");
+            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+            template.setUseReturningKeys(false);
+            template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+        }
+    }
+
+
+
     /**
      * Create first aggregation function first(col)
      */

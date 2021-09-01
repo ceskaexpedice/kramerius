@@ -88,12 +88,9 @@ public class AbstractSearchParamsViews {
     public String getBrowserTitle() throws IOException {
         HttpServletRequest request = this.requestProvider.get();
         String t = request.getParameter("browse_title");
-        UTFSort utf_sort = new UTFSort();
-        String browseTitle = utf_sort.translate(t);
+        UTFSort utfSort = new UTFSort();
+        String browseTitle = utfSort.translate(t);
         browseTitle = "\"" + browseTitle + "##" + t + "\"";
-        // URI uri = new URI(request.getRequestURI());
-        // uri.getQuery();
-    
         return browseTitle;
     }
     

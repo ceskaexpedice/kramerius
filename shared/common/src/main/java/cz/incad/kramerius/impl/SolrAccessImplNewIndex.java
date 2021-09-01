@@ -104,6 +104,11 @@ public class SolrAccessImplNewIndex implements SolrAccess {
     }
 
     @Override
+    public ObjectModelsPath[] getPathOfModels(Document doc) throws IOException {
+        throw new UnsupportedOperationException("not implemented");
+    }
+
+    @Override
     public Map<String, AbstractObjectPath[]> getModelAndPidPaths(String pid) throws IOException {
         throw new UnsupportedOperationException("not implemented");
     }

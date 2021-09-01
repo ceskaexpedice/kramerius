@@ -28,20 +28,37 @@ tree(root) ::=<<
 
 
 
-form(postfixdiv, csvRootDirectory,csvfile, bundle, process) ::=<<
+form(postfixdiv, csvRootDirectory,csvfile, bundle, process,labelProcess, allLabels) ::=<<
 
 <div style="width:100%">
     <script language="JavaScript" type="text/javascript">
     <!--
 
+
+       \$('#dnnt_label_enabled').change(function() {
+           \$( "#dnnt_label_div" ).toggle();
+       });
+
+        var legacyprocess = "$process$";
+        var labelProcess = "$labelProcess$";
+
+
         // send parameters to server
         window.onProcessFormSend = function() {
 
-            var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
-            var vals = 'csvfile='+\$('#csvfile').val().escapeChars(charsThatMustBeEscaped);
+            var label =  \$('#label').val();
 
-            var url = "lr?action=form_post&def=$process$&paramsMapping={"+vals+"}&out=text";
-            processStarter("$process$").start(url);
+            var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
+
+            var vals = 'csvfile='+encodeURIComponent(\$('#csvfile').val().escapeChars(charsThatMustBeEscaped))
+                    +';label='+ \$('#label').val();
+
+
+            var url = "lr?action=form_post&def="+labelProcess+"&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
+
+            processStarter(labelProcess).start(url);
+
+
         }
 
 
@@ -108,6 +125,18 @@ form(postfixdiv, csvRootDirectory,csvfile, bundle, process) ::=<<
     <input type="button" onclick="directoryTree.openTree();" value="$bundle.("import.directory.selection")$"></input>
 </fieldset>
 
+<!-- priznak -->
+<fieldset style="margin-top:10px;border: 1px solid gray;">
+    <legend style="border:none">$bundle.("import.selection.dnnt.labels")$</legend>
+
+
+    <div id="dnnt_label_div" >
+    <label for="label">Label:</label>
+    <select  id="label">
+        $allLabels:{oneLabel | <option value="$oneLabel$">$oneLabel$</option> };separator="\n"$
+    </select>
+    </div>
+</fieldset>
 
 
     <div id="_selectDNNTFolderDialog" style="display:none">

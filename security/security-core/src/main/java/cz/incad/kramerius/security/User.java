@@ -17,6 +17,7 @@
 package cz.incad.kramerius.security;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Represents user
@@ -58,6 +59,9 @@ public interface User extends AbstractUser,Serializable {
     
     public boolean hasSuperAdministratorRole();
 
-    
+    public Map<String,String> getSessionAttributes();
 
+    public void addSessionAttribute(String key, String value);
+
+    public void removeSessionAttribute(String key);
 }

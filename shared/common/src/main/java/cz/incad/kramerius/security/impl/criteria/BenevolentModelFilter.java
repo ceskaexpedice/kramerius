@@ -22,13 +22,7 @@ import java.util.logging.Logger;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.EvaluatingResultState;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.*;
 
 /**
  * @author pavels
@@ -40,11 +34,20 @@ public class BenevolentModelFilter  extends AbstractCriterium implements RightCr
 
     
     /* (non-Javadoc)
-     * @see cz.incad.kramerius.security.RightCriterium#evalute()
+     * @see cz.incad.kramerius.security.RightCriterium#evaluate()
      */
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
         return evaluateInternal(getObjects(), getEvaluateContext());
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
     }
 
     /**

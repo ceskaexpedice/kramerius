@@ -110,7 +110,9 @@ public class ProcessingIndexFeeder {
         //řazení podle date zaručí jen jednoznačné řazení, což by ale zvládlo (a lépe) i řazení podle pid
         //date obsahuje timestamp vytvoření záznamu v processing indexu, ten proces ale probíhá paraleleně, takže tohle pořadí se po rebuildu processing indexu změní
         //takže "date" nijak nesouvisí s přidáním do repozitáře, nebo snad publikací
-        iterateProcessingWithSort(query, "date", SolrQuery.ORDER.desc, action);
+        //String sortField = "date";
+        String sortField = "pid";
+        iterateProcessingWithSort(query, sortField, SolrQuery.ORDER.desc, action);
     }
 
     public void iterateProcessingSortedByTitle(String query, boolean ascending, Consumer<SolrDocument> action) throws IOException, SolrServerException {

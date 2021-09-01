@@ -16,10 +16,8 @@
  */
 package cz.incad.kramerius.security.impl;
 
-import cz.incad.kramerius.security.CriteriumType;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
+import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.labels.Label;
 
 import java.io.Serializable;
 
@@ -98,10 +96,28 @@ public class RightCriteriumWrapperImpl implements RightCriteriumWrapper, Seriali
         return this.critId == -1;
     }
 
-
-
     @Override
     public CriteriumType getCriteriumType() {
         return this.criteriumType;
+    }
+
+    @Override
+    public boolean isLabelAwareCriterium() {
+        if (this.criteriumType.equals(CriteriumType.CLASS)) {
+            return this.wrappedInstance instanceof RightCriteriumLabelAware;
+        } else return false;
+    }
+
+    @Override
+    public Label getLabel() {
+        Label label = isLabelAwareCriterium() ? ((RightCriteriumLabelAware) this.wrappedInstance).getLabel() : null;
+        return label;
+    }
+
+    @Override
+    public void setLabel(Label label) {
+        if (isLabelAwareCriterium()) {
+            ((RightCriteriumLabelAware)this.wrappedInstance).setLabel(label);
+        }
     }
 }

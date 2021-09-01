@@ -25,6 +25,7 @@ import com.google.inject.Injector;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 
 public class GenerateDeepZoomFlag {
 
@@ -47,7 +48,7 @@ public class GenerateDeepZoomFlag {
             void doAction(String[] args) throws IOException {
                 if (args.length >= 3) {
                     LOGGER.info("setting flag ...");
-                    Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
+                    Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
                     DeepZoomFlagService service = injector.getInstance(DeepZoomFlagService.class);
                     service.setFlagToPID(args[1],args[2]);
                     LOGGER.info("Process finished");

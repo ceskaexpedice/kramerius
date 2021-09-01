@@ -56,7 +56,15 @@ public interface RightCriterium extends Serializable  {
      * @throws RightCriteriumException Something happen during evaluate
      */
     public EvaluatingResultState evalute() throws RightCriteriumException;
-    
+
+
+    /**
+     * Perfrom evaluation without accessing title
+     * @return
+     * @throws RightCriteriumException
+     * @param dataMockExpectation
+     */
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException;
 
     /**
      * Returns criterium hint. 
@@ -94,6 +102,13 @@ public interface RightCriterium extends Serializable  {
 
 
     /**
+     * Is label's assignable
+     * @return
+     */
+    public boolean isLabelAssignable();
+
+
+    /**
      * Validate given params
      * @param vals User defined parameters which should be validated
      * @return returns result of validation
@@ -128,6 +143,7 @@ public interface RightCriterium extends Serializable  {
     public void checkPrecodition(RightsManager manager) throws CriteriaPrecoditionException;
 
     //public boolean isBypassed();
+
 
 
 }

@@ -2,12 +2,7 @@ package cz.incad.kramerius.security.impl.criteria;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.security.EvaluatingResultState;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -22,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * CoverAndContentFilter
@@ -33,10 +29,11 @@ import java.util.logging.Logger;
  */
 public class CoverAndContentFilter extends AbstractCriterium implements RightCriterium {
 
-    Logger LOGGER = java.util.logging.Logger.getLogger(CoverAndContentFilter.class.getName());
+    private static final Logger LOGGER = java.util.logging.Logger.getLogger(CoverAndContentFilter.class.getName());
+    private static XPathExpression modsTypeExpr = null;
     private static final List<String> allowedPageTypes = Arrays.asList(
             "FrontCover", "TableOfContents", "FrontJacket", "TitlePage", "jacket"
-    );
+    ).stream().map(String::toLowerCase).collect(Collectors.toList());
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
@@ -55,27 +52,18 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
             } else {
                 return EvaluatingResultState.TRUE;
             }
-
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResultState.NOT_APPLICABLE;
-        } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResultState.NOT_APPLICABLE;
-        } catch (ParserConfigurationException e) {
+        } catch (IOException | SAXException | ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 
-    private EvaluatingResultState checkTypeElement(Document relsExt) throws IOException {
+    private EvaluatingResultState checkTypeElement(Document mods) throws IOException {
         try {
-            XPathFactory xPathFactory = XPathFactory.newInstance();
-            XPath xpath = xPathFactory.newXPath();
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
-            XPathExpression expr = xpath.compile("/mods:modsCollection/mods:mods/mods:part/@type");
-            String type = expr.evaluate(relsExt);
-            if (allowedPageTypes.contains(type)) {
+            if (modsTypeExpr == null)
+                initModsTypeExpr();
+            String type = modsTypeExpr.evaluate(mods);
+            if (allowedPageTypes.contains(type.toLowerCase())) {
                 return EvaluatingResultState.TRUE;
             } else {
                 return EvaluatingResultState.NOT_APPLICABLE;
@@ -83,6 +71,25 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
         } catch (XPathExpressionException e) {
             throw new IOException(e);
         }
+    }
+
+    private void initModsTypeExpr() throws IOException {
+        try {
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            xpath.setNamespaceContext(new FedoraNamespaceContext());
+            modsTypeExpr = xpath.compile("/mods:modsCollection/mods:mods/mods:part/@type");
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
     }
 
     @Override
@@ -99,5 +106,4 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     public SecuredActions[] getApplicableActions() {
         return new SecuredActions[]{SecuredActions.READ};
     }
-
 }

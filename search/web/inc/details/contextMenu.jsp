@@ -50,7 +50,7 @@
         overflow:hidden;
         text-indent: -99999px;
         display:inline-block;
-        float:none;
+        float:left;
     }
 
     #contextMenu .scope>span{
@@ -872,11 +872,12 @@
 
       }
 
-    function serverSort() {
-        var structs = pidstructs();
+      function serverSort() {
+          var structs = pidstructs();
           var u = "lr?action=start&def=sort&out=text&nparams="+encodeURI("{")+encodeURI(structs[0].pid.replaceAll(":","\\:"))+encodeURI("}");
-        processStarter("sort").start(u);
-    }
+          processStarter("sort").start(u);
+          
+      }
 
 
     function deletePid(){

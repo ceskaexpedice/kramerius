@@ -16,6 +16,8 @@ import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONException;
@@ -24,6 +26,7 @@ import org.w3c.dom.Element;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -65,10 +68,18 @@ public class DNNTDecorator extends AbstractItemDecorator {
                     if (doc != null ) doc = this.memo.askForIndexDocument(pid);
                     if (doc != null) {
                         Optional<Element> optional = Optional.of(doc);
-                        Boolean value = SOLRUtils.value(doc, "dnnt",
-                                Boolean.class);
+
+                        List<String> dnntLabels = SOLRUtils.narray(doc, "dnnt-labels", String.class);
+
+                        Boolean value = SOLRUtils.value(doc, "dnnt",  Boolean.class);
+
                         if (value != null) {
                             jsonObject.put("dnnt", value);
+
+                            if (dnntLabels != null && !dnntLabels.isEmpty()) {
+                                jsonObject.put("dnnt-labels", dnntLabels);
+                            }
+
                             Element element = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
                                 @Override
                                 public boolean acceptElement(Element element) {
@@ -82,18 +93,27 @@ public class DNNTDecorator extends AbstractItemDecorator {
                                                 RightsReturnObject actionAllowed = isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
                                                 if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
                                                     String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
-                                                    if (qName.equals(ReadDNNTFlag.class.getName()) ||
-                                                            qName.equals(ReadDNNTFlagIPFiltered.class.getName())) {
-                                                        jsonObject.put("providedByDnnt", true);
-                                                        break;
+                                                    if ( qName.equals(ReadDNNTFlag.class.getName()) ||
+                                                            qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||
+                                                            qName.equals(ReadDNNTLabels.class.getName()) ||
+                                                            qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
+                                                        )
 
+                                                    {
+                                                        jsonObject.put("providedByDnnt", true);
+
+
+                                                        Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
+                                                        if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
+                                                            jsonObject.put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL));
+                                                        }
+                                                        break;
                                                     }
                                                 }
                                             }
                                         } catch (IOException e) {
                                             LOGGER.log(Level.SEVERE,e.getMessage(),e);
                                         }
-
                                     }
                                     return false;
                                 }

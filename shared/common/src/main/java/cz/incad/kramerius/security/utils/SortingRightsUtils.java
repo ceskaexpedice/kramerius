@@ -36,6 +36,7 @@ public class SortingRightsUtils {
         ArrayList<Right> positiveFixedPriority = new ArrayList<>();
 
 
+        // dnnt labels must be sortec according labels
         ArrayList<Right> dnntExclusiveMin = new ArrayList<>();
         ArrayList<Right> dnntExclusiveMax = new ArrayList<>();
 
@@ -103,8 +104,10 @@ public class SortingRightsUtils {
         SortingRightsUtils.sortByPID(dynamicHintNormal, path);
         SortingRightsUtils.sortByPID(dynamicHintMin, path);
 
-        SortingRightsUtils.sortByPID(dnntExclusiveMin, path);
-        SortingRightsUtils.sortByPID(dnntExclusiveMax, path);
+
+        // sort by label priority
+        SortingRightsUtils.sortByLabelPriority(dnntExclusiveMin);
+        SortingRightsUtils.sortByLabelPriority(dnntExclusiveMax);
 
 
 
@@ -146,7 +149,23 @@ public class SortingRightsUtils {
         });
     }
 
+    public static void sortByLabelPriority(final List<Right> list) {
+
+        Collections.sort(list, new Comparator<Right>() {
+
+            @Override
+            public int compare(Right o1, Right o2) {
+                int o1Priority = o1.getCriteriumWrapper() != null && o1.getCriteriumWrapper().getLabel() != null ? o1.getCriteriumWrapper().getLabel().getPriority() : -1;
+                int o2Priority = o2.getCriteriumWrapper() != null && o2.getCriteriumWrapper().getLabel() != null ? o2.getCriteriumWrapper().getLabel().getPriority() : -1;
+
+                return (o1Priority<o2Priority ? -1 : (o1Priority==o2Priority ? 0 : 1));
+            }
+
+        });
+
+    }
     public static void sortByPID(final List<Right> list, final ObjectPidsPath path) {
+
         Collections.sort(list, new Comparator<Right>() {
             
             List<String> pathStrings = Arrays.asList(path.getPathFromLeafToRoot());

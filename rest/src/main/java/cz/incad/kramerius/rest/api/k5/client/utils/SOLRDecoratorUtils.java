@@ -51,7 +51,7 @@ public class SOLRDecoratorUtils {
                 pid = PIDSupport.convertToSOLRType(pid);
             }
             Document doc = solrAccess.request(query);
-            context.put(key, solrAccess.getSolrDataDocument(pid));
+            context.put(key, solrAccess.getDataByPidInXml(pid));
         }
         return (Document) context.get(key);
     }*/
@@ -67,7 +67,7 @@ public class SOLRDecoratorUtils {
             if (PIDSupport.isComposedPID(pid)) {
                 pid = PIDSupport.convertToSOLRType(pid);
             }
-            context.put(key, solrAccess.getSolrDataDocument(pid));
+            context.put(key, solrAccess.getDataByPidInXml(pid));
         }
         return (Document) context.get(key);
     }*/

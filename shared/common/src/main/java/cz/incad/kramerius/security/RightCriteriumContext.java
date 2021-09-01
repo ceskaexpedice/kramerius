@@ -17,6 +17,7 @@
 package cz.incad.kramerius.security;
 
 import java.net.Inet4Address;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 
@@ -32,20 +33,23 @@ import cz.incad.kramerius.SolrAccess;
  */
 public interface RightCriteriumContext {
 
+
+    public Map<String, String> getEvaluateInfoMap();
+
     /**
-     * Puvodne dotazovany objekt
+     * Requested object
      * @return
      */
     public String getRequestedPid();
     
     /**
-     * Dotazovany stream
+     * Requested stream
      * @return
      */
     public String getRequestedStream();
     
     /**
-     * Objekt, se kterym je pravo asociovano
+     * Object associated with right
      * @return
      */
     public String getAssociatedPid();
@@ -102,11 +106,11 @@ public interface RightCriteriumContext {
      */
     public SecuredActions getAction();
 
-
     /**
      *
      * @return
      */
     public RightsResolver getRightsResolver();
+
 
 }
