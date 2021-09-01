@@ -1,21 +1,21 @@
 /*
  * Copyright (C) 2012 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package cz.incad.kramerius.statistics.database;
 
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.utils.DatabaseUtils;
@@ -40,18 +41,16 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 /**
  * Statistic tables initialization
- * 
+ *
  * @author pavels
  */
-public class StatisticDatabaseInitializator {
+public class StatisticDbInitializer {
+
+    static Logger LOGGER = Logger.getLogger(StatisticDbInitializer.class.getName());
 
     static List<String> EMBEDDED_LABELS = Arrays.asList(
-        "dnntt", "dnnto", "covid"
+            "dnntt", "dnnto", "covid"
     );
-
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger
-            .getLogger(StatisticDatabaseInitializator.class.getName());
-
 
     public static void initDatabase(Connection connection, VersionService versionService) {
         try {
@@ -161,7 +160,7 @@ public class StatisticDatabaseInitializator {
                 checkAndAddSolrDate(connection);
 
 
-            } else if (versionCondition(version, ">=", "6.5.0")&& (versionCondition(version, "<", "6.6.4"))) {
+            } else if (versionCondition(version, ">=", "6.5.0") && (versionCondition(version, "<", "6.6.4"))) {
                 createFirstFunction(connection);
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
@@ -223,71 +222,68 @@ public class StatisticDatabaseInitializator {
     private static void checkLabelsColumns(Connection connection) {
         try {
             if (!DatabaseUtils.columnExists(connection, "statistics_access_log", "dnnt_labels")) {
-                InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initlabelscolumn.sql");
+                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initlabelscolumn.sql");
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
             }
         } catch (SQLException | IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
-
 
     private static void checkLogVersionColumn(Connection connection) {
         try {
             if (!DatabaseUtils.columnExists(connection, "statistics_access_log", "dbversion")) {
-                InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initdebversioncolumn.sql");
+                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initdebversioncolumn.sql");
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
             }
         } catch (SQLException | IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
     private static void checkIsbnIssnCcnb(Connection connection) {
         try {
             if (!DatabaseUtils.columnExists(connection, "statistic_access_log_detail", "issn")) {
-                InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initidentifierscolumn.sql");
+                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initidentifierscolumn.sql");
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
             }
         } catch (SQLException | IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
-
     private static void checkLabelExists(Connection connection) {
-        EMBEDDED_LABELS.stream().forEach( label-> {
-                List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
-                    @Override
-                    public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-                        returnsList.add(rs.getString("label_name"));
-                        return super.handleRow(rs, returnsList);
-                    }
-                }.executeQuery("select * from labels_entity where label_name = ?", label);
-                if (labels.isEmpty()) {
-                    try {
-                        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                        template.setUseReturningKeys(false);
-                        template.executeUpdate(
-                                "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
-                                        "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, '', (select coalesce(max(label_priority),0)+1 from labels_entity))",
-                                label);
+        EMBEDDED_LABELS.stream().forEach(label -> {
+                    List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
+                        @Override
+                        public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                            returnsList.add(rs.getString("label_name"));
+                            return super.handleRow(rs, returnsList);
+                        }
+                    }.executeQuery("select * from labels_entity where label_name = ?", label);
+                    if (labels.isEmpty()) {
+                        try {
+                            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                            template.setUseReturningKeys(false);
+                            template.executeUpdate(
+                                    "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
+                                            "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, '', (select coalesce(max(label_priority),0)+1 from labels_entity))",
+                                    label);
 
-                    } catch (SQLException e) {
-                        LOGGER.log(Level.SEVERE,String.format("Cannot create embedded label %s", label));
+                        } catch (SQLException e) {
+                            LOGGER.log(Level.SEVERE, String.format("Cannot create embedded label %s", label));
 
+                        }
                     }
                 }
-            }
         );
     }
-
 
     /**
      * @param con
@@ -321,7 +317,7 @@ public class StatisticDatabaseInitializator {
         new JDBCTransactionTemplate(con, false).updateWithTransaction(commands);
     }
 
-    public static void alterStatisticsTableStatAction(Connection con) throws SQLException {
+    private static void alterStatisticsTableStatAction(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con
                 .prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN STAT_ACTION VARCHAR(255);");
         try {
@@ -332,9 +328,8 @@ public class StatisticDatabaseInitializator {
         }
     }
 
-
-    public static void checkAndAddDNNTFlag(Connection con) throws SQLException {
-        if (!DatabaseUtils.columnExists(con, "statistics_access_log","dnnt")) {
+    private static void checkAndAddDNNTFlag(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "dnnt")) {
             PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN dnnt BOOLEAN ;");
             try {
                 int r = prepareStatement.executeUpdate();
@@ -345,8 +340,8 @@ public class StatisticDatabaseInitializator {
         }
     }
 
-    public static void checkAndAddProvidedByDNNTFlag(Connection con) throws SQLException {
-        if (!DatabaseUtils.columnExists(con, "statistics_access_log","providedByDNNT")) {
+    private static void checkAndAddProvidedByDNNTFlag(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "providedByDNNT")) {
             PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN providedByDNNT BOOLEAN ;");
             try {
                 int r = prepareStatement.executeUpdate();
@@ -357,9 +352,8 @@ public class StatisticDatabaseInitializator {
         }
     }
 
-
-    public static void checkAndAddEvaluateMap(Connection con) throws SQLException {
-        if (!DatabaseUtils.columnExists(con, "statistics_access_log","evaluateMap")) {
+    private static void checkAndAddEvaluateMap(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "evaluateMap")) {
             PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN evaluateMap text;");
             try {
                 int r = prepareStatement.executeUpdate();
@@ -370,8 +364,8 @@ public class StatisticDatabaseInitializator {
         }
     }
 
-    public static void checkAndAddUserAttributesMap(Connection con) throws SQLException {
-        if (!DatabaseUtils.columnExists(con, "statistics_access_log","userSessionAttributes")) {
+    private static void checkAndAddUserAttributesMap(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "userSessionAttributes")) {
             PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN userSessionAttributes text;");
             try {
                 int r = prepareStatement.executeUpdate();
@@ -382,8 +376,8 @@ public class StatisticDatabaseInitializator {
         }
     }
 
-    public static void checkAndAddSolrDate(Connection con) throws SQLException {
-        if (!DatabaseUtils.columnExists(con, "statistic_access_log_detail","solr_date")) {
+    private static void checkAndAddSolrDate(Connection con) throws SQLException {
+        if (!DatabaseUtils.columnExists(con, "statistic_access_log_detail", "solr_date")) {
             PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistic_access_log_detail ADD COLUMN solr_date TEXT;");
             try {
                 int r = prepareStatement.executeUpdate();
@@ -394,8 +388,8 @@ public class StatisticDatabaseInitializator {
         }
     }
 
-    public static void checkDateIndex(Connection con) throws SQLException {
-        if (!DatabaseUtils.indexExists(con, "statistics_access_log","date")) {
+    private static void checkDateIndex(Connection con) throws SQLException {
+        if (!DatabaseUtils.indexExists(con, "statistics_access_log", "date")) {
             PreparedStatement prepareStatement = con.prepareStatement("CREATE INDEX date_index on statistics_access_log(date);");
             try {
                 int r = prepareStatement.executeUpdate();
@@ -406,7 +400,7 @@ public class StatisticDatabaseInitializator {
         }
     }
 
-    public static void alterStatisticsTableSessionId(Connection con) throws SQLException {
+    private static void alterStatisticsTableSessionId(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con
                 .prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN SESSION_ID VARCHAR(255);");
         try {
@@ -419,7 +413,7 @@ public class StatisticDatabaseInitializator {
 
     // change pk
     // Issue 619
-    public static void alterStatisticsAuthorTablePrimaryKey(final Connection con) throws SQLException {
+    private static void alterStatisticsAuthorTablePrimaryKey(final Connection con) throws SQLException {
 
         JDBCCommand deletePKCommand = new JDBCCommand() {
 
@@ -450,23 +444,17 @@ public class StatisticDatabaseInitializator {
 
     }
 
-
-
-
-
-
     /**
      * @param connection
      * @throws IOException
      * @throws SQLException
      */
     private static void createStatisticTables(Connection connection) throws SQLException, IOException {
-        InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initstatisticsdb.sql");
+        InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initstatisticsdb.sql");
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
         template.setUseReturningKeys(false);
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
-
 
     /**
      * Check if publisher table exists
@@ -476,19 +464,17 @@ public class StatisticDatabaseInitializator {
      */
     private static void checkPublisherTables(Connection connection) throws SQLException, IOException {
         if (!DatabaseUtils.tableExists(connection, "STATISTIC_ACCESS_LOG_DETAIL_PUBLISHERS")) {
-            InputStream is = StatisticDatabaseInitializator.class.getResourceAsStream("res/initpublishersdb.sql");
+            InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initpublishersdb.sql");
             JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
             template.setUseReturningKeys(false);
             template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
         }
     }
 
-
-
     /**
      * Create first aggregation function first(col)
      */
-    public static void createFirstFunction(Connection connection) throws SQLException, IOException {
+    private static void createFirstFunction(Connection connection) throws SQLException, IOException {
         JDBCCommand firstAgg = new JDBCCommand() {
 
             @Override
@@ -496,10 +482,10 @@ public class StatisticDatabaseInitializator {
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
-                    "CREATE OR REPLACE FUNCTION public.first_agg ( anyelement, anyelement )"+
-                        "RETURNS anyelement LANGUAGE SQL IMMUTABLE STRICT AS $$"+
-                        "        SELECT $1;"+
-                        "$$;",new Object[0]);
+                        "CREATE OR REPLACE FUNCTION public.first_agg ( anyelement, anyelement )" +
+                                "RETURNS anyelement LANGUAGE SQL IMMUTABLE STRICT AS $$" +
+                                "        SELECT $1;" +
+                                "$$;", new Object[0]);
                 return null;
             }
         };
@@ -511,10 +497,10 @@ public class StatisticDatabaseInitializator {
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(""
-                        + " CREATE AGGREGATE public.FIRST ("
-                        +"sfunc    = public.first_agg,"
-                        +"basetype = anyelement,"
-                        +"stype    = anyelement);",
+                                + " CREATE AGGREGATE public.FIRST ("
+                                + "sfunc    = public.first_agg,"
+                                + "basetype = anyelement,"
+                                + "stype    = anyelement);",
                         new Object[0]);
                 return null;
             }
@@ -526,7 +512,7 @@ public class StatisticDatabaseInitializator {
     /**
      * Create last aggregation function first(col)
      */
-    public static void createLastFunction(Connection connection) throws SQLException, IOException {
+    private static void createLastFunction(Connection connection) throws SQLException, IOException {
         JDBCCommand lastAgg = new JDBCCommand() {
 
             @Override
@@ -534,10 +520,10 @@ public class StatisticDatabaseInitializator {
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
-                        "CREATE OR REPLACE FUNCTION public.last_agg ( anyelement, anyelement )"+
-                                "RETURNS anyelement LANGUAGE SQL IMMUTABLE STRICT AS $$"+
-                                "        SELECT $2;"+
-                                "$$;",new Object[0]);
+                        "CREATE OR REPLACE FUNCTION public.last_agg ( anyelement, anyelement )" +
+                                "RETURNS anyelement LANGUAGE SQL IMMUTABLE STRICT AS $$" +
+                                "        SELECT $2;" +
+                                "$$;", new Object[0]);
                 return null;
             }
         };
@@ -549,10 +535,10 @@ public class StatisticDatabaseInitializator {
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate("CREATE AGGREGATE public.LAST ("
-                                +"        sfunc    = public.last_agg,"
-                                +"        basetype = anyelement,"
-                                +"        stype    = anyelement"
-                                +");",
+                                + "        sfunc    = public.last_agg,"
+                                + "        basetype = anyelement,"
+                                + "        stype    = anyelement"
+                                + ");",
                         new Object[0]);
                 return null;
             }
@@ -561,14 +547,14 @@ public class StatisticDatabaseInitializator {
         new JDBCTransactionTemplate(connection, false).updateWithTransaction(lastAgg, last);
     }
 
-    public static void createTmpAuthorView(Connection connection) throws SQLException, IOException {
+    private static void createTmpAuthorView(Connection connection) throws SQLException, IOException {
         JDBCCommand tmpAuthorsView = new JDBCCommand() {
 
             @Override
             public Object executeJDBCCommand(Connection con) throws SQLException {
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
-                
+
                 template.executeUpdate(
                         "CREATE OR REPLACE VIEW _tmp_authors_view AS "
                                 + "SELECT first(record_id) as record_id, "
@@ -579,14 +565,14 @@ public class StatisticDatabaseInitializator {
                                 + "JOIN statistics_access_log sta USING (record_id) "
                                 + "JOIN statistic_access_log_detail dta USING(record_id) "
                                 + "GROUP BY record_id;"
-                                ,new Object[0]);
+                        , new Object[0]);
                 return null;
             }
         };
         new JDBCTransactionTemplate(connection, false).updateWithTransaction(tmpAuthorsView);
     }
 
-    public static void createAuthorsView(Connection connection) throws SQLException, IOException {
+    private static void createAuthorsView(Connection connection) throws SQLException, IOException {
         JDBCCommand authorsView = new JDBCCommand() {
 
             @Override
@@ -595,15 +581,15 @@ public class StatisticDatabaseInitializator {
                     JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
                     dropTemplate.setUseReturningKeys(false);
                     dropTemplate.executeUpdate("DROP VIEW IF EXISTS _authors_view");
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     LOGGER.info("Cannot DROP VIEW _authors_view:" + e);
                 }
 
                 JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
-                        "CREATE or REPLACE VIEW _authors_view AS "+
-                        "SELECT record_id, "
+                        "CREATE or REPLACE VIEW _authors_view AS " +
+                                "SELECT record_id, "
                                 + "author_id, "
                                 + "author_name, "
                                 + "dta.pid as pid, "
@@ -617,7 +603,7 @@ public class StatisticDatabaseInitializator {
                                 + "JOIN statistics_access_log sta USING (record_id) "
                                 + "JOIN statistic_access_log_detail dta USING(record_id) "
                                 + "JOIN _tmp_authors_view USING (record_id, model, session_id);"
-                                ,new Object[0]);
+                        , new Object[0]);
                 return null;
             }
         };
@@ -625,7 +611,7 @@ public class StatisticDatabaseInitializator {
         new JDBCTransactionTemplate(connection, false).updateWithTransaction(authorsView);
     }
 
-    public static void createLangsView(Connection connection) throws SQLException, IOException {
+    private static void createLangsView(Connection connection) throws SQLException, IOException {
         JDBCCommand langsView = new JDBCCommand() {
 
             @Override
@@ -634,7 +620,7 @@ public class StatisticDatabaseInitializator {
                     JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
                     dropTemplate.setUseReturningKeys(false);
                     dropTemplate.executeUpdate("DROP VIEW IF EXISTS _langs_view");
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     LOGGER.info("Cannot DROP VIEW _langs_view:" + e);
                 }
 
@@ -642,23 +628,23 @@ public class StatisticDatabaseInitializator {
                 template.setUseReturningKeys(false);
                 template.executeUpdate(
                         "CREATE or REPLACE VIEW _langs_view AS " +
-                            "(SELECT  pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address, t1.record_id "
-                            + "FROM "
+                                "(SELECT  pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address, t1.record_id "
+                                + "FROM "
                                 + "(SELECT * FROM "
-                                    + "(SELECT  sta.record_id as record_id, dta.pid as pid, dta.model as model, sta.session_id as session_id, sta.date as date, dta.rights as rights, sta.stat_action as stat_action,dta.lang as lang1, remote_ip_address as remote_ip_address "
-                                    + "FROM statistics_access_log sta "
-                                    + "JOIN statistic_access_log_detail dta USING (record_id)) AS tmp "
-                                    + "WHERE (tmp.model = 'article') OR (tmp.model = 'page'  AND ((tmp.record_id, 'periodical') in "
-                                        + "(SELECT  sta.record_id as record_id, dta.model as model "
-                                        + "FROM statistics_access_log sta "
-                                        + "JOIN statistic_access_log_detail dta USING (record_id)))) "
-                                        + "OR (tmp.model = 'monograph')  OR  (tmp.model = 'archive') OR (tmp.model = 'manuscript') OR (tmp.model = 'sheetmusic') OR (tmp.model = 'soundrecording') OR (tmp.model = 'graphic') OR (tmp.model = 'map')) as T1 "
+                                + "(SELECT  sta.record_id as record_id, dta.pid as pid, dta.model as model, sta.session_id as session_id, sta.date as date, dta.rights as rights, sta.stat_action as stat_action,dta.lang as lang1, remote_ip_address as remote_ip_address "
+                                + "FROM statistics_access_log sta "
+                                + "JOIN statistic_access_log_detail dta USING (record_id)) AS tmp "
+                                + "WHERE (tmp.model = 'article') OR (tmp.model = 'page'  AND ((tmp.record_id, 'periodical') in "
+                                + "(SELECT  sta.record_id as record_id, dta.model as model "
+                                + "FROM statistics_access_log sta "
+                                + "JOIN statistic_access_log_detail dta USING (record_id)))) "
+                                + "OR (tmp.model = 'monograph')  OR  (tmp.model = 'archive') OR (tmp.model = 'manuscript') OR (tmp.model = 'sheetmusic') OR (tmp.model = 'soundrecording') OR (tmp.model = 'graphic') OR (tmp.model = 'map')) as T1 "
                                 + "LEFT JOIN "
                                 + "(SELECT  sta.record_id as record_id, dta.lang as lang2 "
                                 + "FROM statistics_access_log sta "
                                 + "JOIN statistic_access_log_detail dta USING (record_id) "
                                 + "WHERE dta.model = 'periodicalitem') as T2 "
-                                + "ON (t1.lang1 IS NULL AND t1.model = 'page' AND t1.record_id = t2.record_id));",new Object[0]);
+                                + "ON (t1.lang1 IS NULL AND t1.model = 'page' AND t1.record_id = t2.record_id));", new Object[0]);
                 return null;
             }
         };

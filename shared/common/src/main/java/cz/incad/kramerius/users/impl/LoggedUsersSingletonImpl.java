@@ -19,12 +19,9 @@ package cz.incad.kramerius.users.impl;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -40,21 +37,17 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.NotReadyException;
-import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
+import cz.incad.kramerius.users.database.LoggedUserDbHelper;
 import cz.incad.kramerius.users.utils.ActiveUsersUtils;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
-import cz.incad.kramerius.utils.database.JDBCPreparedStatementCommand.NULLS;
 
 public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
 
@@ -62,7 +55,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     
     public static StringTemplateGroup stGroup;
     static {
-        InputStream is = LoggedUserDatabaseInitializator.class.getResourceAsStream("res/database.stg");
+        InputStream is = LoggedUserDbHelper.class.getResourceAsStream("res/database.stg");
         stGroup = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
     }
 

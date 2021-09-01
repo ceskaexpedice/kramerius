@@ -44,7 +44,13 @@ public class VersionServiceImpl implements VersionService {
 
     private static Logger LOGGER = java.util.logging.Logger.getLogger(VersionServiceImpl.class.getName());
 
-    private static final boolean VERSION_CACHING_ENABLED = false; //nevypada to, ze by se updateNewVersion(), proto verze cachovaní vypnuto
+    /**
+     * @see cz.incad.Kramerius.StartupServlet.init() - jedine misto, kde se vola updateNewVersion(),
+     * getVersion() se vola na nekolika mistech (*DbInitializer.initDatabase(), LoggedUserDbHelper.initDatabase()), ale vzdy samotne volane z StartupServlet.init()
+     * Navic DatabaseStatisticsAccessLogImpl.
+     * Takze vypada bezpecne cachovat verzi
+     */
+    private static final boolean VERSION_CACHING_ENABLED = true;
 
     String versionCached = null;
 
@@ -53,7 +59,7 @@ public class VersionServiceImpl implements VersionService {
     Provider<Connection> connectionProvider = null;
 
     @Override
-    public String getVersion() throws SQLException {
+    public synchronized String getVersion() throws SQLException {
         if (VERSION_CACHING_ENABLED && versionCached != null) {
             return versionCached;
         } else {
@@ -69,7 +75,7 @@ public class VersionServiceImpl implements VersionService {
         Connection connection = this.connectionProvider.get();
         boolean versionTableExists = DatabaseUtils.tableExists(connection, "DBVERSIONS");
         if (versionTableExists) {
-            List<String> ids = new JDBCQueryTemplate<String>(connection, false) {
+            List<String> ids = new JDBCQueryTemplate<String>(connection, true) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
                     returnsList.add(rs.getString("ver"));
@@ -84,19 +90,19 @@ public class VersionServiceImpl implements VersionService {
     }
 
     @Override
-    public void updateNewVersion() throws IOException, SQLException {
-        if (VERSION_CACHING_ENABLED) {
-            this.versionCached = null;
-        }
+    public void updateVersionIfOutdated() throws IOException, SQLException {
         InputStream is = this.getClass().getResourceAsStream("res/current.db.version");
-        String version = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        String latestVersion = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
         String curVersion = getVersion();
-        if ((curVersion == null) || (!curVersion.equals(version))) {
-            LOGGER.log(Level.INFO, "raising database version ({0} -> {1}) ", new String[]{curVersion, version});
+        if ((curVersion == null) || (!curVersion.equals(latestVersion))) {
+            LOGGER.log(Level.INFO, "updating database version ({0} -> {1})", new String[]{curVersion, latestVersion});
             JDBCUpdateTemplate template = new JDBCUpdateTemplate(this.connectionProvider.get(), true);
-            template.executeUpdate("insert into DBVERSIONS values(nextval('DB_VERSIONS_SEQUENCE'),'" + version + "')");
+            template.executeUpdate("insert into DBVERSIONS values(nextval('DB_VERSIONS_SEQUENCE'),'" + latestVersion + "')");
+            if (VERSION_CACHING_ENABLED) {
+                this.versionCached = null;
+            }
         } else {
-            LOGGER.log(Level.INFO, "database version: {0}", curVersion);
+            LOGGER.log(Level.INFO, "database version is up-to-date: {0}", curVersion);
         }
     }
 

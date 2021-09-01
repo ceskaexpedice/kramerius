@@ -45,7 +45,7 @@ public class DatabaseUtils {
             int size = pstmMetadata.getColumnCount();
             for (int i = 0; i < size; i++) {
                 String mtdColName = pstmMetadata.getColumnName(i + 1);
-                if (mtdColName.toLowerCase().equals(columnName.toLowerCase())) {
+                if (mtdColName.equalsIgnoreCase(columnName)) {
                     return true;
                 }
             }
@@ -110,5 +110,5 @@ public class DatabaseUtils {
             LOGGER.log(Level.SEVERE, null, ex);
         }
     }
-    
+
 }
