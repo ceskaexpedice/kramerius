@@ -101,7 +101,7 @@ public class SolrIndexAccess {
     }
 
     private UpdateResponse indexFromXmlInputStream(InputStream in, boolean explicitCommit) throws IOException, SolrServerException, DocumentException {
-        List<SolrInputDocument> solrDoc = getSolrInputDocumentListFromXmlFile(in);
+        List<SolrInputDocument> solrDoc = extractSolrInputDocuments(in);
         UpdateResponse addResponse = null;
         for (SolrInputDocument doc : solrDoc) {
             //there will always only be on ADD anyway
@@ -113,7 +113,7 @@ public class SolrIndexAccess {
         return addResponse;
     }
 
-    private List<SolrInputDocument> getSolrInputDocumentListFromXmlFile(InputStream in) throws DocumentException {
+    private List<SolrInputDocument> extractSolrInputDocuments(InputStream in) throws DocumentException {
         ArrayList<SolrInputDocument> solrDocList = new ArrayList<>();
         SAXReader reader = new SAXReader();
         Document doc = reader.read(in);
