@@ -307,7 +307,6 @@ public class AkubraObject implements RepositoryObject {
         feeder.deleteByPid(this.getPid());
     }
 
-
     @Override
     public boolean streamExists(String streamId) throws RepositoryException {
         return AkubraUtils.streamExists(digitalObject, streamId);

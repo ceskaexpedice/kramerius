@@ -265,7 +265,12 @@ public class AkubraRepository extends Repository {
     @Override
     public RepositoryObject getObject(String ident) throws RepositoryException {
         try {
-            AkubraObject obj = new AkubraObject(this.manager, ident, this.manager.readObjectFromStorage(ident), this.feeder);
+            DigitalObject digitalObject = this.manager.readObjectFromStorage(ident);
+            if (digitalObject == null) {
+                //otherwise later causes NPE at places like AkubraUtils.streamExists(DigitalObject object, String streamID)
+                throw new RepositoryException("object not consistently found in storage: " + ident);
+            }
+            AkubraObject obj = new AkubraObject(this.manager, ident, digitalObject, this.feeder);
             return obj;
         } catch (IOException e) {
             throw new RepositoryException(e);

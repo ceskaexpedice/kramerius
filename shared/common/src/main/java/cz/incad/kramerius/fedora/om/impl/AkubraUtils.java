@@ -60,7 +60,7 @@ public class AkubraUtils {
     public static boolean streamExists(DigitalObject object, String streamID) {
         for (DatastreamType datastreamType : object.getDatastream()) {
             if (datastreamType == null) {
-                LOGGER.log(Level.SEVERE, "Repository inconsistency: object %s has a datastream that is null", object.getPID());
+                LOGGER.log(Level.SEVERE, "Repository inconsistency: object %s has datastream %s that is null", new String[]{object.getPID(), streamID});
             } else {
                 if (streamID.equals(datastreamType.getID())) {
                     return true;
