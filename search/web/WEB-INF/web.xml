@@ -12,6 +12,11 @@
     </filter-mapping>
     -->
 
+    <init-param>
+        <param-name>com.sun.jersey.config.feature.DisableWADL</param-name>
+        <param-value>true</param-value>
+    </init-param>
+
     <filter>
         <filter-name>clientClosedRequest</filter-name>
         <filter-class>cz.incad.Kramerius.ClientClosedRequestFilter</filter-class>
