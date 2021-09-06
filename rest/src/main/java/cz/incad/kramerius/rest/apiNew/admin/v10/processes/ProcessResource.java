@@ -712,6 +712,9 @@ public class ProcessResource extends AdminApiResource {
                 result.add(title);
                 return result;
             }
+            case "processing_rebuild": {
+                return Collections.emptyList();
+            }
             default: {
                 throw new BadRequestException("unsupported process id '%s'", id);
             }

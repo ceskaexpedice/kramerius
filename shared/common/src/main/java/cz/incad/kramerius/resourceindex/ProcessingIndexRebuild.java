@@ -13,6 +13,7 @@ import cz.incad.kramerius.fedora.om.impl.AkubraObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
 import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilder;
 import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilderImpl;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -55,6 +56,7 @@ public class ProcessingIndexRebuild {
 
 
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException, FcrepoOperationFailedException {
+        ProcessStarter.updateName("Budování Processing indexu");
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         final ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
