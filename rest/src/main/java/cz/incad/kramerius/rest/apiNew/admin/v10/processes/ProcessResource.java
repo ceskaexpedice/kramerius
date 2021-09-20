@@ -13,6 +13,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,6 +24,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -715,6 +718,17 @@ public class ProcessResource extends AdminApiResource {
             case "processing_rebuild": {
                 return Collections.emptyList();
             }
+            case "import": {
+                List<String> result = new ArrayList<>();
+                //Kramerius APIs
+                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
+                //import params
+                File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
+                Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
+                result.add(inputDataDir.getPath());
+                result.add(startIndexer.toString());
+                return result;
+            }
             default: {
                 throw new BadRequestException("unsupported process id '%s'", id);
             }
@@ -750,13 +764,55 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+    private Boolean extractMandatoryParamBoolean(JSONObject params, String paramName) {
+        if (params.has(paramName)) {
+            return params.getBoolean(paramName);
+        } else {
+            throw new BadRequestException("missing mandatory parameter %s: ", paramName);
+        }
+    }
+
+    private String extractMandatoryParamString(JSONObject params, String paramName) {
+        String value = extractOptionalParamString(params, paramName, null);
+        if (value == null) {
+            throw new BadRequestException("missing mandatory parameter %s: ", paramName);
+        } else {
+            return value;
+        }
+    }
+
+    private File extractMandatoryParamFileContainedInADir(JSONObject params, String paramName, File rootDir) {
+        String value = extractOptionalParamString(params, paramName, null);
+        if (value == null) {
+            throw new BadRequestException("missing mandatory parameter %s: ", paramName);
+        } else {//sanitize against problematic characters
+            char[] forbiddenChars = new char[]{'~', '#', '%', '&', '{', '}', '<', '>', '*', '?', '$', '!', '\'', '"', ':', '@', '+', '`', '|', '=', ';', ' ', '\t', '\\'};
+            for (char forbiddenChar : forbiddenChars) {
+                if (value.indexOf(forbiddenChar) != -1) {
+                    throw new BadRequestException("invalid value of %s (contains forbidden character '%s'): '%s'", paramName, forbiddenChar, value);
+                }
+            }
+            try {//sanitize against values that would leave the root dir, for example "../../something"
+                File paramFile = new File(rootDir, value).getCanonicalFile();
+                String paramFileCanPath = paramFile.getPath();
+                String rootDirCanPath = rootDir.getCanonicalPath();
+                if (!paramFileCanPath.startsWith(rootDirCanPath)) {
+                    throw new BadRequestException("invalid value of %s (not within root dir '%s'): '%s'", paramName, rootDirCanPath, value);
+                }
+                return paramFile;
+            } catch (IOException e) { //protoze getCanonicalPath saha na filesystem
+                throw new BadRequestException("invalid value of %s (IOException): '%s': %s", paramName, value, e.getMessage());
+            }
+        }
+    }
+
     private String extractMandatoryParamWithValuePrefixed(JSONObject params, String paramName, String prefix) {
         String value = extractOptionalParamString(params, paramName, null);
         if (value == null) {
             throw new BadRequestException("missing mandatory parameter %s: ", paramName);
         } else {
             if (!value.toLowerCase().startsWith(prefix)) {
-                throw new BadRequestException("invalid value of %s (doesn't start with '%s') : '%s'", paramName, prefix, value);
+                throw new BadRequestException("invalid value of %s (doesn't start with '%s'): '%s'", paramName, prefix, value);
             }
             return value;
         }

@@ -91,7 +91,7 @@ public class XmlTestBuilder {
         List<DynamicTest> result = new ArrayList<>();
 
         for (XmlTest test : tests) {
-            // TODO: 2019-08-20 jmena testu se nepouzivaji, viz https://github.com/gradle/gradle/issues/5975
+            //jmena testu se nepouzivaji, viz https://github.com/gradle/gradle/issues/5975
             DynamicTest dTest = DynamicTest.dynamicTest(test.getName(), buildTestExec(test));
             result.add(dTest);
         }
