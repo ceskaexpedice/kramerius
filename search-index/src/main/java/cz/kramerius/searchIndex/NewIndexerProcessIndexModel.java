@@ -14,6 +14,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
 import cz.kramerius.adapters.FedoraAccess;
 import cz.kramerius.adapters.IResourceIndex;
@@ -56,12 +57,6 @@ public class NewIndexerProcessIndexModel {
         String krameriusApiAuthClient = args[argsIndex++];
         String krameriusApiAuthUid = args[argsIndex++];
         String krameriusApiAuthAccessToken = args[argsIndex++];
-        //SOLR
-        String solrBaseUrl = args[argsIndex++];
-        String solrCollection = args[argsIndex++];
-        boolean solrUseHttps = Boolean.valueOf(args[argsIndex++]);
-        String solrLogin = args[argsIndex++];
-        String solrPassword = args[argsIndex++];
         //indexation info
         IndexationType type = IndexationType.valueOf(args[argsIndex++]);
         report("type: " + type);
@@ -88,7 +83,7 @@ public class NewIndexerProcessIndexModel {
             return;
         }
 
-        SolrConfig solrConfig = new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword);
+        SolrConfig solrConfig = new SolrConfig(KConfiguration.getInstance());
 
         //access to repository through new public HTTP APIs
         /*RepositoryAccessImplByKrameriusNewApis.Credentials krameriusCredentials = new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);

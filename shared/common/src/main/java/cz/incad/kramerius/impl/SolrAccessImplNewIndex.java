@@ -46,7 +46,7 @@ import static org.apache.http.HttpStatus.SC_OK;
 
 public class SolrAccessImplNewIndex implements SolrAccess {
 
-    private final SolrUtils utils = new SolrUtils(KConfiguration.getInstance().getSolrHostNew());
+    private final SolrUtils utils = new SolrUtils(KConfiguration.getInstance().getSolrSearchHost());
 
     @Override
     public Document getSolrDataByPid(String pid) throws IOException {

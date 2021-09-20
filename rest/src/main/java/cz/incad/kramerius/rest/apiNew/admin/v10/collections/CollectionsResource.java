@@ -208,8 +208,6 @@ public class CollectionsResource extends AdminApiResource {
         List<String> paramsList = new ArrayList<>();
         //Kramerius
         paramsList.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(extractClientAuthHeaders()));
-        //Solr
-        paramsList.addAll(processSchedulingHelper.processParamsSolr());
         //indexation params
         paramsList.add(indexationType);
         paramsList.add(objectPid);

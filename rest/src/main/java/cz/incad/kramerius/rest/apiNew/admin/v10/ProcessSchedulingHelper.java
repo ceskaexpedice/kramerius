@@ -123,17 +123,6 @@ public class ProcessSchedulingHelper {
         return definition;
     }
 
-    //TODO: move to config
-    public List<String> processParamsSolr() {
-        List<String> params = new ArrayList<>();
-        params.add("localhost:8983/solr");//solrBaseUrl
-        params.add("search");//solrCollection
-        params.add("false");//solrUseHttps
-        params.add("krameriusIndexer");//solrLogin
-        params.add("krameriusIndexerRulezz");//solrPassword
-        return params;
-    }
-
     public List<String> processParamsKrameriusAdminApiCredentials(ClientAuthHeaders clientAuthHeaders) {
         List<String> params = new ArrayList<>();
         params.add(clientAuthHeaders.getClient());

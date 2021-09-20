@@ -34,7 +34,7 @@ public class SolrIndexAccess {
     private static final int SOCKET_TIMEOUT = 60000;
 
     private final HttpSolrClient solrClient;
-    private final String collection; //because solrClient is buggy and still requires explicit collection-name as an parameter of some operations even though it gets collection-name in the constructor
+    private final String collection; //because solrClient is buggy and still requires explicit collection-name as a parameter for some operations even though it gets collection-name in the constructor
 
     public SolrIndexAccess(SolrConfig config) {
         this.solrClient = config.login == null

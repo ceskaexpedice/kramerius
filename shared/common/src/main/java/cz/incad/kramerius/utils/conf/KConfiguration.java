@@ -119,12 +119,26 @@ public class KConfiguration {
         return Lists.transform(getConfiguration().getList("solr.cache.urls"), Functions.toStringFunction());
     }
 
+    //TODO: remove usage and manually check incompatibilities
+    @Deprecated
     public String getSolrHost() {
         return getProperty("solrHost");
     }
 
-    public String getSolrHostNew() {
-        return getProperty("searchSolrHost");
+    public String getSolrProcessingHost() {
+        return getProperty("solrProcessingHost");
+    }
+
+    public String getSolrSearchHost() {
+        return getProperty("solrSearchHost");
+    }
+
+    public String getSolrSearchLogin() {
+        return getProperty("solrSearchLogin");
+    }
+
+    public String getSolrSearchPassword() {
+        return getProperty("solrSearchPassword");
     }
 
     public String getIndexerHost() {

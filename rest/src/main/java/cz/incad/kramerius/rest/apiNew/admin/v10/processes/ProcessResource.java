@@ -666,8 +666,6 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 //Kramerius APIs
                 result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders)); //pro pristup k repozitari pres verejne rest api
-                //Solr
-                result.addAll(processSchedulingHelper.processParamsSolr());
                 //indexation params
                 result.add(type);//indexation type
                 result.add(pid);//indexation's root pid
@@ -687,8 +685,6 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 //Kramerius APIs
                 result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //Solr
-                result.addAll(processSchedulingHelper.processParamsSolr());
                 //indexation params
                 result.add(type); //indexation type
                 result.add(pid); //indexation's root pid
