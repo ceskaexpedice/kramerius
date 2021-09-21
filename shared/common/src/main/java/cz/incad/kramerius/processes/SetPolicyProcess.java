@@ -3,17 +3,12 @@ package cz.incad.kramerius.processes;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.hazelcast.internal.json.Json;
-import com.hazelcast.internal.json.JsonValue;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
+import cz.incad.kramerius.processes.new_api.IndexationScheduler;
+import cz.incad.kramerius.processes.new_api.IndexationScheduler.ProcessCredentials;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.repository.RepositoryApi;
@@ -22,13 +17,11 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
-import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -41,11 +34,6 @@ import java.util.logging.Logger;
 public class SetPolicyProcess {
 
     public static final Logger LOGGER = Logger.getLogger(SetPolicyProcess.class.getName());
-
-    public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token";
-    public static final String API_AUTH_HEADER_CLIENT = "client";
-    public static final String API_AUTH_HEADER_UID = "uid";
-    public static final String API_AUTH_HEADER_ACCESS_TOKEN = "access-token";
 
     /**
      * args[0] - scope (OBJECT/TREE)
@@ -60,11 +48,13 @@ public class SetPolicyProcess {
             System.out.println(arg);
         }*/
         int argsIndex = 0;
-        String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+        ProcessCredentials credentials = new ProcessCredentials();
+        //token for keeping possible following processes in same batch
+        credentials.authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //Kramerius
-        String krameriusApiAuthClient = args[argsIndex++];
-        String krameriusApiAuthUid = args[argsIndex++];
-        String krameriusApiAuthAccessToken = args[argsIndex++];
+        credentials.krameriusApiAuthClient = args[argsIndex++];
+        credentials.krameriusApiAuthUid = args[argsIndex++];
+        credentials.krameriusApiAuthAccessToken = args[argsIndex++];
         //process params
         Scope scope = Scope.valueOf(args[argsIndex++]);
         Policy policy = Policy.valueOf(args[argsIndex++]);
@@ -85,7 +75,7 @@ public class SetPolicyProcess {
         }
         boolean includingDescendants = scope == Scope.TREE;
         boolean noErrors = setPolicy(policy, pid, includingDescendants, repository);
-        scheduleReindexation(authToken, pid, title, includingDescendants, krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);
+        IndexationScheduler.scheduleIndexation(pid, title, includingDescendants, credentials);
         if (!noErrors) {
             throw new WarningException("failed to set policy for some objects");
         }
@@ -157,45 +147,6 @@ public class SetPolicyProcess {
         Element newRightsEl = rootEl.addElement("rights", Dom4jUtils.getNamespaceUri("dc"));
         newRightsEl.addText(policy == Policy.PRIVATE ? "policy:private" : "policy:public");
         repository.updateDublinCore(pid, dc);
-    }
-
-    private static void scheduleReindexation(String authToken, String pid, String title, boolean includingDescendants, String krameriusApiAuthClient, String krameriusApiAuthUid, String krameriusApiAuthAccessToken) {
-        Client client = Client.create();
-        WebResource resource = client.resource(ProcessUtils.getNewAdminApiEndpoint() + "/processes");
-        JSONObject data = new JSONObject();
-        data.put("defid", "new_indexer_index_object");
-        JSONObject params = new JSONObject();
-        params.put("type", includingDescendants ? "TREE_AND_FOSTER_TREES" : "OBJECT");
-        params.put("pid", pid);
-        params.put("title", title);
-        params.put("ignoreInconsistentObjects", true);
-        data.put("params", params);
-
-        try {
-            String response = resource
-                    .accept(MediaType.APPLICATION_JSON)
-                    .type(MediaType.APPLICATION_JSON)
-                    .header(API_AUTH_HEADER_AUTH_TOKEN, authToken)
-                    .header(API_AUTH_HEADER_CLIENT, krameriusApiAuthClient)
-                    .header(API_AUTH_HEADER_UID, krameriusApiAuthUid)
-                    .header(API_AUTH_HEADER_ACCESS_TOKEN, krameriusApiAuthAccessToken)
-                    .entity(data.toString(), MediaType.APPLICATION_JSON)
-                    .post(String.class);
-            //System.out.println("response: " + response);
-        } catch (UniformInterfaceException e) {
-            ClientResponse errorResponse = e.getResponse();
-            String responseBody = errorResponse.getEntity(String.class);
-            String bodyToPrint = responseBody;
-            if (responseBody != null) {
-                try {
-                    JsonValue jsonBody = Json.parse(responseBody);
-                    bodyToPrint = jsonBody.asString();
-                } catch (Throwable pe) {
-                    //not JSON
-                }
-            }
-            throw new RuntimeException(errorResponse.toString() + ": " + bodyToPrint, e);
-        }
     }
 
     //["Quartet A minor", " op. 51", " no. 2. Andante moderato"] => "Quartet A minor, op. 51, no. 2 Andante moderato"
