@@ -53,6 +53,8 @@ import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.PolicyService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+//TODO: remove, but first fix process MovingWall, that uses it through ApplyMWUtils
+@Deprecated
 public class PolicyServiceImpl implements PolicyService {
     public static final Logger LOGGER = Logger.getLogger(PolicyServiceImpl.class.getName());
 
@@ -67,44 +69,44 @@ public class PolicyServiceImpl implements PolicyService {
         List<String> pids = fedoraAccess.getPids(pid);
         for (String s : pids) {
             String p = s.replace(INFO, "");
-            try{
+            try {
                 setPolicyForNode(p, policyName);
-            }catch(Exception ex){
-                LOGGER.warning("Cannot set policy for object "+p+", skipping: "+ex);
+            } catch (Exception ex) {
+                LOGGER.warning("Cannot set policy for object " + p + ", skipping: " + ex);
             }
         }
     }
 
-    
+
     @Override
     public void setPolicy(String pid, String policyName, String level) throws IOException {
         List<String> pids = fedoraAccess.getPids(pid);
         if (level != null && level.equals("true")) {
-            try{
-              setPolicyForNode(pid, policyName);
-            }catch(Exception ex){
-               LOGGER.warning("Cannot set policy for object "+pid+", skipping: "+ex);
+            try {
+                setPolicyForNode(pid, policyName);
+            } catch (Exception ex) {
+                LOGGER.warning("Cannot set policy for object " + pid + ", skipping: " + ex);
             }
-        }
-        else {
+        } else {
             for (String s : pids) {
                 String p = s.replace(INFO, "");
-                try{
+                try {
                     setPolicyForNode(p, policyName);
-                }catch(Exception ex){
-                    LOGGER.warning("Cannot set policy for object "+p+", skipping: "+ex);
+                } catch (Exception ex) {
+                    LOGGER.warning("Cannot set policy for object " + p + ", skipping: " + ex);
                 }
             }
         }
     }
+
     public void setPolicyForNode(String pid, String policyName) throws RepositoryException {
-        LOGGER.info("Set policy pid: "+pid+" policy: "+policyName);
+        LOGGER.info("Set policy pid: " + pid + " policy: " + policyName);
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
             setPolicyDC(pid, policyName);
             setPolicyRELS_EXT(pid, policyName);
             setPolicyPOLICY(pid, policyName);
-        }finally{
+        } finally {
             writeLock.unlock();
         }
     }
@@ -130,7 +132,7 @@ public class PolicyServiceImpl implements PolicyService {
             DOMImplementationLS domImplLS = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
 
             LSSerializer ser = domImplLS.createLSSerializer();
-            DOMConfiguration conf = (DOMConfiguration)ser;
+            DOMConfiguration conf = (DOMConfiguration) ser;
             conf.setParameter("xml-declaration", false);
             LSOutput lso = domImplLS.createLSOutput();
             lso.setEncoding("UTF-8");
@@ -202,10 +204,10 @@ public class PolicyServiceImpl implements PolicyService {
     private void setPolicyRELS_EXT(String pid, String policyName) throws RepositoryException {
         Repository repo = fedoraAccess.getInternalAPI();
         if (repo.getObject(pid).relationsExists("policy", FedoraNamespaces.KRAMERIUS_URI)) {
-            repo.getObject(pid).removeRelationsByNameAndNamespace("policy",FedoraNamespaces.KRAMERIUS_URI);
+            repo.getObject(pid).removeRelationsByNameAndNamespace("policy", FedoraNamespaces.KRAMERIUS_URI);
         }
 
-        repo.getObject(pid).addLiteral("policy",FedoraNamespaces.KRAMERIUS_URI, "policy:"+policyName);
+        repo.getObject(pid).addLiteral("policy", FedoraNamespaces.KRAMERIUS_URI, "policy:" + policyName);
 
     }
 
@@ -219,19 +221,20 @@ public class PolicyServiceImpl implements PolicyService {
     /**
      * args[1] - uuid of the root item (withou uuid: prefix)
      * args[0] - policy to set (public, private)
+     *
      * @throws IOException
-     * @deprecated
      * @see cz.incad.kramerius.processes.SetPolicyProcess
+     * @deprecated
      */
     @Deprecated
     public static void main(String[] args) throws IOException {
-        LOGGER.info("PolicyService: "+Arrays.toString(args));
+        LOGGER.info("PolicyService: " + Arrays.toString(args));
         if (args.length >= 2) {
             //TODO: I18N
             try {
-                ProcessStarter.updateName("Priznak  '"+args[0]+" pro titul "+args[1]);
+                ProcessStarter.updateName("Priznak  '" + args[0] + " pro titul " + args[1]);
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING,e.getMessage(),e);
+                LOGGER.log(Level.WARNING, e.getMessage(), e);
             }
         }
         PolicyServiceImpl inst = new PolicyServiceImpl();
@@ -240,15 +243,15 @@ public class PolicyServiceImpl implements PolicyService {
         inst.fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
 
         inst.configuration = KConfiguration.getInstance();
-        if (args.length>=3){
+        if (args.length >= 3) {
             inst.setPolicy(args[1], args[0], args[2]);
         } else {
             inst.setPolicy(args[1], args[0]);
         }
         try {
-            IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[1]+":"+args[0], args[1]);
+            IndexerProcessStarter.spawnIndexer(true, "Reindex policy " + args[1] + ":" + args[0], args[1]);
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING,e.getMessage(),e);
+            LOGGER.log(Level.WARNING, e.getMessage(), e);
         }
         LOGGER.info("PolicyService finished.");
     }

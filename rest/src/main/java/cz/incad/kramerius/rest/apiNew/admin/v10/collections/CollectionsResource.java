@@ -5,7 +5,6 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
-import cz.incad.kramerius.rest.apiNew.admin.v10.ClientAuthHeaders;
 import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
