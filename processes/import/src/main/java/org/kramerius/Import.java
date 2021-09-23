@@ -101,9 +101,9 @@ public class Import {
      * @throws UnsupportedEncodingException
      */
     public static void main(String[] args) throws IOException, RepositoryException, SolrServerException {
-        for (int i = 0; i < args.length; i++) {
+        /*for (int i = 0; i < args.length; i++) {
             System.out.println("arg " + i + ": " + args[i]);
-        }
+        }*/
 
         int argsIndex = 0;
         ProcessCredentials processCredentials = new ProcessCredentials();

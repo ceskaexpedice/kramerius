@@ -104,6 +104,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.collections.CollectionsResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.ConfigResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.ItemsResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v10.ServerDirsResource.class);
 
         // debug resource
         bind(HTTPHeaders.class);
