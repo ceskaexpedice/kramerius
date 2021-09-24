@@ -42,7 +42,19 @@ public class ServerDirsResource extends AdminApiResource {
         return listSubdirsOfDir("import.directory");
     }
 
-    //TODO: podobně metody pro další adresáře, jako třeba in/out pro import dat v NDK formatu
+    @GET
+    @Path("/convert-and-import-ndk-input/subDirs")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listSubdirsOfDir_convertAndImportNdkInput(@PathParam("key") String key) {
+        //authentication
+        AuthenticatedUser user = getAuthenticatedUserByOauth();
+        String role = ROLE_LIST_DIRS_ON_SERVER;
+        if (!user.getRoles().contains(role)) {
+            throw new ForbiddenException("user '%s' is not allowed to list dirs on server (missing role '%s')", user.getName(), role); //403
+        }
+        //return data
+        return listSubdirsOfDir("convert.directory");
+    }
 
     private Response listSubdirsOfDir(String rootDirNamePropKey) {
         try {
