@@ -50,9 +50,9 @@ public class MetsConvertor {
 
     private static final Logger log = Logger.getLogger(MetsConvertor.class);
 
-    private static Marshaller marshaller = null;
-    private static Unmarshaller unmarshaller = null;
-    private static boolean foundvalidPSP = false;//FIXME: static? takze musime pamatovat, aby v jedne JVM byla MetsConvertor, anebo lepe to udelat ne-static
+    private final Marshaller marshaller;
+    private final Unmarshaller unmarshaller;
+    private boolean foundvalidPSP = false;
 
     public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, RepositoryException, SolrServerException {
         /*for (int i = 0; i < args.length; i++) {
@@ -68,7 +68,7 @@ public class MetsConvertor {
             boolean policyPublic = Boolean.parseBoolean(args[argsIndex++]);
             String importRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.directory");
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
-            run(importRoot, exportRoot, policyPublic, false, null);
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, false, null);
         } else { // as a process
             if (args.length < 5) { //at least 4 args ar necessary: credentials for scheduling another process (in the same batch) after this process has finished, also defaultVisibility is mandatory
                 throw new RuntimeException("Not enough arguments.");
@@ -88,30 +88,12 @@ public class MetsConvertor {
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
             boolean startIndexer = Boolean.valueOf(args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
             ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
-            run(importRoot, exportRoot, policyPublic, startIndexer, processCredentials);
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, processCredentials);
         }
     }
 
-    private static void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, ProcessCredentials processCredentials) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
-        initMarshallers();
-        checkAndConvertDirectory(importRoot, exportRoot, policyPublic);
-        if (!foundvalidPSP) {
-            throw new RuntimeException("No valid PSP found.");
-        }
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-        SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
-        ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-
-        Import.run(fa, feeder, sortingServiceLocal,
-                KConfiguration.getInstance().getProperty("ingest.url"),
-                KConfiguration.getInstance().getProperty("ingest.user"),
-                KConfiguration.getInstance().getProperty("ingest.password"),
-                exportRoot, startIndexer, processCredentials);
-    }
-
-    private static void initMarshallers() {
-        try {
+    private MetsConvertor() {
+        try { //init marshallers
             JAXBContext jaxbContext = JAXBContext.newInstance(Mets.class, DigitalObject.class);
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
@@ -129,7 +111,24 @@ public class MetsConvertor {
         }
     }
 
-    private static void checkAndConvertDirectory(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, ProcessCredentials processCredentials) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
+        checkAndConvertDirectory(importRoot, exportRoot, policyPublic);
+        if (!foundvalidPSP) {
+            throw new RuntimeException("No valid PSP found.");
+        }
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
+
+        Import.run(fa, feeder, sortingServiceLocal,
+                KConfiguration.getInstance().getProperty("ingest.url"),
+                KConfiguration.getInstance().getProperty("ingest.user"),
+                KConfiguration.getInstance().getProperty("ingest.password"),
+                exportRoot, startIndexer, processCredentials);
+    }
+
+    private void checkAndConvertDirectory(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         File importFolder = new File(importRoot);
 
         if (!importFolder.exists()) {
@@ -140,7 +139,6 @@ public class MetsConvertor {
         if (!useContractSubfolders()) {
             IOUtils.cleanDirectory(exportFolderFile);
         }
-
 
         File infoFile = findInfoFile(importFolder);
         if (!infoFile.exists()) {
@@ -153,10 +151,9 @@ public class MetsConvertor {
         } else {
             convert(importRoot, exportRoot, policyPublic);
         }
-
     }
 
-    private static File findInfoFile(File importFolder) {
+    private File findInfoFile(File importFolder) {
         File infoFile = null;
         File[] lfiles = importFolder.listFiles(new FileFilter() {
 
@@ -172,18 +169,13 @@ public class MetsConvertor {
         return infoFile;
     }
 
-
-    private static String convert(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    private String convert(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         System.setProperty("java.awt.headless", "true");
         StringBuffer convertedURI = new StringBuffer();
 
-
         File importFolder = new File(importRoot);
-
         File infoFile = findInfoFile(importFolder);
-
         String packageid = getPackageid(infoFile);
-
         String metsFilename = getMetsFilename(infoFile);
 
         File importFile = null;
@@ -199,16 +191,11 @@ public class MetsConvertor {
             foundvalidPSP = false;
         }
 
-
-        String exportFolder = exportRoot;
-
         ConvertorConfig config = new ConvertorConfig();
         config.setMarshaller(marshaller);
-        config.setExportFolder(exportFolder);
+        config.setExportFolder(exportRoot);
         config.setImportFolder(importRoot);
-
         config.setPolicyPublic(policyPublic);
-
         config.setContract(packageid);
 
         if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerDirectorySubfolders", false)) {
@@ -222,13 +209,11 @@ public class MetsConvertor {
             log.error("Cannot parse property contractNo.length", ex);
         }
         config.setContractLength(l);
-
         convertOneDirectory(unmarshaller, importFile, config, convertedURI);
-
         return convertedURI.toString();
     }
 
-    private static File findMetsFile(File importFolder) {
+    private File findMetsFile(File importFolder) {
         File[] fileList = importFolder.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
@@ -242,14 +227,13 @@ public class MetsConvertor {
         return fileList[0];
     }
 
-    private static String getPackageid(File infoFile) {
+    private String getPackageid(File infoFile) {
         try {
             Document doc = XMLUtils.parseDocument(new BOMInputStream(new FileInputStream(infoFile)));
             Element elem = XMLUtils.findElement(doc.getDocumentElement(), "packageid");
             if (elem != null) {
                 return elem.getTextContent();
             }
-
         } catch (Exception e) {
             log.error("Invalid import descriptor: " + infoFile.getAbsolutePath());
             throw new RuntimeException("Invalid import descriptor: " + infoFile.getAbsolutePath());
@@ -257,15 +241,13 @@ public class MetsConvertor {
         return null;
     }
 
-
-    private static String getMetsFilename(File infoFile) {
+    private String getMetsFilename(File infoFile) {
         try {
             Document doc = XMLUtils.parseDocument(new BOMInputStream(new FileInputStream(infoFile)));
             Element elem = XMLUtils.findElement(doc.getDocumentElement(), "mainmets");
             if (elem != null) {
                 return elem.getTextContent();
             }
-
         } catch (Exception e) {
             log.error("Invalid import descriptor: " + infoFile.getAbsolutePath());
             throw new RuntimeException("Invalid import descriptor: " + infoFile.getAbsolutePath());
@@ -273,14 +255,10 @@ public class MetsConvertor {
         return null;
     }
 
-
-    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean defaultVisibility, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
-
+    private void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean defaultVisibility, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         if (importFile.isDirectory()) {
             String subFolderName = importFile.getAbsolutePath().substring(importRoot.length());
-
             String exportFolder = exportRoot + subFolderName;
-
             File exportFolderFile = IOUtils.checkDirectory(exportFolder);
             if (!useContractSubfolders()) {
                 IOUtils.cleanDirectory(exportFolderFile);
@@ -291,13 +269,11 @@ public class MetsConvertor {
             }
         } else {
             if (importFile.getName().endsWith(".xml")) {
-
                 String importFolder = importFile.getParent();
                 if (importFolder == null) {
                     importFolder = ".";
                 }
                 String subFolderName = importFolder.substring(importRoot.length());
-
                 String exportFolder = exportRoot + subFolderName;
 
                 ConvertorConfig config = new ConvertorConfig();
@@ -329,7 +305,7 @@ public class MetsConvertor {
         }
     }
 
-    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    private void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         long timeStart = System.currentTimeMillis();
 
         XMLReader reader = XMLReaderFactory.createXMLReader();
@@ -398,11 +374,9 @@ public class MetsConvertor {
         }
     }
 
-
     /**
      *
      */
-
     public static class NamespacePrefixMapperInternalImpl extends com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper {
 
         public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
@@ -473,7 +447,6 @@ public class MetsConvertor {
 
     }
 
-
     public static boolean useContractSubfolders() {
         return System.getProperties().containsKey("convert.useContractSubfolders") ? new Boolean(System.getProperty("convert.useContractSubfolders")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
     }
@@ -481,6 +454,5 @@ public class MetsConvertor {
     public static boolean copyOriginal() {
         return System.getProperties().containsKey("convert.copyOriginal") ? new Boolean(System.getProperty("convert.copyOriginal")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);
     }
-
 
 }
