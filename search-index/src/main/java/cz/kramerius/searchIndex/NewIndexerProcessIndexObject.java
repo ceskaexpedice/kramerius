@@ -5,6 +5,8 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.processes.new_api.IndexationScheduler;
+import cz.incad.kramerius.processes.new_api.IndexationScheduler.ProcessCredentials;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -39,12 +41,17 @@ public class NewIndexerProcessIndexObject {
         for (String arg : args) {
             System.out.println(arg);
         }*/
+        if (args.length < 4) { //at least 4 args ar necessary: credentials for scheduling another process (in the same batch) after this process has finished
+            throw new RuntimeException("Not enough arguments.");
+        }
         int argsIndex = 0;
-        String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+        ProcessCredentials processCredentials = new ProcessCredentials();
+        //token for keeping possible following processes in same batch
+        processCredentials.authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //Kramerius
-        String krameriusApiAuthClient = args[argsIndex++];
-        String krameriusApiAuthUid = args[argsIndex++];
-        String krameriusApiAuthAccessToken = args[argsIndex++];
+        processCredentials.krameriusApiAuthClient = args[argsIndex++];
+        processCredentials.krameriusApiAuthUid = args[argsIndex++];
+        processCredentials.krameriusApiAuthAccessToken = args[argsIndex++];
         //indexation info
         String type = args[argsIndex++];
         String pid = args[argsIndex++];

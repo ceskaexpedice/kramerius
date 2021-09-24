@@ -14,6 +14,7 @@ import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.processes.new_api.IndexationScheduler;
 import cz.incad.kramerius.processes.new_api.IndexationScheduler.ProcessCredentials;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
@@ -104,7 +105,9 @@ public class Import {
         /*for (int i = 0; i < args.length; i++) {
             System.out.println("arg " + i + ": " + args[i]);
         }*/
-
+        if (args.length < 4) { //at least 4 args ar necessary: credentials for scheduling another process (in the same batch) after this process has finished
+            throw new RuntimeException("Not enough arguments.");
+        }
         int argsIndex = 0;
         ProcessCredentials processCredentials = new ProcessCredentials();
         //token for keeping possible following processes in same batch

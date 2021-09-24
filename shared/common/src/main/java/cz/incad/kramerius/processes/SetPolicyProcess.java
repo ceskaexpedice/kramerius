@@ -47,6 +47,10 @@ public class SetPolicyProcess {
         for (String arg : args) {
             System.out.println(arg);
         }*/
+        if (args.length < 4) { //at least 4 args ar necessary: credentials for scheduling another process (in the same batch) after this process has finished
+            throw new RuntimeException("Not enough arguments.");
+        }
+
         int argsIndex = 0;
         ProcessCredentials credentials = new ProcessCredentials();
         //token for keeping possible following processes in same batch
