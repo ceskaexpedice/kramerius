@@ -34,7 +34,10 @@ import org.kramerius.importmets.MetsConvertor;
 /**
  * Parametrized mets NKD import
  * @author pavels
+ * @deprecated this is only used for process ndkmets, that is itself deprecated
+ * @see org.kramerius.importmets.parametrized.input.MetsImportInputTemplate
  */
+@Deprecated
 public class ParametrizedMetsNKDImport {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedMetsNKDImport.class.getName());

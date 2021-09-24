@@ -371,6 +371,7 @@
         <securedaction>ndk_mets_import</securedaction>
     </process>
 
+    <!-- deprecated: only nonparamtrized version (convert_and_import) is used now -->
     <!-- K3 replication process - deprecated - it will be removed in the future -->
     <process>
         <id>convert</id>
@@ -381,6 +382,7 @@
         <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
     </process>
 
+    <!-- deprecated: only nonparamtrized version (import) is used now -->
     <!-- Parametrized import FOXML - dedicated for use  in UI  -->
     <process>
         <id>parametrizedimport</id>
@@ -399,6 +401,15 @@
         <id>import</id>
         <description>Import FOXML</description>
         <mainClass>org.kramerius.Import</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+    </process>
+
+    <!-- Import NDK METS process -->
+    <process>
+        <id>convert_and_import</id>
+        <description>Convert and import NDK METS</description>
+        <mainClass>org.kramerius.importmets.MetsConvertor</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
     </process>

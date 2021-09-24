@@ -715,13 +715,30 @@ public class ProcessResource extends AdminApiResource {
                 return Collections.emptyList();
             }
             case "import": {
+                File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
+                Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
+
                 List<String> result = new ArrayList<>();
                 //Kramerius APIs
                 result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
                 //import params
-                File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
-                Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
                 result.add(inputDataDir.getPath());
+                result.add(startIndexer.toString());
+                return result;
+            }
+            case "convert_and_import": {
+                String policy = extractMandatoryParamWithValueFromEnum(params, "policy", Policy.class);
+                File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("convert.directory")));
+                File convertedDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("convert.target.directory")));
+                Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
+
+                List<String> result = new ArrayList<>();
+                //Kramerius APIs
+                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
+                //convert_and_import params
+                result.add(policy);
+                result.add(inputDataDir.getPath());
+                result.add(convertedDataDir.getPath());
                 result.add(startIndexer.toString());
                 return result;
             }
@@ -1012,5 +1029,9 @@ public class ProcessResource extends AdminApiResource {
         public LocalDateTime planned;
         public LocalDateTime started;
         public LocalDateTime finished;
+    }
+
+    public enum Policy {
+        PRIVATE, PUBLIC
     }
 }
