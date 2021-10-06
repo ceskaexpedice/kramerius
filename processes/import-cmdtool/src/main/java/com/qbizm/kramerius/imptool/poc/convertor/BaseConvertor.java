@@ -6,7 +6,6 @@ import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.utils.UUIDManager;
 import com.qbizm.kramerius.imptool.poc.utils.XSLTransformer;
 import com.qbizm.kramerius.imptool.poc.valueobj.*;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import cz.incad.kramerius.service.XSLService;
 import cz.incad.kramerius.service.impl.XSLServiceImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -26,6 +25,8 @@ import org.w3c.dom.Node;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -1196,9 +1197,25 @@ public abstract class BaseConvertor {
     }
 
     private XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
-        Calendar now = Calendar.getInstance();
-        return XMLGregorianCalendarImpl.createDateTime(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY), now
-                .get(Calendar.MINUTE), now.get(Calendar.SECOND));
+        try {
+            Calendar now = Calendar.getInstance();
+
+            return DatatypeFactory.newInstance().newXMLGregorianCalendar(
+                        now.get(Calendar.YEAR),
+                        now.get(Calendar.MONTH) + 1,
+                        now.get(Calendar.DAY_OF_MONTH),
+                        now.get(Calendar.HOUR_OF_DAY),
+                        now.get(Calendar.MINUTE),
+                        now.get(Calendar.SECOND),
+                        now.get(Calendar.MILLISECOND),
+                        TimeZone.getDefault().getRawOffset());
+        } catch (DatatypeConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+
+        //XMLGregorianCalendar
+//        return XMLGregorianCalendarImpl.createDateTime(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY), now
+//                .get(Calendar.MINUTE), now.get(Calendar.SECOND));
     }
 
     protected String trimNull(String s) {

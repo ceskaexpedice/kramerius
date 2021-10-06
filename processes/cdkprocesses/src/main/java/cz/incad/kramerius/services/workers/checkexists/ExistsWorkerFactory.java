@@ -5,6 +5,7 @@ import cz.incad.kramerius.services.WorkerFinisher;
 import cz.incad.kramerius.services.Worker;
 import cz.incad.kramerius.services.WorkerFactory;
 import cz.incad.kramerius.services.iterators.IterationItem;
+import cz.incad.kramerius.services.iterators.ProcessIterator;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -26,7 +27,7 @@ public class ExistsWorkerFactory extends WorkerFactory {
     }
 
     @Override
-    public Worker createWorker(Element worker, Client client, List<IterationItem> items) {
+    public Worker createWorker(ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items) {
         Element requestElm = XMLUtils.findElement(worker, "request");
         if (requestElm == null) throw new IllegalStateException("cannot find element request");
         Element localKrameriusElm = XMLUtils.findElement(requestElm, "local.kramerius");

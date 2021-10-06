@@ -2,6 +2,7 @@ package cz.incad.kramerius.services;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.iterators.IterationItem;
+import cz.incad.kramerius.services.iterators.ProcessIterator;
 import org.w3c.dom.Element;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public abstract class WorkerFactory {
 
 
 
-    public abstract Worker createWorker(Element worker, Client client, List<IterationItem> pids);
+    public abstract Worker createWorker(ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> pids);
 
     public abstract WorkerFinisher createFinisher(Element worker, Client client);
 

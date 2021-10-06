@@ -8,6 +8,7 @@ import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardUtils;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
+import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
@@ -32,9 +33,13 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.virtualcollections.Collection;
+import cz.incad.kramerius.virtualcollections.CollectionException;
+import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,8 +50,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +108,11 @@ public class ItemResource {
     @Inject
     RepositoryUrlManager urlManager;
 
+    @Inject
+    @Named("fedora")
+    CollectionsManager collectionsManager;
+
+
 
     @GET
     @Path("{pid}/foxml")
@@ -154,53 +166,156 @@ public class ItemResource {
             if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
                 if (!PIDSupport.isComposedPID(pid)) {
 
-                    // audio streams - bacause of support rage in headers
-                    if (FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
-                        String mimeTypeForStream = this.fedoraAccess
-                                .getMimeTypeForStream(pid, dsid);
+                    String externalStreamURL = fedoraAccess.getExternalStreamURL(pid, dsid);
+                    LOGGER.info(String.format("Redirecting to %s", externalStreamURL));
 
-                        ResponseBuilder responseBuilder = Response.ok();
-                        responseBuilder = responseBuilder.type(mimeTypeForStream);
-
-                        HttpServletRequest request = this.requestProvider.get();
-                        User user = this.userProvider.get();
-
-                        AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
-                        ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
-                        return builder.build();
-
+                    if (externalStreamURL != null && (externalStreamURL.startsWith("http") || externalStreamURL.startsWith("https"))) {
+                        return Response.temporaryRedirect(new URL(externalStreamURL).toURI()).build();
                     } else {
-                        String mimeTypeForStream = this.fedoraAccess
-                                .getMimeTypeForStream(pid, dsid);
+                        // audio streams - bacause of support rage in headers
+                        if (FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
+                            // redirect
 
-                        class _StreamHeadersObserver implements StreamHeadersObserver {
-                            ResponseBuilder respBuilder = null;
+                            String mimeTypeForStream = this.fedoraAccess
+                                    .getMimeTypeForStream(pid, dsid);
 
-                            @Override
-                            public void observeHeaderFields(int statusCode,
-                                                            Map<String, List<String>> headerFields) {
-                                respBuilder = Response.status(statusCode);
-                                Set<String> keys = headerFields.keySet();
-                                for (String k : keys) {
-                                    List<String> vals = headerFields.get(k);
-                                    for (String val : vals) {
-                                        respBuilder.header(k, val);
+                            ResponseBuilder responseBuilder = Response.ok();
+                            responseBuilder = responseBuilder.type(mimeTypeForStream);
+
+                            HttpServletRequest request = this.requestProvider.get();
+                            User user = this.userProvider.get();
+
+                            AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+                            ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+                            return builder.build();
+
+                        } else {
+                            String mimeTypeForStream = this.fedoraAccess
+                                    .getMimeTypeForStream(pid, dsid);
+
+                            class _StreamHeadersObserver implements StreamHeadersObserver {
+                                ResponseBuilder respBuilder = null;
+
+                                @Override
+                                public void observeHeaderFields(int statusCode,
+                                                                Map<String, List<String>> headerFields) {
+                                    respBuilder = Response.status(statusCode);
+                                    Set<String> keys = headerFields.keySet();
+                                    for (String k : keys) {
+                                        List<String> vals = headerFields.get(k);
+                                        for (String val : vals) {
+                                            respBuilder.header(k, val);
+                                        }
                                     }
+                                }
+
+                                public ResponseBuilder getBuider() {
+                                    return this.respBuilder;
                                 }
                             }
 
-                            public ResponseBuilder getBuider() {
-                                return this.respBuilder;
+                            _StreamHeadersObserver observer = new _StreamHeadersObserver();
+                            this.fedoraAccess.observeStreamHeaders(pid, dsid, observer);
+
+                            if (observer.getBuider() != null) {
+                                return observer.getBuider().type(mimeTypeForStream).build();
+                            } else {
+                                return Response.ok().type(mimeTypeForStream)
+                                        .build();
                             }
                         }
 
-                        _StreamHeadersObserver observer = new _StreamHeadersObserver();
-                        this.fedoraAccess.observeStreamHeaders(pid, dsid, observer);
+                    }
 
-                        if (observer.getBuider() != null) {
-                            return observer.getBuider().type(mimeTypeForStream).build();
+
+                } else
+                    throw new PIDNotFound("cannot find stream " + dsid);
+            } else {
+                throw new PIDNotFound("cannot find stream " + dsid);
+            }
+        } catch (IOException e) {
+            throw new PIDNotFound(e.getMessage());
+        } catch (SecurityException e) {
+            throw new ActionNotAllowed(e.getMessage());
+        } catch (URISyntaxException e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
+
+
+    }
+
+
+    public static final int MAX_LEVEL = 6;
+
+    public static HttpURLConnection redirectedConnection(String surl, int level) throws IOException {
+        URL url = new URL(surl);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        int responseCode = urlConnection.getResponseCode();
+        if (responseCode == 301 || responseCode == 302) {
+            String location = urlConnection.getHeaderField("Location");
+            if (level < MAX_LEVEL) {
+                urlConnection.disconnect();
+                return redirectedConnection(location, level+1);
+            } else return null;
+        } else {
+            return urlConnection;
+        }
+    }
+
+
+    @GET
+    @Path("{pid}/streams/{dsid}")
+    public Response stream(@PathParam("pid") String pid,
+                           @PathParam("dsid") String dsid) {
+        try {
+            checkPid(pid);
+            if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
+                if (!PIDSupport.isComposedPID(pid)) {
+
+                    String externalStreamURL = fedoraAccess.getExternalStreamURL(pid, dsid);
+                    if (externalStreamURL != null && (externalStreamURL.startsWith("http") || externalStreamURL.startsWith("https"))) {
+                        Document solrDataDocument = this.solrAccess.getSolrDataDocument(pid);
+                        List<String> sources = CDKUtils.findSources(solrDataDocument.getDocumentElement());
+                        if (!sources.isEmpty()) {
+                            Collection collection = this.collectionsManager.getCollection(sources.get(0));
+                            String url = collection.getUrl();
+                            if (!url.endsWith("/")) url = url +"/";
+                            LOGGER.info(String.format("Redirecting to %s", String.format("%sapi/v5.0/item/%s/streams/%s", url, pid,dsid)));
+                            return Response.temporaryRedirect(new URL(String.format("%sapi/v5.0/item/%s/streams/%s", url, pid,dsid)).toURI()).build();
                         } else {
-                            return Response.ok().type(mimeTypeForStream)
+                            return Response.status(508).build();
+                        }
+                    } else {
+                        // audio streams - bacause of support rage in headers
+                        if (FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
+                            String mimeTypeForStream = this.fedoraAccess
+                                    .getMimeTypeForStream(pid, dsid);
+
+                            ResponseBuilder responseBuilder = Response.ok();
+                            responseBuilder = responseBuilder.type(mimeTypeForStream);
+
+                            HttpServletRequest request = this.requestProvider.get();
+                            User user = this.userProvider.get();
+                            AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+                            ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+                            return builder.build();
+
+                        } else {
+                            final InputStream is = this.fedoraAccess.getDataStream(pid,
+                                    dsid);
+                            String mimeTypeForStream = this.fedoraAccess
+                                    .getMimeTypeForStream(pid, dsid);
+                            StreamingOutput stream = new StreamingOutput() {
+                                public void write(OutputStream output)
+                                        throws IOException, WebApplicationException {
+                                    try {
+                                        IOUtils.copyStreams(is, output);
+                                    } catch (Exception e) {
+                                        throw new WebApplicationException(e);
+                                    }
+                                }
+                            };
+                            return Response.ok().entity(stream).type(mimeTypeForStream)
                                     .build();
                         }
                     }
@@ -213,61 +328,11 @@ public class ItemResource {
             throw new PIDNotFound(e.getMessage());
         } catch (SecurityException e) {
             throw new ActionNotAllowed(e.getMessage());
-        }
+        } catch (URISyntaxException e) {
+            throw new GenericApplicationException(e.getMessage());
+        } catch (CollectionException e) {
+            throw new GenericApplicationException(e.getMessage());
 
-
-    }
-
-    @GET
-    @Path("{pid}/streams/{dsid}")
-    public Response stream(@PathParam("pid") String pid,
-                           @PathParam("dsid") String dsid) {
-        try {
-            checkPid(pid);
-            if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
-                if (!PIDSupport.isComposedPID(pid)) {
-
-                    // audio streams - bacause of support rage in headers
-                    if (FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
-                        String mimeTypeForStream = this.fedoraAccess
-                                .getMimeTypeForStream(pid, dsid);
-
-                        ResponseBuilder responseBuilder = Response.ok();
-                        responseBuilder = responseBuilder.type(mimeTypeForStream);
-
-                        HttpServletRequest request = this.requestProvider.get();
-                        User user = this.userProvider.get();
-                        AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
-                        ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
-                        return builder.build();
-
-                    } else {
-                        final InputStream is = this.fedoraAccess.getDataStream(pid,
-                                dsid);
-                        String mimeTypeForStream = this.fedoraAccess
-                                .getMimeTypeForStream(pid, dsid);
-                        StreamingOutput stream = new StreamingOutput() {
-                            public void write(OutputStream output)
-                                    throws IOException, WebApplicationException {
-                                try {
-                                    IOUtils.copyStreams(is, output);
-                                } catch (Exception e) {
-                                    throw new WebApplicationException(e);
-                                }
-                            }
-                        };
-                        return Response.ok().entity(stream).type(mimeTypeForStream)
-                                .build();
-                    }
-                } else
-                    throw new PIDNotFound("cannot find stream " + dsid);
-            } else {
-                throw new PIDNotFound("cannot find stream " + dsid);
-            }
-        } catch (IOException e) {
-            throw new PIDNotFound(e.getMessage());
-        } catch (SecurityException e) {
-            throw new ActionNotAllowed(e.getMessage());
         }
     }
 

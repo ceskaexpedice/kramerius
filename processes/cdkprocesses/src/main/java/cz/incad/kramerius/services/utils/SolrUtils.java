@@ -31,8 +31,8 @@ public class SolrUtils {
     public static String sendToDest(String destSolr, Client client, Document batchDoc) {
         try {
             StringWriter writer = new StringWriter();
-            WebResource r = client.resource(destSolr);
             XMLUtils.print(batchDoc, writer);
+            WebResource r = client.resource(destSolr);
             ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
             if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();

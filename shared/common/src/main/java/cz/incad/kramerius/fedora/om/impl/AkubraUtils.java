@@ -4,24 +4,28 @@ import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+//import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import cz.incad.kramerius.utils.SafeSimpleDateFormat;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Element;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -60,6 +64,7 @@ public class AkubraUtils {
 
     private static final String LOCAL_REF_PREFIX = "http://local.fedora.server/fedora/get/";
 
+
     public static InputStream getStreamContent(DatastreamVersionType stream, AkubraDOManager manager) throws TransformerException, IOException {
         if (stream.getXmlContent() != null) {
             StringWriter wrt = new StringWriter();
@@ -94,6 +99,7 @@ public class AkubraUtils {
         URL searchURL = new URL(url);
         URLConnection conn = searchURL.openConnection();
         conn.setUseCaches(true);
+        HttpURLConnection.setFollowRedirects(true);
         conn.connect();
         if ("gzip".equals(conn.getContentEncoding())) {
             return new GZIPInputStream(conn.getInputStream());
@@ -103,9 +109,16 @@ public class AkubraUtils {
     }
 
     public static XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
-        Calendar now = Calendar.getInstance();
-        return XMLGregorianCalendarImpl.createDateTime(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY), now
-                .get(Calendar.MINUTE), now.get(Calendar.SECOND));
+        try {
+            GregorianCalendar gregorianCalendar = new GregorianCalendar();
+            gregorianCalendar.setTime(new Date());
+            return DatatypeFactory.newInstance() .newXMLGregorianCalendar(gregorianCalendar);
+        } catch (DatatypeConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+
+//        return XMLGregorianCalendarImpl.createDateTime(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY), now
+//                .get(Calendar.MINUTE), now.get(Calendar.SECOND));
     }
 
     public static String endpoint() {

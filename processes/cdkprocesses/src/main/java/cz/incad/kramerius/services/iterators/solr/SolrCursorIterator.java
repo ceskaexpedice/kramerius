@@ -18,29 +18,17 @@ import static cz.incad.kramerius.services.iterators.utils.IterationUtils.*;
 
 public class SolrCursorIterator extends AbstractSolrIterator{
 
-//    public static void cursorIteration(Client client, String address, String masterQuery, int rows, String filterQuery, String endpoint, String id, String sorting, ProcessIterationCallback callback, ProcessIterationEndCallback endCallback) throws ParserConfigurationException, MigrateSolrIndexException, SAXException, IOException, InterruptedException, BrokenBarrierException {
-//        String cursorMark = null;
-//        String queryCursorMark = null;
-//        do {
-//            Element element = pidsCursorQuery(client, address, masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting);
-//            cursorMark = findCursorMark(element);
-//            queryCursorMark = findQueryCursorMark(element);
-//            callback.call(element, cursorMark);
-//        } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
-//        // callback after iteration
-//        endCallback.end();
-//    }
 
     public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
         super(address, masterQuery, filterQuery, endpoint, id, sorting, rows);
     }
 
-    static Element pidsCursorQuery(Client client, String url, String mq, String cursor, int rows, String fq, String endpoint, String id, String sorting)  throws ParserConfigurationException, SAXException, IOException {
+    static Element pidsCursorQuery(Client client, String url, String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting)  throws ParserConfigurationException, SAXException, IOException {
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
-            fullQuery = "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(sorting, "UTF-8")+"&fl="+id+"&fq=" + URLEncoder.encode(fq,"UTF-8");
+            fullQuery = "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(sorting, "UTF-8")+"&fl="+identifierField+"&fq=" + URLEncoder.encode(fq,"UTF-8");
         } else {
-            fullQuery = "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(sorting, "UTF-8")+"&fl="+id;
+            fullQuery = "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(sorting, "UTF-8")+"&fl="+identifierField;
         }
         String query = endpoint + fullQuery+"&wt=xml";
 

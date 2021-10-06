@@ -259,7 +259,7 @@ public class Main {
    * 
    */
     
-    static class NamespacePrefixMapperInternalImpl extends com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper {
+    static class NamespacePrefixMapperInternalImpl extends com.sun.xml.bind.marshaller.NamespacePrefixMapper {
 
         public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
             if ("info:fedora/fedora-system:def/foxml#".equals(namespaceUri)) {

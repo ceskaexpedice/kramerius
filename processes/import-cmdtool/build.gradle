@@ -19,6 +19,8 @@ dependencies {
     compile project(':processes:import-jaxb-monograph')
 
 
+    //compile 'com.sun.xml.bind:jaxb-impl:2.0.1'
+
     compile 'commons-codec:commons-codec:1.5'
     compile 'org.safehaus.jug:jug:2.0.0:lgpl@jar'
 }

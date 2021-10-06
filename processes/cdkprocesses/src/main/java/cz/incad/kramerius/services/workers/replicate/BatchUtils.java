@@ -1,8 +1,5 @@
 package cz.incad.kramerius.services.workers.replicate;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -10,7 +7,6 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.UTFSort;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.w3c.dom.Document;
@@ -18,20 +14,19 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import cz.incad.kramerius.indexer.FedoraOperations;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.xml.sax.SAXException;
 
 public class BatchUtils {
 
 
+    private BatchUtils() {}
 
     public static final Logger LOGGER = Logger.getLogger(BatchUtils.class.getName());
 
 
-    public static Document batch(Element resultElem) throws ParserConfigurationException, MigrateSolrIndexException  {
+    public static Document batch(Element resultElem, boolean compositeId, String root, String child) throws ParserConfigurationException, MigrateSolrIndexException  {
         //List<String> removalSourceElements = itemsToRemove();
         Document destBatch = XMLUtils.crateDocument("add");
         List<Element> docs = XMLUtils.getElements(resultElem, new XMLUtils.ElementsFilter() {
@@ -45,26 +40,12 @@ public class BatchUtils {
             Element destDocElement = destBatch.createElement("doc");
             destBatch.getDocumentElement().appendChild(destDocElement);
             Element sourceDocElm = docs.get(i);
-            transform(sourceDocElm, destBatch, destDocElement);
+            k5transform(sourceDocElm, destBatch, destDocElement, compositeId, root, child);
         }
         return destBatch;
     }
 
 
-
-//    static List<String> itemsToRemove() {
-//        String removal = KConfiguration.getInstance().getConfiguration().getString(SOLR_REMOVAL_SOURCE, "");
-//        return Arrays.asList(removal.split(","));
-//    }
-//
-//
-//    public static Element additionalSourceItems() throws IOException, SAXException, ParserConfigurationException {
-//        String addsource = KConfiguration.getInstance().getConfiguration().getString(SOLR_ADDITIONAL_SOURCE, "");
-//        if (StringUtils.isAnyString(addsource)) {
-//            Document doc = XMLUtils.parseDocument(new StringReader(addsource));
-//            return doc.getDocumentElement();
-//        } else return null;
-//    }
 
 
     /** find element by attribute */
@@ -94,7 +75,8 @@ public class BatchUtils {
         } else return "";
     }
 
-    public static void transform(Element sourceDocElm, Document destDocument,Element destDocElem) throws MigrateSolrIndexException  {
+    /** transforming fields in k5 index; it doesn't apply if an index is K7 */
+    public static void k5transform(Element sourceDocElm, Document destDocument, Element destDocElem, boolean compositeId, String root, String child) throws MigrateSolrIndexException  {
         String pid = pid(sourceDocElm);
         if (sourceDocElm.getNodeName().equals("doc")) {
             NodeList childNodes = sourceDocElm.getChildNodes();
@@ -111,20 +93,19 @@ public class BatchUtils {
             }
             browseAuthorsAndTitles(sourceDocElm, destDocument, destDocElem);
             // composite id is not supported
-//            if (SolrUtils.configuredBuildCompositeId()) {
-//                enhanceByCompositeId(destDocument, destDocElem);
-//            }
+            if (compositeId && root != null && child != null) {
+                enhanceByCompositeId(destDocument, destDocElem, root, child);
+            }
         }
-        
     }
     
-    public static void enhanceByCompositeId(Document ndoc,Element docElm) {
+    public static void enhanceByCompositeId(Document ndoc,Element docElm, String root, String child) {
         Element pidElm = XMLUtils.findElement(docElm, new XMLUtils.ElementsFilter() {
             
             @Override
             public boolean acceptElement(Element paramElement) {
                 String attribute = paramElement.getAttribute("name");
-                return attribute.equals("PID");
+                return attribute.equals(child);
             }
         });
         Element rootPidElm = XMLUtils.findElement(docElm, new XMLUtils.ElementsFilter() {
@@ -132,7 +113,7 @@ public class BatchUtils {
             @Override
             public boolean acceptElement(Element paramElement) {
                 String attribute = paramElement.getAttribute("name");
-                return attribute.equals("root_pid");
+                return attribute.equals(root);
             }
         });
         

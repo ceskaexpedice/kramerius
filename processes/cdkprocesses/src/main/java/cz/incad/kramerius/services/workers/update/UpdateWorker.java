@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-//TODO: Change it
+
 public class UpdateWorker extends Worker {
 
     static Logger LOGGER = Logger.getLogger(UpdateWorker.class.getName());

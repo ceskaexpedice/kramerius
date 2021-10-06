@@ -2,6 +2,9 @@ package cz.incad.kramerius.services.iterators;
 
 import java.util.Objects;
 
+/**
+ * Represents one interation item
+ */
 public class IterationItem {
 
     private String pid;
@@ -12,10 +15,18 @@ public class IterationItem {
         this.source = source;
     }
 
+    /**
+     * Gets pid of the object
+     * @return
+     */
     public String getPid() {
         return pid;
     }
 
+    /**
+     * Gets source from where pid comes from
+     * @return
+     */
     public String getSource() {
         return source;
     }

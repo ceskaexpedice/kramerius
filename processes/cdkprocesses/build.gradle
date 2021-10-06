@@ -1,15 +1,7 @@
-apply plugin: 'application'
+//apply plugin: 'application'
 apply plugin: 'java'
 
 
-// TODO: Do it as a separate project
-
-/*
-application {
-    mainClassName = "cz.incad.kramerius.services.ParallelMigrateSolrIndexImpl"
-}*/
-
-mainClassName = "cz.incad.kramerius.services.ParallelProcessImpl"
 
 dependencies {
     //compile project(':security-core')
@@ -17,15 +9,23 @@ dependencies {
     compile project(':shared:common')
     compile project(':processes:indexer')
     compile project(':bridge')
+}
 
-
+configurations.compile {
+    exclude group: 'org.bouncycastle'
+    exclude group: 'com.lowagie'
+    exclude group: 'org.apache.pdfbox'
+    exclude group: 'com.levigo.jbig2'
+    exclude group: 'org.apache.solr:solr-solrj'
 
 }
 
 
-tasks.withType(CreateStartScripts).each { task ->
-    task.doLast {
-        task.windowsScript.write task.windowsScript.text.replaceFirst(/(set CLASSPATH=%APP_HOME%\\lib\\).*/, { "${it[1]}*" })
-        task.unixScript.write task.unixScript.text.replaceFirst(/(CLASSPATH=.APP_HOME\/lib\/).*/, { "CLASSPATH=\$(echo \$APP_HOME/lib/*.jar | tr ' ' ':')" })
+task customFatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'cz.incad.kramerius.services.TestMain'
     }
+    baseName = 'process'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }

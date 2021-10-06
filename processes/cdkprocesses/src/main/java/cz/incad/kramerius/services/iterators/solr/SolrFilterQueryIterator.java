@@ -19,7 +19,9 @@ import static cz.incad.kramerius.services.utils.SolrUtils.*;
 import static cz.incad.kramerius.services.iterators.utils.IterationUtils.*;
 
 
-
+/**
+ * Solr filter iterator; sorts by PID and used last pid on the page
+ */
 public class SolrFilterQueryIterator extends AbstractSolrIterator {
 
     public static final String DEFAULT_SORT_FIELD = "PID asc";
@@ -29,7 +31,6 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
         super(address, masterQuery, filterQuery, endpoint, id, sorting, rows);
     }
 
-
     public static Element pidsFilterQuery(Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint)
             throws ParserConfigurationException, SAXException, IOException {
         String fullQuery = null;
@@ -38,7 +39,6 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
         } else {
             fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *]", "UTF-8")) : String.format("&rows=%d", rows));
         }
-
         String query = endpoint + "?q="+mq + fullQuery +"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID&wt=xml";
         return SolrUtils.executeQuery(client, url, query);
     }

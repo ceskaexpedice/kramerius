@@ -17,7 +17,9 @@ import static cz.incad.kramerius.services.iterators.utils.IterationUtils.pidsToI
 import static cz.incad.kramerius.services.utils.SolrUtils.*;
 import static cz.incad.kramerius.services.iterators.utils.IterationUtils.*;
 
-
+/**
+ *  Iteration by paging (must be combined with filter query)
+ */
 public class SolrPageIterator extends AbstractSolrIterator{
 
     public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {

@@ -78,7 +78,7 @@ public class ParallelProcessImpl {
         final List<Worker>  worksWhatHasToBeDone = new ArrayList<>();
         try {
             this.iterator.iterate(this.client, (List<IterationItem> idents)->{
-                addNewWorkToWorkers(worksWhatHasToBeDone, idents);
+                addNewWorkToWorkers(this.iterator, worksWhatHasToBeDone, idents);
             }, ()-> {
                 finishRestWorkers(worksWhatHasToBeDone);
             });
@@ -96,9 +96,9 @@ public class ParallelProcessImpl {
     }
 
     // musi zustat tady
-    private void addNewWorkToWorkers(List<Worker> worksWhatHasToBeDone, List<IterationItem> identifiers) {
+    private void addNewWorkToWorkers(ProcessIterator processIterator, List<Worker> worksWhatHasToBeDone, List<IterationItem> identifiers) {
         try {
-            worksWhatHasToBeDone.add(createWorker(this.workerElem, identifiers));
+            worksWhatHasToBeDone.add(createWorker(processIterator, this.workerElem, identifiers));
             if (worksWhatHasToBeDone.size() >= threads) {
                 startWorkers(worksWhatHasToBeDone);
                 worksWhatHasToBeDone.clear();
@@ -110,10 +110,9 @@ public class ParallelProcessImpl {
 
 
 
-    // musi zustat tady
-    private Worker createWorker(Element workerElm, List<IterationItem> identifiers) {
+    private Worker createWorker(ProcessIterator iteratorInstance, Element workerElm, List<IterationItem> identifiers) {
         try {
-            return this.workerFactory.createWorker(workerElm, this.client,identifiers);
+            return this.workerFactory.createWorker(iteratorInstance, workerElm, this.client,identifiers);
         } catch ( IllegalStateException  e ) {
             throw new RuntimeException("Cannot create worker instance "+e.getMessage());
         }
