@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 /**
  * Process for association of DNNT flag
  */
+@Deprecated
 public class DNNTCSVFlag extends AbstractDNNTCSVProcess {
 
     public static final Logger LOGGER = Logger.getLogger(DNNTCSVFlag.class.getName());

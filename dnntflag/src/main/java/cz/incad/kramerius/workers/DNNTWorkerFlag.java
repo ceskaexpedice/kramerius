@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * Responsible for setting flag
+ */
 public class DNNTWorkerFlag extends DNNTWorker {
 
     public static Logger LOGGER = Logger.getLogger(DNNTWorkerFlag.class.getName());
@@ -24,7 +27,7 @@ public class DNNTWorkerFlag extends DNNTWorker {
     }
 
 
-    protected Document createBatch(List<String> sublist,boolean changedFoxml){
+    protected Document createBatchForChildren(List<String> sublist, boolean changedFoxml){
         try {
             return DNNTBatchUtils.createLegacyDNNT(sublist, this.addRemoveFlag);
         } catch (ParserConfigurationException e) {
@@ -33,6 +36,10 @@ public class DNNTWorkerFlag extends DNNTWorker {
     }
 
 
+    @Override
+    protected Document createBatchForParents(List<String> sublist, boolean changedFoxmlFlag) {
+        return null;
+    }
 
     protected  String solrChildrenQuery(List<String> pidPaths) {
         String pidPathQuery = "pid_path:("+pidPaths.stream().map(it -> "\"" + it + "\"").collect(Collectors.joining(" OR "))+")";

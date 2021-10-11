@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.logging.Level;
 
+@Deprecated
 public class ParametrizedUnsetDNNTFlag {
 
 

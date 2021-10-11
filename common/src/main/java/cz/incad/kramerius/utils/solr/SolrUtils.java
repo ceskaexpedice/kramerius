@@ -28,6 +28,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import cz.incad.kramerius.solr.SolrFieldsMapping;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpGet;
@@ -186,7 +187,9 @@ public class SolrUtils   {
             Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
                 @Override
                 public boolean acceptElement(Element element) {
-                    return (element.getNodeName().equals("arr") && element.getAttribute("name") != null && element.getAttribute("name").equals("dnnt-labels"));
+                    return (element.getNodeName().equals("arr") && element.getAttribute("name") != null && element.getAttribute("name").equals(
+                            SolrFieldsMapping.getInstance().getDnntLabelsField()
+                    ));
                 }
             });
             if (foundElement != null) {
@@ -208,7 +211,7 @@ public class SolrUtils   {
 
 
     public static String disectDNNTFlag(Element topElem)  {
-        return disectDNNTFlag(topElem, DNNT_FLAG);
+        return disectDNNTFlag(topElem, SolrFieldsMapping.getInstance().getDnntFlagField());
     }
 
     public static String disectDNNTFlag(Element topElem, String flag)  {

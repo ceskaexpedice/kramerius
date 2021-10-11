@@ -555,6 +555,12 @@
       	<!-- center point coordinate -->
         <field name="center" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
 
+        <!-- dnnt labels -->
+        <field name="dnnt-labels" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
+        <!-- contains dnnt labels -->
+        <field name="contains-dnnt-labels" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
     </fields>
 
     <!-- Field to use to determine and enforce document uniqueness.

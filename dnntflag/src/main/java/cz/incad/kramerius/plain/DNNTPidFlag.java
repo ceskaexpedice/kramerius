@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.BrokenBarrierException;
 
+@Deprecated
 public class DNNTPidFlag extends AbstractPlainDNNTProcess {
 
     @Override

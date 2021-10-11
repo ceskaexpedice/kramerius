@@ -30,8 +30,5 @@ public class ParametrizedLabelSetDNNTFlag {
 
 
 
-    public static void main(String[] args) throws InterruptedException, SAXException, JAXBException, BrokenBarrierException, IOException {
-        ParametrizedLabelSetDNNTFlag.process("c:\\Users\\pavel.stastny\\.kramerius4\\import-dnnt\\test.csv", "test-01");
-    }
 
 }
