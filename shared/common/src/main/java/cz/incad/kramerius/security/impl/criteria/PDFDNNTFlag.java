@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 
 import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.checkContainsCriterium;
 
+// PDF Flag is not used; remove
+@Deprecated
 public class PDFDNNTFlag extends AbstractCriterium {
 
     public transient  static final Logger LOGGER = Logger.getLogger(ReadDNNTFlag.class.getName());

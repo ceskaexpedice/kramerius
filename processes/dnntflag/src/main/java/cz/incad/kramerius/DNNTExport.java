@@ -44,7 +44,7 @@ public class DNNTExport {
 
     public static void main(String[] args) throws InterruptedException, BrokenBarrierException, SAXException, IOException, ParserConfigurationException, MigrateSolrIndexException {
         File csvFile = csvFile(args);
-        ProcessStarter.updateName("DNNT export   '"+csvFile.getAbsolutePath()+"'");
+        ProcessStarter.updateName("Licenses export   '"+csvFile.getAbsolutePath()+"'");
 
         String labelQuery = args.length > 0 ? "AND (dnnt-labels:"+args[0]+")" : "";
 

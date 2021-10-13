@@ -10,7 +10,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// dnnt pro zobrazeni
+// DNNT flag is not used; remove
+@Deprecated
 public class ReadDNNTFlag extends AbstractCriterium {
 
     public transient static final Logger LOGGER = Logger.getLogger(ReadDNNTFlag.class.getName());

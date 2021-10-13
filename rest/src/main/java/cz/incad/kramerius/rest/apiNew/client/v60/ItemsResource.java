@@ -2,14 +2,25 @@ package cz.incad.kramerius.rest.apiNew.client.v60;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
+import cz.incad.kramerius.security.RightsResolver;
+import cz.incad.kramerius.security.RightsReturnObject;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -18,6 +29,7 @@ import org.dom4j.Element;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -26,8 +38,11 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,6 +91,8 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/audio/wav
 
 
+    // GET {pid}/info/license - information about licenses;
+
     public static final Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
 
     @Inject
@@ -83,6 +100,14 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     ZoomifyHelper zoomifyHelper;
+
+    /** Because of rights and licenses */
+    @Inject
+    @Named("new-index")
+    private SolrAccess solrAccess;
+
+    @Inject
+    RightsResolver rightsResolver;
 
     private static final boolean AUDIO_IGNORE_RANGE = true;
 
@@ -137,6 +162,24 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    @GET
+    @Path("{pid}/info/license")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getLicenseData(@PathParam("pid") String pid) {
+        try {
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            return Response.ok(extractLicenseInfo(pid)).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+
     /**
      * Vrací jen přímou strukturu získanou okamžitě z resource-indexu. Tedy rodiče (vlastního, nevlastní), děti (vlastní, nevlastní).
      * Ale už ne věci, které by se musely dopočítávat přes několik dotazů (root v stromech rodičů, sourozenci),
@@ -176,6 +219,45 @@ public class ItemsResource extends ClientApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    /** extract information about licenses provided for current user and current pid;  */
+    private JSONObject extractLicenseInfo(String pid) throws IOException, RepositoryException {
+        JSONObject licenseObject = new JSONObject();
+
+        String encoded = URLEncoder.encode("pid:\""+pid+"\"","UTF-8");
+
+        String solrResponseJsonString = this.solrAccess.requestWithSelectReturningString("q="+encoded+"&fl=pid_paths", "json");
+        JSONObject solrResponseJson = new JSONObject(solrResponseJsonString);
+        JSONArray docs = solrResponseJson.getJSONObject("response").getJSONArray("docs");
+        if (docs.length() > 0 ) {
+            JSONArray pidPaths = docs.getJSONObject(0).getJSONArray("pid_paths");
+            List<ObjectPidsPath> pidsPathList = new ArrayList<>();
+            for (int i = 0; i < pidPaths.length(); i++) {
+                pidsPathList.add(new ObjectPidsPath(pidPaths.getString(i)));
+            }
+            for (ObjectPidsPath p : pidsPathList) {
+                RightsReturnObject actionAllowed = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
+                if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
+                    String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
+                    if ( qName.equals(ReadDNNTFlag.class.getName()) ||
+                            qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||
+                            qName.equals(ReadDNNTLabels.class.getName()) ||
+                            qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
+                    )
+                    {
+                        Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
+                        if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
+                            licenseObject.put("providedByLicense", evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL));
+                        }
+                        break;
+                    }
+                }
+            }
+
+        }
+
+        return licenseObject;
     }
 
     private JSONObject extractAvailableDataInfo(String pid) throws IOException, RepositoryException {

@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils.matchIPAddresses;
 
+// TODO: Rename to ReadLicenseIPFilter
 public class ReadDNNTLabelsIPFiltered extends AbstractCriterium implements RightCriteriumLabelAware{
 
     public transient static final Logger LOGGER = Logger.getLogger(ReadDNNTLabelsIPFiltered.class.getName());
@@ -26,7 +27,7 @@ public class ReadDNNTLabelsIPFiltered extends AbstractCriterium implements Right
             String pid = ctx.getRequestedPid();
             if (!SpecialObjects.isSpecialObject(pid)) {
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
-                    SolrAccess solrAccess = ctx.getSolrAccess();
+                    SolrAccess solrAccess = ctx.getSolrAccessNewIndex();
                     Document doc = solrAccess.getSolrDataByPid(pid);
                     boolean applied = CriteriaDNNTUtils.matchLabel(doc,  getLabel());
                     if (applied)  {

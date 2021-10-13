@@ -37,6 +37,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
+import cz.incad.kramerius.security.labels.Label;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -355,7 +356,13 @@ public class RightsResource {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("qname", rcw.getRightCriterium().getQName());
 		jsonObj.put("params", paramToJSON(rcw.getCriteriumParams()));
-		return jsonObj;
+
+        Label label = rcw.getLabel();
+        if (label != null) {
+            jsonObj.put("label", label.getName());
+        }
+
+        return jsonObj;
 	}	
 	
 	private JSONObject rightsToJSON(Right r) throws JSONException {
@@ -363,7 +370,7 @@ public class RightsResource {
 		jsonObj.put("id", r.getId());
 		jsonObj.put("action", r.getAction());
 		jsonObj.put("pid", r.getPid());
-		
+
 		if (r.getFixedPriority() > 0 || r.getFixedPriority() < 0) {
 			jsonObj.put("fixedPriority", r.getFixedPriority());
 		}

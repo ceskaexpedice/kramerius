@@ -2,7 +2,7 @@ package cz.incad.kramerius.csv;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.workers.DNNTLabeledWrokerFlag;
+import cz.incad.kramerius.workers.DNNTLabelWorker;
 import cz.incad.kramerius.workers.DNNTWorker;
 
 import java.io.IOException;
@@ -25,7 +25,6 @@ public class DDNTCSVLabeledFlag extends AbstractDNNTCSVProcess {
         if (args.length>1) {
             this.label = args[1];
         }
-
         if (args.length > 2) {
             csvFile = args[2];
         } else {
@@ -36,6 +35,6 @@ public class DDNTCSVLabeledFlag extends AbstractDNNTCSVProcess {
 
     @Override
     protected DNNTWorker createWorker(String pid, FedoraAccess fedoraAccess, Client client, boolean flag) {
-        return new DNNTLabeledWrokerFlag(pid, fedoraAccess, client, this.label, flag);
+        return new DNNTLabelWorker(pid, fedoraAccess, client, this.label, flag);
     }
 }
