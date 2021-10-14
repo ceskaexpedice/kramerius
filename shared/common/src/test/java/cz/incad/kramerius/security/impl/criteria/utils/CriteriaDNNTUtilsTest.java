@@ -10,6 +10,7 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -19,6 +20,7 @@ import java.io.InputStream;
 
 import static org.easymock.EasyMock.replay;
 
+@Ignore
 public class CriteriaDNNTUtilsTest extends TestCase  {
 
 

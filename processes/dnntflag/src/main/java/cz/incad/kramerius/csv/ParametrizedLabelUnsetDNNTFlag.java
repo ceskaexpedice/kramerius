@@ -26,9 +26,4 @@ public class ParametrizedLabelUnsetDNNTFlag {
         System.setProperty(AbstractDNNTCSVProcess.DNNTUNSET_FILE_KEY, csvFile);
         DDNTCSVLabeledFlag.main(new String[]{Boolean.FALSE.toString(), label});
     }
-
-    public static void main(String[] args) throws InterruptedException, SAXException, JAXBException, BrokenBarrierException, IOException {
-        ParametrizedLabelUnsetDNNTFlag.process("c:\\Users\\pavel.stastny\\.kramerius4\\import-dnnt\\test.csv", "test-01");
-    }
-
 }

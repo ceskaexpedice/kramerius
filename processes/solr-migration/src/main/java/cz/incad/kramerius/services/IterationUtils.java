@@ -3,6 +3,7 @@ package cz.incad.kramerius.services;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.solr.SolrFieldsMapping;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
@@ -22,8 +23,8 @@ import java.util.stream.Collectors;
 public class IterationUtils {
 
     public static final String SELECT_ENDPOINT = "select";
-    public static final String SEARCH_ENDPOINT = "search";
-    public static final String DEFAULT_SORT_FIELD = "PID asc";
+    //public static final String SEARCH_ENDPOINT = "search";
+    public static final String DEFAULT_SORT_FIELD = "%s asc";
 
     public static Logger LOGGER = Logger.getLogger(IterationUtils.class.getName());
 
@@ -112,7 +113,7 @@ public class IterationUtils {
             fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *]", "UTF-8")) : String.format("&rows=%d", rows));
         }
 
-        String query = SELECT_ENDPOINT + "?q="+mq + fullQuery +"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID";
+        String query = SELECT_ENDPOINT + "?q="+mq + fullQuery +"&sort=" + URLEncoder.encode(String.format(DEFAULT_SORT_FIELD, SolrFieldsMapping.getInstance().getPidField()), "UTF-8")+"&fl=PID";
         return executeQuery(client, url, query);
     }
 
@@ -132,7 +133,7 @@ public class IterationUtils {
 
     public static Element pidsCursorQuery(Client client, String url, String mq,  String cursor)  throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
         int rows = MigrationUtils.configuredRowsSize();
-        String query = SELECT_ENDPOINT + "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID";
+        String query = SELECT_ENDPOINT + "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(String.format(DEFAULT_SORT_FIELD, SolrFieldsMapping.getInstance().getPidField()), "UTF-8")+"&fl="+SolrFieldsMapping.getInstance().getPidField();
         return IterationUtils.executeQuery(client, url, query);
     }
 

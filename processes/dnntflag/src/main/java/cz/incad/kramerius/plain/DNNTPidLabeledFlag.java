@@ -2,7 +2,7 @@ package cz.incad.kramerius.plain;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.workers.DNNTLabeledWrokerFlag;
+import cz.incad.kramerius.workers.DNNTLabelWorker;
 import cz.incad.kramerius.workers.DNNTWorker;
 
 import java.io.IOException;
@@ -15,7 +15,7 @@ public class DNNTPidLabeledFlag extends AbstractPlainDNNTProcess {
 
     @Override
     protected DNNTWorker createWorker(String pid, FedoraAccess fedoraAccess, Client client, boolean flag) {
-        return new DNNTLabeledWrokerFlag(pid, fedoraAccess, client, this.label, flag);
+        return new DNNTLabelWorker(pid, fedoraAccess, client, this.label, flag);
     }
 
     @Override

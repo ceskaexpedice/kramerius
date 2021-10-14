@@ -39,7 +39,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     public EvaluatingResultState evalute() throws RightCriteriumException {
         try {
             FedoraAccess fedoraAccess = getEvaluateContext().getFedoraAccess();
-            getEvaluateContext().getSolrAccess();
+            //getEvaluateContext().getSolrAccess();
             String pid = getEvaluateContext().getRequestedPid();
             if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                 if ("page".equals(fedoraAccess.getKrameriusModelName(pid))) {

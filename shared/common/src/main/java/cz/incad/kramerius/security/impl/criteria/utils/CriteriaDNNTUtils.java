@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 public class CriteriaDNNTUtils {
 
-
     public static ThreadLocal<RightsReturnObject> currentThreadReturnObject = new ThreadLocal<>();
 
 

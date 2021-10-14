@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+//TODO: Rename to ReadLicense
 public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumLabelAware{
 
     public static final String PROVIDED_BY_DNNT_LABEL = "providedByLabel";
@@ -27,7 +28,7 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
             if (!SpecialObjects.isSpecialObject(pid)) {
 
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
-                    SolrAccess solrAccess = ctx.getSolrAccess();
+                    SolrAccess solrAccess = ctx.getSolrAccessNewIndex();
                     Document doc = solrAccess.getSolrDataByPid(pid);
 
                     boolean applied =  CriteriaDNNTUtils.matchLabel(doc, getLabel());

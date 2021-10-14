@@ -32,7 +32,9 @@ public abstract class AbstractDNNTProcess {
 
 
     protected void commit(Client client) throws UniformInterfaceException, ClientHandlerException {
-        String updateUrl = KConfiguration.getInstance().getSolrHost();
+        //String updateUrl = KConfiguration.getInstance().getSolrHost();
+        String updateUrl = KConfiguration.getInstance().getSolrSearchHost();
+
         updateUrl = updateUrl  + (updateUrl.endsWith("/") ? ""  : "/") + "update?commit=true";
         WebResource r = client.resource(updateUrl);
         r.accept(MediaType.TEXT_XML).entity("<commit/>").type(MediaType.TEXT_XML).post(ClientResponse.class);
