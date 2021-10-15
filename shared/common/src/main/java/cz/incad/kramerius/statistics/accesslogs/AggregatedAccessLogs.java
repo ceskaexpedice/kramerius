@@ -16,6 +16,7 @@ public class AggregatedAccessLogs implements StatisticsAccessLog{
     @Named("database")
     StatisticsAccessLog databaseAccessLog;
 
+    // TODO: Rename  - licences file log for kibana processing; is it ncessary ?
     @Inject
     @Named("dnnt")
     StatisticsAccessLog dnntAccessLog;

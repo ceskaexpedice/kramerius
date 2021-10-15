@@ -2,6 +2,7 @@ package cz.incad.kramerius.repository;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.utils.NamespaceRemovingVisitor;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
@@ -17,6 +18,10 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Inject
     private RepositoryApiImpl repositoryApi;
+
+    @Inject
+    private AggregatedAccessLogs accessLog;
+
 
     @Override
     public RepositoryApi getLowLevelApi() {
@@ -101,6 +106,7 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Override
     public InputStream getImgFull(String pid) throws IOException, RepositoryException {
+        this.accessLog.reportAccess(pid, KnownDatastreams.IMG_FULL.toString());
         return repositoryApi.getLatestVersionOfDatastream(pid, KnownDatastreams.IMG_FULL.toString());
     }
 
@@ -131,6 +137,7 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Override
     public InputStream getImgPreview(String pid) throws IOException, RepositoryException {
+        this.accessLog.reportAccess(pid, KnownDatastreams.IMG_PREVIEW.toString());
         return repositoryApi.getLatestVersionOfDatastream(pid, KnownDatastreams.IMG_PREVIEW.toString());
     }
 
@@ -146,6 +153,7 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Override
     public InputStream getAudioMp3(String pid) throws IOException, RepositoryException {
+        this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_MP3.toString());
         return repositoryApi.getLatestVersionOfDatastream(pid, KnownDatastreams.AUDIO_MP3.toString());
     }
 
@@ -161,6 +169,7 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Override
     public InputStream getAudioOgg(String pid) throws IOException, RepositoryException {
+        this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_OGG.toString());
         return repositoryApi.getLatestVersionOfDatastream(pid, KnownDatastreams.AUDIO_OGG.toString());
     }
 
