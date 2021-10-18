@@ -62,6 +62,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     Provider<User> userProvider;
     
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject
@@ -83,7 +84,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 RightsReturnObject rightsReturnObject = null;
                 for (ObjectPidsPath pth : paths) {
-                    rightsReturnObject =  this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth);
+                    rightsReturnObject =  this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth.injectRepository());
                     if (rightsReturnObject.flag()) break;
                 }
                 

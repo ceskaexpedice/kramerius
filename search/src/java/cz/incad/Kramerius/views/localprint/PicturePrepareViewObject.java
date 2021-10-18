@@ -47,6 +47,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     RightsResolver rightsResolver;
     
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
     
     @Inject
@@ -151,7 +152,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     private boolean canBeRead(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth).flag()) {
+            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth.injectRepository()).flag()) {
                 return true;
             }
         }

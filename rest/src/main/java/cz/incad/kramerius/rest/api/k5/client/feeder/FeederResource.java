@@ -63,6 +63,7 @@ public class FeederResource {
     JSONDecoratorsAggregate decoratorsAggregate;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

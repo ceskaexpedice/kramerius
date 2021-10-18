@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import com.google.inject.name.Named;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,6 +27,7 @@ public class SolrMemoizationImpl implements SolrMemoization{
     public static final Logger LOGGER = Logger.getLogger(SolrMemoization.class.getName());
     
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
     
     private Map<String, Element> elms = new HashMap<String, Element>();

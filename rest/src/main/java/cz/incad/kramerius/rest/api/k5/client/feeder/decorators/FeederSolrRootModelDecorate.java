@@ -46,8 +46,6 @@ public class FeederSolrRootModelDecorate extends AbstractFeederDecorator {
     public static final String SOLR_ROOTMODEL_KEY = AbstractFeederDecorator
             .key("ROOTMODEL");
 
-    @Inject
-    SolrAccess solrAccess;
 
     @Inject
     SolrMemoization memo;

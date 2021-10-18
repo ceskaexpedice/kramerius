@@ -57,6 +57,16 @@ public class ParametrizedImport {
 
         //ImportToRepos.main(new String[0]);
         //standard import program
-        Import.main(new String[0]);
+
+//        processCredentials.authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+//        //Kramerius
+//        processCredentials.krameriusApiAuthClient = args[argsIndex++];
+//        processCredentials.krameriusApiAuthUid = args[argsIndex++];
+//        processCredentials.krameriusApiAuthAccessToken = args[argsIndex++];
+
+
+        Import.main(new String[] {"authToken","krameriusApiAuthClient", "krameriusApiAuthUid", "krameriusApiAuthAccessToken",
+                importDirectory.getAbsolutePath(),"true"
+        });
     }
 }

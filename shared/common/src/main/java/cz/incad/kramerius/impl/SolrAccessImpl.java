@@ -39,6 +39,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Based on depreceted index -> deprecated
+ */
+@Deprecated
 public class SolrAccessImpl implements SolrAccess {
 
     @Override
@@ -128,14 +132,15 @@ public class SolrAccessImpl implements SolrAccess {
 
     @Override
     public Document getSolrDataByHandle(String handle) throws IOException {
-        try {
-            handle = URLEncoder.encode(handle, "UTF-8");
-            return SolrUtils.getSolrDataInternal(SolrUtils.HANDLE_QUERY + handle);
-        } catch (ParserConfigurationException e) {
-            throw new IOException(e);
-        } catch (SAXException e) {
-            throw new IOException(e);
-        }
+        throw new UnsupportedOperationException("not implemented");
+//        try {
+//            handle = URLEncoder.encode(handle, "UTF-8");
+//            return SolrUtils.getSolrDataInternal(SolrUtils.HANDLE_QUERY + handle);
+//        } catch (ParserConfigurationException e) {
+//            throw new IOException(e);
+//        } catch (SAXException e) {
+//            throw new IOException(e);
+//        }
     }
 
     @Override

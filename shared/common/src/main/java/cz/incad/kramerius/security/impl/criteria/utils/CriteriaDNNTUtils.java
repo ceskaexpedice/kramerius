@@ -109,7 +109,7 @@ public class CriteriaDNNTUtils {
     }
 
     public static boolean matchLabel(Document solrDoc, Label label) {
-        List<String> indexedLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
+        List<String> indexedLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
         if (indexedLabels != null && label != null) {
             String labelName = label.getName();
             if (indexedLabels.contains(labelName)) return true;

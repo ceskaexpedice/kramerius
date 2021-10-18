@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.inject.name.Named;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
@@ -20,6 +21,7 @@ import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 public class FeederSolrAuthorDecorate extends AbstractFeederDecorator {
     public static Logger LOGGER = Logger.getLogger(FeederSolrAuthorDecorate.class.getName());
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
     @Inject
     SolrMemoization memo;
@@ -39,10 +41,10 @@ public class FeederSolrAuthorDecorate extends AbstractFeederDecorator {
                 doc = this.memo.askForIndexDocument(pid);
             }
             if (doc != null) {
-                List<String> authors = SOLRUtils.narray(doc, "dc.creator", String.class);
-                if (authors != null && !authors.isEmpty()) {
-                    jsonObject.put("author", authors);
-                }
+//                List<String> authors = SOLRUtils.narray(doc, "t", String.class);
+//                if (authors != null && !authors.isEmpty()) {
+//                    jsonObject.put("author", authors);
+//                }
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

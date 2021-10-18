@@ -62,6 +62,7 @@ public class NKPLogReport implements StatisticReport {
     Provider<Connection> connectionProvider;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject
@@ -234,7 +235,7 @@ public class NKPLogReport implements StatisticReport {
                             Map<String, List<String>> identifiers = DNNTStatisticsAccessLogImpl.identifiers(paths, fedoraAccess);
                             identifiers.keySet().forEach(key-> map.put(key, identifiers.get(key)));
 
-                            List<String> dnntLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
+                            List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
                             map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
 
                             String s = SolrUtils.disectDNNTFlag(solrDoc.getDocumentElement());
@@ -270,7 +271,7 @@ public class NKPLogReport implements StatisticReport {
                     try {
                         Document solrDoc = solrAccess.getSolrDataByPid(record.pid);
                         if (solrDoc != null) {
-                            List<String> dnntLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
+                            List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
                             map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
                             map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
                         }

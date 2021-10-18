@@ -616,7 +616,7 @@
     <process>
         <id>dnntexport</id>
         <description>Create dnnt csv export</description>
-        <mainClass>cz.incad.kramerius.DNNTExport</mainClass>
+        <mainClass>cz.incad.kramerius.LicensesExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>false</parameters>
@@ -725,7 +725,7 @@
     <process>
         <id>dnntexport</id>
         <description>Create dnnt csv export </description>
-        <mainClass>cz.incad.kramerius.DNNTExport</mainClass>
+        <mainClass>cz.incad.kramerius.LicensesExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>dnnt_admin</securedaction>
@@ -735,7 +735,7 @@
     <process>
         <id>parametrizeddnntexport</id>
         <description>Parametrized dnnt export</description>
-        <mainClass>cz.incad.kramerius.export.ParametrizedDNNTExport</mainClass>
+        <mainClass>cz.incad.kramerius.export.ParametrizedLicenseExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>dnnt_admin</securedaction>

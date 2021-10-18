@@ -59,7 +59,7 @@ public class SolrLanguageDecorate extends AbstractFeederDecorator {
                 doc = this.memo.askForIndexDocument(pid);
 
             if (doc != null) {
-                String ln = SOLRUtils.value(doc, "language", String.class);
+                String ln = SOLRUtils.value(doc, "languages.facet", String.class);
                 if (ln != null) {
                     jsonObject.put("language", ln);
                 }

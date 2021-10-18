@@ -69,6 +69,7 @@ public class ItemResource {
     FedoraAccess fedoraAccess;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

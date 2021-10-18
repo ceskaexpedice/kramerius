@@ -68,8 +68,9 @@ public class PrintQueue extends GuiceServlet {
     protected FedoraAccess fedoraAccess;
     @Inject
     protected KConfiguration configuration;
-    @Inject
-    protected SolrAccess solrAccess;
+//    @Inject
+//    @Named("new-index")
+//    protected SolrAccess solrAccess;
 
 
     @Override

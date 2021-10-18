@@ -30,9 +30,7 @@ public class SolrRightsFlag extends AbstractItemDecorator {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
-    @Inject
-    SolrAccess saccess;
-    
+
     @Inject
     SolrMemoization solrMemo;
     

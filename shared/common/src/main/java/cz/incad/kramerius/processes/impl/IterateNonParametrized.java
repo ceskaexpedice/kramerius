@@ -35,7 +35,7 @@ public class IterateNonParametrized {
             String serializedFormOfArguments = args[1];
 
             List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-            RepositoryItemsSupport repoItems = new SolrRepoItemsSupport("PID");
+            RepositoryItemsSupport repoItems = new SolrRepoItemsSupport("pid");
             for (String m : topLevelModels) {
                 List<String> pids = repoItems.findPidsByModel(m);
                 for (int i = 0; i < pids.size(); i++) {
@@ -95,7 +95,7 @@ public class IterateNonParametrized {
                 int offset = 0;
                 while (offset < size) {
                     // request
-                    String request = "q=fedora.model:\"" + model
+                    String request = "q=model:\"" + model
                             + "\"&rows=" + rows + "&start=" + offset;
                     if (!fList.isEmpty()) {
                         request += "&fl=";
@@ -126,7 +126,7 @@ public class IterateNonParametrized {
                             public boolean acceptElement(Element element) {
                                 String name = element.getNodeName();
                                 String attribute = element.getAttribute("name");
-                                return ((name.equals("str") && attribute.equals("PID")));
+                                return ((name.equals("str") && attribute.equals("pid")));
                             }
                         });
                         if (element != null) {

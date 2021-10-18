@@ -101,7 +101,7 @@ public class ActionAllowedServlet extends GuiceServlet {
     private boolean isActionAllowed(User user, String action, String pid) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         for (ObjectPidsPath p : paths) {
-            boolean b = rightsResolver.isActionAllowed(user, action, pid, null, p).flag();
+            boolean b = rightsResolver.isActionAllowed(user, action, pid, null, p.injectRepository()).flag();
             if (b) {
                 return true;
             }

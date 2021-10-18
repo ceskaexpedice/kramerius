@@ -60,6 +60,7 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
 
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject
@@ -79,14 +80,14 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(null, solrDoc);
         ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(solrDoc);
 
-        String rootTitle  = SElemUtils.selem("str", "root_title", solrDoc);
-        String rootPid  = SElemUtils.selem("str", "root_pid", solrDoc);
-        String dctitle = SElemUtils.selem("str", "dc.title", solrDoc);
-        String solrDate = SElemUtils.selem("str", "datum_str", solrDoc);
-        String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
-        String policy = SElemUtils.selem("str", "dostupnost", solrDoc);
+        String rootTitle  = SElemUtils.selem("str", "root.title", solrDoc);
+        String rootPid  = SElemUtils.selem("str", "root.pid", solrDoc);
+        String dctitle = SElemUtils.selem("str", "title.search", solrDoc);
+        String solrDate = SElemUtils.selem("str", "date.str", solrDoc);
+        //String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
+        String policy = SElemUtils.selem("str", "accessibility", solrDoc);
 
-        List<String> labels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
+        List<String> licenses = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
 
         List<String> sAuthors = solrAuthors(rootPid, solrAccess);
         List<String> dcPublishers = dcPublishers(paths, fedoraAccess);
@@ -94,7 +95,7 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
         // WRITE TO LOG - kibana processing
         if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
             log(pid, rootTitle, dctitle, solrDate, findModsDate(paths, fedoraAccess),
-                    dnnt, policy, dcPublishers, sAuthors, paths, mpaths, identifiers(paths, fedoraAccess), labels);
+                    "", policy, dcPublishers, sAuthors, paths, mpaths, identifiers(paths, fedoraAccess), licenses);
         }
     }
 
@@ -108,7 +109,7 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
                 public boolean acceptElement(Element element) {
                     String nodeName = element.getNodeName();
                     String attr = element.getAttribute("name");
-                    if (nodeName.equals("arr") && StringUtils.isAnyString(attr) && attr.equals("dc.creator"))
+                    if (nodeName.equals("arr") && StringUtils.isAnyString(attr) && attr.equals("authors"))
                         return true;
                     return false;
                 }

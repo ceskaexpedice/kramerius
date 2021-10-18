@@ -46,8 +46,6 @@ public class FeederSolrTitleDecorate extends AbstractFeederDecorator {
     public static final String SOLR_TITLE_KEY = AbstractFeederDecorator
             .key("TITLE");
 
-    @Inject
-    SolrAccess solrAccess;
 
     @Inject
     SolrMemoization memo;
@@ -68,14 +66,14 @@ public class FeederSolrTitleDecorate extends AbstractFeederDecorator {
                 doc = this.memo.askForIndexDocument(pid);
 
             if (doc != null) {
-                String title = SOLRUtils.value(doc, "dc.title", String.class);
+                String title = SOLRUtils.value(doc, "title.search", String.class);
                 if (title != null) {
                     jsonObject.put("title", ItemResourceUtils.preventAutomaticConversion(title));
                 }
-                String root_title = SOLRUtils.value(doc, "root_title",
+                String root_title = SOLRUtils.value(doc, "root.title",
                         String.class);
                 if (root_title != null) {
-                    jsonObject.put("root_title", ItemResourceUtils.preventAutomaticConversion(root_title));
+                    jsonObject.put("root.title", ItemResourceUtils.preventAutomaticConversion(root_title));
                 }
             }
         } catch (IOException e) {

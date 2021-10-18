@@ -44,9 +44,7 @@ public class SolrDataNode extends AbstractItemDecorator {
 
     public static final String KEY = AbstractItemDecorator.key("DATA_NODE");// "DATA_NODE";
 
-    @Inject
-    SolrAccess solrAccess;
-    
+
     @Inject
     SolrMemoization memo;
     

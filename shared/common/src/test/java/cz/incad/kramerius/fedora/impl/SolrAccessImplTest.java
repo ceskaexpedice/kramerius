@@ -29,6 +29,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.easymock.EasyMock;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -36,6 +37,8 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.utils.SolrUtilsTest;
 
+@Ignore
+//TODO: Rewrite; new index
 public class SolrAccessImplTest {
 
     @Test

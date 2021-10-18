@@ -33,7 +33,7 @@ public class FeederSolrMimeDecorate extends AbstractFeederDecorator {
             if(doc == null){
                 doc = this.solrMemo.askForIndexDocument(pid);
             }
-            String mime = SOLRUtils.value(doc, "img_full_mime", String.class);
+            String mime = SOLRUtils.value(doc, "ds.img_full.mime", String.class);
             if(mime != null) {
                 jsonObject.put("mime", mime);
             }
