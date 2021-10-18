@@ -30,7 +30,7 @@ Kramerius je open source systém, který je vyvíjen pod licencí GNU GPL v3. ht
 Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Moravské zemské knihovny v Brně, Národní technické knihovny, Národní lékařské knihovny, Městské knihovny v Praze a Severočeské vědecké knihovny v Ústí nad Labem. Technologickým partnerem jsou společnosti Galderon a INOVATIKA.
 
 Členové vývojového týmu:
-KNAV - M. Lhoták, M. Duda, J. Křížová; 
+KNAV - M. Lhoták, M. Duda, F. Kersch; 
 NK ČR – T. Foltýn, Z. Vozár, V. Jiroušek, K. Košťálová; 
 MZK – M. Smetánková, P. Žabička, M. Indrák; 
 NTK – J. Kolátor, J. Dobiášovský; 
