@@ -166,6 +166,18 @@ public class DatabaseLabelsManagerImpl implements LabelsManager {
     }
 
     @Override
+    public Label getLabelByName(String name) throws LabelsManagerException {
+        List<Label> labels = new JDBCQueryTemplate<Label>(provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Label> returnsList) throws SQLException {
+                returnsList.add(createLabelFromResultSet(rs));
+                return super.handleRow(rs, returnsList);
+            }
+        }.executeQuery("select * from labels_entity where LABEL_NAME = ? ", name);
+        return labels.isEmpty() ? null : labels.get(0);
+    }
+
+    @Override
     public void updateLabel(Label label) throws LabelsManagerException {
         try {
             new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(
