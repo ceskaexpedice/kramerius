@@ -213,27 +213,16 @@ public class RightsResource {
     
     @GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response rights(  @QueryParam("roles")String roleList, @QueryParam("pid")String pid, @QueryParam("action")String action) {
+    public Response rights( @QueryParam("pid")String pid, @QueryParam("action")String action) {
         if (permit(this.userProvider.get())) {
 
             try {
                 List<String> roles = new ArrayList<String>();
-                List<String> pids = pid != null? Arrays.asList(pid) : new ArrayList<>();
-                List<String> actions = action != null ? Arrays.asList(action) : new ArrayList<>();
 
+                Right[] rights = null;
 
-                if (roleList != null) {
-                    StringTokenizer tokenizer = new StringTokenizer(roleList);
-                    while(tokenizer.hasMoreTokens()) {
-                        String tk = tokenizer.nextToken();
-                        roles.add(tk);
-                    }
-                }
-                
-
-                Right[] rights = this.rightsManager.findRights(new String[0],pids.toArray(new String[pids.size()]), actions.toArray(new String[actions.size()]), roles.toArray(new String[roles.size()]));
-
-                if (pid != null) {
+                if (pid != null && action != null) {
+                    rights = this.rightsManager.findAllRights(new String[] {pid}, action);
                     if (SpecialObjects.isSpecialObject(pid) && pid.equals("uuid:1")) {
                         rights = SortingRightsUtils.sortRights(rights, new ObjectPidsPath(pid));
                     } else {
@@ -244,6 +233,8 @@ public class RightsResource {
                             rights = SortingRightsUtils.sortRights(rights,pidPaths[0].injectRepository());
                         }
                     }
+                } else {
+                    rights = this.rightsManager.findRights(new String[0],pid != null ? new String[]{pid} : new String[0],  action != null ? new String[] {action} : new String[0], roles.toArray(new String[roles.size()]));
                 }
 
 
