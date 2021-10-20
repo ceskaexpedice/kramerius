@@ -40,20 +40,5 @@ public interface RightCriteriumLoader {
     public RightCriterium createCriterium(String criteriumQName);
 
     
-//    public RightCriterium createCriterium(int critId, int critParamId, String qname, String shortDesc, String longDesc,Object[] objs);
-//    public static List<RightCriterium> criteriums(SecuredActions ...actions ) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-//        List<String> clzz = criteriumClasses();
-//        List<RightCriterium> crits = new ArrayList<RightCriterium>();
-//        for (int i = 0; i < clzz.size(); i++) {
-//            RightCriterium crit = (RightCriterium) Class.forName(clzz.get(i)).newInstance();
-//            List<SecuredActions> actList = Arrays.asList(crit.getApplicableActions());
-//            for (SecuredActions act : actions) {
-//                if (actList.contains(act)) {
-//                    crits.add(crit);
-//                }
-//            }
-//        }
-//        return crits;
-//    }
 
 }

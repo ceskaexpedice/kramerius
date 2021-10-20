@@ -37,7 +37,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
+import cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils;
 import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.labels.LabelsManager;
+import cz.incad.kramerius.security.labels.LabelsManagerException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -90,7 +93,11 @@ public class RightsResource {
     @Inject
     RightsResolver rightsResolver;
 
-  
+    @Inject
+    LabelsManager labelsManager;
+
+
+
     /**
      * Delete right with given id
      * @param id Right id
@@ -344,7 +351,56 @@ public class RightsResource {
 		} else throw new ActionNotAllowed("action is not allowed");
 	}
 
-	private JSONObject userToJSON(AbstractUser au) throws JSONException {
+
+
+
+    @GET
+    @Path("criteria")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    public Response criteria() {
+        if (permit(this.userProvider.get())) {
+            try {
+
+                JSONObject objects = new JSONObject();
+                List<RightCriteriumWrapper> allCriteriumWrappers = critFactory.createAllCriteriumWrappers();
+                allCriteriumWrappers.stream().forEach(c-> {
+                    JSONObject critObject = new JSONObject();
+                    critObject.put("paramsNecessary", c.getRightCriterium().isParamsNecessary());
+                    critObject.put("rootLevelCriterum", c.getRightCriterium().isRootLevelCriterum());
+                    critObject.put("isLabelAssignable", c.getRightCriterium().isLabelAssignable());
+
+                    objects.put(c.getRightCriterium().getQName(), critObject);
+                });
+
+                return Response.ok().entity(objects.toString()).build();
+            } catch (JSONException e) {
+                throw new GenericApplicationException(e.getMessage(), e);
+            }
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
+
+
+
+    @GET
+    @Path("licenses")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    public Response licenses() {
+        if (permit(this.userProvider.get())) {
+            try {
+                List<Label> labels = this.labelsManager.getLabels();
+                JSONArray jsonArray = new JSONArray();
+                labels.stream().forEach(l-> {
+                    JSONObject labelObject = LicenseUtils.licenseToJSON(l);
+                    jsonArray.put(labelObject);
+                });
+                return Response.ok().entity(jsonArray.toString()).build();
+            } catch (JSONException  | LabelsManagerException e) {
+                throw new GenericApplicationException(e.getMessage(), e);
+            }
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
+
+    private JSONObject userToJSON(AbstractUser au) throws JSONException {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("id", au.getId());
 		if (au instanceof Role) {

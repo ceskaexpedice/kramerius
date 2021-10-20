@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.api.guice;
 import com.google.inject.multibindings.Multibinder;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import cz.incad.kramerius.rest.api.k5.admin.licenses.LicensesResource;
 import cz.incad.kramerius.rest.api.k5.admin.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.api.k5.admin.users.RolesResource;
@@ -92,6 +93,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(RolesResource.class);
         bind(VirtualCollectionsResource.class);
         bind(StatisticsResource.class);
+        bind(LicensesResource.class);
 
         // API Client 6.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.client.v60.InfoResource.class);

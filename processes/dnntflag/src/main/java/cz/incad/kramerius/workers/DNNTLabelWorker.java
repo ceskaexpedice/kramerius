@@ -24,7 +24,7 @@ public class DNNTLabelWorker extends DNNTWorker {
 
     public static final String CONTAINS_LICENSES_FOXML = "contains-licenses";
     public static final String LICENSES_FOXML = "licenses";
-
+    public static final String LEGACY_LABELS_FOXML = "dnnt-labels";
 
     private String label;
 
@@ -71,7 +71,6 @@ public class DNNTLabelWorker extends DNNTWorker {
             Repository repo = fedoraAccess.getInternalAPI();
             if (repo.objectExists(pid)) {
                 boolean exists = repo.getObject(pid).literalExists(typeOfLiteral, FedoraNamespaces.KRAMERIUS_URI, label);
-
                 if (!exists) {
                     if (addRemoveFlag) repo.getObject(pid).addLiteral(typeOfLiteral, FedoraNamespaces.KRAMERIUS_URI,label);
                 } else {
@@ -92,13 +91,13 @@ public class DNNTLabelWorker extends DNNTWorker {
             LOGGER.warning(String.format("Cannot change label for %s: Pid not found", pid));
             return new ArrayList<>();
         }
-
     }
 
     @Override
     protected boolean changeFOXMLDown(String pid) {
-        List<String> labels = changeFOXML(pid, LICENSES_FOXML,  this.label);
-        return !labels.isEmpty();
+        List<String> licenses = changeFOXML(pid, LICENSES_FOXML,  this.label);
+        List<String> labels = changeFOXML(pid, LEGACY_LABELS_FOXML,  this.label);
+        return !licenses.isEmpty() && !labels.isEmpty();
     }
 
     @Override

@@ -76,7 +76,7 @@ public abstract class AbstractDNNTCSVProcess extends AbstractDNNTProcess {
                         }
 
                     } else {
-                        DNNTCSVFlag.LOGGER.log(Level.WARNING, "Ommiting row '"+record+"' number of col is "+record.size() +" and PID's column is "+pidcolumn);
+                        LOGGER.log(Level.WARNING, "Ommiting row '"+record+"' number of col is "+record.size() +" and PID's column is "+pidcolumn);
                     }
                 }
 
