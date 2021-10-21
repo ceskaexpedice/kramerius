@@ -12,9 +12,9 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <parameters>one two</parameters>
-		
-		<checkErrorStream>false</checkErrorStream>
-		
+
+        <checkErrorStream>false</checkErrorStream>
+
     </process>
 
     <!--deprecated - jen proto, aby bylo mozne zobrazit zaznamy starsich procesu-->
@@ -94,7 +94,7 @@
             <input class="cz.incad.kramerius.processes.mock.wizard.FolderTemplates"></input>
             <output class="cz.incad.kramerius.processes.mock.logs.LogsOutputTemplate"></output>
         </templates>
-        
+
         <securedaction>mock</securedaction>
     </process>
 
@@ -114,7 +114,7 @@
             <input class="cz.incad.kramerius.processes.def.DefaultTemplate"></input>
             <output class="cz.incad.kramerius.processes.mock.logs.LogsOutputTemplate"></output>
         </templates>
-        
+
     </process>
 
 
@@ -320,6 +320,28 @@
     </process>
 
     <process>
+        <id>add_licence</id>
+        <description>přidání licence objektu, nebo seznamu objektů, včetně aktualizace vyhledávacího indexu</description>
+        <mainClass>cz.incad.kramerius.processes.SetLicenceProcess</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <!--<checkErrorStream>false</checkErrorStream>-->
+        <parameters>ADD</parameters>
+    </process>
+
+    <process>
+        <id>remove_licence</id>
+        <description>odebrání licence objektu, nebo seznamu objektů, včetně aktualizace vyhledávacího indexu</description>
+        <mainClass>cz.incad.kramerius.processes.SetLicenceProcess</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <!--<checkErrorStream>false</checkErrorStream>-->
+        <parameters>REMOVE</parameters>
+    </process>
+
+    <process>
         <id>delete</id>
         <description>Delete</description>
         <mainClass>cz.incad.kramerius.service.impl.DeleteServiceImpl</mainClass>
@@ -421,7 +443,9 @@
         <mainClass>cz.incad.kramerius.imaging.lp.GenerateDeepZoomCache</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx3072m -Xms512m -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true -Dcz.incad.kramerius.imaging.lp.GenerateThumbnail=true</javaProcessParameters>
+        <javaProcessParameters>-Xmx3072m -Xms512m -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true
+            -Dcz.incad.kramerius.imaging.lp.GenerateThumbnail=true
+        </javaProcessParameters>
     </process>
 
     <!-- Set flag into RELS-EXT -->
@@ -493,7 +517,7 @@
     </process>
 
     <!-- Apply moving wall to subtree -->
-	<process>
+    <process>
         <id>applymw</id>
         <description>Apply moving wall</description>
         <mainClass>cz.cas.lib.knav.ApplyMovingWall</mainClass>
@@ -501,7 +525,7 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
     </process>
-    
+
     <!-- Parametrized apply moving wall to subtree -->
     <process>
         <id>parametrizedapplymw</id>
@@ -625,8 +649,6 @@
     </process>
 
 
-
-
     <!-- Set/unset dnnt label -->
     <process>
         <id>dnntlabel</id>
@@ -638,11 +660,10 @@
     </process>
 
 
-
     <!-- parametrized label dnntset -->
     <process>
         <id>parametrizeddnntlabelset</id>
-        <description>Set the DNNT flag </description>
+        <description>Set the DNNT flag</description>
         <mainClass>cz.incad.kramerius.csv.ParametrizedLabelSetDNNTFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
@@ -656,7 +677,7 @@
     <!-- parametrized label dnntunset -->
     <process>
         <id>parametrizeddnntlabelunset</id>
-        <description>Unset the DNNT flag </description>
+        <description>Unset the DNNT flag</description>
         <mainClass>cz.incad.kramerius.csv.ParametrizedLabelUnsetDNNTFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
@@ -670,7 +691,7 @@
 
     <process>
         <id>dnntexport</id>
-        <description>Create dnnt csv export </description>
+        <description>Create dnnt csv export</description>
         <mainClass>cz.incad.kramerius.LicensesExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
@@ -692,18 +713,18 @@
 
 
     <process>
-            <id>nkplogs</id>
-            <description>Generate access logs for NKP</description>
-            <!-- spoustena trida -->
-            <mainClass>cz.incad.kramerius.statistics.impl.nkp.NKPLogProcess</mainClass>
-            <!-- standardni vystup -->
-            <standardOs>lrOut</standardOs>
-            <!-- err vystup -->
-            <errOs>lrErr</errOs>
-            <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
-            <templates>
-                <input class="cz.incad.kramerius.statistics.impl.nkp.ParametrizedNKPInputTemplate"></input>
-            </templates>
+        <id>nkplogs</id>
+        <description>Generate access logs for NKP</description>
+        <!-- spoustena trida -->
+        <mainClass>cz.incad.kramerius.statistics.impl.nkp.NKPLogProcess</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <templates>
+            <input class="cz.incad.kramerius.statistics.impl.nkp.ParametrizedNKPInputTemplate"></input>
+        </templates>
     </process>
 
 </processes>

@@ -35,6 +35,7 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Path("/admin/v1.0/processes")
 public class ProcessResource extends AdminApiResource {
@@ -744,9 +745,49 @@ public class ProcessResource extends AdminApiResource {
                 result.add(startIndexer.toString());
                 return result;
             }
+            case "add_licence":
+            case "remove_licence": {
+                String licence = extractMandatoryParamString(params, "licence");
+                String pid = extractOptionalParamString(params, "pid", null);
+                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+                File pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
+                String target;
+                if (pid != null) {
+                    target = "pid:" + pid;
+                } else if (pidlist != null) {
+                    target = "pidlist:" + pidlist.stream().collect(Collectors.joining(";"));
+                } else if (pidlistFile != null) {
+                    target = "pidlist_file:" + pidlistFile.getAbsolutePath();
+                } else {
+                    throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist, pidlist_file");
+                }
+
+                List<String> result = new ArrayList<>();
+                //Kramerius APIs
+                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
+                //add_licence params
+                result.add(licence);
+                result.add(target);
+                return result;
+            }
             default: {
                 throw new BadRequestException("unsupported process id '%s'", id);
             }
+        }
+    }
+
+    private List<String> extractOptionalParamStringList(JSONObject params, String paramName, List<String> defaultValue) {
+        if (params.has(paramName)) {
+            System.out.println("ok, pidlist found");
+            JSONArray jsonArray = params.getJSONArray(paramName);
+            System.out.println(jsonArray.toString(2));
+            List<String> result = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                result.add(jsonArray.getString(i));
+            }
+            return result;
+        } else {
+            return defaultValue;
         }
     }
 
@@ -800,26 +841,37 @@ public class ProcessResource extends AdminApiResource {
         String value = extractOptionalParamString(params, paramName, null);
         if (value == null) {
             throw new BadRequestException("missing mandatory parameter %s: ", paramName);
-        } else {//sanitize against problematic characters
-            char[] forbiddenChars = new char[]{'~', '#', '%', '&', '{', '}', '<', '>', '*', '?', '$', '!', '\'', '"', ':', '@', '+', '`', '|', '=', ';', ' ', '\t', '\\'};
-            for (char forbiddenChar : forbiddenChars) {
-                if (value.indexOf(forbiddenChar) != -1) {
-                    throw new BadRequestException("invalid value of %s (contains forbidden character '%s'): '%s'", paramName, forbiddenChar, value);
-                }
-            }
-            try {//sanitize against values that would leave the root dir, for example "../../something"
-                File paramFile = new File(rootDir, value).getCanonicalFile();
-                String paramFileCanPath = paramFile.getPath();
-                String rootDirCanPath = rootDir.getCanonicalPath();
-                if (!paramFileCanPath.startsWith(rootDirCanPath)) {
-                    throw new BadRequestException("invalid value of %s (not within root dir '%s'): '%s'", paramName, rootDirCanPath, value);
-                }
-                return paramFile;
-            } catch (IOException e) { //protoze getCanonicalPath saha na filesystem
-                throw new BadRequestException("invalid value of %s (IOException): '%s': %s", paramName, value, e.getMessage());
-            }
+        } else {
+            return extractFileContainedInADirFromParamValue(value, paramName, rootDir);
         }
     }
+
+    private File extractOptionalParamFileContainedInADir(JSONObject params, String paramName, File rootDir) {
+        String value = extractOptionalParamString(params, paramName, null);
+        return value == null ? null : extractFileContainedInADirFromParamValue(value, paramName, rootDir);
+    }
+
+    private File extractFileContainedInADirFromParamValue(String paramValue, String paramName, File rootDir) {
+        //sanitize against problematic characters
+        char[] forbiddenChars = new char[]{'~', '#', '%', '&', '{', '}', '<', '>', '*', '?', '$', '!', '\'', '"', ':', '@', '+', '`', '|', '=', ';', ' ', '\t', '\\'};
+        for (char forbiddenChar : forbiddenChars) {
+            if (paramValue.indexOf(forbiddenChar) != -1) {
+                throw new BadRequestException("invalid value of %s (contains forbidden character '%s'): '%s'", paramName, forbiddenChar, paramValue);
+            }
+        }
+        try {//sanitize against values that would leave the root dir, for example "../../something"
+            File paramFile = new File(rootDir, paramValue).getCanonicalFile();
+            String paramFileCanPath = paramFile.getPath();
+            String rootDirCanPath = rootDir.getCanonicalPath();
+            if (!paramFileCanPath.startsWith(rootDirCanPath)) {
+                throw new BadRequestException("invalid value of %s (not within root dir '%s'): '%s'", paramName, rootDirCanPath, paramValue);
+            }
+            return paramFile;
+        } catch (IOException e) { //protoze getCanonicalPath saha na filesystem
+            throw new BadRequestException("invalid value of %s (IOException): '%s': %s", paramName, paramValue, e.getMessage());
+        }
+    }
+
 
     private String extractMandatoryParamWithValuePrefixed(JSONObject params, String paramName, String prefix) {
         String value = extractOptionalParamString(params, paramName, null);
