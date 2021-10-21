@@ -1,7 +1,9 @@
 package cz.incad.kramerius.utils;
 
 import org.dom4j.*;
+import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -190,6 +192,19 @@ public class Dom4jUtils {
             }
         }
         return null;
+    }
+
+    public static String docToPrettyString(Document doc) throws IOException {
+        OutputFormat format = OutputFormat.createPrettyPrint();
+        format.setEncoding("UTF-8");
+        format.setIndent(true);
+        format.setIndentSize(4);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        XMLWriter xmlWriter = new XMLWriter(out, format);
+        xmlWriter.write(doc);
+        xmlWriter.flush();
+        out.close();
+        return out.toString();
     }
 
     public static String getNamespaceUri(String prefix) {

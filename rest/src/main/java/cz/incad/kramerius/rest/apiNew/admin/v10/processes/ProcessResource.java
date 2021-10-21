@@ -745,9 +745,9 @@ public class ProcessResource extends AdminApiResource {
                 result.add(startIndexer.toString());
                 return result;
             }
-            case "add_licence":
-            case "remove_licence": {
-                String licence = extractMandatoryParamString(params, "licence");
+            case "add_license":
+            case "remove_license": {
+                String license = extractMandatoryParamString(params, "license");
                 String pid = extractOptionalParamString(params, "pid", null);
                 List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
                 File pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
@@ -765,8 +765,8 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 //Kramerius APIs
                 result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //add_licence params
-                result.add(licence);
+                //add_license/remove_license params
+                result.add(license);
                 result.add(target);
                 return result;
             }

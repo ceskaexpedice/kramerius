@@ -320,9 +320,9 @@
     </process>
 
     <process>
-        <id>add_licence</id>
+        <id>add_license</id>
         <description>přidání licence objektu, nebo seznamu objektů, včetně aktualizace vyhledávacího indexu</description>
-        <mainClass>cz.incad.kramerius.processes.SetLicenceProcess</mainClass>
+        <mainClass>cz.incad.kramerius.SetLicenseProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
@@ -331,9 +331,9 @@
     </process>
 
     <process>
-        <id>remove_licence</id>
+        <id>remove_license</id>
         <description>odebrání licence objektu, nebo seznamu objektů, včetně aktualizace vyhledávacího indexu</description>
-        <mainClass>cz.incad.kramerius.processes.SetLicenceProcess</mainClass>
+        <mainClass>cz.incad.kramerius.SetLicenseProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>

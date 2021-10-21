@@ -198,4 +198,53 @@ public class SolrIndexAccess {
             throw new RuntimeException((e));
         }
     }
+
+    public void addSingleFieldValueForMultipleObjects(List<String> pids, String fieldName, Object value, boolean explicitCommit) {
+        try {
+            List<SolrInputDocument> inputDocs = new ArrayList<>();
+            //System.out.println("pids: " + pids.size());
+            for (String pid : pids) {
+                SolrInputDocument inputDoc = new SolrInputDocument();
+                inputDoc.addField("pid", pid);
+                Map<String, Object> updateData = new HashMap<>();
+                updateData.put("add", value == null ? null : value.toString());
+                inputDoc.addField(fieldName, updateData);
+                inputDocs.add(inputDoc);
+                //System.out.println(inputDoc.toString());
+            }
+            //System.out.println(inputDocs.toString());
+            solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
+            if (explicitCommit) {
+                solrClient.commit(collection);
+            }
+        } catch (IOException | SolrServerException e) {
+            e.printStackTrace();
+            throw new RuntimeException((e));
+        }
+    }
+
+    public void removeSingleFieldValueFromMultipleObjects(List<String> pids, String fieldName, Object value, boolean explicitCommit) {
+        try {
+            List<SolrInputDocument> inputDocs = new ArrayList<>();
+            //System.out.println("pids: " + pids.size());
+            for (String pid : pids) {
+                SolrInputDocument inputDoc = new SolrInputDocument();
+                inputDoc.addField("pid", pid);
+                Map<String, Object> updateData = new HashMap<>();
+                //TODO: opravit, tady ma byt add, ne set, aby se nepreplacly jine licence, to ale z nejakeho duvodu pada
+                updateData.put("remove", value == null ? null : value.toString());
+                inputDoc.addField(fieldName, updateData);
+                inputDocs.add(inputDoc);
+                //System.out.println(inputDoc.toString());
+            }
+            //System.out.println(inputDocs.toString());
+            solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
+            if (explicitCommit) {
+                solrClient.commit(collection);
+            }
+        } catch (IOException | SolrServerException e) {
+            e.printStackTrace();
+            throw new RuntimeException((e));
+        }
+    }
 }
