@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.google.inject.name.Named;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
@@ -35,6 +36,7 @@ public class HandleServlet extends GuiceServlet {
     @Inject
     transient KConfiguration kConfiguration;
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Override

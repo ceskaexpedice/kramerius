@@ -43,6 +43,7 @@ public class DNNTDecorator extends AbstractItemDecorator {
     Provider<HttpServletRequest> requestProvider;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

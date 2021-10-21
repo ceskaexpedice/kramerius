@@ -24,8 +24,6 @@ public class NKPJSONFormatter implements StatisticsReportFormatter {
     @Named("rawFedoraAccess")
     FedoraAccess fedoraAccess;
 
-    @Inject
-    SolrAccess solrAccess;
 
     @Override
     public String getMimeType() {

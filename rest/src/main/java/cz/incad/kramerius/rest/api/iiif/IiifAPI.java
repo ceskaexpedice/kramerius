@@ -83,7 +83,7 @@ public class IiifAPI {
 
     @Inject
     public IiifAPI(SolrMemoization solrMemoization, @Named("cachedFedoraAccess") FedoraAccess fedoraAccess,
-                   SolrAccess solrAccess, Provider<HttpServletRequest> requestProvider, HttpAsyncClient asyncClient) {
+                   @Named("new-index")SolrAccess solrAccess, Provider<HttpServletRequest> requestProvider, HttpAsyncClient asyncClient) {
         this.solrMemoization = solrMemoization;
         this.fedoraAccess = fedoraAccess;
         this.solrAccess = solrAccess;

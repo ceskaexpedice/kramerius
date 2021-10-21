@@ -70,6 +70,7 @@ public class AbstractPrintViewObject extends AbstractViewObject implements Initi
     protected ResourceBundleService resourceBundleService;
 
     @Inject
+    @Named("new-index")
     protected SolrAccess solrAccess;
 
     protected String header;

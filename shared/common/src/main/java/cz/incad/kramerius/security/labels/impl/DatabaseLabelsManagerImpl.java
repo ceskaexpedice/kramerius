@@ -29,7 +29,7 @@ public class DatabaseLabelsManagerImpl implements LabelsManager {
 
 
     @Inject
-    public DatabaseLabelsManagerImpl(@Named("kramerius4") Provider<Connection> provider, SolrAccess solrAccess) {
+    public DatabaseLabelsManagerImpl(@Named("kramerius4") Provider<Connection> provider, @Named("new-index") SolrAccess solrAccess) {
         this.provider = provider;
         this.solrAccess = solrAccess;
     }
@@ -166,6 +166,18 @@ public class DatabaseLabelsManagerImpl implements LabelsManager {
     }
 
     @Override
+    public Label getLabelByName(String name) throws LabelsManagerException {
+        List<Label> labels = new JDBCQueryTemplate<Label>(provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Label> returnsList) throws SQLException {
+                returnsList.add(createLabelFromResultSet(rs));
+                return super.handleRow(rs, returnsList);
+            }
+        }.executeQuery("select * from labels_entity where LABEL_NAME = ? ", name);
+        return labels.isEmpty() ? null : labels.get(0);
+    }
+
+    @Override
     public void updateLabel(Label label) throws LabelsManagerException {
         try {
             new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(
@@ -259,12 +271,12 @@ public class DatabaseLabelsManagerImpl implements LabelsManager {
     @Override
     public void refreshLabelsFromSolr() throws LabelsManagerException{
         try {
-            Document request = this.solrAccess.requestWithSelectReturningXml("facet.field=dnnt-labels&fl=dnnt-labels&q=*%3A*&rows=0&facet=on");
+            Document request = this.solrAccess.requestWithSelectReturningXml("facet.field=licenses&fl=licenses&q=*%3A*&rows=0&facet=on");
             Element dnntLabelsFromSolr = XMLUtils.findElement(request.getDocumentElement(), new XMLUtils.ElementsFilter() {
                 @Override
                 public boolean acceptElement(Element element) {
                     String name = element.getAttribute("name");
-                    return name != null && name.equals("dnnt-labels");
+                    return name != null && name.equals("licenses");
                 }
             });
             List<String> labelsUsedInSolr = XMLUtils.getElements(dnntLabelsFromSolr).stream().map(element -> {

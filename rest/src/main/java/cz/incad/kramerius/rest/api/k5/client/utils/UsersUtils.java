@@ -32,16 +32,24 @@ import cz.incad.kramerius.security.impl.UserImpl;
 
 public class UsersUtils {
 
+    public static final String LNAME = "lname";
+    public static final String FIRSTNAME = "firstname";
+    public static final String SURNAME = "surname";
+    public static final String ID = "id";
+    public static final String ROLES = "roles";
+    public static final String LICENSES = "licenses";
+    public static final String SESSION = "session";
+
     public static JSONObject userToJSON(User user) throws JSONException {
         return  userToJSON(user, new ArrayList<>());
     }
 
     public static JSONObject userToJSON(User user, List<String> labels) throws JSONException {
         JSONObject jsonObj = new JSONObject();
-        jsonObj.put("lname", user.getLoginname());
-        jsonObj.put("firstname", user.getFirstName());
-        jsonObj.put("surname", user.getSurname());
-        jsonObj.put("id", user.getId());
+        jsonObj.put(LNAME, user.getLoginname());
+        jsonObj.put(FIRSTNAME, user.getFirstName());
+        jsonObj.put(SURNAME, user.getSurname());
+        jsonObj.put(ID, user.getId());
 
         JSONArray jsonArr = new JSONArray();
         Role[] roles = user.getGroups();
@@ -50,45 +58,22 @@ public class UsersUtils {
                 JSONObject json = RolesResource.roleToJSON(r);
                 jsonArr.put(json);
             }
-            jsonObj.put("roles", jsonArr);
+            jsonObj.put(ROLES, jsonArr);
         }
 
         JSONArray labelsArray = new JSONArray();
         labels.stream().forEach(labelsArray::put);
-        jsonObj.put("labels", labelsArray);
+        jsonObj.put(LICENSES, labelsArray);
 
 
         JSONObject jsonSessionAttributes = new JSONObject();
         user.getSessionAttributes().keySet().stream().forEach(key-> jsonSessionAttributes.put(key, user.getSessionAttributes().get(key)));
-        jsonObj.put("session", jsonSessionAttributes);
+        jsonObj.put(SESSION, jsonSessionAttributes);
 
 
 
         return jsonObj;
     }
 
-    public static User createUserFromJSON(JSONObject uOptions) throws JSONException {
-        String lname = uOptions.getString("lname");
-        String fname = uOptions.getString("firstname");
-        String sname = uOptions.getString("surname");
-
-        int id = -1;
-        if (uOptions.has("id")) {
-            uOptions.getInt("id");
-        }
-
-        UserImpl u = new UserImpl(id, fname, sname, lname, -1);
-        if (uOptions.has("roles")) {
-            List<Role> rlist = new ArrayList<Role>();
-            JSONArray jsonArr = uOptions.getJSONArray("roles");
-            for (int i = 0,ll=jsonArr.length(); i < ll; i++) {
-                JSONObject jsonObj = (JSONObject) jsonArr.getJSONObject(i);
-                rlist.add(RolesResource.createRoleFromJSON(jsonObj));
-            }
-            u.setGroups(rlist.toArray(new Role[rlist.size()]));
-        }
-
-        return u;
-    }
 
 }

@@ -73,6 +73,7 @@ public class DisplayRightsForObjectsView extends AbstractRightsView {
     Provider<User> userProvider;
     
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

@@ -570,16 +570,6 @@
         <securedaction>reindex</securedaction>
     </process>
 
-    <!-- Set/unset dnnt flag from csv file -->
-    <process>
-        <id>dnntcsvflag</id>
-        <description>DNNT SET/UNSET from CSV</description>
-        <mainClass>cz.incad.kramerius.csv.DNNTCSVFlag</mainClass>
-        <standardOs>lrOut</standardOs>
-        <errOs>lrErr</errOs>
-        <securedaction>dnnt_admin</securedaction>
-    </process>
-
     <!-- Set/unset dnnt label from csv file -->
     <process>
         <id>dnntcsvlabeledflag</id>
@@ -627,44 +617,15 @@
     <process>
         <id>dnntexport</id>
         <description>Create dnnt csv export</description>
-        <mainClass>cz.incad.kramerius.DNNTExport</mainClass>
+        <mainClass>cz.incad.kramerius.LicensesExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>false</parameters>
         <securedaction>dnnt_admin</securedaction>
     </process>
 
-    <!-- Set dnnt flag - backward compatibility -->
-    <process>
-        <id>dnntset</id>
-        <description>Set the DNNT flag</description>
-        <description>DNNT SET/UNSET flag</description>
-        <mainClass>cz.incad.kramerius.plain.DNNTPidFlag</mainClass>
-        <standardOs>lrOut</standardOs>
-        <errOs>lrErr</errOs>
-        <securedaction>dnnt_admin</securedaction>
-    </process>
 
-    <!-- Unset dnnt flag - backward compatibility -->
-    <process>
-        <id>dnntunset</id>
-        <description>Unset the DNNT flag</description>
-        <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
-        <standardOs>lrOut</standardOs>
-        <errOs>lrErr</errOs>
-        <parameters>false</parameters>
-        <securedaction>dnnt_admin</securedaction>
-    </process>
 
-    <!-- Set/unset dnnt flag -->
-    <process>
-        <id>dnntflag</id>
-        <description>DNNT SET/UNSET flag</description>
-        <mainClass>cz.incad.kramerius.plain.DNNTPidFlag</mainClass>
-        <standardOs>lrOut</standardOs>
-        <errOs>lrErr</errOs>
-        <securedaction>dnnt_admin</securedaction>
-    </process>
 
     <!-- Set/unset dnnt label -->
     <process>
@@ -676,33 +637,7 @@
         <securedaction>dnnt_admin</securedaction>
     </process>
 
-    <!-- parametrized dnntset -->
-    <process>
-        <id>parametrizeddnntset</id>
-        <description>Set the DNNT flag </description>
-        <mainClass>cz.incad.kramerius.csv.ParametrizedSetDNNTFlag</mainClass>
-        <standardOs>lrOut</standardOs>
-        <errOs>lrErr</errOs>
-        <parameters>true</parameters>
-        <securedaction>dnnt_admin</securedaction>
-        <templates>
-            <input class="cz.incad.kramerius.template.DNNTSetCSVInputTemplate"></input>
-        </templates>
-    </process>
 
-    <!-- parametrized dnntset -->
-    <process>
-        <id>parametrizeddnntunset</id>
-        <description>Set the DNNT flag </description>
-        <mainClass>cz.incad.kramerius.csv.ParametrizedUnsetDNNTFlag</mainClass>
-        <standardOs>lrOut</standardOs>
-        <errOs>lrErr</errOs>
-        <parameters>true</parameters>
-        <securedaction>dnnt_admin</securedaction>
-        <templates>
-            <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
-        </templates>
-    </process>
 
     <!-- parametrized label dnntset -->
     <process>
@@ -736,7 +671,7 @@
     <process>
         <id>dnntexport</id>
         <description>Create dnnt csv export </description>
-        <mainClass>cz.incad.kramerius.DNNTExport</mainClass>
+        <mainClass>cz.incad.kramerius.LicensesExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>dnnt_admin</securedaction>
@@ -746,7 +681,7 @@
     <process>
         <id>parametrizeddnntexport</id>
         <description>Parametrized dnnt export</description>
-        <mainClass>cz.incad.kramerius.export.ParametrizedDNNTExport</mainClass>
+        <mainClass>cz.incad.kramerius.export.ParametrizedLicenseExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>dnnt_admin</securedaction>

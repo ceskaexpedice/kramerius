@@ -46,8 +46,6 @@ public class FeederSolrRootPidDecorate extends AbstractFeederDecorator {
             .key("ROOTPID");
 
     @Inject
-    SolrAccess solrAccess;
-    @Inject
     SolrMemoization memo;
 
     @Override
@@ -64,10 +62,10 @@ public class FeederSolrRootPidDecorate extends AbstractFeederDecorator {
                 Element doc = this.memo.getRememberedIndexedDoc(pid);
                 if (doc == null) doc = this.memo.askForIndexDocument(pid);
                 if (doc != null) {
-                    String root_pid = SOLRUtils.value(doc, "root_pid",
+                    String root_pid = SOLRUtils.value(doc, "root.pid",
                             String.class);
                     if (root_pid != null) {
-                        jsonObject.put("root_pid", root_pid);
+                        jsonObject.put("root.pid", root_pid);
                     }
                 }
             } catch (IOException e) {

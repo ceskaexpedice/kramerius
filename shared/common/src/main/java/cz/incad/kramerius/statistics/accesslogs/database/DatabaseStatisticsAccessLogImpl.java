@@ -85,6 +85,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
     Provider<Connection> connectionProvider;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
     
     @Inject
@@ -128,18 +129,17 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             List<JDBCCommand> commands = new ArrayList<>();
 
             Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
-            String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
+            //String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
 
-            List<String> dnntLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
-
+            List<String> licenses = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
+            //boolean containsDnntLicense = licenses.stream().filter(it-> {return it.startsWith("dnnt"); }).count() > 0;
 
 
             User user = this.userProvider.get();
             RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
-            boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
 
 
-            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get(), dnnt != null ? Boolean.parseBoolean(dnnt) : false, providedByDnnt, rightsReturnObject.getEvaluateInfoMap(), user.getSessionAttributes(), versionService.getVersion(), dnntLabels));
+            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get(), false, false, rightsReturnObject.getEvaluateInfoMap(), user.getSessionAttributes(), versionService.getVersion(), licenses));
             for (int i = 0, ll = paths.length; i < ll; i++) {
 
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {

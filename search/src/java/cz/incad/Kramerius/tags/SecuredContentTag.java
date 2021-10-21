@@ -28,6 +28,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 
+import com.google.inject.name.Named;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.RightsResolver;
@@ -49,6 +50,7 @@ public class SecuredContentTag extends BodyTagSupport {
     private RightsResolver allowed;
     
     @Inject
+    @Named("new-index")
     private SolrAccess solrAccess;
     
     @Inject
@@ -131,7 +133,7 @@ public class SecuredContentTag extends BodyTagSupport {
     private boolean isActionAllowed() throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(this.getPid());
         for (ObjectPidsPath p : paths) {
-            boolean b =  allowed.isActionAllowed(this.currentUserProvider.get(),this.action, this.pid,this.stream, p).flag();
+            boolean b =  allowed.isActionAllowed(this.currentUserProvider.get(),this.action, this.pid,this.stream, p.injectRepository()).flag();
             if (b) return true;
             
         }

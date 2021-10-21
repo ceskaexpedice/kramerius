@@ -11,6 +11,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,19 +37,20 @@ public class LabelsManageView extends AbstractRightsView {
 
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
 
     public List<LabelListItemView> getLabels() {
         try {
 
-            Document request = this.solrAccess.requestWithSelectReturningXml("facet.field=dnnt-labels&fl=dnnt-labels&q=*%3A*&rows=0&facet=on");
+            Document request = this.solrAccess.requestWithSelectReturningXml("facet.field=licenses&fl=licenses&q=*%3A*&rows=0&facet=on");
 
             Element dnntLabelsFromSolr = XMLUtils.findElement(request.getDocumentElement(), new XMLUtils.ElementsFilter() {
                 @Override
                 public boolean acceptElement(Element element) {
                     String name = element.getAttribute("name");
-                    return name != null && name.equals("dnnt-labels");
+                    return name != null && name.equals("licenses");
                 }
             });
 

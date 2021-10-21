@@ -40,8 +40,6 @@ public class SolrDateDecorate extends AbstractFeederDecorator {
 
     private static final String KEY = AbstractFeederDecorator.key("SOLRDATE");// "SOLR_DATE";
 
-    @Inject
-    SolrAccess solrAccess;
 
     @Inject
     SolrMemoization memo;
@@ -59,9 +57,9 @@ public class SolrDateDecorate extends AbstractFeederDecorator {
             if (doc == null)
                 doc = this.memo.askForIndexDocument(pid);
             if (doc != null) {
-                String date = SOLRUtils.value(doc, "datum_str", String.class);
+                String date = SOLRUtils.value(doc, "date.str", String.class);
                 if (date != null) {
-                    jsonObject.put("datumstr", date);
+                    jsonObject.put("date.str", date);
                 }
             }
         } catch (IOException e) {

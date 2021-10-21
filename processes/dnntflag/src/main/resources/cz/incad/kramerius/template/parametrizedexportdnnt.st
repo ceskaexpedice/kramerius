@@ -13,7 +13,7 @@ form(bundle,  process, allLabels) ::=<<
             var charsThatMustBeEscaped = [':',';','}','{', '\\\\'];
             var dnntLabel = \$('#dnnt-label').val();
             //var dnntLabelEnabled = \$( "#dnnt_export_label_enabled:checked" ).length ==1 ? true : false;
-            var vals = 'dnnt-label='+dnntLabel;
+            var vals = 'license='+dnntLabel;
             var url = "lr?action=form_post&def=parametrizeddnntexport&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("parametrizeddnntexport").start(url);
         }

@@ -72,6 +72,10 @@ public interface RightCriteriumWrapper {
 
     public boolean isJustCreated();
 
+    /**
+     * Script criterium is not supported; it should be deprecated
+     * @return
+     */
     public CriteriumType getCriteriumType();
 
 

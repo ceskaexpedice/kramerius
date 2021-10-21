@@ -67,7 +67,7 @@ public abstract class ClientApiResource extends ApiResource {
         }
         for (int i = 0; i < paths.length; i++) {
             ObjectPidsPath path = paths[i];
-            if (this.rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, datastreamName, path).flag()) {
+            if (this.rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, datastreamName, path.injectRepository()).flag()) {
                 return true;
             }
         }

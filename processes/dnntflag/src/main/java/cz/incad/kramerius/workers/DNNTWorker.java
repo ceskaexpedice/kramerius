@@ -13,10 +13,8 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang3.tuple.Triple;
-import org.fcrepo.common.rdf.FedoraNamespace;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.ws.rs.core.MediaType;
@@ -146,7 +144,8 @@ public abstract class DNNTWorker implements Runnable {
             if (!paths.isEmpty()) {
 
                 String q = URLEncoder.encode(solrChildrenQuery(paths), "UTF-8");
-                boolean changedFoxmlFlag = changeFOXML(this.parentPid);
+                // change literal propagating down
+                boolean changedFoxmlFlag = changeFOXMLDown(this.parentPid);
 
                 Set<String> allSet = fetchAllPids(q);
                 List<String> all = new ArrayList<>(allSet);
@@ -163,21 +162,26 @@ public abstract class DNNTWorker implements Runnable {
                 for(int i=0;i<numberOfBatches;i++) {
                     int start = i * batchSize;
                     List<String> sublist = all.subList(start, Math.min(start + batchSize, all.size()));
-                    Document batch = createBatchForChildren(sublist, changedFoxmlFlag);
-
-
+                    Document batch = createSOLRBatchForChildren(sublist, changedFoxmlFlag);
                     sendToDest(client, batch);
                 }
 
-                LOGGER.info("Setting label for parents");
+                LOGGER.info("Settings all contains-licenses for parents");
                 List<String> parentPids = solrPidParents(this.parentPid, paths);
-                Document batchForParents = createBatchForParents(parentPids, changedFoxmlFlag);
-                if (batchForParents != null) {
-                    sendToDest(client, createBatchForParents(parentPids, changedFoxmlFlag));
+                if (!parentPids.isEmpty()) {
+                    if (this.addRemoveFlag) {
+                        parentPids.stream().forEach(this::changeFOXMLUp);
+
+                        // zrusit odeberiani smerem nahoru
+                        Document batchForParents = createSOLRBatchForParents(parentPids, changedFoxmlFlag);
+                        if (batchForParents != null) {
+                            sendToDest(client, batchForParents);
+                        }
+                    } else {
+                        LOGGER.info("Removing contains-licences is not supported; must be done by separate process");
+                    }
                 }
                 LOGGER.info("Label for  "+this.parentPid+" has been set");
-
-
             }
         } catch (UnsupportedEncodingException e) {
             LOGGER.severe("DNNT Flag for  "+this.parentPid+" hasn't been set");
@@ -198,16 +202,19 @@ public abstract class DNNTWorker implements Runnable {
     }
 
     /** Creating batch for setting (flag,label) for children */
-    protected abstract  Document createBatchForChildren(List<String> sublist, boolean changedFoxmlFlag);
+    protected abstract  Document createSOLRBatchForChildren(List<String> sublist, boolean changedFoxmlFlag);
 
     /** Creating batch for setting (flag,label) for parents */
-    protected abstract  Document createBatchForParents(List<String> sublist, boolean changedFoxmlFlag);
+    protected abstract  Document createSOLRBatchForParents(List<String> sublist, boolean changedFoxmlFlag);
 
     /** Construct Children query */
     protected  abstract String solrChildrenQuery(List<String> pidPaths);
 
-    /** Change foxml */
-    protected abstract boolean changeFOXML(String pid);
+    /** Change foxml downwards */
+    protected abstract boolean changeFOXMLDown(String pid);
+
+    /** Change foxml upwards */
+    protected abstract boolean changeFOXMLUp(String pid);
 
     List<String> solrPidParents(String pid, List<String> pidPaths) {
         List<String> parents = new ArrayList<>();
@@ -222,33 +229,6 @@ public abstract class DNNTWorker implements Runnable {
     }
 
 
-    List<String> changeDNNTLabelInFOXML(String pid, String label) {
-        try {
-            Repository repo = fedoraAccess.getInternalAPI();
-            if (repo.objectExists(pid)) {
-                boolean exists = repo.getObject(pid).literalExists( "dnnt-label",FedoraNamespaces.KRAMERIUS_URI, label);
-
-                if (!exists) {
-                    if (addRemoveFlag) repo.getObject(pid).addLiteral("dnnt-label", FedoraNamespaces.KRAMERIUS_URI,label);
-                } else {
-                    repo.getObject(pid).removeLiteral("dnnt-label", FedoraNamespaces.KRAMERIUS_URI, label);
-                    if (addRemoveFlag) repo.getObject(pid).addLiteral("dnnt-label", FedoraNamespaces.KRAMERIUS_URI,label);
-                }
-
-                List<Triple<String, String, String>> literals = repo.getObject(pid).getLiterals(FedoraNamespaces.KRAMERIUS_URI);
-                return  literals.stream().filter(tr -> {
-                    return tr.getLeft().equals("dnnt-label");
-                }).map(Triple::getRight).collect(Collectors.toList());
-
-            } else {
-                LOGGER.warning(String.format("Cannot change label for %s: Pid not found", pid));
-                return new ArrayList<>();
-            }
-        } catch (RepositoryException e) {
-            LOGGER.warning(String.format("Cannot change label for %s: Pid not found", pid));
-            return new ArrayList<>();
-        }
-    }
 
     protected boolean changeDNNTInFOXML(String pid, boolean flag) {
         try {

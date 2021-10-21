@@ -78,6 +78,7 @@ public class ViewInfoServlet extends GuiceServlet {
     FedoraAccess fedoraAccess;
     
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
     
     @Inject

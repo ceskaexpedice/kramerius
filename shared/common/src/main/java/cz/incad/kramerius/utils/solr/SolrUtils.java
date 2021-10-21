@@ -55,16 +55,16 @@ import static org.apache.http.HttpStatus.SC_OK;
 public class SolrUtils   {
     
     public static final Logger LOGGER = Logger.getLogger(SolrUtils.class.getName());
+    //public static final String DNNT_FLAG = "dnnt";
+//    /** Handle query */
+//    public static final String HANDLE_QUERY="q=handle:";
 
 
     /** PID query */
-    public static final String UUID_QUERY="q=PID:";
-    /** Handle query */
-    public static final String HANDLE_QUERY="q=handle:";
+    public static final String UUID_QUERY="q=pid:";
     /** Parent query */
-    public static final String PARENT_QUERY="q=parent_pid:";
+    public static final String PARENT_QUERY="q=own_parent.pid:";
 
-    public static final String DNNT_FLAG = "dnnt";
 
     // factory instance
     static XPathFactory fact =XPathFactory.newInstance();
@@ -75,7 +75,7 @@ public class SolrUtils   {
      * @throws XPathExpressionException Cannot compile xpath
      */
     public static XPathExpression pidPathExpr() throws XPathExpressionException {
-        XPathExpression pidPathExpr = fact.newXPath().compile("//arr[@name='pid_path']/str");
+        XPathExpression pidPathExpr = fact.newXPath().compile("//arr[@name='pid_paths']/str");
         return pidPathExpr;
     }
 
@@ -85,14 +85,14 @@ public class SolrUtils   {
      * @throws XPathExpressionException Cannot compile xpath
      */
     public static XPathExpression docPidExpr() throws XPathExpressionException {
-        XPathExpression pidExpr = fact.newXPath().compile("//str[@name='PID']");
+        XPathExpression pidExpr = fact.newXPath().compile("//str[@name='pid']");
         return pidExpr;
     }
 
-    public static XPathExpression elmPidExpr() throws XPathExpressionException {
-        XPathExpression pidExpr = fact.newXPath().compile("str[@name='PID']");
-        return pidExpr;
-    }
+//    public static XPathExpression elmPidExpr() throws XPathExpressionException {
+//        XPathExpression pidExpr = fact.newXPath().compile("str[@name='PID']");
+//        return pidExpr;
+//    }
 
     /**
      * Constructs XPath for disecting model path
@@ -100,7 +100,7 @@ public class SolrUtils   {
      * @throws XPathExpressionException Cannot compile xpath
      */
     public static XPathExpression modelPathExpr() throws XPathExpressionException {
-        XPathExpression pathExpr = fact.newXPath().compile("//arr[@name='model_path']/str");
+        XPathExpression pathExpr = fact.newXPath().compile("//arr[@name='own_model_path']/str");
         return pathExpr;
     }
     
@@ -110,7 +110,7 @@ public class SolrUtils   {
      * @throws XPathExpressionException Cannot compile xpath
      */
     public static XPathExpression fedoraModelExpr() throws XPathExpressionException {
-        XPathExpression fedoraModelExpr = fact.newXPath().compile("//str[@name='fedora.model']");
+        XPathExpression fedoraModelExpr = fact.newXPath().compile("//str[@name='model']");
         return fedoraModelExpr;
     }
     
@@ -120,7 +120,7 @@ public class SolrUtils   {
      * @throws XPathExpressionException Cannot compile xpath
      */
     public static XPathExpression parentPidExpr() throws XPathExpressionException {
-        XPathExpression pidExpr = fact.newXPath().compile("//arr[@name='parent_pid']/str");
+        XPathExpression pidExpr = fact.newXPath().compile("//arr[@name='own_parent.pid']/str");
         return pidExpr;
     }
     
@@ -130,7 +130,7 @@ public class SolrUtils   {
      * @throws XPathExpressionException Cannot compile xpath
      */
     public static XPathExpression dateExpr() throws XPathExpressionException {
-        XPathExpression dateExpr = fact.newXPath().compile("//str[@name='datum_str']");
+        XPathExpression dateExpr = fact.newXPath().compile("//str[@name='date.str']");
         return dateExpr;
     }
 
@@ -182,13 +182,13 @@ public class SolrUtils   {
         }
     }
 
-    public static List<String> disectDNNTLabels(Element topElem) {
+    public static List<String> disectLicenses(Element topElem) {
         synchronized(topElem.getOwnerDocument()) {
             Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
                 @Override
                 public boolean acceptElement(Element element) {
                     return (element.getNodeName().equals("arr") && element.getAttribute("name") != null && element.getAttribute("name").equals(
-                            SolrFieldsMapping.getInstance().getDnntLabelsField()
+                            "licenses"
                     ));
                 }
             });

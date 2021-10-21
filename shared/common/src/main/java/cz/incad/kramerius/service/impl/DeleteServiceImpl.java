@@ -18,6 +18,7 @@ import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
@@ -52,6 +53,7 @@ public class DeleteServiceImpl implements DeleteService {
     IResourceIndex resourceIndex;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     List<String> predicates;
@@ -139,7 +141,7 @@ public class DeleteServiceImpl implements DeleteService {
     public static void main(final String[] args) throws IOException, RepositoryException, ResourceIndexException, SolrServerException {
         LOGGER.info("DeleteService: " + Arrays.toString(args));
         DeleteServiceImpl inst = new DeleteServiceImpl();
-        SolrAccess solrAccess = new SolrAccessImpl();
+        SolrAccess solrAccess = new SolrAccessImplNewIndex();
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));

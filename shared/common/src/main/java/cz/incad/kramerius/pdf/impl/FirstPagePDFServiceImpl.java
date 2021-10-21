@@ -87,6 +87,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     ResourceBundleService resourceBundleService;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

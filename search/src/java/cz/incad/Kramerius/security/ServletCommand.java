@@ -67,6 +67,7 @@ public abstract class ServletCommand {
     protected Provider<User> userProvider;
 
     @Inject
+    @Named("new-index")
     protected SolrAccess solrAccess;
 
     @Inject

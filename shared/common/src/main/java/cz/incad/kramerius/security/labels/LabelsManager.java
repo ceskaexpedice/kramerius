@@ -2,6 +2,7 @@ package cz.incad.kramerius.security.labels;
 
 import java.util.List;
 
+//TODO: rename to licenses manager
 public interface LabelsManager {
 
     public static final String LOCAL_GROUP_NAME="local";
@@ -15,6 +16,7 @@ public interface LabelsManager {
 
     public Label getLabelByPriority(int priority) throws LabelsManagerException;
     public Label getLabelById(int id) throws LabelsManagerException;
+    public Label getLabelByName(String name) throws LabelsManagerException;
 
     public List<Label> getLabels() throws LabelsManagerException;
 

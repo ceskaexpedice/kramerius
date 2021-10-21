@@ -6,8 +6,8 @@ import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.IterationUtils;
 import cz.incad.kramerius.services.MigrationUtils;
+import cz.incad.kramerius.solr.SolrFieldsMapping;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.csv.CSVFormat;
@@ -17,12 +17,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -30,37 +30,37 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class DNNTExport {
+public class LicensesExport {
 
     public static SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd_HHmmssZ");
 
-    public static final Logger LOGGER = Logger.getLogger(DNNTExport.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(LicensesExport.class.getName());
 
-    public static final String EXPORT_DNNT_MODELS_KEY="export.dnnt.models";
-    public static final String EXPORT_DNNT_FILE_KEY="export.dnnt.file";
-    public static final String EXPORT_DNNT_FOLDER_KEY ="export.dnnt.directory";
-    public static final String DDNT_SOLR_EXPORT_KEY = "export.dnnt.query";
+    public static final String EXPORT_DNNT_MODELS_KEY="export.licenses.models";
+    public static final String EXPORT_LICENSES_FILE_KEY ="export.licenses.file";
+    public static final String EXPORT_LICENSES_FOLDER_KEY ="export.licenses.directory";
+    public static final String LICENSES_SOLR_EXPORT_KEY = "export.licenses.query";
 
 
     public static void main(String[] args) throws InterruptedException, BrokenBarrierException, SAXException, IOException, ParserConfigurationException, MigrateSolrIndexException {
         File csvFile = csvFile(args);
-        ProcessStarter.updateName("Licenses export   '"+csvFile.getAbsolutePath()+"'");
+        //ProcessStarter.updateName("Licenses export   '"+csvFile.getAbsolutePath()+"'");
 
-        String labelQuery = args.length > 0 ? "AND (dnnt-labels:"+args[0]+")" : "";
+        String labelQuery = args.length > 0 ? "(licenses:"+args[0]+")" :  "(licenses:*)";
 
         //String reduced = Arrays.stream(KConfiguration.getInstance().getConfiguration().getStringArray(EXPORT_DNNT_MODELS_KEY)).map(it -> " fedora.model:" + it).collect(Collectors.joining(" OR "));
-        String query = "((+dnnt:true)) "  + labelQuery +" NOT (fedora.model:page)";
+        String query = labelQuery +" AND NOT (model:page)";
 
         Client client = Client.create();
-        String q = KConfiguration.getInstance().getConfiguration().getString(DDNT_SOLR_EXPORT_KEY,query);
+        String q = KConfiguration.getInstance().getConfiguration().getString(LICENSES_SOLR_EXPORT_KEY,query);
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(csvFile), Charset.forName("UTF-8"));
         try (CSVPrinter printer = new CSVPrinter(outputStreamWriter, CSVFormat.DEFAULT.withHeader("pid","model","dctitle","labels"))) {
-            IterationUtils.cursorIteration(client,KConfiguration.getInstance().getSolrHost() ,  URLEncoder.encode(q,"UTF-8"),(em, i) -> {
+            IterationUtils.cursorIteration(client,KConfiguration.getInstance().getSolrSearchHost() ,  URLEncoder.encode(q,"UTF-8"),(em, i) -> {
                 List<String> pp = MigrationUtils.findAllPids(em);
                 if (!pp.isEmpty()) {
                     Lists.partition(pp, 10).stream().forEach(it->{
                         try {
-                            Element response = MigrationUtils.fetchDocuments(client, KConfiguration.getInstance().getSolrHost(), it);
+                            Element response = MigrationUtils.fetchDocuments(client, KConfiguration.getInstance().getSolrSearchHost(), it);
                             Element resultElem = XMLUtils.findElement(response, (elm) -> {
                                 return elm.getNodeName().equals("result");
                             });
@@ -69,23 +69,23 @@ public class DNNTExport {
                             });
                             docs.forEach(doc-> {
                                 Element pid = XMLUtils.findElement(doc, (elm) -> {
-                                    if (elm.getNodeName().equals("str") && elm.getAttribute("name").equals("PID")) {
+                                    if (elm.getNodeName().equals("str") && elm.getAttribute("name").equals("pid")) {
                                         return true;
                                     } else return false;
                                 });
                                 Element dcTitle = XMLUtils.findElement(doc, (elm) -> {
-                                    if (elm.getNodeName().equals("str") && elm.getAttribute("name").equals("dc.title")) {
+                                    if (elm.getNodeName().equals("str") && elm.getAttribute("name").equals("title.search")) {
                                         return true;
                                     } else return false;
                                 });
                                 Element fedoraModel = XMLUtils.findElement(doc, (elm) -> {
-                                    if (elm.getNodeName().equals("str") && elm.getAttribute("name").equals("fedora.model")) {
+                                    if (elm.getNodeName().equals("str") && elm.getAttribute("name").equals("model")) {
                                         return true;
                                     } else return false;
                                 });
 
                                 Element dnntLabels = XMLUtils.findElement(doc, (elm) -> {
-                                    if (elm.getNodeName().equals("arr") && elm.getAttribute("name").equals("dnnt-labels")) {
+                                    if (elm.getNodeName().equals("arr") && elm.getAttribute("name").equals("licenses")) {
                                         return true;
                                     } else return false;
                                 });
@@ -99,7 +99,7 @@ public class DNNTExport {
                                 }
 
                                 try {
-                                    printer.printRecord(pid.getTextContent(),fedoraModel.getTextContent(),dcTitle.getTextContent(), labels.stream().collect(Collectors.joining(" ")));
+                                    printer.printRecord(pid.getTextContent(),fedoraModel.getTextContent(),dcTitle != null ? dcTitle.getTextContent() :"", labels.stream().collect(Collectors.joining(" ")));
                                 } catch (IOException e) {
                                     LOGGER.log(Level.SEVERE, e.getMessage(),e);
                                 }
@@ -116,15 +116,15 @@ public class DNNTExport {
 
     private static File csvFile(String[] args) {
         if (args.length > 0 ){
-            return new File( exportDirectory(), KConfiguration.getInstance().getConfiguration().getString(EXPORT_DNNT_FILE_KEY, "dnnt-export-" + SIMPLE_DATE_FORMAT.format(new Date())+"_"+args[0] + ".csv"));
+            return new File( exportDirectory(), KConfiguration.getInstance().getConfiguration().getString(EXPORT_LICENSES_FILE_KEY, "licenses-export-" + SIMPLE_DATE_FORMAT.format(new Date())+"_"+args[0] + ".csv"));
         } else {
-            return new File( exportDirectory(), KConfiguration.getInstance().getConfiguration().getString(EXPORT_DNNT_FILE_KEY, "dnnt-export-" + SIMPLE_DATE_FORMAT.format(new Date()) + ".csv"));
+            return new File( exportDirectory(), KConfiguration.getInstance().getConfiguration().getString(EXPORT_LICENSES_FILE_KEY, "licenses-export-" + SIMPLE_DATE_FORMAT.format(new Date()) + ".csv"));
         }
     }
 
 
     private  static File exportDirectory() {
-        String exportRoot = KConfiguration.getInstance().getConfiguration().getString(EXPORT_DNNT_FOLDER_KEY);
+        String exportRoot = KConfiguration.getInstance().getConfiguration().getString(EXPORT_LICENSES_FOLDER_KEY);
         return IOUtils.checkDirectory(exportRoot);
     }
 }

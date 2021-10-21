@@ -33,7 +33,7 @@ public class AudioStreamForwardUtils {
     public static boolean canBeRead(String pid, SolrAccess sa, User user, RightsResolver rightsResolver) throws IOException {
         ObjectPidsPath[] paths = sa.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
-            if (rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, null, pth).flag()) {
+            if (rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, null, pth.injectRepository()).flag()) {
                 return true;
             }
         }

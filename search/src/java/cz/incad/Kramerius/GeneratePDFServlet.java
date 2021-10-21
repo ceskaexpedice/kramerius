@@ -83,8 +83,6 @@ public class GeneratePDFServlet extends GuiceServlet {
     @Inject
     KConfiguration configuration;
 
-    @Inject
-    SolrAccess solrAccess;
 
     @Inject
     DocumentService documentService;
