@@ -1,10 +1,7 @@
 package cz.kramerius.searchIndex.repositoryAccess.nodes;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.searchIndex.indexer.conversions.extraction.AuthorsExtractor;
-import cz.kramerius.searchIndex.indexer.conversions.extraction.DateExtractor;
-import cz.kramerius.searchIndex.indexer.conversions.extraction.LanguagesExtractor;
-import cz.kramerius.searchIndex.indexer.conversions.extraction.TitlesExtractor;
+import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
@@ -107,7 +104,7 @@ public class RepositoryNodeManager {
                 }
             }*/
 
-            //Document relsExtDoc = krameriusRepositoryAccessAdapter.getRelsExt(pid, true);
+            Document relsExtDoc = krameriusRepositoryAccessAdapter.getRelsExt(pid, false);
             //String model = KrameriusRepositoryUtils.extractKrameriusModelName(relsExtDoc);
             String model = krameriusRepositoryAccessAdapter.getModel(pid);
             List<String> ownChildren = null;
@@ -135,6 +132,8 @@ public class RepositoryNodeManager {
             List<AuthorInfo> myOtherAuthors = extractNonPrimaryAuthorsFromMods(model, modsDoc);
             List<AuthorInfo> primaryAuthors = mergePrimaryAuthors(ownParent, fosterParents, myPrimaryAuthors);
             List<AuthorInfo> otherAuthors = mergeOtherAuthors(ownParent, fosterParents, myOtherAuthors);
+            List<String> myLicences = extractLicenses(model, relsExtDoc);
+            List<String> licenses = mergeLicenses(ownParent, fosterParents, myLicences);
 
             //pids of all foster parents
             List<String> fosterParentsPids = toPidList(fosterParents);
@@ -174,7 +173,8 @@ public class RepositoryNodeManager {
                     ownParentPid, ownParentModel, ownParentTitle, positionInOwnParent,
                     fosterParentsPids, fosterParentsOfTypeCollectionPids, anyAncestorsOfTypeCollectionPids,
                     ownChildren, fosterChildren,
-                    languages, primaryAuthors, otherAuthors, dateInfo
+                    languages, primaryAuthors, otherAuthors, dateInfo,
+                    licenses
             );
         } catch (IOException | ResourceIndexException e) {
             throw new RuntimeException(e);
@@ -191,8 +191,7 @@ public class RepositoryNodeManager {
         return null;
     }
 
-    private List<String> mergeLanguages(RepositoryNode
-                                                ownParent, List<RepositoryNode> fosterParents, List<String> myLanguages) {
+    private List<String> mergeLanguages(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<String> myLanguages) {
         //fill set
         Set<String> set = new HashSet<>();
         if (ownParent != null) {
@@ -202,6 +201,22 @@ public class RepositoryNodeManager {
             set.addAll(fosterParent.getLanguages());
         }
         set.addAll(myLanguages);
+        //return list
+        List<String> list = new ArrayList<>();
+        list.addAll(set);
+        return list;
+    }
+
+    private List<String> mergeLicenses(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<String> myLicences) {
+        //fill set
+        Set<String> set = new HashSet<>();
+        if (ownParent != null) {
+            set.addAll(ownParent.getLicenses());
+        }
+        for (RepositoryNode fosterParent : fosterParents) {
+            set.addAll(fosterParent.getLicenses());
+        }
+        set.addAll(myLicences);
         //return list
         List<String> list = new ArrayList<>();
         list.addAll(set);
@@ -273,6 +288,12 @@ public class RepositoryNodeManager {
         LanguagesExtractor extractor = new LanguagesExtractor();
         List<String> languages = extractor.extractLanguages(modsDoc.getRootElement(), model);
         return languages;
+    }
+
+    private List<String> extractLicenses(String model, Document relsExtDoc) {
+        LicensesExtractor extractor = new LicensesExtractor();
+        List<String> licenses = extractor.extractLicenses(relsExtDoc.getRootElement(), model);
+        return licenses;
     }
 
     private List<AuthorInfo> extractPrimaryAuthorsFromMods(String model, Document modsDoc) throws IOException {

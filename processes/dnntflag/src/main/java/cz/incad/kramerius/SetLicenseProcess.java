@@ -44,8 +44,18 @@ public class SetLicenseProcess {
 
     private static String RELS_EXT_RELATION_LICENSE = "license";
     private static String RELS_EXT_RELATION_CONTAINS_LICENSE = "containsLicense";
-    private static String[] RELS_EXT_RELATION_LICENSE_DEPRECATED = new String[]{"dnnt-label", "licence"};
-    private static String[] RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED = new String[]{"contains-dnnt-labels", "contains-license", "contains-licence", "containsLicence"};
+    private static String[] RELS_EXT_RELATION_LICENSE_DEPRECATED = new String[]{
+            "licenses",
+            "licence", "licences",
+            "dnnt-label", "dnnt-labels"
+    };
+    private static String[] RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED = new String[]{
+            "containsLicenses",
+            "containsLicence", "containsLicences",
+            "contains-license", "contains-licenses",
+            "contains-licence", "contains-licenses",
+            "contains-dnnt-label", "contains-dnnt-labels",
+    };
 
     private static String SOLR_FIELD_LICENSES = "licenses";
     private static String SOLR_FIELD_CONTAINS_LICENSES = "contains_licenses";

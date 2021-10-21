@@ -132,7 +132,8 @@ public class XmlTestBuilder {
                     null, null, null, null,
                     null, null, null,
                     null, null,
-                    languages, primaryAuthors, otherAuthors, dateInfo
+                    languages, primaryAuthors, otherAuthors, dateInfo,
+                    null
             );
             SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
@@ -172,7 +173,8 @@ public class XmlTestBuilder {
                     null, null, null, null,
                     null, null, null,
                     null, null,
-                    null, null, null, null
+                    null, null, null, null,
+                    null
             );
             SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, true);
             SolrInput cleared = withoutFields(solrInput,

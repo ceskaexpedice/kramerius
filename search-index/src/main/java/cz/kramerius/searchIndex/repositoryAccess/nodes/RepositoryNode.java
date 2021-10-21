@@ -42,6 +42,7 @@ public class RepositoryNode {
     private final List<AuthorInfo> primaryAuthors;
     private final List<AuthorInfo> otherAuthors;
     private final DateInfo dateInfo;
+    private final List<String> licenses;
 
     public RepositoryNode(String pid, String model, Title title,
                           String pidPath, String modelPath,
@@ -49,7 +50,8 @@ public class RepositoryNode {
                           String ownParentPid, String ownParentModel, Title ownParentTitle, Integer positionInOwnParent,
                           List<String> pidsOfFosterParents, List<String> pidsOfFosterParentsOfTypeCollection, List<String> pidsOfAnyAncestorsOfTypeCollection,
                           List<String> pidsOfOwnChildren, List<String> pidsOfFosterChildren,
-                          List<String> languages, List<AuthorInfo> primaryAuthors, List<AuthorInfo> otherAuthors, DateInfo dateInfo) {
+                          List<String> languages, List<AuthorInfo> primaryAuthors, List<AuthorInfo> otherAuthors, DateInfo dateInfo,
+                          List<String> licenses) {
         this.pid = pid;
         this.model = model;
         this.title = title;
@@ -71,7 +73,7 @@ public class RepositoryNode {
         this.primaryAuthors = primaryAuthors;
         this.otherAuthors = otherAuthors;
         this.dateInfo = dateInfo;
-
+        this.licenses = licenses;
     }
 
     public String getPid() {
@@ -178,4 +180,7 @@ public class RepositoryNode {
         return dateInfo;
     }
 
+    public List<String> getLicenses() {
+        return licenses == null ? Collections.emptyList() : licenses;
+    }
 }
