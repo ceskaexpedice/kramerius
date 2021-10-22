@@ -206,7 +206,7 @@ public class SolrIndexAccess {
                 SolrInputDocument inputDoc = new SolrInputDocument();
                 inputDoc.addField("pid", pid);
                 Map<String, Object> updateData = new HashMap<>();
-                updateData.put("add", value == null ? null : value.toString());
+                updateData.put("add-distinct", value == null ? null : value.toString());
                 inputDoc.addField(fieldName, updateData);
                 inputDocs.add(inputDoc);
             }

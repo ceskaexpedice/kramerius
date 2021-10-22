@@ -20,7 +20,6 @@ import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.Dom4jUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -53,7 +52,7 @@ import java.util.logging.Logger;
 public class ItemsResource extends ClientApiResource {
 
     //TODO: uklid
-    //(ne-admin) client je neutentizovany, jenom cte data a mela by pred nim byt do urcite miry skryta implementece, takze:
+    //(ne-admin) client je neautentizovany, jenom cte data a mela by pred nim byt do urcite miry skryta implementece, takze:
 
     // {pid}/foxml                  -> zrusit tady, presunout do admin api - DONE
     // {pid}/streams                -> nahradit za {pid}/info/data  - DONE
@@ -77,6 +76,7 @@ public class ItemsResource extends ClientApiResource {
     // GET      {pid}/info/structure
     // GET      {pid}/info/data
     // GET      {pid}/info/image
+    // GET      {pid}/info/providedByLicenses              - information about licenses that allow access in current setting (network, user, etc)
     // GET/HEAD {pid}/metadata/mods
     // GET/HEAD {pid}/metadata/dc
     // GET/HEAD {pid}/ocr/text
@@ -91,8 +91,6 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/audio/wav
 
 
-    // GET {pid}/info/license - information about licenses;
-
     public static final Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
 
     @Inject
@@ -101,7 +99,9 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     ZoomifyHelper zoomifyHelper;
 
-    /** Because of rights and licenses */
+    /**
+     * Because of rights and licenses
+     */
     @Inject
     @Named("new-index")
     private SolrAccess solrAccess;
@@ -137,6 +137,7 @@ public class ItemsResource extends ClientApiResource {
             json.put("data", extractAvailableDataInfo(pid));
             json.put("structure", extractStructureInfo(pid));
             json.put("image", extractImageSourceInfo(pid));
+            json.put("providedByLicenses", extractLicensesProvidingAccess(pid));
             return Response.ok(json).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -163,13 +164,15 @@ public class ItemsResource extends ClientApiResource {
     }
 
     @GET
-    @Path("{pid}/info/license")
+    @Path("{pid}/info/providedByLicenses")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getLicenseData(@PathParam("pid") String pid) {
+    public Response getProvidingLicenses(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            return Response.ok(extractLicenseInfo(pid)).build();
+            JSONObject responseJson = new JSONObject();
+            responseJson.put("licenses", extractLicensesProvidingAccess(pid));
+            return Response.ok(responseJson).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -177,8 +180,6 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
-
-
 
     /**
      * Vrací jen přímou strukturu získanou okamžitě z resource-indexu. Tedy rodiče (vlastního, nevlastní), děti (vlastní, nevlastní).
@@ -221,16 +222,17 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    /** extract information about licenses provided for current user and current pid;  */
-    private JSONObject extractLicenseInfo(String pid) throws IOException, RepositoryException {
-        JSONObject licenseObject = new JSONObject();
+    /**
+     * extract information about licenses provided for current user and current pid;
+     */
+    //TODO: update javadoc
+    private JSONArray extractLicensesProvidingAccess(String pid) throws IOException, RepositoryException {
+        JSONArray licenseArray = new JSONArray();
+        String encoded = URLEncoder.encode("pid:\"" + pid + "\"", "UTF-8");
+        JSONObject solrResponseJson = this.solrAccess.requestWithSelectReturningJson("q=" + encoded + "&fl=pid_paths");
 
-        String encoded = URLEncoder.encode("pid:\""+pid+"\"","UTF-8");
-
-        String solrResponseJsonString = this.solrAccess.requestWithSelectReturningString("q="+encoded+"&fl=pid_paths", "json");
-        JSONObject solrResponseJson = new JSONObject(solrResponseJsonString);
         JSONArray docs = solrResponseJson.getJSONObject("response").getJSONArray("docs");
-        if (docs.length() > 0 ) {
+        if (docs.length() > 0) {
             JSONArray pidPaths = docs.getJSONObject(0).getJSONArray("pid_paths");
             List<ObjectPidsPath> pidsPathList = new ArrayList<>();
             for (int i = 0; i < pidPaths.length(); i++) {
@@ -240,24 +242,22 @@ public class ItemsResource extends ClientApiResource {
                 RightsReturnObject actionAllowed = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
                 if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
                     String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
-                    if ( qName.equals(ReadDNNTFlag.class.getName()) ||
+                    if (qName.equals(ReadDNNTFlag.class.getName()) ||
                             qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||
                             qName.equals(ReadDNNTLabels.class.getName()) ||
                             qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
-                    )
-                    {
+                    ) {
                         Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
                         if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
-                            licenseObject.put("providedByLicense", evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL));
+                            licenseArray.put(evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL));
                         }
                         break;
                     }
                 }
             }
-
         }
 
-        return licenseObject;
+        return licenseArray;
     }
 
     private JSONObject extractAvailableDataInfo(String pid) throws IOException, RepositoryException {
