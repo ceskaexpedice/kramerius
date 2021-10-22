@@ -149,30 +149,19 @@ public class SetLicenseProcess {
             indexerAccess.addSingleFieldValueForMultipleObjects(pidsOfAncestors, SOLR_FIELD_CONTAINS_LICENSES, license, false);
         }
 
-        //4. Aktualizuje se index ciloveho objektu a vsech potomku atomic updatem (prida se licenses=L)
-        LOGGER.info("updating search index for the target object and all it's ascendants");
-        List<String> pidsOfTargetAndDescendants = getPidsOfTargetAndAscendents(targetPid, searchIndex);
-        indexerAccess.addSingleFieldValueForMultipleObjects(pidsOfTargetAndDescendants, SOLR_FIELD_LICENSES, license, true);
-    }
-
-    private static List<String> getPidsOfTargetAndAscendents(String targetPid, SolrAccess searchIndex) throws IOException {
-        //TODO: pagination pres kurzor, u Lidovek to je přes 300k objektů: https://k7-test.mzk.cz/search/api/client/v6.0/search?q=root.pid:%22uuid:bdc405b0-e5f9-11dc-bfb2-000d606f5dc6%22&rows=1
-        String pidEscaped = targetPid.replace(":", "\\:");
-        String q = String.format("pid_paths:%s/* OR pid_paths:*/%s/* ", pidEscaped, pidEscaped);
-        String query = "fl=pid&rows=1000&q=" + URLEncoder.encode(q, "UTF-8"); //TODO: rows?
-        JSONObject jsonObject = searchIndex.requestWithSelectReturningJson(query);
-        JSONObject response = jsonObject.getJSONObject("response");
-        List<String> result = new ArrayList<>();
-        result.add(targetPid);
-        int numFound = response.getInt("numFound");
-        if (numFound != 0) {
-            JSONArray docs = response.getJSONArray("docs");
-            for (int i = 0; i < docs.length(); i++) {
-                String pid = docs.getJSONObject(i).getString("pid");
-                result.add(pid);
+        //4. Aktualizuje se index ciloveho objektu a vsech potomku atomic updaty (prida se licenses=L) po davkach (muzou to byt az stovky tisic objektu)
+        LOGGER.info("updating search index for the target object and all it's descendants");
+        PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(targetPid, searchIndex);
+        while (iterator.hasNext()) {
+            List<String> pids = iterator.next();
+            boolean explicitCommit = false;
+            if (!iterator.hasNext()) {
+                explicitCommit = true;
+                pids.add(targetPid);//don't forget target
             }
+            indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES, license, explicitCommit);
+            LOGGER.info(String.format("Indexed: %d/%d", iterator.getReturned(), iterator.getTotal()));
         }
-        return result;
     }
 
     private static List<String> getPidsOfAllAncestors(String targetPid, SolrAccess searchIndex) throws IOException {
@@ -195,7 +184,6 @@ public class SetLicenseProcess {
         }
         Document relsExt = repository.getRelsExt(pid, true);
         Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-        //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
         boolean relsExtNeedsToBeUpdated = false;
 
         //normalize relations with deprecated/incorrect name, possibly including relation we want to add
@@ -248,10 +236,19 @@ public class SetLicenseProcess {
             indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfRelevantAncestors, SOLR_FIELD_CONTAINS_LICENSES, license, false);
         }
 
-        //4. Aktualizuje se index ciloveho objektu a vsech potomku atomic updatem (odebere se licenses=L)
-        LOGGER.info("updating search index for the target object and all it's ascendants");
-        List<String> pidsOfTargetAndDescendants = getPidsOfTargetAndAscendents(targetPid, searchIndex);
-        indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfTargetAndDescendants, SOLR_FIELD_LICENSES, license, true);
+        //4. Aktualizuje se index ciloveho objektu a vsech potomku atomic updaty (odebere se licenses=L) po davkach (muzou to byt az stovky tisic objektu)
+        LOGGER.info("updating search index for the target object and all it's descendants");
+        PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(targetPid, searchIndex);
+        while (iterator.hasNext()) {
+            List<String> pids = iterator.next();
+            boolean explicitCommit = false;
+            if (!iterator.hasNext()) {
+                explicitCommit = true;
+                pids.add(targetPid);//don't forget target
+            }
+            indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_LICENSES, license, explicitCommit);
+            LOGGER.info(String.format("Indexed: %d/%d", iterator.getReturned(), iterator.getTotal()));
+        }
     }
 
     private static List<String> getPidsOfAllAncestorsThatDontHaveLicenceFromDifferentDescendant(String targetPid, SolrAccess searchIndex, String license) throws IOException {
@@ -325,5 +322,66 @@ public class SetLicenseProcess {
             }
         }
         return updated;
+    }
+
+    /**
+     * Vraci PIDy všech potomku v davkach
+     */
+    static class PidsOfDescendantsProducer implements Iterator<List<String>> {
+        private static final int BATCH_SIZE = 1000;
+
+        private final SolrAccess searchIndex;
+        private final String q;
+        private String cursorMark = null;
+        private String nextCursorMark = "*";
+        private int total = 0;
+        private int returned = 0;
+
+        public PidsOfDescendantsProducer(String targetPid, SolrAccess searchIndex) {
+            this.searchIndex = searchIndex;
+            String pidEscaped = targetPid.replace(":", "\\:");
+            this.q = String.format("pid_paths:%s/* OR pid_paths:*/%s/* ", pidEscaped, pidEscaped);
+        }
+
+        public int getTotal() {
+            return total;
+        }
+
+        public int getReturned() {
+            return returned;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (total > 0 && returned == total) {
+                return false;
+            } else {//obrana proti zacykleni, kdyby se solr zachoval divne a nektery slibeny objekt nevratil
+                return !nextCursorMark.equals(cursorMark);
+            }
+        }
+
+        @Override
+        public List<String> next() {
+            try {
+                List<String> result = new ArrayList<>();
+                cursorMark = nextCursorMark;
+                String query = String.format("fl=pid&sort=pid+asc&rows=%d&q=%s&cursorMark=%s", BATCH_SIZE, URLEncoder.encode(q, "UTF-8"), cursorMark);
+                JSONObject jsonObject = searchIndex.requestWithSelectReturningJson(query);
+                JSONObject response = jsonObject.getJSONObject("response");
+                nextCursorMark = jsonObject.getString("nextCursorMark");
+                total = response.getInt("numFound");
+                if (total != 0) {
+                    JSONArray docs = response.getJSONArray("docs");
+                    for (int i = 0; i < docs.length(); i++) {
+                        String pid = docs.getJSONObject(i).getString("pid");
+                        result.add(pid);
+                    }
+                }
+                returned += result.size();
+                return result;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
