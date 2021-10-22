@@ -132,38 +132,35 @@ public class SetLicenseProcess {
     private static void addLicense(String license, String targetPid, KrameriusRepositoryApi repository, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException {
         LOGGER.info(String.format("Adding license '%s' to %s", license, targetPid));
 
-        //1. do rels-ext ciloveho objektu se doplni license=L, pokud uz tam neni. Zaroven se normalizuji stare zapisy licenci (dnnt-label=L => license=L)
+        //1. Do rels-ext ciloveho objektu se doplni license=L, pokud uz tam neni. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
         LOGGER.info("updating RELS-EXT record of the target object " + targetPid);
-        addRelsExtRelationAndNormalizeDeprecatedRelations(targetPid, RELS_EXT_RELATION_LICENSE, RELS_EXT_RELATION_LICENSE_DEPRECATED, license, repository);
+        addRelsExtRelationAfterNormalization(targetPid, RELS_EXT_RELATION_LICENSE, RELS_EXT_RELATION_LICENSE_DEPRECATED, license, repository);
 
-        //2. do rels-ext predku se doplni containsLicense=L, pokud uz tam neni
+        //2. Do rels-ext predku se doplni containsLicense=L, pokud uz tam neni
         LOGGER.info("updating RELS-EXT record of all the ancestors of the target object " + targetPid);
         List<String> pidsOfAncestors = getPidsOfAllAncestors(targetPid, searchIndex);
         for (String ancestorPid : pidsOfAncestors) {
-            addRelsExtRelationAndNormalizeDeprecatedRelations(ancestorPid, RELS_EXT_RELATION_CONTAINS_LICENSE, RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED, license, repository);
+            addRelsExtRelationAfterNormalization(ancestorPid, RELS_EXT_RELATION_CONTAINS_LICENSE, RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED, license, repository);
         }
 
-        //3. aktualizuje se index objektu a potomku atomic updatem (prida se licenses=L)
-        LOGGER.info("updating search index for the target object and all it's ascendants");
-        List<String> pidsOfTargetAndDescendants = getPidsOfTargetAndAscendents(targetPid, searchIndex);
-        indexerAccess.addSingleFieldValueForMultipleObjects(pidsOfTargetAndDescendants, SOLR_FIELD_LICENSES, license, false);
-
-        //4. aktualizuje se index rodicu atomic updatem (prida se contains_licenses=L)
+        //3. Aktualizuje se index predku atomic updatem (prida se contains_licenses=L)
         LOGGER.info("updating search index for all the ancestors");
         if (!pidsOfAncestors.isEmpty()) {
-            indexerAccess.addSingleFieldValueForMultipleObjects(pidsOfAncestors, SOLR_FIELD_CONTAINS_LICENSES, license, true);
+            indexerAccess.addSingleFieldValueForMultipleObjects(pidsOfAncestors, SOLR_FIELD_CONTAINS_LICENSES, license, false);
         }
+
+        //4. Aktualizuje se index ciloveho objektu a vsech potomku atomic updatem (prida se licenses=L)
+        LOGGER.info("updating search index for the target object and all it's ascendants");
+        List<String> pidsOfTargetAndDescendants = getPidsOfTargetAndAscendents(targetPid, searchIndex);
+        indexerAccess.addSingleFieldValueForMultipleObjects(pidsOfTargetAndDescendants, SOLR_FIELD_LICENSES, license, true);
     }
 
     private static List<String> getPidsOfTargetAndAscendents(String targetPid, SolrAccess searchIndex) throws IOException {
         //TODO: pagination pres kurzor, u Lidovek to je přes 300k objektů: https://k7-test.mzk.cz/search/api/client/v6.0/search?q=root.pid:%22uuid:bdc405b0-e5f9-11dc-bfb2-000d606f5dc6%22&rows=1
         String pidEscaped = targetPid.replace(":", "\\:");
         String q = String.format("pid_paths:%s/* OR pid_paths:*/%s/* ", pidEscaped, pidEscaped);
-        //System.out.println(q);
-        String query = "fl=pid&rows=1000&q=" + URLEncoder.encode(q, "UTF-8");
-        //System.out.println(query);
+        String query = "fl=pid&rows=1000&q=" + URLEncoder.encode(q, "UTF-8"); //TODO: rows?
         JSONObject jsonObject = searchIndex.requestWithSelectReturningJson(query);
-        //System.out.println(jsonObject.toString(2));
         JSONObject response = jsonObject.getJSONObject("response");
         List<String> result = new ArrayList<>();
         result.add(targetPid);
@@ -172,7 +169,6 @@ public class SetLicenseProcess {
             JSONArray docs = response.getJSONArray("docs");
             for (int i = 0; i < docs.length(); i++) {
                 String pid = docs.getJSONObject(i).getString("pid");
-                //System.out.println(pid);
                 result.add(pid);
             }
         }
@@ -193,7 +189,7 @@ public class SetLicenseProcess {
         return new ArrayList<>(result);
     }
 
-    private static boolean addRelsExtRelationAndNormalizeDeprecatedRelations(String pid, String relationName, String[] wrongRelationNames, String value, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    private static boolean addRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
         if (!repository.isRelsExtAvailable(pid)) {
             throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
         }
@@ -235,37 +231,58 @@ public class SetLicenseProcess {
     private static void removeLicense(String license, String targetPid, KrameriusRepositoryApi repository, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException {
         LOGGER.info(String.format("Removing license '%s' from %s", license, targetPid));
 
-        //1. do rels-ext ciloveho objektu se doplni license=L, pokud uz tam neni. Zaroven se normalizuji stare zapisy licenci (dnnt-label=L => license=L)
+        //1. Z rels-ext ciloveho objektu se odeber license=L, pokud tam je. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
         LOGGER.info("updating RELS-EXT record of the target object " + targetPid);
-        removeRelsExtRelationAndNormalizeDeprecatedRelations(targetPid, RELS_EXT_RELATION_LICENSE, RELS_EXT_RELATION_LICENSE_DEPRECATED, license, repository);
+        removeRelsExtRelationAfterNormalization(targetPid, RELS_EXT_RELATION_LICENSE, RELS_EXT_RELATION_LICENSE_DEPRECATED, license, repository);
 
-        //2. do rels-ext predku se doplni containsLicence=L, pokud uz tam neni
+        //2. Z rels-ext predku se odebere containsLicence=L, pokud tam je. A pokud neexistuje jiny zdroj pro licenci (objekt ze stromu predka, ktery neni v stromu cilove objektu)
         LOGGER.info("updating RELS-EXT record of all the ancestors of the target object " + targetPid);
-        List<String> pidsOfAncestors = getPidsOfAllAncestors(targetPid, searchIndex); //TODO: jeste zjistit, jestli to nevlastni odjinud a tyhle filtrovat
-        for (String ancestorPid : pidsOfAncestors) {
-            removeRelsExtRelationAndNormalizeDeprecatedRelations(ancestorPid, RELS_EXT_RELATION_CONTAINS_LICENSE, RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED, license, repository);
+        List<String> pidsOfRelevantAncestors = getPidsOfAllAncestorsThatDontHaveLicenceFromDifferentDescendant(targetPid, searchIndex, license);
+        for (String ancestorPid : pidsOfRelevantAncestors) {
+            removeRelsExtRelationAfterNormalization(ancestorPid, RELS_EXT_RELATION_CONTAINS_LICENSE, RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED, license, repository);
         }
 
-        //3. aktualizuje se index objektu a potomku atomic updatem (odebere se licenses=L)
+        //3. Aktualizuje se index (relevantnich) predku atomic updatem (odebere se contains_licenses=L)
+        LOGGER.info("updating search index for all the ancestors");
+        if (!pidsOfRelevantAncestors.isEmpty()) {
+            indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfRelevantAncestors, SOLR_FIELD_CONTAINS_LICENSES, license, false);
+        }
+
+        //4. Aktualizuje se index ciloveho objektu a vsech potomku atomic updatem (odebere se licenses=L)
         LOGGER.info("updating search index for the target object and all it's ascendants");
         List<String> pidsOfTargetAndDescendants = getPidsOfTargetAndAscendents(targetPid, searchIndex);
-        indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfTargetAndDescendants, SOLR_FIELD_LICENSES, license, false);
-
-        //4. aktualizuje se index rodicu atomic updatem (odebere se contains_licenses=L)
-        LOGGER.info("updating search index for all the ancestors");
-        if (!pidsOfAncestors.isEmpty()) {
-            indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfAncestors, SOLR_FIELD_CONTAINS_LICENSES, license, true);
-        }
+        indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfTargetAndDescendants, SOLR_FIELD_LICENSES, license, true);
     }
 
-    private static boolean removeRelsExtRelationAndNormalizeDeprecatedRelations(String pid, String relationName, String[] wrongRelationNames, String value, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    private static List<String> getPidsOfAllAncestorsThatDontHaveLicenceFromDifferentDescendant(String targetPid, SolrAccess searchIndex, String license) throws IOException {
+        List<String> ancestorsAll = getPidsOfAllAncestors(targetPid, searchIndex);
+        List<String> ancestorsWithoutLicenceFromAnotherDescendant = new ArrayList<>();
+        for (String ancestorPid : ancestorsAll) {
+            //hledaji se objekty, jejichz pid_path obsahuje ancestorPid, ale ne targetPid. Takze jiny zdroj stejne licence nekde ve strome ancestra, mimo strom od targeta
+            //pokud nejsou, priznak containsLicense/contains_licenses muze byt z ancestra odstranen
+            //jedine kdyby byl treba rocnik R1, co ma v rels-ext containsLicense=L a obsahuje nektere issue Ix, coma ma taky containsLicense=L, tak to se pri odstranovani L z R1 nedetekuje (spatne)
+            //tim padem bude nepravem odebrano containsLicense/contains_licenses predkum R1, prestoze by na to meli narok kvuli Ix
+            String ancestorPidEscaped = ancestorPid.replace(":", "\\:");
+            String targetPidEscaped = targetPid.replace(":", "\\:");
+            String q = String.format(
+                    "licenses:%s AND (pid_paths:%s/* OR pid_paths:*/%s/*) AND -pid:%s AND -pid_paths:%s/* AND -pid_paths:*/%s/*",
+                    license, ancestorPidEscaped, ancestorPidEscaped, targetPidEscaped, targetPidEscaped, targetPidEscaped);
+            String query = "fl=pid&rows=0&q=" + URLEncoder.encode(q, "UTF-8");
+            JSONObject jsonObject = searchIndex.requestWithSelectReturningJson(query);
+            JSONObject response = jsonObject.getJSONObject("response");
+            if (response.getInt("numFound") == 0) {
+                ancestorsWithoutLicenceFromAnotherDescendant.add(ancestorPid);
+            }
+        }
+        return ancestorsWithoutLicenceFromAnotherDescendant;
+    }
+
+    private static boolean removeRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
         if (!repository.isRelsExtAvailable(pid)) {
             throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
         }
         Document relsExt = repository.getRelsExt(pid, true);
         Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-        //System.out.println("BEFORE:");
-        //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
         boolean relsExtNeedsToBeUpdated = false;
 
         //normalize relations with deprecated/incorrect names, possibly including relation we want to remove
@@ -284,7 +301,6 @@ public class SetLicenseProcess {
 
         //update RELS-EXT in repository if there was a change
         if (relsExtNeedsToBeUpdated) {
-            //System.out.println("AFTER:");
             //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
             repository.updateRelsExt(pid, relsExt);
             LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
@@ -292,6 +308,9 @@ public class SetLicenseProcess {
         return relsExtNeedsToBeUpdated;
     }
 
+    /*
+    Normalizuje vazby v nactenem rels-ext. Napr. nahradi vsechny relace dnnt-labels za license. Dalsi zpracovani (pridavani/odebirani) uz ma korektne zapsana data.
+     */
     private static boolean normalizeIncorrectRelationNotation(String[] wrongRelationNames, String correctRelationName, Element rootEl, String pid) {
         boolean updated = false;
         for (String wrongRelationName : wrongRelationNames) {
