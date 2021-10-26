@@ -42,7 +42,7 @@ public class ServerFilesResource extends AdminApiResource {
     }
 
     @GET
-    @Path("/input-data-dir-for_convert-and-import-ndk/{path: (.+)?}")
+    @Path("/input-data-dir-for_convert-and-import-ndk{path: (.+)?}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response listFilesInInputDataDirFor_convertAndImportNdk(@PathParam("path") String path) {
         //authentication
@@ -55,7 +55,19 @@ public class ServerFilesResource extends AdminApiResource {
         return listFilesInDir("convert.directory", path);
     }
 
-    //TODO: pidlist files (pro pridani/odebrani licenci, pro zmenu viditelnosti)
+    @GET
+    @Path("/pidlist-dir{path: (.+)?}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listFilesInPidlistDir(@PathParam("path") String path) {
+        //authentication
+        AuthenticatedUser user = getAuthenticatedUserByOauth();
+        String role = ROLE_LIST_DIRS_ON_SERVER;
+        if (!user.getRoles().contains(role)) {
+            throw new ForbiddenException("user '%s' is not allowed to list files on server (missing role '%s')", user.getName(), role); //403
+        }
+        //return data
+        return listFilesInDir("pidlist.directory", path);
+    }
 
     private Response listFilesInDir(String rootDirNamePropKey, String path) {
         try {
