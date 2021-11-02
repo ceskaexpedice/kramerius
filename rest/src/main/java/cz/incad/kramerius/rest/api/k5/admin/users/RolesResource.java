@@ -180,7 +180,11 @@ public class RolesResource {
                     Role r = this.userManager.findRole(Integer.parseInt(id));
                     if (r != null) {
                         this.userManager.removeRole(r);
-                        return Response.ok().entity(roleToJSON(r).toString()).build();
+                        if (this.userManager.findRole(r.getId()) == null) {
+                            return Response.status(Response.Status.NO_CONTENT).entity(new JSONObject().toString()).build();
+                        } else {
+                            throw new GenericApplicationException(String.format("Cannot delete role %s", r.getName()));
+                        }
                     } else throw new ObjectNotFound("cannot find role '"+id+"'");
                 } catch (SQLException e) {
                     throw new DeleteException(e.getMessage());

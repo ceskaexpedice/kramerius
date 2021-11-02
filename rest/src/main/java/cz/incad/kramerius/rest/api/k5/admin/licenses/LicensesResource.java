@@ -61,7 +61,7 @@ public class LicensesResource {
                 if (labelById != null) {
                     return Response.ok().entity(LicenseUtils.licenseToJSON(labelById).toString()).build();
                 } else {
-                    throw new ObjectNotFound(String.format("cannot find lisences %d", id));
+                    throw new ObjectNotFound(String.format("cannot find lisences %s", id));
                 }
             } catch (JSONException | LabelsManagerException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
@@ -113,23 +113,29 @@ public class LicensesResource {
     public Response update(@PathParam("id")String id, JSONObject jsonObject) {
         if (permit(this.userProvider.get())) {
             try {
-                Label l = LicenseUtils.licenseFromJSON(jsonObject);
-                if (l != null) {
-                    try {
-                        this.labelsManager.updateLabel(l);
-                        Label labelById = this.labelsManager.getLabelById(l.getId());
-                        if (labelById != null) {
-                            return Response.ok().entity(licenseToJSON(l).toString()).build();
-                        } else {
-                            return Response.ok().entity(new JSONObject().toString()).build();
+                int ident = Integer.parseInt(id);
+                if (this.labelsManager.getLabelById(ident) != null) {
+                    Label l = LicenseUtils.licenseFromJSON(Integer.parseInt(id), jsonObject);
+                    if (l != null ) {
+                        try {
+                            this.labelsManager.updateLabel(l);
+                            Label labelById = this.labelsManager.getLabelById(l.getId());
+                            if (labelById != null) {
+                                return Response.ok().entity(licenseToJSON(l).toString()).build();
+                            } else {
+                                return Response.ok().entity(new JSONObject().toString()).build();
+                            }
+                        } catch (JSONException | LabelsManagerException e) {
+                            throw new GenericApplicationException(e.getMessage(), e);
                         }
-                    } catch (JSONException | LabelsManagerException e) {
-                        throw new GenericApplicationException(e.getMessage(), e);
+                    } else {
+                        throw new BadRequestException("invalid payload '"+jsonObject+"'");
                     }
                 } else {
-                    throw new ObjectNotFound("cannot find right for '"+jsonObject+"'");
+                    throw new ObjectNotFound("cannot find license  for '"+jsonObject+"'");
                 }
-            } catch (JSONException e1) {
+
+            } catch (JSONException  | LabelsManagerException e1) {
                 throw new GenericApplicationException(e1.getMessage(), e1);
             }
         } else throw new ActionNotAllowed("action is not allowed");
@@ -144,8 +150,13 @@ public class LicensesResource {
             try {
                 Label label = this.labelsManager.getLabelById(Integer.parseInt(id));
                 if (label != null) {
-                    this.labelsManager.moveUp(label);
-                    return labelsAsResponse();
+                    int priority = label.getPriority();
+                    if (priority >= 2) {
+                        this.labelsManager.moveUp(label);
+                        return labelsAsResponse();
+                    } else {
+                        throw new BadRequestException(String.format("cannot change priority for label %s", label.toString()));
+                    }
                 } else {
                     throw  new ObjectNotFound(String.format("cannot find license %d", id));
                 }
@@ -164,8 +175,16 @@ public class LicensesResource {
             try {
                 Label label = this.labelsManager.getLabelById(Integer.parseInt(id));
                 if (label != null) {
-                    this.labelsManager.moveDown(label);
-                    return labelsAsResponse();
+                    int priority = label.getPriority();
+                    // TODO: synchronizzation
+                    int minPriority = this.labelsManager.getMinPriority();
+
+                    if (priority < minPriority) {
+                        this.labelsManager.moveDown(label);
+                        return labelsAsResponse();
+                    } else {
+                        throw new BadRequestException(String.format("cannot change priority for label %s", label.toString()));
+                    }
                 } else {
                     throw  new ObjectNotFound(String.format("cannot find license %d", id));
                 }
