@@ -19,11 +19,19 @@ public class LicenseUtils {
     }
 
     public static Label licenseFromJSON(JSONObject jsonObject) {
-        int id = jsonObject.getInt("id");
-        String name = jsonObject.getString("name");
-        String description = jsonObject.getString("description");
-        int priority = jsonObject.getInt("priority");
-        Label label = new LabelImpl(id, name, description, LabelsManager.LOCAL_GROUP_NAME, priority);
-        return label;
+        int id = jsonObject.optInt("id");
+        return licenseFromJSON(id, jsonObject);
     }
+
+    public static Label licenseFromJSON(int id, JSONObject jsonObject) {
+        //int id = jsonObject.optInt("id");
+        String name = jsonObject.getString("name");
+        String description = jsonObject.optString("description");
+        if (jsonObject.has("priority")) {
+            return new LabelImpl(id, name, description, LabelsManager.LOCAL_GROUP_NAME, jsonObject.optInt("priority"));
+        } else {
+            return new LabelImpl(id, name, description, LabelsManager.LOCAL_GROUP_NAME);
+        }
+    }
+
 }

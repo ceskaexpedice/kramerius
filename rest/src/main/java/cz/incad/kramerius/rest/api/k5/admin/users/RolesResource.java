@@ -26,19 +26,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import cz.incad.kramerius.rest.api.exceptions.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,10 +39,6 @@ import org.json.JSONObject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
-import cz.incad.kramerius.rest.api.exceptions.CreateException;
-import cz.incad.kramerius.rest.api.exceptions.DeleteException;
-import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
 import cz.incad.kramerius.security.RightsResolver;
@@ -85,12 +74,12 @@ public class RolesResource {
 
 
 
-    public static FormalNamesMapping FNAMES = new FormalNamesMapping(); static {
+    static FormalNamesMapping FNAMES = new FormalNamesMapping(); static {
         FNAMES.map("id","group_id");
         FNAMES.map("name","gname");
     };
 
-    public static TypesMapping TYPES = new TypesMapping(); static {
+    static TypesMapping TYPES = new TypesMapping(); static {
         TYPES.map("group_id", new SQLFilter.IntegerConverter());
         TYPES.map("gname", new SQLFilter.StringConverter());
     }
@@ -113,7 +102,27 @@ public class RolesResource {
         }
     }
 
-    
+    @PUT
+    @Path("{id:[0-9]+}")
+    @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
+    public Response changeRole(@PathParam("id") String roleId,JSONObject uOptions) {
+        try {
+            if (permit(this.userProvider.get())) {
+                Role role = createRoleFromJSON(Integer.parseInt(roleId), uOptions);
+                if (role.getId() >= 0) {
+                    this.userManager.editRole(role);
+                    Role foundRole = this.userManager.findRoleByName(role.getName());
+                    return Response.ok().entity(roleToJSON(foundRole).toString()).build();
+                } else throw new BadRequestException(String.format("must contain role id %s",roleId));
+            } else {
+                throw new ActionNotAllowed("not allowed");
+            }
+        } catch (JSONException  | SQLException e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
+
     @GET
     @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     public Response getRoles(
@@ -127,11 +136,13 @@ public class RolesResource {
         if (permit(this.userProvider.get())) {
             try {
                 Offset offset = null;
-                if (StringUtils.isAnyString(filterOffset)) {
+                if (StringUtils.isAnyString(filterOffset) || StringUtils.isAnyString(filterResultSize)) {
+                    if (filterOffset == null) {filterOffset = "0"; }
+                    if (filterResultSize == null) {filterResultSize = "20"; }
                     offset = new Offset(filterOffset, filterResultSize);
                 }
                 Ordering ordering = null;
-                if (StringUtils.isAnyString(filterOffset)) {
+                if (StringUtils.isAnyString(filterOrdering)) {
                     ordering = new Ordering("group_id","gname").select(transform(FNAMES,filterOrdering));
                 }
                 TypeOfOrdering type = null;
@@ -190,9 +201,15 @@ public class RolesResource {
         if (permit(this.userProvider.get())) {
             try {
                 Role role = createRoleFromJSON(uOptions);
-                this.userManager.insertRole(role);
-                URI uri = UriBuilder.fromResource(UsersResource.class).path("").build();
-                return Response.created(uri).entity(roleToJSON(role).toString()).build();
+                Role foundRole = this.userManager.findRoleByName(role.getName());
+                if (foundRole == null) {
+                    this.userManager.insertRole(role);
+                    Role savedRole = this.userManager.findRoleByName(role.getName());
+                    URI uri = UriBuilder.fromResource(UsersResource.class).path("").build();
+                    return Response.created(uri).entity(roleToJSON(savedRole).toString()).build();
+                } else {
+                    throw new CreateException(String.format("Role %s exists ", role.getName()));
+                }
             } catch (SQLException e) {
                 throw new CreateException(e.getMessage());
             }
@@ -207,7 +224,13 @@ public class RolesResource {
     }
 
     public static Role createRoleFromJSON(JSONObject uOptions) throws JSONException {
-        int id = uOptions.getInt("id");
+        int id = uOptions.has("id") ? uOptions.optInt("id") : -1;
+        String gname = uOptions.getString("name");
+        Role r = new RoleImpl(id, gname, -1);
+        return r;
+    }
+
+    public static Role createRoleFromJSON(int id, JSONObject uOptions) throws JSONException {
         String gname = uOptions.getString("name");
         Role r = new RoleImpl(id, gname, -1);
         return r;

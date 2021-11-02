@@ -694,6 +694,7 @@ public class DatabaseUserManager implements UserManager {
 
         final Connection connection = this.provider.get();
 
+
         List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
         commands.add(new JDBCCommand() {
 
@@ -713,6 +714,7 @@ public class DatabaseUserManager implements UserManager {
                         System.currentTimeMillis()));
             }
         });
+
 
         commands.add(new JDBCCommand() {
 

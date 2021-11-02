@@ -21,11 +21,11 @@ import javax.servlet.http.HttpServletResponse;
 public class CreateException extends AbstractRestJSONException{
 
 	public CreateException(String message, Exception ex) {
-		super(message, ex, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		super(message, ex, HttpServletResponse.SC_CONFLICT);
 	}
 
 	public CreateException(String message) {
-		super(message, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		super(message, HttpServletResponse.SC_CONFLICT);
 	}
 	
 }
