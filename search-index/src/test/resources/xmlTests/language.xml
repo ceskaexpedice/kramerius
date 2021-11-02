@@ -112,4 +112,55 @@
         </out>
     </test>
 
+    <test name="multiple languageTerms with inconsistent iso639-2b codes for same languge">
+        <desc>ignorování více languageTerm v jednom language</desc>
+        <in>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">cze</languageTerm>
+                <languageTerm authority="iso639-2b" type="code">eng</languageTerm>
+            </language>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">ger</languageTerm>
+            </language>
+        </in>
+        <out>
+            <field name="languages.facet">cze</field>
+            <field name="languages.facet">ger</field>
+        </out>
+    </test>
+
+    <test name="language[@objectPart='translation'] ignored">
+        <desc>zdrojový jazyk před překladem nemá být indexován</desc>
+        <in>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">cze</languageTerm>
+            </language>
+            <language objectPart="translation">
+                <languageTerm authority="iso639-2b" type="code">fre</languageTerm>
+            </language>
+        </in>
+        <out>
+            <field name="languages.facet">cze</field>
+        </out>
+    </test>
+
+    <test name="language[@objectPart='translation'] ignored, but not language[@objectPart='something else']">
+        <desc>zdrojový jazyk před překladem nemá být indexován</desc>
+        <in>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">cze</languageTerm>
+            </language>
+            <language objectPart="translation">
+                <languageTerm authority="iso639-2b" type="code">fre</languageTerm>
+            </language>
+            <language objectPart="summary">
+                <languageTerm authority="iso639-2b" type="code">eng</languageTerm>
+            </language>
+        </in>
+        <out>
+            <field name="languages.facet">cze</field>
+            <field name="languages.facet">eng</field>
+        </out>
+    </test>
+
 </testSuite>
