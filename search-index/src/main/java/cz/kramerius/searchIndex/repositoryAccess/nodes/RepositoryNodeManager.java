@@ -79,7 +79,7 @@ public class RepositoryNodeManager {
                 return null;
             }
             //System.out.println("building node for " + pid);
-            Pair<String, List<String>> parents = krameriusRepositoryAccessAdapter.getPidsOfParents(pid);
+            Pair<String, Set<String>> parents = krameriusRepositoryAccessAdapter.getPidsOfParents(pid);
             //process parents first
             RepositoryNode ownParent = parents.getFirst() == null ? null : getKrameriusNodeWithCycleDetection(parents.getFirst(), path);
             List<RepositoryNode> fosterParents = new ArrayList<>();
@@ -261,7 +261,6 @@ public class RepositoryNodeManager {
         if (parentsOwnChildren == null || parentsOwnChildren.isEmpty()) {
             return null;
         }
-
         int position = parentsOwnChildren.indexOf(childPid);
         return position == -1 ? null : Integer.valueOf(position);
     }

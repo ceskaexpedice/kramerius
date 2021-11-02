@@ -106,17 +106,29 @@ public class ProcessingIndexFeeder {
         return response;
     }
 
-    public void iterateProcessing(String query, Consumer<SolrDocument> action) throws IOException, SolrServerException {
-        //řazení podle date zaručí jen jednoznačné řazení, což by ale zvládlo (a lépe) i řazení podle pid
-        //date obsahuje timestamp vytvoření záznamu v processing indexu, ten proces ale probíhá paraleleně, takže tohle pořadí se po rebuildu processing indexu změní
-        //takže "date" nijak nesouvisí s přidáním do repozitáře, nebo snad publikací
-        //String sortField = "date";
-        String sortField = "pid";
-        iterateProcessingWithSort(query, sortField, SolrQuery.ORDER.desc, action);
+    /**
+     * This iteration guarantees, that order of "description" records is always the same after rebuilding Processing index.
+     * Also order of "relation" records from same RELS-EXT is the same, but it does NOT match order of elements in RELS-EXT.
+     * Order of "relation" records from different RELS-EXTs is undefined and may change between rebuilding of Processing index.
+     */
+    public void iterateProcessingSortedByPid(String query, Consumer<SolrDocument> action) throws IOException, SolrServerException {
+        iterateProcessingWithSort(query, "pid", SolrQuery.ORDER.asc, action);
     }
 
-    public void iterateProcessingSortedByTitle(String query, boolean ascending, Consumer<SolrDocument> action) throws IOException, SolrServerException {
-        iterateProcessingWithSort(query, "dc.title", ascending ? SolrQuery.ORDER.asc : SolrQuery.ORDER.desc, action);
+    /**
+     * This iteration guarantees, that order of "relation" records matches order of elements in any single RELS-EXT.
+     * Order of "description" record is undefined as is order of "relation" records from different RELS-EXTs.
+     * Field "date" depends on process, that rebuilds Processing index. This process is parallelized and results may differ between different runs.
+     */
+    public void iterateProcessingSortedByIndexationDate(String query, boolean ascending, Consumer<SolrDocument> action) throws IOException, SolrServerException {
+        iterateProcessingWithSort(query, "date", ascending ? SolrQuery.ORDER.asc : SolrQuery.ORDER.desc, action);
+    }
+
+    /**
+     * This iteration is convenient, if you want to show data at least somehow sorted
+     */
+    public void iterateProcessingSortedByTitle(String query, Consumer<SolrDocument> action) throws IOException, SolrServerException {
+        iterateProcessingWithSort(query, "dc.title", SolrQuery.ORDER.asc, action);
     }
 
     private void iterateProcessingWithSort(String query, String sortField, SolrQuery.ORDER order, Consumer<SolrDocument> action) throws IOException, SolrServerException {
@@ -176,7 +188,7 @@ public class ProcessingIndexFeeder {
 
     public List<Pair<String, String>> findByTargetPid(String pid) throws IOException, SolrServerException {
         final List<Pair<String, String>> retvals = new ArrayList<>();
-        this.iterateProcessing("targetPid:\"" + pid + "\"", (doc) -> {
+        iterateProcessingSortedByPid("targetPid:\"" + pid + "\"", (doc) -> {
             Pair<String, String> pair = new ImmutablePair<>(doc.getFieldValue("source").toString(), doc.getFieldValue("relation").toString());
             retvals.add(pair);
         });

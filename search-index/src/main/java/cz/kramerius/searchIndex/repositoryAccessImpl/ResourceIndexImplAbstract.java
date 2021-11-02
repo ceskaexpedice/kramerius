@@ -8,10 +8,11 @@ import org.w3c.dom.Document;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ResourceIndexImplAbstract implements IResourceIndex {
 
-    private Object notImplmented(){
+    private Object notImplmented() {
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -56,7 +57,7 @@ public class ResourceIndexImplAbstract implements IResourceIndex {
     }
 
     @Override
-    public Pair<String, List<String>> getPidsOfParents(String pid) throws ResourceIndexException {
+    public Pair<String, Set<String>> getPidsOfParents(String pid) throws ResourceIndexException {
         throw new UnsupportedOperationException("Not implemented");
     }
 

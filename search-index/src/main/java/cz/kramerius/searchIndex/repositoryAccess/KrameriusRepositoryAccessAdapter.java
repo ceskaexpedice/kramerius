@@ -9,6 +9,7 @@ import org.dom4j.Document;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class is an adapter for Kramerius-specific operations over general repository (formally Fedora, newly Akubra) and Resource Index.
@@ -46,16 +47,16 @@ public class KrameriusRepositoryAccessAdapter {
 
     /**
      * @param pid
-     * @return pids of own parent and foster parents
+     * @return pids of own parent (first) and foster parents (second)
      * @throws ResourceIndexException
      */
-    public Pair<String, List<String>> getPidsOfParents(String pid) throws ResourceIndexException {
+    public Pair<String, Set<String>> getPidsOfParents(String pid) throws ResourceIndexException {
         return resourceIndex.getPidsOfParents(pid);
     }
 
     /**
      * @param pid
-     * @return pids of own children and foster children
+     * @return pids of own children (first) and foster children (second) in an order matching RELS-EXT elements
      * @throws ResourceIndexException
      */
     public Pair<List<String>, List<String>> getPidsOfChildren(String pid) throws ResourceIndexException {

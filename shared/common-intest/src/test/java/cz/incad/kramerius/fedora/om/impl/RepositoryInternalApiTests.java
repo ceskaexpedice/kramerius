@@ -243,7 +243,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
         Assert.assertTrue(targets.contains("uuid:12993b4a-71b4-4f19-8953-0701243cc25d"));
 
         List<SolrDocument> beforeRebuilding = new ArrayList<>();
-        feeder.iterateProcessing("*:*" , (doc)->{
+        feeder.iterateProcessingSortedByPid("*:*" , (doc)->{
             beforeRebuilding.add(doc);
         });
 
@@ -255,7 +255,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
 
         List<SolrDocument> afterClearing = new ArrayList<>();
         System.out.println("Iterate over processing index - after");
-        feeder.iterateProcessing("*:*" , (doc)->{
+        feeder.iterateProcessingSortedByPid("*:*" , (doc)->{
             afterClearing.add(doc);
         });
         Assert.assertTrue(afterClearing.isEmpty());
@@ -265,7 +265,7 @@ public class RepositoryInternalApiTests extends ITTestsSetup {
 
 
         List<SolrDocument> afterRebuilding = new ArrayList<>();
-        feeder.iterateProcessing("*:*" , (doc)->{
+        feeder.iterateProcessingSortedByPid("*:*" , (doc)->{
             afterRebuilding.add(doc);
         });
 
