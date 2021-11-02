@@ -4,6 +4,7 @@ import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.kramerius.shared.Pair;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Vyrovnává rozdíly mezi současnou, minulou a uvažovanou budoucí verzí cz.incad.kramerius.resourceindex.IResourceIndex.
@@ -16,9 +17,18 @@ import java.util.List;
  */
 public interface IResourceIndex extends cz.incad.kramerius.resourceindex.IResourceIndex {
 
+    /**
+     * @return pids of own children (first) and foster children (second) of an object identified by pid; both lists are sorted in an order from RELS-EXT elements
+     */
     public Pair<List<String>, List<String>> getPidsOfChildren(String pid) throws ResourceIndexException;
 
-    public Pair<String, List<String>> getPidsOfParents(String pid) throws ResourceIndexException;
+    /**
+     * @return pid of own parent (first) and pids of foster parents of an object identified by pid
+     */
+    public Pair<String, Set<String>> getPidsOfParents(String pid) throws ResourceIndexException;
 
+    /**
+     * @return model of an object identified by pid
+     */
     public String getModel(String pid) throws ResourceIndexException;
 }

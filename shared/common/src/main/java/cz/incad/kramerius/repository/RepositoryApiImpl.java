@@ -165,7 +165,7 @@ public class RepositoryApiImpl implements RepositoryApi {
         List<String> pids = new ArrayList<>();
         //TODO: offset, limit
         String query = "type:description";
-        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+        akubraRepository.getProcessingIndexFeeder().iterateProcessingSortedByPid(query, (doc) -> {
             Object fieldValue = doc.getFieldValue("source");
             if (fieldValue != null) {
                 String valueStr = fieldValue.toString();
@@ -180,7 +180,7 @@ public class RepositoryApiImpl implements RepositoryApi {
         List<String> pids = new ArrayList<>();
         //TODO: offset, limit
         String query = String.format("type:description AND model:%s", "model\\:" + model); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze  uprime zbytecne
-        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+        akubraRepository.getProcessingIndexFeeder().iterateProcessingSortedByTitle(query, (doc) -> {
             Object fieldValue = doc.getFieldValue("source");
             if (fieldValue != null) {
                 String valueStr = fieldValue.toString();
@@ -239,7 +239,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     public Map<String, String> getDescription(String objectPid) throws RepositoryException, IOException, SolrServerException {
         Map<String, String> description = new HashMap<>();
         String query = String.format("type:description AND source:%s", objectPid.replace(":", "\\:"));
-        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> { //iterating, but there should only be one hit
+        akubraRepository.getProcessingIndexFeeder().iterateProcessingSortedByPid(query, (doc) -> { //iterating, but there should only be one hit
             for (String name : doc.getFieldNames()) {
                 description.put(name, doc.getFieldValue(name).toString());
             }
@@ -251,7 +251,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     public List<String> getTripletTargets(String sourcePid, String relation) throws RepositoryException, IOException, SolrServerException {
         List<String> pids = new ArrayList<>();
         String query = String.format("source:%s AND relation:%s", sourcePid.replace(":", "\\:"), relation);
-        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+        akubraRepository.getProcessingIndexFeeder().iterateProcessingSortedByIndexationDate(query, true, (doc) -> {
             Object fieldValue = doc.getFieldValue("targetPid");
             if (fieldValue != null) {
                 String valueStr = fieldValue.toString();
@@ -265,7 +265,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     public List<Triplet> getTripletTargets(String sourcePid) throws RepositoryException, IOException, SolrServerException {
         List<Triplet> triplets = new ArrayList<>();
         String query = String.format("source:%s", sourcePid.replace(":", "\\:"));
-        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+        akubraRepository.getProcessingIndexFeeder().iterateProcessingSortedByIndexationDate(query, true, (doc) -> {
             Object targetPid = doc.getFieldValue("targetPid");
             Object relation = doc.getFieldValue("relation");
             if (targetPid != null && relation != null) {
@@ -279,7 +279,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     public List<String> getTripletSources(String relation, String targetPid) throws RepositoryException, IOException, SolrServerException {
         List<String> pids = new ArrayList<>();
         String query = String.format("relation:%s AND targetPid:%s", relation, targetPid.replace(":", "\\:"));
-        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+        akubraRepository.getProcessingIndexFeeder().iterateProcessingSortedByIndexationDate(query, true, (doc) -> {
             Object fieldValue = doc.getFieldValue("source");
             if (fieldValue != null) {
                 String valueStr = fieldValue.toString();
@@ -293,7 +293,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     public List<Triplet> getTripletSources(String targetPid) throws RepositoryException, IOException, SolrServerException {
         List<Triplet> triplets = new ArrayList<>();
         String query = String.format("targetPid:%s", targetPid.replace(":", "\\:"));
-        akubraRepository.getProcessingIndexFeeder().iterateProcessing(query, (doc) -> {
+        akubraRepository.getProcessingIndexFeeder().iterateProcessingSortedByIndexationDate(query, true, (doc) -> {
             Object sourcePid = doc.getFieldValue("source");
             Object relation = doc.getFieldValue("relation");
             if (sourcePid != null && relation != null) {
