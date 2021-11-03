@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.inject.Named;
 import javax.ws.rs.Consumes;
@@ -37,7 +38,9 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.labels.Label;
 import cz.incad.kramerius.security.labels.LabelsManager;
 import cz.incad.kramerius.security.labels.LabelsManagerException;
@@ -53,17 +56,6 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
-import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.security.impl.RoleImpl;
@@ -170,12 +162,13 @@ public class RightsResource {
      * @return
      */
     @PUT
+    @Path("{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response update(JSONObject jsonObject) {
+    public Response update(@PathParam("id") String id,  JSONObject jsonObject) {
         if (permit(this.userProvider.get())) {
             try {
-                Right r = this.rightFromJSON(jsonObject);
+                Right r = this.rightFromJSON(Integer.parseInt(id), jsonObject);
                 if (r != null) {
                     try {
                         this.rightsManager.updateRight(r);
@@ -210,10 +203,41 @@ public class RightsResource {
         } else throw new ActionNotAllowed("action is not allowed");
     }
 
-    
+
+    @GET
+    @Path("resolve/{pid}")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    public Response resolve(@PathParam("pid")String pid,  @QueryParam("action")String action) {
+        try {
+            if (action != null) {
+                JSONObject returnObject = new JSONObject();
+                ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                Arrays.stream(pidPaths).forEach(processPath-> {
+
+                    processPath = processPath.injectRepository();
+
+                    String[] pids = processPath.getPathFromLeafToRoot();
+                    Right[] rights = this.rightsManager.findAllRights(pids, action);
+                    rights = SortingRightsUtils.sortRights(rights, processPath);
+
+                    JSONArray jsonArrayRights = new JSONArray();
+                    Arrays.stream(rights).map(this::rightsToJSON).forEach(jsonArrayRights::put);
+                    String strPath = Arrays.stream(processPath.getPathFromRootToLeaf()).collect(Collectors.joining("/"));
+
+                    returnObject.put(strPath, jsonArrayRights);
+
+                });
+                return Response.ok().entity(returnObject.toString()).build();
+            } else throw new BadRequestException("expecting action parameter");
+
+        } catch (IOException e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
     @GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response rights( @QueryParam("pid")String pid, @QueryParam("action")String action) {
+    public Response rights(@QueryParam("pids")String pids,  @QueryParam("action")String action) {
         if (permit(this.userProvider.get())) {
 
             try {
@@ -221,22 +245,11 @@ public class RightsResource {
 
                 Right[] rights = null;
 
-                if (pid != null && action != null) {
-                    rights = this.rightsManager.findAllRights(new String[] {pid}, action);
-                    if (SpecialObjects.isSpecialObject(pid) && pid.equals("uuid:1")) {
-                        rights = SortingRightsUtils.sortRights(rights, new ObjectPidsPath(pid));
-                    } else {
-                        //oppps
-                        ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
-                        // asi nebude jine trideni pro jinou pidpath; vyberemme prvni
-                        if (pidPaths.length > 0) {
-                            rights = SortingRightsUtils.sortRights(rights,pidPaths[0].injectRepository());
-                        }
-                    }
+                if (pids != null && action != null) {
+                    rights = this.rightsManager.findAllRights(pids.split(","), action);
                 } else {
-                    rights = this.rightsManager.findRights(new String[0],pid != null ? new String[]{pid} : new String[0],  action != null ? new String[] {action} : new String[0], roles.toArray(new String[roles.size()]));
+                    rights = this.rightsManager.findRights(new String[0],pids != null ? pids.split(",") : new String[0],  action != null ? new String[] {action} : new String[0], roles.toArray(new String[roles.size()]));
                 }
-
 
                 JSONArray jsonArr = new JSONArray();
                 for (Right r : rights) {
@@ -245,7 +258,7 @@ public class RightsResource {
                 }
                 
                 return Response.ok().entity(jsonArr.toString()).build();
-            } catch (JSONException  | IOException e) {
+            } catch (JSONException  e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
         } else throw new ActionNotAllowed("action is not allowed");
@@ -305,18 +318,18 @@ public class RightsResource {
 
 
     @PUT
-    @Path("params")
+    @Path("params/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response updateParam(JSONObject jsonObj) {
+    public Response updateParam(@PathParam("id")String id,  JSONObject jsonObj) {
         if (permit(this.userProvider.get())) {
             try {
-                RightCriteriumParams params = paramsFromJSON(jsonObj);
-                int id = params.getId();
+                RightCriteriumParams params = paramsFromJSON(Integer.parseInt(id), jsonObj);
+                int iid = params.getId();
                 this.rightsManager.updateRightCriteriumParams(params);
                 RightCriteriumParams[] p = this.rightsManager.findAllParams();
                 for (RightCriteriumParams rp : p) {
-                    if (rp.getId() == id)  {
+                    if (rp.getId() == iid)  {
                         return Response.ok().entity(paramToJSON(rp).toString()).build();
                     }
                 }
@@ -395,7 +408,7 @@ public class RightsResource {
                     critObject.put("applicableActions", actionsArray);
 
 
-                objects.put(c.getRightCriterium().getQName(), critObject);
+                    objects.put(c.getRightCriterium().getQName(), critObject);
                 });
 
                 return Response.ok().entity(objects.toString()).build();
@@ -488,27 +501,28 @@ public class RightsResource {
 		return rm;
 	}
 
+
+    private RightCriteriumParams paramsFromJSON(int id, JSONObject jsonObj) throws JSONException {
+        RightCriteriumParams param = new RightCriteriumParamsImpl(id);
+        if (jsonObj.has("description")) {
+            param.setShortDescription(jsonObj.getString("description"));
+        }
+        if (jsonObj.has("objects")) {
+            List<Object> objs = new ArrayList<Object>();
+            JSONArray jsonArr = jsonObj.getJSONArray("objects");
+            for (int i = 0, ll = jsonArr.length(); i < ll; i++) {
+                objs.add(jsonArr.get(i));
+            }
+            param.setObjects(objs.toArray());
+        }
+        return param;
+    }
 	private RightCriteriumParams paramsFromJSON(JSONObject jsonObj) throws JSONException {
 		int id = -1;
 		if (jsonObj.has("id")) {
 			id = jsonObj.getInt("id");
 		}
-		RightCriteriumParams param = new RightCriteriumParamsImpl(id);
-//		if (jsonObj.has("ldescription")) {
-//			param.setLongDescription(jsonObj.getString("ldesc"));
-//		}
-		if (jsonObj.has("description")) {
-			param.setShortDescription(jsonObj.getString("description"));
-		}
-		if (jsonObj.has("objects")) {
-			List<Object> objs = new ArrayList<Object>();
-			JSONArray jsonArr = jsonObj.getJSONArray("objects");
-			for (int i = 0, ll = jsonArr.length(); i < ll; i++) {
-				objs.add(jsonArr.get(i));
-			}
-			param.setObjects(objs.toArray());
-		}
-		return param;
+		return paramsFromJSON(id, jsonObj);
 	}
 	
 	private RightCriteriumWrapper rightCriteriumWrapper(JSONObject jsonObj) throws JSONException, LabelsManagerException {
@@ -526,24 +540,26 @@ public class RightsResource {
 		return wrapper;
 	}
 
-
+    private Right rightFromJSON(int id , JSONObject jsonObj) throws JSONException, LabelsManagerException {
+        String action = jsonObj.getString("action");
+        String pid = jsonObj.getString("pid");
+        Role role = roleFromJSON(jsonObj.getJSONObject("role"));
+        RightCriteriumWrapper wrapper = null;
+        if (jsonObj.has("criterium")){
+            wrapper = rightCriteriumWrapper(jsonObj.getJSONObject("criterium"));
+        }
+        RightImpl rimpl = new RightImpl(id, wrapper, pid, action, role);
+        if (jsonObj.has("fixedPriority")) {
+            rimpl.setFixedPriority(jsonObj.getInt("fixedPriority"));
+        }
+        return rimpl;
+    }
     private Right rightFromJSON(JSONObject jsonObj) throws JSONException, LabelsManagerException {
 		int id = -1;
 		if (jsonObj.has("id")) {
 			id = jsonObj.getInt("id");
 		}
-		String action = jsonObj.getString("action");
-		String pid = jsonObj.getString("pid");
-		Role role = roleFromJSON(jsonObj.getJSONObject("role"));
-		RightCriteriumWrapper wrapper = null;
-		if (jsonObj.has("criterium")){
-			wrapper = rightCriteriumWrapper(jsonObj.getJSONObject("criterium"));
-		}
-		RightImpl rimpl = new RightImpl(id, wrapper, pid, action, role);
-		if (jsonObj.has("fixedPriority")) {
-			rimpl.setFixedPriority(jsonObj.getInt("fixedPriority"));
-		}
-		return rimpl;
+		return rightFromJSON(id, jsonObj);
 
 	}
 	
