@@ -156,7 +156,19 @@ public class RepositoryNodeManager {
 
             String pidPath = ownParent == null ? pid : ownParent.getPidPath() + "/" + pid;
             String modelPath = ownParent == null ? model : ownParent.getModelPath() + "/" + model;
-
+            List<String> allPathsThroughAllParents = new ArrayList<>();
+            if (ownParent == null) { //nema vlastniho rodice, tj. jedina cesta ve vlastim strome: PID
+                allPathsThroughAllParents.add(pid);
+            } else {
+                for (String anyPathToOwnParent : ownParent.getAllPidPathsThroughAllParents()) { //vsechno, co vede na vlastniho rodice, treba skrz sbirky
+                    allPathsThroughAllParents.add(anyPathToOwnParent + "/" + pid);
+                }
+            }
+            for (RepositoryNode fosterParent : fosterParents) {//vsechno, co vede na vsechny nevlastni rodice, treba skrz sbirky/hierarchie sbirek
+                for (String anyPathToFosterParent : fosterParent.getAllPidPathsThroughAllParents()) {
+                    allPathsThroughAllParents.add(anyPathToFosterParent + "/" + pid);
+                }
+            }
             String rootPid = ownParent == null ? pid : ownParent.getRootPid();
             String rootModel = ownParent == null ? model : ownParent.getRootModel();
             Title rootTitle = ownParent == null ? title : ownParent.getRootTitle();
@@ -168,7 +180,7 @@ public class RepositoryNodeManager {
 
             return new RepositoryNode(
                     pid, model, title,
-                    pidPath, modelPath,
+                    pidPath, modelPath, allPathsThroughAllParents,
                     rootPid, rootModel, rootTitle,
                     ownParentPid, ownParentModel, ownParentTitle, positionInOwnParent,
                     fosterParentsPids, fosterParentsOfTypeCollectionPids, anyAncestorsOfTypeCollectionPids,

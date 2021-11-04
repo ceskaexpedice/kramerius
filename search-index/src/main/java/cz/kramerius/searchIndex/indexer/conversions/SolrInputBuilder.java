@@ -224,17 +224,10 @@ public class SolrInputBuilder {
                 Integer level = repositoryNode.getModelPath().split("/").length - 1;
                 addSolrField(solrInput, "level", level.toString());
             }
-            //pid_paths
-            addSolrField(solrInput, "pid_paths", repositoryNode.getPidPath());
-            if (repositoryNode.getPidsOfFosterParents() != null) {
-                for (String fosterParent : repositoryNode.getPidsOfFosterParents()) {
-                    RepositoryNode fosterParentNode = nodeManager.getKrameriusNode(fosterParent);
-                    if (fosterParentNode != null) {
-                        addSolrField(solrInput, "pid_paths", fosterParentNode.getPidPath() + "/" + pid);
-                    }
-                }
+            //pid_paths (vsechny cesty do pres vsechny rodice - pro kazdeho rodice muze byt x cest, napr. pres nekolik sbirek/hierarchi sbirek)
+            for (String path : repositoryNode.getAllPidPathsThroughAllParents()) {
+                addSolrField(solrInput, "pid_paths", path + "/" + pid);
             }
-
             //own, foster children
             /*if (krameriusNode.getPidsOfOwnChildren() != null) {
                 for (String ownChild : krameriusNode.getPidsOfOwnChildren()) {

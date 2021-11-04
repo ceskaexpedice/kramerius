@@ -127,7 +127,7 @@ public class XmlTestBuilder {
             DateInfo dateInfo = new DateExtractor().extractDateInfoFromMultipleSources(test.getInDoc().getRootElement(), null);
             RepositoryNode node = new RepositoryNode(
                     null, test.getDocType(), null,
-                    null, null,
+                    null, null, null,
                     null, null, null,
                     null, null, null, null,
                     null, null, null,
@@ -168,7 +168,7 @@ public class XmlTestBuilder {
                     .build();
             RepositoryNode node = new RepositoryNode(
                     null, test.getDocType(), null,
-                    null, null,
+                    null, null, null,
                     null, null, null,
                     null, null, null, null,
                     null, null, null,
