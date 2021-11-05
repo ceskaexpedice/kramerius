@@ -361,6 +361,23 @@ updatePassword() ::=<<
     where user_id=? 
 >>
 
+/** update user */
+updateUser(user) ::=<<
+    update user_entity
+
+    set name='$user.firstName$',
+        loginname= '$user.loginname$',
+        surname= '$user.surname$',
+        email= '$user.email$',
+        update_timestamp = ?
+    where user_id= $user.id$
+>>
+
+
+
+
+
+
 /** aktivace uzivatele */
 activateUser() ::=<<
     update user_entity 
@@ -514,4 +531,9 @@ associateRole() ::=<<
 /** disassociate role */
 disassociateRole() ::=<<
 	delete from group_user_assoc where user_id=? and group_id=?
+>>
+
+/** disassociate role for user*/
+disassociateUserRole() ::=<<
+	delete from group_user_assoc where user_id=?
 >>

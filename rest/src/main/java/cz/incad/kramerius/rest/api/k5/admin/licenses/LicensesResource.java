@@ -5,6 +5,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
+import cz.incad.kramerius.rest.api.exceptions.CreateException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
@@ -118,13 +119,19 @@ public class LicensesResource {
                     Label l = LicenseUtils.licenseFromJSON(Integer.parseInt(id), jsonObject);
                     if (l != null ) {
                         try {
-                            this.labelsManager.updateLabel(l);
-                            Label labelById = this.labelsManager.getLabelById(l.getId());
-                            if (labelById != null) {
-                                return Response.ok().entity(licenseToJSON(l).toString()).build();
+                            Label labelByName = this.labelsManager.getLabelByName(l.getName());
+                            if (labelByName != null && l.getId() != labelByName.getId()) {
+                                throw new CreateException(String.format("Licence %s already exists", l.getName()));
                             } else {
-                                return Response.ok().entity(new JSONObject().toString()).build();
+                                this.labelsManager.updateLabel(l);
+                                Label labelById = this.labelsManager.getLabelById(l.getId());
+                                if (labelById != null) {
+                                    return Response.ok().entity(licenseToJSON(labelById).toString()).build();
+                                } else {
+                                    return Response.ok().entity(new JSONObject().toString()).build();
+                                }
                             }
+
                         } catch (JSONException | LabelsManagerException e) {
                             throw new GenericApplicationException(e.getMessage(), e);
                         }

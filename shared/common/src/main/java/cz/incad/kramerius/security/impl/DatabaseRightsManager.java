@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.labels.Label;
 import cz.incad.kramerius.security.labels.impl.LabelImpl;
+import cz.incad.kramerius.utils.DatabaseUtils;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -602,49 +603,58 @@ public class DatabaseRightsManager implements RightsManager {
     public void deleteRightCriteriumParams(final int id) throws SQLException {
         final Connection connection = this.provider.get();
 
-        List<Integer> ids = new JDBCQueryTemplate<Integer>(connection,false) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
-                int id = rs.getInt("crit_id");
-                returnsList.add(id);
-                return super.handleRow(rs, returnsList);
-            }
-        }.executeQuery(SecurityDatabaseUtils.stGroup().getInstanceOf("findCriteriumsDependsOnParams").toString(), id);
+        try {
+            List<Integer> ids = new JDBCQueryTemplate<Integer>(connection,false) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                    int id = rs.getInt("crit_id");
+                    returnsList.add(id);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(SecurityDatabaseUtils.stGroup().getInstanceOf("findCriteriumsDependsOnParams").toString(), id);
 
-        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
-        for (final Integer criteriumId : ids) {
+            List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+            for (final Integer criteriumId : ids) {
+
+                commands.add(new JDBCCommand() {
+                    @Override
+                    public Object executeJDBCCommand(Connection con) throws SQLException {
+                        DatabaseRightsManager.this.deleteRightCriterium(criteriumId);
+                        return null;
+                    }
+                });
+            }
 
             commands.add(new JDBCCommand() {
+
                 @Override
                 public Object executeJDBCCommand(Connection con) throws SQLException {
-                    DatabaseRightsManager.this.deleteRightCriterium(criteriumId);
+                    StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRightCriteriumParams");
+                    JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(provider.get(), true);
+                    String sql = template.toString();
+                    LOGGER.fine(sql);
+                    jdbcTemplate.executeUpdate(sql, id);
                     return null;
                 }
             });
+
+            new JDBCTransactionTemplate(connection, true).updateWithTransaction(commands);
+        } finally {
+            DatabaseUtils.tryClose(connection);
         }
-        
-        commands.add(new JDBCCommand() {
-            
-            @Override
-            public Object executeJDBCCommand(Connection con) throws SQLException {
-                StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRightCriteriumParams");
-                JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(provider.get(), true);
-                String sql = template.toString();
-                LOGGER.fine(sql);
-                jdbcTemplate.executeUpdate(sql, id);
-                return null;
-            }
-        });
-        
-        new JDBCTransactionTemplate(connection, true).updateWithTransaction(commands);
-        
+
     }
 
     
 
     @Override
     public void deleteRightCriterium(int id) throws SQLException {
-        this.deleteRightCriteriumImpl(this.provider.get(), id);
+        Connection con = this.provider.get();
+        try {
+            this.deleteRightCriteriumImpl(con, id);
+        } finally {
+            DatabaseUtils.tryClose(con);
+        }
     }
 
 
@@ -767,8 +777,15 @@ public class DatabaseRightsManager implements RightsManager {
     @Override
     @InitSecurityDatabase
     public void updateRightCriteriumParams(RightCriteriumParams criteriumParams) throws SQLException {
-        final Connection con = provider.get();  
-        updateRightCriteriumParamsImpl(con, criteriumParams);
+        new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(
+                new JDBCCommand() {
+            @Override
+            public Object executeJDBCCommand(Connection con) throws SQLException {
+                updateRightCriteriumParamsImpl(con, criteriumParams);
+                return null;
+            }
+        });
+
     }
 
 

@@ -225,7 +225,6 @@ public class RightsResource {
                     String strPath = Arrays.stream(processPath.getPathFromRootToLeaf()).collect(Collectors.joining("/"));
 
                     returnObject.put(strPath, jsonArrayRights);
-
                 });
                 return Response.ok().entity(returnObject.toString()).build();
             } else throw new BadRequestException("expecting action parameter");
@@ -235,6 +234,8 @@ public class RightsResource {
         }
     }
 
+
+
     @GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response rights(@QueryParam("pids")String pids,  @QueryParam("action")String action) {
@@ -242,15 +243,12 @@ public class RightsResource {
 
             try {
                 List<String> roles = new ArrayList<String>();
-
                 Right[] rights = null;
-
                 if (pids != null && action != null) {
                     rights = this.rightsManager.findAllRights(pids.split(","), action);
                 } else {
                     rights = this.rightsManager.findRights(new String[0],pids != null ? pids.split(",") : new String[0],  action != null ? new String[] {action} : new String[0], roles.toArray(new String[roles.size()]));
                 }
-
                 JSONArray jsonArr = new JSONArray();
                 for (Right r : rights) {
                     JSONObject json = rightsToJSON(r);

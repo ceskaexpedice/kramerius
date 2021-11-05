@@ -96,7 +96,7 @@ public class UsersResource {
     static {
         FNAMES.map("id", "user_id");
         FNAMES.map("lname", "loginname");
-        FNAMES.map("firstname", "fistname");
+        FNAMES.map("firstname", "firstname");
         FNAMES.map("surname", "surname");
     };
 
@@ -111,7 +111,7 @@ public class UsersResource {
     @GET
     @Path("{id:[0-9]+}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response role(@PathParam("id") String uid) {
+    public Response user(@PathParam("id") String uid) {
         if (permit(this.userProvider.get())) {
             try {
                 User ur = this.userManager.findUser(Integer.parseInt(uid));
@@ -142,11 +142,13 @@ public class UsersResource {
         if (permit(this.userProvider.get())) {
             try {
                 Offset offset = null;
-                if (StringUtils.isAnyString(filterOffset)) {
+                if (StringUtils.isAnyString(filterOffset) || StringUtils.isAnyString(filterResultSize)) {
+                    if (filterOffset == null) {filterOffset = "0"; }
+                    if (filterResultSize == null) {filterResultSize = "20"; }
                     offset = new Offset(filterOffset, filterResultSize);
                 }
                 Ordering ordering = null;
-                if (StringUtils.isAnyString(filterOffset)) {
+                if (StringUtils.isAnyString(filterOrdering)) {
                     ordering = new Ordering("user_id", "loginname", "fistname",
                             "surname").select(transform(FNAMES, filterOrdering));
                 }
@@ -242,11 +244,17 @@ public class UsersResource {
                                 rList.add(jsonObj.getString("name"));
                             }
                         }
-                        
-                        this.userManager.changeRoles(u, rList);
-                        u = this.userManager.findUser(u.getId());
-                        return Response.ok().entity(userToJSON(u).toString())
-                                .build();
+                        User userFromJSON = createUserFromJSON(u.getId(), uOptions);
+                        User byLoginName = userManager.findUserByLoginName(userFromJSON.getLoginname());
+                        if (byLoginName != null && byLoginName.getId() != u.getId()) {
+                            throw new CreateException(String.format("loginname %s already exists in %d", userFromJSON.getLoginname(), byLoginName.getId()));
+                        } else {
+                            this.userManager.updateUser(userFromJSON);
+                            u = this.userManager.findUser(u.getId());
+                            return Response.ok().entity(userToJSON(u).toString())
+                                    .build();
+                        }
+
                     } catch (JSONException e) {
                         throw new GenericApplicationException(e.getMessage());
                     }
@@ -304,21 +312,27 @@ public class UsersResource {
             try {
                 User user = createUserFromJSON(uOptions);
                 if (!uOptions.has("password")) {
-                    throw new IllegalStateException("expecting password key");
+                    throw new BadRequestException("expecting password key");
                 }
                 
                 User userByLName = this.userManager.findUserByLoginName(user.getLoginname());
                 if (userByLName != null) {
-                    throw new BadRequestException("user with login name '"+user.getLoginname()+"'");
+                    throw new BadRequestException("user with login name '"+user.getLoginname()+"' already exists");
                 }
                 
                 String pswd = uOptions.getString("password");
                 this.userManager.insertUser(user, pswd);
                 this.userManager.activateUser(user);
-                URI uri = UriBuilder.fromResource(UsersResource.class).path("")
-                        .build();
-                return Response.created(uri)
-                        .entity(userToJSON(user).toString()).build();
+
+                User foundUser = this.userManager.findUserByLoginName(user.getLoginname());
+                if (foundUser != null) {
+                    URI uri = UriBuilder.fromResource(UsersResource.class).path("")
+                            .build();
+                    return Response.created(uri)
+                            .entity(userToJSON(foundUser).toString()).build();
+                } else {
+                    throw new CreateException("Cannot create user");
+                }
             } catch (SQLException e) {
                 throw new CreateException(e.getMessage(), e);
             } catch (JSONException e) {
@@ -334,6 +348,9 @@ public class UsersResource {
         jsonObj.put("lname", user.getLoginname());
         jsonObj.put("firstname", user.getFirstName());
         jsonObj.put("surname", user.getSurname());
+        if (user.getEmail() != null && StringUtils.isAnyString(user.getEmail())) {
+            jsonObj.put("email", user.getEmail());
+        }
         jsonObj.put("id", user.getId());
 
         JSONArray jsonArr = new JSONArray();
@@ -349,16 +366,23 @@ public class UsersResource {
     }
 
     public static User createUserFromJSON(JSONObject uOptions) throws JSONException {
-        String lname = uOptions.getString("lname");
-        String fname = uOptions.getString("firstname");
-        String sname = uOptions.getString("surname");
+        return createUserFromJSON(-1, uOptions);
+    }
 
-        int id = -1;
+    public static User createUserFromJSON(int id, JSONObject uOptions) throws JSONException {
+        String lname = uOptions.optString("lname");
+        String fname = uOptions.optString("firstname");
+        String sname = uOptions.optString("surname");
+        String email = uOptions.optString("email");
+
         if (uOptions.has("id")) {
-            uOptions.getInt("id");
+            id = uOptions.getInt("id");
         }
 
         UserImpl u = new UserImpl(id, fname, sname, lname, -1);
+        if (email != null && StringUtils.isAnyString(email)) {
+            u.setEmail(email);
+        }
         if (uOptions.has("roles")) {
             List<Role> rlist = new ArrayList<Role>();
             JSONArray jsonArr = uOptions.getJSONArray("roles");

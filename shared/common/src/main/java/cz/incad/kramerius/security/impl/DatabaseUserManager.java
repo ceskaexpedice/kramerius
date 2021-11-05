@@ -22,11 +22,14 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cz.incad.kramerius.security.DefaultRoles;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 
@@ -71,6 +74,7 @@ public class DatabaseUserManager implements UserManager {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
+
 
     private Role[] rolesForUser(int userId) {
         List<Role> rlist = new JDBCQueryTemplate<Role>(
@@ -152,6 +156,9 @@ public class DatabaseUserManager implements UserManager {
 
         if (ordering != null && ordering.getSelected() != null) {
             buffer.append(" order by ").append(ordering.getSelected());
+            if (typeOfOrdering != null) {
+                buffer.append(" ").append(typeOfOrdering.getTypeOfOrdering());
+            }
         }
 
         if (offset != null) {
@@ -688,6 +695,80 @@ public class DatabaseUserManager implements UserManager {
 
     }
 
+
+    @Override
+    public void updateUser(User user) throws SQLException {
+        final Connection connection = this.provider.get();
+        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+        commands.add(new JDBCCommand() {
+
+            @Override
+            public Object executeJDBCCommand(Connection con)
+                    throws SQLException {
+                StringTemplate template = ST_GROUP
+                        .getInstanceOf("updateUser");
+                template.setAttribute("user", user);
+                JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
+                        false);
+                String sql = template.toString();
+                LOGGER.fine(sql);
+                return jdbcTemplate.executeUpdate(sql, new java.sql.Timestamp(
+                        System.currentTimeMillis()));
+            }
+        });
+
+
+        commands.add(new JDBCCommand() {
+
+            @Override
+            public Object executeJDBCCommand(Connection con)
+                    throws SQLException {
+
+                StringTemplate template = ST_GROUP
+                        .getInstanceOf("disassociateUserRole");
+                JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
+                        false);
+                String sql = template.toString();
+
+                jdbcTemplate.executeUpdate(sql, user.getId());
+                return -1;
+            }
+        });
+
+
+        Role[] groups = user.getGroups();
+        Arrays.stream(groups).forEach(r-> {
+
+            commands.add(new JDBCCommand() {
+
+
+                @Override
+                public Object executeJDBCCommand(Connection con)
+                        throws SQLException {
+
+                    StringTemplate template = ST_GROUP
+                            .getInstanceOf("insertRoleAssoc");
+                    JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
+                            false);
+                    String sql = template.toString();
+
+                    //LOGGER.info(String.format("Role assoiation %d %d", user.getId(), r.getId()));
+                    jdbcTemplate.executeUpdate(sql, user.getId(), r.getId());
+                    return -1;
+                }
+            });
+        });
+
+
+        // update in transaction
+        new JDBCTransactionTemplate(connection, true)
+                .updateWithTransaction(commands
+                        .toArray(new JDBCCommand[commands.size()]));
+
+    }
+
+
+
     @Override
     public void insertUser(final User user, final String pswd)
             throws SQLException {
@@ -716,24 +797,53 @@ public class DatabaseUserManager implements UserManager {
         });
 
 
-        commands.add(new JDBCCommand() {
+        Role[] groups = user.getGroups();
+        Arrays.stream(groups).forEach(r-> {
+            commands.add(new JDBCCommand() {
 
-            @Override
-            public Object executeJDBCCommand(Connection con)
-                    throws SQLException {
-                Integer nuser = (Integer) getPreviousResult();
+                @Override
+                public Object executeJDBCCommand(Connection con)
+                        throws SQLException {
 
-                Role prole = findPublicUsersRole();
-                StringTemplate template = ST_GROUP
-                        .getInstanceOf("insertRoleAssoc");
-                JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
-                        false);
-                String sql = template.toString();
+                    int rid = r.getId();
+                    Integer nuser = (Integer) getPreviousResult();
 
-                jdbcTemplate.executeUpdate(sql, nuser, prole.getId());
-                return nuser;
-            }
+                    StringTemplate template = ST_GROUP
+                            .getInstanceOf("insertRoleAssoc");
+                    JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
+                            false);
+                    String sql = template.toString();
+
+                    jdbcTemplate.executeUpdate(sql, nuser,rid);
+                    return nuser;
+                }
+            });
         });
+        Optional<Role> any = Arrays.stream(groups).filter(r -> r.getName().equals(DefaultRoles.COMMON_USERS.getName())).findAny();
+        if (!any.isPresent()) {
+            Role commonRole = findRoleByName(DefaultRoles.COMMON_USERS.getName());
+            commands.add(new JDBCCommand() {
+
+                @Override
+                public Object executeJDBCCommand(Connection con)
+                        throws SQLException {
+                    Integer nuser = (Integer) getPreviousResult();
+
+                    StringTemplate template = ST_GROUP
+                            .getInstanceOf("insertRoleAssoc");
+                    JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
+                            false);
+                    String sql = template.toString();
+
+                    jdbcTemplate.executeUpdate(sql, nuser, commonRole.getId());
+                    return nuser;
+                }
+            });
+
+        }
+
+
+
 
         commands.add(new JDBCCommand() {
 
@@ -764,6 +874,8 @@ public class DatabaseUserManager implements UserManager {
                 .updateWithTransaction(commands
                         .toArray(new JDBCCommand[commands.size()]));
     }
+
+
 
     @Override
     public void saveUserPassword(User user, String pswd) throws SQLException {
@@ -796,22 +908,21 @@ public class DatabaseUserManager implements UserManager {
         this.insertRole(role);
     }
 
-    @Override
-    public Role findPublicUsersRole() {
-        StringTemplate template = ST_GROUP.getInstanceOf("findPublicRole");
-        List<Role> roles = new JDBCQueryTemplate<Role>(this.provider.get()) {
-
-            @Override
-            public boolean handleRow(ResultSet rs, List<Role> returnsList)
-                    throws SQLException {
-                Role role = SecurityDBUtils.createRole(rs);
-                returnsList.add(role);
-                return true;
-            }
-        }.executeQuery(template.toString(), PUBLIC_USERS_ROLE_NAME);
-
-        return roles.isEmpty() ? null : roles.get(0);
-    }
+//    public Role findPublicUsersRole() {
+//        StringTemplate template = ST_GROUP.getInstanceOf("findPublicRole");
+//        List<Role> roles = new JDBCQueryTemplate<Role>(this.provider.get()) {
+//
+//            @Override
+//            public boolean handleRow(ResultSet rs, List<Role> returnsList)
+//                    throws SQLException {
+//                Role role = SecurityDBUtils.createRole(rs);
+//                returnsList.add(role);
+//                return true;
+//            }
+//        }.executeQuery(template.toString(), PUBLIC_USERS_ROLE_NAME);
+//
+//        return roles.isEmpty() ? null : roles.get(0);
+//    }
 
     public void changeRoles(final User user, final List<String> rnames)
             throws SQLException {

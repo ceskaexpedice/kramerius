@@ -32,6 +32,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import cz.incad.kramerius.rest.api.exceptions.*;
+import cz.incad.kramerius.security.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,12 +42,6 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
-import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.utils.StringUtils;
@@ -71,6 +66,10 @@ public class RolesResource {
     
     @Inject
     RightsResolver rightsResolver;
+
+    @com.google.inject.Inject
+    RightsManager rightsManager;
+
 
 
 
@@ -110,9 +109,16 @@ public class RolesResource {
             if (permit(this.userProvider.get())) {
                 Role role = createRoleFromJSON(Integer.parseInt(roleId), uOptions);
                 if (role.getId() >= 0) {
-                    this.userManager.editRole(role);
-                    Role foundRole = this.userManager.findRoleByName(role.getName());
-                    return Response.ok().entity(roleToJSON(foundRole).toString()).build();
+
+                    Role roleByName = this.userManager.findRoleByName(role.getName());
+                    if (roleByName != null && roleByName.getId() != role.getId()) {
+                        throw new CreateException(String.format("cannot change role name %s", roleByName.getName()));
+                    } else {
+                        this.userManager.editRole(role);
+
+                        Role foundRole = this.userManager.findRoleByName(role.getName());
+                        return Response.ok().entity(roleToJSON(foundRole).toString()).build();
+                    }
                 } else throw new BadRequestException(String.format("must contain role id %s",roleId));
             } else {
                 throw new ActionNotAllowed("not allowed");
@@ -179,6 +185,10 @@ public class RolesResource {
                 try {
                     Role r = this.userManager.findRole(Integer.parseInt(id));
                     if (r != null) {
+
+                        this.rightsManager.findRightById(Integer.parseInt(id));
+
+
                         this.userManager.removeRole(r);
                         if (this.userManager.findRole(r.getId()) == null) {
                             return Response.status(Response.Status.NO_CONTENT).entity(new JSONObject().toString()).build();
