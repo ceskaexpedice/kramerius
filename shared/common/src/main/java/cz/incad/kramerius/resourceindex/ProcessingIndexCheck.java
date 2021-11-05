@@ -29,11 +29,11 @@ public class ProcessingIndexCheck {
         final ProcessingIndexFeeder instance = injector.getInstance(ProcessingIndexFeeder.class);
 
         List<String> pidsToDelete = new ArrayList<>();
-        instance.iterateProcessing(ProcessingIndexFeeder.DEFAULT_ITERATE_QUERY, (SolrDocument doc) ->{
+        instance.iterateProcessingSortedByPid(ProcessingIndexFeeder.DEFAULT_ITERATE_QUERY, (SolrDocument doc) -> {
             try {
                 Object source = doc.getFieldValue("source");
                 if (!repo.objectExists(source.toString())) {
-                    LOGGER.info("Object marked for delete :"+source.toString());
+                    LOGGER.info("Object marked for delete :" + source.toString());
                     pidsToDelete.add(source.toString());
                 }
             } catch (RepositoryException e) {
@@ -41,9 +41,9 @@ public class ProcessingIndexCheck {
             }
         });
 
-        pidsToDelete.stream().forEach(pid ->{
+        pidsToDelete.stream().forEach(pid -> {
             try {
-                LOGGER.info("Deleting pid :"+pid);
+                LOGGER.info("Deleting pid :" + pid);
                 instance.deleteByPid(pid);
             } catch (IOException e) {
                 throw new RuntimeException(e);

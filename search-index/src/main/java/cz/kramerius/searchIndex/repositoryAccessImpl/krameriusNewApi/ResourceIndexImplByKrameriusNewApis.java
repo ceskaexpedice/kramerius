@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstract {
 
@@ -36,7 +34,7 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
     }
 
     @Override
-    public Pair<String, List<String>> getPidsOfParents(String pid) throws ResourceIndexException {
+    public Pair<String, Set<String>> getPidsOfParents(String pid) throws ResourceIndexException {
         JsonObject structure = getStructure(pid);
         JsonObject parentsJson = structure.getAsJsonObject("parents");
         //own
@@ -46,7 +44,7 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
         }
         //foster
         JsonArray fosterParentsJson = parentsJson.getAsJsonArray("foster");
-        List<String> fosterParents = new ArrayList<>();
+        Set<String> fosterParents = new HashSet<>();
         Iterator<JsonElement> fosterParentsIt = fosterParentsJson.iterator();
         while (fosterParentsIt.hasNext()) {
             fosterParents.add(fosterParentsIt.next().getAsJsonObject().get("pid").getAsString());
