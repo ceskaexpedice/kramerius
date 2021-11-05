@@ -129,7 +129,7 @@ public class SolrUtils   {
      * @throws XPathExpressionException Cannot compile xpath
      */
     public static XPathExpression rootPidExpr() throws XPathExpressionException {
-        XPathExpression rootExpr = fact.newXPath().compile("//str[@name='root_pid']");
+        XPathExpression rootExpr = fact.newXPath().compile("//str[@name='root.pid']");
         return rootExpr;
     }
     
