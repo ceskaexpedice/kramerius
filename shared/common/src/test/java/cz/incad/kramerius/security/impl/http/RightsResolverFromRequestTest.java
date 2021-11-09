@@ -1,6 +1,8 @@
 package cz.incad.kramerius.security.impl.http;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,8 +29,9 @@ public class RightsResolverFromRequestTest {
             }
         };
         
-        EasyMock.expect(req.getHeader("X_IP_FORWARD")).andReturn("192.167.1.2").anyTimes();
+        EasyMock.expect(req.getHeader("X-Forwarded-For")).andReturn("192.167.1.2").anyTimes();
         EasyMock.expect(req.getRemoteAddr()).andReturn("127.0.0.1").anyTimes();
+        EasyMock.expect(req.getHeaderNames()).andReturn(Collections.enumeration( Arrays.asList("X-Forwarded-For"))).anyTimes();
         EasyMock.replay(req);
         
         Configuration conf = KConfiguration.getInstance().getConfiguration();
@@ -49,8 +52,9 @@ public class RightsResolverFromRequestTest {
                 return req;
             }
         };
-        
-        EasyMock.expect(req.getHeader("X_IP_FORWARD")).andReturn("192.167.1.2").anyTimes();
+
+        EasyMock.expect(req.getHeader("x-forwarded-For")).andReturn("192.167.1.2").anyTimes();
+        EasyMock.expect(req.getHeaderNames()).andReturn(Collections.enumeration( Arrays.asList("x-forwarded-For"))).anyTimes();
         EasyMock.expect(req.getRemoteAddr()).andReturn("127.0.0.1").anyTimes();
         EasyMock.replay(req);
         
