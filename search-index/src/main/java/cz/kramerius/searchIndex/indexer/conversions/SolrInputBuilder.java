@@ -53,7 +53,7 @@ public class SolrInputBuilder {
     public void convertFoxmlToSolrInput(File inFoxmlFile, File outSolrImportFile) throws IOException, DocumentException {
         //System.out.println("processing " + inFoxmlFile.getName());
         Document foxmlDoc = Dom4jUtils.parseXmlFromFile(inFoxmlFile);
-        SolrInput solrInput = processObjectFromRepository(foxmlDoc, null, null, null, null, false);
+        SolrInput solrInput = processObjectFromRepository(foxmlDoc, null, null, null, null, null, false);
         solrInput.printTo(outSolrImportFile, true);
     }
 
@@ -142,7 +142,7 @@ public class SolrInputBuilder {
         return solrInput;
     }
 
-    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, boolean setFullIndexationInProgress) throws IOException, DocumentException {
+    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, Integer audioLength, boolean setFullIndexationInProgress) throws IOException, DocumentException {
         //remove namespaces before applying xpaths etc
         foxmlDoc.accept(new NamespaceRemovingVisitor(true, true));
 
@@ -540,6 +540,10 @@ public class SolrInputBuilder {
             //collection.is_standalone
             String standaloneStr = toStringOrNull(Dom4jUtils.buildXpath("Description/standalone").selectSingleNode(relsExtRootEl));
             addSolrField(solrInput, "collection.is_standalone", Boolean.valueOf(standaloneStr));
+        }
+
+        if ("track".equals(model) && audioLength != null) {
+            addSolrField(solrInput, "track.length", audioLength);
         }
 
         //accessibility
