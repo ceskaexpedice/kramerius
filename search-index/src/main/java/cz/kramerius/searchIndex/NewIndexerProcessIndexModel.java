@@ -84,8 +84,8 @@ public class NewIndexerProcessIndexModel {
             return;
         }
         String model = modelPid.substring("model:".length());
-        // temporary disabled
-        //ProcessStarter.updateName(String.format("Indexace %s (typ %s)", modelPid, type));
+        ProcessStarter.updateName(String.format("Indexace %s ", modelPid));
+
         if (filters.indexNone()) {
             LOGGER.info("Podle kombinace filtrů není co indexovat, končím");
             return;

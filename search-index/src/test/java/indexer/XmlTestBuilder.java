@@ -127,7 +127,7 @@ public class XmlTestBuilder {
             DateInfo dateInfo = new DateExtractor().extractDateInfoFromMultipleSources(test.getInDoc().getRootElement(), null);
             RepositoryNode node = new RepositoryNode(
                     null, test.getDocType(), null,
-                    null, null,
+                    null, null, null,
                     null, null, null,
                     null, null, null, null,
                     null, null, null,
@@ -135,7 +135,7 @@ public class XmlTestBuilder {
                     languages, primaryAuthors, otherAuthors, dateInfo,
                     null
             );
-            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, true);
+            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
                     "indexer_version",
                     "full_indexation_in_progress",
@@ -168,7 +168,7 @@ public class XmlTestBuilder {
                     .build();
             RepositoryNode node = new RepositoryNode(
                     null, test.getDocType(), null,
-                    null, null,
+                    null, null, null,
                     null, null, null,
                     null, null, null, null,
                     null, null, null,
@@ -176,7 +176,7 @@ public class XmlTestBuilder {
                     null, null, null, null,
                     null
             );
-            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, true);
+            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
                     "indexer_version",
                     "full_indexation_in_progress",

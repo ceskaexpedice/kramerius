@@ -5,6 +5,7 @@ import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
+import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
@@ -13,6 +14,7 @@ import org.apache.solr.common.SolrException;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +26,7 @@ import java.util.logging.Logger;
 public class Indexer {
     private static final Logger LOGGER = Logger.getLogger(Indexer.class.getName());
 
-    public static final int INDEXER_VERSION = 10; //this should be updated after every change in logic, that affects full indexation
+    public static final int INDEXER_VERSION = 11; //this should be updated after every change in logic, that affects full indexation
 
     private final SolrConfig solrConfig;
     //only state variable
@@ -155,7 +157,9 @@ public class Indexer {
                 //System.out.println("ocr: " + ocrText);
                 //IMG_FULL mimetype
                 String imgFullMime = repositoryConnector.getImgFullMimetype(pid);
-                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, setFullIndexationInProgress);
+
+                Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid()) : null;
+                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
                 String solrInputStr = solrInput.getDocument().asXML();
                 solrIndexer.indexFromXmlString(solrInputStr, false);
                 counters.incrementIndexed();
@@ -177,6 +181,22 @@ public class Indexer {
             if (progressListener != null) {
                 progressListener.onProgress(counters.getProcessed());
             }
+        }
+    }
+
+    private Integer detectAudioLength(String pid) {
+        try {
+            AudioAnalyzer analyzer = new AudioAnalyzer();
+            if (repositoryConnector.isAudioWavAvailable(pid)) {
+                AudioAnalyzer.Result result = analyzer.analyze(repositoryConnector.getAudioWav(pid), AudioAnalyzer.Format.WAV);
+                return result.duration;
+            }
+            System.out.println("failed to detect audio length of " + pid);
+            return null;
+        } catch (IOException | UnsupportedAudioFileException e) {
+            System.err.println("error extracting audio length from " + pid);
+            e.printStackTrace();
+            return null;
         }
     }
 

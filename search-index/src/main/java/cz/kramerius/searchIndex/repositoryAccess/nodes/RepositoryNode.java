@@ -19,6 +19,8 @@ public class RepositoryNode {
     //paths
     private final String pidPath;
     private final String modelPath;
+    private final List<String> allPidPathsThroughAllParents;
+
     //root
     private final String rootPid;
     private final String rootModel;
@@ -45,7 +47,7 @@ public class RepositoryNode {
     private final List<String> licenses;
 
     public RepositoryNode(String pid, String model, Title title,
-                          String pidPath, String modelPath,
+                          String pidPath, String modelPath, List<String> allPathsToAllParents,
                           String rootPid, String rootModel, Title rootTitle,
                           String ownParentPid, String ownParentModel, Title ownParentTitle, Integer positionInOwnParent,
                           List<String> pidsOfFosterParents, List<String> pidsOfFosterParentsOfTypeCollection, List<String> pidsOfAnyAncestorsOfTypeCollection,
@@ -57,6 +59,7 @@ public class RepositoryNode {
         this.title = title;
         this.pidPath = pidPath;
         this.modelPath = modelPath;
+        this.allPidPathsThroughAllParents = allPathsToAllParents;
         this.rootPid = rootPid;
         this.rootModel = rootModel;
         this.rootTitle = rootTitle;
@@ -94,6 +97,14 @@ public class RepositoryNode {
 
     public String getModelPath() {
         return modelPath;
+    }
+
+    public List<String> getAllPidPathsThroughAllParents() {
+        if (allPidPathsThroughAllParents == null) {
+            return Collections.emptyList();
+        } else {
+            return Collections.unmodifiableList(allPidPathsThroughAllParents);
+        }
     }
 
     public String getRootPid() {

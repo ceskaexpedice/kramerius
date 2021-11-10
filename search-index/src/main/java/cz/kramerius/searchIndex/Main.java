@@ -7,6 +7,7 @@ import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
+import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import cz.kramerius.searchIndex.indexerProcess.Indexer;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
@@ -18,6 +19,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -421,12 +423,29 @@ public class Main {
                 System.err.println("object not found or in inconsistent state: " + pid + ", ignoring");
             } else {
                 String imgFullMime = repositoryAdapter.getImgFullMimetype(pid);
-                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, true);
+                Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid(), repositoryAdapter) : null;
+                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, true);
                 String solrInputStr = solrInput.getDocument().asXML();
                 //System.out.println(solrInputStr);
                 System.out.println("indexing " + pid);
                 solrAccess.indexFromXmlString(solrInputStr, true);
             }
+        }
+    }
+
+    private static Integer detectAudioLength(String pid, KrameriusRepositoryAccessAdapter repositoryConnector) {
+        try {
+            AudioAnalyzer analyzer = new AudioAnalyzer();
+            if (repositoryConnector.isAudioWavAvailable(pid)) {
+                AudioAnalyzer.Result result = analyzer.analyze(repositoryConnector.getAudioWav(pid), AudioAnalyzer.Format.WAV);
+                return result.duration;
+            }
+            System.out.println("failed to detect audio length of " + pid);
+            return null;
+        } catch (IOException | UnsupportedAudioFileException e) {
+            System.err.println("error extracting audio length from " + pid);
+            e.printStackTrace();
+            return null;
         }
     }
 

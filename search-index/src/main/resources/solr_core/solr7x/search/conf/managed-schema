@@ -608,6 +608,10 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--left, right, single-->
         <field name="page.placement" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
 
+        <!--track-->
+        <!--delka audia v sekundach (zaokrouhleno nahoru)-->
+        <field name="track.length" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+
         <!--identifiers-->
         <field name="id_urnnbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="id_ccnb" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
