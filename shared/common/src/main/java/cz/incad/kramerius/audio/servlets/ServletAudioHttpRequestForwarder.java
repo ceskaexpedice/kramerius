@@ -40,13 +40,13 @@ import cz.incad.kramerius.audio.AudioHttpRequestForwarder;
 import cz.incad.kramerius.audio.GetRequestHeaderForwarder;
 
 /**
- *
  * @author Martin Řehánek <Martin.Rehanek at mzk.cz>
+ * @deprecated use AudioStreamForwardingHelper instead
  */
 public class ServletAudioHttpRequestForwarder extends AbstractAudioHttpRequestForwarder<Void> implements AudioHttpRequestForwarder<Void> {
 
     private static final Logger LOGGER = Logger.getLogger(ServletAudioHttpRequestForwarder.class.getName());
-    
+
     final HttpServletResponse proxyToClientResponse;
     final HttpServletRequest clientToProxyRequest;
 
@@ -67,9 +67,6 @@ public class ServletAudioHttpRequestForwarder extends AbstractAudioHttpRequestFo
         forwardData(repositoryToProxyResponse.getEntity().getContent(), proxyToClientResponse.getOutputStream());
         return null;
     }
-    
-    
-    
 
     public Void forwardHeadRequest(URL url) throws IOException, URISyntaxException {
         LOGGER.log(Level.INFO, "forwarding {0}", url);
@@ -107,7 +104,6 @@ public class ServletAudioHttpRequestForwarder extends AbstractAudioHttpRequestFo
         forwarder.forwardHeaderIfPresent("Accept");
     }
 
-    
     private void forwardData(InputStream input, ServletOutputStream output) {
         try {
             byte[] buffer = new byte[BUFFER_SIZE];

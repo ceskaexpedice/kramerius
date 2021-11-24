@@ -23,6 +23,9 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @deprecated use AudioStreamForwardingHelper instead
+ */
 public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestForwarder<ResponseBuilder> implements AudioHttpRequestForwarder<ResponseBuilder> {
 
     public static final Logger LOGGER = Logger.getLogger(JerseyResponseHeaderForwarder.class.getName());

@@ -8,17 +8,19 @@ import java.util.logging.Level;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 /**
- * Iplementations is able to forward request 
- * @author pavels
+ * Iplementations is able to forward request
  *
  * @param <T>
+ * @author pavels
+ * @deprecated use AudioStreamForwardingHelper instead
  */
 public interface AudioHttpRequestForwarder<T> {
 
- 
+
     /**
      * Forward GET HTTP method
-     * @param url 
+     *
+     * @param url
      * @return
      * @throws IOException
      * @throws URISyntaxException
@@ -26,7 +28,8 @@ public interface AudioHttpRequestForwarder<T> {
     public abstract T forwardGetRequest(URL url) throws IOException, URISyntaxException;
 
     /**
-     * Forward HEAD HTTP method 
+     * Forward HEAD HTTP method
+     *
      * @param url
      * @return
      * @throws IOException

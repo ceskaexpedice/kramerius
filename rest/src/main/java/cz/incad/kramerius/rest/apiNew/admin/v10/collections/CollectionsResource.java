@@ -262,12 +262,13 @@ public class CollectionsResource extends AdminApiResource {
             }
             checkObjectExists(collectionPid);
             checkObjectExists(itemPid);
+            //TODO: pokud je sbírka, detekovat cyklus
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
             foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
             //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
             String batchToken = UUID.randomUUID().toString();
-            //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky
+            //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky (ne jen priznak, ale i pathy a taky licence)
             scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
             //scheduleReindexation(collectionPid, user, "OBJECT", batchToken, false, "sbírka " + collectionPid);
             return Response.status(Response.Status.CREATED).build();

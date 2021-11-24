@@ -28,8 +28,9 @@ import cz.incad.kramerius.audio.ResponseHeaderForwarder;
  * to audio proxy's response to client.
  *
  * @author Martin Řehánek <Martin.Rehanek at mzk.cz>
+ * @deprecated use AudioStreamForwardingHelper instead
  */
-public class ServletResponseHeaderForwarder implements ResponseHeaderForwarder{
+public class ServletResponseHeaderForwarder implements ResponseHeaderForwarder {
 
     private final HttpResponse repositoryResponse;
     private final HttpServletResponse proxyResponse;
@@ -38,8 +39,7 @@ public class ServletResponseHeaderForwarder implements ResponseHeaderForwarder{
      * Initializes Forwarder.
      *
      * @param repositoryResponse response from repository to proxy
-     * @param proxyResponse response from proxy to client
-     *
+     * @param proxyResponse      response from proxy to client
      */
     public ServletResponseHeaderForwarder(HttpResponse repositoryResponse, HttpServletResponse proxyResponse) {
         this.repositoryResponse = repositoryResponse;

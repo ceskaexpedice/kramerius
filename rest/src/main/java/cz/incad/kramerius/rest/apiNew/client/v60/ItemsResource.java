@@ -4,6 +4,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.audio.AudioFormat;
+import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
+import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
@@ -92,12 +95,26 @@ public class ItemsResource extends ClientApiResource {
 
 
     public static final Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
+    /**
+     * Serve audio data through proxy from Audio repository, not through Kramerius Repository (Akubra).
+     * Byte serving this way is more efficient and better tested.
+     */
+    private static final boolean AUDIO_SERVE_WITH_FORWARDING = true;
+    /**
+     * Only relevant with AUDIO_SERVE_WITH_FORWARDING=false
+     * Disable byte-serving when audio data is serverd through Kramerius Repository (Akubra).
+     * It would be inefficient to use byte-serving this way. Since Kramerius Repository (Akubra) has to fetch whole audio file again for every byte-serving request
+     */
+    private static final boolean AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE = true;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
     @Inject
     ZoomifyHelper zoomifyHelper;
+
+    @Inject
+    AudioStreamForwardingHelper audioHelper;
 
     /**
      * Because of rights and licenses
@@ -108,8 +125,6 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     RightsResolver rightsResolver;
-
-    private static final boolean AUDIO_IGNORE_RANGE = true;
 
     @HEAD
     @Path("{pid}")
@@ -664,10 +679,18 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_IGNORE_RANGE) {
-                return Response.ok().build();
+            if (AUDIO_SERVE_WITH_FORWARDING) {
+                HttpServletRequest request = this.requestProvider.get();
+                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.MP3);
+                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
+                audioHelper.forwardHttpHEAD(audioStreamId, request, builder);
+                return builder.build();
             } else {
-                return Response.ok().header("Accept-Ranges", "bytes").build();
+                if (AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE) {
+                    return Response.ok().build();
+                } else {
+                    return Response.ok().header("Accept-Ranges", "bytes").build();
+                }
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -689,9 +712,17 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            String mimeType = krameriusRepositoryApi.getAudioMp3Mimetype(pid);
-            InputStream is = krameriusRepositoryApi.getAudioMp3(pid);
-            return getAudioData(mimeType, is, pid);
+            if (AUDIO_SERVE_WITH_FORWARDING) {
+                HttpServletRequest request = this.requestProvider.get();
+                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.MP3);
+                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
+                audioHelper.forwardHttpGET(audioStreamId, request, builder);
+                return builder.build();
+            } else {
+                String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
+                InputStream is = krameriusRepositoryApi.getAudioWav(pid);
+                return getAudioDataFromAkubra(mimeType, is, pid);
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -700,10 +731,9 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    private Response getAudioData(String mimeType, InputStream is, String pid) throws IOException {
-        //TODO: consider using logic from AudioProxyServlet instead of getting content from Akubra
+    private Response getAudioDataFromAkubra(String mimeType, InputStream is, String pid) throws IOException {
         String headerRange = requestProvider.get().getHeader("Range");
-        boolean useRange = !AUDIO_IGNORE_RANGE && //not disabled
+        boolean useRange = !AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE && //not disabled
                 headerRange != null && !headerRange.isEmpty() && //Range present
                 !"bytes=0-".equals(headerRange) && //Chrome uses this and expects 200 instead of 206
                 headerRange.matches("bytes=\\d*-\\d*"); //ignoring different units or <unit>=<range-start>-<range-end>, <range-start>-<range-end>, <range-start>-<range-end>
@@ -714,7 +744,7 @@ public class ItemsResource extends ClientApiResource {
             byte[] dataComplete = buffer.toByteArray();
             Response.ResponseBuilder resp = Response.ok().entity(dataComplete).type(mimeType)
                     .header("Content-Length", totalSize);
-            if (!AUDIO_IGNORE_RANGE) {
+            if (!AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE) {
                 resp.header("Accept-Ranges", "bytes");
             }
             return resp.build();
@@ -753,10 +783,18 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_IGNORE_RANGE) {
-                return Response.ok().build();
+            if (AUDIO_SERVE_WITH_FORWARDING) {
+                HttpServletRequest request = this.requestProvider.get();
+                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.OGG);
+                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
+                audioHelper.forwardHttpHEAD(audioStreamId, request, builder);
+                return builder.build();
             } else {
-                return Response.ok().header("Accept-Ranges", "bytes").build();
+                if (AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE) {
+                    return Response.ok().build();
+                } else {
+                    return Response.ok().header("Accept-Ranges", "bytes").build();
+                }
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -778,9 +816,17 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            String mimeType = krameriusRepositoryApi.getAudioOggMimetype(pid);
-            InputStream is = krameriusRepositoryApi.getAudioOgg(pid);
-            return getAudioData(mimeType, is, pid);
+            if (AUDIO_SERVE_WITH_FORWARDING) {
+                HttpServletRequest request = this.requestProvider.get();
+                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.OGG);
+                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
+                audioHelper.forwardHttpGET(audioStreamId, request, builder);
+                return builder.build();
+            } else {
+                String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
+                InputStream is = krameriusRepositoryApi.getAudioWav(pid);
+                return getAudioDataFromAkubra(mimeType, is, pid);
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -797,10 +843,18 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_IGNORE_RANGE) {
-                return Response.ok().build();
+            if (AUDIO_SERVE_WITH_FORWARDING) {
+                HttpServletRequest request = this.requestProvider.get();
+                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.WAV);
+                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
+                audioHelper.forwardHttpHEAD(audioStreamId, request, builder);
+                return builder.build();
             } else {
-                return Response.ok().header("Accept-Ranges", "bytes").build();
+                if (AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE) {
+                    return Response.ok().build();
+                } else {
+                    return Response.ok().header("Accept-Ranges", "bytes").build();
+                }
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -822,9 +876,17 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
-            InputStream is = krameriusRepositoryApi.getAudioWav(pid);
-            return getAudioData(mimeType, is, pid);
+            if (AUDIO_SERVE_WITH_FORWARDING) {
+                HttpServletRequest request = this.requestProvider.get();
+                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.WAV);
+                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
+                audioHelper.forwardHttpGET(audioStreamId, request, builder);
+                return builder.build();
+            } else {
+                String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
+                InputStream is = krameriusRepositoryApi.getAudioWav(pid);
+                return getAudioDataFromAkubra(mimeType, is, pid);
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {

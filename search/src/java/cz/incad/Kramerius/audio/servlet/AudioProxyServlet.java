@@ -49,6 +49,7 @@ import java.util.logging.Logger;
  * Response: Client <- Audio proxy <- external Audio repository
  *
  * @author Martin Řehánek <Martin.Rehanek at mzk.cz>
+ * @deprecated use cz.incad.kramerius.rest.apiNew.client.v60.ItemsResource instead
  */
 public class AudioProxyServlet extends GuiceServlet {
 

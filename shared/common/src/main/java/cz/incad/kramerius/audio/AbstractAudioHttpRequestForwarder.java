@@ -3,6 +3,9 @@ package cz.incad.kramerius.audio;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
+/**
+ * @deprecated use AudioStreamForwardingHelper instead
+ */
 public abstract class AbstractAudioHttpRequestForwarder<T> implements AudioHttpRequestForwarder<T> {
 
     protected static final String CONNECTION_RESET = "Connection reset";

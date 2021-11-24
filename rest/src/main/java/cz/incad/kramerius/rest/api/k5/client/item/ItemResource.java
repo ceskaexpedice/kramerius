@@ -57,6 +57,7 @@ import java.util.logging.Logger;
  * Item endpoint
  *
  * @author pavels
+ * @deprecated use cz.incad.kramerius.rest.apiNew instead
  */
 @Path("/v5.0/item")
 public class ItemResource {
