@@ -12,7 +12,9 @@ public class AudioAnalyzer {
     }
 
     public static class Result {
+        /* description of audio format (bitrate etc.)*/
         public String format;
+        /* duration of audio in whole seconds (ceiling, i.e. 2.001 -> 3) */
         public int duration;
     }
 
