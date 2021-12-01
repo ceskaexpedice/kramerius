@@ -624,6 +624,16 @@
         <securedaction>reindex</securedaction>
     </process>
 
+    <!--rebuild processing index for given object (from it's foxml), i.e. fix description and relations going FROM this object-->
+    <process>
+        <id>processing_rebuild_for_object</id>
+        <description>Processing index - rebuild records from FOXML of given object (i.e. description and relations from this object)</description>
+        <mainClass>cz.incad.kramerius.resourceindex.ProcessingIndexRebuildFromFoxmlByPid</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>reindex</securedaction>
+    </process>
+
     <!-- migrace dat z Krameria do Krameria -->
     <process>
         <id>data_migration</id>

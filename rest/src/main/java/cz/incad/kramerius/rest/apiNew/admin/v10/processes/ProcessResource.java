@@ -653,7 +653,7 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 //Kramerius APIs
                 result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//protoze spousti podprocesy
-                //test process params
+                //process-specific params
                 result.add(duration.toString());
                 result.add(processesInBatch.toString());
                 result.add(finalState);
@@ -668,7 +668,7 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 //Kramerius APIs
                 result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders)); //pro pristup k repozitari pres verejne rest api
-                //indexation params
+                //process-specific params
                 result.add(type);//indexation type
                 result.add(pid);//indexation's root pid
                 result.add(ignoreInconsistentObjects.toString());
@@ -687,7 +687,7 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 //Kramerius APIs
                 result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //indexation params
+                //process-specific params
                 result.add(type); //indexation type
                 result.add(pid); //indexation's root pid
                 result.add(ignoreInconsistentObjects.toString());
@@ -706,7 +706,7 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 //Kramerius APIs
                 result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //set-policy params
+                //process-specific params
                 result.add(scope);
                 result.add(policy);
                 result.add(pid);
@@ -716,6 +716,16 @@ public class ProcessResource extends AdminApiResource {
             case "processing_rebuild": {
                 return Collections.emptyList();
             }
+            case "processing_rebuild_for_object": {
+                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+
+                List<String> result = new ArrayList<>();
+                //Kramerius APIs
+                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//protoze spousti podprocesy
+                //process-specific params
+                result.add(pid);
+                return result;
+            }
             case "import": {
                 File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
@@ -723,7 +733,7 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 //Kramerius APIs
                 result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //import params
+                //process-specific params
                 result.add(inputDataDir.getPath());
                 result.add(startIndexer.toString());
                 return result;

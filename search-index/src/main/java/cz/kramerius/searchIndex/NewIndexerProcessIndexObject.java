@@ -41,7 +41,9 @@ public class NewIndexerProcessIndexObject {
         for (String arg : args) {
             System.out.println(arg);
         }*/
-        if (args.length < 4) { //at least 4 args ar necessary: credentials for scheduling another process (in the same batch) after this process has finished
+        if (args.length < 7) { //at least 7 args ar necessary:
+            // A. credentials for scheduling another process (in the same batch) after this process has finished - 4 args
+            // B. process-specific args - 3+ args
             throw new RuntimeException("Not enough arguments.");
         }
         int argsIndex = 0;
@@ -52,7 +54,7 @@ public class NewIndexerProcessIndexObject {
         processCredentials.krameriusApiAuthClient = args[argsIndex++];
         processCredentials.krameriusApiAuthUid = args[argsIndex++];
         processCredentials.krameriusApiAuthAccessToken = args[argsIndex++];
-        //indexation info
+        //process-specific args
         String type = args[argsIndex++];
         String pid = args[argsIndex++];
         Boolean ignoreInconsistentObjects = Boolean.valueOf(args[argsIndex++]);
