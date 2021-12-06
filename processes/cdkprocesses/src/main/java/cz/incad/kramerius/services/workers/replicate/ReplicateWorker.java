@@ -7,6 +7,7 @@ import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.kramerius.Replicate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -74,6 +75,12 @@ public class ReplicateWorker extends Worker {
                 idIdentifier = idElm.getTextContent();
             }
 
+            // collection
+            Element collectionElm = XMLUtils.findElement(requestElm, "collection");
+            if (collectionElm != null) {
+                collectionField = collectionElm.getTextContent();
+            }
+
             // Composite id if there is solr cloud
             Element compositeIdElm = XMLUtils.findElement(requestElm, "composite.id");
             if (compositeIdElm != null) {
@@ -106,6 +113,10 @@ public class ReplicateWorker extends Worker {
     @Override
     public void run() {
         try {
+            ReplicateFinisher.WORKERS.addAndGet(this.itemsToBeProcessed.size());
+
+
+
             LOGGER.info("["+Thread.currentThread().getName()+"] processing list of pids "+this.pidsToBeProcessed.size());
             int batches = this.pidsToBeProcessed.size() / batchSize + (this.pidsToBeProcessed.size() % batchSize == 0 ? 0 :1);
             LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" batch ");
@@ -114,6 +125,7 @@ public class ReplicateWorker extends Worker {
                 int to = from + batchSize;
                 try {
                     List<String> subpids = pidsToBeProcessed.subList(from, Math.min(to,pidsToBeProcessed.size() ));
+                    ReplicateFinisher.BATCHES.addAndGet(subpids.size());
                     // Detect if documents are new documents or already indexed documents
                     PidsToReplicate pidsToReplicate = findPidsAlreadyIndexed(subpids);
 
@@ -160,7 +172,6 @@ public class ReplicateWorker extends Worker {
                             }
                         });
 
-                        ReplicateFinisher.COUNTER.addAndGet(XMLUtils.getElements(addDocument).size());
                         ReplicateFinisher.NEWINDEXED.addAndGet(XMLUtils.getElements(addDocument).size());
 
                         String s = SolrUtils.sendToDest(this.destinationUrl, this.client, batch);
@@ -220,7 +231,6 @@ public class ReplicateWorker extends Worker {
 
                             });
 
-                            ReplicateFinisher.COUNTER.addAndGet(XMLUtils.getElements(addDocument).size());
                             ReplicateFinisher.UPDATED.addAndGet(XMLUtils.getElements(addDocument).size());
 
 
@@ -252,7 +262,12 @@ public class ReplicateWorker extends Worker {
             } catch (BrokenBarrierException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(),e);
             }
+
+            LOGGER.info(String.format("Worker finished; All work for workers: %d; work in batches: %d; indexed: %d; updated %d" ,  ReplicateFinisher.WORKERS.get(), ReplicateFinisher.BATCHES.get(), ReplicateFinisher.NEWINDEXED.get(), ReplicateFinisher.UPDATED.get()));
+
         }
+
+
     }
 
     private PidsToReplicate findPidsAlreadyIndexed(List<String> subpids) throws ParserConfigurationException, SAXException, IOException {

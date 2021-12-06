@@ -21,6 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.annotation.Nullable;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -124,6 +125,7 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
         return super.isImageFULLAvailable(pid);
     }
 
+
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
@@ -173,20 +175,17 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
     public String getExternalStreamURL(String pid, String datastreamName) throws IOException {
         DigitalObject object = manager.readObjectFromStorage(pid);
         if (object != null) {
-
             DatastreamVersionType stream = AkubraUtils.getLastStreamVersion(object, datastreamName);
-
             if (stream != null) {
                 if (stream.getContentLocation() != null && "URL".equals(stream.getContentLocation().getTYPE())) {
                     return stream.getContentLocation().getREF();
-                } else {
-                    throw new IOException("Expected external datastream: " + pid + " - " + datastreamName);
                 }
             }
-            throw new IOException("Datastream not found: " + pid + " - " + datastreamName);
         }
-        throw new IOException("Object not found: " + pid);
+        return null;
     }
+
+
 
     @Override
     public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {

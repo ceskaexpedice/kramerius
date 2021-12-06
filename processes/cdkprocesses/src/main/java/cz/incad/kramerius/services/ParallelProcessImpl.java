@@ -21,6 +21,9 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Main class for command line utility
+ */
 public class ParallelProcessImpl {
 
 
@@ -130,7 +133,6 @@ public class ParallelProcessImpl {
 
     public static void main(String[] args) throws MigrateSolrIndexException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, SAXException, ParserConfigurationException {
         if (args.length > 0 ) {
-            // args processes
             for (String arg : args) {
                 ParallelProcessImpl migr = new ParallelProcessImpl();
                 migr.migrate(new File(arg));

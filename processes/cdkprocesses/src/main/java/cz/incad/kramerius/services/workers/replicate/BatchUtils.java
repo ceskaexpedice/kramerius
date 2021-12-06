@@ -38,9 +38,16 @@ public class BatchUtils {
 
         for (int i = 0; i < docs.size(); i++) {
             Element destDocElement = destBatch.createElement("doc");
-            destBatch.getDocumentElement().appendChild(destDocElement);
             Element sourceDocElm = docs.get(i);
-            k5transform(sourceDocElm, destBatch, destDocElement, compositeId, root, child);
+            transform(sourceDocElm, destBatch, destDocElement, compositeId, root, child);
+
+            // composite id is not supported
+            if (compositeId && root != null && child != null) {
+                boolean b = enhanceByCompositeId(destBatch, destDocElement, root, child);
+                if (b) destBatch.getDocumentElement().appendChild(destDocElement);
+            } else {
+                destBatch.getDocumentElement().appendChild(destDocElement);
+            }
         }
         return destBatch;
     }
@@ -76,7 +83,7 @@ public class BatchUtils {
     }
 
     /** transforming fields in k5 index; it doesn't apply if an index is K7 */
-    public static void k5transform(Element sourceDocElm, Document destDocument, Element destDocElem, boolean compositeId, String root, String child) throws MigrateSolrIndexException  {
+    public static void transform(Element sourceDocElm, Document destDocument, Element destDocElem, boolean compositeId, String root, String child) throws MigrateSolrIndexException  {
         String pid = pid(sourceDocElm);
         if (sourceDocElm.getNodeName().equals("doc")) {
             NodeList childNodes = sourceDocElm.getChildNodes();
@@ -92,14 +99,14 @@ public class BatchUtils {
                 }
             }
             browseAuthorsAndTitles(sourceDocElm, destDocument, destDocElem);
-            // composite id is not supported
-            if (compositeId && root != null && child != null) {
-                enhanceByCompositeId(destDocument, destDocElem, root, child);
-            }
+//            // composite id is not supported
+//            if (compositeId && root != null && child != null) {
+//                enhanceByCompositeId(destDocument, destDocElem, root, child);
+//            }
         }
     }
     
-    public static void enhanceByCompositeId(Document ndoc,Element docElm, String root, String child) {
+    public static boolean enhanceByCompositeId(Document ndoc,Element docElm, String root, String child) {
         Element pidElm = XMLUtils.findElement(docElm, new XMLUtils.ElementsFilter() {
             
             @Override
@@ -116,15 +123,18 @@ public class BatchUtils {
                 return attribute.equals(root);
             }
         });
-        
-            
-        
-        String txt = rootPidElm.getTextContent().trim()+"!"+pidElm.getTextContent().trim();
-        Element compositeIdElm = ndoc.createElement("field");
-        String compositeIdName = System.getProperty("compositeId.field.name","compositeId");
-        compositeIdElm.setAttribute("name", compositeIdName);
-        compositeIdElm.setTextContent(txt);
-        docElm.appendChild(compositeIdElm);
+
+        if (rootPidElm != null && pidElm != null) {
+            String txt = rootPidElm.getTextContent().trim()+"!"+pidElm.getTextContent().trim();
+            Element compositeIdElm = ndoc.createElement("field");
+            String compositeIdName = System.getProperty("compositeId.field.name","compositeId");
+            compositeIdElm.setAttribute("name", compositeIdName);
+            compositeIdElm.setTextContent(txt);
+            docElm.appendChild(compositeIdElm);
+            return true;
+        }  else {
+            return  false;
+        }
     }
     
     public static void simpleValue(String pid, Document feedDoc, Element feedDocElm, Node node, String derivedName, boolean dontCareAboutNonCopiingFields) {

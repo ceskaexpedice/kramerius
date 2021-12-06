@@ -23,7 +23,7 @@ configurations.compile {
 
 task customFatJar(type: Jar) {
     manifest {
-        attributes 'Main-Class': 'cz.incad.kramerius.services.TestMain'
+        attributes 'Main-Class': 'cz.incad.kramerius.services.KubernetesProcessImpl'
     }
     baseName = 'process'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }

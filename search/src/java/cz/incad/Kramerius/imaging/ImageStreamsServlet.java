@@ -254,44 +254,51 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
             @Override
             void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess,String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp) throws IOException, SecurityException, XPathExpressionException{
-                InputStream is = null; 
-                if (stream.equals(FedoraUtils.IMG_THUMB_STREAM)) {
-                    // small thumb -> no rights
-                    is = fedoraAccess.getSmallThumbnail(pid);
-                } else { 
-                    is = fedoraAccess.getDataStream(pid, stream);
-                }
+                String externalStreamURL = fedoraAccess.getExternalStreamURL(pid, stream);
+                if (externalStreamURL != null && (externalStreamURL.startsWith("http") || externalStreamURL.startsWith("https"))) {
+                    // send redirect response
+                    LOGGER.info(String.format("Redirecting to %s", externalStreamURL));
+                    resp.sendRedirect(externalStreamURL);
+                } else {
+                    InputStream is = null;
+                    if (stream.equals(FedoraUtils.IMG_THUMB_STREAM)) {
+                        // small thumb -> no rights
+                        is = fedoraAccess.getSmallThumbnail(pid);
+                    } else {
+                        is = fedoraAccess.getDataStream(pid, stream);
+                    }
 
-                String mimeType = fedoraAccess.getMimeTypeForStream(pid, stream);
-                ImageMimeType loadedMimeType = ImageMimeType.loadFromMimeType(mimeType);
+                    String mimeType = fedoraAccess.getMimeTypeForStream(pid, stream);
+                    ImageMimeType loadedMimeType = ImageMimeType.loadFromMimeType(mimeType);
 
-                resp.setContentType(mimeType);
-                imageStreamsServlet.setDateHaders(pid, stream, resp);
-                imageStreamsServlet.setResponseCode(pid, stream, req, resp);
-                
-                String asFileParam = req.getParameter("asFile");
-                if ((asFileParam != null) && (asFileParam.equals("true"))) {
-                    Document relsExt = fedoraAccess.getRelsExt(pid);
-                    String fileNameFromRelsExt = FileNameUtils.disectFileNameFromRelsExt(relsExt);
-                    if (fileNameFromRelsExt == null) {
-                        LOGGER.severe("no <file.. element in RELS-EXT");
-                        fileNameFromRelsExt = "uknown";
+                    resp.setContentType(mimeType);
+                    imageStreamsServlet.setDateHaders(pid, stream, resp);
+                    imageStreamsServlet.setResponseCode(pid, stream, req, resp);
+
+                    String asFileParam = req.getParameter("asFile");
+                    if ((asFileParam != null) && (asFileParam.equals("true"))) {
+                        Document relsExt = fedoraAccess.getRelsExt(pid);
+                        String fileNameFromRelsExt = FileNameUtils.disectFileNameFromRelsExt(relsExt);
+                        if (fileNameFromRelsExt == null) {
+                            LOGGER.severe("no <file.. element in RELS-EXT");
+                            fileNameFromRelsExt = "uknown";
+                        }
+                        if (fileNameFromRelsExt.indexOf('.') > 0) {
+                            fileNameFromRelsExt = fileNameFromRelsExt.substring(0, fileNameFromRelsExt.lastIndexOf('.'));
+                        }
+
+                        if (loadedMimeType != null) {
+                            fileNameFromRelsExt=fileNameFromRelsExt+"."+loadedMimeType.getDefaultFileExtension();
+                        }
+
+                        resp.setHeader("Content-disposition", "attachment; filename=" + fileNameFromRelsExt);
                     }
-                    if (fileNameFromRelsExt.indexOf('.') > 0) {
-                        fileNameFromRelsExt = fileNameFromRelsExt.substring(0, fileNameFromRelsExt.lastIndexOf('.'));
-                    }
-                    
-                    if (loadedMimeType != null) {
-                        fileNameFromRelsExt=fileNameFromRelsExt+"."+loadedMimeType.getDefaultFileExtension();
-                    }
-    
-                    resp.setHeader("Content-disposition", "attachment; filename=" + fileNameFromRelsExt);
+
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    copyStreams(is, bos);
+                    byte[] arr = bos.toByteArray();
+                    copyStreams(new ByteArrayInputStream(arr), resp.getOutputStream());
                 }
-                
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                copyStreams(is, bos);
-                byte[] arr = bos.toByteArray();
-                copyStreams(new ByteArrayInputStream(arr), resp.getOutputStream());
             }
         };
         

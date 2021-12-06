@@ -1,24 +1,21 @@
 <cdkprocess>
-    <!-- velka zmena -->
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
-        <url>http://localhost:8984/solr/search</url>
+        <url>$iteration.url$</url>
         <endpoint>select</endpoint>
 
         <id>pid</id>
-        <rows>500</rows>
+        <rows>10000</rows>
         <type>CURSOR</type>
     </iteration>
 
-    <threads>1</threads>
+    <threads>2</threads>
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.ReplicateSolrWorkerFactory"></workerFactory>
     <worker>
         <request>
-
-            <url>http://localhost:8984/solr/search</url>
-
+            <url>$iteration.url$</url>
             <endpoint>select</endpoint>
             <batchsize>20</batchsize>
 
@@ -28,39 +25,27 @@
             <composite.root>root.pid</composite.root>
             <composite.child>pid</composite.child>
 
-            <checkUrl>http://localhost:8983/solr/k7_5</checkUrl>
+            <checkUrl>$destination.url$</checkUrl>
             <checkEndpoint>select</checkEndpoint>
 
+            <!-- cdk source field -->
+            <collection>cdk.collection</collection>
 
             <fieldlist>indexer_version pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr</fieldlist>
 
             <!-- toto vyresit lip -->
             <collections.url>
-
                 <elem>
                     <key>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</key>
                     <value>https://kramerius.mzk.cz/search</value>
-                </elem>
-                <elem>
-                    <key>vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26</key>
-                    <value>https://kramerius.lib.cas.cz/search/</value>
-                </elem>
-
-                <elem>
-                    <key>vc:4e6b7ee5-3374-4cde-9289-e1f6a2a335b2</key>
-                    <value>http://kramerius.cbvk.cz/search</value>
-                </elem>
-
-                <elem>
-                    <key>vc:d34ba74b-026a-4c60-aee7-9250a307952c</key>
-                    <value>http://kramerius.svkhk.cz/search/</value>
                 </elem>
 
             </collections.url>
         </request>
 
         <destination>
-            <url>http://localhost:8983/solr/k7_5/update</url>
+            <url>$destination.url$/update</url>
+
             <!-- on index -->
             <onindex>
                 <!-- remove from batch document -->
@@ -72,11 +57,13 @@
                     <field name="cdk.collection">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
                 </update.dest.field>
             </onindex>
-            <!-- on update -->
+            <!-- on update; disabled for now -->
             <onupdate>
+                <!--
                 <update.dest.field>
                     <field name="cdk.collection" update="add-distinct">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
                 </update.dest.field>
+                -->
             </onupdate>
 
         </destination>
