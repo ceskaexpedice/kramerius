@@ -200,44 +200,48 @@ public class SolrIndexAccess {
     }
 
     public void addSingleFieldValueForMultipleObjects(List<String> pids, String fieldName, Object value, boolean explicitCommit) {
-        try {
-            List<SolrInputDocument> inputDocs = new ArrayList<>();
-            for (String pid : pids) {
-                SolrInputDocument inputDoc = new SolrInputDocument();
-                inputDoc.addField("pid", pid);
-                Map<String, Object> updateData = new HashMap<>();
-                updateData.put("add-distinct", value == null ? null : value.toString());
-                inputDoc.addField(fieldName, updateData);
-                inputDocs.add(inputDoc);
+        if (!pids.isEmpty()) {
+            try {
+                List<SolrInputDocument> inputDocs = new ArrayList<>();
+                for (String pid : pids) {
+                    SolrInputDocument inputDoc = new SolrInputDocument();
+                    inputDoc.addField("pid", pid);
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("add-distinct", value == null ? null : value.toString());
+                    inputDoc.addField(fieldName, updateData);
+                    inputDocs.add(inputDoc);
+                }
+                solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
+                if (explicitCommit) {
+                    solrClient.commit(collection);
+                }
+            } catch (IOException | SolrServerException e) {
+                e.printStackTrace();
+                throw new RuntimeException((e));
             }
-            solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
-            if (explicitCommit) {
-                solrClient.commit(collection);
-            }
-        } catch (IOException | SolrServerException e) {
-            e.printStackTrace();
-            throw new RuntimeException((e));
         }
     }
 
     public void removeSingleFieldValueFromMultipleObjects(List<String> pids, String fieldName, Object value, boolean explicitCommit) {
-        try {
-            List<SolrInputDocument> inputDocs = new ArrayList<>();
-            for (String pid : pids) {
-                SolrInputDocument inputDoc = new SolrInputDocument();
-                inputDoc.addField("pid", pid);
-                Map<String, Object> updateData = new HashMap<>();
-                updateData.put("removeregex", value == null ? null : value.toString()); //'remove' neodstranuje vsechny kopie stejne hodnoty (ac to tvrdi dokumentace)
-                inputDoc.addField(fieldName, updateData);
-                inputDocs.add(inputDoc);
+        if (!pids.isEmpty()) {
+            try {
+                List<SolrInputDocument> inputDocs = new ArrayList<>();
+                for (String pid : pids) {
+                    SolrInputDocument inputDoc = new SolrInputDocument();
+                    inputDoc.addField("pid", pid);
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("removeregex", value == null ? null : value.toString()); //'remove' neodstranuje vsechny kopie stejne hodnoty (ac to tvrdi dokumentace)
+                    inputDoc.addField(fieldName, updateData);
+                    inputDocs.add(inputDoc);
+                }
+                solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
+                if (explicitCommit) {
+                    solrClient.commit(collection);
+                }
+            } catch (IOException | SolrServerException e) {
+                e.printStackTrace();
+                throw new RuntimeException((e));
             }
-            solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
-            if (explicitCommit) {
-                solrClient.commit(collection);
-            }
-        } catch (IOException | SolrServerException e) {
-            e.printStackTrace();
-            throw new RuntimeException((e));
         }
     }
 }

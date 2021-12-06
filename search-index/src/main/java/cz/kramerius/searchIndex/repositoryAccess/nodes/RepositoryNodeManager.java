@@ -31,6 +31,7 @@ public class RepositoryNodeManager {
         try {
             return getKrameriusNodeWithCycleDetection(pid, new ArrayList<>());
         } catch (RuntimeException e) {
+            e.printStackTrace();
             if (surviveInconsistentObjects) {
                 //e.printStackTrace();
                 System.err.println(e.getMessage());
@@ -133,7 +134,8 @@ public class RepositoryNodeManager {
             List<AuthorInfo> primaryAuthors = mergePrimaryAuthors(ownParent, fosterParents, myPrimaryAuthors);
             List<AuthorInfo> otherAuthors = mergeOtherAuthors(ownParent, fosterParents, myOtherAuthors);
             List<String> myLicences = extractLicenses(model, relsExtDoc);
-            List<String> licenses = mergeLicenses(ownParent, fosterParents, myLicences);
+            //List<String> licenses = mergeLicenses(ownParent, fosterParents, myLicences);
+            List<String> licencesOfOwnAncestors = getLicensesFromAllOwnAncestors(ownParent);
 
             //pids of all foster parents
             List<String> fosterParentsPids = toPidList(fosterParents);
@@ -186,7 +188,7 @@ public class RepositoryNodeManager {
                     fosterParentsPids, fosterParentsOfTypeCollectionPids, anyAncestorsOfTypeCollectionPids,
                     ownChildren, fosterChildren,
                     languages, primaryAuthors, otherAuthors, dateInfo,
-                    licenses
+                    myLicences, licencesOfOwnAncestors
             );
         } catch (IOException | ResourceIndexException e) {
             throw new RuntimeException(e);
@@ -219,7 +221,7 @@ public class RepositoryNodeManager {
         return list;
     }
 
-    private List<String> mergeLicenses(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<String> myLicences) {
+   /* private List<String> mergeLicenses(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<String> myLicences) {
         //fill set
         Set<String> set = new HashSet<>();
         if (ownParent != null) {
@@ -231,6 +233,19 @@ public class RepositoryNodeManager {
         set.addAll(myLicences);
         //return list
         List<String> list = new ArrayList<>();
+        list.addAll(set);
+        return list;
+    }*/
+
+    private List<String> getLicensesFromAllOwnAncestors(RepositoryNode ownParent) {
+        //fill set
+        Set<java.lang.String> set = new HashSet<>();
+        if (ownParent != null) {
+            set.addAll(ownParent.getLicenses());
+            set.addAll(ownParent.getLicensesOfAncestors());
+        }
+        //return list
+        List<java.lang.String> list = new ArrayList<>();
         list.addAll(set);
         return list;
     }

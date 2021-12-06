@@ -683,6 +683,9 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!-- contains licenses (formerly dnnt labels) -->
         <field name="contains_licenses" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
 
+        <!-- licences belonging to (own) ancestors-->
+        <field name="licenses_of_ancestors" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
 
         <!-- Lemmatized is disabled now
         <copyField source="text_ocr" dest="text_ocr.lemmatized"/>

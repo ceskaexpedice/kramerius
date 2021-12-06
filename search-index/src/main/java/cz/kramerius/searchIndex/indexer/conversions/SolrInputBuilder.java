@@ -271,6 +271,9 @@ public class SolrInputBuilder {
             for (String license : repositoryNode.getLicenses()) {
                 addSolrField(solrInput, "licenses", license);
             }
+            for (String license : repositoryNode.getLicensesOfAncestors()) {
+                addSolrField(solrInput, "licenses_of_ancestors", license);
+            }
             //languages from tree, foster trees
             for (String language : repositoryNode.getLanguages()) {
                 addSolrField(solrInput, "languages.facet", language);
