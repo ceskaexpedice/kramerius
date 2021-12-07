@@ -72,6 +72,7 @@ public class DNNTDecorator extends AbstractItemDecorator {
                         Optional<Element> optional = Optional.of(doc);
 
                         List<String> dnntLabels = SOLRUtils.narray(doc, SolrFieldsMapping.getInstance().getDnntLabelsField(), String.class);
+                        dnntLabels.addAll(SOLRUtils.narray(doc, SolrFieldsMapping.getInstance().getDnntLabelsLicensesOfAncestors(), String.class));
 
                         //Boolean value = SOLRUtils.value(doc, "dnnt",  Boolean.class);
 
