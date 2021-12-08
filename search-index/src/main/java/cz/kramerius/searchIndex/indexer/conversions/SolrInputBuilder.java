@@ -226,7 +226,7 @@ public class SolrInputBuilder {
             }
             //pid_paths (vsechny cesty do pres vsechny rodice - pro kazdeho rodice muze byt x cest, napr. pres nekolik sbirek/hierarchi sbirek)
             for (String path : repositoryNode.getAllPidPathsThroughAllParents()) {
-                addSolrField(solrInput, "pid_paths", path + "/" + pid);
+                addSolrField(solrInput, "pid_paths", path);
             }
             //own, foster children
             /*if (krameriusNode.getPidsOfOwnChildren() != null) {
