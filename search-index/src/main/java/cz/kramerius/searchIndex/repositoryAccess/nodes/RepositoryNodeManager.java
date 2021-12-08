@@ -134,8 +134,7 @@ public class RepositoryNodeManager {
             List<AuthorInfo> primaryAuthors = mergePrimaryAuthors(ownParent, fosterParents, myPrimaryAuthors);
             List<AuthorInfo> otherAuthors = mergeOtherAuthors(ownParent, fosterParents, myOtherAuthors);
             List<String> myLicences = extractLicenses(model, relsExtDoc);
-            //List<String> licenses = mergeLicenses(ownParent, fosterParents, myLicences);
-            List<String> licencesOfOwnAncestors = getLicensesFromAllOwnAncestors(ownParent);
+            List<String> licencesOfOwnAncestors = getLicensesFromAllAncestors(ownParent, fosterParents);
 
             //pids of all foster parents
             List<String> fosterParentsPids = toPidList(fosterParents);
@@ -221,28 +220,17 @@ public class RepositoryNodeManager {
         return list;
     }
 
-   /* private List<String> mergeLicenses(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<String> myLicences) {
-        //fill set
-        Set<String> set = new HashSet<>();
-        if (ownParent != null) {
-            set.addAll(ownParent.getLicenses());
-        }
-        for (RepositoryNode fosterParent : fosterParents) {
-            set.addAll(fosterParent.getLicenses());
-        }
-        set.addAll(myLicences);
-        //return list
-        List<String> list = new ArrayList<>();
-        list.addAll(set);
-        return list;
-    }*/
-
-    private List<String> getLicensesFromAllOwnAncestors(RepositoryNode ownParent) {
+    //from both own and foster ancestors
+    private List<String> getLicensesFromAllAncestors(RepositoryNode ownParent, List<RepositoryNode> fosterParents) {
         //fill set
         Set<java.lang.String> set = new HashSet<>();
         if (ownParent != null) {
             set.addAll(ownParent.getLicenses());
             set.addAll(ownParent.getLicensesOfAncestors());
+        }
+        for (RepositoryNode fosterParent : fosterParents) {
+            set.addAll(fosterParent.getLicenses());
+            set.addAll(fosterParent.getLicensesOfAncestors());
         }
         //return list
         List<java.lang.String> list = new ArrayList<>();

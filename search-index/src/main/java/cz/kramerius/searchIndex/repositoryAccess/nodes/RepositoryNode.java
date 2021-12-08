@@ -45,7 +45,7 @@ public class RepositoryNode {
     private final List<AuthorInfo> otherAuthors;
     private final DateInfo dateInfo;
     private final List<String> licenses;
-    private final List<String> licensesOfAncestors;
+    private final List<String> licensesOfAncestors; //including foster ancestors
 
     public RepositoryNode(String pid, String model, Title title,
                           String pidPath, String modelPath, List<String> allPathsToAllParents,
@@ -197,6 +197,9 @@ public class RepositoryNode {
         return licenses == null ? Collections.emptyList() : licenses;
     }
 
+    /**
+     * @return licenses of all ancestors, including foster parents and theier ancestors
+     */
     public List<String> getLicensesOfAncestors() {
         return licensesOfAncestors == null ? Collections.emptyList() : licensesOfAncestors;
     }
