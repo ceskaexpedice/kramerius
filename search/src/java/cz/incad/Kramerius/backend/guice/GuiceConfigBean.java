@@ -101,6 +101,8 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                 new IiifServletModule(),
 
                 servletModule()
+
+
 		)); 
     	
     	try {

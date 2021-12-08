@@ -37,6 +37,7 @@ dependencies {
 
     compile project(':security:security-core')
     compile project(':security:authfilters')
+    compile project(':security:oauth')
 
     compile project(':processes:mw-process')
     compile project(':processes:indexer')
@@ -66,6 +67,9 @@ dependencies {
     compile 'net.sf.json-lib:json-lib:2.4:jdk15'
     
     compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.2'
+
+    compile 'org.keycloak:keycloak-servlet-filter-adapter:15.0.2'
+    compile 'org.keycloak:keycloak-authz-client:15.0.2'
     
 }
 

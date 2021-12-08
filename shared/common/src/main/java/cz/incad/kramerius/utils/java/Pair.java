@@ -27,7 +27,7 @@ package cz.incad.kramerius.utils.java;
 
 import java.io.Serializable;
 
-import javafx.beans.NamedArg;
+//import javafx.beans.NamedArg;
 
 /**
  * <p>A convenience class to represent pairs of values.</p>
@@ -70,7 +70,7 @@ public class Pair<K, V> implements Serializable {
      * @param first  The first value for this pair
      * @param second The second value to use for this pair
      */
-    public Pair(@NamedArg("first") K first, @NamedArg("second") V second) {
+    public Pair(K first, V second) {
         this.first = first;
         this.second = second;
     }
