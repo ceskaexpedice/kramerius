@@ -27,6 +27,7 @@ include 'processes:nkp-logs'
 
 include 'security:security-core'
 include 'security:authfilters'
+include 'security:oauth'
 
 //include 'authfilters'
 //include 'solr-migration'
