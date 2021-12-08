@@ -8,6 +8,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.new_api.IndexationScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
@@ -66,7 +67,7 @@ public class SetLicenseProcess {
 
     /**
      * args[0] - target (pid:uuid:123, or pidlist:uuid:123;uuid:345;uuid:789, or pidlist_file:/home/kramerius/.kramerius/import-dnnt/grafiky.txt
-     * In case of pidlist pids must be separated with ';'. Convenient separator ',' won't work due to way how params are stored in database and transfered to process.
+     * In case of pidlist pids must be separated with ';'. Convenient separator ',' won't work due to way how params are stored in database and transferred to process.
      * <p>
      * args[1] - licence ('dnnt', 'dnnto', 'public_domain', etc.)
      */
@@ -97,9 +98,7 @@ public class SetLicenseProcess {
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig(KConfiguration.getInstance()));
-        //TODO: vytahnout z configu
-        String krameriusBackendBaseUrl = "http://localhost:8080/search";
-        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
+        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
 
         switch (action) {
             case ADD:
@@ -164,16 +163,20 @@ public class SetLicenseProcess {
         PidsOfOwnDescendantsProducer iterator = new PidsOfOwnDescendantsProducer(targetPid, searchIndex);
         while (iterator.hasNext()) {
             List<String> pids = iterator.next();
-            boolean explicitCommit = false;
-            if (!iterator.hasNext()) {
-                explicitCommit = true;
-            }
-            indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, explicitCommit);
+            indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, false);
             LOGGER.info(String.format("Indexed: %d/%d", iterator.getReturned(), iterator.getTotal()));
+        }
+
+        //commit changes in index
+        try {
+            indexerAccess.commit();
+        } catch (IOException | SolrServerException e) {
+            e.printStackTrace();
+            throw new RuntimeException((e));
         }
     }
 
-    private static List<String> getPidsOfOwnAncestors(String targetPid, IResourceIndex resourceIndex) throws IOException, ResourceIndexException {
+    private static List<String> getPidsOfOwnAncestors(String targetPid, IResourceIndex resourceIndex) throws ResourceIndexException {
         List<String> result = new ArrayList<>();
         String pidOfCurrentNode = targetPid;
         String pidOfCurrentNodesOwnParent;
@@ -269,11 +272,7 @@ public class SetLicenseProcess {
             PidsOfOwnDescendantsProducer descendantsIterator = new PidsOfOwnDescendantsProducer(targetPid, searchIndex);
             while (descendantsIterator.hasNext()) {
                 List<String> pids = descendantsIterator.next();
-                boolean explicitCommit = false;
-                if (!descendantsIterator.hasNext()) {
-                    explicitCommit = true;
-                }
-                indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, explicitCommit);
+                indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, false);
                 LOGGER.info(String.format("Indexed: %d/%d", descendantsIterator.getReturned(), descendantsIterator.getTotal()));
             }
             //5b. Vsem potomkum ciloveho objektu, ktere take vlastni licenci, budou aktualizovany licence jejich potomku (prida se licenses_of_ancestors=L), protoze byly nepravem odebrany v kroku 5a.
@@ -282,14 +281,17 @@ public class SetLicenseProcess {
                 PidsOfOwnDescendantsProducer iterator = new PidsOfOwnDescendantsProducer(pid, searchIndex);
                 while (iterator.hasNext()) {
                     List<String> pids = iterator.next();
-                    boolean explicitCommit = false;
-                    if (!iterator.hasNext()) {
-                        explicitCommit = true;
-                    }
-                    indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, explicitCommit);
+                    indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, false);
                     LOGGER.info(String.format("Indexed: %d/%d", iterator.getReturned(), iterator.getTotal()));
                 }
             }
+        }
+        //commit changes in index
+        try {
+            indexerAccess.commit();
+        } catch (IOException | SolrServerException e) {
+            e.printStackTrace();
+            throw new RuntimeException((e));
         }
     }
 
