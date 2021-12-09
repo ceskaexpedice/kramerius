@@ -13,6 +13,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.keycloak.adapters.spi.KeycloakAccount;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -26,8 +27,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class AdminApiResource extends ApiResource {
+
+    public static Logger LOGGER = Logger.getLogger(AdminApiResource.class.getName());
 
     //TODO: move url into configuration
     private static final String AUTH_URL = "https://api.kramerius.cloud/api/v1/auth/validate_token";
@@ -47,7 +52,23 @@ public abstract class AdminApiResource extends ApiResource {
         return ClientAuthHeaders.extract(requestProvider);
     }
 
+
+    private static final AuthenticatedUser ANONYMOUS = new AuthenticatedUser("anonymous", "anonymous", new ArrayList<>());
+
     public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
+        KeycloakAccount keycloakAccount = null;
+        try {
+            keycloakAccount = (KeycloakAccount) requestProvider.get().getAttribute(KeycloakAccount.class.getName());
+        }catch (Throwable th){
+            LOGGER.log(Level.INFO,"Error retrieving KeycloakAccount", th);
+        }
+        if (keycloakAccount == null){
+            return  ANONYMOUS;
+        }
+        return new AuthenticatedUser(keycloakAccount.getPrincipal().getName(), keycloakAccount.getPrincipal().getName(), new ArrayList<>(keycloakAccount.getRoles()));
+    }
+
+    /*public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
         ClientAuthHeaders authHeaders = extractClientAuthHeaders();
         //System.out.println(authHeaders);
         try {
@@ -105,7 +126,7 @@ public abstract class AdminApiResource extends ApiResource {
         } catch (IOException e) {
             throw new InternalErrorException("error communicating with authentication service: %s ", e.getMessage());
         }
-    }
+    }*/
 
     private String inputstreamToString(InputStream in) throws IOException {
         BufferedReader reader = null;
