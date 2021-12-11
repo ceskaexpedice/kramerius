@@ -262,21 +262,52 @@ public class CollectionsResource extends AdminApiResource {
             }
             checkObjectExists(collectionPid);
             checkObjectExists(itemPid);
-            //TODO: pokud je sbírka, detekovat cyklus
+            checkCanAddItemToCollection(itemPid, collectionPid);
+            //extract relsExt and update by adding new relation
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
-            foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            if (!addedNow) {
+                throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
+            }
+            //save updated rels-ext
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
             //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
             String batchToken = UUID.randomUUID().toString();
-            //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky (ne jen priznak, ale i pathy a taky licence)
+            //mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
             scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
-            //scheduleReindexation(collectionPid, user, "OBJECT", batchToken, false, "sbírka " + collectionPid);
             return Response.status(Response.Status.CREATED).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    private void checkCanAddItemToCollection(String itemPid, String collectionPid) throws SolrServerException, RepositoryException, IOException {
+        //pid of object that item is to be added into must belong to collection
+        if (!"collection".equals(krameriusRepositoryApi.getModel(collectionPid))) {
+            throw new ForbiddenException("not a collection: " + collectionPid);
+        }
+        //cannot add to itself
+        if (collectionPid.equals(itemPid)) {
+            throw new ForbiddenException("cannot add collection into itself: " + collectionPid);
+        }
+        //detect cycle
+        if ("collection".equals(krameriusRepositoryApi.getModel(itemPid))) {
+            detectCyclicPath(itemPid, collectionPid, String.format("%s --contains--> %s", collectionPid, itemPid));
+        }
+    }
+
+    private void detectCyclicPath(String pid, String pidOfObjectNotAllowedOnPath, String pathSoFar) throws SolrServerException, RepositoryException, IOException {
+        List<RepositoryApi.Triplet> fosterChildrenTriplets = krameriusRepositoryApi.getChildren(pid).getSecond();
+        for (RepositoryApi.Triplet triplet : fosterChildrenTriplets) {
+            String path = String.format("%s --%s--> %s ", pathSoFar, triplet.relation, triplet.target);
+            if (pidOfObjectNotAllowedOnPath.equals(triplet.target)) {
+                throw new ForbiddenException("adding item to collection would create cycle: " + path);
+            } else {
+                detectCyclicPath(triplet.target, pidOfObjectNotAllowedOnPath, path);
+            }
         }
     }
 
@@ -289,7 +320,8 @@ public class CollectionsResource extends AdminApiResource {
      */
     @DELETE
     @Path("{collectionPid}/items/{itemPid}")
-    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, @PathParam("itemPid") String itemPid) {
+    public Response removeItemFromCollection(@PathParam("collectionPid") String
+                                                     collectionPid, @PathParam("itemPid") String itemPid) {
         try {
             checkSupportedObjectPid(collectionPid);
             checkSupportedObjectPid(itemPid);
@@ -301,20 +333,36 @@ public class CollectionsResource extends AdminApiResource {
             }
             checkObjectExists(collectionPid);
             checkObjectExists(itemPid);
+            checkCanRemoveItemFromCollection(itemPid, collectionPid);
+            //extract relsExt and update by removing relation
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
-            foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            if (!removed) {
+                throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
+            }
+            //save updated rels-ext
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
             //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
             String batchToken = UUID.randomUUID().toString();
-            //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky
+            //mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
             scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
-            //scheduleReindexation(collectionPid, user, "OBJECT", batchToken, false, "sbírka " + collectionPid);
             return Response.status(Response.Status.OK).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    private void checkCanRemoveItemFromCollection(String itemPid, String collectionPid) throws SolrServerException, RepositoryException, IOException {
+        //pid of object that item is to be removed from must belong to collection
+        if (!"collection".equals(krameriusRepositoryApi.getModel(collectionPid))) {
+            throw new ForbiddenException("not a collection: " + collectionPid);
+        }
+        //cannot remove collection from itself
+        if (collectionPid.equals(itemPid)) {
+            throw new ForbiddenException("collection and item pids are the same: " + collectionPid);
         }
     }
 
@@ -340,12 +388,10 @@ public class CollectionsResource extends AdminApiResource {
             List<String> childrenPids = new ArrayList<>();
             for (RepositoryApi.Triplet ownChildTpl : childrenTpls.getFirst()) {
                 String childPid = ownChildTpl.target;
-                System.out.println(childPid);
                 childrenPids.add(childPid);
             }
             for (RepositoryApi.Triplet fosterChildTpl : childrenTpls.getSecond()) {
                 String childPid = fosterChildTpl.target;
-                System.out.println(childPid);
                 childrenPids.add(childPid);
             }
             //delete collection object form repository (not managed datastreams, since those for IMG_THUMB are referenced from other objects - pages)
@@ -354,7 +400,7 @@ public class CollectionsResource extends AdminApiResource {
             String batchToken = UUID.randomUUID().toString();
             scheduleReindexation(pid, user, "OBJECT", batchToken, false, "sbírka " + pid);
             for (String childPid : childrenPids) {
-                //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky
+                //mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
                 scheduleReindexation(childPid, user, "TREE_AND_FOSTER_TREES", batchToken, true, childPid);
             }
             return Response.ok().build();
@@ -366,7 +412,8 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    private Collection fetchCollectionFromRepository(String pid, boolean withContent, boolean withItems) throws IOException, RepositoryException, SolrServerException {
+    private Collection fetchCollectionFromRepository(String pid, boolean withContent, boolean withItems) throws
+            IOException, RepositoryException, SolrServerException {
         Collection collection = new Collection();
         collection.pid = pid;
         //timestamps from Foxml properties

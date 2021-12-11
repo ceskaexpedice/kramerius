@@ -53,4 +53,21 @@ public enum IndexationType {
      */
     TREE_AND_FOSTER_TREES,
 
+    //COLLECTION_ITEMS,
+    //TODO: optimalizace: nový typ indexace COLLECTION_ITEMS, co by řešil jen věci související se sbírkami a licencemi
+    //Musí pracovat korektně s licencemi a udržovat si např. seznam licencí předků (nejen vlastních), přepisovat dolů i licence, jako to dela Indexer
+    //Také musí aktualizovat timestampy (pole indexed) kvuli sklizeni zmen, ale nemenit hodnotu v poli indexer_version
+    //uplatneni:
+    //1. pridani objektu do sbirky
+    //2. odebrani objektu ze sbirky
+    //3. odebrani licence sbirce (pole in_collections.*: nestaci jen atomic updaty odebrat hodnoty vsem objektum primo ve sbirce, ty totiz muzou patrit do sbirky dale neprimo pres jinou sbirku)
+    //Nestaci zde jen atomic updaty aktualizovat hodnoty z vybranych poli pro cele podstromy objektu ve sbirce (in_collections, in_collections.direct,licenses_of_ancestors).
+    //Protoze:
+    //pid_paths             - je potreba aktualizovat pid_paths a vypocitat pro kazdy jeden uzel na zaklade toho, vsech jejich (i nevlastnich) predku a jejich hodnot pid_paths, coz se zmeni pri strukturalni zmene (pridani do/odebrani ze sbirky)
+    //in_collections        - i pri odstraneni objektu ze sbirky objekt muze do sbirky stale patrit a to neprimo pres jinou sbirku: S1 -> X rusim, ale S1 -> S2 -> X zustava, proto X musi mit nadale v poli in_collections hodnotu S1
+    //licenses_of_ancestors - pri odebrani licence L sbirce S1, ktera obsahuje X, anebo pri odstraneni licence L ze sbirky S1 nestaci jen atomic updaty odebrat celemu (pod)stromu X hodnotu L z licenses_of_ancestors,
+    //                        X muze mit stale na licenci narok a to z jineho zdroje (jeho vlastni predek, jina sbirka)
+    //indexed               - kvuli sklizeni zmen je potreba aktualizovat
+    //Obecna indexace tohle vsechno resi, nicmene dela i veci, ktere v techto scenanarich nejsou relevantni (typicky indexace fulltextu).
+
 }
