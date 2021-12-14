@@ -1,8 +1,8 @@
-package cz.incad.kramerius.security.labels;
+package cz.incad.kramerius.security.licenses;
 
 import java.util.regex.Pattern;
 
-public interface Label {
+public interface License {
 
     public static final Pattern ACCEPTABLE_LABEL_NAME_REGEXP= Pattern.compile("[a-zA-Z][a-zA-Z_0-9-/:]+");
 
@@ -18,7 +18,7 @@ public interface Label {
 
     public int getPriority();
 
-    public Label getUpdatedPriorityLabel(int priprity);
+    public License getUpdatedPriorityLabel(int priprity);
 
 
 }

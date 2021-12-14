@@ -2,19 +2,19 @@ package cz.incad.kramerius.auth.thirdparty.social.utils;
 
 import org.brickred.socialauth.Profile;
 
-import cz.incad.kramerius.auth.thirdparty.impl.AbstractUsersWrapper;
+import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.security.utils.UserUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class OpenIdUserWrapper extends AbstractUsersWrapper {
+public class OpenId3rdUser extends AbstractThirdPartyUser {
 
     private Profile p;
     private String calcName;
 
-    public OpenIdUserWrapper(String calcName, Profile p) {
+    public OpenId3rdUser(String calcName, Profile p) {
         super();
         this.p = p;
         this.calcName = calcName;

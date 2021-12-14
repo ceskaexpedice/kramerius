@@ -1,10 +1,10 @@
-package cz.incad.kramerius.security.labels.impl;
+package cz.incad.kramerius.security.licenses.impl;
 
-import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.licenses.License;
 
 import java.io.Serializable;
 
-public class LabelImpl implements Label, Serializable {
+public class LicenseImpl implements License, Serializable {
 
     private int id = -1;
     private String name;
@@ -13,7 +13,7 @@ public class LabelImpl implements Label, Serializable {
     private int labelPrirority = DEFAULT_PRIORITY;
 
 
-    public LabelImpl(int id, String name,String description, String group, int labelPrirority) {
+    public LicenseImpl(int id, String name, String description, String group, int labelPrirority) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -22,7 +22,7 @@ public class LabelImpl implements Label, Serializable {
         //validateName(name);
     }
 
-    public LabelImpl(String name, String description, String group, int labelPrirority) {
+    public LicenseImpl(String name, String description, String group, int labelPrirority) {
         this.name = name;
         this.description = description;
         this.group = group;
@@ -30,14 +30,14 @@ public class LabelImpl implements Label, Serializable {
         //validateName(name);
     }
 
-    public LabelImpl(String name, String description, String group) {
+    public LicenseImpl(String name, String description, String group) {
         this.description = description;
         this.name = name;
         this.group = group;
         //validateName(name);
     }
 
-    public LabelImpl(int id, String name, String description, String group) {
+    public LicenseImpl(int id, String name, String description, String group) {
         this.id = id;
         this.description = description;
         this.name = name;
@@ -46,7 +46,7 @@ public class LabelImpl implements Label, Serializable {
     }
 
     private void validateName(String name) {
-        if (!Label.ACCEPTABLE_LABEL_NAME_REGEXP.matcher(name).matches()) {
+        if (!License.ACCEPTABLE_LABEL_NAME_REGEXP.matcher(name).matches()) {
             throw new IllegalArgumentException("Label name must contain only a characters, digits and following set of chars [./-_:]");
         }
     }
@@ -62,8 +62,8 @@ public class LabelImpl implements Label, Serializable {
     }
 
     @Override
-    public Label getUpdatedPriorityLabel(int pr) {
-        return new LabelImpl(this.id, this.name, this.description, this.group, pr);
+    public License getUpdatedPriorityLabel(int pr) {
+        return new LicenseImpl(this.id, this.name, this.description, this.group, pr);
     }
 
     @Override

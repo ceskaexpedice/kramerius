@@ -184,7 +184,8 @@ public class SolrUtils   {
 
     public static List<String> disectLicenses(Element topElem) {
         synchronized(topElem.getOwnerDocument()) {
-            Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
+
+            Element licensensesElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
                 @Override
                 public boolean acceptElement(Element element) {
                     return (element.getNodeName().equals("arr") && element.getAttribute("name") != null && element.getAttribute("name").equals(
@@ -192,9 +193,20 @@ public class SolrUtils   {
                     ));
                 }
             });
-            if (foundElement != null) {
+
+            Element licensesOfAncestorsElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    return (element.getNodeName().equals("arr") && element.getAttribute("name") != null && element.getAttribute("name").equals(
+                            "licenses_of_ancestors"
+                    ));
+                }
+            });
+
+            if (licensensesElement != null || licensesOfAncestorsElement != null) {
+
                 List<String> list = new ArrayList<>();
-                NodeList childNodes = foundElement.getChildNodes();
+                NodeList childNodes = licensensesElement != null ? licensensesElement.getChildNodes() : licensesOfAncestorsElement.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
                     Node item = childNodes.item(i);
                     if (item.getNodeType() == Node.ELEMENT_NODE) {
@@ -202,6 +214,7 @@ public class SolrUtils   {
                     }
                 }
                 return list;
+
             } else return new ArrayList<>();
         }
 

@@ -10,21 +10,17 @@ import cz.incad.kramerius.security.Role;
 import org.apache.commons.configuration.ConfigurationException;
 import org.json.JSONException;
 
-import com.google.inject.Inject;
-
-import cz.incad.kramerius.auth.thirdparty.UsersWrapper;
-import cz.incad.kramerius.auth.thirdparty.shibb.impl.ShibAuthenticatedUsers;
-import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUserWrapper;
+import cz.incad.kramerius.auth.thirdparty.shibb.impl.ShibThirdPartyUsersSupport;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.Shibboleth3rdUser;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
 
-public class InternalAuthenticatedUsersImpl extends ShibAuthenticatedUsers {
+public class InternalThirdPartyUsersSupportImpl extends ShibThirdPartyUsersSupport {
 
     @Override
-    protected String updateExistingUser(String userName, ShibbolethUserWrapper w) throws SQLException {
+    protected String updateExistingUser(String userName, Shibboleth3rdUser w) throws SQLException {
         User u = this.usersManager.findUserByLoginName(userName);
         
         UserUtils.associateGroups(u, this.usersManager);
@@ -54,7 +50,7 @@ public class InternalAuthenticatedUsersImpl extends ShibAuthenticatedUsers {
     }
 
     @Override
-    protected String createNewUser(String user, ShibbolethUserWrapper w)
+    protected String createNewUser(String user, Shibboleth3rdUser w)
             throws JSONException, ConfigurationException, SQLException {
         User u = new UserImpl(-1, w.getProperty(UserUtils.FIRST_NAME_KEY),
                 w.getProperty(UserUtils.LAST_NAME_KEY), w.getCalculatedName(), -1);

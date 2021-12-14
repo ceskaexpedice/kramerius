@@ -30,7 +30,7 @@ public abstract class ExtAuthFilter implements Filter {
      * Return AuthenticatedUser instance
      * @return
      */
-    protected abstract AuthenticatedUsers getExternalAuthenticatedUsers();
+    protected abstract ThirdPartyUsersSupport getThirdPartyUsersSupport();
 
     /**
      * Returns true if filter needs to store user got from http response
@@ -52,14 +52,14 @@ public abstract class ExtAuthFilter implements Filter {
             Object value = httpReq.getSession().getAttribute(THIRD_PARTY_AUTHENTICATED_USER_KEY);
             if (value == null || (!value.equals("true"))) {
                 if (userStoreIsNeeded(httpReq)) {
-                    String calculated = getExternalAuthenticatedUsers().calculateUserName(httpReq);
+                    String calculated = getThirdPartyUsersSupport().calculateUserName(httpReq);
                     if (calculated != null) {
-                        getExternalAuthenticatedUsers().storeUserPropertiesToSession(httpReq, calculated);
+                        getThirdPartyUsersSupport().storeUserPropertiesToSession(httpReq, calculated);
                         httpReq.getSession().setAttribute(THIRD_PARTY_AUTHENTICATED_USER_KEY, "true");
                     }
                 }
             }
-            chain.doFilter(getExternalAuthenticatedUsers().updateRequest((HttpServletRequest) req), resp);
+            chain.doFilter(getThirdPartyUsersSupport().updateRequest((HttpServletRequest) req), resp);
         } catch (IOException e) {
             throw e;
         }

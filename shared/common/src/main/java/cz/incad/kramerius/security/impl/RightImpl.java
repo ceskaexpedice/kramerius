@@ -34,15 +34,15 @@ public class RightImpl implements Right, Serializable {
     private RightCriteriumWrapper crit;
     private String pid;
     private String action;
-    private AbstractUser user;
+    private Role role;
     
-    public RightImpl(int rightId, RightCriteriumWrapper crit, String pid, String action, AbstractUser user) {
+    public RightImpl(int rightId, RightCriteriumWrapper crit, String pid, String action, Role user) {
         super();
         this.rightId = rightId;
         this.crit = crit;
         this.pid = pid;
         this.action = action;
-        this.user = user;
+        this.role = user;
     }
 
     
@@ -93,13 +93,13 @@ public class RightImpl implements Right, Serializable {
 
 
 
-    public AbstractUser getUser() {
-        return user;
+    public Role getRole() {
+        return role;
     }
     
     @Override
-    public void setUser(AbstractUser user) {
-        this.user = user;
+    public void setRole(Role user) {
+        this.role = user;
     }
 
 

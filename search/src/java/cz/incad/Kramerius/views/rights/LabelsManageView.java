@@ -4,9 +4,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.LabelsManager;
-import cz.incad.kramerius.security.labels.LabelsManagerException;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,7 +27,7 @@ public class LabelsManageView extends AbstractRightsView {
     public static Logger LOGGER = Logger.getLogger(LabelsManageView.class.getName());
 
     @Inject
-    LabelsManager labelsManager;
+    LicensesManager licensesManager;
 
     @Inject
     RightsManager rightsManager;
@@ -59,11 +59,11 @@ public class LabelsManageView extends AbstractRightsView {
             }).collect(Collectors.toList());
 
 
-            return this.labelsManager.getLabels().stream().map(label-> {
+            return this.licensesManager.getLabels().stream().map(label-> {
                 List<Map<String, String>> objects = rightsManager.findObjectUsingLabel(label.getId());
                 return new LabelListItemView(objects,  labelsUsedInSolr, label);
             }).collect(Collectors.toList());
-        } catch (LabelsManagerException e) {
+        } catch (LicensesManagerException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return new ArrayList<>();
         } catch (IOException e) {
@@ -75,13 +75,13 @@ public class LabelsManageView extends AbstractRightsView {
 
     public class LabelListItemView {
 
-        private Label label;
+        private License license;
         private List<Map<String, String>> objects = null;
         private List<String> solrLabels;
 
-        public LabelListItemView(List<Map<String, String>> rightObjects, List<String> solrLabels, Label label) {
+        public LabelListItemView(List<Map<String, String>> rightObjects, List<String> solrLabels, License license) {
             this.objects = rightObjects;
-            this.label = label;
+            this.license = license;
             this.solrLabels = solrLabels;
         }
 
@@ -105,27 +105,27 @@ public class LabelsManageView extends AbstractRightsView {
         }
 
         public int getId() {
-            return this.label.getId();
+            return this.license.getId();
         }
 
         public String getName() {
-            return this.label.getName();
+            return this.license.getName();
         }
 
         public String getDescription() {
-            return this.label.getDescription();
+            return this.license.getDescription();
         }
 
         public int getPriority() {
-            return this.label.getPriority();
+            return this.license.getPriority();
         }
 
         public String getGroup() {
-            return this.label.getGroup();
+            return this.license.getGroup();
         }
 
         public boolean isLocal() {
-            return this.label.getGroup() != null && this.label.getGroup().trim().equals(LabelsManager.LOCAL_GROUP_NAME);
+            return this.license.getGroup() != null && this.license.getGroup().trim().equals(LicensesManager.LOCAL_GROUP_NAME);
         }
     }
 }

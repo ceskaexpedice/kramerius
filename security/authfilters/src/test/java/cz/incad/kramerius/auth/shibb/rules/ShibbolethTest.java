@@ -7,17 +7,14 @@ import cz.incad.kramerius.auth.thirdparty.shibb.rules.ShibRuleLexer;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.ShibRuleParser;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.ShibRules;
 import cz.incad.kramerius.auth.thirdparty.shibb.utils.ClientShibbolethContext;
-import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUserWrapper;
-import org.apache.commons.io.FileUtils;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.Shibboleth3rdUser;
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -51,7 +48,7 @@ public class ShibbolethTest {
         EasyMock.replay(req);
 
         String userName = "user@mzk.cz";
-        ShibbolethUserWrapper wrapper = new ShibbolethUserWrapper(userName);
+        Shibboleth3rdUser wrapper = new Shibboleth3rdUser(userName);
         ClientShibbolethContext ctx = new ClientShibbolethContext(req, wrapper);
 
         InputStream resourceAsStream = ShibbolethTest.class.getResourceAsStream("/shibrules.txt");

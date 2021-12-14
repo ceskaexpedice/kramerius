@@ -299,7 +299,14 @@ public class SecurityDbInitializer {
                     // labels table
                     makeSureThatLabelsTable(connection);
                 }
+
+
             }
+
+            // checks role column in right entity
+            makeSureThatRoleColumnExists(connection);
+            // update role column from relations
+            makeSureRolesInTable(connection);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
@@ -518,4 +525,51 @@ public class SecurityDbInitializer {
         LOGGER.log(Level.FINEST, "UPDATE TABLE: updated rows {0}", r);
     }
 
+
+
+    public static void alterTableAddRoleColumn(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE right_entity ADD COLUMN ROLE TEXT");
+        prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
+    }
+
+    public static void updateRolesFromRelations(Connection con) throws SQLException {
+        String update = "UPDATE right_entity " +
+                "SET \"role\"=subquery.gname " +
+                "FROM (SELECT group_id, gname " +
+                "      FROM  group_entity) AS subquery " +
+                "WHERE (right_entity.group_id=subquery.group_id) and (right_entity.role is null) and (right_entity.group_id is not null)";
+        PreparedStatement prepareStatement = con.prepareStatement(update);
+        int i = prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "UPDATE TABLE: updated rows "+i);
+
+    }
+
+    private static void makeSureThatRoleColumnExists(Connection connection) throws SQLException {
+        if (!DatabaseUtils.columnExists(connection, "right_entity", "role")) {
+            new JDBCTransactionTemplate(connection, false).updateWithTransaction(
+                    new JDBCCommand() {
+
+                        @Override
+                        public Object executeJDBCCommand(Connection con) throws SQLException {
+                            alterTableAddRoleColumn(con);
+                            return null;
+                        }
+                    }
+            );
+        }
+    }
+
+    public static void makeSureRolesInTable(Connection connection) throws SQLException {
+        new JDBCTransactionTemplate(connection, false).updateWithTransaction(
+                new JDBCCommand() {
+
+                    @Override
+                    public Object executeJDBCCommand(Connection con) throws SQLException {
+                        updateRolesFromRelations(con);
+                        return null;
+                    }
+                }
+        );
+    }
 }

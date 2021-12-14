@@ -19,22 +19,16 @@ package cz.incad.kramerius.security.utils;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cz.incad.kramerius.security.AbstractUser;
-import cz.incad.kramerius.security.CriteriumType;
-import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.impl.LabelImpl;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
 
 public class RightsDBUtils {
 
     // vytvori pravo z resultsetu s
-    public static Right createRight(ResultSet rs, AbstractUser auser,RightCriteriumWrapperFactory factory) throws SQLException {
+    public static Right createRight(ResultSet rs, Role auser, RightCriteriumWrapperFactory factory) throws SQLException {
         int rightId = rs.getInt("right_id");
         String uuidVal = rs.getString("uuid");
         String actionVal = rs.getString("action");
@@ -60,8 +54,8 @@ public class RightsDBUtils {
         if (qname != null) {
             RightCriteriumWrapper rightCriteriumWrapper = factory.loadExistingWrapper(type, qname, criteriumId, createCriteriumParams(rs));
             if (rightCriteriumWrapper.isLabelAwareCriterium()) {
-                Label labelImpl = new LabelImpl(rs.getInt("label_id"), rs.getString("label_name"),  rs.getString("label_description"),rs.getString("label_group"),rs.getInt("label_priority"));
-                rightCriteriumWrapper.setLabel(labelImpl);
+                License licenseImpl = new LicenseImpl(rs.getInt("label_id"), rs.getString("label_name"),  rs.getString("label_description"),rs.getString("label_group"),rs.getInt("label_priority"));
+                rightCriteriumWrapper.setLabel(licenseImpl);
             }
             return rightCriteriumWrapper;
         } else return null;

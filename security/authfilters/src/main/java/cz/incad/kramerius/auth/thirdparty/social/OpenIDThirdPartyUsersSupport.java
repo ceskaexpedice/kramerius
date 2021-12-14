@@ -5,19 +5,19 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cz.incad.kramerius.auth.thirdparty.social.utils.OpenId3rdUser;
 import org.brickred.socialauth.Profile;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.auth.thirdparty.impl.AbstractAuthenticatedUsers;
+import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.social.utils.OpenIDFlag;
-import cz.incad.kramerius.auth.thirdparty.social.utils.OpenIdUserWrapper;
 import cz.incad.kramerius.auth.thirdparty.utils.RemoteUsersUtils;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 
-public class OpenIDAuthenticatedUsers extends AbstractAuthenticatedUsers<OpenIdUserWrapper> {
+public class OpenIDThirdPartyUsersSupport extends AbstractThirdPartyUsersSupport<OpenId3rdUser> {
 
-    public static final Logger LOGGER = Logger.getLogger(OpenIDAuthenticatedUsers.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(OpenIDThirdPartyUsersSupport.class.getName());
 
     public static String OPEN_ID_PREFIX = "_openid_";
 
@@ -42,7 +42,7 @@ public class OpenIDAuthenticatedUsers extends AbstractAuthenticatedUsers<OpenIdU
     }
 
     @Override
-    public String updateExistingUser(String userName,OpenIdUserWrapper wrapper) {
+    public String updateExistingUser(String userName, OpenId3rdUser wrapper) {
         String password = GeneratePasswordUtils.generatePswd();
         JSONArray users = RemoteUsersUtils.getUser(userName);
         JSONObject jsonObject = users.getJSONObject(0);
@@ -58,7 +58,7 @@ public class OpenIDAuthenticatedUsers extends AbstractAuthenticatedUsers<OpenIdU
     }
 
     @Override
-    protected String createNewUser(String user, OpenIdUserWrapper w) {
+    protected String createNewUser(String user, OpenId3rdUser w) {
         String password = GeneratePasswordUtils.generatePswd();
         JSONObject json = w.toJSON(password);
         RemoteUsersUtils.createUser( json);
@@ -66,9 +66,9 @@ public class OpenIDAuthenticatedUsers extends AbstractAuthenticatedUsers<OpenIdU
     }
 
     @Override
-    protected OpenIdUserWrapper createUserWrapper(HttpServletRequest req, String userName) {
+    protected OpenId3rdUser createUserWrapper(HttpServletRequest req, String userName) {
         Profile profile = OpenIDFlag.flagFromRequest(req).profile(req);
-        return new OpenIdUserWrapper(userName,profile);
+        return new OpenId3rdUser(userName,profile);
     }
 
     @Override

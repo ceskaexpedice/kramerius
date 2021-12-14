@@ -2,7 +2,7 @@ package cz.incad.kramerius.auth.thirdparty;
 
 import javax.servlet.http.HttpServletRequest;
 
-public interface AuthenticatedUsers {
+public interface ThirdPartyUsersSupport {
 
     String calculateUserName(HttpServletRequest request);
 

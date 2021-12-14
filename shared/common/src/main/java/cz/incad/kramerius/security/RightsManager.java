@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.labels.Label;
 
 /** 
  * Rights management

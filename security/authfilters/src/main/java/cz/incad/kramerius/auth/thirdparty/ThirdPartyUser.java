@@ -10,7 +10,7 @@ import java.util.Set;
  * Represents third party authenticated user
  * @author pavels
  */
-public interface UsersWrapper {
+public interface ThirdPartyUser {
 
     /**
      * Return calculated name for kramerius

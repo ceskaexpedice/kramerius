@@ -20,15 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
 
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.impl.LabelImpl;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
 import cz.incad.kramerius.utils.StringUtils;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -85,15 +82,15 @@ public abstract class ServletRightsCommand extends ServletCommand {
     }
 
 
-    public Label label(Map data) {
+    public License label(Map data) {
         Map label = (Map) data.get("label");
         String labelId = (String) label.get("ident");
         String description = (String) label.get("description");
         String name = (String) label.get("name");
         String priority = (String) label.get("priority");
         return  (labelId != null && StringUtils.isAnyString(labelId))  ?
-            new LabelImpl(Integer.parseInt(labelId), name, description, priority) :
-                new LabelImpl(name, description, priority);
+            new LicenseImpl(Integer.parseInt(labelId), name, description, priority) :
+                new LicenseImpl(name, description, priority);
 
     }
 

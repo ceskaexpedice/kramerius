@@ -1,18 +1,14 @@
 package cz.incad.kramerius.auth.thirdparty.impl;
 
-import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
-import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.auth.thirdparty.UsersWrapper;
+import cz.incad.kramerius.auth.thirdparty.ThirdPartyUser;
 import cz.incad.kramerius.security.utils.UserUtils;
 
-import java.util.List;
-
-public abstract class AbstractUsersWrapper implements UsersWrapper {
+public abstract class AbstractThirdPartyUser implements ThirdPartyUser {
 
 
     @Override

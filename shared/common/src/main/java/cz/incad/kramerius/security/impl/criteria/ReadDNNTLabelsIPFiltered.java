@@ -3,7 +3,7 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
-import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.licenses.License;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class ReadDNNTLabelsIPFiltered extends AbstractCriterium implements Right
 
     public transient static final Logger LOGGER = Logger.getLogger(ReadDNNTLabelsIPFiltered.class.getName());
 
-    private Label label;
+    private License license;
 
 
     @Override
@@ -29,11 +29,11 @@ public class ReadDNNTLabelsIPFiltered extends AbstractCriterium implements Right
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                     SolrAccess solrAccess = ctx.getSolrAccessNewIndex();
                     Document doc = solrAccess.getSolrDataByPid(pid);
-                    boolean applied = CriteriaDNNTUtils.matchLabel(doc,  getLabel());
+                    boolean applied = CriteriaDNNTUtils.matchLicense(doc,  getLicense());
                     if (applied)  {
                         EvaluatingResultState result = matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
                         if (result.equals(EvaluatingResultState.TRUE)) {
-                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, getLabel().getName());
+                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, getLicense().getName());
                         }
                         return result;
 
@@ -83,13 +83,13 @@ public class ReadDNNTLabelsIPFiltered extends AbstractCriterium implements Right
     }
 
     @Override
-    public Label getLabel() {
-        return this.label;
+    public License getLicense() {
+        return this.license;
     }
 
     @Override
-    public void setLabel(Label label) {
-        this.label = label;
+    public void setLicense(License license) {
+        this.license = license;
     }
 }
 

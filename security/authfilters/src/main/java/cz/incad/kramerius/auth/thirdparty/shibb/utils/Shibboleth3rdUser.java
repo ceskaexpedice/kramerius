@@ -1,10 +1,8 @@
 package cz.incad.kramerius.auth.thirdparty.shibb.utils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import cz.incad.kramerius.auth.thirdparty.UsersWrapper;
-import cz.incad.kramerius.auth.thirdparty.impl.AbstractUsersWrapper;
+import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.security.DefaultRoles;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
@@ -12,7 +10,7 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
 
-public class ShibbolethUserWrapper extends AbstractUsersWrapper {
+public class Shibboleth3rdUser extends AbstractThirdPartyUser {
 
     private String calculatedName;
     private String firstName;
@@ -22,7 +20,7 @@ public class ShibbolethUserWrapper extends AbstractUsersWrapper {
 
     private List<String> roles = new ArrayList<String>();
     
-    public ShibbolethUserWrapper(String calculatedName) {
+    public Shibboleth3rdUser(String calculatedName) {
         super();
         this.calculatedName = calculatedName;
     }

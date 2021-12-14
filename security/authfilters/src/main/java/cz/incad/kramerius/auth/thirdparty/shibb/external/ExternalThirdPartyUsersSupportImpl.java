@@ -2,20 +2,20 @@ package cz.incad.kramerius.auth.thirdparty.shibb.external;
 
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.Shibboleth3rdUser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.auth.thirdparty.shibb.impl.ShibAuthenticatedUsers;
-import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUserWrapper;
+import cz.incad.kramerius.auth.thirdparty.shibb.impl.ShibThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.utils.RemoteUsersUtils;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 
-public class ExternalAuthenticatedUsersImpl extends ShibAuthenticatedUsers {
+public class ExternalThirdPartyUsersSupportImpl extends ShibThirdPartyUsersSupport {
 
-    public static Logger LOGGER = Logger.getLogger(ExternalAuthenticatedUsersImpl.class.getName());
+    public static Logger LOGGER = Logger.getLogger(ExternalThirdPartyUsersSupportImpl.class.getName());
 
     @Override
-    public String updateExistingUser(String userName,ShibbolethUserWrapper wrapper) throws Exception {
+    public String updateExistingUser(String userName, Shibboleth3rdUser wrapper) throws Exception {
         String password = GeneratePasswordUtils.generatePswd();
         JSONArray users = RemoteUsersUtils.getUser(userName);
         JSONObject jsonObject = users.getJSONObject(0);
@@ -31,7 +31,7 @@ public class ExternalAuthenticatedUsersImpl extends ShibAuthenticatedUsers {
     }
 
     @Override
-    protected String createNewUser(String user, ShibbolethUserWrapper w) throws Exception {
+    protected String createNewUser(String user, Shibboleth3rdUser w) throws Exception {
         String password = GeneratePasswordUtils.generatePswd();
         JSONObject json = w.toJSON(password);
         RemoteUsersUtils.createUser(json);

@@ -324,9 +324,5 @@ public interface UserManager {
     
     //TODO:  remove
     public boolean isLoggedUser(User user);
-    // TODO: remove
-    public void insertPublicUsersRole() throws SQLException;
-    //TODO : remove
-    public void registerLoggedUser(User user, String loggedUserKey) throws SQLException;
-    
+
 }

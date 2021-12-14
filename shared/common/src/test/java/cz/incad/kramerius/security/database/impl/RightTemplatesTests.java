@@ -16,22 +16,16 @@
  */
 package cz.incad.kramerius.security.database.impl;
 
-import static cz.incad.kramerius.utils.WhitespaceUtility.replace;
-
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.google.inject.Inject;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.impl.LabelImpl;
+import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
@@ -209,7 +203,7 @@ public class RightTemplatesTests {
         RightCriteriumWrapperFactory wrapperFactory = injector.getInstance(RightCriteriumWrapperFactory.class);
         RightCriteriumWrapper lb = wrapperFactory.createCriteriumWrapper(ReadDNNTLabelsIPFiltered.class.getName());
 
-        lb.setLabel(new LabelImpl(4, "name","desc","group"));
+        lb.setLabel(new LicenseImpl(4, "name","desc","group"));
 
         StringTemplate template1 = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRightCriterium");
         template1.setAttribute("criteriumWrapper", lb);
@@ -267,14 +261,14 @@ public class RightTemplatesTests {
                 5, null);
         mw.setCriteriumParams(paramsImpl);
 
-        User mockUser = EasyMock.createMock(User.class);
+        Role mockUser = EasyMock.createMock(Role.class);
         EasyMock.expect(mockUser.getId()).andReturn(111);
 
         RightImpl rightImpl = new RightImpl(1, mw, "0xABC", SecuredActions.READ.getFormalName(), mockUser);
         rightImpl.setCriteriumWrapper(mw);
 
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRight");
-        template.setAttribute("association", rightImpl.getUser() instanceof Role ? "group_id" : "user_id");
+        template.setAttribute("association", rightImpl.getRole() instanceof Role ? "group_id" : "user_id");
         template.setAttribute("right", rightImpl);
         template.setAttribute("priority",
                 rightImpl.getFixedPriority() == 0 ? "NULL" : "" + rightImpl.getFixedPriority());

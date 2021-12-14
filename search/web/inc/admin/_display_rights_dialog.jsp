@@ -167,7 +167,7 @@
            </td>
            <td>
            <div
-            style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.user}</div>
+            style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${right.role}</div>
            </td>
            <td>
            <div

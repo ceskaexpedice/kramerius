@@ -15,11 +15,9 @@ select * from right_entity ent
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
     left join labels_entity lbl on (crit.label_id=lbl.label_id)
 
-    left join  user_entity users on  (ent.user_id = users.user_id)
-    left join  group_entity groups on  (ent.group_id = groups.group_id)
 
 where (ent."user_id"=$userid$
-     $if(first(groupids))$ or ent."group_id" in ($groupids:{grp| $grp$ };separator=","$ ) $endif$)
+     $if(first(groupids))$ or ent."role" in ($groupids:{grp| '$grp$' };separator=","$ ) $endif$)
      $if(criteriums)$  and "qname" in ($criteriums:{c|'$c$'};separator=","$) $endif$
      and "action"='$action$'
 >>
@@ -38,11 +36,9 @@ select * from right_entity ent
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
     left join labels_entity lbl on (crit.label_id=lbl.label_id)
 
-    left join  user_entity users on  (ent.user_id = users.user_id)
-    left join  group_entity groups on  (ent.group_id = groups.group_id)
 
 where (ent."user_id"=$user$  
-    $if(first(groups))$ or ent."group_id" in ($groups:{grp| $grp$ };separator=","$ ) $endif$ )  
+    $if(first(groups))$ or ent."role" in ($groups:{grp| '$grp$' };separator=","$ ) $endif$ )
      and uuid in ($pids:{pid|'$pid$'};separator=","$)
      and "action"='$action$'
 >>
@@ -57,8 +53,6 @@ findAllRightsFromWithGroups(pids, action) ::=<<
         left join labels_entity lbl on (crit.label_id=lbl.label_id)
 
 
-    left join  user_entity users on  (ent.user_id = users.user_id)
-    left join  group_entity groups on  (ent.group_id = groups.group_id)
 
     where uuid in ($pids:{pid|'$pid$'};separator=","$)
      and "action"='$action$'
@@ -72,11 +66,9 @@ select * from right_entity ent
     left join criterium_param_entity param on (crit.citeriumparam=param.crit_param_id)
     left join labels_entity lbl on (crit.label_id=lbl.label_id)
 
-        left join  user_entity users on  (ent.user_id = users.user_id)
-    left join  group_entity groups on  (ent.group_id = groups.group_id)
-    
+
 where   
-    $if(first(groups))$ ent."group" in ($groups:{grp| $grp$ };separator=","$ ) $endif$  
+    $if(first(groups))$ ent."group" in ($groups:{grp| '$grp$' };separator=","$ ) $endif$
      and uuid in ($pids:{pid|'$pid$'};separator=","$)
      and "action"='$action$'
 >>
@@ -314,36 +306,40 @@ findCriteriumsDependsOnParams() ::=<<
 
 
 /** update existujiciho prava */
-updateRight(right,association, priority) ::=<<
+updateRight(right, priority) ::=<<
     UPDATE right_entity
         SET uuid='$right.pid$', 
             action='$right.action$', 
             fixed_priority=$priority$,
             rights_crit=$if(right.criteriumWrapper)$ $right.criteriumWrapper.id$ $else$ NULL $endif$,
-            "$association$"=$if(right.user)$ $right.user.id$ $else$ NULL $endif$
+            group_id=$if(right.role)$ $right.role.id$ $else$ NULL $endif$,
+            role=$if(right.role)$ '$right.role.name$' $else$ NULL $endif$
      WHERE right_id=$right.id$;
 >>
 
 /** vlozeni noveho prava */
-insertRight(right,association, priority) ::=<<
+insertRight(right, priority) ::=<<
     $if(right.criteriumWrapper)$ 
-        insert into right_entity(right_id,uuid,action,rights_crit,"$association$", fixed_priority) 
+        insert into right_entity(right_id,uuid,action,rights_crit,group_id, fixed_priority,role)
         values(
             nextval('right_id_sequence'),
             '$right.pid$',
             '$right.action$',
             $right.criteriumWrapper.id$,
-            $right.user.id$,
-            $priority$
+             $right.role.id$,
+            $priority$,
+            '$right.role.name$'
+
             )
     $else$
-        insert into right_entity(right_id,uuid,action,"$association$", fixed_priority) 
+        insert into right_entity(right_id,uuid,action,group_id, fixed_priority,role)
         values(
             nextval('right_id_sequence'),
             '$right.pid$',
             '$right.action$',
-            $right.user.id$,
-            $priority$
+            $right.role.id$,
+            $priority$,
+             '$right.role.name$'
             )
     $endif$  
 >>

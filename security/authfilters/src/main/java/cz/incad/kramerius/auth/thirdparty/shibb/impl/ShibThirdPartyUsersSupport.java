@@ -11,19 +11,19 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.kramerius.auth.thirdparty.impl.AbstractAuthenticatedUsers;
+import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.ShibRuleLexer;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.ShibRuleParser;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.ShibRules;
 import cz.incad.kramerius.auth.thirdparty.shibb.utils.ClientShibbolethContext;
-import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUserWrapper;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.Shibboleth3rdUser;
 import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public abstract class ShibAuthenticatedUsers extends AbstractAuthenticatedUsers<ShibbolethUserWrapper> {
+public abstract class ShibThirdPartyUsersSupport extends AbstractThirdPartyUsersSupport<Shibboleth3rdUser> {
 
-    public static final Logger LOGGER = Logger.getLogger(ShibAuthenticatedUsers.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(ShibThirdPartyUsersSupport.class.getName());
 
     public static final String SHIBBOLETH_USER_PREFIX = "_shibboleth_";
 
@@ -37,9 +37,9 @@ public abstract class ShibAuthenticatedUsers extends AbstractAuthenticatedUsers<
         return readAsString;
     }
 
-    public ShibbolethUserWrapper createUserWrapper(HttpServletRequest req, String userName) throws Exception {
+    public Shibboleth3rdUser createUserWrapper(HttpServletRequest req, String userName) throws Exception {
         LOGGER.fine(String.format("---------- Shibboleth user %s -----------------", userName));
-        ShibbolethUserWrapper wrap = new ShibbolethUserWrapper(userName);
+        Shibboleth3rdUser wrap = new Shibboleth3rdUser(userName);
         ClientShibbolethContext ctx = new ClientShibbolethContext(req, wrap);
 
         String readAsString = readShibbolethConfigFile();

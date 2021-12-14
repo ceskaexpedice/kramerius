@@ -29,8 +29,8 @@ import cz.incad.kramerius.security.impl.DatabaseRightsManager;
 import cz.incad.kramerius.security.impl.DatabaseUserManager;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 import cz.incad.kramerius.security.impl.RightCriteriumWrapperFactoryImpl;
-import cz.incad.kramerius.security.labels.LabelsManager;
-import cz.incad.kramerius.security.labels.impl.DatabaseLabelsManagerImpl;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.impl.DatabaseLicensesManagerImpl;
 
 /**
  * Base abstract module for security in K4
@@ -43,7 +43,7 @@ public class GuiceSecurityModule extends AbstractModule {
         bind(RightsManager.class).to(DatabaseRightsManager.class);
         bind(UserManager.class).to(DatabaseUserManager.class);
         bind(RightCriteriumContextFactory.class).to(RightCriteriumContextFactoryImpl.class);
-        bind(LabelsManager.class).to(DatabaseLabelsManagerImpl.class);
+        bind(LicensesManager.class).to(DatabaseLicensesManagerImpl.class);
 
 
         // bind criterium loaders

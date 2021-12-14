@@ -10,9 +10,9 @@ import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.LabelsManager;
-import cz.incad.kramerius.security.labels.LabelsManagerException;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +20,6 @@ import org.json.JSONObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +30,7 @@ import static cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils.*;
 public class LicensesResource {
 
     @Inject
-    LabelsManager labelsManager;
+    LicensesManager licensesManager;
 
     @Inject
     RightsResolver rightsResolver;
@@ -46,7 +45,7 @@ public class LicensesResource {
         if (permit(this.userProvider.get())) {
             try {
                 return labelsAsResponse();
-            } catch (JSONException | LabelsManagerException e) {
+            } catch (JSONException | LicensesManagerException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
         } else throw new ActionNotAllowed("action is not allowed");
@@ -58,13 +57,13 @@ public class LicensesResource {
     public Response oneLicense(@PathParam("id")String id ) {
         if (permit(this.userProvider.get())) {
             try {
-                Label labelById = this.labelsManager.getLabelById(Integer.parseInt(id));
-                if (labelById != null) {
-                    return Response.ok().entity(LicenseUtils.licenseToJSON(labelById).toString()).build();
+                License licenseById = this.licensesManager.getLabelById(Integer.parseInt(id));
+                if (licenseById != null) {
+                    return Response.ok().entity(LicenseUtils.licenseToJSON(licenseById).toString()).build();
                 } else {
                     throw new ObjectNotFound(String.format("cannot find lisences %s", id));
                 }
-            } catch (JSONException | LabelsManagerException e) {
+            } catch (JSONException | LicensesManagerException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
         } else throw new ActionNotAllowed("action is not allowed");
@@ -78,11 +77,11 @@ public class LicensesResource {
         if (permit(this.userProvider.get())) {
             try {
                 if (json.has("name")) {
-                    Label l = licenseFromJSON(json);
+                    License l = licenseFromJSON(json);
                     if (l != null) {
-                        if (this.labelsManager.getLabelByName(l.getName()) == null) {
-                            this.labelsManager.addLocalLabel(l);
-                            Optional<Label> any = this.labelsManager.getLabels().stream().filter(f -> {
+                        if (this.licensesManager.getLabelByName(l.getName()) == null) {
+                            this.licensesManager.addLocalLabel(l);
+                            Optional<License> any = this.licensesManager.getLabels().stream().filter(f -> {
                                 return f.getName().equals(l.getName());
                             }).findAny();
                             if (any.get() != null) {
@@ -99,7 +98,7 @@ public class LicensesResource {
                 } else {
                     throw new BadRequestException("Cannot find name of license");
                 }
-            } catch (JSONException | LabelsManagerException e) {
+            } catch (JSONException | LicensesManagerException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
         } else throw new ActionNotAllowed("action is not allowed");
@@ -115,24 +114,24 @@ public class LicensesResource {
         if (permit(this.userProvider.get())) {
             try {
                 int ident = Integer.parseInt(id);
-                if (this.labelsManager.getLabelById(ident) != null) {
-                    Label l = LicenseUtils.licenseFromJSON(Integer.parseInt(id), jsonObject);
+                if (this.licensesManager.getLabelById(ident) != null) {
+                    License l = LicenseUtils.licenseFromJSON(Integer.parseInt(id), jsonObject);
                     if (l != null ) {
                         try {
-                            Label labelByName = this.labelsManager.getLabelByName(l.getName());
-                            if (labelByName != null && l.getId() != labelByName.getId()) {
+                            License licenseByName = this.licensesManager.getLabelByName(l.getName());
+                            if (licenseByName != null && l.getId() != licenseByName.getId()) {
                                 throw new CreateException(String.format("Licence %s already exists", l.getName()));
                             } else {
-                                this.labelsManager.updateLabel(l);
-                                Label labelById = this.labelsManager.getLabelById(l.getId());
-                                if (labelById != null) {
-                                    return Response.ok().entity(licenseToJSON(labelById).toString()).build();
+                                this.licensesManager.updateLabel(l);
+                                License licenseById = this.licensesManager.getLabelById(l.getId());
+                                if (licenseById != null) {
+                                    return Response.ok().entity(licenseToJSON(licenseById).toString()).build();
                                 } else {
                                     return Response.ok().entity(new JSONObject().toString()).build();
                                 }
                             }
 
-                        } catch (JSONException | LabelsManagerException e) {
+                        } catch (JSONException | LicensesManagerException e) {
                             throw new GenericApplicationException(e.getMessage(), e);
                         }
                     } else {
@@ -142,7 +141,7 @@ public class LicensesResource {
                     throw new ObjectNotFound("cannot find license  for '"+jsonObject+"'");
                 }
 
-            } catch (JSONException  | LabelsManagerException e1) {
+            } catch (JSONException  | LicensesManagerException e1) {
                 throw new GenericApplicationException(e1.getMessage(), e1);
             }
         } else throw new ActionNotAllowed("action is not allowed");
@@ -155,19 +154,19 @@ public class LicensesResource {
     public Response moveUp(@PathParam("id")String id) {
         if (permit(this.userProvider.get())) {
             try {
-                Label label = this.labelsManager.getLabelById(Integer.parseInt(id));
-                if (label != null) {
-                    int priority = label.getPriority();
+                License license = this.licensesManager.getLabelById(Integer.parseInt(id));
+                if (license != null) {
+                    int priority = license.getPriority();
                     if (priority >= 2) {
-                        this.labelsManager.moveUp(label);
+                        this.licensesManager.moveUp(license);
                         return labelsAsResponse();
                     } else {
-                        throw new BadRequestException(String.format("cannot change priority for label %s", label.toString()));
+                        throw new BadRequestException(String.format("cannot change priority for label %s", license.toString()));
                     }
                 } else {
                     throw  new ObjectNotFound(String.format("cannot find license %d", id));
                 }
-            } catch (JSONException |LabelsManagerException  e1) {
+            } catch (JSONException | LicensesManagerException e1) {
                 throw new GenericApplicationException(e1.getMessage(), e1);
             }
         } else throw new ActionNotAllowed("action is not allowed");
@@ -180,39 +179,39 @@ public class LicensesResource {
     public Response moveDown(@PathParam("id")String id) {
         if (permit(this.userProvider.get())) {
             try {
-                Label label = this.labelsManager.getLabelById(Integer.parseInt(id));
-                if (label != null) {
-                    int priority = label.getPriority();
+                License license = this.licensesManager.getLabelById(Integer.parseInt(id));
+                if (license != null) {
+                    int priority = license.getPriority();
                     // TODO: synchronizzation
-                    int minPriority = this.labelsManager.getMinPriority();
+                    int minPriority = this.licensesManager.getMinPriority();
 
                     if (priority < minPriority) {
-                        this.labelsManager.moveDown(label);
+                        this.licensesManager.moveDown(license);
                         return labelsAsResponse();
                     } else {
-                        throw new BadRequestException(String.format("cannot change priority for label %s", label.toString()));
+                        throw new BadRequestException(String.format("cannot change priority for label %s", license.toString()));
                     }
                 } else {
                     throw  new ObjectNotFound(String.format("cannot find license %d", id));
                 }
-            } catch (JSONException |LabelsManagerException  e1) {
+            } catch (JSONException | LicensesManagerException e1) {
                 throw new GenericApplicationException(e1.getMessage(), e1);
             }
         } else throw new ActionNotAllowed("action is not allowed");
     }
 
 
-    private Response labelsAsResponse() throws LabelsManagerException {
-        List<Label> labels = this.labelsManager.getLabels();
-        labels.sort(new Comparator<Label>() {
+    private Response labelsAsResponse() throws LicensesManagerException {
+        List<License> licenses = this.licensesManager.getLabels();
+        licenses.sort(new Comparator<License>() {
             @Override
-            public int compare(Label o1, Label o2) {
+            public int compare(License o1, License o2) {
                 return Integer.valueOf(o1.getPriority()).compareTo(Integer.valueOf(o2.getPriority()));
             }
         });
 
         JSONArray jsonArray = new JSONArray();
-        labels.stream().map(LicenseUtils::licenseToJSON)
+        licenses.stream().map(LicenseUtils::licenseToJSON)
                 .forEach(jsonArray::put);
         return Response.ok().entity(jsonArray.toString()).build();
     }
@@ -224,19 +223,19 @@ public class LicensesResource {
     public Response delete(@PathParam("id")String id) {
         if (permit(this.userProvider.get())) try {
             int id2 = Integer.parseInt(id);
-            Label labelById = this.labelsManager.getLabelById(id2);
-            if (labelById != null) {
-                labelsManager.removeLocalLabel(labelById);
-                Label found = labelsManager.getLabelById(id2);
+            License licenseById = this.licensesManager.getLabelById(id2);
+            if (licenseById != null) {
+                licensesManager.removeLocalLabel(licenseById);
+                License found = licensesManager.getLabelById(id2);
                 if (found == null) {
                     return Response.status(Response.Status.NO_CONTENT).entity(new JSONObject().toString()).build();
                 } else {
-                    throw new GenericApplicationException(String.format("Cannot delete label %s", labelById.getName()));
+                    throw new GenericApplicationException(String.format("Cannot delete label %s", licenseById.getName()));
                 }
             } else {
                 throw new ObjectNotFound("cannot find label '" + id + "'");
             }
-        } catch (NumberFormatException | LabelsManagerException e) {
+        } catch (NumberFormatException | LicensesManagerException e) {
             throw new GenericApplicationException(e.getMessage());
         }
         else throw new ActionNotAllowed("action is not allowed");

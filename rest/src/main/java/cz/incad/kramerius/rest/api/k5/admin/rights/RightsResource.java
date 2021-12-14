@@ -41,9 +41,9 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils;
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.LabelsManager;
-import cz.incad.kramerius.security.labels.LabelsManagerException;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -87,7 +87,7 @@ public class RightsResource {
     RightsResolver rightsResolver;
 
     @Inject
-    LabelsManager labelsManager;
+    LicensesManager licensesManager;
 
     @Inject
     @Named("new-index")
@@ -150,7 +150,7 @@ public class RightsResource {
                 } else {
                     throw new GenericApplicationException("cannot insert right!");
                 }
-            } catch (JSONException | LabelsManagerException e) {
+            } catch (JSONException | LicensesManagerException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
         } else throw new ActionNotAllowed("action is not allowed");
@@ -180,7 +180,7 @@ public class RightsResource {
                 } else {
                     throw new ObjectNotFound("cannot find right for '"+jsonObject+"'");
                 }
-            } catch (SQLException | JSONException | LabelsManagerException e) {
+            } catch (SQLException | JSONException | LicensesManagerException e) {
                 throw new GenericApplicationException("cannot insert right!");
             }
         } else throw new ActionNotAllowed("action is not allowed");
@@ -424,35 +424,35 @@ public class RightsResource {
     public Response licenses() {
         if (permit(this.userProvider.get())) {
             try {
-                List<Label> labels = this.labelsManager.getLabels();
+                List<License> licenses = this.licensesManager.getLabels();
                 JSONArray jsonArray = new JSONArray();
-                labels.stream().forEach(l-> {
+                licenses.stream().forEach(l-> {
                     JSONObject labelObject = LicenseUtils.licenseToJSON(l);
                     jsonArray.put(labelObject);
                 });
                 return Response.ok().entity(jsonArray.toString()).build();
-            } catch (JSONException  | LabelsManagerException e) {
+            } catch (JSONException  | LicensesManagerException e) {
                 throw new GenericApplicationException(e.getMessage(), e);
             }
         } else throw new ActionNotAllowed("action is not allowed");
     }
 
     private JSONObject userToJSON(AbstractUser au) throws JSONException {
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("id", au.getId());
-		if (au instanceof Role) {
-			jsonObj.put("name", ((Role)au).getName());
-		}
-		return jsonObj;
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("id", au.getId());
+        if (au instanceof Role) {
+            jsonObj.put("name", ((Role)au).getName());
+        }
+        return jsonObj;
 	}
 	private JSONObject criteriumToJSON(RightCriteriumWrapper rcw) throws JSONException {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("qname", rcw.getRightCriterium().getQName());
 		jsonObj.put("params", paramToJSON(rcw.getCriteriumParams()));
 
-        Label label = rcw.getLabel();
-        if (label != null) {
-            jsonObj.put("label", label.getName());
+        License license = rcw.getLabel();
+        if (license != null) {
+            jsonObj.put("label", license.getName());
         }
 
         return jsonObj;
@@ -467,7 +467,7 @@ public class RightsResource {
 		if (r.getFixedPriority() > 0 || r.getFixedPriority() < 0) {
 			jsonObj.put("fixedPriority", r.getFixedPriority());
 		}
-		jsonObj.put("role", userToJSON(r.getUser()));
+		jsonObj.put("role", userToJSON(r.getRole()));
 		
 		if (r.getCriteriumWrapper() != null)
 			jsonObj.put("criterium", criteriumToJSON(r.getCriteriumWrapper()));
@@ -495,7 +495,8 @@ public class RightsResource {
 			id = jsonObj.getInt("id");
 		}
 		String rname = jsonObj.getString("name");
-		RoleImpl rm = new RoleImpl(id, rname, -1);
+
+        RoleImpl rm = new RoleImpl(id, rname, -1);
 		return rm;
 	}
 
@@ -523,7 +524,7 @@ public class RightsResource {
 		return paramsFromJSON(id, jsonObj);
 	}
 	
-	private RightCriteriumWrapper rightCriteriumWrapper(JSONObject jsonObj) throws JSONException, LabelsManagerException {
+	private RightCriteriumWrapper rightCriteriumWrapper(JSONObject jsonObj) throws JSONException, LicensesManagerException {
 		String qname = jsonObj.getString("qname");
 		RightCriteriumWrapper wrapper = this.critFactory.createCriteriumWrapper(qname);
 		if (jsonObj.has("params")) {
@@ -531,14 +532,14 @@ public class RightsResource {
 		}
 
 		if (jsonObj.has("label")) {
-            Label label = this.labelsManager.getLabelByName(jsonObj.getString("label"));
-            wrapper.setLabel(label);
+            License license = this.licensesManager.getLabelByName(jsonObj.getString("label"));
+            wrapper.setLabel(license);
         }
 
 		return wrapper;
 	}
 
-    private Right rightFromJSON(int id , JSONObject jsonObj) throws JSONException, LabelsManagerException {
+    private Right rightFromJSON(int id , JSONObject jsonObj) throws JSONException, LicensesManagerException {
         String action = jsonObj.getString("action");
         String pid = jsonObj.getString("pid");
         Role role = roleFromJSON(jsonObj.getJSONObject("role"));
@@ -552,7 +553,7 @@ public class RightsResource {
         }
         return rimpl;
     }
-    private Right rightFromJSON(JSONObject jsonObj) throws JSONException, LabelsManagerException {
+    private Right rightFromJSON(JSONObject jsonObj) throws JSONException, LicensesManagerException {
 		int id = -1;
 		if (jsonObj.has("id")) {
 			id = jsonObj.getInt("id");

@@ -3,21 +3,19 @@ package cz.incad.kramerius.auth.thirdparty.impl;
 import java.security.Principal;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
 
-import cz.incad.kramerius.auth.thirdparty.AuthenticatedUsers;
-import cz.incad.kramerius.auth.thirdparty.UsersWrapper;
+import cz.incad.kramerius.auth.thirdparty.ThirdPartyUser;
+import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.UserUtils;
 
-public abstract class AbstractAuthenticatedUsers<T extends UsersWrapper> implements AuthenticatedUsers {
+public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> implements ThirdPartyUsersSupport {
 
     protected Map<String, String> credentials = new HashMap<String, String>();
     protected UserManager usersManager;
