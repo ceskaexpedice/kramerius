@@ -18,6 +18,9 @@ dependencies {
 	
 	compile 'commons-codec:commons-codec:1.5'
 
+    compile 'org.keycloak:keycloak-servlet-filter-adapter:15.0.2'
+    compile 'org.keycloak:keycloak-authz-client:15.0.2'
+
     //dom4j
     implementation 'jaxen:jaxen:1.2.0'
     implementation 'org.dom4j:dom4j:2.1.1'

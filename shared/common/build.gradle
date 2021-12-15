@@ -21,15 +21,15 @@ dependencies {
     compile 'com.levigo.jbig2:levigo-jbig2-imageio:1.6.5'
     compile 'com.ibm.icu:icu4j:56.1'
     compile 'com.google.guava:guava:27.1-jre'
-    compile 'org.bouncycastle:bcprov-jdk15:1.44'
-    compile 'org.bouncycastle:bcmail-jdk15:1.44'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.68'
+    compile 'org.bouncycastle:bcmail-jdk15on:1.68'
     compile 'org.apache.solr:solr-solrj:6.2.1'
     
     compile "javax.mail:mail:1.4.1"
     compile "com.google.gwt:gwt-servlet:2.4.0"
     compile "commons-io:commons-io:2.3"
     compile "commons-codec:commons-codec:1.5"
-    compile "com.lowagie:itext:2.1.7"
+    compile ("com.lowagie:itext:2.1.7"){exclude group: 'bouncycastle'}
     compile "org.antlr:stringtemplate:3.2.1"
 
     compile 'fast-md5:fast-md5:2.5'

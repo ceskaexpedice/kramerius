@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app>
+    <filter>
+        <filter-name>Keycloak Filter</filter-name>
+        <filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>Keycloak Filter</filter-name>
+        <url-pattern>/keycloak/*</url-pattern>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+    <!--init-param>
+        <param-name>keycloak.config.skipPattern</param-name>
+        <param-value>^/(path1|path2|path3).*</param-value>
+    </init-param-->
 
     <filter>
         <filter-name>mockshibb</filter-name>
@@ -523,8 +536,10 @@
         <url-pattern>/localPrintPDF</url-pattern>
     </servlet-mapping>
 
-	
+
+
     <security-role>
+        <role-name>k4_admins</role-name>
         <role-name>krameriusAdmin</role-name>
         <role-name>mock</role-name>
         <role-name>static_export_CD</role-name>
@@ -573,6 +588,19 @@
       		-->
     </security-constraint>
 
+    <!--security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Protected api</web-resource-name>
+            <description>no description</description>
+            <url-pattern>/api/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <description>no description</description>
+            <role-name>k4_admins</role-name>
+        </auth-constraint>
+
+    </security-constraint-->
+
     <login-config>
         <auth-method>FORM</auth-method>
         <realm-name>Protected</realm-name>
@@ -581,6 +609,11 @@
             <form-error-page>/login.jsp?failure=true</form-error-page>
         </form-login-config>
     </login-config>
+
+    <!--login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>this is ignored currently</realm-name>
+    </login-config-->
 
     <welcome-file-list>
         <welcome-file>search.jsp</welcome-file>

@@ -59,8 +59,8 @@ public class ItemsResource extends AdminApiResource {
             AuthenticatedUser user = getAuthenticatedUserByOauth();
             //authorization
             String role = ROLE_READ_ITEMS;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getName(), role); //403
+            if (!requestProvider.get().isUserInRole(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", requestProvider.get().getUserPrincipal().getName(), role); //403
             }
             //model
             if (model == null || model.isEmpty()) {

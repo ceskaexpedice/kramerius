@@ -1,0 +1,13 @@
+{
+  "realm": "kramerius",
+  "auth-server-url": "http://localhost:8083/auth/",
+  "ssl-required": "external",
+  "resource": "newClient",
+  "bearer-only" : true,
+  "verify-token-audience": false,
+  "credentials": {
+    "secret": "newClientSecret"
+  },
+  "confidential-port": 0,
+  "policy-enforcer": {}
+}
