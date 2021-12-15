@@ -37,12 +37,14 @@ public interface LoggedUsersSingleton {
      */
     public String registerLoggedUser(User user);
 
+    public String registerLoggedUser(User user, HttpServletRequest req);
     
     /**
      * Deregister logged user
      * @param key Session key
      */
     public void deregisterLoggedUser(String key);
+
 
     /**
      * Returns true when given key is live session key 

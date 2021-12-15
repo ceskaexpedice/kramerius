@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.ExtAuthFilter;
 import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
 import org.keycloak.adapters.spi.KeycloakAccount;
 
 import javax.servlet.FilterConfig;
@@ -16,6 +17,9 @@ public class KeycloackFilter extends ExtAuthFilter {
 
     @Inject
     UserManager userManager;
+
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
 
     private KeycloackUserSupport keycloackUserSupport;
 
@@ -42,6 +46,7 @@ public class KeycloackFilter extends ExtAuthFilter {
         injector.injectMembers(this);
         this.keycloackUserSupport = new KeycloackUserSupport();
         this.keycloackUserSupport.setUserManager(this.userManager);
+        this.keycloackUserSupport.setLoggedUsersSingleton(this.loggedUsersSingleton);
 
     }
 
