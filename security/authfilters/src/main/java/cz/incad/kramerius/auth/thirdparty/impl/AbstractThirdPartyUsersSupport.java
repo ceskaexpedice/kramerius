@@ -96,14 +96,13 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
         T wrapper = createUserWrapper(req, userName);
 
         // don't store or update to database
-        /*
         if (checkIfUserExists(userName)) {
             password = updateExistingUser(userName, wrapper);
         } else {
             password = createNewUser(userName, wrapper);
-        }*/
+        }
     
-        //this.credentials.put(userName, password);
+        this.credentials.put(userName, password);
 
 
         req.getSession().setAttribute(UserUtils.USER_NAME_PARAM, userName);

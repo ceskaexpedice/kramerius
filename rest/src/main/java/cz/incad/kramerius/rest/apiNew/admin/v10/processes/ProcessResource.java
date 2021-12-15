@@ -7,10 +7,7 @@ import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
-import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -20,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -65,8 +63,12 @@ public class ProcessResource extends AdminApiResource {
     /*@Inject
     Provider<HttpServletRequest> requestProvider;*/
 
-    @Inject
-    LoggedUsersSingleton loggedUsersSingleton;
+//    @Inject
+//    Provider<User> loggedUsersSingleton;
+
+    @javax.inject.Inject
+    Provider<User> userProvider;
+
 
     @Inject
     RightsResolver rightsResolver;
@@ -88,10 +90,14 @@ public class ProcessResource extends AdminApiResource {
     public Response getOwners() {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
             String role = ROLE_READ_PROCESS_OWNERS;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
             }
             //get data from db
             List<ProcessOwner> owners = this.processManager.getProcessesOwners();
@@ -131,10 +137,13 @@ public class ProcessResource extends AdminApiResource {
     public Response getProcessByProcessId(@PathParam("process_id") String processId) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
             String role = ROLE_READ_PROCESSES;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
             }
             //id
             Integer processIdInt = null;
@@ -223,7 +232,6 @@ public class ProcessResource extends AdminApiResource {
      * @param offsetStr
      * @param limitStr
      * @return JSON with selected lines (defined by offset, limit) of the standard log
-     * @see cz.incad.Kramerius.views.ProcessLogsViewObject
      */
     @GET
     @Path("by_process_uuid/{process_uuid}/logs/out/lines")
@@ -248,7 +256,6 @@ public class ProcessResource extends AdminApiResource {
      * @param offsetStr
      * @param limitStr
      * @return JSON with selected lines (defined by offset, limit) of the error log
-     * @see cz.incad.Kramerius.views.ProcessLogsViewObject
      */
     @GET
     @Path("by_process_uuid/{process_uuid}/logs/err/lines")
@@ -268,10 +275,13 @@ public class ProcessResource extends AdminApiResource {
 
     private Response getProcessLogsLinesByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
         //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+        User user1 = this.userProvider.get();
+        List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
         String role = ROLE_READ_PROCESSES;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+        if (!roles.contains(role)) {
+            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
         }
         //offset & limit
         long offset = GET_LOGS_DEFAULT_OFFSET;
@@ -349,10 +359,13 @@ public class ProcessResource extends AdminApiResource {
     public Response deleteBatch(@PathParam("process_id") String processId) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
+
             String role = ROLE_DELETE_PROCESSES;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
             }
             //id
             Integer processIdInt = null;
@@ -395,10 +408,16 @@ public class ProcessResource extends AdminApiResource {
     public Response killBatch(@PathParam("process_id") String processId) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            //authorization
+
+
             String role = ROLE_CANCEL_OR_KILL_PROCESSES;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
             }
             //id
             Integer processIdInt = null;
@@ -470,11 +489,13 @@ public class ProcessResource extends AdminApiResource {
             //access control with basic access authentication (deprecated)
             checkAccessControlByBasicAccessAuth();
 
-            //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            //authorization
+
             String role = ROLE_READ_PROCESSES;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
             }
 
             //offset & limit
@@ -544,8 +565,7 @@ public class ProcessResource extends AdminApiResource {
     private void checkAccessControlByBasicAccessAuth() {
         boolean disabled = true;
         if (!disabled) {
-            String loggedUserKey = findLoggedUserKey();
-            User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+            User user = this.userProvider.get();
             if (user == null) {
                 throw new UnauthorizedException("user==null"); //401
             }
@@ -600,14 +620,16 @@ public class ProcessResource extends AdminApiResource {
                 List<String> paramsList = new ArrayList<>();
                 String newProcessAuthToken = UUID.randomUUID().toString();
                 paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
-                //authentication
-                AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+                User user1 = this.userProvider.get();
+                List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
                 //authorization
                 String role = ROLE_SCHEDULE_PROCESSES;
-                if (!user.getRoles().contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+                if (!roles.contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
                 }
-                return scheduleProcess(defid, paramsList, user.getId(), user.getName(), batchToken, newProcessAuthToken);
+                return scheduleProcess(defid, paramsList, user1.getLoginname(),user1.getLoginname(), batchToken, newProcessAuthToken);
             }
         } catch (WebApplicationException e) {
             throw e;

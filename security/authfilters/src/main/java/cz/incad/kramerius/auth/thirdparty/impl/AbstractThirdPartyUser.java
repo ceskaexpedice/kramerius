@@ -16,7 +16,13 @@ public abstract class AbstractThirdPartyUser implements ThirdPartyUser {
         String calculatedName = this.getCalculatedName();
         String firsname = this.getProperty(UserUtils.FIRST_NAME_KEY);
         String lastname = this.getProperty(UserUtils.LAST_NAME_KEY);
-        return new UserImpl(1, firsname, lastname, calculatedName, -1);
+        String email = this.getProperty(UserUtils.EMAIL_KEY);
+        UserImpl user = new UserImpl(1, firsname, lastname, calculatedName, -1);
+        if (email != null) {
+            user.setEmail(email);
+        }
+
+        return user;
     }
 
     public JSONObject toJSON(String pass) {

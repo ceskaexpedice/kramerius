@@ -55,18 +55,18 @@ public abstract class AdminApiResource extends ApiResource {
 
     private static final AuthenticatedUser ANONYMOUS = new AuthenticatedUser("anonymous", "anonymous", new ArrayList<>());
 
-    public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
-        KeycloakAccount keycloakAccount = null;
-        try {
-            keycloakAccount = (KeycloakAccount) requestProvider.get().getAttribute(KeycloakAccount.class.getName());
-        }catch (Throwable th){
-            LOGGER.log(Level.INFO,"Error retrieving KeycloakAccount", th);
-        }
-        if (keycloakAccount == null){
-            return  ANONYMOUS;
-        }
-        return new AuthenticatedUser(keycloakAccount.getPrincipal().getName(), keycloakAccount.getPrincipal().getName(), new ArrayList<>(keycloakAccount.getRoles()));
-    }
+//    public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
+//        KeycloakAccount keycloakAccount = null;
+//        try {
+//            keycloakAccount = (KeycloakAccount) requestProvider.get().getAttribute(KeycloakAccount.class.getName());
+//        }catch (Throwable th){
+//            LOGGER.log(Level.INFO,"Error retrieving KeycloakAccount", th);
+//        }
+//        if (keycloakAccount == null){
+//            return  ANONYMOUS;
+//        }
+//        return new AuthenticatedUser(keycloakAccount.getPrincipal().getName(), keycloakAccount.getPrincipal().getName(), new ArrayList<>(keycloakAccount.getRoles()));
+//    }
 
     /*public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
         ClientAuthHeaders authHeaders = extractClientAuthHeaders();

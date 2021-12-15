@@ -77,7 +77,7 @@ public class UserUtils {
 
     public static final String FIRST_NAME_KEY="firstname";
     public static final String LAST_NAME_KEY="surname";
-
+    public static final String EMAIL_KEY = "email";
 
     /** Params to http session */
     public static final String LOGGED_USER_PARAM = "loggedUser";

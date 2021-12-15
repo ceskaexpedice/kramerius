@@ -4,37 +4,44 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.ExtAuthFilter;
-import cz.incad.kramerius.auth.thirdparty.shibb.internal.InternalThirdPartyUsersSupportImpl;
 import cz.incad.kramerius.security.UserManager;
+import org.keycloak.adapters.spi.KeycloakAccount;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import java.util.logging.Level;
 
 public class KeycloackFilter extends ExtAuthFilter {
 
     @Inject
     UserManager userManager;
 
-    private KeycloackUserSupport authenticatedSources;
+    private KeycloackUserSupport keycloackUserSupport;
 
     @Override
     protected ThirdPartyUsersSupport getThirdPartyUsersSupport() {
-        return null;
+        return this.keycloackUserSupport;
     }
 
     @Override
     protected boolean userStoreIsNeeded(HttpServletRequest httpReq) {
-        return true;
+        try {
+            KeycloakAccount keycloakAccount = (KeycloakAccount) httpReq.getAttribute(KeycloakAccount.class.getName());
+            return keycloakAccount != null ;
+        }catch (Throwable th){
+            LOGGER.log(Level.INFO,"Error retrieving KeycloakAccount", th);
+        }
+
+        return false;
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         Injector injector = getInjector(filterConfig);
         injector.injectMembers(this);
-        KeycloackUserSupport internalAuthUsers = new KeycloackUserSupport();
-        internalAuthUsers.setUserManager(this.userManager);
-        this.authenticatedSources = internalAuthUsers;
+        this.keycloackUserSupport = new KeycloackUserSupport();
+        this.keycloackUserSupport.setUserManager(this.userManager);
 
     }
 

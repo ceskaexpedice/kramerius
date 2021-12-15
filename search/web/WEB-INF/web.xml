@@ -87,16 +87,36 @@
     </filter-mapping>
     -->
 
+
     <!--  thrid party authentication -->
     <filter>
-        <filter-name>thirdpartyauthfilter</filter-name>
-        <filter-class>cz.incad.kramerius.auth.thirdparty.shibb.internal.InternalShibbolethAuthFilter</filter-class>
+        <filter-name>keyclocaksupport</filter-name>
+        <filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>thirdpartyauthfilter</filter-name>
+        <filter-name>keyclocaksupport</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <!--  third party authentication, shibboleth and keyclocak - interal users -->
+    <filter>
+        <filter-name>shibfilter</filter-name>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.shibb.internal.InternalShibbolethAuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>shibfilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>keycloack</filter-name>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.keycloack.KeycloackFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>keycloack</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- -->
 
     <!-- Guice, must be last -->
     <filter>
