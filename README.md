@@ -3,8 +3,7 @@
 ###  Dokumentace k projektu Kramerius je aktualizována s ohledem na vydávanou verzi K7 (12/2021)
 
 Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub (https://github.com/ceskaexpedice/kramerius/releases/latest)
-Zapojení do České digitální knihovny je možné od verze Kramerius 5.
-
+Zapojení do České digitální knihovny je možné od verze Kramerius 5. 
 Upozornění pro vývojáře: Větev master nyní obsahuje beta verzi Kramerius 7 s integrovaným úložištěm Akubra. Dosavadní produkční verze Kramerius 5 je převedena do režimu údržby ve samostatné větvi kramerius5
 ----
 
@@ -12,11 +11,11 @@ Upozornění pro vývojáře: Větev master nyní obsahuje beta verzi Kramerius 
 
 je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárně je určen pro digitalizované knihovní sbírky, monografie a periodika. Využit může být ke zpřístupnění dalších typů dokumentů např. map, hudebnin a starých tisků, případně částí dokumentů jako jsou články a kapitoly. Systém je vhodný také pro tzv. digital born dokumenty, tedy dokumenty, které vznikly v elektronické podobě. Kramerius je průběžně upravován tak, aby struktura metadat odpovídala standardům vyhlašovaným Národní knihovnou České republiky. Systém poskytuje rozhraní pro přístup koncových uživatelů, zajišťující vyhledávání v metadatech a v plných textech, generování vícestránkových PDF dokumentů z vybraných stran, vytváření virtuálních sbírek a další operace nad uloženou sbírkou digitálních dokumentů.
 
-Aktuální ostrá verze 5 vychází koncepčně z verze 4, která byla vyvíjena a průběžně publikována od roku 2009. Navazuje funkčností na předchozí verzi systému Kramerius končící označením 4.8.6. Od verze 4 je jako jádro systému použit open source repozitář [Fedora](http://www.fedora-commons.org). Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
+V testování je aktuálně vydaná verze K7, ve které došlo k významnému vývojové mu kroku zejména z pohledu využitého repozitáře, vyhledávacího schematu a implementace licenčních modelů.  Nové řešení jádra by mělo zajistit rychlejší práci s velkým množstvím objektů. Ostré nasazování je předpokládáno v průběhu roku 2022.
 
-V testování je verze 7, ve které došlo k významnému vývojové mu kroku zejména z pohledu využitého repozitáře. Nové řešení jádra by mělo zajistit rychlejší práci s velkým množstvím objektů. Ostré nasazení je předpokládáno v průběhu roku 2021.
+Aktuální verze vychází koncepčně z předchozích verzí 4 a 5, která byla vyvíjena a průběžně publikována od roku 2009. Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
 
-Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer, který však není doporučován, vzhledem k tomu, že nepodporuje standardy.
+Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer, který však není doporučován, vzhledem k tomu, že nepodporuje standardy. Rozhranní je vícejazyčné.
 
 ## Licence
 
@@ -34,8 +33,7 @@ NTK – J. Kolátor, J. Dobiášovský;
 NLK – F. Kříž;
 SVKUL - A. Brožek;
 MKP - M. Světlý;
-
-Zástupci programátorského týmu – P. Kocourek, P. Šťastný, V. Lahoda;
+Programátorský tým: P.Kocourek, V.Lahoda, P.Šťastný, J.Rychtář
 
 Koordinátorem vývoje je Knihovna Akademie věd ČR zastoupená Ing. Martinem Lhotákem.
 
@@ -66,13 +64,12 @@ Kompletní dokumentace k aktuální verzi je v sekci [Wiki](https://github.com/c
 
 Službu instalace lze také objednat na http://www.unidata.cz/system-kramerius
 
-Distribuovanou instalaci u společnosti Incad, která zajišťuje analytické a programátorské práce http://www.incad.cz
+Distribuovanou instalaci u společnosti INOVATIKA, která zajišťuje analytické a programátorské práce www,inovatika.cz
 
 ## Komunikace
 Hlášení o chybách a požadavky na novou funkcionalitu zadávejte pomocí formuláře New Issue v sekci Issues. 
 
 Při požadavku na přidání vlastní funkcionality do standardní distribuce systému Kramerius prosím kontaktujte administrátory projektu. Jednodušší změny v rámci existujících modulů bude možné řešit připravením pull requestu, složitější úpravy bude třeba řešit individuálně.
-
 
 Mailová konference pro administrátory systému Kramerius: kramerius@lib.cas.cz
 
