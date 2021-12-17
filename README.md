@@ -5,7 +5,8 @@
 Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub (https://github.com/ceskaexpedice/kramerius/releases/latest)
 Zapojení do České digitální knihovny je možné od verze Kramerius 5. 
 Upozornění pro vývojáře: Větev master nyní obsahuje beta verzi Kramerius 7 s integrovaným úložištěm Akubra. Dosavadní produkční verze Kramerius 5 je převedena do režimu údržby ve samostatné větvi kramerius5
-----
+
+
 
 # Systém Kramerius 
 
