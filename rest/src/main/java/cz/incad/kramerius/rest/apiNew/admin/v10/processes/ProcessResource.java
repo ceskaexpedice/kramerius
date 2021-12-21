@@ -54,7 +54,7 @@ public class ProcessResource extends AdminApiResource {
     private static final String ROLE_CANCEL_OR_KILL_PROCESSES = "kramerius_admin";
 
     @Inject
-    LRProcessManager lrProcessManager; //here only for scheduling
+    LRProcessManager lrProcessManager;
 
     /*@Inject
     DefinitionManager definitionManager; //process definitions*/
@@ -617,16 +617,14 @@ public class ProcessResource extends AdminApiResource {
                 String userId = parentProcess.getOwnerId();
                 String userName = parentProcess.getOwnerName();
                 String batchToken = parentProcess.getBatchToken();
-                String newProcessAuthToken = UUID.randomUUID().toString();
                 List<String> paramsList = new ArrayList<>();
-                paramsList.addAll(paramsToList(defid, params, parentProcessAuthToken));
-                return scheduleProcess(defid, paramsList, userId, userName, batchToken, newProcessAuthToken);
+                paramsList.addAll(paramsToList(defid, params));
+                return scheduleProcess(defid, paramsList, userId, userName, batchToken);
             } else { //run by user (through web client)
                 //System.out.println("process auth token NOT found");
                 String batchToken = UUID.randomUUID().toString();
                 List<String> paramsList = new ArrayList<>();
-                String newProcessAuthToken = UUID.randomUUID().toString();
-                paramsList.addAll(paramsToList(defid, params, parentProcessAuthToken));
+                paramsList.addAll(paramsToList(defid, params));
 
                 User user1 = this.userProvider.get();
                 List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
@@ -636,7 +634,7 @@ public class ProcessResource extends AdminApiResource {
                 if (!roles.contains(role)) {
                     throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
                 }
-                return scheduleProcess(defid, paramsList, user1.getLoginname(), user1.getLoginname(), batchToken, newProcessAuthToken);
+                return scheduleProcess(defid, paramsList, user1.getLoginname(), user1.getLoginname(), batchToken);
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -646,8 +644,8 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken, String newProcessAuthToken) {
-        LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, params, ownerId, ownerName, batchToken, newProcessAuthToken);
+    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken) {
+        LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, params, ownerId, ownerName, batchToken);
         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
     }
@@ -669,8 +667,7 @@ public class ProcessResource extends AdminApiResource {
         return jsonObject;
     }
 
-    //TODO: cleanup
-    private List<String> paramsToList(String id, JSONObject params, String parentProcessAuthToken) {
+    private List<String> paramsToList(String id, JSONObject params) {
         switch (id) {
             case "new_process_api_test": {
                 //duration (of every process in the batch) in seconds

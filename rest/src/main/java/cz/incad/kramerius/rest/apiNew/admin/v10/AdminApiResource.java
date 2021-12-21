@@ -47,11 +47,6 @@ public abstract class AdminApiResource extends ApiResource {
 
     //TODO: cleanup
 
-    /*public ClientAuthHeaders extractClientAuthHeaders() {
-        return ClientAuthHeaders.extract(requestProvider);
-    }*/
-
-
     //private static final AuthenticatedUser ANONYMOUS = new AuthenticatedUser("anonymous", "anonymous", new ArrayList<>());
 
 //    public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
