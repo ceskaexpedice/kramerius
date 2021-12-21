@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.info.InfoResource
  */
-@Path("/admin/v1.0/config")
+@Path("/admin/v7.0/config")
 public class ConfigResource extends AdminApiResource {
 
     public static Logger LOGGER = Logger.getLogger(ConfigResource.class.getName());

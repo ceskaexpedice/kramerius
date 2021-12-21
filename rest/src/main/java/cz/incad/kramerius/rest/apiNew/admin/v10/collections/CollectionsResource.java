@@ -4,7 +4,6 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
-import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
 import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
@@ -34,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Path("/admin/v1.0/collections")
+@Path("/admin/v7.0/collections")
 public class CollectionsResource extends AdminApiResource {
 
     public static final Logger LOGGER = Logger.getLogger(CollectionsResource.class.getName());
@@ -225,16 +224,12 @@ public class CollectionsResource extends AdminApiResource {
     }
 
     private void scheduleReindexation(String objectPid, String userid, String username, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
-        String newProcessAuthToken = UUID.randomUUID().toString();
         List<String> paramsList = new ArrayList<>();
-        //Kramerius
-        paramsList.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(extractClientAuthHeaders()));
-        //indexation params
         paramsList.add(indexationType);
         paramsList.add(objectPid);
         paramsList.add(Boolean.toString(ignoreInconsistentObjects));
         paramsList.add(title);
-        processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, userid, username, batchToken, newProcessAuthToken);
+        processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, userid, username, batchToken);
     }
 
     /**

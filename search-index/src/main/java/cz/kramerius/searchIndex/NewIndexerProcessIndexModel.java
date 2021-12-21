@@ -8,8 +8,6 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.new_api.IndexationScheduler;
-import cz.incad.kramerius.processes.new_api.IndexationScheduler.ProcessCredentials;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
@@ -45,28 +43,29 @@ import java.util.logging.Logger;
 public class NewIndexerProcessIndexModel {
     public static final Logger LOGGER = Logger.getLogger(NewIndexerProcessIndexModel.class.getName());
 
-    public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token";
-
+    /**
+     * args[0] - authToken
+     * args[1] - indexation type
+     * args[2] - model
+     * args[3] - ignore inconsistent objects - if indexer should continue, or fail when meeting object that is inconsistent in repository
+     * args[4] - index objects that are not indexed
+     * args[5] - index objects that running or erroneously indexed
+     * args[6] - index objects that indexed with older version of indexer
+     * args[7] - index objects that indexed with current version of indexer
+     */
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
         //args
        /* LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
             System.out.println(arg);
         }*/
-        if (args.length < 11) { //at least 7 args ar necessary:
-            // A. credentials for scheduling another process (in the same batch) after this process has finished - 4 args
-            // B. process-specific args - 7 args
+        if (args.length < 8) {
             throw new RuntimeException("Not enough arguments.");
         }
         int argsIndex = 0;
-        ProcessCredentials processCredentials = new ProcessCredentials();
         //token for keeping possible following processes in same batch
-        processCredentials.authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //Kramerius
-        processCredentials.krameriusApiAuthClient = args[argsIndex++];
-        processCredentials.krameriusApiAuthUid = args[argsIndex++];
-        processCredentials.krameriusApiAuthAccessToken = args[argsIndex++];
-        //process-specific args
+        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+        //process params
         IndexationType type = IndexationType.valueOf(args[argsIndex++]);
         report("type: " + type);
         String modelPid = args[argsIndex++];

@@ -8,7 +8,6 @@ import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
@@ -35,7 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Path("/admin/v1.0/processes")
+@Path("/admin/v7.0/processes")
 public class ProcessResource extends AdminApiResource {
 
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
@@ -55,7 +54,7 @@ public class ProcessResource extends AdminApiResource {
     private static final String ROLE_CANCEL_OR_KILL_PROCESSES = "kramerius_admin";
 
     @Inject
-    LRProcessManager lrProcessManager; //here only for scheduling
+    LRProcessManager lrProcessManager;
 
     /*@Inject
     DefinitionManager definitionManager; //process definitions*/
@@ -140,6 +139,11 @@ public class ProcessResource extends AdminApiResource {
             //AuthenticatedUser user = getAuthenticatedUserByOauth();
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            System.out.println("user: " + user1);
+            System.out.println("roles: ");
+            for (String role : roles) {
+                System.out.println(role);
+            }
 
             String role = ROLE_READ_PROCESSES;
             if (!roles.contains(role)) {
@@ -491,6 +495,11 @@ public class ProcessResource extends AdminApiResource {
 
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            System.out.println("user: " + user1);
+            System.out.println("roles: ");
+            for (String role : roles) {
+                System.out.println(role);
+            }
             //authorization
 
             String role = ROLE_READ_PROCESSES;
@@ -587,7 +596,7 @@ public class ProcessResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response scheduleProcess(JSONObject processDefinition) {
         try {
-            String processAuthToken = getProcessAuthToken();
+            String parentProcessAuthToken = getParentProcessAuthToken();
             if (processDefinition == null) {
                 throw new BadRequestException("missing process definition");
             }
@@ -599,27 +608,23 @@ public class ProcessResource extends AdminApiResource {
             if (processDefinition.has("params")) {
                 params = processDefinition.getJSONObject("params");
             }
-            //authentication & authorization
-            ClientAuthHeaders clientAuthHeaders = extractClientAuthHeaders();
-            if (processAuthToken != null) { //run by process (so the new process will be it's sibling in same batch)
-                //System.out.println("process auth token found");
-                ProcessManager.ProcessAboutToScheduleSibling originalProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(processAuthToken);
-                if (originalProcess == null) {
+
+            if (parentProcessAuthToken != null) { //run by "parent" process (more precisely it's "older sibling" process - the new process will be its sibling within same batch)
+                ProcessManager.ProcessAboutToScheduleSibling parentProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(parentProcessAuthToken);
+                if (parentProcess == null) {
                     throw new UnauthorizedException("invalid token"); //401
                 }
-                String userId = originalProcess.getOwnerId();
-                String userName = originalProcess.getOwnerName();
-                String batchToken = originalProcess.getBatchToken();
-                String newProcessAuthToken = UUID.randomUUID().toString();
+                String userId = parentProcess.getOwnerId();
+                String userName = parentProcess.getOwnerName();
+                String batchToken = parentProcess.getBatchToken();
                 List<String> paramsList = new ArrayList<>();
-                paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
-                return scheduleProcess(defid, paramsList, userId, userName, batchToken, newProcessAuthToken);
+                paramsList.addAll(paramsToList(defid, params));
+                return scheduleProcess(defid, paramsList, userId, userName, batchToken);
             } else { //run by user (through web client)
                 //System.out.println("process auth token NOT found");
                 String batchToken = UUID.randomUUID().toString();
                 List<String> paramsList = new ArrayList<>();
-                String newProcessAuthToken = UUID.randomUUID().toString();
-                paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
+                paramsList.addAll(paramsToList(defid, params));
 
                 User user1 = this.userProvider.get();
                 List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
@@ -629,7 +634,7 @@ public class ProcessResource extends AdminApiResource {
                 if (!roles.contains(role)) {
                     throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
                 }
-                return scheduleProcess(defid, paramsList, user1.getLoginname(),user1.getLoginname(), batchToken, newProcessAuthToken);
+                return scheduleProcess(defid, paramsList, user1.getLoginname(), user1.getLoginname(), batchToken);
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -639,8 +644,8 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken, String newProcessAuthToken) {
-        LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, params, ownerId, ownerName, batchToken, newProcessAuthToken);
+    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken) {
+        LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, params, ownerId, ownerName, batchToken);
         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
     }
@@ -662,7 +667,7 @@ public class ProcessResource extends AdminApiResource {
         return jsonObject;
     }
 
-    private List<String> paramsToList(String id, JSONObject params, ClientAuthHeaders clientAuthHeaders) {
+    private List<String> paramsToList(String id, JSONObject params) {
         switch (id) {
             case "new_process_api_test": {
                 //duration (of every process in the batch) in seconds
@@ -673,9 +678,6 @@ public class ProcessResource extends AdminApiResource {
                 String finalState = extractOptionalParamWithValueFromEnum(params, "finalState", ProcessApiTestProcess.FinalState.class, ProcessApiTestProcess.FinalState.FINISHED.name());
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//protoze spousti podprocesy
-                //process-specific params
                 result.add(duration.toString());
                 result.add(processesInBatch.toString());
                 result.add(finalState);
@@ -688,9 +690,6 @@ public class ProcessResource extends AdminApiResource {
                 String title = extractOptionalParamString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders)); //pro pristup k repozitari pres verejne rest api
-                //process-specific params
                 result.add(type);//indexation type
                 result.add(pid);//indexation's root pid
                 result.add(ignoreInconsistentObjects.toString());
@@ -707,9 +706,6 @@ public class ProcessResource extends AdminApiResource {
                 Boolean indexIndexed = extractOptionalParamBoolean(params, "indexIndexed", false);
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //process-specific params
                 result.add(type); //indexation type
                 result.add(pid); //indexation's root pid
                 result.add(ignoreInconsistentObjects.toString());
@@ -726,9 +722,6 @@ public class ProcessResource extends AdminApiResource {
                 String title = extractOptionalParamString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //process-specific params
                 result.add(scope);
                 result.add(policy);
                 result.add(pid);
@@ -742,9 +735,6 @@ public class ProcessResource extends AdminApiResource {
                 String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//protoze spousti podprocesy
-                //process-specific params
                 result.add(pid);
                 return result;
             }
@@ -753,9 +743,6 @@ public class ProcessResource extends AdminApiResource {
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //process-specific params
                 result.add(inputDataDir.getPath());
                 result.add(startIndexer.toString());
                 return result;
@@ -768,9 +755,6 @@ public class ProcessResource extends AdminApiResource {
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //convert_and_import params
                 result.add(policy);
                 result.add(inputDataDir.getPath());
                 result.add(convertedDataDir.getPath());
@@ -795,9 +779,6 @@ public class ProcessResource extends AdminApiResource {
                 }
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //add_license/remove_license params
                 result.add(license);
                 result.add(target);
                 return result;

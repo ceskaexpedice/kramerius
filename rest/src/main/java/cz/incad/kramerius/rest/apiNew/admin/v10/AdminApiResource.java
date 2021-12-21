@@ -34,10 +34,7 @@ public abstract class AdminApiResource extends ApiResource {
 
     public static Logger LOGGER = Logger.getLogger(AdminApiResource.class.getName());
 
-    //TODO: move url into configuration
-    private static final String AUTH_URL = "https://api.kramerius.cloud/api/v1/auth/validate_token";
-
-    private static final String HEADER_PROCESS_AUTH_TOKEN = "process-auth-token";
+    private static final String HEADER_PARENT_PROCESS_AUTH_TOKEN = "parent-process-auth-token";
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -48,12 +45,9 @@ public abstract class AdminApiResource extends ApiResource {
     @Inject
     RightsResolver rightsResolver;
 
-    public ClientAuthHeaders extractClientAuthHeaders() {
-        return ClientAuthHeaders.extract(requestProvider);
-    }
+    //TODO: cleanup
 
-
-    private static final AuthenticatedUser ANONYMOUS = new AuthenticatedUser("anonymous", "anonymous", new ArrayList<>());
+    //private static final AuthenticatedUser ANONYMOUS = new AuthenticatedUser("anonymous", "anonymous", new ArrayList<>());
 
 //    public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
 //        KeycloakAccount keycloakAccount = null;
@@ -158,8 +152,8 @@ public abstract class AdminApiResource extends ApiResource {
         return result;
     }
 
-    public String getProcessAuthToken() {
-        return requestProvider.get().getHeader(HEADER_PROCESS_AUTH_TOKEN);
+    public String getParentProcessAuthToken() {
+        return requestProvider.get().getHeader(HEADER_PARENT_PROCESS_AUTH_TOKEN);
     }
 
     @Deprecated
@@ -169,7 +163,7 @@ public abstract class AdminApiResource extends ApiResource {
         return (String) requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
     }
 
-
+    @Deprecated
     public void checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions action) {
         User user = this.userProvider.get();
         if (user == null || user.getLoginname().equals("not_logged")) {

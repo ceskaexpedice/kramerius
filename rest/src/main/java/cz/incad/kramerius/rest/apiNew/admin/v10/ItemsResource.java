@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Path("/admin/v1.0/items")
+@Path("/admin/v7.0/items")
 public class ItemsResource extends AdminApiResource {
 
     public static Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());

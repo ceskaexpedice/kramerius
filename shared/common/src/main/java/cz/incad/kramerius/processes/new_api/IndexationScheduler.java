@@ -16,13 +16,9 @@ import javax.ws.rs.core.MediaType;
  * TODO: replace cz.incad.kramerius.service.impl.IndexerProcessStarter
  */
 public class IndexationScheduler {
+    //TODO: cleanup
 
-    public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token";
-    public static final String API_AUTH_HEADER_CLIENT = "client";
-    public static final String API_AUTH_HEADER_UID = "uid";
-    public static final String API_AUTH_HEADER_ACCESS_TOKEN = "access-token";
-
-    public static void scheduleIndexation(String pid, String title, boolean includingDescendants, ProcessCredentials processCredentials) {
+    public static void scheduleIndexation(String pid, String title, boolean includingDescendants, String parentProcessAuthToken) {
         Client client = Client.create();
         WebResource resource = client.resource(getNewAdminApiEndpoint() + "/processes");
         JSONObject data = new JSONObject();
@@ -36,10 +32,7 @@ public class IndexationScheduler {
 
         try {
             String response = resource
-                    .header("process-auth-token", processCredentials.authToken)
-                    .header("client", processCredentials.krameriusApiAuthClient)
-                    .header("uid", processCredentials.krameriusApiAuthUid)
-                    .header("access-token", processCredentials.krameriusApiAuthAccessToken)
+                    .header("parent-process-auth-token", parentProcessAuthToken)
                     .entity(data.toString(), MediaType.APPLICATION_JSON)
                     .post(String.class);
             //System.out.println("response: " + response);
@@ -64,16 +57,7 @@ public class IndexationScheduler {
         if (applicationURL.endsWith("/")) { //normalize to "../search", not "../search/"
             applicationURL = applicationURL.substring(0, applicationURL.length() - 1);
         }
-        return applicationURL + "/api/admin/v1.0";
-    }
-
-    public static class ProcessCredentials {
-        //for process being included in existing batch
-        public String authToken;
-        //Kramerius
-        public String krameriusApiAuthClient;
-        public String krameriusApiAuthUid;
-        public String krameriusApiAuthAccessToken;
+        return applicationURL + "/api/admin/v7.0";
     }
 
 }

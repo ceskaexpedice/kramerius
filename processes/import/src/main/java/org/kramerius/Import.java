@@ -12,7 +12,6 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.processes.new_api.IndexationScheduler;
-import cz.incad.kramerius.processes.new_api.IndexationScheduler.ProcessCredentials;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -90,24 +89,20 @@ public class Import {
     }
 
     /**
-     * @param args
-     * @throws UnsupportedEncodingException
+     * args[0] - authToken
+     * args[1] - import dir, optional
+     * args[2] - start indexer, optional
      */
     public static void main(String[] args) throws IOException, RepositoryException, SolrServerException {
         /*for (int i = 0; i < args.length; i++) {
             System.out.println("arg " + i + ": " + args[i]);
         }*/
-        if (args.length < 4) { //at least 4 args ar necessary: credentials for scheduling another process (in the same batch) after this process has finished
+        if (args.length < 1) {
             throw new RuntimeException("Not enough arguments.");
         }
         int argsIndex = 0;
-        ProcessCredentials processCredentials = new ProcessCredentials();
         //token for keeping possible following processes in same batch
-        processCredentials.authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //Kramerius
-        processCredentials.krameriusApiAuthClient = args[argsIndex++];
-        processCredentials.krameriusApiAuthUid = args[argsIndex++];
-        processCredentials.krameriusApiAuthAccessToken = args[argsIndex++];
+        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //process params
         String importDirFromArgs = args.length > argsIndex ? args[argsIndex++] : null;
         Boolean startIndexerFromArgs = args.length > argsIndex ? Boolean.valueOf(args[argsIndex++]) : null;
@@ -135,14 +130,14 @@ public class Import {
         log.info("start indexer: " + startIndexer);
 
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, processCredentials);
+        Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken);
     }
 
     public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
         run(fa, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null);
     }
 
-    public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, ProcessCredentials processCredentials) throws IOException, SolrServerException {
+    public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken) throws IOException, SolrServerException {
         //log.info("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
         log.info("INGEST - url:" + url + " user:" + user + " importRoot:" + importRoot);
         sortingService = sortingServiceParam;
@@ -232,9 +227,9 @@ public class Import {
                         log.info("Waiting for soft commit :" + waitIndexerProperty + " s");
                         Thread.sleep(Integer.parseInt(waitIndexerProperty));
 
-                        if (processCredentials != null) {
+                        if (authToken != null) {
                             for (TitlePidTuple root : roots) {
-                                IndexationScheduler.scheduleIndexation(root.pid, root.title, true, processCredentials);
+                                IndexationScheduler.scheduleIndexation(root.pid, root.title, true, authToken);
                             }
                             log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
                         } else {
