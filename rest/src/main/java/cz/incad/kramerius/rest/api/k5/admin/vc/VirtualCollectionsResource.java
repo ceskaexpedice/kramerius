@@ -60,6 +60,7 @@ import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionUtils;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
+@Deprecated
 @Path("/v5.0/admin/vc")
 public class VirtualCollectionsResource {
 

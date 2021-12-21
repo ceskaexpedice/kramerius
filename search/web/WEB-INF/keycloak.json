@@ -2,10 +2,10 @@
   "realm": "kramerius",
   "auth-server-url": "http://localhost:8083/auth/",
   "ssl-required": "external",
-  "resource": "krameriusClient",
+  "resource": "newClient",
   "verify-token-audience": false,
   "credentials": {
-    "secret": "kyPtgyMN7rFfPiJzgaaE90cpBryAQ4nG"
+    "secret": "newClientSecret"
   },
   "confidential-port": 0,
   "policy-enforcer": {}

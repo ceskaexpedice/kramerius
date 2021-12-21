@@ -153,7 +153,7 @@ public class DatabaseRightsManager implements RightsManager {
 //                } else {
 //                    dbUser = userManager.findRole(groupId);
 //                }
-                returnsList.add(RightsDBUtils.createRight(rs, new RoleImpl(role), criteriumWrapperFactory));
+                returnsList.add(RightsDBUtils.createRight(rs, new RoleImpl(groupId, role, -1), criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql);

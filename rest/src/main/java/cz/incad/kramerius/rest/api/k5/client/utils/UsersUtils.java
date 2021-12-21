@@ -18,17 +18,14 @@ package cz.incad.kramerius.rest.api.k5.client.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.rest.api.k5.admin.users.RolesResource;
+import cz.incad.kramerius.rest.apiNew.admin.v10.rights.RolesResource;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.UserImpl;
 
 public class UsersUtils {
 
