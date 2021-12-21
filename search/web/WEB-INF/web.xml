@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app>
-    <filter>
+    <!--filter>
         <filter-name>Keycloak Filter</filter-name>
         <filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter</filter-class>
     </filter>
@@ -8,7 +8,7 @@
         <filter-name>Keycloak Filter</filter-name>
         <url-pattern>/keycloak/*</url-pattern>
         <url-pattern>/api/*</url-pattern>
-    </filter-mapping>
+    </filter-mapping-->
     <!--init-param>
         <param-name>keycloak.config.skipPattern</param-name>
         <param-value>^/(path1|path2|path3).*</param-value>

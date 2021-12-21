@@ -5,6 +5,7 @@ dependencies {
 
     compile project(':shared:common')
     compile project(':security:security-core')
+    compile project(':security:oauth')
     compile project(':search-index')
 
     compile name:"iiif-presentation-model-api-3.2.5"
