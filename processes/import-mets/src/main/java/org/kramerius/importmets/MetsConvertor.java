@@ -8,7 +8,6 @@ import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.processes.new_api.IndexationScheduler.ProcessCredentials;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -54,11 +53,18 @@ public class MetsConvertor {
     private final Unmarshaller unmarshaller;
     private boolean foundvalidPSP = false;
 
+    /**
+     * args[0] - authToken
+     * args[1] - policy (PUBLIC/PRIVATE)
+     * args[2] - import dir, optional
+     * args[3] - export dir, optional
+     * args[4] - start indexer, optional
+     */
     public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, RepositoryException, SolrServerException {
         /*for (int i = 0; i < args.length; i++) {
             System.out.println("arg " + i + ": " + args[i]);
         }*/
-        if (args.length <= 3) { //through CLI with 0-3 args
+        if (args.length < 2 || args[0].equalsIgnoreCase("true") || args[0].equalsIgnoreCase("false")) { //through CLI with 0-3 args
             System.out.println("ANL METS to FOXML conversion tool.\n");
             System.out.println("Usage: conversion-tool policyPublic <input-folder> <output-folder>");
             if (args.length == 0) {
@@ -70,17 +76,12 @@ public class MetsConvertor {
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
             new MetsConvertor().run(importRoot, exportRoot, policyPublic, false, null);
         } else { // as a process
-            if (args.length < 5) { //at least 4 args ar necessary: credentials for scheduling another process (in the same batch) after this process has finished, also defaultVisibility is mandatory
+            if (args.length < 2) {
                 throw new RuntimeException("Not enough arguments.");
             }
             int argsIndex = 0;
-            ProcessCredentials processCredentials = new ProcessCredentials();
             //token for keeping possible following processes in same batch
-            processCredentials.authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-            //Kramerius
-            processCredentials.krameriusApiAuthClient = args[argsIndex++];
-            processCredentials.krameriusApiAuthUid = args[argsIndex++];
-            processCredentials.krameriusApiAuthAccessToken = args[argsIndex++];
+            String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
             //process params
             String policy = args[argsIndex++];
             boolean policyPublic = "PUBLIC".equals(policy);
@@ -88,7 +89,7 @@ public class MetsConvertor {
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
             boolean startIndexer = Boolean.valueOf(args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
             ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
-            new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, processCredentials);
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken);
         }
     }
 
@@ -111,7 +112,7 @@ public class MetsConvertor {
         }
     }
 
-    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, ProcessCredentials processCredentials) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
+    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
         checkAndConvertDirectory(importRoot, exportRoot, policyPublic);
         if (!foundvalidPSP) {
             throw new RuntimeException("No valid PSP found.");
@@ -125,7 +126,7 @@ public class MetsConvertor {
                 KConfiguration.getInstance().getProperty("ingest.url"),
                 KConfiguration.getInstance().getProperty("ingest.user"),
                 KConfiguration.getInstance().getProperty("ingest.password"),
-                exportRoot, startIndexer, processCredentials);
+                exportRoot, startIndexer, authToken);
     }
 
     private void checkAndConvertDirectory(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {

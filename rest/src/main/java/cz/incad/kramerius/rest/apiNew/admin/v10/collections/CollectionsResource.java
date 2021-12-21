@@ -227,9 +227,6 @@ public class CollectionsResource extends AdminApiResource {
     private void scheduleReindexation(String objectPid, String userid, String username, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
         String newProcessAuthToken = UUID.randomUUID().toString();
         List<String> paramsList = new ArrayList<>();
-        //Kramerius
-        paramsList.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(extractClientAuthHeaders()));
-        //indexation params
         paramsList.add(indexationType);
         paramsList.add(objectPid);
         paramsList.add(Boolean.toString(ignoreInconsistentObjects));

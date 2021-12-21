@@ -10,7 +10,6 @@ import cz.incad.kramerius.fedora.om.impl.AkubraObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
 import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilder;
 import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilderImpl;
-import cz.incad.kramerius.processes.new_api.IndexationScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -44,26 +43,23 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
         this.feeder = injector.getInstance(ProcessingIndexFeeder.class);
     }
 
+    /**
+     * args[0] - authToken
+     * args[1] - pid
+     */
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException, FcrepoOperationFailedException {
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
             System.out.println(arg);
         }*/
-        if (args.length < 5) { //at least 5 args ar necessary:
-            // A. credentials for scheduling another process (in the same batch) after this process has finished - 4 args
-            // B. process-specific args - 1 args
+        if (args.length < 2) {
             throw new RuntimeException("Not enough arguments.");
         }
         int argsIndex = 0;
-        IndexationScheduler.ProcessCredentials processCredentials = new IndexationScheduler.ProcessCredentials();
         //token for keeping possible following processes in same batch
-        processCredentials.authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //Kramerius
-        processCredentials.krameriusApiAuthClient = args[argsIndex++];
-        processCredentials.krameriusApiAuthUid = args[argsIndex++];
-        processCredentials.krameriusApiAuthAccessToken = args[argsIndex++];
-        //process-specific args
+        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+        //process params
         String pid = args[argsIndex++];
 
         ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML objektu %s", pid));

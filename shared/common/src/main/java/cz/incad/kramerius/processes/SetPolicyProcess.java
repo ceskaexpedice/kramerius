@@ -7,7 +7,6 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.processes.new_api.IndexationScheduler;
-import cz.incad.kramerius.processes.new_api.IndexationScheduler.ProcessCredentials;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
@@ -23,6 +22,7 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
@@ -36,10 +36,11 @@ public class SetPolicyProcess {
     public static final Logger LOGGER = Logger.getLogger(SetPolicyProcess.class.getName());
 
     /**
-     * args[0] - scope (OBJECT/TREE)
-     * args[1] - policy (PRIVATE/PUBLIC)
-     * args[2] - pid of root object, for example "uuid:df693396-9d3f-4b3b-bf27-3be0aaa2aadf"
-     * args[3-...] - optional title of the root object
+     * args[0] - authToken
+     * args[1] - scope (OBJECT/TREE)
+     * args[2] - policy (PRIVATE/PUBLIC)
+     * args[3] - pid of root object, for example "uuid:df693396-9d3f-4b3b-bf27-3be0aaa2aadf"
+     * args[4-...] - optional title of the root object
      */
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
         //args
@@ -47,18 +48,12 @@ public class SetPolicyProcess {
         for (String arg : args) {
             System.out.println(arg);
         }*/
-        if (args.length < 4) { //at least 4 args ar necessary: credentials for scheduling another process (in the same batch) after this process has finished
+        if (args.length < 4) {
             throw new RuntimeException("Not enough arguments.");
         }
-
         int argsIndex = 0;
-        ProcessCredentials credentials = new ProcessCredentials();
         //token for keeping possible following processes in same batch
-        credentials.authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //Kramerius
-        credentials.krameriusApiAuthClient = args[argsIndex++];
-        credentials.krameriusApiAuthUid = args[argsIndex++];
-        credentials.krameriusApiAuthAccessToken = args[argsIndex++];
+        String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //process params
         Scope scope = Scope.valueOf(args[argsIndex++]);
         Policy policy = Policy.valueOf(args[argsIndex++]);
@@ -79,7 +74,8 @@ public class SetPolicyProcess {
         }
         boolean includingDescendants = scope == Scope.TREE;
         boolean noErrors = setPolicy(policy, pid, includingDescendants, repository);
-        IndexationScheduler.scheduleIndexation(pid, title, includingDescendants, credentials);
+        IndexationScheduler.scheduleIndexation(pid, title, includingDescendants, authToken);
+
         if (!noErrors) {
             throw new WarningException("failed to set policy for some objects");
         }

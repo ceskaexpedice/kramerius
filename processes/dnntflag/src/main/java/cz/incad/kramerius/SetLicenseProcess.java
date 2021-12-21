@@ -66,30 +66,27 @@ public class SetLicenseProcess {
     private static String SOLR_FIELD_LICENSES_OF_ANCESTORS = "licenses_of_ancestors";
 
     /**
-     * args[0] - target (pid:uuid:123, or pidlist:uuid:123;uuid:345;uuid:789, or pidlist_file:/home/kramerius/.kramerius/import-dnnt/grafiky.txt
+     * args[0] - action (ADD/REMOVE), from lp.st process/parameters
+     * args[1] - authToken
+     * args[2] - target (pid:uuid:123, or pidlist:uuid:123;uuid:345;uuid:789, or pidlist_file:/home/kramerius/.kramerius/import-dnnt/grafiky.txt
      * In case of pidlist pids must be separated with ';'. Convenient separator ',' won't work due to way how params are stored in database and transferred to process.
      * <p>
-     * args[1] - licence ('dnnt', 'dnnto', 'public_domain', etc.)
+     * args[3] - licence ('dnnt', 'dnnto', 'public_domain', etc.)
      */
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException, ResourceIndexException {
-
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
             System.out.println(arg);
         }*/
-
+        if (args.length < 4) {
+            throw new RuntimeException("Not enough arguments.");
+        }
         int argsIndex = 0;
         //params from lp.st
         Action action = Action.valueOf(args[argsIndex++]);
-        //auth
-        IndexationScheduler.ProcessCredentials credentials = new IndexationScheduler.ProcessCredentials();
         //token for keeping possible following processes in same batch
-        credentials.authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //Kramerius
-        credentials.krameriusApiAuthClient = args[argsIndex++];
-        credentials.krameriusApiAuthUid = args[argsIndex++];
-        credentials.krameriusApiAuthAccessToken = args[argsIndex++];
+        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //process params
         String license = args[argsIndex++];
         String target = args[argsIndex++];
@@ -110,7 +107,7 @@ public class SetLicenseProcess {
             case REMOVE:
                 ProcessStarter.updateName(String.format("Odebrání licence '%s' pro %s", license, target));
                 for (String pid : extractPids(target)) {
-                    removeLicense(license, pid, repository, resourceIndex, searchIndex, indexerAccess, credentials);
+                    removeLicense(license, pid, repository, resourceIndex, searchIndex, indexerAccess, authToken);
                 }
                 break;
         }
@@ -239,7 +236,7 @@ public class SetLicenseProcess {
         return relsExtNeedsToBeUpdated;
     }
 
-    private static void removeLicense(String license, String targetPid, KrameriusRepositoryApi repository, IResourceIndex resourceIndex, SolrAccess searchIndex, SolrIndexAccess indexerAccess, IndexationScheduler.ProcessCredentials credentials) throws RepositoryException, IOException, ResourceIndexException {
+    private static void removeLicense(String license, String targetPid, KrameriusRepositoryApi repository, IResourceIndex resourceIndex, SolrAccess searchIndex, SolrIndexAccess indexerAccess, String authToken) throws RepositoryException, IOException, ResourceIndexException {
         LOGGER.info(String.format("Removing license '%s' from %s", license, targetPid));
 
         //1. Z rels-ext ciloveho objektu se odebere license=L, pokud tam je. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
@@ -298,7 +295,7 @@ public class SetLicenseProcess {
 
             //6b. naplanuje se reindexace target, aby byly opraveny pripadne chyby zanasene v bode 6a
             //nekteri potomci mohli mit narok na licenci z jineho zdroje ve svem strome, coz nelze u odebirani licence nevlastniho predka efektivne zjistit
-            IndexationScheduler.scheduleIndexation(targetPid, null, true, credentials);
+            IndexationScheduler.scheduleIndexation(targetPid, null, true, authToken);
         }
         //commit changes in index
         try {

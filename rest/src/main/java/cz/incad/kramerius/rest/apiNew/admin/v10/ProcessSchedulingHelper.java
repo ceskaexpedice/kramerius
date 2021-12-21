@@ -50,13 +50,12 @@ public class ProcessSchedulingHelper {
         if (definition == null) {
             throw new BadRequestException("process definition for defid '%s' not found", defid);
         }
-        String authToken = authToken(); //jen pro ilustraci, jak funguje stare api a jak se jmenovala hlavicka
-        //System.out.println("authToken: " + authToken);
+        //String authToken = authToken(); //jen pro ilustraci, jak funguje stare api a jak se jmenovala hlavicka
         String groupToken = groupToken(); //jen pro ilustraci, jak funguje stare api a jak se jmenovala hlavicka
         groupToken = batchToken;
         //System.out.println("groupToken: " + groupToken);
 
-        LRProcess newProcess = definition.createNewProcess(authToken, groupToken);
+        LRProcess newProcess = definition.createNewProcess(null, groupToken);
         //System.out.println("newProcess: " + newProcess);
         //tohle vypada, ze se je k nicemu, ve vysledku se to jen uklada do databaze do processes.params_mapping a to ani ne vzdy
         // select planned, params_mapping from processes where params_mapping!='' order by planned desc limit 10;
@@ -81,7 +80,7 @@ public class ProcessSchedulingHelper {
         if (processId == null) {
             throw new InternalErrorException("error scheduling new process");
         }
-        processManager.setProcessAuthToken(processId, newProcessAuthToken);
+        processManager.setProcessAuthToken(processId, newProcessAuthToken); //TODO: nestaci to u definition.createNewProcess?
         //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
         return newProcess;
     }
@@ -123,12 +122,6 @@ public class ProcessSchedulingHelper {
         return definition;
     }
 
-    public List<String> processParamsKrameriusAdminApiCredentials(ClientAuthHeaders clientAuthHeaders) {
-        List<String> params = new ArrayList<>();
-        params.add(clientAuthHeaders.getClient());
-        params.add(clientAuthHeaders.getUid());
-        params.add(clientAuthHeaders.getAccessToken());
-        return params;
-    }
+    //TODO: cleanup
 
 }
