@@ -74,8 +74,13 @@ public class InfoResource extends ClientApiResource {
     private String getVersion() throws IOException {
         Properties buildProperties = new Properties();
         InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("build.properties");
-        buildProperties.load(revisions);
-        return buildProperties.getProperty("version");
+        if (revisions != null) {
+            buildProperties.load(revisions);
+            return buildProperties.getProperty("version");
+        } else {
+            LOGGER.warning("build.properties is not present");
+            return "";
+        }
     }
 
     @Deprecated //TODO: replace with database (table CONFIG with columns KEY and VALUE)

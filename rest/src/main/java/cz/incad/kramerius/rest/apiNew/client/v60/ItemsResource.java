@@ -603,9 +603,11 @@ public class ItemsResource extends ClientApiResource {
                 throw new BadRequestException("invalid tile: " + tileStr);
             }
             String[] tileTokens = tileStr.split("\\.")[0].split("-");
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            //KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            //checkObjectAndDatastreamExist(pid, dsId);
+            //checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserByJsessionidIsAllowedToReadIIPTile(pid);
+
             return zoomifyHelper.buildTileResponse(pid, requestProvider.get(), tileGroup, Integer.valueOf(tileTokens[0]), Integer.valueOf(tileTokens[1]), Integer.valueOf(tileTokens[2]));
         } catch (WebApplicationException e) {
             throw e;
