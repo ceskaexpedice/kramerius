@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import java.util.logging.Logger;
 
 
-@Path("/admin/v1.0/files")
+@Path("/admin/v7.0/files")
 public class ServerFilesResource extends AdminApiResource {
 
     public static Logger LOGGER = Logger.getLogger(ServerFilesResource.class.getName());

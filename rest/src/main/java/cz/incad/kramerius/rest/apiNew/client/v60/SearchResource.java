@@ -52,7 +52,7 @@ import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 
 //TODO: odstranit /terms?, pokud ponechat, tak možná omezit limity, povolená pole (kvůli omezení těžení)
 
-@Path("/client/v6.0/search")
+@Path("/client/v7.0/search")
 public class SearchResource {
 
     private static Logger LOGGER = Logger.getLogger(SearchResource.class.getName());

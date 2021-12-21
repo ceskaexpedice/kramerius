@@ -51,7 +51,7 @@ import java.util.logging.Logger;
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.item.ItemResource
  */
-@Path("/client/v6.0/items")
+@Path("/client/v7.0/items")
 public class ItemsResource extends ClientApiResource {
 
     //TODO: uklid
@@ -453,12 +453,12 @@ public class ItemsResource extends ClientApiResource {
     public Response getOcrText(@PathParam("pid") String pid) {
         //TODO: pořádně otestovat:
         //managed from URL:
-        //http://localhost:8080/search/api/admin/v1.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/foxml
-        //http://localhost:8080/search/api/client/v6.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/ocr/text
+        //http://localhost:8080/search/api/admin/v7.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/foxml
+        //http://localhost:8080/search/api/client/v7.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/ocr/text
 
         //managed form file://
-        //http://localhost:8080/search/api/admin/v1.0/items/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/foxml
-        //http://localhost:8080/search/api/client/v6.0/items/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/ocr/text
+        //http://localhost:8080/search/api/admin/v7.0/items/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/foxml
+        //http://localhost:8080/search/api/client/v7.0/items/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/ocr/text
 
         //redirect, externally referenced
 

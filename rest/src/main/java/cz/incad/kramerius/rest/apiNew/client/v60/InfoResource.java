@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.info.InfoResource
  */
-@Path("/client/v6.0/info")
+@Path("/client/v7.0/info")
 public class InfoResource extends ClientApiResource {
 
     public static Logger LOGGER = Logger.getLogger(InfoResource.class.getName());

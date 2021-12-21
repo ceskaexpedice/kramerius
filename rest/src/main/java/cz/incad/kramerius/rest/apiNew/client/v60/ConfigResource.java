@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.info.InfoResource
  */
-@Path("/client/v6.0/config")
+@Path("/client/v7.0/config")
 public class ConfigResource extends ClientApiResource {
 
     public static Logger LOGGER = Logger.getLogger(ConfigResource.class.getName());

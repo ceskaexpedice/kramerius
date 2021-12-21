@@ -34,7 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Path("/admin/v1.0/processes")
+@Path("/admin/v7.0/processes")
 public class ProcessResource extends AdminApiResource {
 
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());

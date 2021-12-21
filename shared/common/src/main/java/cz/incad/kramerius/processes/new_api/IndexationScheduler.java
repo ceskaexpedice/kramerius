@@ -57,7 +57,7 @@ public class IndexationScheduler {
         if (applicationURL.endsWith("/")) { //normalize to "../search", not "../search/"
             applicationURL = applicationURL.substring(0, applicationURL.length() - 1);
         }
-        return applicationURL + "/api/admin/v1.0";
+        return applicationURL + "/api/admin/v7.0";
     }
 
 }

@@ -33,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Path("/admin/v1.0/collections")
+@Path("/admin/v7.0/collections")
 public class CollectionsResource extends AdminApiResource {
 
     public static final Logger LOGGER = Logger.getLogger(CollectionsResource.class.getName());

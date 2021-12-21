@@ -52,7 +52,7 @@ public class ProcessUtils {
     }
 
     public static String getNewAdminApiEndpoint() {
-        String api = getCoreBaseUrl() + "/api/admin/v1.0";
+        String api = getCoreBaseUrl() + "/api/admin/v7.0";
         return api;
     }
 
