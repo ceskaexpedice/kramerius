@@ -73,6 +73,7 @@ public class ItemsResource extends AdminApiResource {
             //authorization
             String role = ROLE_READ_ITEMS;
             if (!roles.contains(role)) {
+                                                                                                        // request doesnt contain user principal
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", requestProvider.get().getUserPrincipal().getName(), role); //403
             }
             //model

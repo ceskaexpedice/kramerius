@@ -42,6 +42,7 @@ import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
 import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
+import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -137,9 +138,9 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
             User user = this.userProvider.get();
             RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
+            Map<String, String> evaluateInfoMap = rightsReturnObject != null ? rightsReturnObject.getEvaluateInfoMap() : new HashMap<>();
 
-
-            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get(), false, false, rightsReturnObject.getEvaluateInfoMap(), user.getSessionAttributes(), versionService.getVersion(), licenses));
+            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get(), false, false, evaluateInfoMap, user.getSessionAttributes(), versionService.getVersion(), licenses));
             for (int i = 0, ll = paths.length; i < ll; i++) {
 
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -215,6 +216,10 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             transactionTemplate.updateWithTransaction(commands);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            if (connection != null) {
+                DatabaseUtils.tryClose(connection);
+            }
         }
     }
 

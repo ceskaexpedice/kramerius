@@ -29,6 +29,8 @@ import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.currentThreadReturnObject;
+
 public class RightsResolverFromRequest implements RightsResolver {
 
     public static final Logger LOGGER = Logger.getLogger(RightsResolverFromRequest.class.getName());
@@ -94,7 +96,10 @@ public class RightsResolverFromRequest implements RightsResolver {
 
     public RightsReturnObject isAllowedInternalForFedoraDocuments(String actionName, String pid, String stream, ObjectPidsPath path, User user) throws RightCriteriumException {
         RightCriteriumContext ctx = this.ctxFactory.create(pid, stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get(),KConfiguration.getInstance().getConfiguration()), this);
-        return this.rightsManager.resolve(ctx, pid, path, actionName, user);
+        RightsReturnObject resolved = this.rightsManager.resolve(ctx, pid, path, actionName, user);
+        // TODO: Change it in future
+        currentThreadReturnObject.set(resolved);
+        return resolved;
     }
 
     private boolean resultOfResult(EvaluatingResultState result) {

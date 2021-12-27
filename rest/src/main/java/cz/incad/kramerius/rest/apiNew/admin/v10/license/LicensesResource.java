@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.api.k5.admin.licenses;
+package cz.incad.kramerius.rest.apiNew.admin.v10.license;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -26,7 +26,8 @@ import java.util.Optional;
 
 import static cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils.*;
 
-@Path("/v5.0/admin/licenses")
+//@Path("/v5.0/admin/licenses")
+@Path("/admin/v7.0/licenses")
 public class LicensesResource {
 
     @Inject

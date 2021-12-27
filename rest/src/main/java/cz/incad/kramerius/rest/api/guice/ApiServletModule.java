@@ -20,7 +20,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
-import cz.incad.kramerius.rest.api.k5.admin.licenses.LicensesResource;
+import cz.incad.kramerius.rest.apiNew.admin.v10.license.LicensesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.rights.RolesResource;
