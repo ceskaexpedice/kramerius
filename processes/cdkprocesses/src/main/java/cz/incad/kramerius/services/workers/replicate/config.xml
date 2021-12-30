@@ -13,7 +13,7 @@
 
     <threads>1</threads>
 
-    <workerFactory class="cz.incad.kramerius.services.workers.replicate.ReplicateSolrWorkerFactory"></workerFactory>
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
     <worker>
         <request>
 
@@ -72,6 +72,7 @@
                     <field name="cdk.collection">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
                 </update.dest.field>
             </onindex>
+
             <!-- on update -->
             <onupdate>
                 <update.dest.field>

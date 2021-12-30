@@ -1,4 +1,4 @@
-package cz.incad.kramerius.services.workers.replicate;
+package cz.incad.kramerius.services.workers.replicate.copy;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.Worker;
@@ -6,16 +6,17 @@ import cz.incad.kramerius.services.WorkerFactory;
 import cz.incad.kramerius.services.WorkerFinisher;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
+import cz.incad.kramerius.services.workers.replicate.ReplicateFinisher;
 import org.w3c.dom.Element;
 
 import java.util.List;
 
-public class ReplicateSolrWorkerFactory extends WorkerFactory {
+public class CopyReplicateSolrWorkerFactory extends WorkerFactory {
 
 
     @Override
     public Worker createWorker(ProcessIterator iteratorInstance, Element base, Client client, List<IterationItem> items) {
-        return new ReplicateWorker(base, client, items);
+        return new CopyReplicateWorker(base, client, items);
     }
 
     @Override

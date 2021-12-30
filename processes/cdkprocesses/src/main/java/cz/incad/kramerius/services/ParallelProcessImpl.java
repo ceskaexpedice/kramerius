@@ -26,14 +26,12 @@ import java.util.logging.Logger;
  */
 public class ParallelProcessImpl {
 
-
     public static final Logger LOGGER = Logger.getLogger(ParallelProcessImpl.class.getName());
     
     private Client client;
     private WorkerFactory workerFactory;
 
     private int threads;
-
 
     private Element workerElem;
     private WorkerFinisher finisher;
@@ -42,7 +40,19 @@ public class ParallelProcessImpl {
 
     public ParallelProcessImpl() throws MigrateSolrIndexException {
         super();
-        this.client = Client.create();
+        this.client = buildClient();
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    protected Client buildClient() {
+        return Client.create();
     }
 
     private void startWorkers(List<Worker> worksWhasHasToBeDone) throws BrokenBarrierException, InterruptedException {

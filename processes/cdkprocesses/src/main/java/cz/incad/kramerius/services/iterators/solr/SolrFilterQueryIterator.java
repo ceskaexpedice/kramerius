@@ -21,6 +21,7 @@ import static cz.incad.kramerius.services.iterators.utils.IterationUtils.*;
 
 /**
  * Solr filter iterator; sorts by PID and used last pid on the page
+ * NOT USED
  */
 public class SolrFilterQueryIterator extends AbstractSolrIterator {
 

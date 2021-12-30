@@ -39,6 +39,8 @@ public class BatchUtils {
         for (int i = 0; i < docs.size(); i++) {
             Element destDocElement = destBatch.createElement("doc");
             Element sourceDocElm = docs.get(i);
+
+            // basic transform
             transform(sourceDocElm, destBatch, destDocElement, compositeId, root, child);
 
             // composite id is not supported
@@ -99,10 +101,6 @@ public class BatchUtils {
                 }
             }
             browseAuthorsAndTitles(sourceDocElm, destDocument, destDocElem);
-//            // composite id is not supported
-//            if (compositeId && root != null && child != null) {
-//                enhanceByCompositeId(destDocument, destDocElem, root, child);
-//            }
         }
     }
     
@@ -125,6 +123,7 @@ public class BatchUtils {
         });
 
         if (rootPidElm != null && pidElm != null) {
+
             String txt = rootPidElm.getTextContent().trim()+"!"+pidElm.getTextContent().trim();
             Element compositeIdElm = ndoc.createElement("field");
             String compositeIdName = System.getProperty("compositeId.field.name","compositeId");

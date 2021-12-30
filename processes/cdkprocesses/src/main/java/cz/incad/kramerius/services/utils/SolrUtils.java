@@ -13,6 +13,7 @@ import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ public class SolrUtils {
 
     public static String sendToDest(String destSolr, Client client, Document batchDoc) {
         try {
+            XMLUtils.print(batchDoc, System.out);
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
             WebResource r = client.resource(destSolr);
@@ -39,9 +41,7 @@ public class SolrUtils {
                 InputStream entityInputStream = resp.getEntityInputStream();
                 IOUtils.copyStreams(entityInputStream, bos);
                 return new String(bos.toByteArray(), "UTF-8");
-
             } else {
-
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 InputStream entityInputStream = resp.getEntityInputStream();
                 IOUtils.copyStreams(entityInputStream, bos);
@@ -118,6 +118,21 @@ public class SolrUtils {
         LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] processing %s", r.getURI().toString()));
         String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
         Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
+        Stack<Element> stack = new Stack<>();
+        stack.push(parseDocument.getDocumentElement());
+
+        while(!stack.isEmpty()) {
+            Element pop = stack.pop();
+            if (pop.getNodeName().equals("str")) {
+                String textContent = pop.getTextContent();
+                if (textContent !=null && textContent.startsWith("uuid:") && textContent.contains("@") && !textContent.contains("/")) {
+                    String[] split = textContent.split("@");
+                    String formatted = String.format("%s/@%s", split[0], split[1]);
+                    pop.setTextContent(formatted);
+                }
+            }
+            XMLUtils.getElements(pop).stream().forEach(stack::push);
+        }
         return parseDocument.getDocumentElement();
     }
 }

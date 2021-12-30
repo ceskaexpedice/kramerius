@@ -1,13 +1,15 @@
-package cz.incad.kramerius.services.workers.replicate;
+package cz.incad.kramerius.services.workers.replicate.copy;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.Worker;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.utils.SolrUtils;
+import cz.incad.kramerius.services.workers.replicate.BatchUtils;
+import cz.incad.kramerius.services.workers.replicate.ReplicateContext;
+import cz.incad.kramerius.services.workers.replicate.ReplicateFinisher;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.kramerius.Replicate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,19 +18,20 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * Replicate index
+ * Replicate index; 1-1 copy + enhancing compositeID if there is solr cloud
  */
-public class ReplicateWorker extends Worker {
+public class CopyReplicateWorker extends Worker {
 
     // DEFAULT index fields; K5 index
     public static final String DEFAULT_FIELDLIST = "PID timestamp fedora.model document_type handle status created_date modified_date parent_model " +
@@ -44,7 +47,7 @@ public class ReplicateWorker extends Worker {
     public static final String COLLECTION_FIELD = "collection";
 
 
-    public static Logger LOGGER = Logger.getLogger(ReplicateWorker.class.getName());
+    public static Logger LOGGER = Logger.getLogger(CopyReplicateWorker.class.getName());
 
     private String fieldList = DEFAULT_FIELDLIST;
     private String idIdentifier = DEFAULT_PID_FIELD;
@@ -58,8 +61,7 @@ public class ReplicateWorker extends Worker {
     private String checkEndpoint = null;
 
 
-
-    public ReplicateWorker(Element workerElm, Client client, List<IterationItem> pids) {
+    public CopyReplicateWorker(Element workerElm, Client client, List<IterationItem> pids) {
         super(workerElm, client, pids);
 
         Element requestElm = XMLUtils.findElement(workerElm, "request");
@@ -115,8 +117,6 @@ public class ReplicateWorker extends Worker {
         try {
             ReplicateFinisher.WORKERS.addAndGet(this.itemsToBeProcessed.size());
 
-
-
             LOGGER.info("["+Thread.currentThread().getName()+"] processing list of pids "+this.pidsToBeProcessed.size());
             int batches = this.pidsToBeProcessed.size() / batchSize + (this.pidsToBeProcessed.size() % batchSize == 0 ? 0 :1);
             LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" batch ");
@@ -125,10 +125,10 @@ public class ReplicateWorker extends Worker {
                 int to = from + batchSize;
                 try {
                     List<String> subpids = pidsToBeProcessed.subList(from, Math.min(to,pidsToBeProcessed.size() ));
+
                     ReplicateFinisher.BATCHES.addAndGet(subpids.size());
                     // Detect if documents are new documents or already indexed documents
-                    PidsToReplicate pidsToReplicate = findPidsAlreadyIndexed(subpids);
-
+                    ReplicateContext pidsToReplicate = findPidsAlreadyIndexed(subpids);
                     // not indexed => onIndeRemoveElms + onIndexUpdate
                     if (!pidsToReplicate.getNotIndexed().isEmpty()) {
 
@@ -186,13 +186,26 @@ public class ReplicateWorker extends Worker {
 
                             Document destBatch = XMLUtils.crateDocument("add");
                             pidsToReplicate.getAlreadyIndexed().stream().forEach(pair->{
+
                                 Element doc = destBatch.createElement("doc");
                                 Element field = destBatch.createElement("field");
 
-                                // pid +
-                                field.setAttribute("name", idIdentifier);
+                                if (compositeId) {
+                                    String compositeId = pair.get("compositeId");
 
-                                field.setTextContent(pair.getLeft());
+                                    String root = pair.get(rootOfComposite);
+                                    String child = pair.get(childOfComposite);
+
+                                    field.setAttribute("name", "compositeId");
+                                    field.setTextContent(root +"!"+child);
+
+                                } else {
+                                    String identifier = pair.get(idIdentifier);
+                                    // if compositeid
+                                    field.setAttribute("name", idIdentifier);
+                                    // formal name from hashmap
+                                    field.setTextContent(identifier);
+                                }
                                 doc.appendChild(field);
                                 destBatch.getDocumentElement().appendChild(doc);
 
@@ -220,29 +233,16 @@ public class ReplicateWorker extends Worker {
                                 List<Element> fields = XMLUtils.getElements(doc);
                                 int size = fields.size();
 
-                                if (size <2) {
-                                    StringWriter writer = new StringWriter();
-                                    try {
-                                        XMLUtils.print(doc, writer);
-                                    } catch (TransformerException e) { }
-
-                                    throw new IllegalStateException("Cannot index document "+writer.toString());
-                                }
-
                             });
 
+
                             ReplicateFinisher.UPDATED.addAndGet(XMLUtils.getElements(addDocument).size());
-
-
                             String s = SolrUtils.sendToDest(this.destinationUrl, this.client, destBatch);
                             LOGGER.info(s);
                         } else {
                             LOGGER.info("No update element ");
                         }
-
-
                     }
-
 
                 } catch (ParserConfigurationException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -270,9 +270,18 @@ public class ReplicateWorker extends Worker {
 
     }
 
-    private PidsToReplicate findPidsAlreadyIndexed(List<String> subpids) throws ParserConfigurationException, SAXException, IOException {
-        String reduce = subpids.stream().map(it->{return '"'+it+'"';}).collect(Collectors.joining(" OR "));
-        String fieldlist = idIdentifier+" "+collectionField;
+    private ReplicateContext findPidsAlreadyIndexed(List<String> subpids) throws ParserConfigurationException, SAXException, IOException {
+        String reduce = subpids.stream().map(it -> {
+            return '"' + it + '"';
+        }).collect(Collectors.joining(" OR "));
+        // zde musim ziskat root.pid a zaroven
+        String fieldlist = idIdentifier + " " + collectionField;
+        if (compositeId) {
+            fieldlist = fieldlist +" "+this.rootOfComposite;
+            if (!idIdentifier.equals(childOfComposite)) {
+                fieldlist = fieldlist +" "+this.childOfComposite;
+            }
+        }
 
         String query =   "?q="+idIdentifier+":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8")+"&wt=xml&rows="+subpids.size();
 
@@ -282,7 +291,42 @@ public class ReplicateWorker extends Worker {
         });
 
         List<Element> docs = XMLUtils.getElements(resultElem);
+        List<Map<String, String>> list = new ArrayList<>();
+        docs.stream().forEach(d->{
+            Map<String, String> map = new HashMap<>();
+            Element pid = XMLUtils.findElement(d, e -> {
+                return e.getAttribute("name").equals(idIdentifier);
+            });
+            if (pid != null) {
+                map.put(idIdentifier, pid.getTextContent());
+            }
+            Element collection = XMLUtils.findElement(d, e -> {
+                return e.getAttribute("name").equals(collectionField);
+            });
+            if (collection != null) {
+                map.put(collectionField, collection.getTextContent());
+            }
 
+            if (compositeId) {
+                Element compositeRoot = XMLUtils.findElement(d, e -> {
+                    return e.getAttribute("name").equals(rootOfComposite);
+                });
+                if (compositeRoot != null) {
+                    map.put(rootOfComposite, compositeRoot.getTextContent());
+                }
+
+                Element compositeChild = XMLUtils.findElement(d, e -> {
+                    return e.getAttribute("name").equals(childOfComposite);
+                });
+
+                if (compositeChild != null) {
+                    map.put(childOfComposite, compositeChild.getTextContent());
+                }
+            }
+            list.add(map);
+        });
+
+        /*
         List<Pair<String, String>> pidsAndCollections = docs.stream().map(d -> {
             Element pid = XMLUtils.findElement(d, e -> {
                 return e.getAttribute("name").equals(idIdentifier);
@@ -292,13 +336,18 @@ public class ReplicateWorker extends Worker {
             });
             return Pair.of(pid.getTextContent(), collection != null ? collection.getTextContent().trim() : "");
         }).collect(Collectors.toList());
+        */
 
+        List<String> pidsFromLocalSolr = list.stream().map(m -> {
+            return m.get(idIdentifier);
+        }).collect(Collectors.toList());
 
-        List<String> pidsFromLocalSolr = pidsAndCollections.stream().map(Pair::getLeft).collect(Collectors.toList());
+        //List<String> pidsFromLocalSolr = pidsAndCollections.stream().map(Pair::getLeft).collect(Collectors.toList());
+
         List<String> notindexed = new ArrayList<>();
         subpids.forEach(pid-> {  if (!pidsFromLocalSolr.contains(pid)) notindexed.add(pid); });
 
-        return new PidsToReplicate(pidsAndCollections,  notindexed);
+        return new ReplicateContext(list,  notindexed);
     }
 
 
@@ -310,10 +359,9 @@ public class ReplicateWorker extends Worker {
                 return '"'+v+'"';
             }
         });
-
         String query =  "?q="+idIdentifier+":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(this.fieldList, "UTF-8")+"&wt=xml&rows="+pids.size();
+
         return SolrUtils.executeQuery(client, this.requestUrl , query);
     }
-
 
 }
