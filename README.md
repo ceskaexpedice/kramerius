@@ -1,6 +1,6 @@
 ## Novinky 
 
-###  Dokumentace k projektu Kramerius je aktualizována s ohledem na vydávanou verzi K7 (12/2021)
+###  Dokumentace ke Krameriu 7 je doplněna do menu wiki (1/2022)
 
 ### Bezpečnostní problém v knihovne log4j
 Kramerius v aktualni verzi 5 i chystane verzi 7 tuto knihovnu neobsahuje, pro logovani pouziva jiny mechanismus. 
