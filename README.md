@@ -1,6 +1,6 @@
 ## Novinky 
 
-###  Dokumentace ke Krameriu 7 je doplněna do menu wiki (1/2022)
+###  Dokumentace ke Krameriu 7 a k Mobilním klientům pro iOS a Android byla doplněna do menu wiki (1/2022)
 
 ### Bezpečnostní problém v knihovne log4j
 Kramerius v aktualni verzi 5 i chystane verzi 7 tuto knihovnu neobsahuje, pro logovani pouziva jiny mechanismus. 
