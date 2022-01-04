@@ -32,6 +32,8 @@ Uživatelské rozhraní je přístupné ve většině současných webových pro
 ## Související moduly
 Kramerius Journals (https://github.com/ceskaexpedice/K5Journals) Prostředí pro správu a publikování vědeckých časopisů.
 Klient pro zvukové dokumenty  (https://github.com/ceskaexpedice/kramerius-music-frontend) Univerzální přehrávací modul, který prostřednictvím API systému Kramerius.
+Mobilní klient pro iOS (https://docs.google.com/document/d/1iQ30Ctn1cw1vmYZ3_1t7YjSjCWQMfNqq2GrfYZyCX9c) Klient pro mobilní zařízení s iOS.
+Mobilní klient pro Android  (https://docs.google.com/document/d/1daqbTCW6L47TBGJoRXzfDKKM4Gwo5Yf4avaEPuy18xU) Klient pro mobilní zařízení s OS Android.
 
 ## Licence
 
