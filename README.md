@@ -30,13 +30,10 @@ Aktuální verze vychází koncepčně z předchozích verzí 4 a 5, která byla
 Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer, který však není doporučován, vzhledem k tomu, že nepodporuje standardy. Rozhranní je vícejazyčné.
 
 ## Související moduly
-**Kramerius Journals** (https://github.com/ceskaexpedice/K5Journals) Prostředí pro správu a publikování vědeckých časopisů.
-
-**Klient pro zvukové dokumenty**  (https://github.com/ceskaexpedice/kramerius-music-frontend) Univerzální modul, který může prostřednictvím API systému Kramerius zastřešit více digitálních knihoven pro zpřístupnění a přehrávání zvukových dokumentů.
-
-**Mobilní klient pro iOS** (https://docs.google.com/document/d/1iQ30Ctn1cw1vmYZ3_1t7YjSjCWQMfNqq2GrfYZyCX9c) Klient pro mobilní zařízení s iOS, který zpřístupňuje obsah digitálních knihoven prostřednintvím portálu Digitalniknihovna.cz.
-
-**Mobilní klient pro Android**  (https://docs.google.com/document/d/1daqbTCW6L47TBGJoRXzfDKKM4Gwo5Yf4avaEPuy18xU) Klient pro mobilní zařízení s OS Android, který zpřístupňuje obsah digitálních knihoven prostřednintvím portálu Digitalniknihovna.cz
+* [Kramerius Journals](https://github.com/ceskaexpedice/K5Journals) Prostředí pro správu a publikování vědeckých časopisů.
+* [Klient pro zvukové dokumenty](https://github.com/ceskaexpedice/kramerius-music-frontend) Univerzální přehrávací modul, který prostřednictvím API systému Kramerius.
+* [Mobilní klient pro iOS](https://github.com/ceskaexpedice/kramerius/wiki/Mobilní-aplikace-pro-iOS) Klient pro mobilní zařízení s iOS, který zpřístupňuje obsah digitálních knihoven prostřednictvím portálu Digitalniknihovna.cz.
+* [Mobilní klient pro Android](https://github.com/ceskaexpedice/kramerius/wiki/Mobilní-aplikace-pro-Android) Klient pro mobilní zařízení s OS Android, který zpřístupňuje obsah digitálních knihoven prostřednictvím portálu Digitalniknihovna.cz.
 
 ## Licence
 
