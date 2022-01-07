@@ -7,24 +7,41 @@ import com.sun.jersey.core.header.InBoundHeaders;
 import com.sun.jersey.spi.MessageBodyWorkers;
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.easymock.IAnswer;
+import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.Diff;
+import org.xmlunit.matchers.CompareMatcher;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static cz.incad.kramerius.services.utils.SolrMockWebCall.*;
 import static org.easymock.EasyMock.*;
+
+import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;
+import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
+import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 public class ParallelProcessImplTest {
 
@@ -88,8 +105,27 @@ public class ParallelProcessImplTest {
         EasyMock.expect(client.resource("http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update")).andReturn(updateResource).anyTimes();
         EasyMock.expect(updateResource.accept(MediaType.TEXT_XML)).andReturn(updateResponseBuilder).anyTimes();
         EasyMock.expect(updateResponseBuilder.type(MediaType.TEXT_XML)).andReturn(updateResponseBuilder).anyTimes();
-        EasyMock.expect(updateResponseBuilder.entity(EasyMock.anyObject(String.class), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).anyTimes();
+        // entity
+        //EasyMock.expect(updateResponseBuilder.entity(EasyMock.anyObject(String.class), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).anyTimes();
+
+        Capture firstArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(firstArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture secondArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(secondArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture thirdArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(thirdArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture fourthArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(fourthArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture fifthArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(fifthArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+
         EasyMock.expect(updateResponseBuilder.post(ClientResponse.class)).andReturn(updateResponse).anyTimes();
+
         EasyMock.expect(updateResponse.getStatus()).andReturn(ClientResponse.Status.OK.getStatusCode()).anyTimes();
         EasyMock.expect(updateResponse.getEntityInputStream()).andDelegateTo(new MockClientResponse()).anyTimes();
 
@@ -127,6 +163,37 @@ public class ParallelProcessImplTest {
 
         // start whole process
         process.migrate(configurationFile);
+
+        assertThat(Input.fromReader(new StringReader((String) firstArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("exists/batches/1_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) secondArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("exists/batches/2_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) thirdArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("exists/batches/3_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) fourthArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("exists/batches/4_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) fifthArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("exists/batches/5_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
     }
 
     @Test
@@ -210,7 +277,25 @@ public class ParallelProcessImplTest {
         EasyMock.expect(client.resource("http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update")).andReturn(updateResource).anyTimes();
         EasyMock.expect(updateResource.accept(MediaType.TEXT_XML)).andReturn(updateResponseBuilder).anyTimes();
         EasyMock.expect(updateResponseBuilder.type(MediaType.TEXT_XML)).andReturn(updateResponseBuilder).anyTimes();
-        EasyMock.expect(updateResponseBuilder.entity(EasyMock.anyObject(String.class), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).anyTimes();
+
+        //EasyMock.expect(updateResponseBuilder.entity(EasyMock.anyObject(String.class), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).anyTimes();
+        //Capture captureSingleArgument = EasyMock.newCa
+        Capture firstArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(firstArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture secondArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(secondArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture thirdArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(thirdArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture fourthArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(fourthArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture fifthArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(fifthArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+
         EasyMock.expect(updateResponseBuilder.post(ClientResponse.class)).andReturn(updateResponse).anyTimes();
         EasyMock.expect(updateResponse.getStatus()).andReturn(ClientResponse.Status.OK.getStatusCode()).anyTimes();
         EasyMock.expect(updateResponse.getEntityInputStream()).andDelegateTo(new MockClientResponse()).anyTimes();
@@ -274,7 +359,43 @@ public class ParallelProcessImplTest {
 
         // start whole process
         process.migrate(configurationFile);
+
+
+
+        assertThat(Input.fromReader(new StringReader((String) firstArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/1_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) secondArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/2_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) thirdArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/3_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) fourthArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/4_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) fifthArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/5_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+
     }
+
+
 
     @Test
     public void testFullProcess_EXISTS_SOLR_CLOUD() throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException, SAXException, ParserConfigurationException, NoSuchMethodException, MigrateSolrIndexException, URISyntaxException {
@@ -336,7 +457,26 @@ public class ParallelProcessImplTest {
         EasyMock.expect(client.resource("http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update")).andReturn(updateResource).anyTimes();
         EasyMock.expect(updateResource.accept(MediaType.TEXT_XML)).andReturn(updateResponseBuilder).anyTimes();
         EasyMock.expect(updateResponseBuilder.type(MediaType.TEXT_XML)).andReturn(updateResponseBuilder).anyTimes();
-        EasyMock.expect(updateResponseBuilder.entity(EasyMock.anyObject(String.class), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).anyTimes();
+
+
+        Capture firstArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(firstArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture secondArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(secondArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture thirdArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(thirdArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture fourthArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(fourthArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture fifthArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(fifthArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+
+        //EasyMock.expect(updateResponseBuilder.entity(EasyMock.anyObject(String.class), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).anyTimes();
+
         EasyMock.expect(updateResponseBuilder.post(ClientResponse.class)).andReturn(updateResponse).anyTimes();
         EasyMock.expect(updateResponse.getStatus()).andReturn(ClientResponse.Status.OK.getStatusCode()).anyTimes();
         EasyMock.expect(updateResponse.getEntityInputStream()).andDelegateTo(new MockClientResponse()).anyTimes();
@@ -375,6 +515,37 @@ public class ParallelProcessImplTest {
 
         // start whole process
         process.migrate(configurationFile);
+
+        assertThat(Input.fromReader(new StringReader((String) firstArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("exists/batches/1_batch_solrcloud.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) secondArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("exists/batches/2_batch_solrcloud.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) thirdArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("exists/batches/3_batch_solrcloud.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) fourthArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("exists/batches/4_batch_solrcloud.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) fifthArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("exists/batches/5_batch_solrcloud.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
     }
 
     @Test
@@ -457,7 +628,24 @@ public class ParallelProcessImplTest {
         EasyMock.expect(client.resource("http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update")).andReturn(updateResource).anyTimes();
         EasyMock.expect(updateResource.accept(MediaType.TEXT_XML)).andReturn(updateResponseBuilder).anyTimes();
         EasyMock.expect(updateResponseBuilder.type(MediaType.TEXT_XML)).andReturn(updateResponseBuilder).anyTimes();
-        EasyMock.expect(updateResponseBuilder.entity(EasyMock.anyObject(String.class), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).anyTimes();
+
+        Capture firstArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(firstArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture secondArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(secondArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture thirdArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(thirdArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture fourthArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(fourthArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture fifthArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(fifthArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        //EasyMock.expect(updateResponseBuilder.entity(EasyMock.anyObject(String.class), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).anyTimes();
+
         EasyMock.expect(updateResponseBuilder.post(ClientResponse.class)).andReturn(updateResponse).anyTimes();
         EasyMock.expect(updateResponse.getStatus()).andReturn(ClientResponse.Status.OK.getStatusCode()).anyTimes();
         EasyMock.expect(updateResponse.getEntityInputStream()).andDelegateTo(new MockClientResponse()).anyTimes();
@@ -521,9 +709,186 @@ public class ParallelProcessImplTest {
 
         // start whole process
         process.migrate(configurationFile);
+
+
+        assertThat(Input.fromReader(new StringReader((String) firstArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/1_batch_solrcloud.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) secondArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/2_batch_solrcloud.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) thirdArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/3_batch_solrcloud.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) fourthArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/4_batch_solrcloud.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) fifthArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/5_batch_solrcloud.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+
     }
 
 
+
+    @Test
+    public void testFullProcess_NOT_EXISTS_K7_TRANSFORM() throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException, SAXException, ParserConfigurationException, NoSuchMethodException, MigrateSolrIndexException, URISyntaxException {
+
+        InputStream configurationStream = ParallelProcessImplTest.class.getResourceAsStream("config.replicate.mlp_k7.xml");
+        String _configurationContent = IOUtils.toString(configurationStream, "UTF-8");
+
+        InputStream logFileStream = ParallelProcessImplTest.class.getResourceAsStream("k7notexists/logfile_log");
+        String logFileContent = IOUtils.toString(logFileStream, "UTF-8");
+        File logFile = File.createTempFile("junit","logfile");
+        FileUtils.write(logFile, logFileContent, "UTF-8");
+
+        String configurationContent = String.format(_configurationContent, logFile.toURI().toURL().toString());
+        File configurationFile = File.createTempFile("junit","conf");
+        FileUtils.write(configurationFile, configurationContent, "UTF-8");
+
+
+        Client client = EasyMock.createMock(Client.class);
+        ParallelProcessImpl process = createMockBuilder(ParallelProcessImpl.class)
+                .addMockedMethod("buildClient")
+                .createMock();
+
+        // ---  20 indexed ---
+        String secondReq = "http://10.19.6.10:8983/solr/k7_5/select/?q=PID:(%22uuid%3Ae15e3a10-7774-11e7-89ee-5ef3fc9ae867%22+OR+%22uuid%3A420f4830-d6b2-11e7-8558-005056825209%22+OR+%22uuid%3Ae665ffa0-d6ad-11e7-8294-005056827e51%22+OR+%22uuid%3A88459bc0-cf86-11e7-a351-005056825209%22+OR+%22uuid%3A74bddf50-cf85-11e7-b059-5ef3fc9ae867%22+OR+%22uuid%3Ab7d82771-d69f-11e7-8294-005056827e51%22+OR+%22uuid%3A9f3f7bb0-d6b2-11e7-8558-005056825209%22+OR+%22uuid%3Af7217151-cf8a-11e7-80e7-5ef3fc9bb22f%22+OR+%22uuid%3A30bcc500-cf8f-11e7-80e7-5ef3fc9bb22f%22+OR+%22uuid%3Ae32eb050-d466-11e7-a047-005056825209%22+OR+%22uuid%3Ac39f12a0-d44a-11e7-a536-5ef3fc9ae867%22+OR+%22uuid%3Ab6632460-7641-11e4-9605-005056825209%22+OR+%22uuid%3A1e062920-d6be-11e7-9268-5ef3fc9ae867%22+OR+%22uuid%3Ab6c1a8f0-a730-11e2-b6da-005056827e52%22+OR+%22uuid%3A7c5e1e70-cc80-11e3-aec3-005056827e52%22+OR+%22uuid%3A8afd1150-1b3e-11e3-b62e-005056825209%22+OR+%22uuid%3A72356250-92c3-11e9-b601-005056825209%22+OR+%22uuid%3Aca058c00-929e-11e9-bc42-5ef3fc9ae867%22+OR+%22uuid%3A69eb8720-932f-11e9-b601-005056825209%22+OR+%22uuid%3A69eb8720-932f-11e9-b601-005056825209%22)&fl=PID+collection&wt=xml&rows=20";
+        String secondResp  = IOUtils.toString(this.getClass().getResourceAsStream("k7notexists/1.xml"), "UTF-8");
+        List<Object> mocksFromSecondCall = webCallExpect(client, secondReq, secondResp);
+
+        String secondReqFetch = "http://kramerius4.mlp.cz/search/api/v5.0/search/?q=PID:(%22uuid%3Ae15e3a10-7774-11e7-89ee-5ef3fc9ae867%22+OR+%22uuid%3A420f4830-d6b2-11e7-8558-005056825209%22+OR+%22uuid%3Ae665ffa0-d6ad-11e7-8294-005056827e51%22+OR+%22uuid%3A88459bc0-cf86-11e7-a351-005056825209%22+OR+%22uuid%3A74bddf50-cf85-11e7-b059-5ef3fc9ae867%22+OR+%22uuid%3Ab7d82771-d69f-11e7-8294-005056827e51%22+OR+%22uuid%3A9f3f7bb0-d6b2-11e7-8558-005056825209%22+OR+%22uuid%3Af7217151-cf8a-11e7-80e7-5ef3fc9bb22f%22+OR+%22uuid%3A30bcc500-cf8f-11e7-80e7-5ef3fc9bb22f%22+OR+%22uuid%3Ae32eb050-d466-11e7-a047-005056825209%22+OR+%22uuid%3Ac39f12a0-d44a-11e7-a536-5ef3fc9ae867%22+OR+%22uuid%3Ab6632460-7641-11e4-9605-005056825209%22+OR+%22uuid%3A1e062920-d6be-11e7-9268-5ef3fc9ae867%22+OR+%22uuid%3Ab6c1a8f0-a730-11e2-b6da-005056827e52%22+OR+%22uuid%3A7c5e1e70-cc80-11e3-aec3-005056827e52%22+OR+%22uuid%3A8afd1150-1b3e-11e3-b62e-005056825209%22+OR+%22uuid%3A72356250-92c3-11e9-b601-005056825209%22+OR+%22uuid%3Aca058c00-929e-11e9-bc42-5ef3fc9ae867%22+OR+%22uuid%3A69eb8720-932f-11e9-b601-005056825209%22+OR+%22uuid%3A69eb8720-932f-11e9-b601-005056825209%22)&fl=PID+timestamp+fedora.model+document_type+handle+status+created_date+modified_date+parent_model+parent_pid+parent_pid+parent_title+root_model+root_pid+root_title+text_ocr+pages_count+datum_str+datum+rok+datum_begin+datum_end+datum_page+issn+mdt+ddt+dostupnost+keywords+geographic_names+collection+sec+model_path+pid_path+rels_ext_index+level+dc.title+title_sort+title_sort+dc.creator+dc.identifier+language+dc.description+details+facet_title+browse_title+browse_autor+img_full_mime+viewable+virtual+location+range+mods.shelfLocator+mods.physicalLocation+text+dnnt&wt=xml&rows=20";
+        String secondRespFetch  = IOUtils.toString(this.getClass().getResourceAsStream("k7notexists/1_fetch.xml"), "UTF-8");
+        List<Object> mocksFromSecondFetchCall = webCallExpect(client, secondReqFetch, secondRespFetch);
+        // ----------
+
+        // ---  3 indexed ---
+        String thirdReq = "http://10.19.6.10:8983/solr/k7_5/select/?q=PID:(%22uuid%3A3b624880-96b5-11e2-9a08-005056827e52%22+OR+%22uuid%3A87d2a060-a692-11e2-8b87-005056827e51%22+OR+%22uuid%3A653cfcf0-3fac-11e7-b56f-005056827e52%22)&fl=PID+collection&wt=xml&rows=3";
+        String thirdResp  = IOUtils.toString(this.getClass().getResourceAsStream("k7notexists/1.xml"), "UTF-8");
+        List<Object> mocksFromThirdCall = webCallExpect(client, thirdReq, thirdResp);
+
+        String thirdReqFetch = "http://kramerius4.mlp.cz/search/api/v5.0/search/?q=PID:(%22uuid%3A3b624880-96b5-11e2-9a08-005056827e52%22+OR+%22uuid%3A87d2a060-a692-11e2-8b87-005056827e51%22+OR+%22uuid%3A653cfcf0-3fac-11e7-b56f-005056827e52%22)&fl=PID+timestamp+fedora.model+document_type+handle+status+created_date+modified_date+parent_model+parent_pid+parent_pid+parent_title+root_model+root_pid+root_title+text_ocr+pages_count+datum_str+datum+rok+datum_begin+datum_end+datum_page+issn+mdt+ddt+dostupnost+keywords+geographic_names+collection+sec+model_path+pid_path+rels_ext_index+level+dc.title+title_sort+title_sort+dc.creator+dc.identifier+language+dc.description+details+facet_title+browse_title+browse_autor+img_full_mime+viewable+virtual+location+range+mods.shelfLocator+mods.physicalLocation+text+dnnt&wt=xml&rows=3";
+        String thirdRespFetch  = IOUtils.toString(this.getClass().getResourceAsStream("k7notexists/2_fetch.xml"), "UTF-8");
+        List<Object> mocksFromThirdFetchCall = webCallExpect(client, thirdReqFetch, thirdRespFetch);
+        // ----------
+
+
+        EasyMock.expect(process.buildClient()).andReturn(client).anyTimes();
+
+        // all updates in one check
+        WebResource updateResource = EasyMock.createMock(WebResource.class);
+        ClientResponse updateResponse = EasyMock.createMock(ClientResponse.class);
+        WebResource.Builder updateResponseBuilder = EasyMock.createMock(WebResource.Builder.class);
+        EasyMock.expect(client.resource("http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update")).andReturn(updateResource).anyTimes();
+        EasyMock.expect(updateResource.accept(MediaType.TEXT_XML)).andReturn(updateResponseBuilder).anyTimes();
+        EasyMock.expect(updateResponseBuilder.type(MediaType.TEXT_XML)).andReturn(updateResponseBuilder).anyTimes();
+
+        //EasyMock.expect(updateResponseBuilder.entity(EasyMock.anyObject(String.class), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).anyTimes();
+        //Capture captureSingleArgument = EasyMock.newCa
+        Capture firstArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(firstArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture secondArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(secondArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture thirdArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(thirdArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture fourthArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(fourthArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+        Capture fifthArg = newCapture();
+        EasyMock.expect(updateResponseBuilder.entity(capture(fifthArg), EasyMock.eq(MediaType.TEXT_XML))).andReturn(updateResponseBuilder).once();
+
+
+        EasyMock.expect(updateResponseBuilder.post(ClientResponse.class)).andReturn(updateResponse).anyTimes();
+        EasyMock.expect(updateResponse.getStatus()).andReturn(ClientResponse.Status.OK.getStatusCode()).anyTimes();
+        EasyMock.expect(updateResponse.getEntityInputStream()).andDelegateTo(new MockClientResponse()).anyTimes();
+
+        // final commit
+        WebResource commitResource = EasyMock.createMock(WebResource.class);
+        WebResource.Builder commitResourceBuilder = EasyMock.createMock(WebResource.Builder.class);
+
+        EasyMock.expect(client.resource("http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update?commit=true")).andReturn(commitResource).anyTimes();
+        EasyMock.expect(commitResource.accept(MediaType.TEXT_XML)).andReturn(commitResourceBuilder).anyTimes();
+        EasyMock.expect(commitResourceBuilder.type(MediaType.TEXT_XML)).andReturn(commitResourceBuilder).anyTimes();
+        EasyMock.expect(commitResourceBuilder.entity(anyObject(String.class), EasyMock.eq(MediaType.TEXT_XML))).andReturn(commitResourceBuilder).anyTimes();
+        EasyMock.expect(commitResourceBuilder.post(String.class)).andReturn("<commited/>").anyTimes();
+
+        EasyMock.replay(client, process, updateResource, updateResponse, updateResponseBuilder,
+                commitResource,
+                commitResourceBuilder);
+
+        // check & fetch
+        mocksFromSecondCall.stream().forEach(obj-> {
+            EasyMock.replay(obj);
+        });
+        mocksFromSecondFetchCall.stream().forEach(obj-> {
+            EasyMock.replay(obj);
+        });
+
+        mocksFromThirdCall.stream().forEach(obj-> {
+            EasyMock.replay(obj);
+        });
+
+        mocksFromThirdFetchCall.stream().forEach(obj-> {
+            EasyMock.replay(obj);
+        });
+
+        process.setClient(client);
+
+        // start whole process
+        process.migrate(configurationFile);
+
+
+
+//        assertThat(Input.fromReader(new StringReader((String) firstArg.getValue())))
+//                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/1_batch.xml")))
+//                .ignoreComments()
+//                .ignoreWhitespace()
+//                .areSimilar();
+//
+//        assertThat(Input.fromReader(new StringReader((String) secondArg.getValue())))
+//                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/2_batch.xml")))
+//                .ignoreComments()
+//                .ignoreWhitespace()
+//                .areSimilar();
+//
+//        assertThat(Input.fromReader(new StringReader((String) thirdArg.getValue())))
+//                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/3_batch.xml")))
+//                .ignoreComments()
+//                .ignoreWhitespace()
+//                .areSimilar();
+//
+//        assertThat(Input.fromReader(new StringReader((String) fourthArg.getValue())))
+//                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/4_batch.xml")))
+//                .ignoreComments()
+//                .ignoreWhitespace()
+//                .areSimilar();
+//
+//        assertThat(Input.fromReader(new StringReader((String) fifthArg.getValue())))
+//                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/5_batch.xml")))
+//                .ignoreComments()
+//                .ignoreWhitespace()
+//                .areSimilar();
+//
+
+    }
 
     static class MockClientResponse extends ClientResponse {
 
@@ -540,6 +905,9 @@ public class ParallelProcessImplTest {
             }
         }
     }
+
+
+
 }
 
 

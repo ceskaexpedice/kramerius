@@ -8,6 +8,7 @@ import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.services.workers.replicate.BatchUtils;
 import cz.incad.kramerius.services.workers.replicate.ReplicateContext;
 import cz.incad.kramerius.services.workers.replicate.ReplicateFinisher;
+import cz.incad.kramerius.services.workers.replicate.SourceToDestTransform;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
@@ -60,12 +61,16 @@ public class CopyReplicateWorker extends Worker {
     private String checkUrl = null;
     private String checkEndpoint = null;
 
+    private SourceToDestTransform transform;
+
 
     public CopyReplicateWorker(Element workerElm, Client client, List<IterationItem> pids) {
         super(workerElm, client, pids);
 
         Element requestElm = XMLUtils.findElement(workerElm, "request");
         if (requestElm != null) {
+
+
             // Field list to retrieve
             Element fieldlistElm = XMLUtils.findElement(requestElm, "fieldlist");
             if (fieldlistElm != null) {
@@ -75,6 +80,14 @@ public class CopyReplicateWorker extends Worker {
             Element idElm = XMLUtils.findElement(requestElm, "id");
             if (idElm != null) {
                 idIdentifier = idElm.getTextContent();
+            }
+
+            // Id
+            Element transformFormat = XMLUtils.findElement(requestElm, "trasfrom");
+            if (transformFormat != null) {
+                this.transform = SourceToDestTransform.Format.findTransform(transformFormat.getTextContent());
+            } else {
+                this.transform = SourceToDestTransform.Format.COPY.create();
             }
 
             // collection
@@ -108,6 +121,7 @@ public class CopyReplicateWorker extends Worker {
             if (checkEndpointElm != null) {
                 this.checkEndpoint = checkEndpointElm.getTextContent();
             }
+
         }
     }
 
@@ -139,7 +153,8 @@ public class CopyReplicateWorker extends Worker {
                         });
 
                         // create batch
-                        Document batch = BatchUtils.batch(resultElem, this.compositeId, this.rootOfComposite, this.childOfComposite);
+                        Document batch = BatchUtils.batch(resultElem, this.compositeId, this.rootOfComposite, this.childOfComposite, this.transform);
+
                         Element addDocument = batch.getDocumentElement();
                         // on index - remove element
                         this.onIndexEventRemoveElms.stream().forEach(f->{

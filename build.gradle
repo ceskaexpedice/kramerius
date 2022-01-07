@@ -112,7 +112,8 @@ allprojects {
 
         //junit to all subprojects
         testCompile "junit:junit:4.4"
-        testCompile "org.easymock:easymock:3.0"
+        //testCompile "org.easymock:easymock:3.0"
+        testCompile "org.easymock:easymock:4.3"
 
     }
 

@@ -16,9 +16,16 @@
             <endpoint>search</endpoint>
             <batchsize>20</batchsize>
 
+            <!-- for get information about collections and urls -->
+            <!--
+            <local.kramerius>http://192.168.10.109:8080/search/</local.kramerius>
+            <local.collections>vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26</local.collections>
+            -->
 
             <checkUrl>http://10.19.6.10:8983/solr/k7_5</checkUrl>
             <checkEndpoint>select</checkEndpoint>
+
+            <trasfrom>K7</trasfrom>
 
             <!-- toto vyresit lip -->
             <collections.url>
@@ -41,9 +48,12 @@
                     <field name="collection"></field>
                 </remove.dest.field>
                 <!-- append to batch document -->
+
+                <!--
                 <update.dest.field>
                     <field name="collection">added-collection</field>
                 </update.dest.field>
+                -->
             </onindex>
             <!-- on update -->
             <onupdate>

@@ -6,7 +6,9 @@ import cz.incad.kramerius.services.WorkerFactory;
 import cz.incad.kramerius.services.WorkerFinisher;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
+import cz.incad.kramerius.services.workers.replicate.BasicSourceToDestTransform;
 import cz.incad.kramerius.services.workers.replicate.ReplicateFinisher;
+import cz.incad.kramerius.services.workers.replicate.SourceToDestTransform;
 import org.w3c.dom.Element;
 
 import java.util.List;
@@ -22,5 +24,9 @@ public class CopyReplicateSolrWorkerFactory extends WorkerFactory {
     @Override
     public WorkerFinisher createFinisher(Element worker, Client client) {
         return new ReplicateFinisher(worker, client);
+    }
+
+    public SourceToDestTransform createTransform() {
+        return new BasicSourceToDestTransform();
     }
 }

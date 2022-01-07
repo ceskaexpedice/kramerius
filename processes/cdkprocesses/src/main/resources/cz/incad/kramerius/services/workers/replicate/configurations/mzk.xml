@@ -55,16 +55,20 @@
                 <!-- append to batch document -->
                 <update.dest.field>
                     <field name="cdk.collection">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
+                    <!--
+                    <field name="cdk.leader">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
+                    -->
                 </update.dest.field>
             </onindex>
 
             <!-- on update; disabled for now -->
             <onupdate>
-                <!--
                 <update.dest.field>
                     <field name="cdk.collection" update="add-distinct">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
+                    <!--
+                    <field name="cdk.leader" update="set">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
+                    -->
                 </update.dest.field>
-                -->
             </onupdate>
 
         </destination>

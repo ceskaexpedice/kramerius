@@ -82,6 +82,7 @@ public class KConfiguration {
                 }
             }
 
+            /** ENV configuration is not used
             EnvironmentConfiguration environmentConfiguration = new EnvironmentConfiguration();
             for (Iterator it = environmentConfiguration.getKeys(); it.hasNext();) {
                 String key = (String)it.next();
@@ -89,7 +90,7 @@ public class KConfiguration {
                 key = key.replaceAll("_", ".");
                 key = key.replaceAll("\\.\\.", "__");
                 allConfiguration.setProperty(key, value);
-            }
+            }*/
 
             return allConfiguration;
         } catch (ConfigurationException e) {
