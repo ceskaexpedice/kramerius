@@ -857,36 +857,17 @@ public class ParallelProcessImplTest {
 
 
 
-//        assertThat(Input.fromReader(new StringReader((String) firstArg.getValue())))
-//                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/1_batch.xml")))
-//                .ignoreComments()
-//                .ignoreWhitespace()
-//                .areSimilar();
-//
-//        assertThat(Input.fromReader(new StringReader((String) secondArg.getValue())))
-//                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/2_batch.xml")))
-//                .ignoreComments()
-//                .ignoreWhitespace()
-//                .areSimilar();
-//
-//        assertThat(Input.fromReader(new StringReader((String) thirdArg.getValue())))
-//                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/3_batch.xml")))
-//                .ignoreComments()
-//                .ignoreWhitespace()
-//                .areSimilar();
-//
-//        assertThat(Input.fromReader(new StringReader((String) fourthArg.getValue())))
-//                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/4_batch.xml")))
-//                .ignoreComments()
-//                .ignoreWhitespace()
-//                .areSimilar();
-//
-//        assertThat(Input.fromReader(new StringReader((String) fifthArg.getValue())))
-//                .and(Input.fromStream(this.getClass().getResourceAsStream("notexists/batches/5_batch.xml")))
-//                .ignoreComments()
-//                .ignoreWhitespace()
-//                .areSimilar();
-//
+        assertThat(Input.fromReader(new StringReader((String) firstArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("k7notexists/k7batches/1_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
+
+        assertThat(Input.fromReader(new StringReader((String) secondArg.getValue())))
+                .and(Input.fromStream(this.getClass().getResourceAsStream("k7notexists/k7batches/2_batch.xml")))
+                .ignoreComments()
+                .ignoreWhitespace()
+                .areSimilar();
 
     }
 

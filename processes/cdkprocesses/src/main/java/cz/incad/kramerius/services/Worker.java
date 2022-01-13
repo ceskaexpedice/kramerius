@@ -39,6 +39,9 @@ public abstract class Worker implements Runnable {
 
     protected String destinationUrl;
 
+    protected String user;
+    protected String pass;
+
 
     static AtomicBoolean _LOGGER_INITIALIZED = new AtomicBoolean(false);
     static  ReentrantLock _LOCK = new ReentrantLock();
@@ -90,6 +93,14 @@ public abstract class Worker implements Runnable {
             this.requestEndpoint = endpointElm != null ? endpointElm.getTextContent() : "";
 
             this.requestUrl = requestUrl.endsWith("/") ? requestUrl +this.requestEndpoint :  requestUrl+ "/" +requestEndpoint;
+
+            Element userElm = XMLUtils.findElement(requestElm, "user");
+            Element passElm = XMLUtils.findElement(requestElm, "pass");
+
+            if (userElm != null && passElm != null) {
+                this.user = userElm.getTextContent();
+                this.pass = passElm.getTextContent();
+            }
         }
 
         Element destElm = XMLUtils.findElement(workerElm, "destination");
