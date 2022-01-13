@@ -301,7 +301,7 @@ public class CopyReplicateWorker extends Worker {
         String query =   "?q="+idIdentifier+":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8")+"&wt=xml&rows="+subpids.size();
 
         String checkUrl = this.checkUrl + (this.checkUrl.endsWith("/") ? "": "/") + this.checkEndpoint;
-        Element resultElem = XMLUtils.findElement(SolrUtils.executeQuery(client, checkUrl , query), (elm) -> {
+        Element resultElem = XMLUtils.findElement(SolrUtils.executeQuery(client, checkUrl , query, this.user, this.pass), (elm) -> {
             return elm.getNodeName().equals("result");
         });
 
@@ -376,7 +376,7 @@ public class CopyReplicateWorker extends Worker {
         });
         String query =  "?q="+idIdentifier+":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(this.fieldList, "UTF-8")+"&wt=xml&rows="+pids.size();
 
-        return SolrUtils.executeQuery(client, this.requestUrl , query);
+        return SolrUtils.executeQuery(client, this.requestUrl , query, this.user, this.pass);
     }
 
 }

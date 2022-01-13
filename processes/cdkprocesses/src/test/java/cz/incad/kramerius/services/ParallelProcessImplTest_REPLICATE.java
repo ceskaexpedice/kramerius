@@ -3,54 +3,34 @@ package cz.incad.kramerius.services;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.header.InBoundHeaders;
-import com.sun.jersey.spi.MessageBodyWorkers;
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
-import org.easymock.IAnswer;
-import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
-import org.xmlunit.diff.Diff;
-import org.xmlunit.matchers.CompareMatcher;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static cz.incad.kramerius.services.utils.SolrMockWebCall.*;
 import static org.easymock.EasyMock.*;
 
-import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;
-import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
 import static org.xmlunit.assertj.XmlAssert.assertThat;
 
-public class ParallelProcessImplTest {
+public class ParallelProcessImplTest_REPLICATE {
 
     @Test
     public void testFullProcess_EXISTS() throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException, SAXException, ParserConfigurationException, NoSuchMethodException, MigrateSolrIndexException, URISyntaxException {
-        InputStream configurationStream = ParallelProcessImplTest.class.getResourceAsStream("config.replicate.mlp.xml");
+        InputStream configurationStream = ParallelProcessImplTest_REPLICATE.class.getResourceAsStream("config.replicate.mlp.xml");
         String _configurationContent = IOUtils.toString(configurationStream, "UTF-8");
 
-        InputStream logFileStream = ParallelProcessImplTest.class.getResourceAsStream("logfile_log");
+        InputStream logFileStream = ParallelProcessImplTest_REPLICATE.class.getResourceAsStream("logfile_log");
         String logFileContent = IOUtils.toString(logFileStream, "UTF-8");
         File logFile = File.createTempFile("junit","logfile");
         FileUtils.write(logFile, logFileContent, "UTF-8");
@@ -198,10 +178,10 @@ public class ParallelProcessImplTest {
 
     @Test
     public void testFullProcess_NOT_EXISTS() throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException, SAXException, ParserConfigurationException, NoSuchMethodException, MigrateSolrIndexException, URISyntaxException {
-        InputStream configurationStream = ParallelProcessImplTest.class.getResourceAsStream("config.replicate.mlp.xml");
+        InputStream configurationStream = ParallelProcessImplTest_REPLICATE.class.getResourceAsStream("config.replicate.mlp.xml");
         String _configurationContent = IOUtils.toString(configurationStream, "UTF-8");
 
-        InputStream logFileStream = ParallelProcessImplTest.class.getResourceAsStream("logfile_log");
+        InputStream logFileStream = ParallelProcessImplTest_REPLICATE.class.getResourceAsStream("logfile_log");
         String logFileContent = IOUtils.toString(logFileStream, "UTF-8");
         File logFile = File.createTempFile("junit","logfile");
         FileUtils.write(logFile, logFileContent, "UTF-8");
@@ -399,10 +379,10 @@ public class ParallelProcessImplTest {
 
     @Test
     public void testFullProcess_EXISTS_SOLR_CLOUD() throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException, SAXException, ParserConfigurationException, NoSuchMethodException, MigrateSolrIndexException, URISyntaxException {
-        InputStream configurationStream = ParallelProcessImplTest.class.getResourceAsStream("config.replicate.mlp_solrcloud.xml");
+        InputStream configurationStream = ParallelProcessImplTest_REPLICATE.class.getResourceAsStream("config.replicate.mlp_solrcloud.xml");
         String _configurationContent = IOUtils.toString(configurationStream, "UTF-8");
 
-        InputStream logFileStream = ParallelProcessImplTest.class.getResourceAsStream("logfile_log");
+        InputStream logFileStream = ParallelProcessImplTest_REPLICATE.class.getResourceAsStream("logfile_log");
         String logFileContent = IOUtils.toString(logFileStream, "UTF-8");
         File logFile = File.createTempFile("junit","logfile");
         FileUtils.write(logFile, logFileContent, "UTF-8");
@@ -550,10 +530,10 @@ public class ParallelProcessImplTest {
 
     @Test
     public void testFullProcess_NOT_EXISTS_SOLR_CLOUD() throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException, SAXException, ParserConfigurationException, NoSuchMethodException, MigrateSolrIndexException, URISyntaxException {
-        InputStream configurationStream = ParallelProcessImplTest.class.getResourceAsStream("config.replicate.mlp_solrcloud.xml");
+        InputStream configurationStream = ParallelProcessImplTest_REPLICATE.class.getResourceAsStream("config.replicate.mlp_solrcloud.xml");
         String _configurationContent = IOUtils.toString(configurationStream, "UTF-8");
 
-        InputStream logFileStream = ParallelProcessImplTest.class.getResourceAsStream("logfile_log");
+        InputStream logFileStream = ParallelProcessImplTest_REPLICATE.class.getResourceAsStream("logfile_log");
         String logFileContent = IOUtils.toString(logFileStream, "UTF-8");
         File logFile = File.createTempFile("junit","logfile");
         FileUtils.write(logFile, logFileContent, "UTF-8");
@@ -749,10 +729,10 @@ public class ParallelProcessImplTest {
     @Test
     public void testFullProcess_NOT_EXISTS_K7_TRANSFORM() throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException, SAXException, ParserConfigurationException, NoSuchMethodException, MigrateSolrIndexException, URISyntaxException {
 
-        InputStream configurationStream = ParallelProcessImplTest.class.getResourceAsStream("config.replicate.mlp_k7.xml");
+        InputStream configurationStream = ParallelProcessImplTest_REPLICATE.class.getResourceAsStream("config.replicate.mlp_k7.xml");
         String _configurationContent = IOUtils.toString(configurationStream, "UTF-8");
 
-        InputStream logFileStream = ParallelProcessImplTest.class.getResourceAsStream("k7notexists/logfile_log");
+        InputStream logFileStream = ParallelProcessImplTest_REPLICATE.class.getResourceAsStream("k7notexists/logfile_log");
         String logFileContent = IOUtils.toString(logFileStream, "UTF-8");
         File logFile = File.createTempFile("junit","logfile");
         FileUtils.write(logFile, logFileContent, "UTF-8");

@@ -75,7 +75,7 @@ public class CheckIndexWorker extends Worker {
                 String query =   "?q=PID:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8")+"&wt=xml";
                 // query
 
-                Element resultElem = XMLUtils.findElement(SolrUtils.executeQuery(client, this.requestUrl.endsWith("/") ? this.requestUrl+this.requestEndpoint :this.requestUrl+"/"+this.requestEndpoint , query), (elm) -> {
+                Element resultElem = XMLUtils.findElement(SolrUtils.executeQuery(client, this.requestUrl.endsWith("/") ? this.requestUrl+this.requestEndpoint :this.requestUrl+"/"+this.requestEndpoint , query, this.user, this.pass), (elm) -> {
                     return elm.getNodeName().equals("result");
                 });
                 List<Pair<String, List<String>>> processedSubPids = ResultsUtils.pidAndCollectionFromResult(resultElem);

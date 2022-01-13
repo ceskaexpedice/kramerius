@@ -23,7 +23,11 @@ public class SolrCursorIterator extends AbstractSolrIterator{
         super(address, masterQuery, filterQuery, endpoint, id, sorting, rows);
     }
 
-    static Element pidsCursorQuery(Client client, String url, String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting)  throws ParserConfigurationException, SAXException, IOException {
+    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
+    }
+
+    static Element pidsCursorQuery(Client client, String url, String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting, String user, String pass)  throws ParserConfigurationException, SAXException, IOException {
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
             fullQuery = "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(sorting, "UTF-8")+"&fl="+identifierField+"&fq=" + URLEncoder.encode(fq,"UTF-8");
@@ -32,7 +36,7 @@ public class SolrCursorIterator extends AbstractSolrIterator{
         }
         String query = endpoint + fullQuery+"&wt=xml";
 
-        return SolrUtils.executeQuery(client, url, query);
+        return SolrUtils.executeQuery(client, url, query, user, pass);
     }
 
     static String findCursorMark(Element elm) {
@@ -77,7 +81,7 @@ public class SolrCursorIterator extends AbstractSolrIterator{
             String cursorMark = null;
             String queryCursorMark = null;
             do {
-                Element element = pidsCursorQuery(client, address, masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting);
+                Element element = pidsCursorQuery(client, address, masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting, this.user, this.pass);
                 cursorMark = findCursorMark(element);
                 queryCursorMark = findQueryCursorMark(element);
                 iterationCallback.call( pidsToIterationItem(this.address, findAllPids(element)));

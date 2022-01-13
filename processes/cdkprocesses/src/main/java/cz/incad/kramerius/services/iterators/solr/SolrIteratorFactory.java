@@ -40,11 +40,29 @@ public class SolrIteratorFactory extends ProcessIteratorFactory {
         Element typeElm = XMLUtils.findElement(iteration, "type");
         TypeOfIteration typeOfIteration = typeElm != null ? TypeOfIteration.valueOf(typeElm.getTextContent()) : TypeOfIteration.CURSOR;
 
-        switch (typeOfIteration) {
-            case CURSOR: return new SolrCursorIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize);
-            case FILTER: return new SolrFilterQueryIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize);
-            case PAGINATION: return new SolrPageIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize);
+        Element userElm = XMLUtils.findElement(iteration, "user");
+        Element passElm = XMLUtils.findElement(iteration, "pass");
+
+        if (userElm != null && passElm !=null) {
+            String user = userElm.getTextContent();
+            String pass = passElm.getTextContent();
+
+            switch (typeOfIteration) {
+
+                case CURSOR: return new SolrCursorIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize,user, pass);
+                case FILTER: return new SolrFilterQueryIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize, user, pass);
+                case PAGINATION: return new SolrPageIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize, user, pass);
+            }
+
+        } else {
+            switch (typeOfIteration) {
+                case CURSOR: return new SolrCursorIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize);
+                case FILTER: return new SolrFilterQueryIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize);
+                case PAGINATION: return new SolrPageIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize);
+            }
+
         }
+
         return null;
     }
 }

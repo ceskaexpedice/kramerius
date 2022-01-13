@@ -86,7 +86,7 @@ public class ExistsWorker extends Worker {
                     String fieldlist = "PID collection";
                     String query =   "?q=PID:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8")+"&wt=xml&rows="+batchSize;
 
-                    Element resultElem = XMLUtils.findElement(SolrUtils.executeQuery(client, this.requestUrl , query), (elm) -> {
+                    Element resultElem = XMLUtils.findElement(SolrUtils.executeQuery(client, this.requestUrl , query, this.user, this.pass), (elm) -> {
                         return elm.getNodeName().equals("result");
                     });
                     List<Pair<String, List<String>>> pairs = ResultsUtils.pidAndCollectionFromResult(resultElem);
@@ -123,7 +123,7 @@ public class ExistsWorker extends Worker {
                             String colURl = this.collections.get(col);
                             colURl += (colURl.endsWith("/") ?  "" :"/");
 
-                            Element collectionResponse = SolrUtils.executeQuery(client, colURl, "api/v5.0/search?q=PID:(" + URLEncoder.encode(q, "UTF-8") + ")&fl=PID&wt=xml&rows="+mappingCollectionsToPids.get(col).size());
+                            Element collectionResponse = SolrUtils.executeQuery(client, colURl, "api/v5.0/search?q=PID:(" + URLEncoder.encode(q, "UTF-8") + ")&fl=PID&wt=xml&rows="+mappingCollectionsToPids.get(col).size(), this.user, this.pass);
                             Element collectionResponseResultElm = XMLUtils.findElement(collectionResponse, (elm) -> {
                                 return elm.getNodeName().equals("result");
                             });

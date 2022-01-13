@@ -1,8 +1,10 @@
 package cz.incad.kramerius.services.utils;
 
 import com.sun.jersey.api.client.*;
+import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -31,9 +33,14 @@ public class SolrUtils {
 
     public static String sendToDest(String destSolr, Client client, Document batchDoc) {
         try {
-            XMLUtils.print(batchDoc, System.out);
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
+
+//            File f = new File(System.getProperty("user.home")+File.separator+".kramerius4"+File.separator+"batch.xml");
+//            if(!f.exists()) f.createNewFile();
+//            System.out.println(f.getAbsolutePath());
+//            FileUtils.write(f, writer.toString(), "UTF-8");
+
             WebResource r = client.resource(destSolr);
             ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
             if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
@@ -113,8 +120,13 @@ public class SolrUtils {
     }
 
 
-    public static Element executeQuery(Client client, String url, String query) throws ParserConfigurationException, SAXException, IOException {
+    public static Element executeQuery(Client client, String url, String query, String user, String pass) throws ParserConfigurationException, SAXException, IOException {
         WebResource r = client.resource(url+(url.endsWith("/") ? "" : "/")+ query);
+
+        if (user != null && pass != null) {
+            r.addFilter(new BasicAuthenticationClientFilter(user, pass));
+        }
+
         LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] processing %s", r.getURI().toString()));
         String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
         Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
@@ -133,6 +145,7 @@ public class SolrUtils {
             }
             XMLUtils.getElements(pop).stream().forEach(stack::push);
         }
+
         return parseDocument.getDocumentElement();
     }
 }

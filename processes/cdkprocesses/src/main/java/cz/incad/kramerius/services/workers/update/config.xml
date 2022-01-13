@@ -27,10 +27,6 @@
             <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update</url>
             <update.dest.field>
                 <field name="collection" update="add-distinct">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
-
-                <!--
-                <field name="range" update="set" null="true"></field>
-                -->
             </update.dest.field>
         </destination>
     </worker>

@@ -32,7 +32,12 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
         super(address, masterQuery, filterQuery, endpoint, id, sorting, rows);
     }
 
-    public static Element pidsFilterQuery(Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint)
+
+    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
+    }
+
+    public static Element pidsFilterQuery(Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint, String user, String pass)
             throws ParserConfigurationException, SAXException, IOException {
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
@@ -41,7 +46,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
             fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *]", "UTF-8")) : String.format("&rows=%d", rows));
         }
         String query = endpoint + "?q="+mq + fullQuery +"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID&wt=xml";
-        return SolrUtils.executeQuery(client, url, query);
+        return SolrUtils.executeQuery(client, url, query, user, pass);
     }
 
     public static String findLastPid(Element elm) {
@@ -88,7 +93,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
             String previousPid = null;
             do {
                 //    private static Element pidsFilterQuery(ConfigurationBase configuration, Client client, String url, String mq, String lastPid, int rows, String fq)
-                Element element = pidsFilterQuery(client, address,masterQuery,  lastPid, rows, filterQuery, endpoint);
+                Element element = pidsFilterQuery(client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.user, this.pass);
                 previousPid = lastPid;
                 lastPid = findLastPid(element);
                 iterationCallback.call(pidsToIterationItem(this.address,findAllPids(element)));

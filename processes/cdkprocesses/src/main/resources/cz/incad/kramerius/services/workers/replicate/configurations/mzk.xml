@@ -33,14 +33,6 @@
 
             <fieldlist>indexer_version pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr</fieldlist>
 
-            <!-- toto vyresit lip -->
-            <collections.url>
-                <elem>
-                    <key>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</key>
-                    <value>https://kramerius.mzk.cz/search</value>
-                </elem>
-
-            </collections.url>
         </request>
 
         <destination>
@@ -55,9 +47,7 @@
                 <!-- append to batch document -->
                 <update.dest.field>
                     <field name="cdk.collection">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
-                    <!--
                     <field name="cdk.leader">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
-                    -->
                 </update.dest.field>
             </onindex>
 
@@ -65,9 +55,7 @@
             <onupdate>
                 <update.dest.field>
                     <field name="cdk.collection" update="add-distinct">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
-                    <!--
                     <field name="cdk.leader" update="set">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
-                    -->
                 </update.dest.field>
             </onupdate>
 
