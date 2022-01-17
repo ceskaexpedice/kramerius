@@ -58,7 +58,7 @@ public class IngestingThread extends Thread {
     public void run() {
         try {
             long start = System.currentTimeMillis();
-            Document solrDataDocument = this.solrAccess.getSolrDataDocument(pid);
+            Document solrDataDocument = this.solrAccess.getSolrDataByPid(pid);
             List<String> sources = CDKUtils.findSources(solrDataDocument.getDocumentElement());
             if (!sources.isEmpty()) {
                 Collection collection = this.collectionsManager.getCollection(sources.get(0));
