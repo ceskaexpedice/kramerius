@@ -15,8 +15,10 @@
             <url>http://kramerius4.mlp.cz/search/api/v5.0</url>
             <endpoint>search</endpoint>
             <batchsize>20</batchsize>
-
-
+            <!--
+            <user>user</user>
+            <pass>pass</pass>
+            -->
             <checkUrl>http://10.19.6.10:8983/solr/k7_5</checkUrl>
             <checkEndpoint>select</checkEndpoint>
 

@@ -1,0 +1,386 @@
+<testSuite testType="mods" model="map">
+
+    <test name="Mezinárodní zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(E 12°02'00"--E 19°11'00"/N 51°03'00"--N 48°31'00")</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(12.033333,19.183333,51.050000,48.516667)</field>
+            <field name="coords.bbox.center">49.783333,15.608333</field>
+            <field name="coords.bbox.corner_ne">51.050000,19.183333</field>
+            <field name="coords.bbox.corner_sw">48.516667,12.033333</field>
+        </out>
+    </test>
+
+    <test name="Český zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:ba4934d1-0a1e-4a01-a89d-c948477ca833?page=uuid:d22baf06-7fb6-4488-bc6f-995b644fd085</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(16°33´47" v.d.--16°39´07" v.d./49°14´06" s.š.--49°10´18" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(16.563056,16.651944,49.235000,49.171667)</field>
+            <field name="coords.bbox.center">49.203333,16.607500</field>
+            <field name="coords.bbox.corner_ne">49.235000,16.651944</field>
+            <field name="coords.bbox.corner_sw">49.171667,16.563056</field>
+        </out>
+    </test>
+
+    <test name="Západní délka, český zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/uuid/uuid:a4601c20-5f6f-4549-8cbe-182ac42eb547</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(011°13´40" z.d.--005°05´51" z.d./055°32´05" s.š.--051°09´06" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(-11.227778,-5.097500,55.534722,51.151667)</field>
+            <field name="coords.bbox.center">53.343194,-8.162639</field>
+            <field name="coords.bbox.corner_ne">55.534722,-5.097500</field>
+            <field name="coords.bbox.corner_sw">51.151667,-11.227778</field>
+        </out>
+    </test>
+
+    <test name="Západní délka, český zápis 2">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/uuid/uuid:9dedfbcc-86bf-4463-b283-14fe23838820</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(058°41´00" z.d.--017°09´38" z.d./075°40´27" s.š.--059°37´23" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(-58.683333,-17.160556,75.674167,59.623056)</field>
+            <field name="coords.bbox.center">67.648611,-37.921944</field>
+            <field name="coords.bbox.corner_ne">75.674167,-17.160556</field>
+            <field name="coords.bbox.corner_sw">59.623056,-58.683333</field>
+        </out>
+    </test>
+
+    <test name="Přes nultý poledník poledník, český zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/uuid/uuid:6885e54d-dba6-4fd3-a16a-1936012056c7</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(010°53´54" z.d.--001°54´41" v.d./059°57´18" s.š.--050°04´41" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(-10.898333,1.911389,59.955000,50.078056)</field>
+            <field name="coords.bbox.center">55.016528,-4.493472</field>
+            <field name="coords.bbox.corner_ne">59.955000,1.911389</field>
+            <field name="coords.bbox.corner_sw">50.078056,-10.898333</field>
+        </out>
+    </test>
+
+    <test name="Jižní šířka, mezinárodní zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/uuid/uuid:6a85a770-f6f3-11e8-8d10-5ef3fc9ae867</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(E 108°00'00"--E 126°00'00"/S 24°00'00"--S 36°00'00")</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(108.000000,126.000000,-24.000000,-36.000000)</field>
+            <field name="coords.bbox.center">-30.000000,117.000000</field>
+            <field name="coords.bbox.corner_ne">-24.000000,126.000000</field>
+            <field name="coords.bbox.corner_sw">-36.000000,108.000000</field>
+        </out>
+    </test>
+
+    <test name="Přes rovník, český zápis">
+        <desc>http://digitalniknihovna.uhonzy.cz/mzk/uuid/uuid:ace01035-528e-4448-8d15-6895a9a5e6aa</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(102°39´22" v.d.--178°48´48" v.d./002°32´52" s.š.--047°41´41" j.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(102.656111,178.813333,2.547778,-47.694722)</field>
+            <field name="coords.bbox.center">-22.573472,140.734722</field>
+            <field name="coords.bbox.corner_ne">2.547778,178.813333</field>
+            <field name="coords.bbox.corner_sw">-47.694722,102.656111</field>
+        </out>
+    </test>
+
+    <test name="Pro minuty apostrof namísto znaku accute">
+        <desc></desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(102°39'22" v.d.--178°48'48" v.d./002°32'52" s.š.--047°41'41" j.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(102.656111,178.813333,2.547778,-47.694722)</field>
+            <field name="coords.bbox.center">-22.573472,140.734722</field>
+            <field name="coords.bbox.corner_ne">2.547778,178.813333</field>
+            <field name="coords.bbox.corner_sw">-47.694722,102.656111</field>
+        </out>
+    </test>
+
+    <test name="Pro sekundy 2 znaky apostrofu namísto 1 znaku uvozovek">
+        <desc>uuid:7b0f37c7-d141-4b2f-96a7-16b2a72dca2f</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(012°57´53'' v.d.--14°08´47" v.d./46°08´00" s.š.--45°46´23'' s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(12.964722,14.146389,46.133333,45.773056)</field>
+            <field name="coords.bbox.center">45.953194,13.555556</field>
+            <field name="coords.bbox.corner_ne">46.133333,14.146389</field>
+            <field name="coords.bbox.corner_sw">45.773056,12.964722</field>
+        </out>
+    </test>
+
+    <test name="mezery okolo oddělovačů">
+        <desc>uuid:91de1e5f-4133-4397-978a-193b9f23ddc0</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(062°24´08" z.d.-- 059°35´23" v.d./073°58´15" s.š.--055°34´42" j.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(-62.402222,59.589722,73.970833,-55.578333)</field>
+            <field name="coords.bbox.center">9.196250,-1.406250</field>
+            <field name="coords.bbox.corner_ne">73.970833,59.589722</field>
+            <field name="coords.bbox.corner_sw">-55.578333,-62.402222</field>
+        </out>
+    </test>
+
+    <test name="suffix '].' v českém zápisu">
+        <desc>uuid:66440f36-87c5-47b7-a919-88e5813b4d43</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(014°02´08" v.d.--014°48´09" v.d./050°15´16" s.š.--049°55´22" s.š.)].</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(14.035556,14.802500,50.254444,49.922778)</field>
+            <field name="coords.bbox.center">50.088611,14.419028</field>
+            <field name="coords.bbox.corner_ne">50.254444,14.802500</field>
+            <field name="coords.bbox.corner_sw">49.922778,14.035556</field>
+        </out>
+    </test>
+
+    <test name="chybějící mezera mezi specifikací šířky/délky (český zápis)">
+        <desc>uuid:8de7d310-e652-44fa-b411-27e92501a08b</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(15°00'00''v.d.--17°00'00''v.d./46°00'00''s.š.--44°00'00''s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(15.000000,17.000000,46.000000,44.000000)</field>
+            <field name="coords.bbox.center">45.000000,16.000000</field>
+            <field name="coords.bbox.corner_ne">46.000000,17.000000</field>
+            <field name="coords.bbox.corner_sw">44.000000,15.000000</field>
+        </out>
+    </test>
+
+    <test name="mezery okolo oddělovačů (mezinárodní zápis)">
+        <desc>uuid:94b25e30-5521-11e9-936e-005056827e52</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(E 11°30'00" --E 23°00'00"/N 51°20'00" --N 47°20'00")</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(11.500000,23.000000,51.333333,47.333333)</field>
+            <field name="coords.bbox.center">49.333333,17.250000</field>
+            <field name="coords.bbox.corner_ne">51.333333,23.000000</field>
+            <field name="coords.bbox.corner_sw">47.333333,11.500000</field>
+        </out>
+    </test>
+
+    <test name="chybějící závorky (český zápis)">
+        <desc>uuid:8de7d310-e652-44fa-b411-27e92501a08b</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>15°00'00'' v.d.--17°00'00'' v.d./46°00'00'' s.š.--44°00'00'' s.š.</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(15.000000,17.000000,46.000000,44.000000)</field>
+            <field name="coords.bbox.center">45.000000,16.000000</field>
+            <field name="coords.bbox.corner_ne">46.000000,17.000000</field>
+            <field name="coords.bbox.corner_sw">44.000000,15.000000</field>
+        </out>
+    </test>
+
+    <test name="chybějící závorky (mezinárodní zápis)">
+        <desc>uuid:305fb861-ba83-4782-863a-7966d7d6ff09</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>E 16°28'53"--E 16°42'28"/N 49°15'27"--N 49°07'22"</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(16.481389,16.707778,49.257500,49.122778)</field>
+            <field name="coords.bbox.center">49.190139,16.594583</field>
+            <field name="coords.bbox.corner_ne">49.257500,16.707778</field>
+            <field name="coords.bbox.corner_sw">49.122778,16.481389</field>
+        </out>
+    </test>
+
+    <test name="rozsah jen jednou pomlčkou (český zápis)">
+        <desc></desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(16°33´47" v.d.-16°39´07" v.d./49°14´06" s.š.-49°10´18" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(16.563056,16.651944,49.235000,49.171667)</field>
+            <field name="coords.bbox.center">49.203333,16.607500</field>
+            <field name="coords.bbox.corner_ne">49.235000,16.651944</field>
+            <field name="coords.bbox.corner_sw">49.171667,16.563056</field>
+        </out>
+    </test>
+
+    <test name="rozsah jen jednou pomlčkou (mezinárodní zápis)">
+        <desc>uuid:305fb861-ba83-4782-863a-7966d7d6ff09</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>E 16°28'53"-E 16°42'28"/N 49°15'27"-N 49°07'22"</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(16.481389,16.707778,49.257500,49.122778)</field>
+            <field name="coords.bbox.center">49.190139,16.594583</field>
+            <field name="coords.bbox.corner_ne">49.257500,16.707778</field>
+            <field name="coords.bbox.corner_sw">49.122778,16.481389</field>
+        </out>
+    </test>
+
+    <test name="Pro minuty apostrof namísto znaku accute; apostrof a uvozovky xml escapovány">
+        <desc></desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(102°39&apos;22&quot; v.d.--178°48&apos;48&quot; v.d./002°32&apos;52&quot; s.š.--047°41&apos;41&quot; j.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(102.656111,178.813333,2.547778,-47.694722)</field>
+            <field name="coords.bbox.center">-22.573472,140.734722</field>
+            <field name="coords.bbox.corner_ne">2.547778,178.813333</field>
+            <field name="coords.bbox.corner_sw">-47.694722,102.656111</field>
+        </out>
+    </test>
+
+    <test name="Neplatné souřadnice: zeměpisná šířka nespadá do intervalu -90° až +90°">
+        <desc>http://www.digitalniknihovna.cz/mzk/uuid/uuid:392fcb48-da54-4f46-9e7d-55bee32952a7</desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(014°27´00" v.d.--017°04´00" v.d./490°10´00" s.š.--047°25´00" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--
+            <field name="coords.bbox">ENVELOPE(14.450000,17.066667,490.166667,47.416667)</field>
+            <field name="coords.bbox.center">268.791667,15.758333</field>
+            <field name="coords.bbox.corner_ne">490.166667,17.066667</field>
+            <field name="coords.bbox.corner_sw">47.416667,14.450000</field>
+            -->
+        </out>
+    </test>
+
+    <test name="Neplatné souřadnice: zeměpisná délka nespadá do intervalu -180° až +180°">
+        <desc></desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(190°33´47" v.d.--16°39´07" v.d./49°14´06" s.š.--49°10´18" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--
+            <field name="coords.bbox">ENVELOPE(190.563056,16.651944,49.235000,49.171667)</field>
+            <field name="coords.bbox.center">49.203333,103.607500</field>
+            <field name="coords.bbox.corner_ne">49.235000,16.651944</field>
+            <field name="coords.bbox.corner_sw">49.171667,190.563056</field>
+            -->
+        </out>
+    </test>
+
+    <test name="Neplatné souřadnice: jižní okraj > severní okraj">
+        <desc></desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(012°19´36" v.d.--014°46´42" v.d./045°26´19" s.š.--046°36´37" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--
+            <field name="coords.bbox">ENVELOPE(12.326667,14.778333,45.438611,46.610278)</field>
+            <field name="coords.bbox.center">46.024444,13.552500</field>
+            <field name="coords.bbox.corner_ne">45.438611,14.778333</field>
+            <field name="coords.bbox.corner_sw">46.610278,12.326667</field>
+            -->
+        </out>
+    </test>
+
+    <test name="Neplatné souřadnice: západní okraj > východní okraj">
+        <desc></desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(012°19´36" v.d.--014°46´42" v.d./045°26´19" s.š.--046°36´37" s.š.)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <!--
+            <field name="coords.bbox">ENVELOPE(12.326667,14.778333,45.438611,46.610278)</field>
+            <field name="coords.bbox.center">46.024444,13.552500</field>
+            <field name="coords.bbox.corner_ne">45.438611,14.778333</field>
+            <field name="coords.bbox.corner_sw">46.610278,12.326667</field>
+            -->
+        </out>
+    </test>
+
+
+</testSuite>

@@ -21,6 +21,7 @@ import cz.incad.kramerius.security.User;
 /**
  * User's profiles management class
  * @author pavels
+ *
  */
 public interface UserProfileManager {
 

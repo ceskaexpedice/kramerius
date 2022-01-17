@@ -27,19 +27,11 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.NotImplementedException;
-
-import com.google.inject.Inject;
-
-import cz.incad.Kramerius.security.RightsServlet;
-import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.IsActionAllowed;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.impl.RightImpl;
 
 public class Delete extends ServletRightsCommand {
 
@@ -54,14 +46,9 @@ public class Delete extends ServletRightsCommand {
             //Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager, criteriumWrapperFactory);
             Map values = new HashMap();
             Enumeration parameterNames = req.getParameterNames();
-            
-            while(parameterNames.hasMoreElements()) {
-                String key = (String) parameterNames.nextElement();
-                String value = req.getParameter(key);
-                SimpleJSONObjects simpleJSONObjects = new SimpleJSONObjects();
-                simpleJSONObjects.createMap(key, values, value);
-            }
-            
+
+            parametersToJson(req, values, parameterNames);
+
             List rightsToDelete = (List) values.get("deletedrights");
             
             for (int i = 0; i < rightsToDelete.size(); i++) {
@@ -82,20 +69,28 @@ public class Delete extends ServletRightsCommand {
         }
     }
 
+    static void parametersToJson(HttpServletRequest req, Map values, Enumeration parameterNames) {
+        while(parameterNames.hasMoreElements()) {
+            String key = (String) parameterNames.nextElement();
+            String value = req.getParameter(key);
+            SimpleJSONObjects simpleJSONObjects = new SimpleJSONObjects();
+            simpleJSONObjects.createMap(key, values, value);
+        }
+    }
 
 
     private void deleteRight(int id) throws SQLException, IOException {
         //RightImpl right = right(data, pid);
         Right right = rightsManager.findRightById(id);
         String pid = right.getPid();
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i]).flag()) {
                 hasRight = true;
                 break;
             } else {
-                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         }
         if (hasRight) {

@@ -18,6 +18,7 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GenerateDeepZoomCacheModule extends AbstractModule {
@@ -28,7 +29,10 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
         // necessary to have checked access to fedora.
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl.class)
                 .in(Scopes.SINGLETON);
-        bind(StatisticsAccessLog.class).to(NoStatistics.class).in(Scopes.SINGLETON);
+
+//        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+//        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(DeepZoomTileSupport.class).to(TileSupportImpl.class);
 
@@ -39,33 +43,33 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
         bind(DeepZoomFlagService.class).to(DeepZoomFlagServiceImpl.class).in(Scopes.SINGLETON);
     }
 
-    public static class NoStatistics implements StatisticsAccessLog {
-
-        @Override
-        public StatisticReport[] getAllReports() {
-            return new StatisticReport[0];
-        }
-
-        @Override
-        public StatisticReport getReportById(String reportId) {
-            return null;
-        }
-
-        @Override
-        public void reportAccess(String pid, String streamName) throws IOException {
-        }
-
-        @Override
-        public boolean isReportingAccess(String pid, String streamName) {
-            return true;
-        }
-
-        @Override
-        public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
-        }
-
-        @Override
-        public void reportAccess(String pid, String streamName, String actionName) throws IOException {
-        }
-    }
+//    public static class NoStatistics extends AggregatedAccessLogs {
+//
+//        @Override
+//        public StatisticReport[] getAllReports() {
+//            return new StatisticReport[0];
+//        }
+//
+//        @Override
+//        public StatisticReport getReportById(String reportId) {
+//            return null;
+//        }
+//
+//        @Override
+//        public void reportAccess(String pid, String streamName) throws IOException {
+//        }
+//
+//        @Override
+//        public boolean isReportingAccess(String pid, String streamName) {
+//            return true;
+//        }
+//
+//        @Override
+//        public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
+//        }
+//
+//        @Override
+//        public void reportAccess(String pid, String streamName, String actionName) throws IOException {
+//        }
+//    }
 }

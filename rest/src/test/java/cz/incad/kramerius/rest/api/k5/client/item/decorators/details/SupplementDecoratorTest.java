@@ -41,7 +41,7 @@ public class SupplementDecoratorTest extends TestCase {
         FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
         EasyMock.expect(fa.getBiblioMods("uuid:0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359")).andReturn(biblioMods).anyTimes();
 
-        EasyMock.expect(sa.getSolrDataDocument("uuid:0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359")).andReturn(solr).anyTimes();
+        EasyMock.expect(sa.getSolrDataByPid("uuid:0bf8e0f3-9c1a-40ca-a23f-c8a52e9e0359")).andReturn(solr).anyTimes();
 
         EasyMock.replay(sa,fa);
 

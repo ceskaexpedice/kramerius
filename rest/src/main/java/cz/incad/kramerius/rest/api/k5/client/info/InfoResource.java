@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -57,7 +57,7 @@ public class InfoResource {
     private ResourceBundleService resourceBundleService;
 
     @Inject
-    private IsActionAllowed isActionAllowed;
+    private RightsResolver rightsResolver;
 
     private final InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("build.properties");
 
@@ -105,7 +105,7 @@ public class InfoResource {
                 }
 
                 ObjectPidsPath path = new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid());
-                if (isActionAllowed.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path)
+                if (rightsResolver.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path).flag()
                         && textService.isAvailable(RIGHT_MSG_ALTERNATIVE,provider.get())) {
                     rightsMsg = textService.getText(RIGHT_MSG_ALTERNATIVE, provider.get());
                 }

@@ -25,6 +25,7 @@
             <checkUrl>http://10.19.6.10:8983/solr/k7_5</checkUrl>
             <checkEndpoint>select</checkEndpoint>
 
+
             <trasfrom>K7</trasfrom>
 
             <!-- toto vyresit lip -->

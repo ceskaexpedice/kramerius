@@ -224,4 +224,9 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
             throw new RuntimeException(e.getMessage());
         }
     }
+
+    @Override
+    public String getField(String fieldId) {
+        return fieldId;
+    }
 }

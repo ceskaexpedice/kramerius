@@ -1,0 +1,107 @@
+<testSuite testType="mods" model="monograph">
+
+    <test name="ch">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Chachaři</title>
+                <subTitle/>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title>chechtáky</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">Chachaři</field>
+            <field name="title.sort">H|AH|AR|I</field>
+            <field name="titles.search">Chachaři</field>
+            <field name="titles.search">chechtáky</field>
+        </out>
+    </test>
+
+    <test name="ch">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>[České Velenice]</title>
+                <partName>4454/1</partName>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title>4454/1</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="part.name">4454/1</field>
+
+            <field name="title.search">[České Velenice]. 4454/1</field>
+            <field name="title.sort">C|ESKE| VELENICE 4454/1</field>
+            <field name="titles.search">[České Velenice]. 4454/1</field>
+            <field name="titles.search">4454/1</field>
+        </out>
+    </test>
+
+
+    <test name="česká diakritika">
+        <desc>Příliš žluťoučký kůň úpěl ďábelské ódy</desc>
+        <in>
+            <titleInfo>
+                <title>Příliš žluťoučký kůň úpěl ďábelské ódy</title>
+                <subTitle/>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">Příliš žluťoučký kůň úpěl ďábelské ódy</field>
+            <field name="title.sort">PR|I|LIS| Z|LUT|OUC|KY| KU|N| U|PE|L D|A|BELSKE| O|DY</field>
+            <field name="titles.search">Příliš žluťoučký kůň úpěl ďábelské ódy</field>
+        </out>
+    </test>
+
+    <test name="primary title from titleInfo without @type">
+        <desc>Největší váhu pro detekci primárního názvu má titleInfo bez @type</desc>
+        <in>
+            <titleInfo type="alternative">
+                <title>alternative</title>
+            </titleInfo>
+            <titleInfo type="translated">
+                <title>translated</title>
+            </titleInfo>
+            <titleInfo type="uniform">
+                <title>uniform</title>
+            </titleInfo>
+            <titleInfo>
+                <title>no type</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">no type</field>
+            <field name="title.sort">NO TYPE</field>
+            <field name="titles.search">alternative</field>
+            <field name="titles.search">translated</field>
+            <field name="titles.search">uniform</field>
+            <field name="titles.search">no type</field>
+        </out>
+    </test>
+
+    <test name="primary title from titleInfo with @type=uniform over @type=alternative or @translated">
+        <desc>Větší váhu pro detekci primárního názvu má titleInfo s type='uniform' před @type s jinou hodnotou (alternative, translated, ...)</desc>
+        <in>
+            <titleInfo type="alternative">
+                <title>alternative</title>
+            </titleInfo>
+            <titleInfo type="translated">
+                <title>translated</title>
+            </titleInfo>
+            <titleInfo type="uniform">
+                <title>uniform</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">uniform</field>
+            <field name="title.sort">UNIFORM</field>
+            <field name="titles.search">alternative</field>
+            <field name="titles.search">translated</field>
+            <field name="titles.search">uniform</field>
+        </out>
+    </test>
+
+</testSuite>

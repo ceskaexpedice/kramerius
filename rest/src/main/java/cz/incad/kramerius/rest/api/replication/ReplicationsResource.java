@@ -65,7 +65,7 @@ import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.utils.DCContentUtils;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
@@ -100,7 +100,7 @@ public class ReplicationsResource {
     SolrAccess solrAccess;
 
     @Inject
-    IsActionAllowed isActionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -153,16 +153,17 @@ public class ReplicationsResource {
 
 
     boolean checkPermission(String pid) throws IOException {
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.isActionAllowed.isActionAllowed(SecuredActions.EXPORT_K4_REPLICATIONS.getFormalName(), pid, null, pth)) return true;
+            if (this.rightsResolver.isActionAllowed(SecuredActions.EXPORT_K4_REPLICATIONS.getFormalName(), pid, null, pth).flag()) return true;
         }
         if (paths.length == 0) {
             ObjectPidsPath path = new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid());
-            if (this.isActionAllowed.isActionAllowed(SecuredActions.EXPORT_K4_REPLICATIONS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path)) return true;
+            if (this.rightsResolver.isActionAllowed(SecuredActions.EXPORT_K4_REPLICATIONS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, path).flag()) return true;
         }
         return false;
     }
+
 
     
     /**
@@ -176,7 +177,7 @@ public class ReplicationsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public StreamingOutput prepareExport(@PathParam("pid") String pid,@QueryParam("replicateCollections") @DefaultValue("false")String replicateCollections) throws ReplicateException {
         try {
-            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
             if (checkPermission(pid)) {
                 if (this.fedoraAccess.getRelsExt(pid) != null) {
                     // raw generate to request writer

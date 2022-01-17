@@ -1,0 +1,115 @@
+<testSuite testType="mods" model="monograph">
+
+    <test name="language code iso639-2b">
+        <desc></desc>
+        <in>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">cze</languageTerm>
+            </language>
+        </in>
+        <out>
+            <field name="languages.facet">cze</field>
+        </out>
+    </test>
+
+    <test name="language code without authority">
+        <desc>ignorování atributů</desc>
+        <in>
+            <language>
+                <languageTerm>cze</languageTerm>
+            </language>
+        </in>
+        <out>
+            <field name="languages.facet">cze</field>
+        </out>
+    </test>
+
+    <test name="combination of language code without authority and iso639-2b code">
+        <desc>The iso639-2b value should be prefered</desc>
+        <in>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">cze</languageTerm>
+                <languageTerm>ces</languageTerm>
+            </language>
+            <language>
+                <languageTerm>de</languageTerm>
+                <languageTerm authority="iso639-2b" type="code">ger</languageTerm>
+            </language>
+        </in>
+        <out>
+            <field name="languages.facet">cze</field>
+            <field name="languages.facet">ger</field>
+        </out>
+    </test>
+
+    <test name="language code with uknown authority">
+        <desc>zatím nerozeznávané autority, kódy se použijí, jak jsou</desc>
+        <in>
+            <language>
+                <languageTerm authority="iso639-3" type="code">ces</languageTerm>
+            </language>
+            <language>
+                <languageTerm authority="rfc4646" type="code">de-CH</languageTerm>
+            </language>
+        </in>
+        <out>
+            <field name="languages.facet">ces</field>
+            <field name="languages.facet">de-CH</field>
+        </out>
+    </test>
+
+    <test name="multiple languages by iso639-2b codes">
+        <desc></desc>
+        <in>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">cze</languageTerm>
+            </language>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">eng</languageTerm>
+            </language>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">ger</languageTerm>
+            </language>
+        </in>
+        <out>
+            <field name="languages.facet">cze</field>
+            <field name="languages.facet">eng</field>
+            <field name="languages.facet">ger</field>
+        </out>
+    </test>
+
+    <test name="multiple languageTerms with inconsistent iso639-2b codes for same languge">
+        <desc>ignorování více languageTerm v jednom language</desc>
+        <in>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">cze</languageTerm>
+                <languageTerm authority="iso639-2b" type="code">eng</languageTerm>
+            </language>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">ger</languageTerm>
+            </language>
+        </in>
+        <out>
+            <field name="languages.facet">cze</field>
+            <field name="languages.facet">ger</field>
+        </out>
+    </test>
+
+    <test name="multiple languageTerms with inconsistent iso639-2b codes for same languge">
+        <desc>ignorování více languageTerm v jednom language</desc>
+        <in>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">cze</languageTerm>
+                <languageTerm authority="iso639-2b" type="code">eng</languageTerm>
+            </language>
+            <language>
+                <languageTerm authority="iso639-2b" type="code">ger</languageTerm>
+            </language>
+        </in>
+        <out>
+            <field name="languages.facet">cze</field>
+            <field name="languages.facet">ger</field>
+        </out>
+    </test>
+
+</testSuite>

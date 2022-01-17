@@ -16,20 +16,14 @@
  */
 package cz.incad.kramerius.security.impl;
 
-import java.util.Arrays;
-import java.util.logging.Level;
+import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.labels.Label;
 
-import cz.incad.kramerius.security.CriteriumType;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.RightCriteriumParams;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.SecuredActions;
+import java.io.Serializable;
 
-public class RightCriteriumWrapperImpl implements RightCriteriumWrapper {
+public class RightCriteriumWrapperImpl implements RightCriteriumWrapper, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(RightCriteriumWrapperImpl.class.getName());
 
@@ -102,10 +96,28 @@ public class RightCriteriumWrapperImpl implements RightCriteriumWrapper {
         return this.critId == -1;
     }
 
-
-
     @Override
     public CriteriumType getCriteriumType() {
         return this.criteriumType;
+    }
+
+    @Override
+    public boolean isLabelAwareCriterium() {
+        if (this.criteriumType.equals(CriteriumType.CLASS)) {
+            return this.wrappedInstance instanceof RightCriteriumLabelAware;
+        } else return false;
+    }
+
+    @Override
+    public Label getLabel() {
+        Label label = isLabelAwareCriterium() ? ((RightCriteriumLabelAware) this.wrappedInstance).getLabel() : null;
+        return label;
+    }
+
+    @Override
+    public void setLabel(Label label) {
+        if (isLabelAwareCriterium()) {
+            ((RightCriteriumLabelAware)this.wrappedInstance).setLabel(label);
+        }
     }
 }

@@ -38,7 +38,7 @@ public class TitlesUtils {
         
     
     public static String title(String pid, SolrAccess solrAccess, FedoraAccess fa, boolean renderModel, ResourceBundle resourceBundle) throws IOException {
-        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 
         
         String[] path = paths[0].getPathFromRootToLeaf();

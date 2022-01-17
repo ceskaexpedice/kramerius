@@ -1,39 +1,23 @@
 package cz.incad.Kramerius;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectModelsPath;
-import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.handle.DisectHandle;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -90,10 +74,10 @@ public class HandleServlet extends GuiceServlet {
                 try {
                     PIDParser parser = new PIDParser(pid);
                     parser.objectPid();
-                    return solrAccess.getSolrDataDocument(parser.getObjectId());
+                    return solrAccess.getSolrDataByPid(parser.getObjectId());
                 } catch (LexerException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    return solrAccess.getSolrDataDocument(pid);
+                    return solrAccess.getSolrDataByPid(pid);
                 }
             }
 
@@ -109,7 +93,7 @@ public class HandleServlet extends GuiceServlet {
 
             @Override
             Document dataFromSolr(String handle, SolrAccess solrAccess) throws IOException {
-                return solrAccess.getSolrDataDocumentByHandle(handle);
+                return solrAccess.getSolrDataByHandle(handle);
             }
 
             @Override

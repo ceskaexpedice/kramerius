@@ -39,11 +39,12 @@ import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.labels.LabelsManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.users.NotActivatedUsersSingleton;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -82,13 +83,16 @@ public abstract class ServletCommand {
     protected UserManager userManager;
 
     @Inject
-    protected IsActionAllowed actionAllowed;
+    protected RightsResolver rightsResolver;
 
     @Inject
     protected RightCriteriumWrapperFactory criteriumWrapperFactory;
     
     @Inject
     protected NotActivatedUsersSingleton notActivatedUsersSingleton;
+
+    @Inject
+    protected LabelsManager labelsManager;
     
     public abstract void doCommand() throws IOException;
 
@@ -99,11 +103,11 @@ public abstract class ServletCommand {
     }
 
     public ObjectModelsPath[] getModels(String uuid) throws IOException {
-        return uuid != null ? this.solrAccess.getPathOfModels(uuid) : new ObjectModelsPath[0];
+        return uuid != null ? this.solrAccess.getModelPaths(uuid) : new ObjectModelsPath[0];
     }
 
     public ObjectPidsPath[] getPathOfUUIDs(String uuid) throws IOException {
-        return uuid != null ? this.solrAccess.getPath(uuid) : new ObjectPidsPath[0];
+        return uuid != null ? this.solrAccess.getPidPaths(uuid) : new ObjectPidsPath[0];
     }
 
     public ResourceBundle getResourceBundle() throws IOException {

@@ -1,6 +1,7 @@
 package cz.incad.kramerius.virtualcollections.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.Collection;
@@ -8,12 +9,12 @@ import cz.incad.kramerius.virtualcollections.Collection;
 public class CDKResourcesFilter {
 
     public List<String> getResources() {
-        List<String> al = KConfiguration.getInstance().getConfiguration().getList("cdk.collections.sources");
+        List<String> al = KConfiguration.getInstance().getConfiguration().getList("cdk.collections.sources").stream().map(Object::toString).collect(Collectors.toList());
         return al;
     }
     
     public List<String> getHidden() {
-        List<String> al = KConfiguration.getInstance().getConfiguration().getList("cdk.collections.hidden");
+        List<String> al = KConfiguration.getInstance().getConfiguration().getList("cdk.collections.hidden").stream().map(Object::toString).collect(Collectors.toList());
         return al;
     }
     

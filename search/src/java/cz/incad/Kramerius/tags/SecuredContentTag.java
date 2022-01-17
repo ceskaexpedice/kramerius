@@ -30,7 +30,7 @@ import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -46,7 +46,7 @@ public class SecuredContentTag extends BodyTagSupport {
     private String sendForbidden="false";
     
     @Inject
-    private IsActionAllowed allowed;
+    private RightsResolver allowed;
     
     @Inject
     private SolrAccess solrAccess;
@@ -129,9 +129,9 @@ public class SecuredContentTag extends BodyTagSupport {
 
     
     private boolean isActionAllowed() throws IOException {
-        ObjectPidsPath[] paths = this.solrAccess.getPath(this.getPid());
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(this.getPid());
         for (ObjectPidsPath p : paths) {
-            boolean b =  allowed.isActionAllowed(this.currentUserProvider.get(),this.action, this.pid,this.stream, p);
+            boolean b =  allowed.isActionAllowed(this.currentUserProvider.get(),this.action, this.pid,this.stream, p).flag();
             if (b) return true;
             
         }

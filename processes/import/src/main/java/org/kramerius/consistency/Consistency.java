@@ -32,7 +32,17 @@ import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.*;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang3.tuple.Triple;
+import com.google.inject.name.Names;
+import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Scopes;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -188,7 +198,19 @@ public class Consistency {
         } else return objectPidsPath;
     }
 
+    /** guice module */
+    public static class _Module extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
 
+//            bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+//            bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
+
+
+        }
+    }
+    
     /**
      * Main process method
      * @param pid Root pid

@@ -4,42 +4,49 @@
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         <url>$iteration.url$</url>
-        <endpoint>search</endpoint>
+        <endpoint>select</endpoint>
 
         <id>PID</id>
         <rows>7000</rows>
         <type>CURSOR</type>
+
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
     </iteration>
 
-    <threads>4</threads>
+    <threads>2</threads>
 
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
     <worker>
         <request>
-            <url>$iteration.url$</url>
-            <endpoint>search</endpoint>
+
+            <endpoint>select</endpoint>
             <batchsize>20</batchsize>
 
             <url>$iteration.url$</url>
+
+            <user>$iteration.user$</user>
+            <pass>$iteration.pass$</pass>
+
 
             <composite.id>true</composite.id>
             <composite.root>root_pid</composite.root>
             <composite.child>PID</composite.child>
 
+
             <checkUrl>$destination.url$</checkUrl>
             <checkEndpoint>select</checkEndpoint>
 
-            <!-- Transform to K7 index -->
+            <!-- cdk source field -->
+            <collection>cdk.collection</collection>
+
             <trasfrom>K7</trasfrom>
 
 
         </request>
 
         <destination>
-            <!--
-            <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update</url>
-            -->
             <url>$destination.url$/update</url>
 
             <!-- on index -->
@@ -51,6 +58,7 @@
                 <!-- append to batch document -->
                 <update.dest.field>
                     <field name="cdk.collection">vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26</field>
+                    <field name="cdk.leader">vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26</field>
                 </update.dest.field>
             </onindex>
             <!-- on update -->

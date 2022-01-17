@@ -8,9 +8,12 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.IIIFUtils;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import org.apache.commons.io.IOUtils;
@@ -20,7 +23,6 @@ import org.json.JSONObject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -40,7 +42,7 @@ public class IiifServlet extends AbstractImageServlet {
     private SolrAccess solrAccess;
 
     @Inject
-    private IsActionAllowed actionAllowed;
+    private RightsResolver rightsResolver;
 
     @Inject
     private Provider<User> userProvider;
@@ -48,6 +50,18 @@ public class IiifServlet extends AbstractImageServlet {
     @Inject
     @Named("cachedFedoraAccess")
     private transient FedoraAccess fedoraAccess;
+
+
+//    @Inject
+//    @Named("database")
+//    private StatisticsAccessLog databaseAccessLog;
+//
+//    @Inject
+//    @Named("dnnt")
+//    StatisticsAccessLog dnntAccessLog;
+
+    @Inject
+    AggregatedAccessLogs aggregatedAccessLogs;
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(IiifServlet.class.getName());
 
@@ -63,15 +77,11 @@ public class IiifServlet extends AbstractImageServlet {
             //unescape PID
             pid = URLDecoder.decode(pid, "UTF-8");
 
-            if (!pid.matches("uuid:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")) {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
 
-            ObjectPidsPath[] paths = solrAccess.getPath(pid);
+            ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
             boolean permited = false;
             for (ObjectPidsPath pth : paths) {
-                permited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth);
+                permited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth).flag();
                 if (permited) break;
             }
 
@@ -83,6 +93,7 @@ public class IiifServlet extends AbstractImageServlet {
                         String nextToken = tokenizer.nextToken();
                         url.append("/").append(nextToken);
                         if ("info.json".equals(nextToken)) {
+                            reportAccess(pid);
                             resp.setContentType("application/ld+json");
                             resp.setCharacterEncoding("UTF-8");
                             HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
@@ -117,5 +128,13 @@ public class IiifServlet extends AbstractImageServlet {
     @Override
     public boolean turnOnIterateScaling() {
         return false;
+    }
+
+    private void reportAccess(String pid) {
+        try {
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
+        }
     }
 }

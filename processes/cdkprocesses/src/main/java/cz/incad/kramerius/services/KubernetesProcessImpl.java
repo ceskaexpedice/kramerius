@@ -25,10 +25,14 @@ public class KubernetesProcessImpl {
     public static final String ITERATION_URL = "ITERATION_URL";
     public static final String CHECK_URL = "CHECK_URL";
     public static final String DESTINATION_URL = "DESTINATION_URL";
-
     public static final String CONFIG_SOURCE = "CONFIG_SOURCE";
-
     public static final String ONLY_SHOW_CONFIGURATION = "ONLY_SHOW_CONFIGURATION";
+
+    public static final String ITERATION_PREFIX = "ITERATION_";
+    public static final String CHECK_PREFIX = "CHECK_";
+    public static final String DEST_PREFIX = "DESTINATION_";
+
+
 
     public static final Logger LOGGER = Logger.getLogger(KubernetesProcessImpl.class.getName());
 
@@ -40,16 +44,19 @@ public class KubernetesProcessImpl {
             if (stream != null) {
 
                 Map<String, String> iteration = new HashMap<>();
+                prefixVariables(env, iteration, ITERATION_PREFIX);
                 if (env.containsKey(ITERATION_URL)) {
                     iteration.put("url", env.get(ITERATION_URL));
                 }
 
                 Map<String, String> check = new HashMap<>();
+                prefixVariables(env, check, CHECK_PREFIX);
                 if (env.containsKey(CHECK_URL)) {
                     check.put("url", env.get(CHECK_URL));
                 }
 
                 Map<String, String> destination = new HashMap<>();
+                prefixVariables(env, destination, DEST_PREFIX);
                 if (env.containsKey(DESTINATION_URL)) {
                     destination.put("url", env.get(DESTINATION_URL));
                 }
@@ -79,5 +86,14 @@ public class KubernetesProcessImpl {
         } else {
             LOGGER.severe("No configuration");
         }
+    }
+
+    private static void prefixVariables(Map<String, String> env, Map<String, String> templateMap, String prefix) {
+        env.keySet().forEach(key-> {
+            if (key.startsWith(prefix)) {
+                String name = key.substring(prefix.length()).toLowerCase();
+                templateMap.put(name, env.get(key));
+            }
+        });
     }
 }

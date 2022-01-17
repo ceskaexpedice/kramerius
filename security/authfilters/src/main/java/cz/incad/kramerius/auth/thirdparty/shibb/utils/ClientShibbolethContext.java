@@ -29,6 +29,15 @@ public  class ClientShibbolethContext implements ShibbolethContext {
         this.user.setLastName(lastName);
     }
 
+
+
+    @Override
+    public void associateSessionAttribute(String key, String value) {
+        this.user.addSessionAttribute(key, value);
+    }
+
+
+
     @Override
     public void associateRole(String rname) {
         this.user.getRoles().add(rname);

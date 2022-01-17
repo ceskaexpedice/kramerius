@@ -8,7 +8,6 @@ import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
@@ -29,6 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,6 +50,7 @@ public class ProcessingIndexRebuild {
             throw new RuntimeException(e);
         }
     }
+
     private volatile static long counter = 0;
 
 
@@ -61,23 +62,22 @@ public class ProcessingIndexRebuild {
             long start = System.currentTimeMillis();
             feeder.deleteProcessingIndex();
             Path objectStoreRoot = null;
-            if (KConfiguration.getInstance().getConfiguration().getBoolean("legacyfs")){
+            if (KConfiguration.getInstance().getConfiguration().getBoolean("legacyfs")) {
                 objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("object_store_base"));
             } else {
                 objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("objectStore.path"));
             }
-            Files.walk(objectStoreRoot).parallel().filter(Files::isRegularFile).forEach(path -> {
+            Files.walk(objectStoreRoot, FileVisitOption.FOLLOW_LINKS).parallel().filter(Files::isRegularFile).forEach(path -> {
+                String filename = path.toString();
                 try {
                     FileInputStream inputStream = new FileInputStream(path.toFile());
                     DigitalObject digitalObject = createDigitalObject(inputStream);
                     rebuildProcessingIndex(feeder, digitalObject);
                 } catch (Exception ex) {
-                    LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
+                    LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                 }
             });
-            LOGGER.info("Finished tree walk in "+ (System.currentTimeMillis() - start)+ " ms");
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
+            LOGGER.info("Finished tree walk in " + (System.currentTimeMillis() - start) + " ms");
         } finally {
             if (feeder != null) {
                 feeder.commit();
@@ -123,7 +123,7 @@ public class ProcessingIndexRebuild {
                 akubraObject.processRELSEXTRelationAndFeedProcessingIndex(object, localName);
                 return object;
             });
-            LOGGER.info("Processed PID:"+ akubraObject.getPid()+ ",  count:"+ (++counter));
+            LOGGER.info("Processed PID:" + akubraObject.getPid() + ",  count:" + (++counter));
         } catch (IOException e) {
             throw new RepositoryException(e);
         } catch (SAXException e) {

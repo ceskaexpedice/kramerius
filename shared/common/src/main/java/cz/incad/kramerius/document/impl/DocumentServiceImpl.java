@@ -102,7 +102,7 @@ public class DocumentServiceImpl implements DocumentService {
             final int howMany) throws IOException, ProcessSubtreeException {
         if (pidFrom != null && fedoraAccess.isImageFULLAvailable(pidFrom)) {
 
-            ObjectPidsPath[] path = solrAccess.getPath(pidFrom);
+            ObjectPidsPath[] path = solrAccess.getPidPaths(pidFrom);
             String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
             // { str, clanek, monografie }
             String parent = null;
@@ -157,7 +157,7 @@ public class DocumentServiceImpl implements DocumentService {
             // find first parent
             String pagePid = this.fedoraAccess.findFirstViewablePid(pidFrom);
             String parentPid = pidFrom;
-            ObjectPidsPath[] path = solrAccess.getPath(pagePid);
+            ObjectPidsPath[] path = solrAccess.getPidPaths(pagePid);
             String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
             if (pathFromLeafToRoot.length > 1) {
                 parentPid = pathFromLeafToRoot[1];

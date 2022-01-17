@@ -22,10 +22,9 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -45,7 +44,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     Provider<User> userProvider;
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
     
     @Inject
     SolrAccess solrAccess;
@@ -116,7 +115,7 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
     private String[] pidsAsSiblings( String startPid, String stopPid)
             throws IOException {
         String[] pids = new String[0];
-        ObjectPidsPath[] paths = this.solrAccess.getPath(startPid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(startPid);
         ObjectPidsPath pths = selectOnePath(startPid, paths);
         String[] pidsPths = pths.getPathFromRootToLeaf();
         if (pidsPths.length > 1) {
@@ -150,9 +149,9 @@ public class PicturePrepareViewObject extends AbstractPrepareViewObject  impleme
 
 
     private boolean canBeRead(String pid) throws IOException {
-        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth)) {
+            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth).flag()) {
                 return true;
             }
         }

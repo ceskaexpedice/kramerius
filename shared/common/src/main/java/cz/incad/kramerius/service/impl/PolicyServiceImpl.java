@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +30,7 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
@@ -73,11 +75,38 @@ public class PolicyServiceImpl implements PolicyService {
         }
     }
 
+    
+    @Override
+    public void setPolicy(String pid, String policyName, String level) throws IOException {
+        List<String> pids = fedoraAccess.getPids(pid);
+        if (level != null && level.equals("true")) {
+            try{
+              setPolicyForNode(pid, policyName);
+            }catch(Exception ex){
+               LOGGER.warning("Cannot set policy for object "+pid+", skipping: "+ex);
+            }
+        }
+        else {
+            for (String s : pids) {
+                String p = s.replace(INFO, "");
+                try{
+                    setPolicyForNode(p, policyName);
+                }catch(Exception ex){
+                    LOGGER.warning("Cannot set policy for object "+p+", skipping: "+ex);
+                }
+            }
+        }
+    }
     public void setPolicyForNode(String pid, String policyName) throws RepositoryException {
         LOGGER.info("Set policy pid: "+pid+" policy: "+policyName);
-        setPolicyDC(pid, policyName);
-        setPolicyRELS_EXT(pid, policyName);
-        setPolicyPOLICY(pid, policyName);
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            setPolicyDC(pid, policyName);
+            setPolicyRELS_EXT(pid, policyName);
+            setPolicyPOLICY(pid, policyName);
+        }finally{
+            writeLock.unlock();
+        }
     }
 
     private void setPolicyDC(String pid, String policyName) throws RepositoryException {
@@ -149,7 +178,7 @@ public class PolicyServiceImpl implements PolicyService {
         return nodes;
     }
 
-    
+
     public FedoraAccess getFedoraAccess() {
         return fedoraAccess;
     }
@@ -191,8 +220,10 @@ public class PolicyServiceImpl implements PolicyService {
      * args[1] - uuid of the root item (withou uuid: prefix)
      * args[0] - policy to set (public, private)
      * @throws IOException
+     * @deprecated
+     * @see cz.incad.kramerius.processes.SetPolicyProcess
      */
-
+    @Deprecated
     public static void main(String[] args) throws IOException {
         LOGGER.info("PolicyService: "+Arrays.toString(args));
         if (args.length >= 2) {
@@ -209,7 +240,11 @@ public class PolicyServiceImpl implements PolicyService {
         inst.fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
 
         inst.configuration = KConfiguration.getInstance();
-        inst.setPolicy(args[1], args[0]);
+        if (args.length>=3){
+            inst.setPolicy(args[1], args[0], args[2]);
+        } else {
+            inst.setPolicy(args[1], args[0]);
+        }
         try {
             IndexerProcessStarter.spawnIndexer(true, "Reindex policy "+args[1]+":"+args[0], args[1]);
         } catch (Exception e) {

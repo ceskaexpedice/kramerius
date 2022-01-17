@@ -1,0 +1,110 @@
+plugins {
+    id 'java'
+    //tohle vyzaduje alespon gradle 5, pouzivame 4.10 (vydany v zari 2018)
+    //https://imperceptiblethoughts.com/shadow/getting-started/
+    //id 'com.github.johnrengelman.shadow' version '5.2.0'
+
+    //https://docs.gradle.org/current/userguide/application_plugin.html
+    id 'application'
+}
+
+group 'cz.incad.kramerius'
+description "New indexer"
+version '1.15'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+dependencies {
+    //compile project(':security:security-core')
+    compile project(':shared:common')
+
+    //  testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:5.5.1"
+
+    //implementation 'net.sourceforge.saxon:saxon:9.1.0.8'
+    implementation 'jaxen:jaxen:1.2.0'
+    implementation 'org.dom4j:dom4j:2.1.1'
+
+    // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    implementation 'commons-codec:commons-codec:1.12'
+
+    //ve verzi 7.7.2 je problem s atomickym updatem pole typu date, vypada to, ze to bude vylozene bug v solru, ne v solrj
+    //http://mail-archives.apache.org/mod_mbox/lucene-dev/201906.mbox/%3CJIRA.13238967.1560326806000.451729.1560326820087@Atlassian.JIRA%3E
+    //implementation 'org.apache.solr:solr-solrj:7.7.3'
+    //implementation 'org.apache.solr:solr-solrj:8.2.0'
+    implementation 'org.apache.solr:solr-solrj:8.8.1'
+
+    implementation 'joda-time:joda-time:2.10.3'
+
+    implementation 'com.google.guava:guava:27.1-jre'
+
+    //json-lib nahrazeno, posledni release z 2010 a pro javu 5, dost mozna nebude fungovat (nebo pomalu) na novejsi jave
+    //http://json-lib.sourceforge.net/usage.html
+    //implementation 'net.sf.json-lib:json-lib:2.4:jdk15'
+    //na zaklade banchmarku a zivosti projektu volim GSON
+    //https://medium.com/stanwood/save-my-ass-benchmark-of-json-deserializers-on-android-28341c1e82df
+    //https://blog.overops.com/the-ultimate-json-library-json-simple-vs-gson-vs-jackson-vs-json/
+    //https://programmer.help/blogs/performance-comparison-of-several-common-json-libraries-in-java.html
+
+    //https://github.com/google/gson
+    implementation 'com.google.code.gson:gson:2.8.6'
+}
+
+
+
+//gradle run
+application {
+    mainClassName = 'cz.kramerius.searchIndex.Main'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'cz.kramerius.searchIndex.Main'
+        )
+    }
+    /*from {
+        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+    }*/
+}
+
+//for manifest in fat jar (without shadow plugin)
+task fatJar(type: Jar) {
+    manifest.from jar.manifest
+//    classifier = 'all'
+    from {
+        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    with jar
+}
+
+artifacts {
+    archives fatJar
+}
+
+
+//pro shadow plugin (vyzaduje gradle 5+)
+//build shadow-jar: gradle shadowJar, jar se pak objevi v build/libs/indexer-VERZE-all.jar
+/*
+shadowJar {
+    exclude 'src/main/resources'
+}*/
+
+//spusteni (z korenoveho adresare projektu)
+//./gradlew search-index:run

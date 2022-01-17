@@ -3,7 +3,6 @@ package cz.cas.lib.knav;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -12,6 +11,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.security.EvaluatingResultState;
 import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,7 +22,6 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.security.EvaluatingResult;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.service.impl.PolicyServiceImpl;
@@ -42,10 +41,10 @@ import org.xml.sax.SAXException;
  */
 public class ApplyMWUtils {
 
-    
+
     /**
      * Apply moving wall on pids in given array
-     * @param fa FedoraAccess 
+     * @param fa FedoraAccess
      * @param sa SolrAccess
      * @param coll Collects pids for indexing
      * @param userValue User defined values
@@ -88,35 +87,35 @@ public class ApplyMWUtils {
         try {
             if (pids.length == 0)
                 return null;
-            Document solrDoc = sa.getSolrDataDocument(pids[0]);
+            Document solrDoc = sa.getSolrDataByPid(pids[0]);
             Element foundElm = XMLUtils.findElement(
                     solrDoc.getDocumentElement(),
                     new XMLUtils.ElementsFilter() {
-    
+
                         @Override
                         public boolean acceptElement(Element element) {
                             String nameAttr = element.getAttribute("name");
-    
+
                             boolean isElmStr = element.getNodeName().equals(
                                     "str");
                             boolean hasGoodAttr = nameAttr != null
                                     && nameAttr.equals("dc.title");
-    
+
                             if (isElmStr && hasGoodAttr) {
                                 return true;
                             } else
                                 return false;
                         }
                     });
-    
+
             if (foundElm != null) {
-    
+
                 StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < pids.length; i++) {
                     builder.append(pids[i]);
                     if (i > 0) builder.append(",");
                 }
-                
+
                 String postfix = pids.length == 1 ? "" : ",...";
                 String name = "pid(s) [" + builder.toString()
                         + "] - title: " + foundElm.getTextContent() + postfix;
@@ -131,7 +130,7 @@ public class ApplyMWUtils {
 
     /**
      * Process one tree and subtree
-     * 
+     *
      * @param masterPid Starting root of tree
      * @param userValue value of moving wall
      * @param mode mode of moving wall
@@ -156,12 +155,12 @@ public class ApplyMWUtils {
         ApplyMWUtils.process(fa, sa, masterPid, firstPid, firstModel, userValue, mode, coll);
 
         String[] root;
-        ObjectPidsPath[] path = sa.getPath(masterPid);
-        if(path == null) {
+        ObjectPidsPath[] pidPaths = sa.getPidPaths(masterPid);
+        if(pidPaths == null) {
             root = new String[1];
             root[0] = masterPid;
         } else {
-            root = path[path.length - 1].getPathFromRootToLeaf();
+            root = pidPaths[pidPaths.length - 1].getPathFromRootToLeaf();
         }
         for (int i = 0; i < root.length; i++) {
             if("policy:private".equals(disectFlagFromRELSEXT(root[i],fa))){
@@ -180,8 +179,8 @@ public class ApplyMWUtils {
      * @param sa SolrAccess
      * @param onePid Concrete PID
      * @param userValue User defined value; if null it takes value from configuration
-     * @param coll Collect pid for indexing 
-     * @throws IOException 
+     * @param coll Collect pid for indexing
+     * @throws IOException
      * @throws RightCriteriumException
      * @throws XPathExpressionException
      */
@@ -210,12 +209,12 @@ public class ApplyMWUtils {
         }
         ApplyMovingWall.LOGGER.info("Used value is: " + wall);
         mw.setCriteriumParamValues(new Object[] { "" + wall, mode, firstModel, firstPid });
-        EvaluatingResult result = mw.evalute();
+        EvaluatingResultState result = mw.evalute();
         String flagFromRELSEXT = ApplyMWUtils.disectFlagFromRELSEXT(onePid, fa);
-        if (result == EvaluatingResult.TRUE) {
+        if (result == EvaluatingResultState.TRUE) {
             ApplyMovingWall.LOGGER.info("Set policy flag for '" + onePid + "' to value true ");
             ApplyMWUtils.setPolicyFlag(onePid, true, fa, flagFromRELSEXT, coll);
-        } else if (result == EvaluatingResult.FALSE) {
+        } else if (result == EvaluatingResultState.FALSE) {
             // set private
             ApplyMovingWall.LOGGER.info("Set policy flag for '" + onePid + "' to value false");
             ApplyMWUtils.setPolicyFlag(onePid, false, fa, flagFromRELSEXT, coll);
@@ -238,7 +237,7 @@ public class ApplyMWUtils {
 
     /**
      * Sets policy flag
-     * 
+     *
      * @param b
      *            Flag
      * @param fa
@@ -261,7 +260,7 @@ public class ApplyMWUtils {
 
     /**
      * Detect change
-     * 
+     *
      * @param b
      *            new flag
      * @param previousState
@@ -282,7 +281,7 @@ public class ApplyMWUtils {
 
     /**
      * Configured moving wall
-     * 
+     *
      * @param sa
      *            SolrAccess instance
      * @param onePid
@@ -292,7 +291,7 @@ public class ApplyMWUtils {
      */
     public static int configuredWall(SolrAccess sa, String onePid, Configuration conf)
             throws IOException {
-        ObjectModelsPath[] pathOfModels = sa.getPathOfModels(onePid);
+        ObjectModelsPath[] pathOfModels = sa.getModelPaths(onePid);
         ObjectModelsPath path = pathOfModels[0];
         String[] models = path.getPathFromLeafToRoot();
         int wall = defaultConfiguredWall( conf);
@@ -308,7 +307,7 @@ public class ApplyMWUtils {
             throws IOException {
         int wall = conf.getInt("mwprocess.wall", 70);
         return wall;
-    
+
     }
 
     public static String getModel(String pid) {

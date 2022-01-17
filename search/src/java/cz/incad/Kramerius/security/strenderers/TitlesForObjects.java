@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cz.incad.kramerius.utils.FedoraUtils;
 import org.antlr.stringtemplate.StringTemplate;
@@ -39,6 +41,8 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class TitlesForObjects {
+
+    public static Logger LOGGER = Logger.getLogger(TitlesForObjects.class.getName());
 
     public static HashMap<String, String> createModelsForPaths(FedoraAccess fedoraAccess,  ObjectPidsPath path, ResourceBundleService bundleService, Locale locale) throws IOException, LexerException {
         HashMap<String, String> modelsMap = new HashMap<String, String>();

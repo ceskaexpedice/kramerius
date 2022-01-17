@@ -19,6 +19,9 @@ package cz.incad.kramerius.security.impl;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class UserImpl implements User {
 
     private static final long serialVersionUID = -7870625906836793952L;
@@ -27,11 +30,11 @@ public class UserImpl implements User {
     private String surName;
     private String loginName;
     private String email;
-    
     private int personalAdminId;
-
     private Role[] groups;
-    
+
+    private Map<String,String> sessionAttributes = new HashMap<>();
+
     public UserImpl(int id, String firstName, String surName, String loginName, int personalAdminId) {
         super();
         this.id = id;
@@ -152,6 +155,19 @@ public class UserImpl implements User {
         return true;
     }
 
-    
-    
+
+    @Override
+    public Map<String, String> getSessionAttributes() {
+        return this.sessionAttributes;
+    }
+
+    @Override
+    public void addSessionAttribute(String key, String value) {
+        this.sessionAttributes.put(key, value);
+    }
+
+    @Override
+    public void removeSessionAttribute(String key) {
+        this.sessionAttributes.remove(key);
+    }
 }

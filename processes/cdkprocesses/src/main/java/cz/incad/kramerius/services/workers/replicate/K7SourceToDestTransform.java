@@ -47,13 +47,14 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
         plainValueFields.put("root_title",  Arrays.asList("root.title"));
         plainValueFields.put("pid_path",  Arrays.asList("pid_paths"));
         //plainValueFields.put("model_path",  Arrays.asList("model_paths"));
-        plainValueFields.put("rels_ext_index",  Arrays.asList("rels_ext_index.sort"));
+        //plainValueFields.put("rels_ext_index",  Arrays.asList("rels_ext_index.sort"));
         plainValueFields.put("parent_model",  Arrays.asList("own_parent.model"));
         plainValueFields.put("parent_title",  Arrays.asList("own_parent.title"));
-        plainValueFields.put("parent_pid",  Arrays.asList("foster_parents.pids","own_parent.pid"));
+        plainValueFields.put("parent_pid",  Arrays.asList("foster_parents.pids"));
         plainValueFields.put("mtd",  Arrays.asList("mtd"));
         plainValueFields.put("ddt",  Arrays.asList("ddt"));
         plainValueFields.put("level",  Arrays.asList("level"));
+
 
         plainValueFields.put("mods.physicalLocation",  Arrays.asList("physical_locations.facet"));
         plainValueFields.put("mods.shelfLocator",  Arrays.asList("shelf_locators"));
@@ -65,11 +66,16 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
         plainValueFields.put("dnnt-labels",  Arrays.asList("licenses"));
         plainValueFields.put("contains-dnnt-labels",  Arrays.asList("contains-licenses"));
 
+        plainValueFields.put("text_ocr",  Arrays.asList("text_ocr"));
+
+
         sortValueFields.put("dc.title","title.sort");
         sortValueFields.put("root_title","root.title.sort");
 
         firstValue.put("pid_path","own_pid_path");
         firstValue.put("model_path","own_model_path");
+        firstValue.put("rels_ext_index",  "rels_ext_index.sort");
+        firstValue.put("parent_pid",  "own_parent.pid");
     }
 
 
@@ -119,7 +125,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                 if (elm.getNodeName().equals("str")) {
                     try {
                         UTFSort utf_sort = new UTFSort();
-                        utf_sort.init();
+                        //utf_sort.init();
                         String value = utf_sort.translate(elm.getTextContent());
                         String targetName = sortValueFields.get(name);
 
@@ -400,4 +406,10 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
         }
     }
 
+    @Override
+    public String getField(String fieldId) {
+        if (this.plainValueFields.containsKey(fieldId)) {
+            return this.plainValueFields.get(fieldId).get(0);
+        } else return null;
+    }
 }

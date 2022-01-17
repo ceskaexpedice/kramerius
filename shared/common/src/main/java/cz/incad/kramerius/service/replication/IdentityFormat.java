@@ -31,11 +31,11 @@ public class IdentityFormat implements ReplicationFormat {
         return input;
     }
 
-	@Override
-	public byte[] formatFoxmlData(byte[] input,  Object... params)
-			throws ReplicateException {
-		return input;
-	}
+    @Override
+    public byte[] formatFoxmlData(byte[] input,  Object... params)
+            throws ReplicateException {
+        return input;
+    }
 
     
 }

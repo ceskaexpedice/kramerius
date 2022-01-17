@@ -54,7 +54,7 @@ public class DeepZoomFlagServiceImplTest {
             try {
 
                 if (repository.objectExists("uuid:"+ident)) {
-                    repository.deleteobject("uuid:"+ident);
+                    repository.deleteObject("uuid:"+ident);
                 }
 
                 RepositoryObject object = repository.createOrFindObject("uuid:"+ident);
@@ -70,7 +70,7 @@ public class DeepZoomFlagServiceImplTest {
         feeder.commit();
 
 
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("akubraFedoraAccess")));
         DeepZoomFlagServiceImpl service = new DeepZoomFlagServiceImpl();
         service.fedoraAccess = fa;
         service.deleteFlagToPID("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6");

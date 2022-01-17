@@ -4,6 +4,8 @@ import static org.easymock.EasyMock.*;
 
 import static cz.incad.kramerius.ITTestsSetup.*;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
@@ -55,7 +57,7 @@ public class DeleteServiceImplTest  {
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         RepositoryDatastream stream = object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -76,13 +78,13 @@ public class DeleteServiceImplTest  {
         EasyMock.replay(inst);
 
 
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("akubraFedoraAccess")));
         Assert.assertNotNull(fa);
 
 
         inst.resourceIndex = injector.getInstance(IResourceIndex.class);
         inst.fedoraAccess = fa;
-        inst.predicates =  KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates");
+        inst.predicates =  Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates"), Functions.toStringFunction());
 
         Fedora4Utils.doWithProcessingIndexCommit(inst.fedoraAccess.getInternalAPI(), (repo)->{
             try {
@@ -107,7 +109,7 @@ public class DeleteServiceImplTest  {
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
         Repository repository = getRepository(feeder);
         if (repository.objectExists("uuid:5035a48a-5e2e-486c-8127-2fa650842e46")) {
-            repository.deleteobject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
+            repository.deleteObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         }
         RepositoryObject object = repository.createOrFindObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
         RepositoryDatastream stream = object.createStream("RELS-EXT", "text/xml", new ByteArrayInputStream(bytes));
@@ -128,13 +130,13 @@ public class DeleteServiceImplTest  {
         EasyMock.replay(inst);
 
 
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("akubraFedoraAccess")));
         Assert.assertNotNull(fa);
 
 
         inst.resourceIndex = injector.getInstance(IResourceIndex.class);
         inst.fedoraAccess = fa;
-        inst.predicates =  KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates");
+        inst.predicates =  Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates"), Functions.toStringFunction());
 
         Document document = XMLUtils.parseDocument(repository.getObject("uuid:5035a48a-5e2e-486c-8127-2fa650842e46").getStream(FedoraUtils.RELS_EXT_STREAM).getContent(), true);
         Assert.assertNotNull(XMLUtils.findElement(document.getDocumentElement(), (element) -> {

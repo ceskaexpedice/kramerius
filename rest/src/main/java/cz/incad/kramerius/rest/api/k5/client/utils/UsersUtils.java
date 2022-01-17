@@ -18,6 +18,8 @@ package cz.incad.kramerius.rest.api.k5.client.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +33,10 @@ import cz.incad.kramerius.security.impl.UserImpl;
 public class UsersUtils {
 
     public static JSONObject userToJSON(User user) throws JSONException {
+        return  userToJSON(user, new ArrayList<>());
+    }
+
+    public static JSONObject userToJSON(User user, List<String> labels) throws JSONException {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("lname", user.getLoginname());
         jsonObj.put("firstname", user.getFirstName());
@@ -46,6 +52,18 @@ public class UsersUtils {
             }
             jsonObj.put("roles", jsonArr);
         }
+
+        JSONArray labelsArray = new JSONArray();
+        labels.stream().forEach(labelsArray::put);
+        jsonObj.put("labels", labelsArray);
+
+
+        JSONObject jsonSessionAttributes = new JSONObject();
+        user.getSessionAttributes().keySet().stream().forEach(key-> jsonSessionAttributes.put(key, user.getSessionAttributes().get(key)));
+        jsonObj.put("session", jsonSessionAttributes);
+
+
+
         return jsonObj;
     }
 

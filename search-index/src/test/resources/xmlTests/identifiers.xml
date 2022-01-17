@@ -1,0 +1,471 @@
+<testSuite testType="mods" model="monograph">
+
+    <test name="urnnbn">
+        <desc></desc>
+        <in>
+            <identifier type="urnnbn">urn:nbn:cz:nk-000ktg</identifier>
+        </in>
+        <out>
+            <field name="id_urnnbn">urn:nbn:cz:nk-000ktg</field>
+        </out>
+    </test>
+
+    <test name="urnnbn - typ velkými písmeny">
+        <desc></desc>
+        <in>
+            <identifier type="URNNBN">urn:nbn:cz:nk-000ktg</identifier>
+        </in>
+        <out>
+            <field name="id_urnnbn">urn:nbn:cz:nk-000ktg</field>
+        </out>
+    </test>
+
+    <test name="urnnbn - velká písmena">
+        <desc></desc>
+        <in>
+            <identifier type="urnnbn">URN:NBN:CZ:NK-000KTG</identifier>
+        </in>
+        <out>
+            <field name="id_urnnbn">urn:nbn:cz:nk-000ktg</field>
+        </out>
+    </test>
+
+    <test name="urnnbn - špatný zápis">
+        <desc></desc>
+        <in>
+            <identifier type="urnnbn">urnnbn:urn:nbn:cz:nk-000ktg</identifier>
+        </in>
+        <out>
+            <field name="id_urnnbn">urn:nbn:cz:nk-000ktg</field>
+        </out>
+    </test>
+
+
+    <test name="ččnb">
+        <desc></desc>
+        <in>
+            <identifier type="ccnb">cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - velká písmena">
+        <desc></desc>
+        <in>
+            <identifier type="ccnb">CNB000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - špatný typ 1">
+        <desc></desc>
+        <in>
+            <identifier type="cnb">cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - špatný typ 2">
+        <desc></desc>
+        <in>
+            <identifier type="čnb">cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - špatný typ 3">
+        <desc></desc>
+        <in>
+            <identifier type="ččnb">cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - špatný typ 4">
+        <desc></desc>
+        <in>
+            <identifier type="CNB">cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - špatný typ 5">
+        <desc></desc>
+        <in>
+            <identifier type="ČNB">cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - špatný typ 6">
+        <desc></desc>
+        <in>
+            <identifier type="ČČNB">cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - špatná hodnota 1">
+        <desc></desc>
+        <in>
+            <identifier type="ccnb">ccnb:cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - špatná hodnota 2">
+        <desc></desc>
+        <in>
+            <identifier type="ccnb">cnb:cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - špatná hodnota 3">
+        <desc></desc>
+        <in>
+            <identifier type="ccnb">ččnb:cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+    <test name="ččnb - špatná hodnota 4">
+        <desc></desc>
+        <in>
+            <identifier type="ccnb">čnb:cnb000532499</identifier>
+        </in>
+        <out>
+            <field name="id_ccnb">cnb000532499</field>
+        </out>
+    </test>
+
+
+    <test name="isbn">
+        <desc></desc>
+        <in>
+            <identifier type="isbn">80-7050-020-4</identifier>
+        </in>
+        <out>
+            <field name="id_isbn">80-7050-020-4</field>
+        </out>
+    </test>
+
+    <test name="isbn - typ velkými písmeny">
+        <desc></desc>
+        <in>
+            <identifier type="ISBN">80-7050-020-4</identifier>
+        </in>
+        <out>
+            <field name="id_isbn">80-7050-020-4</field>
+        </out>
+    </test>
+
+    <test name="isbn s prefixem v hodnotě">
+        <desc></desc>
+        <in>
+            <identifier type="isbn">isbn:80-7050-020-4</identifier>
+        </in>
+        <out>
+            <field name="id_isbn">80-7050-020-4</field>
+        </out>
+    </test>
+
+
+    <test name="issn">
+        <desc></desc>
+        <in>
+            <identifier type="issn">0862-1985</identifier>
+        </in>
+        <out>
+            <field name="id_issn">0862-1985</field>
+        </out>
+    </test>
+
+    <test name="issn - typ velkými písmeny">
+        <desc></desc>
+        <in>
+            <identifier type="ISSN">0862-1985</identifier>
+        </in>
+        <out>
+            <field name="id_issn">0862-1985</field>
+        </out>
+    </test>
+
+    <test name="issn s prefixem v hodnotě">
+        <desc></desc>
+        <in>
+            <identifier type="issn">issn:0862-1985</identifier>
+        </in>
+        <out>
+            <field name="id_issn">0862-1985</field>
+        </out>
+    </test>
+
+
+    <test name="ismn">
+        <desc></desc>
+        <in>
+            <identifier type="ismn">m-2600-0120-6</identifier>
+        </in>
+        <out>
+            <field name="id_ismn">m-2600-0120-6</field>
+        </out>
+    </test>
+
+    <test name="ismn - typ velkými písmeny">
+        <desc></desc>
+        <in>
+            <identifier type="ISMN">m-2600-0120-6</identifier>
+        </in>
+        <out>
+            <field name="id_ismn">m-2600-0120-6</field>
+        </out>
+    </test>
+
+    <test name="ismn s prefixem v hodnotě">
+        <desc></desc>
+        <in>
+            <identifier type="ismn">ismn:m-2600-0120-6</identifier>
+        </in>
+        <out>
+            <field name="id_ismn">m-2600-0120-6</field>
+        </out>
+    </test>
+
+    <test name="ismn - hodnota velkými písmeny">
+        <desc></desc>
+        <in>
+            <identifier type="ismn">M-2600-0120-6</identifier>
+        </in>
+        <out>
+            <field name="id_ismn">m-2600-0120-6</field>
+        </out>
+    </test>
+
+
+    <test name="čárový kód">
+        <desc></desc>
+        <in>
+            <identifier type="barCode">1000343379</identifier>
+        </in>
+        <out>
+            <field name="id_barcode">1000343379</field>
+        </out>
+    </test>
+
+    <test name="čárový kód s prefixem v hodnotě">
+        <desc></desc>
+        <in>
+            <identifier type="barCode">barCode:1000343379</identifier>
+        </in>
+        <out>
+            <field name="id_barcode">1000343379</field>
+        </out>
+    </test>
+
+
+    <test name="uuid">
+        <desc></desc>
+        <in>
+            <identifier type="uuid">6d4c67d0-0f24-11e3-9923-005056827e52</identifier>
+        </in>
+        <out>
+            <field name="id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
+        </out>
+    </test>
+
+    <test name="uuid - hodnota velkými písmeny">
+        <desc></desc>
+        <in>
+            <identifier type="uuid">6D4C67D0-0F24-11E3-9923-005056827E52</identifier>
+        </in>
+        <out>
+            <field name="id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
+        </out>
+    </test>
+
+    <test name="uuid - typ velkými písmeny">
+        <desc></desc>
+        <in>
+            <identifier type="UUID">6d4c67d0-0f24-11e3-9923-005056827e52</identifier>
+        </in>
+        <out>
+            <field name="id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
+        </out>
+    </test>
+
+    <test name="uuid s prefixem v hodnotě">
+        <desc></desc>
+        <in>
+            <identifier type="uuid">uuid:6d4c67d0-0f24-11e3-9923-005056827e52</identifier>
+        </in>
+        <out>
+            <field name="id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
+        </out>
+    </test>
+
+    <test name="uuid s prefixem v hodnotě velkými písmeny">
+        <desc></desc>
+        <in>
+            <identifier type="uuid">UUID:6d4c67d0-0f24-11e3-9923-005056827e52</identifier>
+        </in>
+        <out>
+            <field name="id_uuid">6d4c67d0-0f24-11e3-9923-005056827e52</field>
+        </out>
+    </test>
+
+    <test name="sysno">
+        <desc></desc>
+        <in>
+            <identifier type="sysno">000549155</identifier>
+        </in>
+        <out>
+            <field name="id_sysno">000549155</field>
+        </out>
+    </test>
+
+    <test name="sysno - typ velkými písmeny">
+        <desc></desc>
+        <in>
+            <identifier type="SYSNO">000549155</identifier>
+        </in>
+        <out>
+            <field name="id_sysno">000549155</field>
+        </out>
+    </test>
+
+    <test name="sysno s prefixem v hodnotě">
+        <desc></desc>
+        <in>
+            <identifier type="sysno">sysno:000549155</identifier>
+        </in>
+        <out>
+            <field name="id_sysno">000549155</field>
+        </out>
+    </test>
+
+    <test name="sysno s prefixem v hodnotě (velkými písmeny)">
+        <desc></desc>
+        <in>
+            <identifier type="sysno">SYSNO:000549155</identifier>
+        </in>
+        <out>
+            <field name="id_sysno">000549155</field>
+        </out>
+    </test>
+
+
+    <test name="oclc">
+        <desc></desc>
+        <in>
+            <identifier type="oclc">84987580</identifier>
+        </in>
+        <out>
+            <field name="id_oclc">84987580</field>
+        </out>
+    </test>
+
+    <test name="oclc - typ velkými písmeny">
+        <desc></desc>
+        <in>
+            <identifier type="OCLC">84987580</identifier>
+        </in>
+        <out>
+            <field name="id_oclc">84987580</field>
+        </out>
+    </test>
+
+    <test name="oclc s prefixem v hodnotě">
+        <desc></desc>
+        <in>
+            <identifier type="oclc">oclc:84987580</identifier>
+        </in>
+        <out>
+            <field name="id_oclc">84987580</field>
+        </out>
+    </test>
+
+
+    <test name="prázdný typ">
+        <desc></desc>
+        <in>
+            <identifier>123</identifier>
+        </in>
+        <out>
+            <field name="id_other">123</field>
+        </out>
+    </test>
+
+    <test name="prázdný typ, prefix v hodnotě">
+        <desc></desc>
+        <in>
+            <identifier>aBc:123</identifier>
+        </in>
+        <out>
+            <field name="id_other">aBc:123</field>
+        </out>
+    </test>
+
+    <test name="neznámý typ">
+        <desc></desc>
+        <in>
+            <identifier type="xxx">123</identifier>
+        </in>
+        <out>
+            <field name="id_other">xxx:123</field>
+        </out>
+    </test>
+
+    <test name="neznámý typ, prefix v hodnotě">
+        <desc></desc>
+        <in>
+            <identifier type="xxx">aBc:123</identifier>
+        </in>
+        <out>
+            <field name="id_other">xxx:aBc:123</field>
+        </out>
+    </test>
+
+    <test name="prázdná hodnota 1">
+        <desc></desc>
+        <in>
+            <identifier type="sici"/>
+        </in>
+        <out></out>
+    </test>
+
+    <test name="prázdná hodnota 2">
+        <desc></desc>
+        <in>
+            <identifier type="coden">
+
+            </identifier>
+        </in>
+        <out/>
+    </test>
+
+
+</testSuite>
+

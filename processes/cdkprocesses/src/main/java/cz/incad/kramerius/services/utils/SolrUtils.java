@@ -44,6 +44,12 @@ public class SolrUtils {
             WebResource r = client.resource(destSolr);
             ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
             if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
+
+                StringWriter stringWriter = new StringWriter();
+                XMLUtils.print(batchDoc,stringWriter);
+                LOGGER.warning("Problematic batch: ");
+                LOGGER.warning(stringWriter.toString());
+
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 InputStream entityInputStream = resp.getEntityInputStream();
                 IOUtils.copyStreams(entityInputStream, bos);

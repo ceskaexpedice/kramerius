@@ -4,32 +4,39 @@ import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
-//import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import cz.incad.kramerius.utils.SafeSimpleDateFormat;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.akubraproject.map.IdMapper;
 import org.apache.commons.io.IOUtils;
+import org.fcrepo.common.PID;
+import org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper;
 import org.w3c.dom.Element;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.TransformerException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
 public class AkubraUtils {
+    private static final Logger LOGGER = Logger.getLogger(AkubraUtils.class.getName());
+    private static final SafeSimpleDateFormat DATE_FORMAT = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'");
 
     private AkubraUtils() {
     }
@@ -54,8 +61,12 @@ public class AkubraUtils {
 
     public static boolean streamExists(DigitalObject object, String streamID) {
         for (DatastreamType datastreamType : object.getDatastream()) {
-            if (streamID.equals(datastreamType.getID())) {
-                return true;
+            if (datastreamType == null) {
+                LOGGER.log(Level.SEVERE, "Repository inconsistency: object %s has datastream %s that is null", new String[]{object.getPID(), streamID});
+            } else {
+                if (streamID.equals(datastreamType.getID())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -86,10 +97,12 @@ public class AkubraUtils {
                 } else {
                     return readFromURL(stream.getContentLocation().getREF());
                 }
-            }
-            {
+            } else {
                 throw new IOException("Unsupported datastream reference type: " + stream.getContentLocation().getTYPE() + "(" + stream.getContentLocation().getREF() + ")");
             }
+        } else if (stream.getBinaryContent() != null) {
+            LOGGER.warning("Reading binaryContent from the managed stream.");
+            return new ByteArrayInputStream(stream.getBinaryContent());
         } else {
             throw new IOException("Unsupported datastream content type: " + stream.getID());
         }
@@ -117,23 +130,41 @@ public class AkubraUtils {
             throw new RuntimeException(e);
         }
 
-//        return XMLGregorianCalendarImpl.createDateTime(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY), now
-//                .get(Calendar.MINUTE), now.get(Calendar.SECOND));
+//            return DatatypeFactory.newInstance().newXMLGregorianCalendar(DATE_FORMAT.format(new Date()));
+//        } catch (DatatypeConfigurationException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            throw new RuntimeException(e);
+//        }
     }
 
-    public static String endpoint() {
-        String apiPoint = KConfiguration.getInstance().getConfiguration().getString("api.point");
-        return apiPoint + (apiPoint.endsWith("/") ? "" : "/") + "item/";
+    /**
+     * Return Akubra object store internal path for provided PID
+     *
+     * @param pid PID of the FOXML object (uuid:xxxxxx...)
+     * @return internal file path relative to object store root, depends ob the property objectStore.pattern
+     */
+    public static String getAkubraInternalId(String pid) {
+        if (pid == null) {
+            return "";
+        }
+        String objectPattern = KConfiguration.getInstance().getProperty("objectStore.pattern");
+        IdMapper mapper = new HashPathIdMapper(objectPattern);
+        URI extUri = null;
+        try {
+            extUri = new URI(new PID(pid).toURI());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+        URI internalId = mapper.getInternalId(extUri);
+        return internalId.toString();
     }
-
-
-    private static final SafeSimpleDateFormat dateFormat = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'");
 
     public static Date getLastModified(DigitalObject object) throws IOException {
         for (PropertyType propertyType : object.getObjectProperties().getProperty()) {
             if ("info:fedora/fedora-system:def/view#lastModifiedDate".equals(propertyType.getNAME())) {
                 try {
-                    return dateFormat.parse(propertyType.getVALUE());
+                    return DATE_FORMAT.parse(propertyType.getVALUE());
                 } catch (ParseException e) {
                     throw new IOException("Cannot parse LastModofiedDate: " + object.getPID() + ": " + propertyType.getVALUE());
                 }
@@ -143,7 +174,7 @@ public class AkubraUtils {
     }
 
     public static String currentTimeString() {
-        return dateFormat.format(new Date());
+        return DATE_FORMAT.format(new Date());
     }
 
     public static PropertyType createProperty(String name, String value) {

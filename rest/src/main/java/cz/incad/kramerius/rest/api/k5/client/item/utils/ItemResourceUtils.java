@@ -37,7 +37,8 @@ public class ItemResourceUtils {
     }
 
     public static List<String> solrChildrenPids(String parentPid, List<String> fList, SolrAccess sa, SolrMemoization memo) throws IOException {
-        List<Document> docs = new  ArrayList<>();
+        // TODO: Change it
+        List<Document> docs = new  ArrayList<Document>();
         List<Map<String, String>> ll = new ArrayList<Map<String, String>>();
         int rows = 10000;
         int size = 1; // 1 for the first iteration
@@ -54,7 +55,7 @@ public class ItemResourceUtils {
                 }
             }
             
-            Document resp = sa.request(request);
+            Document resp = sa.requestWithSelectReturningXml(request);
             docs.add(resp);
     
             Element resultelm = XMLUtils.findElement(resp.getDocumentElement(), "result");

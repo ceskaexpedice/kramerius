@@ -61,7 +61,6 @@ public class RESTHelper {
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, TransformerException {
         Document solrDataInternal = SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + "uuid:xxxx" );
         XMLUtils.print(solrDataInternal, System.out);
-        
     }
 
 }

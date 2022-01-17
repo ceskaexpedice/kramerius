@@ -114,7 +114,7 @@ public class FeederResource {
             req.append("&rows=").append(limit).append("&start=").append(start)
                     .append("&sort=level+asc%2c+created_date+desc");
 
-            Document document = this.solrAccess.request(req.toString());
+            Document document = this.solrAccess.requestWithSelectReturningXml(req.toString());
             Element result = XMLUtils.findElement(
                     document.getDocumentElement(), "result");
             JSONArray jsonArray = new JSONArray();

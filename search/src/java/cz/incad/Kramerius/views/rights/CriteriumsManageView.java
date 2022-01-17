@@ -74,7 +74,6 @@ public class CriteriumsManageView extends AbstractRightsView {
     public static class _RightCriteriumParams implements RightCriteriumParams {
 
         private RightCriteriumParams params = null;
-        //private String[] usingObjects = null;
         private List<Map<String, String>> objects = null;
         
         public _RightCriteriumParams(List<Map<String, String>> objects, RightCriteriumParams params) {

@@ -18,7 +18,7 @@ package cz.incad.kramerius.security.impl.http;
 
 import com.google.inject.AbstractModule;
 
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
 
 
@@ -28,7 +28,7 @@ public class GuiceSecurityHTTPModule extends AbstractModule {
     
     @Override
     protected void configure() {
-        bind(IsActionAllowed.class).to(IsActionAllowedFromRequestCached.class);
+        bind(RightsResolver.class).to(RightsResolverFromRequestCached.class);
         bind(User.class).toProvider(DbCurrentLoggedUser.class);
     }
 }

@@ -142,6 +142,34 @@ function showConfirmDialog(t,f){
     });
 }
 
+function showConfirmYesNoDialog(t,f1, f2){
+    $("#confirm_dialog").dialog('destroy');
+    $("#proccess_confirm_text").html(t);
+    $("#confirm_dialog").dialog({
+        resizable: false,
+        height:140,
+        modal: true,
+        buttons: [{
+            text:dictionary['common.yes'],
+            click:function() {
+                $(this).dialog('destroy');
+                f1();
+            }
+        },{
+            text:dictionary['common.no'],
+            click:function() {
+                $(this).dialog('destroy');
+                f2();
+            }
+        },{
+            text:dictionary['common.close'],
+            click:function() {
+                $(this).dialog('destroy');
+            }
+        }]
+    });
+}
+
 function showAdminMenu() {
 	$("#adminMenu").css("top",$("#header").offset().top + $("#header").height()+4);
 	$("#adminMenu").show();
@@ -207,6 +235,27 @@ function importPeriodicals() {
     showConfirmDialog(dictionary['administrator.dialogs.importPeriodical.confirm'], function(){
         var url = "lr?action=start&def=replikator_periodicals&out=text";
         processStarter("import").start(url);
+    });
+}
+
+function dnntFlagSet() {
+    showConfirmDialog(dictionary['administrator.menu.dialogs.dnnt.title'], function(){
+        var url = "lr?action=start&def=dnntset&out=text";
+        processStarter("dnntset").start(url);
+    });
+}
+
+function dnntFlagUnset() {
+    showConfirmDialog(dictionary['administrator.menu.dialogs.dnnt.unset.title'], function(){
+        var url = "lr?action=start&def=dnntunset&out=text";
+        processStarter("dnntunset").start(url);
+    });
+}
+
+function dnntCSVExport() {
+    showConfirmDialog(dictionary['administrator.menu.dialogs.dnnt.csvexport.title'], function(){
+        var url = "lr?action=start&def=dnntexport&out=text";
+        processStarter("dnntexport").start(url);
     });
 }
 

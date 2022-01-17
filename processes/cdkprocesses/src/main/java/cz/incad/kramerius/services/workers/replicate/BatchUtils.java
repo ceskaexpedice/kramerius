@@ -43,6 +43,12 @@ public class BatchUtils {
 
             // composite id is not supported
             if (compositeId && root != null && child != null) {
+
+
+                root = srcTransform.getField(root) != null ?  srcTransform.getField(root) : root;
+                child = srcTransform.getField(child) != null ?  srcTransform.getField(child) : child;
+
+                //srcTransform.
                 boolean b = enhanceByCompositeId(destBatch, destDocElement, root, child);
                 if (b) destBatch.getDocumentElement().appendChild(destDocElement);
             } else {

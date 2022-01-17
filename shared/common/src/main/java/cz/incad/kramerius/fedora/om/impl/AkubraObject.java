@@ -299,13 +299,12 @@ public class AkubraObject implements RepositoryObject {
     }
 
     private void indexDescription(String model, String dctitle) throws IOException, SolrServerException {
-        this.feeder.feedDescriptionDocument(this.getPid(), model, dctitle, AkubraUtils.endpoint()+this.getPid(), new Date());
+        this.feeder.feedDescriptionDocument(this.getPid(), model, dctitle.trim(), AkubraUtils.getAkubraInternalId(this.getPid()), new Date());
     }
 
     public void deleteProcessingIndex() throws IOException, SolrServerException {
         feeder.deleteByPid(this.getPid());
     }
-
 
     @Override
     public boolean streamExists(String streamId) throws RepositoryException {

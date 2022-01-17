@@ -54,7 +54,7 @@ public class PolicyServiceImplTest {
             try {
 
                 if (repository.objectExists("uuid:"+ident)) {
-                    repository.deleteobject("uuid:"+ident);
+                    repository.deleteObject("uuid:"+ident);
                 }
 
                 RepositoryObject object = repository.createOrFindObject("uuid:"+ident);
@@ -69,7 +69,7 @@ public class PolicyServiceImplTest {
         PolicyServiceImpl inst = new PolicyServiceImpl();
         feeder.commit();
 
-        inst.fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        inst.fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("akubraFedoraAccess")));
 
         inst.configuration = KConfiguration.getInstance();
         inst.setPolicy("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6", "private");

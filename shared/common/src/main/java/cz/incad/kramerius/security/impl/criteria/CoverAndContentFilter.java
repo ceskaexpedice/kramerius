@@ -2,12 +2,7 @@ package cz.incad.kramerius.security.impl.criteria;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.security.EvaluatingResult;
-import cz.incad.kramerius.security.RightCriterium;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.RightCriteriumPriorityHint;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -19,22 +14,29 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * CoverAndContentFilter
  *
- * Page types FrontCover and TableOfContents are copyright free (uncommercial and library usage)
+ * Page types FrontCover, TableOfContents, FrontJacket, TitlePage and jacket
+ * are copyright free (uncommercial and library usage)
  *
  * @author Martin Rumanek
  */
 public class CoverAndContentFilter extends AbstractCriterium implements RightCriterium {
 
-    Logger LOGGER = java.util.logging.Logger.getLogger(CoverAndContentFilter.class.getName());
+    private static final Logger LOGGER = java.util.logging.Logger.getLogger(CoverAndContentFilter.class.getName());
+    private static XPathExpression modsTypeExpr = null;
+    private static final List<String> allowedPageTypes = Arrays.asList(
+            "FrontCover", "TableOfContents", "FrontJacket", "TitlePage", "jacket"
+    ).stream().map(String::toLowerCase).collect(Collectors.toList());
 
     @Override
-    public EvaluatingResult evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute() throws RightCriteriumException {
         try {
             FedoraAccess fedoraAccess = getEvaluateContext().getFedoraAccess();
             getEvaluateContext().getSolrAccess();
@@ -45,39 +47,49 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
                             fedoraAccess.getDataStream(pid, "BIBLIO_MODS"), true);
                     return checkTypeElement(mods);
                 } else {
-                    return EvaluatingResult.NOT_APPLICABLE;
+                    return EvaluatingResultState.NOT_APPLICABLE;
                 }
             } else {
-                return EvaluatingResult.TRUE;
+                return EvaluatingResultState.TRUE;
             }
-
-        } catch (IOException e) {
+        } catch (IOException | SAXException | ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResult.NOT_APPLICABLE;
-        } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResult.NOT_APPLICABLE;
-        } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResult.NOT_APPLICABLE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 
-    private EvaluatingResult checkTypeElement(Document relsExt) throws IOException {
+    private EvaluatingResultState checkTypeElement(Document mods) throws IOException {
         try {
-            XPathFactory xPathFactory = XPathFactory.newInstance();
-            XPath xpath = xPathFactory.newXPath();
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
-            XPathExpression expr = xpath.compile("/mods:modsCollection/mods:mods/mods:part/@type");
-            String type = expr.evaluate(relsExt);
-            if (Arrays.asList("FrontCover", "TableOfContents", "FrontJacket", "jacket").contains(type)) {
-                return EvaluatingResult.TRUE;
+            if (modsTypeExpr == null)
+                initModsTypeExpr();
+            String type = modsTypeExpr.evaluate(mods);
+            if (allowedPageTypes.contains(type.toLowerCase())) {
+                return EvaluatingResultState.TRUE;
             } else {
-                return EvaluatingResult.NOT_APPLICABLE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             }
         } catch (XPathExpressionException e) {
             throw new IOException(e);
         }
+    }
+
+    private void initModsTypeExpr() throws IOException {
+        try {
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            xpath.setNamespaceContext(new FedoraNamespaceContext());
+            modsTypeExpr = xpath.compile("/mods:modsCollection/mods:mods/mods:part/@type");
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        switch (dataMockExpectation) {
+            case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
+            case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;
+        }
+        return EvaluatingResultState.NOT_APPLICABLE;
     }
 
     @Override
@@ -94,5 +106,4 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     public SecuredActions[] getApplicableActions() {
         return new SecuredActions[]{SecuredActions.READ};
     }
-
 }

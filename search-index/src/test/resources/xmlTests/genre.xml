@@ -1,0 +1,192 @@
+<testSuite testType="mods" model="monograph">
+
+    <test name="no authority">
+        <desc></desc>
+        <in>
+            <genre>dopravní mapy</genre>
+        </in>
+        <out>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.search">dopravní mapy</field>
+        </out>
+    </test>
+
+    <test name="no authority, multiple values">
+        <desc></desc>
+        <in>
+            <genre>dopravní mapy</genre>
+            <genre>politické a správní mapy</genre>
+        </in>
+        <out>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.facet">Politické a správní mapy</field>
+            <field name="genres.search">dopravní mapy</field>
+            <field name="genres.search">politické a správní mapy</field>
+        </out>
+    </test>
+
+    <test name="with authority czenas">
+        <desc></desc>
+        <in>
+            <genre authority="czenas">dopravní mapy</genre>
+        </in>
+        <out>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.search">dopravní mapy</field>
+        </out>
+    </test>
+
+    <test name="with authority czenas, mulitple values">
+        <desc></desc>
+        <in>
+            <genre authority="czenas">dopravní mapy</genre>
+            <genre authority="czenas">politické a správní mapy</genre>
+        </in>
+        <out>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.facet">Politické a správní mapy</field>
+            <field name="genres.search">dopravní mapy</field>
+            <field name="genres.search">politické a správní mapy</field>
+        </out>
+    </test>
+
+    <test name="with different authorities">
+        <desc></desc>
+        <in>
+            <genre authority="marcgt">map</genre>
+            <genre authority="czenas">dopravní mapy</genre>
+            <genre authority="czenas">politické a správní mapy</genre>
+        </in>
+        <out>
+            <field name="genres.facet">Map</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.facet">Politické a správní mapy</field>
+            <field name="genres.search">map</field>
+            <field name="genres.search">dopravní mapy</field>
+            <field name="genres.search">politické a správní mapy</field>
+        </out>
+    </test>
+
+    <test name="no authority and different authorities">
+        <desc></desc>
+        <in>
+            <genre>mapy a atlasy</genre>
+            <genre authority="marcgt">map</genre>
+            <genre authority="czenas">dopravní mapy</genre>
+            <genre authority="czenas">politické a správní mapy</genre>
+        </in>
+        <out>
+            <field name="genres.facet">Mapy a atlasy</field>
+            <field name="genres.facet">Map</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.facet">Politické a správní mapy</field>
+            <field name="genres.search">mapy a atlasy</field>
+            <field name="genres.search">map</field>
+            <field name="genres.search">dopravní mapy</field>
+            <field name="genres.search">politické a správní mapy</field>
+        </out>
+    </test>
+
+    <test name="ignoring stop words">
+        <desc>hodnoty předepsané DMF, ale nedávající smysl v žánru (title, volume, cartographic, chapter, ...)</desc>
+        <in>
+            <genre>mapy a atlasy</genre>
+            <genre authority="marcgt">map</genre>
+            <genre authority="czenas">dopravní mapy</genre>
+            <!--ignore these values-->
+            <genre>title</genre>
+            <genre>volume</genre>
+            <genre>issue</genre>
+            <genre>article</genre>
+            <genre>picture</genre>
+            <genre>supplement</genre>
+            <genre>page</genre>
+            <genre>reprePage</genre>
+            <genre>title</genre>
+            <genre>volume</genre>
+            <genre>cartographic</genre>
+            <genre>sheetmusic</genre>
+            <genre>chapter</genre>
+            <genre>picture</genre>
+            <genre>supplement</genre>
+            <genre>page</genre>
+            <genre>reprePage</genre>
+            <genre>sound recording</genre>
+            <genre>soundrecording</genre>
+            <genre>sound part</genre>
+            <genre>cover</genre>
+            <genre>booklet</genre>
+            <genre>imgdisc</genre>
+            <genre>soundcollection</genre>
+            <genre>electronic title</genre>
+            <genre>electronic volume</genre>
+            <genre>chapter</genre>
+            <genre>supplement</genre>
+            <genre>electronic_title</genre>
+            <genre>electronic_volume</genre>
+            <genre>electronic_issue</genre>
+            <genre>electronic_article</genre>
+            <genre>supplement</genre>
+        </in>
+        <out>
+            <field name="genres.facet">Mapy a atlasy</field>
+            <field name="genres.facet">Map</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.search">mapy a atlasy</field>
+            <field name="genres.search">map</field>
+            <field name="genres.search">dopravní mapy</field>
+        </out>
+    </test>
+
+    <test name="ignoring stop words (in upper cases)">
+        <desc>hodnoty předepsané DMF, ale nedávající smysl v žánru (title, volume, cartographic, chapter, ...)</desc>
+        <in>
+            <genre>mapy a atlasy</genre>
+            <genre authority="marcgt">map</genre>
+            <genre authority="czenas">dopravní mapy</genre>
+            <!--ignore these values-->
+            <genre>TITLE</genre>
+            <genre>VOLUME</genre>
+            <genre>ISSUE</genre>
+            <genre>ARTICLE</genre>
+            <genre>PICTURE</genre>
+            <genre>SUPPLEMENT</genre>
+            <genre>PAGE</genre>
+            <genre>REPREPAGE</genre>
+            <genre>TITLE</genre>
+            <genre>VOLUME</genre>
+            <genre>CARTOGRAPHIC</genre>
+            <genre>SHEETMUSIC</genre>
+            <genre>CHAPTER</genre>
+            <genre>PICTURE</genre>
+            <genre>SUPPLEMENT</genre>
+            <genre>PAGE</genre>
+            <genre>REPREPAGE</genre>
+            <genre>SOUND RECORDING</genre>
+            <genre>SOUNDRECORDING</genre>
+            <genre>SOUND PART</genre>
+            <genre>COVER</genre>
+            <genre>BOOKLET</genre>
+            <genre>IMGDISC</genre>
+            <genre>SOUNDCOLLECTION</genre>
+            <genre>ELECTRONIC TITLE</genre>
+            <genre>ELECTRONIC VOLUME</genre>
+            <genre>CHAPTER</genre>
+            <genre>SUPPLEMENT</genre>
+            <genre>ELECTRONIC_TITLE</genre>
+            <genre>ELECTRONIC_VOLUME</genre>
+            <genre>ELECTRONIC_ISSUE</genre>
+            <genre>ELECTRONIC_ARTICLE</genre>
+            <genre>SUPPLEMENT</genre>
+        </in>
+        <out>
+            <field name="genres.facet">Mapy a atlasy</field>
+            <field name="genres.facet">Map</field>
+            <field name="genres.facet">Dopravní mapy</field>
+            <field name="genres.search">mapy a atlasy</field>
+            <field name="genres.search">map</field>
+            <field name="genres.search">dopravní mapy</field>
+        </out>
+    </test>
+
+</testSuite>

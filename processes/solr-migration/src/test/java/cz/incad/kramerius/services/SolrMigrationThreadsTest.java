@@ -21,6 +21,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import junit.framework.TestCase;
 
+@Ignore
 public class SolrMigrationThreadsTest extends TestCase {
 
     

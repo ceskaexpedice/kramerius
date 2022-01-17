@@ -17,8 +17,8 @@
 package cz.incad.kramerius.pdf.utils;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -37,6 +37,8 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.utils.XMLUtils;
+
+import javax.swing.JOptionPane;
 
 public class ModsUtils {
 
@@ -84,7 +86,45 @@ public class ModsUtils {
     }
     
     
-    
+    public static List<String> languagesFromMods(org.w3c.dom.Document mods) throws XPathExpressionException, IOException {
+        ArrayList<String> languages  = new ArrayList<String>();
+        XPath xpath = FACTORY.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile("//mods:language/mods:languageTerm");
+        NodeList set = (NodeList) expr.evaluate(mods, XPathConstants.NODESET);
+        for (int i = 0,ll=set.getLength(); i < ll; i++) {
+            Node languageNode = set.item(i);
+            if (languageNode.getNodeType() == Node.ELEMENT_NODE) {
+                String languageText = languageNode.getTextContent();
+                languages.add(languageText);
+            }
+        }
+        return languages;
+    }
+
+
+    public static Map<String, List<String>> identifiersFromMods(org.w3c.dom.Document mods, String ... expectedTypes) throws XPathExpressionException, IOException {
+        List<String> collectedExpectedTypes = Arrays.stream(expectedTypes).collect(Collectors.toList());
+
+        Map<String, List<String>> map = new HashMap<>();
+        XPath xpath = FACTORY.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression expr = xpath.compile("//mods:identifier");
+
+        NodeList set = (NodeList) expr.evaluate(mods, XPathConstants.NODESET);
+        for (int i = 0,ll=set.getLength(); i < ll; i++) {
+            Node identNode = set.item(i);
+            if (identNode.getNodeType() == Node.ELEMENT_NODE) {
+                String type = ((Element) identNode).getAttribute("type");
+                boolean add = collectedExpectedTypes.isEmpty() || collectedExpectedTypes.contains(type);
+                if (add) {
+                    if (!map.containsKey(type)) { map.put(type, new ArrayList<>());  }
+                    map.get(type).add(identNode.getTextContent());
+                }
+            }
+        }
+        return map;
+    }
     
     
     

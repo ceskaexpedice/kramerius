@@ -8,17 +8,10 @@ import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.*;
-import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
-import org.antlr.stringtemplate.StringTemplate;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AnnualStatisticsReport implements StatisticReport {
@@ -82,7 +75,8 @@ public class AnnualStatisticsReport implements StatisticReport {
                     modelFilter,
                     getDateFilter(container.getFilter(AnnualYearFilter.class)),
                     container.getFilter(IPAddressFilter.class),
-                    new VisibilityFilter()
+                    container.getFilter(VisibilityFilter.class),
+                    container.getFilter(UniqueIPAddressesFilter.class)
             };
             ModelStatisticReport report = new ModelStatisticReport();
             report.connectionProvider = connectionProvider;
@@ -118,5 +112,10 @@ public class AnnualStatisticsReport implements StatisticReport {
         filter.setToDate(TIMESTAMP_FORMAT.format(stop.getTime()));
 
         return filter;
+    }
+
+    @Override
+    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+        return true;
     }
 }

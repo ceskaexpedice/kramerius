@@ -34,4 +34,8 @@ public abstract class SourceToDestTransform {
     }
 
     public abstract void  transform(Element sourceDocElm, Document destDocument, Element destDocElem);
+
+    public abstract String getField(String fieldId);
+
+
 }

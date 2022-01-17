@@ -20,6 +20,8 @@
 }
 
 
+
+
 buildScan {
     licenseAgreementUrl = 'https://gradle.com/terms-of-service'
     licenseAgree = 'yes'
@@ -48,7 +50,7 @@ dependencies {
     // editor dependency
     // editors group: "cz.incad.kramerius", name: "editor", version: "5.1.1", ext: "war"
     // rightseditor dependency
-    editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.0", ext: "war"
+    editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.1", ext: "war"
 }
 
 
@@ -58,8 +60,8 @@ repositories {
 }
 
 allprojects {
-         group='cz.incad.kramerius'
-         version='7.0.0-beta1_cdk'
+	 group='cz.incad.kramerius'
+	 version='7.0.2-beta1_cdk'
 }
 
 
@@ -110,6 +112,10 @@ allprojects {
         compile "org.slf4j:slf4j-jdk14:${slf4jversion}"
         compile "org.slf4j:jcl-over-slf4j:${slf4jversion}"
 
+        //dom4j
+        implementation 'jaxen:jaxen:1.2.0'
+        implementation 'org.dom4j:dom4j:2.1.1'
+
         //junit to all subprojects
         testCompile "junit:junit:4.4"
         //testCompile "org.easymock:easymock:3.0"
@@ -140,9 +146,6 @@ allprojects {
         mavenCentral()
 
 
-        maven {
-            url "http://download.java.net/maven/2/"
-        }
 
         maven {
             url "http://m2.duraspace.org/content/repositories/releases"
@@ -177,13 +180,22 @@ allprojects {
             url "http://repo.jfrog.org/artifactory/libs-releases/"
         }
 
+        /*
         maven {
             url "https://maven.atlassian.com/content/groups/public"
-        }
+        }*/
 
         maven {
             url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
         }
+
+        maven {
+            url "https://jitpack.io"
+        }
+        /*
+        maven {
+            url "http://download.java.net/maven/2/"
+        }*/
 
     }
 
@@ -242,6 +254,16 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
     exclude "**.tar"
     //from 'build/distributions/kramerius-javadoc.zip'
 }
+
+task distZipWOEditors(type: Zip, dependsOn: 'zipInstallDir') {
+    description "Create  distributions zip without editors"
+    baseName "kramerius"
+    group "Distribution"
+    from { 'search/build/libs' }
+    from { 'security-core/build/libs' }
+    from { 'build/installation' }
+}
+
 /**
  * Patch distribution task
  */

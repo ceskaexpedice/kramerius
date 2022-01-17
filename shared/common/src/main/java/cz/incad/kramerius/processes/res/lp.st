@@ -1,4 +1,3 @@
-
 <processes>
     <process>
         <!-- identifikator  -->
@@ -16,6 +15,65 @@
 		
 		<checkErrorStream>false</checkErrorStream>
 		
+    </process>
+
+    <!--deprecated - jen proto, aby bylo mozne zobrazit zaznamy starsich procesu-->
+    <process>
+        <id>process-api-test</id>
+        <description>Proces pro testování nové správy procesů</description>
+        <mainClass>cz.incad.kramerius.processes.mock.ProcessApiTestProcess</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <checkErrorStream>false</checkErrorStream>
+    </process>
+
+    <process>
+        <id>new_process_api_test</id>
+        <description>Proces pro testování nové správy procesů</description>
+        <mainClass>cz.incad.kramerius.processes.mock.ProcessApiTestProcess</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
+        <!--<parameters>duration processesInBatch finalState</parameters>-->
+        <checkErrorStream>false</checkErrorStream>
+    </process>
+
+    <!--deprecated - jen proto, aby bylo mozne zobrazit zaznamy starsich procesu-->
+    <process>
+        <id>new_indexer</id>
+        <description></description>
+        <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexObject</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <checkErrorStream>false</checkErrorStream>
+    </process>
+
+    <process>
+        <id>new_indexer_index_object</id>
+        <description>(re)indexace objektu v novém vyhledávacím indexu</description>
+        <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexObject</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
+        <!--<parameters>duration processesInBatch finalState</parameters>-->
+        <checkErrorStream>false</checkErrorStream>
+    </process>
+
+    <process>
+        <!-- identifikator  -->
+        <id>new_indexer_index_model</id>
+        <description>(re)indexace modelu v novém vyhledávacím indexu</description>
+        <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexModel</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
+        <!--<parameters>duration processesInBatch finalState</parameters>-->
+        <checkErrorStream>false</checkErrorStream>
     </process>
 
     <process>
@@ -221,6 +279,7 @@
         <errOs>lrErr</errOs>
     </process>
 
+    <!--deprecated - očekává datastream DC a spouští indexaci do starého indexu -->
     <process>
         <id>setpublic</id>
         <description>Set public</description>
@@ -235,6 +294,7 @@
         -->
     </process>
 
+    <!--deprecated - očekává datastream DC a spouští indexaci do starého indexu -->
     <process>
         <id>setprivate</id>
         <description>Set private</description>
@@ -249,6 +309,15 @@
         -->
     </process>
 
+    <process>
+        <id>set_policy</id>
+        <description>nastavení viditelnosti (POLICY) objektu, případně i potomků, na public/private</description>
+        <mainClass>cz.incad.kramerius.processes.SetPolicyProcess</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <checkErrorStream>false</checkErrorStream>
+    </process>
 
     <process>
         <id>delete</id>
@@ -282,13 +351,10 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
-        
         <templates>
             <input class="org.kramerius.convert.input.ParametrizedConvertInputTemplate"></input>
         </templates>
-        
         <securedaction>convert</securedaction>
-        
     </process>
 
     <!-- Import NDK METS data  -->
@@ -299,13 +365,10 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
-        
         <templates>
             <input class="org.kramerius.importmets.parametrized.input.MetsImportInputTemplate"></input>
         </templates>
-
         <securedaction>ndk_mets_import</securedaction>
-        
     </process>
 
     <!-- K3 replication process - deprecated - it will be removed in the future -->
@@ -318,8 +381,6 @@
         <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
     </process>
 
-
-
     <!-- Parametrized import FOXML - dedicated for use  in UI  -->
     <process>
         <id>parametrizedimport</id>
@@ -330,7 +391,6 @@
         <templates>
             <input class="org.kramerius.imports.input.ParametrizedImportInputTemplate"></input>
         </templates>
-        
         <securedaction>import</securedaction>
     </process>
 
@@ -346,7 +406,7 @@
     <!-- Generating Deep Zoom tiles process -->
     <process>
         <id>generateDeepZoomTiles</id>
-        <description>Generate cache for  Deep Zoom </description>
+        <description>Generate cache for Deep Zoom</description>
         <mainClass>cz.incad.kramerius.imaging.lp.GenerateDeepZoomCache</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
@@ -366,7 +426,7 @@
     <!-- Deleting Deep Zoom tiles and flags -->
     <process>
         <id>deleteGeneratedDeepZoomTiles</id>
-        <description>Delete generated deepZoomCache </description>
+        <description>Delete generated deepZoomCache</description>
         <mainClass>cz.incad.kramerius.imaging.lp.DeleteGeneratedDeepZoomCache</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
@@ -376,13 +436,12 @@
     <!-- Generate thumbnails -->
     <process>
         <id>generateFullThumb</id>
-        <description>Generate full thumbs </description>
+        <description>Generate full thumbs</description>
         <mainClass>cz.incad.kramerius.imaging.lp.GenerateThumbnail</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx3072m -Xms512m</javaProcessParameters>
     </process>
-
 
     <!-- Generic aggregate process - it could wrap an start several child subprocess -->
     <process>
@@ -392,9 +451,7 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>aggregate</securedaction>
-        
     </process>
-
 
     <!-- K4 replication process -->
     <process>
@@ -404,16 +461,12 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
-        
-        <templates>	
+        <templates>
             <input class="org.kramerius.replications.input.InputTemplate"></input>
             <output class="org.kramerius.replications.outputs.OutputTemplate"></output>
         </templates>
-
         <securedaction>import_k4_replications</securedaction>
-        
     </process>
-
 
     <!-- Deleting ald process -->
     <process>
@@ -423,13 +476,10 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
-        
         <templates>
             <input class="cz.incad.kramerius.processes.manages.input.DeleteProcessesInput"></input>
         </templates>
-        
     </process>
-
 
     <!-- Apply moving wall to subtree -->
 	<process>
@@ -449,13 +499,10 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
-
         <templates>
             <input class="cz.cas.lib.knav.templates.ParametrizedApplyMWTemplate"></input>
         </templates>
-        
     </process>
-    
 
     <!-- iterate over models -->
     <process>
@@ -495,7 +542,7 @@
     <!-- batch indexer -->
     <process>
         <id>batchindexer</id>
-        <description>Batch indexer </description>
+        <description>Batch indexer</description>
         <mainClass>cz.cas.lib.knav.indexer.BatchIndexerSupport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
@@ -510,6 +557,26 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>reindex</securedaction>
+    </process>
+
+    <!-- Set/unset dnnt flag from csv file -->
+    <process>
+        <id>dnntcsvflag</id>
+        <description>DNNT SET/UNSET from CSV</description>
+        <mainClass>cz.incad.kramerius.csv.DNNTCSVFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- Set/unset dnnt label from csv file -->
+    <process>
+        <id>dnntcsvlabeledflag</id>
+        <description>DNNT SET/UNSET label from CSV</description>
+        <mainClass>cz.incad.kramerius.csv.DDNTCSVLabeledFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
     </process>
 
     <!-- processing index check  itereate over processing index and check if object exists in fedora  -->
@@ -535,18 +602,162 @@
     <!-- migrace dat z Krameria do Krameria -->
     <process>
         <id>data_migration</id>
-        <description>Repository to repository migration </description>
+        <description>Repository to repository migration</description>
         <mainClass>org.kramerius.replications.FedoraDataMigrationProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>import</securedaction>
-
         <templates>
             <input class="org.kramerius.replications.input.DataMigrationInputTemplate"></input>
             <output class="org.kramerius.replications.output.DataMigrationOutputTemplate"></output>
         </templates>
     </process>
 
+    <process>
+        <id>dnntexport</id>
+        <description>Create dnnt csv export</description>
+        <mainClass>cz.incad.kramerius.DNNTExport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>false</parameters>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
 
+    <!-- Set dnnt flag - backward compatibility -->
+    <process>
+        <id>dnntset</id>
+        <description>Set the DNNT flag</description>
+        <description>DNNT SET/UNSET flag</description>
+        <mainClass>cz.incad.kramerius.plain.DNNTPidFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- Unset dnnt flag - backward compatibility -->
+    <process>
+        <id>dnntunset</id>
+        <description>Unset the DNNT flag</description>
+        <mainClass>cz.incad.kramerius.DNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>false</parameters>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- Set/unset dnnt flag -->
+    <process>
+        <id>dnntflag</id>
+        <description>DNNT SET/UNSET flag</description>
+        <mainClass>cz.incad.kramerius.plain.DNNTPidFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- Set/unset dnnt label -->
+    <process>
+        <id>dnntlabel</id>
+        <description>DNNT SET/UNSET label</description>
+        <mainClass>cz.incad.kramerius.plain.DNNTPidLabeledFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+    <!-- parametrized dnntset -->
+    <process>
+        <id>parametrizeddnntset</id>
+        <description>Set the DNNT flag </description>
+        <mainClass>cz.incad.kramerius.csv.ParametrizedSetDNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>true</parameters>
+        <securedaction>dnnt_admin</securedaction>
+        <templates>
+            <input class="cz.incad.kramerius.template.DNNTSetCSVInputTemplate"></input>
+        </templates>
+    </process>
+
+    <!-- parametrized dnntset -->
+    <process>
+        <id>parametrizeddnntunset</id>
+        <description>Set the DNNT flag </description>
+        <mainClass>cz.incad.kramerius.csv.ParametrizedUnsetDNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>true</parameters>
+        <securedaction>dnnt_admin</securedaction>
+        <templates>
+            <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
+        </templates>
+    </process>
+
+    <!-- parametrized label dnntset -->
+    <process>
+        <id>parametrizeddnntlabelset</id>
+        <description>Set the DNNT flag </description>
+        <mainClass>cz.incad.kramerius.csv.ParametrizedLabelSetDNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>true</parameters>
+        <securedaction>dnnt_admin</securedaction>
+        <templates>
+            <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
+        </templates>
+    </process>
+
+    <!-- parametrized label dnntunset -->
+    <process>
+        <id>parametrizeddnntlabelunset</id>
+        <description>Unset the DNNT flag </description>
+        <mainClass>cz.incad.kramerius.csv.ParametrizedLabelUnsetDNNTFlag</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <parameters>true</parameters>
+        <securedaction>dnnt_admin</securedaction>
+        <templates>
+            <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
+        </templates>
+    </process>
+
+
+    <process>
+        <id>dnntexport</id>
+        <description>Create dnnt csv export </description>
+        <mainClass>cz.incad.kramerius.DNNTExport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+    </process>
+
+
+    <process>
+        <id>parametrizeddnntexport</id>
+        <description>Parametrized dnnt export</description>
+        <mainClass>cz.incad.kramerius.export.ParametrizedDNNTExport</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <securedaction>dnnt_admin</securedaction>
+        <templates>
+            <input class="cz.incad.kramerius.template.DNNTExportTemplate"></input>
+        </templates>
+    </process>
+
+
+    <process>
+            <id>nkplogs</id>
+            <description>Generate access logs for NKP</description>
+            <!-- spoustena trida -->
+            <mainClass>cz.incad.kramerius.statistics.impl.nkp.NKPLogProcess</mainClass>
+            <!-- standardni vystup -->
+            <standardOs>lrOut</standardOs>
+            <!-- err vystup -->
+            <errOs>lrErr</errOs>
+            <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+            <templates>
+                <input class="cz.incad.kramerius.statistics.impl.nkp.ParametrizedNKPInputTemplate"></input>
+            </templates>
+    </process>
 
 </processes>

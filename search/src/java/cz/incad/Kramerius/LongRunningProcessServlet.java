@@ -73,7 +73,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     Provider<User> userProvider;
@@ -136,7 +136,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
             if (action == null)
                 action = Actions.start.name();
             Actions selectedAction = Actions.valueOf(action);
-            selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.actionAllowed, this.loggedUsersSingleton, this.iTemplateFactory, this.outputTemplateFactory);
+            selectedAction.doAction(getServletContext(), req, resp, this.definitionManager, this.lrProcessManager, this.usersManager, this.userProvider, this.rightsResolver, this.loggedUsersSingleton, this.iTemplateFactory, this.outputTemplateFactory);
         } catch (SecurityException e) {
             LOGGER.log(Level.INFO, e.getMessage());
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -181,7 +181,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
          * Plan new process
          */
         start {
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 try {
                     String def = req.getParameter("def");
                     //String def, DefinitionManager definitionManager,
@@ -218,7 +218,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                                 resp.setContentType("text/plain");
                                 resp.getOutputStream().print("[" + def + "]" + States.NOT_RUNNING.name());
                             } else {
-                                StringBuffer buffer = new StringBuffer();
+                                StringBuilder buffer = new StringBuilder();
                                 buffer.append("<html><body>");
                                 buffer.append("<ul>");
                                 buffer.append("<li>").append(def);
@@ -233,33 +233,13 @@ public class LongRunningProcessServlet extends GuiceServlet {
                             LRProcess nprocess = planNewProcess(req, context, definition, params, user,loggedUserKey, /* no mapping */ new Properties() );
                             // update process and token mapping
                             updateProcessTokenMapping(nprocess,  loggedUserKey,lrProcessManager);
-                            if ((out != null) && (out.equals("text"))) {
-                                resp.setContentType("text/plain");
-                                resp.getOutputStream().print("[" + nprocess.getDefinitionId() + "]" + nprocess.getProcessState().name());
-                            } else {
-                                StringBuffer buffer = new StringBuffer();
-                                buffer.append("<html><body>");
-                                buffer.append("<ul>");
-                                buffer.append("<li>").append(nprocess.getDefinitionId());
-                                buffer.append("<li>").append(nprocess.getUUID());
-                                buffer.append("<li>").append(nprocess.getPid());
-                                buffer.append("<li>").append(new Date(nprocess.getStartTime()));
-                                buffer.append("<li>").append(nprocess.getProcessState());
-                                buffer.append("</ul>");
-                                buffer.append("</body></html>");
-                                resp.setContentType("text/html");
-                                resp.getOutputStream().println(buffer.toString());
-                            }
+                            lrOutput(resp, out, nprocess);
                         }
                         
                     } else {
                         throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
                     }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (RecognitionException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (TokenStreamException e) {
+                } catch (IOException | TokenStreamException | RecognitionException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
@@ -271,8 +251,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
          */
         stop {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionIsAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
-                if (actionIsAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH)) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+                if (rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
                     try {
                         String uuid = req.getParameter("uuid");
                         String realPath = context.getRealPath("WEB-INF/lib");
@@ -280,19 +260,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         
                         // update parent process
                         List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(oProcess.getGroupToken());
-                        if (processes.size() > 1) {
-                            LOGGER.fine("calculating new master state");
-                            List<States> childStates = new ArrayList<States>();
-                            for (int i = 0, ll = processes.size(); i < ll; i++) {
-                                childStates.add(processes.get(i).getProcessState());
-                            }
-                            processes.get(0).setBatchState(BatchStates.calculateBatchState(childStates));
-                            LOGGER.fine("calculated state '"+processes.get(0)+"'");
-                            lrProcessManager.updateLongRunninngProcessBatchState(processes.get(0));
-                        }
+                        calculatingMasterState(lrProcessManager, processes);
 
 
-                        StringBuffer buffer = new StringBuffer();
+                        StringBuilder buffer = new StringBuilder();
                         buffer.append("<html><body>");
                         buffer.append("<ul>");
                         buffer.append("<li>").append(oProcess.getDefinitionId());
@@ -317,7 +288,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         form_get {
 
             @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 String def = req.getParameter("def");
                 LRProcessDefinition definition = defManager.getLongRunningProcessDefinition(def);
                 
@@ -332,36 +303,20 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
                 }
 
-                boolean permitted = permitStart(actionAllowed, actionFromDef, user);
-                if (permitted) {
-                    try {
-                        
-                        if (definition.isInputTemplateDefined()) {
-                            resp.setContentType("text/html;charset=UTF-8");
-                            String inputTemplateClz = definition.getInputTemplateClass();
-                            ProcessInputTemplate template = iTemplateFactory.create(inputTemplateClz);
-                            template.renderInput(definition,  resp.getWriter(), getParamsMapping(req));
-                        }
-                    } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage());
-                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    } catch (ClassNotFoundException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    } catch (InstantiationException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    } catch (IllegalAccessException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    } catch (RecognitionException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    } catch (TokenStreamException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                boolean permitted = permitStart(rightsResolver, actionFromDef, user);
+                if (permitted) try {
+
+                    if (definition.isInputTemplateDefined()) {
+                        resp.setContentType("text/html;charset=UTF-8");
+                        String inputTemplateClz = definition.getInputTemplateClass();
+                        ProcessInputTemplate template = iTemplateFactory.create(inputTemplateClz);
+                        template.renderInput(definition, resp.getWriter(), getParamsMapping(req));
                     }
-                } else {
+                } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | TokenStreamException | RecognitionException | IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+                else {
                     resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 }
             }
@@ -371,7 +326,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         form_post {
 
             @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
 
                 String def = req.getParameter("def");
                 //String def, DefinitionManager definitionManager,
@@ -390,7 +345,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
                 }
 
-                boolean permitted = permitStart(actionAllowed, actionFromDef, user);
+                boolean permitted = permitStart(rightsResolver, actionFromDef, user);
                 if (permitted) {
 
                     try {
@@ -403,32 +358,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
 
                         // update process and token mapping
                         updateProcessTokenMapping(nprocess,  loggedUserKey,processManager);
-                        if ((out != null) && (out.equals("text"))) {
-                            resp.setContentType("text/plain");
-                            resp.getOutputStream().print("[" + nprocess.getDefinitionId() + "]" + nprocess.getProcessState().name());
-                        } else {
-                            StringBuffer buffer = new StringBuffer();
-                            buffer.append("<html><body>");
-                            buffer.append("<ul>");
-                            buffer.append("<li>").append(nprocess.getDefinitionId());
-                            buffer.append("<li>").append(nprocess.getUUID());
-                            buffer.append("<li>").append(nprocess.getPid());
-                            buffer.append("<li>").append(new Date(nprocess.getStartTime()));
-                            buffer.append("<li>").append(nprocess.getProcessState());
-                            buffer.append("</ul>");
-                            buffer.append("</body></html>");
-                            resp.setContentType("text/html");
-                            resp.getOutputStream().println(buffer.toString());
-                        }
-                    
-                        
-                    } catch (RecognitionException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage());
-                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    } catch (TokenStreamException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage());
-                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    } catch (IOException e) {
+                        lrOutput(resp, out, nprocess);
+
+
+                    } catch (RecognitionException | TokenStreamException | IOException e) {
                         LOGGER.log(Level.SEVERE,e.getMessage());
                         resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     }
@@ -442,9 +375,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
         outputTemplate {
 
             @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton,
+            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton,
                     InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
-                if (actionAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH)) {
+                if (rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
                     try {
                         String uuid = req.getParameter("uuid");
                         String templateId = req.getParameter("templateId");
@@ -457,13 +390,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         resp.setContentType("text/html;charset=UTF-8");
                         oTemplate.renderOutput(longRunningProcess, definition, resp.getWriter());
                         
-                    } catch (ClassNotFoundException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    } catch (InstantiationException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    } catch (IllegalAccessException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    } catch (IOException e) {
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IOException e) {
                         LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     }
                 } else {
@@ -486,7 +413,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         
         updatePID {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 Lock lock = lrProcessManager.getSynchronizingLock();
                 lock.lock();
                 try {
@@ -504,35 +431,34 @@ public class LongRunningProcessServlet extends GuiceServlet {
         updateStatus {
 
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 String uuid = req.getParameter("uuid");
                 String state = req.getParameter("state");
                 Lock lock = processManager.getSynchronizingLock();
                 lock.lock();
                 try  {
                     LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
-                    
-                    // zmena procesu
-                    changeProcessState(processManager, state, longRunningProcess);
 
-                    if (States.notRunningState(States.valueOf(state))) {
-                        longRunningProcess.setFinishedTime(System.currentTimeMillis());
-                        processManager.updateLongRunningProcessFinishedDate(longRunningProcess);
-                    }
-                    
-                    
-                    // nacteni z db ? 
-                    List<LRProcess> processes = processManager.getLongRunningProcessesByGroupToken(longRunningProcess.getGroupToken());
-                    if (processes.size() > 1) {
-                        LOGGER.fine("calculating new master state");
-                        List<States> childStates = new ArrayList<States>();
-                        for (int i = 0, ll = processes.size(); i < ll; i++) {
-                            childStates.add(processes.get(i).getProcessState());
+                    // zmena stavu procesu
+                    boolean changed = changeProcessState(processManager, state, longRunningProcess);
+                    if (changed) {
+                        if (States.notRunningState(States.valueOf(state))) {
+                            longRunningProcess.setFinishedTime(System.currentTimeMillis());
+                            processManager.updateLongRunningProcessFinishedDate(longRunningProcess);
                         }
-                        processes.get(0).setBatchState(BatchStates.calculateBatchState(childStates));
-                        LOGGER.fine("calculated state '"+processes.get(0)+"'");
-                        processManager.updateLongRunninngProcessBatchState(processes.get(0));
 
+                        // nacteni z db ?
+                        List<LRProcess> processes = processManager.getLongRunningProcessesByGroupToken(longRunningProcess.getGroupToken());
+                        if (processes.size() > 1) {
+                            LOGGER.fine("calculating new master state");
+                            List<States> childStates = new ArrayList<States>();
+                            for (int i = 0, ll = processes.size(); i < ll; i++) {
+                                childStates.add(processes.get(i).getProcessState());
+                            }
+                            processes.get(0).setBatchState(BatchStates.calculateBatchState(childStates));
+                            LOGGER.fine("calculated state '" + processes.get(0) + "'");
+                            processManager.updateLongRunninngProcessBatchState(processes.get(0));
+                        }
                     }
 
                 } finally {
@@ -540,11 +466,18 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 }
             }
 
-            public void changeProcessState(LRProcessManager processManager, String state, LRProcess longRunningProcess) {
-                if (state != null) {
-                    States st = States.valueOf(state);
-                    longRunningProcess.setProcessState(st);
+            public boolean changeProcessState(LRProcessManager processManager, String state, LRProcess longRunningProcess) {
+                if (state == null) {
+                    return false;
+                }
+                States stateCurrent = longRunningProcess.getProcessState();
+                States stateNew = States.valueOf(state);
+                if (stateChangePossible(stateCurrent, stateNew)) {
+                    longRunningProcess.setProcessState(stateNew);
                     processManager.updateLongRunningProcessState(longRunningProcess);
+                    return true;
+                } else {
+                    return false;
                 }
             }
         },
@@ -552,7 +485,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         updateName {
 
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 Lock lock = processManager.getSynchronizingLock();
                 lock.lock();
                 try {
@@ -575,8 +508,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
         closeToken {
 
             @Override
-            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton,
-                    InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+            void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton,
+                          InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
                 String uuid = req.getParameter("uuid");
                 if (uuid != null) {
                     LRProcess longRunningProcess = processManager.getLongRunningProcess(uuid);
@@ -587,8 +520,8 @@ public class LongRunningProcessServlet extends GuiceServlet {
         
         delete {
             @Override
-            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
-                if (actionAllowed.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH)) {
+            public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
+                if (rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
                     Lock lock = processManager.getSynchronizingLock();
                     lock.lock();
                     try {
@@ -605,7 +538,9 @@ public class LongRunningProcessServlet extends GuiceServlet {
                                 List<LRProcess> processes = processManager.getLongRunningProcessesByGroupToken(longRunningProcess.getGroupToken());
                                 if (!processes.isEmpty()) {
                                     List<States> sts = new ArrayList<States>();
-                                    for (LRProcess lrProcess : processes) { sts.add(lrProcess.getProcessState()); }
+                                    for (LRProcess lrProcess : processes) {
+                                        sts.add(lrProcess.getProcessState());
+                                    }
                                     processes.get(0).setBatchState(BatchStates.calculateBatchState(sts));
                                     LOGGER.fine("calculated state '"+processes.get(0)+"'");
                                     processManager.updateLongRunninngProcessBatchState(processes.get(0));
@@ -622,8 +557,61 @@ public class LongRunningProcessServlet extends GuiceServlet {
             }
         };
 
+        protected boolean stateChangePossible(States stateCurrent, States stateNew) {
+            //not perfect, just to avoid typical inconsistencies in final states
+            if (stateCurrent == null && stateNew == null) { //null -> null
+                return false;
+            } else if (stateNew == null) { //SOMETHING -> null
+                return false;
+            } else if (stateCurrent == null) { //null -> SOMETHING
+                return true;
+            }
+            switch (stateCurrent) {
+                case FINISHED:
+                case FAILED:
+                case WARNING:
+                    return false;
+                default:
+                    return true;
+            }
+        }
 
-        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, IsActionAllowed actionAllowed, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory);
+        private static void lrOutput(HttpServletResponse resp, String out, LRProcess nprocess) throws IOException {
+            if ((out != null) && (out.equals("text"))) {
+                resp.setContentType("text/plain");
+                resp.getOutputStream().print("[" + nprocess.getDefinitionId() + "]" + nprocess.getProcessState().name());
+            } else {
+                StringBuffer buffer = new StringBuffer();
+                buffer.append("<html><body>");
+                buffer.append("<ul>");
+                buffer.append("<li>").append(nprocess.getDefinitionId());
+                buffer.append("<li>").append(nprocess.getUUID());
+                buffer.append("<li>").append(nprocess.getPid());
+                buffer.append("<li>").append(new Date(nprocess.getStartTime()));
+                buffer.append("<li>").append(nprocess.getProcessState());
+                buffer.append("</ul>");
+                buffer.append("</body></html>");
+                resp.setContentType("text/html");
+                resp.getOutputStream().println(buffer.toString());
+            }
+        }
+
+        private static void calculatingMasterState(LRProcessManager processManager, List<LRProcess> processes) {
+            if (processes.size() > 1) {
+                LOGGER.fine("calculating new master state");
+                List<States> childStates = new ArrayList<States>();
+                for (int i = 0, ll = processes.size(); i < ll; i++) {
+                    childStates.add(processes.get(i).getProcessState());
+                }
+                processes.get(0).setBatchState(BatchStates.calculateBatchState(childStates));
+                LOGGER.fine("calculated state '"+processes.get(0)+"'");
+                processManager.updateLongRunninngProcessBatchState(processes.get(0));
+
+            }
+        }
+
+
+        abstract void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory);
 
         public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String grpToken, String authToken,Provider<User> userProvider) {
             if (grpToken != null) {
@@ -633,7 +621,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(grpToken);
                 if (!processes.isEmpty()) {
                     // hledani klice 
-                    List<States> childStates = new ArrayList<States>();
+                    List<States> childStates = new ArrayList<>();
                     childStates.add(States.PLANNED);
                     // prvni je master process -> vynechavam
                     for (int i = 1,ll=processes.size(); i < ll; i++) {
@@ -656,10 +644,10 @@ public class LongRunningProcessServlet extends GuiceServlet {
             }
         }
         
-        public boolean permitStart(IsActionAllowed rightsResolver, SecuredActions actionFromDef, User user) {
+        public boolean permitStart(RightsResolver rightsResolver, SecuredActions actionFromDef, User user) {
             //TODO: where are actions ?
-            boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH) || 
-                                (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH))) : false ;
+            boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() ||
+                                (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag())) : false ;
             return permited;
         }
 

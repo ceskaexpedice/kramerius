@@ -39,11 +39,11 @@ form(importDirectory,importRootDirectory,  startIndexer, updateExisting, bundle)
             var startIndexer = \$('#startIndexer').attr('checked');
             var updateExisting = \$('#updateExisting').attr('checked');
             var charsThatMustBeEscaped = [':',';','}','{','\\\\'];
-            var vals = 'importDirectory='+\$('#importDirectory').val().escapeChars(charsThatMustBeEscaped)
+            var vals = 'importDirectory='+encodeURI(\$('#importDirectory').val().escapeChars(charsThatMustBeEscaped))
                 +';startIndexer='+startIndexer+';updateExisting='+updateExisting
                 ;
             
-            var url = "lr?action=form_post&def=parametrizedimport_jackrabbit&paramsMapping={"+vals+"}&out=text";
+            var url = "lr?action=form_post&def=parametrizedimport_jackrabbit&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("parametrizedimport_jackrabbit").start(url);
         }
 

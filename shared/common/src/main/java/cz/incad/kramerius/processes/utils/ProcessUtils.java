@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,27 +32,39 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Utility class for processes.  <br>
- * 
+ *
  * Can be used from both sides (in server application and also in started process)
  * @author pavels
  */
 public class ProcessUtils {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessUtils.class.getName());
-    
+
     /** Lr servlet name.  This coresponds with web.xml  */
     public static final String LR_SERVLET_NAME="lr";
-    
-    public static String getApiPoint() {
-        
+
+    public static String getCoreBaseUrl() {
         String applicationURL = KConfiguration.getInstance().getApplicationURL();
-        if (!applicationURL.endsWith("/")) {
-            applicationURL += '/';
+        if (applicationURL.endsWith("/")) { //normalize to "../search", not "../search/"
+            applicationURL = applicationURL.substring(0, applicationURL.length() - 1);
         }
-        String api = applicationURL +  "api/v4.6/processes";
+        return applicationURL;
+    }
+
+    public static String getNewAdminApiEndpoint() {
+        String api = getCoreBaseUrl() + "/api/admin/v1.0";
         return api;
     }
-    
+
+    public static String getOldApiEndpointProcesses() {
+        String applicationURL = KConfiguration.getInstance().getApplicationURL();
+        if (applicationURL.endsWith("/")) { //normalize to "../search", not "../search/"
+            applicationURL = applicationURL.substring(0, applicationURL.length() - 1);
+        }
+        String api = applicationURL + "/api/v4.6/processes";
+        return api;
+    }
+
     /**
      * Returns URL to LR servlet
      * @return
@@ -65,12 +77,12 @@ public class ProcessUtils {
     /**
      * Start new process
      * @param processDef Process definition
-     * @param nparams nparams parameter 
+     * @param nparams nparams parameter
      * @throws Exception Any Error has been occured
      */
     public static void startProcess(String processDef, String nparams) throws Exception{
         LOGGER.info(" spawn process '"+processDef+"'");
-        String base = ProcessUtils.getLrServlet();    
+        String base = ProcessUtils.getLrServlet();
         String url = base + "?action=start&def="+processDef+"&nparams="+nparams+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
         byte[] output = new byte[0];
         try {
@@ -87,7 +99,7 @@ public class ProcessUtils {
      */
     public static void startProcess(String processDef, String[] params) throws UnsupportedEncodingException {
         LOGGER.info(" spawn process '"+processDef+"'");
-        String base = ProcessUtils.getLrServlet();    
+        String base = ProcessUtils.getLrServlet();
         String url = base + "?action=start&def="+processDef+"&nparams="+nparams(params)+"&token="+System.getProperty(ProcessStarter.TOKEN_KEY);
         try {
             httpGet(url);
@@ -102,7 +114,7 @@ public class ProcessUtils {
      */
     public static void closeToken(String processUuid) {
         LOGGER.info(" close token for '"+processUuid+"'");
-        String base = ProcessUtils.getLrServlet();    
+        String base = ProcessUtils.getLrServlet();
         String url = base + "?action=closeToken&uuid="+processUuid;
         try {
             httpGet(url);
@@ -110,7 +122,7 @@ public class ProcessUtils {
             LOGGER.severe("Error closing token for "+processUuid+":"+e);
         }
     }
-    
+
     /**
      * Helper method creates nparams string from given params parameters
      * @param params Params parameters
@@ -127,7 +139,7 @@ public class ProcessUtils {
         buffer.append(URLEncoder.encode("}", "UTF-8"));
         return buffer.toString();
     }
-    
+
     /**
      * Returns parametr with escape sequence
      * @param string String to be escaped

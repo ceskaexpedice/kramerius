@@ -1,0 +1,178 @@
+<testSuite testType="mods" model="periodicalitem">
+
+    <!--
+         pro sekundární řazení (date_min/date_max + issue.type_sort), hodnoty na základe DMF periodika 1.8 (https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42)
+         0: normal, 1: morning, 2: afternoon, 3: evening, 4: corrected, 5: special, 6: supplement, 10+X: sequence_X
+    -->
+
+    <test name="podle DMF Periodika 1.8 - morning">
+        <desc>https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42</desc>
+        <in>
+            <genre type="normal">issue</genre>
+        </in>
+        <out>
+            <field name="issue.type.code">normal</field>
+            <field name="issue.type.sort">0</field>
+        </out>
+    </test>
+
+    <test name="podle DMF Periodika 1.8 - morning">
+        <desc>https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42</desc>
+        <in>
+            <genre type="morning">issue</genre>
+        </in>
+        <out>
+            <field name="issue.type.code">morning</field>
+            <field name="issue.type.sort">1</field>
+        </out>
+    </test>
+
+    <test name="podle DMF Periodika 1.8 - afternoon">
+        <desc>https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42</desc>
+        <in>
+            <genre type="afternoon">issue</genre>
+        </in>
+        <out>
+            <field name="issue.type.code">afternoon</field>
+            <field name="issue.type.sort">2</field>
+        </out>
+    </test>
+
+    <test name="podle DMF Periodika 1.8 - evening">
+        <desc>https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42</desc>
+        <in>
+            <genre type="evening">issue</genre>
+        </in>
+        <out>
+            <field name="issue.type.code">evening</field>
+            <field name="issue.type.sort">3</field>
+        </out>
+    </test>
+
+    <test name="podle DMF Periodika 1.8 - sequence_3">
+        <desc>https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42</desc>
+        <in>
+            <genre type="sequence_3">issue</genre>
+        </in>
+        <out>
+            <field name="issue.type.code">sequence_3</field>
+            <field name="issue.type.sort">13</field>
+        </out>
+    </test>
+
+
+    <test name="Lidovky MZK - 'ranní vydání;'">
+        <desc>http://kramerius.rychtar.cloud/mzk/uuid/uuid:e5a69310-5767-11dd-b6b8-000d606f5dc6</desc>
+        <in>
+            <physicalDescription>
+                <form type="technique"/>
+                <extent/>
+                <note>ranní vydání;</note>
+            </physicalDescription>
+        </in>
+        <out>
+            <field name="issue.type.code">morning</field>
+            <field name="issue.type.sort">1</field>
+        </out>
+    </test>
+
+    <test name="Lidovky MZK - 'ranní vydání; pondělní vydání;'">
+        <desc>http://kramerius.rychtar.cloud/mzk/uuid/uuid:d4525870-5766-11dd-a1d5-000d606f5dc6</desc>
+        <in>
+            <physicalDescription>
+                <form type="technique"/>
+                <extent/>
+                <note>ranní vydání; pondělní vydání;</note>
+            </physicalDescription>
+        </in>
+        <out>
+            <field name="issue.type.code">morning</field>
+            <field name="issue.type.sort">1</field>
+        </out>
+    </test>
+
+    <test name="Lidovky MZK - 'ranní vydání; pondělník;'">
+        <desc>http://kramerius.rychtar.cloud/mzk/uuid/uuid:262e1980-61e6-11dc-b968-000d606f5dc6</desc>
+        <in>
+            <physicalDescription>
+                <form type="technique"/>
+                <extent/>
+                <note>ranní vydání; pondělník;</note>
+            </physicalDescription>
+        </in>
+        <out>
+            <field name="issue.type.code">morning</field>
+            <field name="issue.type.sort">1</field>
+        </out>
+    </test>
+
+    <test name="Lidovky MZK - 'polední vydání;'">
+        <desc>http://kramerius.rychtar.cloud/mzk/uuid/uuid:bc8fc690-5767-11dd-be49-000d606f5dc6</desc>
+        <in>
+            <physicalDescription>
+                <form type="technique"/>
+                <extent/>
+                <note>polední vydání;</note>
+            </physicalDescription>
+        </in>
+        <out>
+            <field name="issue.type.code">afternoon</field>
+            <field name="issue.type.sort">2</field>
+        </out>
+    </test>
+
+    <test name="Lidovky MZK - 'odpolední vydání; 2. vydání;'">
+        <desc>http://kramerius.rychtar.cloud/mzk/uuid/uuid:b1bbf920-8c54-11dc-8dae-000d606f5dc6</desc>
+        <in>
+            <physicalDescription>
+                <form type="technique"/>
+                <extent/>
+                <note>odpolední vydání; 2. vydání;</note>
+            </physicalDescription>
+        </in>
+        <out>
+            <field name="issue.type.code">afternoon</field>
+            <field name="issue.type.sort">2</field>
+        </out>
+    </test>
+
+    <test name="Lidovky MZK - 'nekvalitní předloha;'">
+        <desc>http://kramerius.rychtar.cloud/mzk/uuid/uuid:b822c995-435d-11dd-b505-00145e5790ea</desc>
+        <in>
+            <physicalDescription>
+                <form type="technique"/>
+                <extent/>
+                <note>nekvalitní předloha;</note>
+            </physicalDescription>
+        </in>
+        <out>
+        </out>
+    </test>
+
+    <test name="Lidovky MZK - 'poškozená předloha;'">
+        <desc>http://kramerius.rychtar.cloud/mzk/uuid/uuid:b822f0ae-435d-11dd-b505-00145e5790ea</desc>
+        <in>
+            <physicalDescription>
+                <form type="technique"/>
+                <extent/>
+                <note>poškozená předloha;</note>
+            </physicalDescription>
+        </in>
+        <out>
+        </out>
+    </test>
+
+    <test name="Lidovky MZK - '   s. 4 nekvalitní předloha;'">
+        <desc>http://kramerius.rychtar.cloud/mzk/uuid/uuid:b7fccb0b-435d-11dd-b505-00145e5790ea</desc>
+        <in>
+            <physicalDescription>
+                <form type="technique"/>
+                <extent/>
+                <note>s. 4 nekvalitní předloha;</note>
+            </physicalDescription>
+        </in>
+        <out>
+        </out>
+    </test>
+
+</testSuite>

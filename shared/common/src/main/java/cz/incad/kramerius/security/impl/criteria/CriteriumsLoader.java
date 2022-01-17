@@ -60,7 +60,4 @@ public class CriteriumsLoader {
     }
     
     
-//    public static RightCriterium criteriumsByName(String criteriumQName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-//        RightCriterium crit = (RightCriterium) Class.forName(criteriumQName).newInstance();
-//    }
 }

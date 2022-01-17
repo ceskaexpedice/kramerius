@@ -16,9 +16,6 @@
  */
 package cz.incad.Kramerius.views.rights;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -31,19 +28,14 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.security.strenderers.RightWrapper;
-import cz.incad.Kramerius.views.rights.DisplayRightsForObjectsView.DialogContent;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Right;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
-import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.security.utils.SortingRightsUtils;
 
 public class DisplaySelectionRightsViewObject extends AbstractRightsView {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DisplayRightsForObjectsView.class.getName());
@@ -56,7 +48,7 @@ public class DisplaySelectionRightsViewObject extends AbstractRightsView {
     RightsManager rightsManager;
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
     
     @Inject
     Provider<User> userProvider;

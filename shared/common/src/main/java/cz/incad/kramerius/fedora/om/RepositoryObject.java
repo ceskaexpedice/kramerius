@@ -208,7 +208,7 @@ public interface RepositoryObject {
      * @return
      * @throws RepositoryException
      */
-    public boolean literalExists(String relation, String namespace, String value) throws RepositoryException;
+    public boolean  literalExists(String relation, String namespace, String value) throws RepositoryException;
 
     /**
      * Returns all relations identified by namespace

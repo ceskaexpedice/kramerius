@@ -46,15 +46,14 @@ public class FedoraOperations {
     String foxmlFormat;
     FedoraAccess  fa;
     IResourceIndex rindex;
-    UTFSort utf_sort;
+    UTFSort utfSort;
 
    @Inject
     public FedoraOperations(@Named("rawFedoraAccess") FedoraAccess fa, IResourceIndex resourceIndex) throws Exception {
         this.fa = fa;
         this.rindex = resourceIndex;
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
-        utf_sort = new UTFSort();
-        utf_sort.init();
+        utfSort = new UTFSort();
     }
 
 
@@ -63,8 +62,7 @@ public class FedoraOperations {
         this.rindex = GuiceModelInjector.injector().getInstance(IResourceIndex.class);
         this.fa = GuiceModelInjector.injector().getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
-        utf_sort = new UTFSort();
-        utf_sort.init();
+        utfSort = new UTFSort();
     }
 
     //    public void updateIndex(String action, String value, ArrayList<String> requestParams) throws java.rmi.RemoteException, Exception {
@@ -253,14 +251,18 @@ public class FedoraOperations {
 
     public static String prepareCzechString(String s) throws IOException {
         UTFSort utf_sort = new UTFSort();
-        utf_sort.init();
+        //utf_sort.init();
         return utf_sort.translate(s);
     }
 
-    public String prepareCzech(String s) throws Exception {
-        //return removeDiacritic(s).toLowerCase().replace("ch", "hz");
-        return utf_sort.translate(s);
-    }
+//    public String prepareCzech(String s) throws Exception {
+//        //return removeDiacritic(s).toLowerCase().replace("ch", "hz");
+//        return utf_sort.translate(s);
+//=======
+//    public String prepareCzech(String s) {
+//        return utfSort.translate(s);
+//>>>>>>> master
+//    }
 
     public String getDatastreamText(String pid, String dsId, String pageNum) throws Exception {
         if (dsId == null) {

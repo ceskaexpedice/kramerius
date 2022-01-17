@@ -19,12 +19,20 @@ import java.util.List;
 
 public class CDKUtilsTest extends TestCase {
 
+    public void testFindCDKLeader() throws IOException, SAXException, ParserConfigurationException {
+        InputStream resourceAsStream = CDKUtilsTest.class.getResourceAsStream("cdksolrfile.xml");
+        Document document = XMLUtils.parseDocument(resourceAsStream);
+        String cdkLeader = CDKUtils.findCDKLeader(document.getDocumentElement());
+        Assert.assertTrue(cdkLeader != null);
+        Assert.assertTrue(cdkLeader.equals("vc:700a6cc7-1e5c-4487-b111-c425cbc51091"));
+    }
+
     public void testFindSources() throws IOException, SAXException, ParserConfigurationException {
         InputStream resourceAsStream = CDKUtilsTest.class.getResourceAsStream("cdksolrfile.xml");
         Document document = XMLUtils.parseDocument(resourceAsStream);
         List<String> sources = CDKUtils.findSources(document.getDocumentElement());
         Assert.assertTrue(sources.size() == 1);
-        Assert.assertTrue(sources.get(0).equals("vc:d4b466de-5435-4b76-bff7-2838bbae747b"));
+        Assert.assertTrue(sources.get(0).equals("vc:700a6cc7-1e5c-4487-b111-c425cbc51091"));
     }
 
 

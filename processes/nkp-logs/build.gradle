@@ -1,0 +1,12 @@
+description "NKP logs"
+
+
+dependencies {
+    compile project(':shared:common')
+    compile project(':processes:import')
+
+    compile 'org.json:json:20140107'
+    compile 'commons-codec:commons-codec:1.5'
+
+}
+

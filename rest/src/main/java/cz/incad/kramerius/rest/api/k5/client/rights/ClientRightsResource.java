@@ -28,6 +28,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.security.RightsReturnObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +40,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.virtualcollections.CollectionException;
@@ -50,7 +52,7 @@ public class ClientRightsResource {
     public static final Logger LOGGER = Logger.getLogger(ClientRightsResource.class.getName());
 
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     SolrAccess solrAccess;
@@ -59,6 +61,10 @@ public class ClientRightsResource {
     @Named("fedora")
     CollectionsManager colGet;
 
+    @Inject
+    @Named("rawFedoraAccess")
+    FedoraAccess fedoraAccess;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response allowedActions(@QueryParam("actions") String actionNames, @QueryParam("pid") String pid,
@@ -66,7 +72,7 @@ public class ClientRightsResource {
         try {
             if (pid == null)
                 pid = SpecialObjects.REPOSITORY.getPid();
-            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
 
             if (actionNames == null) {
                 SecuredActions[] vls = SecuredActions.values();
@@ -107,7 +113,7 @@ public class ClientRightsResource {
             object.put(token, new JSONArray());
             for (ObjectPidsPath ph : paths) {
                 ObjectPidsPath nph = ph.injectRepository().injectCollections(this.colGet);
-                boolean[] flags = this.actionAllowed.isActionAllowedForAllPath(token, pid, stream, nph);
+                RightsReturnObject[] flags = this.rightsResolver.isActionAllowedForAllPath(token, pid, stream, nph);
                 allowedFor(object.getJSONArray(token), token, nph, flags);
             }
         }
@@ -121,7 +127,7 @@ public class ClientRightsResource {
             String token = tokenizer.nextToken();
             boolean flag = false;
             for (ObjectPidsPath ph : paths) {
-                flag = this.actionAllowed.isActionAllowed(token, pid, stream, ph);
+                flag = this.rightsResolver.isActionAllowed(token, pid, stream, ph).flag();
                 if (flag)
                     break;
             }
@@ -129,13 +135,13 @@ public class ClientRightsResource {
         }
     }
 
-    private JSONArray allowedFor(JSONArray jsonArr, String action, ObjectPidsPath path, boolean[] flags)
+    private JSONArray allowedFor(JSONArray jsonArr, String action, ObjectPidsPath path, RightsReturnObject[] flags)
             throws JSONException {
         JSONObject pathSon = new JSONObject();
 
         String[] fromRootToLeaf = path.getPathFromRootToLeaf();
         for (int i = 0; i < fromRootToLeaf.length; i++) {
-            pathSon.put(fromRootToLeaf[i], flags[i]);
+            pathSon.put(fromRootToLeaf[i], flags[i].flag());
         }
         jsonArr.put(pathSon);
 

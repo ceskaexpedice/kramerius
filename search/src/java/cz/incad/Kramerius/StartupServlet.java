@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,21 +35,20 @@ import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.database.VersionInitializer;
+//import cz.incad.kramerius.database.VersionInitializer;
+import cz.incad.kramerius.database.VersionDbInitializer;
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.pdf.GeneratePDFService;
-import cz.incad.kramerius.processes.GCScheduler;
-import cz.incad.kramerius.processes.ProcessScheduler;
-import cz.incad.kramerius.processes.database.MostDesirableDatabaseInitializator;
-import cz.incad.kramerius.processes.database.ProcessDatabaseInitializator;
-import cz.incad.kramerius.security.database.SecurityDatabaseInitializator;
+import cz.incad.kramerius.processes.database.MostDesirableDbInitializer;
+import cz.incad.kramerius.processes.database.ProcessDbInitializer;
+import cz.incad.kramerius.security.database.SecurityDbInitializer;
 import cz.incad.kramerius.service.LifeCycleHookRegistry;
 import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.statistics.database.StatisticDatabaseInitializator;
-import cz.incad.kramerius.users.database.LoggedUserDatabaseInitializator;
+import cz.incad.kramerius.statistics.database.StatisticDbInitializer;
+import cz.incad.kramerius.users.database.LoggedUserDbHelper;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.virtualcollections.CollectionUtils;
@@ -98,57 +97,59 @@ public class StartupServlet extends GuiceServlet {
         Connection connection = this.connectionProvider.get();
         try {
             // read previous db version
-            VersionInitializer.initDatabase(connection);
+            VersionDbInitializer.initDatabase(connection);
 
             // mostdesirable table
-            MostDesirableDatabaseInitializator.initDatabase(connection, versionService);
+            MostDesirableDbInitializer.initDatabase(connection, versionService);
+
             // all security tables
-            SecurityDatabaseInitializator.initDatabase(connection, versionService);
+            SecurityDbInitializer.initDatabase(connection, versionService);
+
             // process tables - > must be after security tables and must be
             // after logged user tables
-            ProcessDatabaseInitializator.initDatabase(connection, versionService);
+            ProcessDbInitializer.initDatabase(connection, versionService);
 
             // statistics tables
-            StatisticDatabaseInitializator.initDatabase(connection, versionService);
+            StatisticDbInitializer.initDatabase(connection, versionService);
 
-            // stores new db version to doatabase
-            versionService.updateNewVersion();
+            // delete session keys
+            LoggedUserDbHelper.deleteAllSessionKeys(connection);
+
+            // stores new db version to database if necessary
+            versionService.updateVersionIfOutdated();
 
             this.pdfService.init();
 
             if (acc != null) {
-
-                Repository internalAPI = acc.getInternalAPI();
-                InputStream resourceAsStream = FedoraAccess.class.getClassLoader().getResourceAsStream("/res/default_sources.json");
-                JSONArray jsonArray = new JSONArray(org.apache.commons.io.IOUtils.toString(resourceAsStream, "UTF-8"));
-                for (int i=0, ll=jsonArray.length();i<ll;i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                    String pid = jsonObject.getString("pid");
-                    String url = jsonObject.getString("url");
-
-                    JSONObject descs = jsonObject.getJSONObject("descs");
-                    if (!internalAPI.objectExists(pid)) {
-                        Map<String, String> map = new HashMap<>();
-                        Iterator keys = descs.keys();
-                        while(keys.hasNext()) {
-                            String key = (String) keys.next();
-                            map.put(key, descs.getString(key));
-                        }
-
-                        CollectionUtils.create(pid, acc, "", url, true, map, null);
-                    }
-                }
+                // insert objektu do akubry
+                // je to nutne ?, staci info v indexu
+//                Repository internalAPI = acc.getInternalAPI();
+//                InputStream resourceAsStream = FedoraAccess.class.getClassLoader().getResourceAsStream("/res/default_sources.json");
+//                JSONArray jsonArray = new JSONArray(org.apache.commons.io.IOUtils.toString(resourceAsStream, "UTF-8"));
+//                for (int i=0, ll=jsonArray.length();i<ll;i++) {
+//                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+//
+//                    String pid = jsonObject.getString("pid");
+//                    String url = jsonObject.getString("url");
+//
+//                    JSONObject descs = jsonObject.getJSONObject("descs");
+//                    if (!internalAPI.objectExists(pid)) {
+//                        Map<String, String> map = new HashMap<>();
+//                        Iterator keys = descs.keys();
+//                        while(keys.hasNext()) {
+//                            String key = (String) keys.next();
+//                            map.put(key, descs.getString(key));
+//                        }
+//
+//                        CollectionUtils.create(pid, acc, "", url, true, map, null);
+//                    }
+//                }
             }
 
             // update sources
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (RepositoryException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             if (connection != null) {

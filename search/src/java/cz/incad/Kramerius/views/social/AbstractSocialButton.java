@@ -36,7 +36,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.Kramerius.backend.guice.LocalesProvider;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -197,7 +196,7 @@ public abstract class AbstractSocialButton {
 
     Document getSolrDocument() throws IOException {
         if (solrData == null) {
-            this.solrData = solrAccess.getSolrDataDocument(getPID());
+            this.solrData = solrAccess.getSolrDataByPid(getPID());
         }
         return this.solrData;
     }
@@ -259,7 +258,7 @@ public abstract class AbstractSocialButton {
 
     public Document getRootDCDocument(String pid, String datastreamName) throws IOException {
         if (rootDcData == null) {
-            ObjectPidsPath[] path = this.solrAccess.getPath(datastreamName, getSolrDocument());
+            ObjectPidsPath[] path = this.solrAccess.getPidPaths(datastreamName, getSolrDocument());
             if (path.length > 0 ) {
                 String root = path[0].getRoot();
                 rootDcData = fedoraAccess.getDC(root);

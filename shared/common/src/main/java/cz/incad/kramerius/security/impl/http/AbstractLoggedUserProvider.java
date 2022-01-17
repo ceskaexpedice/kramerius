@@ -35,7 +35,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
@@ -43,7 +43,6 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
 
 public abstract class AbstractLoggedUserProvider implements Provider<User>{
@@ -58,7 +57,7 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
     UserManager userManager;
 
     @Inject
-    IsActionAllowed isActionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     @Named("kramerius4")
@@ -120,7 +119,7 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
         if (session.getAttribute(SECURITY_FOR_REPOSITORY_KEY) == null) {
             SecuredActions[] values = SecuredActions.values();
             for (SecuredActions securedAction : values) {
-                if (isActionAllowed.isActionAllowed(user, securedAction.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH)) {
+                if (rightsResolver.isActionAllowed(user, securedAction.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
                     actionsForUser.add(securedAction.getFormalName());
                 }
             }

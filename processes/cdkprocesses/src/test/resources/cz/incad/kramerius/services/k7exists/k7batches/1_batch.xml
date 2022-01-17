@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<add>
+    <doc>
+        <field name="pid">uuid:03173900-662a-11e3-9ea2-5ef3fc9ae867</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03173e90-9c18-11e3-a880-5ef3fc9ae867</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03218150-2e9e-11eb-bd18-005056827e51</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03218050-35fe-11e4-8e0d-005056827e51</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03174110-5186-11e3-8c6a-005056825209</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03174020-f2fa-11e6-bf7e-005056825209</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03173f70-5dc0-11e9-a9b4-5ef3fc9bb22f</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:031740b9-d472-4b35-8697-3efc830fd7fe</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:031744d0-ea62-11e6-9964-005056825209</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03218800-bf0f-11e2-9592-5ef3fc9bb22f</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:032185c1-ee27-11e2-9439-005056825209</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03218604-eb98-461c-8033-3dd1512169ef</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:032187e2-f47b-47b5-a9ba-b0e00f12e8e9</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03174850-1edb-4aa1-acb1-4054fe2820f9</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03174a30-dac4-11e3-93a3-005056825209</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03174829-8301-413b-a982-2cfe1e6444bb</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03174c99-4e3b-464e-a65e-5d3d840f1693</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03218ea0-5522-11e8-ab92-5ef3fc9ae867</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03218c97-a41a-ffc3-fe18-4610acb2152a</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+    <doc>
+        <field name="pid">uuid:03218e20-b96e-11e5-b404-005056825209</field>
+        <field name="collection" update="add-distinct">added-collection</field>
+    </doc>
+</add>

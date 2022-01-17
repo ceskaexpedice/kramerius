@@ -123,7 +123,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
     ObjectPidsPath selectOnePath(String pid) throws IOException {
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         ObjectPidsPath selectedPath = paths.length > 0 ? paths[0] : null;
         return selectedPath;
     }

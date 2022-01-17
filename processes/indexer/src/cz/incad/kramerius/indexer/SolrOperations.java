@@ -2,7 +2,6 @@ package cz.incad.kramerius.indexer;
 
 import com.google.inject.name.Named;
 import cz.incad.kramerius.*;
-import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
@@ -39,12 +38,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -107,7 +100,7 @@ public class SolrOperations {
             if ("deleteDocument".equals(action)) {
                 for(String v : value.split(pidSeparator)){
                     SolrAccess sa = new SolrAccessImpl();
-                    ObjectPidsPath[] path = sa.getPath(v);
+                    ObjectPidsPath[] path = sa.getPidPaths(v);
                     // don't need iterate over all array
                     ObjectPidsPath one = path[0];
                     String[] pathFromRootToLeaf = one.getPathFromRootToLeaf();

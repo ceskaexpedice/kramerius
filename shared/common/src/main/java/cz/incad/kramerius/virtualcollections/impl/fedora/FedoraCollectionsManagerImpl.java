@@ -33,6 +33,7 @@ import javax.xml.xpath.*;
  * @author pstastny
  *
  */
+@Deprecated
 public class FedoraCollectionsManagerImpl implements CollectionsManager {
 
     public static final Logger LOGGER = Logger.getLogger(FedoraCollectionsManagerImpl.class.getName());
@@ -77,36 +78,7 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
     
     @Override
     public List<Collection> getCollections() throws CollectionException {
-        try {
-            List<Collection> cols = new ArrayList<>();
-            //IResourceIndex g = ResourceIndexService.getResourceIndexImpl();
-            List<String> collectionPids = this.resourceIndex.getCollections();
-            for (String cPid : collectionPids) {
-                if (findCollection(cPid, cols) == null) {
-                    if (this.fa.isObjectAvailable(cPid)) {
-                        if (this.fa.isStreamAvailable(cPid, FedoraUtils.DC_STREAM)) {
-                            Document dc = fa.getDC(cPid);
-                            Collection col = new Collection(cPid, dcTitle(dc), dcUrl(dc), dcType(dc));
-                            enhanceNumberOfDocs(col);
-                            enhanceDescriptions(col);
-                            cols.add(col);
-                        } else {
-                            LOGGER.warning("Collection '"+cPid+"' doesn't exist");
-                        }
-                    } else {
-                        LOGGER.warning("Collection '"+cPid+"' doesn't exist");
-                        //throw new CollectionException("Collection '"+cPid+"' doesn't exist");
-                    }
-                }
-            }
-            return cols;
-        } catch (DOMException e) {
-            throw new CollectionException(e);
-        } catch (IOException e) {
-            throw new CollectionException(e);
-        } catch (Exception e) {
-            throw new CollectionException(e);
-        }
+        throw new UnsupportedOperationException("unsupported");
     }
 
     public FedoraAccess getFedoraAccess() {
@@ -152,36 +124,11 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
 
     @Override
     public Collection getCollection(String pid) throws CollectionException {
-        try {
-            if (this.fa.isObjectAvailable(pid)) {
-                if (this.fa.isStreamAvailable(pid, FedoraUtils.DC_STREAM)) {
-                    Document doc = this.fa.getDC(pid);
-
-                    Collection col = new Collection(pid, dcTitle(doc), dcUrl(doc),dcType(doc));
-                    enhanceNumberOfDocs(col);
-                    enhanceDescriptions(col);
-                    return col;
-                } else {
-                    throw new CollectionException("Collection '"+pid+"' doesn't exist");
-                }
-            } else throw new CollectionException("Collection '"+pid+"' doesn't exist");
-        } catch (XPathExpressionException e) {
-            throw new CollectionException(e);
-        } catch (DOMException e) {
-            throw new CollectionException(e);
-        } catch (IOException e) {
-            throw new CollectionException(e);
-        }
+        throw new UnsupportedOperationException("unsupported");
     }
 
     protected void enhanceNumberOfDocs(Collection col) throws IOException, XPathExpressionException {
-        Document response = this.sa.request("fq=level:0&q="+ URLEncoder.encode("collection:(\""+col.getPid()+"\")","UTF-8")+"&rows=0");
-        Element resElement = XMLUtils.findElement(response.getDocumentElement(), "result");
-        if (resElement != null){
-            String attribute = resElement.getAttribute("numFound");
-            int parsedInt = Integer.parseInt(attribute);
-            col.setNumberOfDocs(parsedInt);
-        }
+        throw new UnsupportedOperationException("unsupported");
     }
 
     protected void enhanceDescriptions(Collection col) throws IOException, XPathExpressionException {

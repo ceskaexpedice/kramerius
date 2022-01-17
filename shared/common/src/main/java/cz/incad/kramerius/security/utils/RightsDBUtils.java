@@ -28,6 +28,8 @@ import cz.incad.kramerius.security.RightCriteriumWrapper;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
+import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.labels.impl.LabelImpl;
 
 public class RightsDBUtils {
 
@@ -56,7 +58,12 @@ public class RightsDBUtils {
         int criteriumId = rs.getInt("crit_id");
         CriteriumType type = CriteriumType.findByValue(rstype);
         if (qname != null) {
-            return factory.loadExistingWrapper(type, qname, criteriumId, createCriteriumParams(rs));
+            RightCriteriumWrapper rightCriteriumWrapper = factory.loadExistingWrapper(type, qname, criteriumId, createCriteriumParams(rs));
+            if (rightCriteriumWrapper.isLabelAwareCriterium()) {
+                Label labelImpl = new LabelImpl(rs.getInt("label_id"), rs.getString("label_name"),  rs.getString("label_description"),rs.getString("label_group"),rs.getInt("label_priority"));
+                rightCriteriumWrapper.setLabel(labelImpl);
+            }
+            return rightCriteriumWrapper;
         } else return null;
     }
     

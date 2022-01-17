@@ -1,28 +1,21 @@
 package cz.incad.kramerius.utils.conf;
 
-import static cz.incad.kramerius.Constants.WORKING_DIR;
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
+import org.apache.commons.configuration.*;
+import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.logging.Level;
 
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.EnvironmentConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
+import static cz.incad.kramerius.Constants.WORKING_DIR;
 
 public class KConfiguration {
-    
+
     public static final String DEFAULT_CONF_LOCATION = "res/configuration.properties";
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(KConfiguration.class.getName());
@@ -84,8 +77,8 @@ public class KConfiguration {
 
             /** ENV configuration is not used
             EnvironmentConfiguration environmentConfiguration = new EnvironmentConfiguration();
-            for (Iterator it = environmentConfiguration.getKeys(); it.hasNext();) {
-                String key = (String)it.next();
+            for (Iterator it = environmentConfiguration.getKeys(); it.hasNext(); ) {
+                String key = (String) it.next();
                 String value = environmentConfiguration.getString(key);
                 key = key.replaceAll("_", ".");
                 key = key.replaceAll("\\.\\.", "__");
@@ -124,11 +117,15 @@ public class KConfiguration {
     }
 
     public List<String> getSolrCachedURLS() {
-        return getConfiguration().getList("solr.cache.urls");
+        return Lists.transform(getConfiguration().getList("solr.cache.urls"), Functions.toStringFunction());
     }
 
     public String getSolrHost() {
         return getProperty("solrHost");
+    }
+
+    public String getSolrHostNew() {
+        return getProperty("searchSolrHost");
     }
 
     public String getIndexerHost() {
@@ -205,10 +202,10 @@ public class KConfiguration {
     }
 
     public String getUsersEditorURL() {
-        String url = getProperty("usersEditorUrl","/rightseditor");
+        String url = getProperty("usersEditorUrl", "/rightseditor");
         return url;
     }
-    
+
     public String getEditorURL() {
         String url = getProperty("editorUrl");
         return normalizeURL(url);
@@ -254,32 +251,32 @@ public class KConfiguration {
     public float getDeepZoomJPEGQuality() {
         return getConfiguration().getFloat("deepZoom.jpegQuality", 0.9f);
     }
-    
+
     public boolean isDeepZoomEnabled() {
         return getConfiguration().getBoolean("deepZoom.deepZoomEnabled", false);
     }
-    
-    
+
+
     public boolean isDeepZoomForPathEnabled(String[] path) {
         Configuration configuration = getConfiguration();
-        for (int i = path.length - 1; i >=0; i--) {
-            boolean enabled = configuration.getBoolean("deepZoom."+path[i]+".deepZoomEnabled",false);
+        for (int i = path.length - 1; i >= 0; i--) {
+            boolean enabled = configuration.getBoolean("deepZoom." + path[i] + ".deepZoomEnabled", false);
             if (enabled) return true;
         }
         return false;
     }
 
     public String[] getAPISolrFilter() {
-    	String[] resArray = getConfiguration().getStringArray("api.solr.filtered");
-    	return resArray;
+        String[] resArray = getConfiguration().getStringArray("api.solr.filtered");
+        return resArray;
     }
 
     public String[] getAPIPIDReplace() {
-    	String[] resArray = getConfiguration().getStringArray("api.solr.pidreplace");
-    	return resArray;
+        String[] resArray = getConfiguration().getStringArray("api.solr.pidreplace");
+        return resArray;
     }
 
-    
+
     public String getShibAssocRules() {
         return getConfiguration().getString("security.shib.rules", "${sys:user.home}/.kramerius4/shibrules.txt");
     }
@@ -287,7 +284,7 @@ public class KConfiguration {
     public String getShibLogout() {
         return getConfiguration().getString("security.shib.logout");
     }
-    
+
     public String getUrlOfIIPServer() {
         return getConfiguration().getString("UrlOfIIPserver", "");
     }
@@ -309,12 +306,35 @@ public class KConfiguration {
         return getConfiguration().getInt("cache.timeToLiveExpiration", 60);
     }
 
-    
+
     private static String normalizeURL(String url) {
         if (url != null) {
             url = url.endsWith("/") ? url : url + '/';
         }
         return url;
+    }
+
+    /**
+     * Find configuration file specified by given configurstion property
+     * File can have absolute path or relative to Kramerius configuration home folder (.kramerius4)
+     *
+     * @param fileProperty
+     * @return
+     */
+    public File findConfigFile(String fileProperty) {
+        String fileName = getConfiguration().getString(fileProperty);
+        if (fileName == null || "".equals(fileName)) {
+            return null;
+        }
+        File retval = new File(fileName);
+        if (!retval.exists()) {
+            retval = new File(WORKING_DIR + File.separator + fileName);
+            if (!retval.exists()) {
+                LOGGER.warning("Could not find configuration file: " + fileName);
+                return null;
+            }
+        }
+        return retval;
     }
 
 

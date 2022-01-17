@@ -1,0 +1,142 @@
+<testSuite testType="mods" model="page">
+
+    <test name="pageNumber not pageIndex">
+        <desc></desc>
+        <in>
+            <part type="NormalPage">
+                <detail type="pageNumber">
+                    <number>1</number>
+                </detail>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.type">NormalPage</field>
+
+            <field name="title.search">1</field>
+            <field name="title.sort">1</field>
+            <field name="titles.search">1</field>
+        </out>
+    </test>
+
+    <test name="pageNumber and pageIndex in separate part elements">
+        <desc></desc>
+        <in>
+            <part type="NormalPage">
+                <detail type="pageNumber">
+                    <number>1</number>
+                </detail>
+            </part>
+            <part>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.type">NormalPage</field>
+
+            <field name="title.search">1</field>
+            <field name="title.sort">1</field>
+            <field name="titles.search">1</field>
+        </out>
+    </test>
+
+    <test name="'page number' instead of pageNumber">
+        <desc></desc>
+        <in>
+            <part type="NormalPage">
+                <detail type="page number">
+                    <number>1</number>
+                </detail>
+            </part>
+            <part>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.type">NormalPage</field>
+
+            <field name="title.search">1</field>
+            <field name="title.sort">1</field>
+            <field name="titles.search">1</field>
+        </out>
+    </test>
+
+    <test name="titleInfo overrides pageNumber">
+        <desc></desc>
+        <in>
+            <typeOfResource>text</typeOfResource>
+            <titleInfo>
+                <title>first</title>
+            </titleInfo>
+            <titleInfo type="alternative">
+                <title>prvni</title>
+            </titleInfo>
+            <part type="NormalPage">
+                <detail type="pageNumber">
+                    <number>1</number>
+                </detail>
+                <detail type="pageIndex">
+                    <number>0</number>
+                </detail>
+            </part>
+        </in>
+        <out>
+            <field name="page.index">0</field>
+            <field name="page.number">1</field>
+            <field name="page.type">NormalPage</field>
+
+            <field name="title.search">first</field>
+            <field name="title.sort">FIRST</field>
+            <field name="titles.search">first</field>
+            <field name="titles.search">prvni</field>
+            <field name="titles.search">1</field>
+        </out>
+    </test>
+
+    <test name="page number not numeric value">
+        <desc></desc>
+        <in>
+            <part type="normalPage">
+                <detail type="pageNumber">
+                    <number>[1a]</number>
+                </detail>
+            </part>
+            <part>
+                <detail type="pageIndex">
+                    <number>1</number>
+                </detail>
+            </part>
+            <titleInfo>
+                <title>Srb-Debrnov, Josef</title>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="page.index">1</field>
+            <field name="page.number">[1a]</field>
+            <field name="page.type">normalPage</field>
+
+            <field name="title.search">Srb-Debrnov, Josef</field>
+            <field name="title.sort">SRB DEBRNOV JOSEF</field>
+            <field name="titles.search">Srb-Debrnov, Josef</field>
+            <field name="titles.search">[1a]</field>
+        </out>
+    </test>
+
+
+</testSuite>
+
+
+
+

@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
-import javax.xml.soap.Detail;
-import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 
@@ -46,11 +44,9 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
-import cz.incad.kramerius.service.replication.ExternalReferencesFormat;
 import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.service.replication.ReplicationFormat;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class ReplicationServiceImpl implements ReplicationService{
@@ -74,7 +70,7 @@ public class ReplicationServiceImpl implements ReplicationService{
     public List<String> prepareExport(String pid, final boolean collections) throws ReplicateException,IOException {
         final List<String> pids = new ArrayList<String>();
         try {
-            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
             for (ObjectPidsPath objPath : paths) {
                 if (objPath.contains(SpecialObjects.REPOSITORY.getPid())) {
                     objPath = objPath.cutHead(1);

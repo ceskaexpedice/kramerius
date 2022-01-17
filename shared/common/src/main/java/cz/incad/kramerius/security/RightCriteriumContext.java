@@ -17,6 +17,7 @@
 package cz.incad.kramerius.security;
 
 import java.net.Inet4Address;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 
@@ -32,20 +33,23 @@ import cz.incad.kramerius.SolrAccess;
  */
 public interface RightCriteriumContext {
 
+
+    public Map<String, String> getEvaluateInfoMap();
+
     /**
-     * Puvodne dotazovany objekt
+     * Requested object
      * @return
      */
     public String getRequestedPid();
     
     /**
-     * Dotazovany stream
+     * Requested stream
      * @return
      */
     public String getRequestedStream();
     
     /**
-     * Objekt, se kterym je pravo asociovano
+     * Object associated with right
      * @return
      */
     public String getAssociatedPid();
@@ -71,11 +75,42 @@ public interface RightCriteriumContext {
      */
     public FedoraAccess getFedoraAccess();
 
+    /**
+     * Return solr access
+     * @return
+     */
     public SolrAccess getSolrAccess();
-    
+
+    /**
+     * Returns user's manager
+     * @return
+     * @see UserManager
+     */
     public UserManager getUserManager();
-    
+
+    /**
+     * Returns remote host from the request
+     * @return
+     */
     public String getRemoteHost();
-    
+
+    /**
+     * Returns remote address from the request
+     * @return
+     */
     public String getRemoteAddr();
+
+    /**
+     * Returns secured action
+     * @return
+     */
+    public SecuredActions getAction();
+
+    /**
+     *
+     * @return
+     */
+    public RightsResolver getRightsResolver();
+
+
 }

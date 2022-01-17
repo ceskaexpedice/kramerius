@@ -6,15 +6,12 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationUtils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.service.impl.PolicyServiceImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.ehcache.CacheManager;
 import org.junit.*;
 import org.w3c.dom.Document;
 
@@ -24,7 +21,6 @@ import java.util.Arrays;
 
 import static cz.incad.kramerius.ITTestsSetup.*;
 import static cz.incad.kramerius.ITTestsSetup.resources;
-import static cz.incad.kramerius.fedora.om.impl.AkubraRepository.build;
 
 public class RelationServiceImplTest {
     @BeforeClass
@@ -55,7 +51,7 @@ public class RelationServiceImplTest {
             try {
 
                 if (repository.objectExists("uuid:" + ident)) {
-                    repository.deleteobject("uuid:" + ident);
+                    repository.deleteObject("uuid:" + ident);
                 }
 
                 RepositoryObject object = repository.createOrFindObject("uuid:" + ident);
@@ -70,7 +66,7 @@ public class RelationServiceImplTest {
         PolicyServiceImpl inst = new PolicyServiceImpl();
         feeder.commit();
 
-        FedoraAccess fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        FedoraAccess fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("akubraFedoraAccess")));
         String pid = "uuid:0eaa6730-9068-11dd-97de-000d606f5dc6";
         try {
             Document relsExt = RelationUtils.getRelsExt(pid, fedoraAccess);

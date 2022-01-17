@@ -48,7 +48,6 @@ public class SolrWorker implements Runnable {
     @Override
     public void run() {
         try {
-
             LOGGER.info("["+Thread.currentThread().getName()+"] processing list of pids "+this.pidsToBeProcessed.size());
             int batchSize = MigrationUtils.configuredBatchSize();
             int batches = this.pidsToBeProcessed.size() / batchSize + (this.pidsToBeProcessed.size() % batchSize == 0 ? 0 :1);

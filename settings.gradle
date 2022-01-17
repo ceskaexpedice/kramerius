@@ -1,5 +1,5 @@
 include	'shared:common'
-//include	'shared:common-intest'
+include	'shared:common-intest'
 include	'rest'
 include	'search'
 
@@ -19,16 +19,28 @@ include	'processes:import-jaxb-srwdc'
 include	'processes:import-mets'
 include 'processes:mw-process'
 include	'processes:indexer'
+
 //include 'processes:solr-migration'
 include	'processes:static-export'
 include 'processes:data-migration'
 include 'processes:migration'
 include 'processes:cdkprocesses'
 
+include 'processes:solr-migration'
+//include	'processes:static-export'
+include 'processes:data-migration'
+include 'processes:migration'
+include 'processes:dnntflag'
+include	'search-index'
+include 'processes:nkp-logs'
 
 
 include 'security:security-core'
 include 'security:authfilters'
+
+//include 'authfilters'
+//include 'solr-migration'
+
 
 
 // filter property -DremoveProjs=projectA,projectB,..

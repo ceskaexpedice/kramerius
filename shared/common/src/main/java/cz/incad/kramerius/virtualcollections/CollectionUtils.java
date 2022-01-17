@@ -4,14 +4,17 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -31,6 +34,8 @@ import cz.incad.kramerius.resourceindex.ResourceIndexService;
 
 import cz.incad.kramerius.virtualcollections.Collection.Description;
 import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class CollectionUtils {
     
@@ -38,8 +43,30 @@ public class CollectionUtils {
     private static final int MAX_WAIT_ITERATION = 20;
     
     public static final Logger LOGGER = Logger.getLogger(Collection.class.getName());
-    
-    
+
+    public static List<Element> findCollectionsElements(Document relsExt) {
+        List<Element> retval = new ArrayList<>();
+        Element rdfElm = XMLUtils.findElement(relsExt.getDocumentElement(), "RDF", FedoraNamespaces.RDF_NAMESPACE_URI);
+        if (rdfElm != null) {
+            Element description = XMLUtils.findElement(rdfElm, "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
+            if (description != null) {
+                List<Element> elements = XMLUtils.getElements(description, new XMLUtils.ElementsFilter() {
+
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        return (element.getLocalName().equals("isMemberOfCollection")
+                                && element.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI));
+                    }
+                });
+                for (Element el : elements) {
+                    retval.add(el);
+                }
+            }
+        }
+        return retval;
+    }
+
+
     public static class CollectionManagerWait extends  CollectionWait {
         
         public static final Logger LOGGER = Logger.getLogger(CollectionManagerWait.class.getName());
@@ -139,7 +166,7 @@ public class CollectionUtils {
         Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(),(repo)->{
             try {
                 CollectionUtils.removeDocumentsFromCollection(pid, repo);
-                repo.deleteobject(pid);
+                repo.deleteObject(pid);
             } catch (Exception e) {
                 throw new RepositoryException(e);
             }
@@ -151,7 +178,7 @@ public class CollectionUtils {
         Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(),(repo)->{
             try {
                 CollectionUtils.removeDocumentsFromCollection(pid, repo);
-                repo.deleteobject(pid);
+                repo.deleteObject(pid);
             } catch (Exception e) {
                 throw new RepositoryException(e);
             }
@@ -186,10 +213,15 @@ public class CollectionUtils {
                 + "</oai_dc:dc>";
 
         Repository repo = fedoraAccess.getInternalAPI();
-        if (repo.getObject(pid).streamExists(FedoraUtils.DC_STREAM)) {
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            if (repo.getObject(pid).streamExists(FedoraUtils.DC_STREAM)) {
                 repo.getObject(pid).deleteStream(FedoraUtils.DC_STREAM);
+            }
+            repo.getObject(pid).createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(dcContent.getBytes(Charset.forName("UTF-8"))));
+        }finally{
+            writeLock.unlock();
         }
-        repo.getObject(pid).createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(dcContent.getBytes(Charset.forName("UTF-8"))));
     }
 
 
@@ -197,8 +229,13 @@ public class CollectionUtils {
         //String url = k4url + "?action=TEXT&content=" + URLEncoder.encode(ds, "UTF8");
         if (fedoraAccess.isStreamAvailable(pid, streamName)) {
             Repository repo = fedoraAccess.getInternalAPI();
-            repo.getObject(pid).deleteStream(streamName);
-            repo.getObject(pid).createStream(streamName, mimeType, new ByteArrayInputStream(data));
+            Lock writeLock = AkubraDOManager.getWriteLock(pid);
+            try {
+                repo.getObject(pid).deleteStream(streamName);
+                repo.getObject(pid).createStream(streamName, mimeType, new ByteArrayInputStream(data));
+            }finally{
+                writeLock.unlock();
+            }
         } else {
             Repository repo = fedoraAccess.getInternalAPI();
             repo.getObject(pid).createStream(streamName, mimeType, new ByteArrayInputStream(data));

@@ -5,6 +5,7 @@ dependencies {
 
     compile project(':shared:common')
     compile project(':security:security-core')
+    compile project(':search-index')
 
     compile name:"iiif-presentation-model-api-3.2.5"
     compile name:"iiif-presentation-model-impl-3.2.5"
@@ -16,6 +17,10 @@ dependencies {
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
 	
 	compile 'commons-codec:commons-codec:1.5'
+
+    //dom4j
+    implementation 'jaxen:jaxen:1.2.0'
+    implementation 'org.dom4j:dom4j:2.1.1'
 }
 
 configurations.findAll {!it.name.endsWith('json-lib')}.each { conf ->

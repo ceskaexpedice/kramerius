@@ -77,8 +77,10 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     private Properties parametersMapping = new Properties();
 
     private String ipAddress;
-    
-    
+
+    private String ownerId;
+    private String ownerName;
+
     
     public AbstractLRProcessImpl(LRProcessDefinition definition,
             LRProcessManager manager, KConfiguration configuration) {
@@ -119,12 +121,13 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
         return this.startTime;
     }
 
-    public void planMe(Properties paramsMapping, String ipAddress) {
+    @Override
+    public Integer planMe(Properties paramsMapping, String ipAddress) {
         this.state = States.PLANNED;
         this.ipAddress = ipAddress;
         this.setPlannedTime(System.currentTimeMillis());
         
-        manager.registerLongRunningProcess(this, getLoggedUserKey(),
+        return manager.registerLongRunningProcess(this, getLoggedUserKey(),
                 paramsMapping);
     }
 
@@ -507,5 +510,24 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     public void setPlannedIPAddress(String ipAddr) {
         this.ipAddress = ipAddr;
     }
-    
+
+    @Override
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    @Override
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    @Override
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    @Override
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
 }

@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2013 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -48,7 +48,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -113,8 +112,7 @@ public class SearchResource {
                     builder.append("&");
                 }
             }
-            InputStream istream = this.solrAccess.request(builder.toString(),
-                    "xml");
+            InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), "xml");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
@@ -160,7 +158,7 @@ public class SearchResource {
             if (filters.contains(v)) throw new BadRequestException("requesting filtering field");
         }
     }
-    
+
     private String checkHighlightValues(String v, String value) {
         if (v.equals("hl.fragsize")) {
             try {
@@ -211,8 +209,7 @@ public class SearchResource {
                     builder.append("&");
                 }
             }
-            InputStream istream = this.solrAccess.request(builder.toString(),
-                    "json");
+            InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), "json");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
@@ -242,7 +239,7 @@ public class SearchResource {
 
     /**
      * Change result in xml result
-     * 
+     *
      * @param rawString
      *            XML result
      * @param context
@@ -338,7 +335,7 @@ public class SearchResource {
 
         //List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
         List<JSONArray> docsArrays = new ArrayList<JSONArray>();
-        
+
         JSONObject resultJSONObject = new JSONObject(rawString);
         Stack<JSONObject> prcStack = new Stack<JSONObject>();
         prcStack.push(resultJSONObject);
@@ -363,10 +360,10 @@ public class SearchResource {
                         if (arrObj instanceof JSONObject) {
                             prcStack.push((JSONObject) arrObj);
                         }
-                        
+
                     }
                 }
-                
+
             }
         }
 
@@ -508,7 +505,7 @@ public class SearchResource {
                     builder.append("&");
                 }
             }
-            InputStream istream = this.solrAccess.terms(builder.toString(),
+            InputStream istream = this.solrAccess.requestWithTerms(builder.toString(),
                     "xml");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
@@ -544,7 +541,7 @@ public class SearchResource {
                     builder.append("&");
                 }
             }
-            InputStream istream = this.solrAccess.terms(builder.toString(),
+            InputStream istream = this.solrAccess.requestWithTerms(builder.toString(),
                     "json");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);

@@ -38,8 +38,9 @@ public interface LRProcessManager {
      * @param lp
      * @param sessionKey
      *            Session key (determine current user)
+     * @return process_id of registered process, possibly null in some error sitautions
      */
-    public void registerLongRunningProcess(LRProcess lp, String sessionKey,
+    public Integer registerLongRunningProcess(LRProcess lp, String sessionKey,
             Properties parametersMapping);
 
     /**

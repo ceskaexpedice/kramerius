@@ -1,0 +1,101 @@
+<testSuite testType="mods" model="periodicalitem">
+
+    <test name="originInfo/dateIssued obsahuje '1947'">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:e5aced90-b21d-11e6-88f6-005056827e52/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1947-12-31T23:59:59.999Z</field>
+            <field name="date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="date.str">1947</field>
+            <!--<field name="date_instant.year">1947</field>-->
+            <field name="date_range_end.year">1947</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="originInfo/dateIssued obsahuje '06.2013'">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:3efd66c0-d8ea-11e6-b333-5ef3fc9ae867/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <dateIssued>06.2013</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">2013-06-30T23:59:59.999Z</field>
+            <field name="date.min">2013-06-01T00:00:00.001Z</field>
+            <field name="date.str">06.2013</field>
+            <!--<field name="date_instant.month">6</field>
+            <field name="date_instant.year">2013</field>-->
+            <field name="date_range_end.month">6</field>
+            <field name="date_range_end.year">2013</field>
+            <field name="date_range_start.month">6</field>
+            <field name="date_range_start.year">2013</field>
+        </out>
+    </test>
+
+    <test name="originInfo/dateIssued obsahuje '16.04.1948'">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:377f488a-df5d-474d-ae6c-b04eca94e3a7/streams/BIBLIO_MODS</desc>
+        <in>
+            <originInfo>
+                <dateIssued>16.04.1948</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1948-04-16T23:59:59.999Z</field>
+            <field name="date.min">1948-04-16T00:00:00.001Z</field>
+            <field name="date.str">16.04.1948</field>
+            <!--<field name="date_instant.day">16</field>
+            <field name="date_instant.month">4</field>
+            <field name="date_instant.year">1948</field>-->
+            <field name="date_range_end.day">16</field>
+            <field name="date_range_end.month">4</field>
+            <field name="date_range_end.year">1948</field>
+            <field name="date_range_start.day">16</field>
+            <field name="date_range_start.month">4</field>
+            <field name="date_range_start.year">1948</field>
+        </out>
+    </test>
+
+
+    <!--TODO: implement-->
+    <!--<test name="originInfo/dateIssued obsahuje '16.04.1948'">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:377f488a-df5d-474d-ae6c-b04eca94e3a7/streams/BIBLIO_MODS</desc>
+        <in>
+            <part type="PeriodicalIssue">
+                <detail type="issue">
+                    <number>9</number>
+                </detail>
+                <date>10.1.1920</date>
+            </part>
+        </in>
+        <out>
+
+            <field name="issue.number.str">9</field>
+            <field name="issue.number.sort">9</field>
+
+        </out>
+    </test>
+
+    <test name="originInfo/dateIssued obsahuje '16.04.1948'">
+        <desc>https://kramerius.mzk.cz/search/api/v5.0/item/uuid:377f488a-df5d-474d-ae6c-b04eca94e3a7/streams/BIBLIO_MODS</desc>
+        <in>
+            <part type="PeriodicalIssue">
+                <detail type="issue">
+                    <number>17r</number>
+                </detail>
+                <date>10.1.1920</date>
+            </part>
+        </in>
+        <out>
+
+            <field name="issue.number.str">17r</field>
+
+        </out>
+    </test>-->
+
+
+</testSuite>

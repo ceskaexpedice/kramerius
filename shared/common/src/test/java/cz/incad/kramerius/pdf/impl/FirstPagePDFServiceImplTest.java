@@ -20,9 +20,6 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.replay;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -39,6 +36,8 @@ import javax.xml.xpath.XPathExpressionException;
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+
 import junit.framework.Assert;
 
 import org.custommonkey.xmlunit.Diff;
@@ -56,7 +55,6 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.name.Names;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.pdf.PdfWriter;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -67,12 +65,8 @@ import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
-import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.OutOfRangeException;
-import cz.incad.kramerius.pdf.commands.ITextCommands;
-import cz.incad.kramerius.pdf.commands.render.RenderPDF;
 import cz.incad.kramerius.pdf.impl.FirstPagePDFServiceImpl.DetailItem;
-import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.service.impl.TextsServiceImpl;
@@ -196,7 +190,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         //hyph-country="CZ" hyph-lang="cs"
         Locale locale = new Locale("cs","CZ");
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
@@ -229,7 +223,7 @@ public class FirstPagePDFServiceImplTest {
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
         replay(fa4, solrAccess, bundleService,acLog);
@@ -265,7 +259,8 @@ public class FirstPagePDFServiceImplTest {
     @Test
     public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
+
         Locale locale = new Locale("cs","CZ");
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
@@ -309,7 +304,7 @@ public class FirstPagePDFServiceImplTest {
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
         replay(fa4,feeder, solrAccess, bundleService,acLog);
@@ -345,7 +340,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         Locale locale = new Locale("cs","CZ");
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
@@ -404,7 +399,7 @@ public class FirstPagePDFServiceImplTest {
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
 
@@ -455,7 +450,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         Locale locale = new Locale("cs","CZ");
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
@@ -514,7 +509,7 @@ public class FirstPagePDFServiceImplTest {
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
 
@@ -572,7 +567,7 @@ public class FirstPagePDFServiceImplTest {
 
     @Test
     public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
-        StatisticsAccessLog acLog = EasyMock.createMock(StatisticsAccessLog.class);
+        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         Locale locale = new Locale("cs","CZ");
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
 
@@ -632,7 +627,7 @@ public class FirstPagePDFServiceImplTest {
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
         for (String key : keys) {
-            EasyMock.expect(solrAccess.getPath(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
         }
 
 

@@ -23,6 +23,7 @@ import java.util.Arrays;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.DOMException;
 
@@ -56,8 +57,8 @@ public class DeleteGeneratedDeepZoomCache {
 
     public static void main(String[] args) throws IOException, ProcessSubtreeException {
         if (args.length == 1) {
-            Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
+            Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
+            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
             deleteCacheForPID(args[0], fa, discStruct);
             

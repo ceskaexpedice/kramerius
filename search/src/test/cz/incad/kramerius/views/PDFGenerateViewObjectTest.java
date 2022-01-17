@@ -198,7 +198,7 @@ public class PDFGenerateViewObjectTest  {
         
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         for (String pid : processedPids) {
-            EasyMock.expect(solrAccess.getPath(pid)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(pid) }).anyTimes();
+            EasyMock.expect(solrAccess.getPidPaths(pid)).andReturn(new ObjectPidsPath[] { PATHS_MAPPING.get(pid) }).anyTimes();
         }
         
         HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);

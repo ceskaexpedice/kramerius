@@ -1,0 +1,62 @@
+<testSuite testType="mods" model="monographunit">
+
+    <test name="title, part number, but no part name">
+        <desc>uuid:7e1fcff0-7200-11e7-aab4-005056827e52</desc>
+        <in>
+            <titleInfo>
+                <title>Deutschböhmen als Wirtschaftsgrossmacht</title>
+                <partNumber>2</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="part.number.sort">2</field>
+            <field name="part.number.str">2</field>
+
+            <field name="title.search">Deutschböhmen als Wirtschaftsgrossmacht. 2</field>
+            <field name="title.sort">DEUTSH|BO|HMEN ALS WIRTSH|AFTSGROSSMAH|T 2</field>
+            <field name="titles.search">Deutschböhmen als Wirtschaftsgrossmacht. 2</field>
+        </out>
+    </test>
+
+    <test name="part nuber, part name">
+        <desc>uuid:5bd7b500-e6e5-11e4-a794-5ef3fc9bb22</desc>
+        <in>
+            <titleInfo>
+                <title>Ottův slovník naučný</title>
+                <subTitle>illustrovaná encyklopaedie obecných vědomostí</subTitle>
+                <partNumber>4</partNumber>
+                <partName>Bianchi-Giovini - bžunda</partName>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="part.name">Bianchi-Giovini - bžunda</field>
+            <field name="part.number.sort">4</field>
+            <field name="part.number.str">4</field>
+
+            <field name="title.search">Ottův slovník naučný: illustrovaná encyklopaedie obecných vědomostí. 4. Bianchi-Giovini - bžunda</field>
+            <field name="title.sort">OTTU|V SLOVNI|K NAUC|NY| ILLUSTROVANA| ENCYKLOPAEDIE OBECNY|H| VE|DOMOSTI| 4 BIANH|I GIOVINI BZ|UNDA</field>
+            <field name="titles.search">Ottův slovník naučný: illustrovaná encyklopaedie obecných vědomostí. 4. Bianchi-Giovini - bžunda</field>
+        </out>
+    </test>
+
+    <test name="part number is not a number">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Deutschböhmen als Wirtschaftsgrossmacht</title>
+                <partNumber>2x</partNumber>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="part.number.sort">2</field>
+            <field name="part.number.str">2x</field>
+
+            <field name="title.search">Deutschböhmen als Wirtschaftsgrossmacht. 2x</field>
+            <field name="title.sort">DEUTSH|BO|HMEN ALS WIRTSH|AFTSGROSSMAH|T 2X</field>
+            <field name="titles.search">Deutschböhmen als Wirtschaftsgrossmacht. 2x</field>
+        </out>
+    </test>
+
+</testSuite>
+
+

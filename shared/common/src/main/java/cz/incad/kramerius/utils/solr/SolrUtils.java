@@ -28,6 +28,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import cz.incad.kramerius.impl.SolrAccessImpl;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -44,7 +45,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -53,7 +53,7 @@ import static org.apache.http.HttpStatus.SC_OK;
 
 /**
  * Utility helper class for SolrAccess
- * @see SolrAccess
+ * @see SolrAccessImpl
  * @author pavels
  */
 public class SolrUtils   {
@@ -67,7 +67,9 @@ public class SolrUtils   {
     public static final String HANDLE_QUERY="q=handle:";
     /** Parent query */
     public static final String PARENT_QUERY="q=parent_pid:";
-    
+
+    public static final String DNNT_FLAG = "dnnt";
+
     // factory instance
     static XPathFactory fact =XPathFactory.newInstance();
     
@@ -135,7 +137,7 @@ public class SolrUtils   {
         XPathExpression dateExpr = fact.newXPath().compile("//str[@name='datum_str']");
         return dateExpr;
     }
-    
+
     /**
      * Disects pid paths from given parsed solr document
      * @return pid paths
@@ -143,20 +145,30 @@ public class SolrUtils   {
      */
     public static List<String> disectPidPaths( Document parseDocument) throws XPathExpressionException {
         synchronized(parseDocument) {
-            List<String> list = new ArrayList<String>();
-            NodeList paths = (org.w3c.dom.NodeList) pidPathExpr().evaluate(parseDocument, XPathConstants.NODESET);
-            if (paths != null) {
-                for (int i = 0,ll=paths.getLength(); i < ll; i++) {
-                    Node n = paths.item(i);
-                    String text = n.getTextContent();
-                    list.add(text.trim());
-                }
-                return list;
-            }
-            return new ArrayList<String>();
+            return paths(parseDocument);
         }
     }
-    
+
+    public static List<String> disectPidPaths( Element element) throws XPathExpressionException {
+        synchronized(element) {
+            return paths(element);
+        }
+    }
+
+    private static List<String> paths(Node domn) throws XPathExpressionException {
+        List<String> list = new ArrayList<>();
+        NodeList paths = (NodeList) pidPathExpr().evaluate(domn, XPathConstants.NODESET);
+        if (paths != null) {
+            for (int i = 0,ll=paths.getLength(); i < ll; i++) {
+                Node n = paths.item(i);
+                String text = n.getTextContent();
+                list.add(text.trim());
+            }
+            return list;
+        }
+        return new ArrayList<>();
+    }
+
     /**
      * Disect pid from given solr document
      * @param parseDocument Parsed solr document
@@ -173,6 +185,55 @@ public class SolrUtils   {
             return null;
         }
     }
+
+    public static List<String> disectDNNTLabels(Element topElem) {
+        synchronized(topElem.getOwnerDocument()) {
+            Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    return (element.getNodeName().equals("arr") && element.getAttribute("name") != null && element.getAttribute("name").equals("dnnt-labels"));
+                }
+            });
+            if (foundElement != null) {
+                List<String> list = new ArrayList<>();
+                NodeList childNodes = foundElement.getChildNodes();
+                for (int i = 0; i < childNodes.getLength(); i++) {
+                    Node item = childNodes.item(i);
+                    if (item.getNodeType() == Node.ELEMENT_NODE) {
+                        list.add(item.getTextContent().toString());
+                    }
+                }
+                return list;
+            } else return new ArrayList<>();
+        }
+
+    }
+
+
+
+
+    public static String disectDNNTFlag(Element topElem)  {
+        return disectDNNTFlag(topElem, DNNT_FLAG);
+    }
+
+    public static String disectDNNTFlag(Element topElem, String flag)  {
+        synchronized(topElem.getOwnerDocument()) {
+            Element foundElement = XMLUtils.findElement(topElem, new XMLUtils.ElementsFilter() {
+
+                @Override
+                public boolean acceptElement(Element element) {
+                    return (element.getNodeName().equals("bool") && element.getAttribute("name") != null && element.getAttribute("name").equals(flag));
+                }
+
+            });
+            if (foundElement != null) {
+                return foundElement.getTextContent().trim();
+            } else return null;
+        }
+    }
+
+
+
 
     public static String disectPid(Element topElem) throws XPathExpressionException {
         synchronized(topElem.getOwnerDocument()) {
@@ -211,7 +272,16 @@ public class SolrUtils   {
             return new ArrayList<String>();
         }
     }
-    
+
+
+    public static String strValue(Document parsedDocument, String xpath) throws XPathExpressionException {
+        synchronized(parsedDocument) {
+            XPathExpression compiled = fact.newXPath().compile(xpath);
+            String value = (String) compiled.evaluate(parsedDocument, XPathConstants.STRING);
+            return value;
+        }
+    }
+
     /**
      * Disect fedora model from given solr document
      * @param parseDocument Parsed solr document
@@ -228,7 +298,9 @@ public class SolrUtils   {
             return null;
         }
     }
-    
+
+
+
     /**
      * Disect parent PID from given solr document
      * @param parseDocument Parsed solr document
@@ -245,7 +317,7 @@ public class SolrUtils   {
             return null;
         }
     }
-    
+
     /**
      * Disect date from given solr document
      * @param parseDocument Parsed solr document
@@ -262,8 +334,6 @@ public class SolrUtils   {
             return null;
         }
     }
-
-
     public static Document getSolrDataInternalOffset(String query, String offset) throws IOException, ParserConfigurationException, SAXException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
         String uri = solrHost +"/select?" +query+"&start="+offset+"&wt=xml";
@@ -298,7 +368,6 @@ public class SolrUtils   {
         } else {
             throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
         }
-
     }
 
     public static InputStream getSolrTermsInternal(String query, String format) throws IOException, ParserConfigurationException, SAXException {

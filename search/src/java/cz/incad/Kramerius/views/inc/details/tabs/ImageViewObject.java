@@ -19,7 +19,7 @@ package cz.incad.Kramerius.views.inc.details.tabs;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
@@ -64,7 +64,7 @@ public class ImageViewObject {
     KConfiguration configuration;
 
     @Inject
-    IsActionAllowed isActionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     SolrAccess solrAccess;
@@ -73,7 +73,7 @@ public class ImageViewObject {
         Locale locale = this.localeProvider.get();
         String pid = requestProvider.get().getParameter(PID);
         if(pid != null
-                && isActionAllowed.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), pid, null, solrAccess.getPath(pid)[0])
+                && rightsResolver.isActionAllowed(SecuredActions.SHOW_ALTERNATIVE_INFO_TEXT.getFormalName(), pid, null, solrAccess.getPidPaths(pid)[0]).flag()
                 && textsService.isAvailable(RIGHT_MSG_ALTERNATIVE,locale)){
             return replaceUuidInMessage(textsService.getText(RIGHT_MSG_ALTERNATIVE, locale), pid);
         } else if (textsService.isAvailable(RIGHT_MSG, locale)) {

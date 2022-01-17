@@ -45,7 +45,7 @@ public class ConditionsInterpretHelper {
     
     
     /**
-     * Interpret one condtion 
+     * Interpret one condition
      * @param leftOperand Left operand
      * @param operator Operator string 
      * @param rightOperand Right operand

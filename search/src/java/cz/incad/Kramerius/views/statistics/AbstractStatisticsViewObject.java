@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.inject.name.Named;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
@@ -45,8 +46,10 @@ import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.PidsFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
 import cz.incad.kramerius.statistics.impl.ModelStatisticReport;
@@ -62,6 +65,7 @@ public abstract class AbstractStatisticsViewObject {
     static final int MAX_TITLE_LIMIT = 18;
 
     @Inject
+    @Named("database")
     StatisticsAccessLog statisticsAccessLog;
 
     @Inject
@@ -127,22 +131,45 @@ public abstract class AbstractStatisticsViewObject {
                 HttpServletRequest request = this.servletRequestProvider.get();
                 String type = request.getParameter("type");
                 String val = request.getParameter("val");
-
+                String ip = request.getParameter("ipaddresses");
+                String pids = request.getParameter("pids");
+                
+                String uniqueIP = request.getParameter("uniqueipaddresses");
+                
                 String actionFilter = request.getParameter("action");
                 String offset = request.getParameter("offset") != null ? request.getParameter("offset") : "0";
                 String size = request.getParameter("size") != null ? request.getParameter("size") : "20";
-                
+
                 DateFilter dateFilter = getDateFilter();
                 ModelFilter modelFilter = new ModelFilter();
                 modelFilter.setModel(val);
                 VisibilityFilter visFilter = getVisbilityFilter();
                 
-                IPAddressFilter ipAddr = new IPAddressFilter();
+                PidsFilter pidsFilter = new PidsFilter();
+                pidsFilter.setPids(pids);
                 
+                UniqueIPAddressesFilter uniqueIPFilter = new UniqueIPAddressesFilter();
+                uniqueIPFilter.setUniqueIPAddressesl(Boolean.valueOf(uniqueIP));
+
+                IPAddressFilter ipAddr = new IPAddressFilter();
+                if (ip != null && !ip.isEmpty()) {
+                   ip = ip.replace(",", "|");
+                   ip = ip.replace("*", "%");
+                   ip = ip.replace(" ", "");
+                   ipAddr.setIpAddress(ip);
+                }
+                else {
+                    String ipConfigVal = ipAddr.getValue();
+                    if (ipConfigVal != null) {
+                        ipConfigVal = ipConfigVal.replace("*", "%"); 
+                    }
+                    ipAddr.setIpAddress(ipConfigVal);
+                }
+
                 StatisticReport report = statisticsAccessLog.getReportById(type);
                 Offset reportOff = new Offset(offset, size);
-                report.prepareViews(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter, ipAddr}));
-                this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter,ipAddr}), reportOff);
+                report.prepareViews(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter, ipAddr, pidsFilter}));
+                this.data = report.getReportPage(actionFilter != null ? ReportedAction.valueOf(actionFilter) : null ,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter,modelFilter, visFilter,ipAddr, uniqueIPFilter, pidsFilter}), reportOff);
             }
             return this.data;
         } catch (IOException e) {

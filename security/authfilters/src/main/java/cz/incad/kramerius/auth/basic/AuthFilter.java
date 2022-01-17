@@ -94,7 +94,7 @@ public class AuthFilter  implements Filter {
         }
     }
 
-    public void basicAuth(FilterChain arg2, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException, NoSuchAlgorithmException, IOException, ServletException {
+    public void basicAuth(FilterChain arg2, HttpServletRequest request, HttpServletResponse response) throws NoSuchAlgorithmException, IOException, ServletException {
         String header = request.getHeader("Authorization");
         if (header!=null && header.trim().startsWith("Basic")) {
             String uname = header.trim().substring("Basic".length()).trim();

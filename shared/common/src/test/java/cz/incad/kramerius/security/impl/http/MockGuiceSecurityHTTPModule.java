@@ -18,26 +18,24 @@ package cz.incad.kramerius.security.impl.http;
 
 import static org.easymock.EasyMock.replay;
 
+import cz.incad.kramerius.security.*;
 import org.easymock.EasyMock;
 
 import com.google.inject.AbstractModule;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.IsActionAllowed;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.FedoraUtils;
 
 public class MockGuiceSecurityHTTPModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        IsActionAllowed isAllowed = EasyMock.createMock(IsActionAllowed.class);
-        EasyMock.expect(isAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), FedoraUtils.IMG_FULL_STREAM, SpecialObjects.REPOSITORY.getPid(), new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))).andReturn(true);
+        RightsReturnObject rightsReturnObject = new RightsReturnObject(null, EvaluatingResultState.FALSE);
+        RightsResolver isAllowed = EasyMock.createMock(RightsResolver.class);
+        EasyMock.expect(isAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), FedoraUtils.IMG_FULL_STREAM, SpecialObjects.REPOSITORY.getPid(), new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))).andReturn(rightsReturnObject);
         replay(isAllowed);
 
-        bind(IsActionAllowed.class).toInstance(isAllowed);
+        bind(RightsResolver.class).toInstance(isAllowed);
         bind(User.class).toProvider(MockUserProvider.class);
     }
 }

@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +27,6 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.lowagie.text.DocumentException;
 
@@ -44,9 +42,7 @@ import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.impl.ImageFetcher;
-import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
@@ -342,7 +338,7 @@ public class GeneratePDFServlet extends GuiceServlet {
 
                         FileOutputStream fpageFos = new FileOutputStream(fpage);
 
-                        ObjectPidsPath[] paths = solrAccess.getPath(pid);
+                        ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                         final ObjectPidsPath path = selectOnePath(pid, paths);
 
                         int[] irects = srect(srect);

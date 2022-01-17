@@ -12,7 +12,6 @@ import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
-import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowedXML;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
@@ -20,7 +19,7 @@ import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.User;
@@ -96,7 +95,7 @@ public class ItemResource {
     SolrMemoization solrMemoization;
 
     @Inject
-    IsActionAllowed isActionAllowed;
+    RightsResolver rightsResolver;
 
     @Inject
     ReplicationService replicationService;
@@ -120,12 +119,12 @@ public class ItemResource {
     public Response foxml(@PathParam("pid") String pid) {
         boolean access = false;
         try {
-            ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
             if (paths.length == 0) {
-                paths = this.resourceIndex.getPath(pid);
+                paths = this.resourceIndex.getPaths(pid);
             }
             for (ObjectPidsPath path : paths) {
-                if (this.isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, path)) {
+                if (this.rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, path).flag()) {
                     access = true;
                     break;
                 }
@@ -145,7 +144,7 @@ public class ItemResource {
                     }
                 };
                 return Response.ok().entity(stream).build();
-            } else throw new ActionNotAllowedXML("access denied");
+            } else throw new ActionNotAllowed("access denied");
         } catch (IOException e) {
             throw new PIDNotFound("cannot parse foxml for  " + pid);
         } catch (ReplicateException e) {
@@ -179,16 +178,23 @@ public class ItemResource {
                             String mimeTypeForStream = this.fedoraAccess
                                     .getMimeTypeForStream(pid, dsid);
 
-                            ResponseBuilder responseBuilder = Response.ok();
-                            responseBuilder = responseBuilder.type(mimeTypeForStream);
+//<<<<<<< HEAD
+//                            ResponseBuilder responseBuilder = Response.ok();
+//                            responseBuilder = responseBuilder.type(mimeTypeForStream);
+//=======
+//                        AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+//                        ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.rightsResolver, urlManager);
+//                        return builder.build();
+//>>>>>>> master
+//
+//                            HttpServletRequest request = this.requestProvider.get();
+//                            User user = this.userProvider.get();
+//
+//                            AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+//                            ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+//                            return builder.build();
 
-                            HttpServletRequest request = this.requestProvider.get();
-                            User user = this.userProvider.get();
-
-                            AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
-                            ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
-                            return builder.build();
-
+                            throw new UnsupportedOperationException("unsupported");
                         } else {
                             String mimeTypeForStream = this.fedoraAccess
                                     .getMimeTypeForStream(pid, dsid);
@@ -274,17 +280,18 @@ public class ItemResource {
 
                     String externalStreamURL = fedoraAccess.getExternalStreamURL(pid, dsid);
                     if (externalStreamURL != null && (externalStreamURL.startsWith("http") || externalStreamURL.startsWith("https"))) {
-                        Document solrDataDocument = this.solrAccess.getSolrDataDocument(pid);
-                        List<String> sources = CDKUtils.findSources(solrDataDocument.getDocumentElement());
-                        if (!sources.isEmpty()) {
-                            Collection collection = this.collectionsManager.getCollection(sources.get(0));
-                            String url = collection.getUrl();
-                            if (!url.endsWith("/")) url = url +"/";
-                            LOGGER.info(String.format("Redirecting to %s", String.format("%sapi/v5.0/item/%s/streams/%s", url, pid,dsid)));
-                            return Response.temporaryRedirect(new URL(String.format("%sapi/v5.0/item/%s/streams/%s", url, pid,dsid)).toURI()).build();
-                        } else {
-                            return Response.status(508).build();
-                        }
+//                        Document solrDataDocument = this.solrAccess.getSolrDataDocument(pid);
+//                        List<String> sources = CDKUtils.findSources(solrDataDocument.getDocumentElement());
+//                        if (!sources.isEmpty()) {
+//                            Collection collection = this.collectionsManager.getCollection(sources.get(0));
+//                            String url = collection.getUrl();
+//                            if (!url.endsWith("/")) url = url +"/";
+//                            LOGGER.info(String.format("Redirecting to %s", String.format("%sapi/v5.0/item/%s/streams/%s", url, pid,dsid)));
+//                            return Response.temporaryRedirect(new URL(String.format("%sapi/v5.0/item/%s/streams/%s", url, pid,dsid)).toURI()).build();
+//                        } else {
+//                            return Response.status(508).build();
+//                        }
+                        throw new UnsupportedOperationException("unsupported");
                     } else {
                         // audio streams - bacause of support rage in headers
                         if (FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
@@ -294,11 +301,21 @@ public class ItemResource {
                             ResponseBuilder responseBuilder = Response.ok();
                             responseBuilder = responseBuilder.type(mimeTypeForStream);
 
-                            HttpServletRequest request = this.requestProvider.get();
-                            User user = this.userProvider.get();
-                            AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
-                            ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
-                            return builder.build();
+//<<<<<<< HEAD
+//                            HttpServletRequest request = this.requestProvider.get();
+//                            User user = this.userProvider.get();
+//                            AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+//                            ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+//                            return builder.build();
+//=======
+//                        HttpServletRequest request = this.requestProvider.get();
+//                        User user = this.userProvider.get();
+//                        AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+//                        ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.rightsResolver, urlManager);
+//                        return builder.build();
+//>>>>>>> master
+
+                            throw new UnsupportedOperationException("unsupported");
 
                         } else {
                             final InputStream is = this.fedoraAccess.getDataStream(pid,
@@ -328,10 +345,6 @@ public class ItemResource {
             throw new PIDNotFound(e.getMessage());
         } catch (SecurityException e) {
             throw new ActionNotAllowed(e.getMessage());
-        } catch (URISyntaxException e) {
-            throw new GenericApplicationException(e.getMessage());
-        } catch (CollectionException e) {
-            throw new GenericApplicationException(e.getMessage());
 
         }
     }
@@ -397,10 +410,10 @@ public class ItemResource {
             checkPid(pid);
             ObjectPidsPath[] paths = null;
             if (PIDSupport.isComposedPID(pid)) {
-                paths = this.solrAccess.getPath(PIDSupport
+                paths = this.solrAccess.getPidPaths(PIDSupport
                         .convertToSOLRType(pid));
             } else {
-                paths = this.solrAccess.getPath(pid);
+                paths = this.solrAccess.getPidPaths(pid);
             }
 
             JSONArray sibsList = new JSONArray();

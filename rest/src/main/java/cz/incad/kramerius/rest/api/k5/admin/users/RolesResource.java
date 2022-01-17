@@ -52,7 +52,7 @@ import cz.incad.kramerius.rest.api.exceptions.DeleteException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
-import cz.incad.kramerius.security.IsActionAllowed;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -74,39 +74,39 @@ import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
 @Path("/v5.0/admin/roles")
 public class RolesResource {
 
-	@Inject
-	UserManager userManager;
-	
+    @Inject
+    UserManager userManager;
+
     @Inject
     Provider<User> userProvider;
     
     @Inject
-    IsActionAllowed actionAllowed;
+    RightsResolver rightsResolver;
 
-	
+
 
     public static FormalNamesMapping FNAMES = new FormalNamesMapping(); static {
-    	FNAMES.map("id","group_id");
-    	FNAMES.map("name","gname");
-	}; 
+        FNAMES.map("id","group_id");
+        FNAMES.map("name","gname");
+    };
 
-	public static TypesMapping TYPES = new TypesMapping(); static {
-		TYPES.map("group_id", new SQLFilter.IntegerConverter());
-		TYPES.map("gname", new SQLFilter.StringConverter());
-	}
+    public static TypesMapping TYPES = new TypesMapping(); static {
+        TYPES.map("group_id", new SQLFilter.IntegerConverter());
+        TYPES.map("gname", new SQLFilter.StringConverter());
+    }
 
     @GET
     @Path("{id:[0-9]+}")
     @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     public Response role(@PathParam("id") String roleId) {
-    	try {
+        try {
             if (permit(this.userProvider.get())) {
-            	Role role = this.userManager.findRole(Integer.parseInt(roleId));
-            	if (role != null) {
-            		return Response.ok().entity(roleToJSON(role).toString()).build();
-            	} else throw new ObjectNotFound("cannot find role '"+roleId+"'");
+                Role role = this.userManager.findRole(Integer.parseInt(roleId));
+                if (role != null) {
+                    return Response.ok().entity(roleToJSON(role).toString()).build();
+                } else throw new ObjectNotFound("cannot find role '"+roleId+"'");
             } else {
-            	throw new ActionNotAllowed("not allowed");
+                throw new ActionNotAllowed("not allowed");
             }
         } catch (JSONException e) {
             throw new GenericApplicationException(e.getMessage());
@@ -124,19 +124,19 @@ public class RolesResource {
             @QueryParam("ordering") String filterOrdering,
             @QueryParam("typefordering") @DefaultValue("ASC")String typeofordering) {
 
-    	if (permit(this.userProvider.get())) {
-        	try {
+        if (permit(this.userProvider.get())) {
+            try {
                 Offset offset = null;
                 if (StringUtils.isAnyString(filterOffset)) {
-                	offset = new Offset(filterOffset, filterResultSize);
+                    offset = new Offset(filterOffset, filterResultSize);
                 }
                 Ordering ordering = null;
                 if (StringUtils.isAnyString(filterOffset)) {
-                	ordering = new Ordering("group_id","gname").select(transform(FNAMES,filterOrdering));
+                    ordering = new Ordering("group_id","gname").select(transform(FNAMES,filterOrdering));
                 }
                 TypeOfOrdering type = null;
                 if (StringUtils.isAnyString(typeofordering)) {
-                	type = TypeOfOrdering.valueOf(typeofordering);
+                    type = TypeOfOrdering.valueOf(typeofordering);
                 }
                 
                 Map<String, String> filterMap = new HashMap<String, String>(); {
@@ -153,9 +153,9 @@ public class RolesResource {
             } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage());
             }
-    	} else {
-    		throw new ActionNotAllowed("not allowed");
-    	}
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
     }
 
     
@@ -163,23 +163,23 @@ public class RolesResource {
     @Path("{id:[0-9]+}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response delete(@PathParam("id")String id){
-    	if (permit(this.userProvider.get())) {
-        	try {
+        if (permit(this.userProvider.get())) {
+            try {
                 try {
-                	Role r = this.userManager.findRole(Integer.parseInt(id));
-                	if (r != null) {
-                		this.userManager.removeRole(r);
+                    Role r = this.userManager.findRole(Integer.parseInt(id));
+                    if (r != null) {
+                        this.userManager.removeRole(r);
                         return Response.ok().entity(roleToJSON(r).toString()).build();
-                	} else throw new ObjectNotFound("cannot find role '"+id+"'");
+                    } else throw new ObjectNotFound("cannot find role '"+id+"'");
                 } catch (SQLException e) {
-                	throw new DeleteException(e.getMessage());
+                    throw new DeleteException(e.getMessage());
                 }
             } catch (JSONException e) {
                 throw new GenericApplicationException(e.getMessage());
             }
-    	} else {
-    		throw new ActionNotAllowed("not allowed");    		
-    	}
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
     }
 
     
@@ -187,35 +187,35 @@ public class RolesResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(JSONObject uOptions) throws JSONException {
-    	if (permit(this.userProvider.get())) {
-        	try {
-    			Role role = createRoleFromJSON(uOptions);
-    			this.userManager.insertRole(role);
+        if (permit(this.userProvider.get())) {
+            try {
+                Role role = createRoleFromJSON(uOptions);
+                this.userManager.insertRole(role);
                 URI uri = UriBuilder.fromResource(UsersResource.class).path("").build();
                 return Response.created(uri).entity(roleToJSON(role).toString()).build();
-        	} catch (SQLException e) {
-        		throw new CreateException(e.getMessage());
-        	}
-    	} else throw new ActionNotAllowed("not allowed");
+            } catch (SQLException e) {
+                throw new CreateException(e.getMessage());
+            }
+        } else throw new ActionNotAllowed("not allowed");
     }
 
-	public static JSONObject roleToJSON(Role role) throws JSONException {
-		JSONObject json = new JSONObject();
-		json.put("name", role.getName());
-		json.put("id", role.getId());
-		return json;
-	}
+    public static JSONObject roleToJSON(Role role) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("name", role.getName());
+        json.put("id", role.getId());
+        return json;
+    }
 
-	public static Role createRoleFromJSON(JSONObject uOptions) throws JSONException {
-		int id = uOptions.getInt("id");
-		String gname = uOptions.getString("name");
-		Role r = new RoleImpl(id, gname, -1);
-		return r;
-	}
-	
+    public static Role createRoleFromJSON(JSONObject uOptions) throws JSONException {
+        int id = uOptions.getInt("id");
+        String gname = uOptions.getString("name");
+        Role r = new RoleImpl(id, gname, -1);
+        return r;
+    }
+
     boolean permit(User user) {
     	if (user != null)
-    		return  this.actionAllowed.isActionAllowed(user,SecuredActions.USERSADMIN.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH);
+    		return  this.rightsResolver.isActionAllowed(user,SecuredActions.USERSADMIN.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
     	else 
     		return false;
     }

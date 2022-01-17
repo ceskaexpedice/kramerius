@@ -68,7 +68,12 @@ public class AkubraRepository extends Repository {
      */
     @Override
     public void commitTransaction() throws RepositoryException {
-        throw new RepositoryException("Transactions not supported in Akubra");
+        try {
+            //to avoid temporary inconsistency between Akubra and Processing index
+            this.feeder.commit();
+        } catch (IOException | SolrServerException e) {
+            throw new RepositoryException(e);
+        }
     }
 
     /* (non-Javadoc)
@@ -114,7 +119,9 @@ public class AkubraRepository extends Repository {
         List<PropertyType> propertyTypeList = objectPropertiesType.getProperty();
         propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#state", "Active"));
         propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#ownerId", "fedoraAdmin"));
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", AkubraUtils.currentTimeString()));
+        String currentTime = AkubraUtils.currentTimeString();
+        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", currentTime));
+        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate", currentTime));
         retval.setObjectProperties(objectPropertiesType);
         return retval;
     }
@@ -175,24 +182,30 @@ public class AkubraRepository extends Repository {
     }
 
     @Override
-    public void deleteobject(String pid) throws RepositoryException {
+    public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams, boolean deleteRelationsWithThisAsTarget) throws RepositoryException {
         try {
-            this.manager.deleteObject(pid);
-
+            this.manager.deleteObject(pid, deleteDataOfManagedDatastreams);
             try {
-                // delete description and relations
-                this.feeder.deleteByPid(pid);
-                // delete relations which point to this pid
-                this.feeder.deleteByTargetPid(pid);
+                // delete relations with this object as a source
+                this.feeder.deleteByRelationsForPid(pid);
+                // possibly delete relations with this object as a target
+                if (deleteRelationsWithThisAsTarget) {
+                    this.feeder.deleteByTargetPid(pid);
+                }
+                // delete this object's description
+                this.feeder.deleteDescriptionByPid(pid);
             } catch (SolrServerException e) {
                 throw new RepositoryException("Cannot delete data from processing index for  " + pid + " please start processing index update");
             }
-
         } catch (Exception e) {
             throw new RepositoryException(e);
         }
     }
 
+    @Override
+    public void deleteObject(String pid) throws RepositoryException {
+        deleteObject(pid, true, true);
+    }
 
     @Override
     public ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException {
@@ -252,7 +265,12 @@ public class AkubraRepository extends Repository {
     @Override
     public RepositoryObject getObject(String ident) throws RepositoryException {
         try {
-            AkubraObject obj = new AkubraObject(this.manager, ident, this.manager.readObjectFromStorage(ident), this.feeder);
+            DigitalObject digitalObject = this.manager.readObjectFromStorage(ident);
+            if (digitalObject == null) {
+                //otherwise later causes NPE at places like AkubraUtils.streamExists(DigitalObject object, String streamID)
+                throw new RepositoryException("object not consistently found in storage: " + ident);
+            }
+            AkubraObject obj = new AkubraObject(this.manager, ident, digitalObject, this.feeder);
             return obj;
         } catch (IOException e) {
             throw new RepositoryException(e);

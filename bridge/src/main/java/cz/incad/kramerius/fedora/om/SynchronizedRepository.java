@@ -50,9 +50,20 @@ public class SynchronizedRepository extends Repository {
         return this.repository.getObject(ident);
     }
 
+//    @Override
+//    public synchronized void deleteobject(String pid) throws RepositoryException {
+//        this.repository.deleteobject(pid);
+//    }
+
+
     @Override
-    public synchronized void deleteobject(String pid) throws RepositoryException {
-        this.repository.deleteobject(pid);
+    public void deleteObject(String pid) throws RepositoryException {
+        this.repository.deleteObject(pid);
+    }
+
+    @Override
+    public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams, boolean deleteRelationsWithThisAsTarget) throws RepositoryException {
+
     }
 
     @Override

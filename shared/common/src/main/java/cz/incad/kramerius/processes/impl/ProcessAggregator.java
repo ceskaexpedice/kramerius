@@ -37,10 +37,10 @@ public class ProcessAggregator {
     
     public static void main(String[] args) throws Exception {
         String uuid = System.getProperty(ProcessStarter.UUID_KEY);
-        
-        String def = args[0];
-        String[] processDefsParams = Arrays.copyOfRange(args, 1, args.length);
 
+        String def = args[0];
+        String[] processDefsParams = Arrays.copyOfRange(args, 1, args.length);  
+       
         if (processDefsParams.length > 0) {
             String parameter = URLDecoder.decode(processDefsParams[0], "UTF-8");
             ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(parameter)));
@@ -49,7 +49,7 @@ public class ProcessAggregator {
             List<String> paramsStringList = paramsList.stream().map(Object::toString).collect(Collectors.toList());
             ProcessUtils.startProcess(def, paramsStringList.toArray(new String[paramsStringList.size()]));
         }
-
+        
         //TODO: I18N
         ProcessStarter.updateName("Davkove spusteny process ["+def+"]");
     }

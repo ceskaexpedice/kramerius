@@ -17,7 +17,6 @@
 package cz.incad.Kramerius.security.rightscommands.post;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -28,13 +27,8 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.NotImplementedException;
-
-import cz.incad.Kramerius.security.RightsServlet;
-import cz.incad.Kramerius.security.ServletCommand;
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.impl.RightImpl;
@@ -50,14 +44,9 @@ public class Edit extends ServletRightsCommand {
             //Right right = RightsServlet.createRightFromPost(req, rightsManager, userManager, criteriumWrapperFactory);
             Map values = new HashMap();
             Enumeration parameterNames = req.getParameterNames();
-            
-            while(parameterNames.hasMoreElements()) {
-                String key = (String) parameterNames.nextElement();
-                String value = req.getParameter(key);
-                SimpleJSONObjects simpleJSONObjects = new SimpleJSONObjects();
-                simpleJSONObjects.createMap(key, values, value);
-            }
-            
+
+            Delete.parametersToJson(req, values, parameterNames);
+
             List affectedObjects = (List) values.get("affectedObjects");
             for (int i = 0; i < affectedObjects.size(); i++) {
                 String pid = affectedObjects.get(i).toString();
@@ -73,22 +62,22 @@ public class Edit extends ServletRightsCommand {
 
     private void editRight(Map data, String pid) throws IOException, SQLException {
         RightImpl right = right(data, pid);
-        ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         boolean hasRight = false;
         for (int i = 0; i < paths.length; i++) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i])) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null, paths[i]).flag()) {
                 hasRight = true;
                 break;
             } else {
-                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         } 
         // root object
         if (paths.length  == 0) {
-            if (this.actionAllowed.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null ,new ObjectPidsPath(pid))) {
+            if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), pid, null ,new ObjectPidsPath(pid)).flag()) {
                 hasRight = true;
             } else {
-                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.ADMINISTRATE,pid));
+                this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         }
         

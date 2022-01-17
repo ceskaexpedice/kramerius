@@ -41,13 +41,16 @@ public class CDKFormat implements ReplicationFormat {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    public static final String[] DATA_STREAMS = { FedoraUtils.IMG_FULL_STREAM, /*
+    // TODO: Change it
+    public static final String[] DATA_STREAMS_TO_BINARY = {FedoraUtils.IMG_THUMB_STREAM};
+
+    public static final String[] DATA_STREAMS_TO_REFERENCE = { FedoraUtils.IMG_FULL_STREAM, /*
                                                                                 * FedoraUtils
                                                                                 * .
                                                                                 * IMG_THUMB_STREAM
                                                                                 * ,
                                                                                 */
-    FedoraUtils.IMG_PREVIEW_STREAM, 
+    FedoraUtils.IMG_PREVIEW_STREAM,
     
     
     // media files
@@ -63,25 +66,55 @@ public class CDKFormat implements ReplicationFormat {
             Element docElement = document.getDocumentElement();
             if (docElement.getLocalName().equals("digitalObject")) {
 
-                List<Element> datastreamsElements = XMLUtils.getElements(
+                // Streams that should be referenced
+                List<Element> referencedDatastreams = XMLUtils.getElements(
                         docElement, new XMLUtils.ElementsFilter() {
-
                             @Override
                             public boolean acceptElement(Element elm) {
                                 String elmName = elm.getLocalName();
                                 String idName = elm.getAttribute("ID");
                                 boolean idContains = Arrays
-                                        .asList(DATA_STREAMS).contains(idName);
+                                        .asList(DATA_STREAMS_TO_REFERENCE).contains(idName);
                                 return elmName.equals("datastream")
                                         && idContains
-                                        && elm.hasAttribute("CONTROL_GROUP")
-                                        && elm.getAttribute("CONTROL_GROUP")
-                                                .equals("M");
+                                        && elm.hasAttribute("CONTROL_GROUP");
+                                        //&& elm.getAttribute("CONTROL_GROUP")
+                                        //        .equals("M");
                             }
                         });
 
-                for (Element datStreamElm : datastreamsElements) {
-                    dataStreamVersions(document, datStreamElm);
+                for (Element datStreamElm : referencedDatastreams) {
+                    List<Element> versions = versions(datStreamElm);
+                    String idAttr = datStreamElm.getAttribute("ID");
+                    for (Element version: versions) {
+                        URL url = makeURL(document,  idAttr);
+                        ReplicationUtils.referenceForStream(document, datStreamElm, version, url);
+                    }
+                }
+
+                // stream should be binary
+                List<Element> binaryStreams = XMLUtils.getElements(
+                        docElement, new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element elm) {
+                                String elmName = elm.getLocalName();
+                                String idName = elm.getAttribute("ID");
+                                boolean idContains = Arrays
+                                        .asList(DATA_STREAMS_TO_BINARY).contains(idName);
+                                return elmName.equals("datastream")
+                                        && idContains
+                                        && elm.hasAttribute("CONTROL_GROUP")
+                                        && !elm.getAttribute("CONTROL_GROUP")
+                                        .equals("M");
+                            }
+                        });
+                for (Element datStreamElm : binaryStreams) {
+                    List<Element> versions = versions(datStreamElm);
+                    String idAttr = datStreamElm.getAttribute("ID");
+                    for (Element version: versions) {
+                        URL url = makeURL(document,  idAttr);
+                        ReplicationUtils.binaryContentForStream(document, datStreamElm, version, url);
+                    }
                 }
 
                 List<Element> relsExt = XMLUtils.getElements(docElement,
@@ -107,7 +140,7 @@ public class CDKFormat implements ReplicationFormat {
                     removeVirtualCollections(document, relsExt.get(0));
                 }
                 
-                if (params != null && params.length > 0) {
+                if (params != null && params.length > 0 && params[0] != null) {
                     String vcname = params[0].toString();
                     virtualCollectionName(vcname, document, relsExt.get(0));
                 }
@@ -135,6 +168,17 @@ public class CDKFormat implements ReplicationFormat {
         } catch (URISyntaxException e) {
             throw new ReplicateException(e);
         }
+    }
+
+    private List<Element> versions(Element datStreamElm) {
+        return XMLUtils.getElements(datStreamElm,
+                                new XMLUtils.ElementsFilter() {
+                                    @Override
+                                    public boolean acceptElement(Element element) {
+                                        String locName = element.getLocalName();
+                                        return locName.endsWith("datastreamVersion");
+                                    }
+                                });
     }
 
     private void changeIIPPoint(Document document, Element element)
@@ -224,42 +268,28 @@ public class CDKFormat implements ReplicationFormat {
         return new URL(imgServ);
     }
 
-    private void dataStreamVersions(Document document, Element dataStreamElm)
-            throws ReplicateException {
-        String idAttr = dataStreamElm.getAttribute("ID");
-        List<Element> versions = XMLUtils.getElements(dataStreamElm,
-                new XMLUtils.ElementsFilter() {
+//    private void makeReferencedDatastreams(Document document, Element dataStreamElm)
+//            throws ReplicateException {
+//        String idAttr = dataStreamElm.getAttribute("ID");
+//        List<Element> versions = versions(dataStreamElm);
+//
+//        for (Element version : versions) {
+//            try {
+//                URL url = makeURL(document,  idAttr);
+//                changeDataStream(document, dataStreamElm, version, url);
+//            } catch (MalformedURLException e) {
+//                throw new ReplicateException(e);
+//            } catch (IOException e) {
+//                throw new ReplicateException(e);
+//            } catch (DOMException e) {
+//                throw new ReplicateException(e);
+//            } catch (URISyntaxException e) {
+//                throw new ReplicateException(e);
+//            }
+//        }
+//    }
 
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        String locName = element.getLocalName();
-                        return locName.endsWith("datastreamVersion");
-                    }
-                });
-
-        for (Element version : versions) {
-            Element found = XMLUtils.findElement(version, "binaryContent",
-                    version.getNamespaceURI());
-
-            if (found != null) {
-                try {
-                    URL url = makeURL(document, found, idAttr);
-
-                    changeDataStream(document, dataStreamElm, version, url);
-                } catch (MalformedURLException e) {
-                    throw new ReplicateException(e);
-                } catch (IOException e) {
-                    throw new ReplicateException(e);
-                } catch (DOMException e) {
-                    throw new ReplicateException(e);
-                } catch (URISyntaxException e) {
-                    throw new ReplicateException(e);
-                }
-            }
-        }
-    }
-
-    private URL makeURL(Document doc, Element found, String idAttr)
+    private URL makeURL(Document doc, String idAttr)
             throws MalformedURLException {
         HttpServletRequest req = this.requestProvider.get();
         String pid = doc.getDocumentElement().getAttribute("PID");
@@ -269,41 +299,56 @@ public class CDKFormat implements ReplicationFormat {
         return new URL(imgServ);
     }
 
-    /**
-     * @param version
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws DOMException
-     */
-    private void changeDataStream(Document document, Element datastream,
-            Element version, URL url) throws IOException, DOMException,
-            URISyntaxException {
-        InputStream is = null;
-        try {
-            Element digestElm = XMLUtils.findElement(version, "contentDigest",
-                    version.getNamespaceURI());
-            if (digestElm != null) {
-                version.removeChild(XMLUtils.findElement(version,
-                        "contentDigest", version.getNamespaceURI()));
-            }
 
-            Element location = document.createElementNS(
-                    version.getNamespaceURI(), "contentLocation");
-            location.setAttribute("REF", url.toURI().toString());
-            location.setAttribute("TYPE", "URL");
-
-            version.removeChild(XMLUtils.findElement(version, "binaryContent",
-                    version.getNamespaceURI()));
-
-            document.adoptNode(location);
-            version.appendChild(location);
-
-            datastream.setAttribute("CONTROL_GROUP", "E");
-
-        } finally {
-            IOUtils.tryClose(is);
-        }
-    }
+//
+//    /**
+//     * Change datastream to reference
+//     * @param version
+//     * @throws IOException
+//     * @throws URISyntaxException
+//     * @throws DOMException
+//     */
+//    private void changeDataStream(Document document, Element datastream,
+//            Element version, URL url) throws IOException, DOMException,
+//            URISyntaxException {
+//        InputStream is = null;
+//        try {
+//            Element digestElm = XMLUtils.findElement(version, "contentDigest",
+//                    version.getNamespaceURI());
+//            if (digestElm != null) {
+//                version.removeChild(XMLUtils.findElement(version,
+//                        "contentDigest", version.getNamespaceURI()));
+//            }
+//
+//            // in case of M - remove binary
+//            Element binaryContent = XMLUtils.findElement(version, "binaryContent",
+//                    version.getNamespaceURI());
+//            if (binaryContent != null) {
+//                version.removeChild(binaryContent);
+//            }
+//
+//            // in case of E - remove old url
+//            Element contentLocation = XMLUtils.findElement(version, "contentLocation",
+//                    version.getNamespaceURI());
+//            if (contentLocation != null) {
+//                version.removeChild(contentLocation);
+//            }
+//
+//
+//            Element location = document.createElementNS(
+//                    version.getNamespaceURI(), "contentLocation");
+//            location.setAttribute("REF", url.toURI().toString());
+//            location.setAttribute("TYPE", "URL");
+//
+//            document.adoptNode(location);
+//            version.appendChild(location);
+//
+//            datastream.setAttribute("CONTROL_GROUP", "E");
+//
+//        } finally {
+//            IOUtils.tryClose(is);
+//        }
+//    }
 
     @Override
     public byte[] formatFoxmlData(byte[] input) throws ReplicateException {

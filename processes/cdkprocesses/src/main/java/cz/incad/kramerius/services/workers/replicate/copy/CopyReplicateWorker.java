@@ -40,7 +40,7 @@ public class CopyReplicateWorker extends Worker {
             "datum_str datum rok datum_begin datum_end datum_page issn mdt ddt dostupnost keywords " +
             "geographic_names collection sec model_path pid_path rels_ext_index level dc.title title_sort " +
             "title_sort dc.creator dc.identifier language dc.description details facet_title browse_title browse_autor img_full_mime viewable " +
-            "virtual location range mods.shelfLocator mods.physicalLocation text dnnt";
+            "virtual location range mods.shelfLocator mods.physicalLocation text dnnt dnnt-labels";
 
     // Default pid; K5 index
     public static final String DEFAULT_PID_FIELD = "PID";
@@ -142,7 +142,7 @@ public class CopyReplicateWorker extends Worker {
 
                     ReplicateFinisher.BATCHES.addAndGet(subpids.size());
                     // Detect if documents are new documents or already indexed documents
-                    ReplicateContext pidsToReplicate = findPidsAlreadyIndexed(subpids);
+                    ReplicateContext pidsToReplicate = findPidsAlreadyIndexed(subpids, this.transform);
                     // not indexed => onIndeRemoveElms + onIndexUpdate
                     if (!pidsToReplicate.getNotIndexed().isEmpty()) {
 
@@ -208,16 +208,17 @@ public class CopyReplicateWorker extends Worker {
                                 if (compositeId) {
                                     String compositeId = pair.get("compositeId");
 
-                                    String root = pair.get(rootOfComposite);
-                                    String child = pair.get(childOfComposite);
+                                    String root = pair.get(transform.getField(rootOfComposite));
+                                    String child = pair.get(transform.getField(childOfComposite));
 
                                     field.setAttribute("name", "compositeId");
                                     field.setTextContent(root +"!"+child);
 
                                 } else {
-                                    String identifier = pair.get(idIdentifier);
+                                    String idname = transform.getField(idIdentifier);
+                                    String identifier = pair.get(idname);
                                     // if compositeid
-                                    field.setAttribute("name", idIdentifier);
+                                    field.setAttribute("name", idname);
                                     // formal name from hashmap
                                     field.setTextContent(identifier);
                                 }
@@ -285,20 +286,20 @@ public class CopyReplicateWorker extends Worker {
 
     }
 
-    private ReplicateContext findPidsAlreadyIndexed(List<String> subpids) throws ParserConfigurationException, SAXException, IOException {
+    private ReplicateContext findPidsAlreadyIndexed(List<String> subpids, SourceToDestTransform transform) throws ParserConfigurationException, SAXException, IOException {
         String reduce = subpids.stream().map(it -> {
             return '"' + it + '"';
         }).collect(Collectors.joining(" OR "));
         // zde musim ziskat root.pid a zaroven
-        String fieldlist = idIdentifier + " " + collectionField;
+        String fieldlist = this.transform.getField(idIdentifier) + " " + collectionField;
         if (compositeId) {
-            fieldlist = fieldlist +" "+this.rootOfComposite;
+            fieldlist = fieldlist +" "+this.transform.getField(this.rootOfComposite);
             if (!idIdentifier.equals(childOfComposite)) {
-                fieldlist = fieldlist +" "+this.childOfComposite;
+                fieldlist = fieldlist +" "+this.transform.getField(this.childOfComposite);
             }
         }
 
-        String query =   "?q="+idIdentifier+":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8")+"&wt=xml&rows="+subpids.size();
+        String query =   "?q="+this.transform.getField(idIdentifier)+":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8")+"&wt=xml&rows="+subpids.size();
 
         String checkUrl = this.checkUrl + (this.checkUrl.endsWith("/") ? "": "/") + this.checkEndpoint;
         Element resultElem = XMLUtils.findElement(SolrUtils.executeQuery(client, checkUrl , query, this.user, this.pass), (elm) -> {
@@ -310,10 +311,10 @@ public class CopyReplicateWorker extends Worker {
         docs.stream().forEach(d->{
             Map<String, String> map = new HashMap<>();
             Element pid = XMLUtils.findElement(d, e -> {
-                return e.getAttribute("name").equals(idIdentifier);
+                return e.getAttribute("name").equals(this.transform.getField(idIdentifier));
             });
             if (pid != null) {
-                map.put(idIdentifier, pid.getTextContent());
+                map.put(this.transform.getField(idIdentifier), pid.getTextContent());
             }
             Element collection = XMLUtils.findElement(d, e -> {
                 return e.getAttribute("name").equals(collectionField);
@@ -324,10 +325,10 @@ public class CopyReplicateWorker extends Worker {
 
             if (compositeId) {
                 Element compositeRoot = XMLUtils.findElement(d, e -> {
-                    return e.getAttribute("name").equals(rootOfComposite);
+                    return e.getAttribute("name").equals(this.transform.getField(rootOfComposite));
                 });
                 if (compositeRoot != null) {
-                    map.put(rootOfComposite, compositeRoot.getTextContent());
+                    map.put(this.transform.getField(rootOfComposite), compositeRoot.getTextContent());
                 }
 
                 Element compositeChild = XMLUtils.findElement(d, e -> {
@@ -335,7 +336,7 @@ public class CopyReplicateWorker extends Worker {
                 });
 
                 if (compositeChild != null) {
-                    map.put(childOfComposite, compositeChild.getTextContent());
+                    map.put(this.transform.getField(childOfComposite), compositeChild.getTextContent());
                 }
             }
             list.add(map);
@@ -354,7 +355,7 @@ public class CopyReplicateWorker extends Worker {
         */
 
         List<String> pidsFromLocalSolr = list.stream().map(m -> {
-            return m.get(idIdentifier);
+            return m.get(this.transform.getField(idIdentifier));
         }).collect(Collectors.toList());
 
         //List<String> pidsFromLocalSolr = pidsAndCollections.stream().map(Pair::getLeft).collect(Collectors.toList());
