@@ -10,6 +10,7 @@ import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.adapters.FedoraAccess;
 import cz.kramerius.adapters.IResourceIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -21,6 +22,7 @@ import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceInd
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 /**
@@ -30,27 +32,26 @@ public class NewIndexerProcessIndexObject {
 
     public static final Logger LOGGER = Logger.getLogger(NewIndexerProcessIndexObject.class.getName());
 
-    public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token";
-
+    /**
+     * args[0] - authToken
+     * args[1] - indexation type
+     * args[2] - pid
+     * args[3] - ignore inconsistent objects - if indexer should continue, or fail when meeting object that is inconsistent in repository
+     * args[4...] - optional title
+     */
     public static void main(String[] args) throws IOException {
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
             System.out.println(arg);
         }*/
+        if (args.length < 4) {
+            throw new RuntimeException("Not enough arguments.");
+        }
         int argsIndex = 0;
-        String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //Kramerius
-        String krameriusApiAuthClient = args[argsIndex++];
-        String krameriusApiAuthUid = args[argsIndex++];
-        String krameriusApiAuthAccessToken = args[argsIndex++];
-        //SOLR
-        String solrBaseUrl = args[argsIndex++];
-        String solrCollection = args[argsIndex++];
-        boolean solrUseHttps = Boolean.valueOf(args[argsIndex++]);
-        String solrLogin = args[argsIndex++];
-        String solrPassword = args[argsIndex++];
-        //indexation info
+        //token for keeping possible following processes in same batch
+        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+        //process params
         String type = args[argsIndex++];
         String pid = args[argsIndex++];
         Boolean ignoreInconsistentObjects = Boolean.valueOf(args[argsIndex++]);
@@ -70,7 +71,7 @@ public class NewIndexerProcessIndexObject {
             ProcessStarter.updateName(String.format("Indexace %s (typ %s)", pid, type));
         }
 
-        SolrConfig solrConfig = new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword);
+        SolrConfig solrConfig = new SolrConfig(KConfiguration.getInstance());
 
         //access to repository through new public HTTP APIs
         /*RepositoryAccessImplByKrameriusNewApis.Credentials krameriusCredentials = new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);

@@ -10,7 +10,6 @@ import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.fedora.AbstractFedoraAccess;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -52,7 +51,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Document getRelsExt(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return akubra.getRelsExt(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -73,7 +72,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Document getBiblioMods(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getBiblioMods(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -93,7 +92,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Document getDC(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getDC(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -113,7 +112,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public InputStream getSmallThumbnail(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getSmallThumbnail(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -133,7 +132,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Document getSmallThumbnailProfile(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getSmallThumbnailProfile(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -153,7 +152,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public String getSmallThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getSmallThumbnailMimeType(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -171,7 +170,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public boolean isFullthumbnailAvailable(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.isFullthumbnailAvailable(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -191,7 +190,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public InputStream getFullThumbnail(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getFullThumbnail(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -211,7 +210,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public String getFullThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getFullThumbnailMimeType(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -229,7 +228,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public InputStream getImageFULL(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getImageFULL(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -249,7 +248,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Document getImageFULLProfile(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getImageFULLProfile(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -269,7 +268,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public String getImageFULLMimeType(String pid) throws IOException, XPathExpressionException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getImageFULLMimeType(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -287,7 +286,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.isStreamAvailable(pid, streamName);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -307,7 +306,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public boolean isObjectAvailable(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.isObjectAvailable(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -327,7 +326,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public boolean isContentAccessible(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.isContentAccessible(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -357,7 +356,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getDataStream(pid,datastreamName);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -377,7 +376,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             this.akubra.observeStreamHeaders(pid,datastreamName, streamObserver);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -398,7 +397,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public String getExternalStreamURL(String pid, String datastreamName) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getExternalStreamURL(pid,datastreamName);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -418,7 +417,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public InputStream getDataStreamXml(String pid, String datastreamName) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getDataStreamXml(pid,datastreamName);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -438,7 +437,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getDataStreamXmlAsDocument(pid,datastreamName);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -458,7 +457,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public String getMimeTypeForStream(String pid, String datastreamName) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getMimeTypeForStream(pid,datastreamName);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -483,7 +482,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Document getStreamProfile(String pid, String stream) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getStreamProfile(pid,stream);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -503,7 +502,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Document getObjectProfile(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getObjectProfile(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -523,7 +522,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public InputStream getFedoraDataStreamsList(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getFedoraDataStreamsList(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -543,7 +542,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Document getFedoraDataStreamsListAsDocument(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getFedoraDataStreamsListAsDocument(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -563,7 +562,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Date getStreamLastmodifiedFlag(String pid, String stream) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getStreamLastmodifiedFlag(pid,stream);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -583,7 +582,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public Date getObjectLastmodifiedFlag(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getObjectLastmodifiedFlag(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -603,7 +602,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public List<Map<String, String>> getStreamsOfObject(String pid) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getStreamsOfObject(pid);
         } catch (RepositoryException e) {
             throw  new IOException(e);
@@ -623,7 +622,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     @Override
     public InputStream getFoxml(String pid, boolean archive) throws IOException {
         try {
-            onDemandIngest.ingestIfNecessary(pid, this.getInternalAPI());
+            onDemandIngest.ingestIfNecessary(this.getInternalAPI(), pid);
             return this.akubra.getFoxml(pid, archive);
         } catch (RepositoryException e) {
             throw  new IOException(e);

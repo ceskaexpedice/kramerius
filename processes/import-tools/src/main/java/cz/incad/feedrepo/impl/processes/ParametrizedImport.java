@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2012 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,16 +30,19 @@ import java.util.logging.Level;
 /**
  * Parametrized import proces
  * @author pavels
+ * @deprecated this is only used for process parametrizedimport, that is itself deprecated;
+ * @see also org.kramerius.imports.input.ParametrizedImportInputTemplate
  *
  */
+@Deprecated
 public class ParametrizedImport {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedImport.class.getName());
-    
 
-    
+
+
     @Process
-    public static void process( @ParameterName("importDirectory") File importDirectory, 
+    public static void process( @ParameterName("importDirectory") File importDirectory,
             @ParameterName("startIndexer")Boolean startIndexer,
             @ParameterName("updateExisting")Boolean updateExisting) throws UnsupportedEncodingException, ClassNotFoundException, InstantiationException, IllegalAccessException, RepositoryException {
 
@@ -47,7 +50,7 @@ public class ParametrizedImport {
         System.setProperty("ingest.startIndexer", startIndexer.toString());
         System.setProperty("ingest.updateExisting", updateExisting.toString());
         System.setProperty("ingest.skip", "false");   //import se bude vždy spouštět
-        
+
         try {
             //TODO: I18N
             ProcessStarter.updateName("Parametrizovany import z '"+importDirectory.getAbsolutePath()+"'");

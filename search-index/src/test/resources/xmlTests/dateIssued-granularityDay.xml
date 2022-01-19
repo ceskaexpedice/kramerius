@@ -256,19 +256,19 @@
     </test>-->
 
     <!--DD.MM-DD.MM.RRRR-->
-    <test name="3.7.-12.2.1952">
+    <test name="3.7.-12.9.1952">
         <desc>Rozsah datumů (DD.MM-DD.MM.RRRR)</desc>
         <in>
             <originInfo>
-                <dateIssued>3.7.-12.2.1952</dateIssued>
+                <dateIssued>3.7.-12.9.1952</dateIssued>
             </originInfo>
         </in>
         <out>
-            <field name="date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="date.max">1952-09-12T23:59:59.999Z</field>
             <field name="date.min">1952-07-03T00:00:00.001Z</field>
-            <field name="date.str">3.7.-12.2.1952</field>
+            <field name="date.str">3.7.-12.9.1952</field>
             <field name="date_range_end.day">12</field>
-            <field name="date_range_end.month">2</field>
+            <field name="date_range_end.month">9</field>
             <field name="date_range_end.year">1952</field>
             <field name="date_range_start.day">3</field>
             <field name="date_range_start.month">7</field>
@@ -284,19 +284,19 @@
         </out>
     </test>
 
-    <test name="03. 7. - 12.02.1952">
+    <test name="03. 7. - 12.09.1952">
         <desc>Rozsah datumů (DD.MM-DD.MM.RRRR) 2</desc>
         <in>
             <originInfo>
-                <dateIssued>03. 7. - 12.02.1952</dateIssued>
+                <dateIssued>03. 7. - 12.09.1952</dateIssued>
             </originInfo>
         </in>
         <out>
-            <field name="date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="date.max">1952-09-12T23:59:59.999Z</field>
             <field name="date.min">1952-07-03T00:00:00.001Z</field>
-            <field name="date.str">03. 7. - 12.02.1952</field>
+            <field name="date.str">03. 7. - 12.09.1952</field>
             <field name="date_range_end.day">12</field>
-            <field name="date_range_end.month">2</field>
+            <field name="date_range_end.month">9</field>
             <field name="date_range_end.year">1952</field>
             <field name="date_range_start.day">3</field>
             <field name="date_range_start.month">7</field>

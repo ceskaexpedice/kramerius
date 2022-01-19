@@ -39,6 +39,12 @@ public class RoleImpl  implements Role, Serializable {
     }
 
 
+    public RoleImpl(String gname) {
+        this.gname = gname;
+        this.id = -1;
+        this.personalAdminId  = -1;
+    }
+
     @Override
     public int getId() {
         return this.id;

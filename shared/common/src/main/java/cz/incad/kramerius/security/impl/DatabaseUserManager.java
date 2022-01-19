@@ -22,11 +22,14 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cz.incad.kramerius.security.DefaultRoles;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 
@@ -55,7 +58,7 @@ import cz.incad.kramerius.utils.database.SQLFilter;
 
 public class DatabaseUserManager implements UserManager {
 
-    private static final String PUBLIC_USERS_ROLE_NAME = "public_users";
+    //private static final String PUBLIC_USERS_ROLE_NAME = "public_users";
 
     private static final StringTemplateGroup ST_GROUP = SecurityDatabaseUtils
             .stGroup();
@@ -71,6 +74,7 @@ public class DatabaseUserManager implements UserManager {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
+
 
     private Role[] rolesForUser(int userId) {
         List<Role> rlist = new JDBCQueryTemplate<Role>(
@@ -152,6 +156,9 @@ public class DatabaseUserManager implements UserManager {
 
         if (ordering != null && ordering.getSelected() != null) {
             buffer.append(" order by ").append(ordering.getSelected());
+            if (typeOfOrdering != null) {
+                buffer.append(" ").append(typeOfOrdering.getTypeOfOrdering());
+            }
         }
 
         if (offset != null) {
@@ -590,61 +597,116 @@ public class DatabaseUserManager implements UserManager {
             return false;
     }
 
-    @Override
-    public void registerLoggedUser(final User user, final String loggedUserKey)
-            throws SQLException {
-        final StringTemplateGroup stGroup = ST_GROUP;
-        final Connection connection = this.provider.get();
-
-        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
-        commands.add(new JDBCCommand() {
-
-            @Override
-            public Object executeJDBCCommand(Connection con)
-                    throws SQLException {
-                StringTemplate template = stGroup
-                        .getInstanceOf("registerLoggedUser");
-                template.setAttribute("user", user);
-                template.setAttribute("userkey", loggedUserKey);
-
-                JDBCUpdateTemplate update = new JDBCUpdateTemplate(connection,
-                        false);
-                Integer retVal = new Integer(update.executeUpdate(template
-                        .toString()));
-                return retVal;
-            }
-        });
-
-        Role[] roles = user.getGroups();
-        
-        for (final Role role : roles) {
-            commands.add(new JDBCCommand() {
-
-                @Override
-                public Object executeJDBCCommand(Connection con)
-                        throws SQLException {
-                    Integer loggedUserID = (Integer) getPreviousResult();
-
-                    StringTemplate template = stGroup
-                            .getInstanceOf("registerLoggedUserUpdateRoles");
-                    template.setAttribute("loggeduserid", user.getId());
-                    template.setAttribute("roleid", role.getId());
-
-                    JDBCUpdateTemplate update = new JDBCUpdateTemplate(
-                            connection, false);
-                    update.executeUpdate(template.toString());
-
-                    return loggedUserID;
-                }
-            });
-
-        }
-
-        // update in transaction
-        new JDBCTransactionTemplate(connection, true)
-                .updateWithTransaction(commands
-                        .toArray(new JDBCCommand[commands.size()]));
-    }
+//    @Override
+//    public void registerLoggedUser(final User user, final String loggedUserKey)
+//            throws SQLException {
+//        final StringTemplateGroup stGroup = ST_GROUP;
+//        final Connection connection = this.provider.get();
+//
+//        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+//        commands.add(new JDBCCommand() {
+//
+//            @Override
+//            public Object executeJDBCCommand(Connection con)
+//                    throws SQLException {
+//                StringTemplate template = stGroup
+//                        .getInstanceOf("registerLoggedUser");
+//                template.setAttribute("user", user);
+//                template.setAttribute("userkey", loggedUserKey);
+//
+//                JDBCUpdateTemplate update = new JDBCUpdateTemplate(connection,
+//                        false);
+//                Integer retVal = new Integer(update.executeUpdate(template
+//                        .toString()));
+//                return retVal;
+//            }
+//        });
+//
+//        Role[] roles = user.getGroups();
+//
+//        for (final Role role : roles) {
+//            commands.add(new JDBCCommand() {
+//
+//                @Override
+//                public Object executeJDBCCommand(Connection con)
+//                        throws SQLException {
+//                    Integer loggedUserID = (Integer) getPreviousResult();
+//
+//                    StringTemplate template = stGroup
+//                            .getInstanceOf("registerLoggedUserUpdateRoles");
+//                    template.setAttribute("loggeduserid", user.getId());
+//                    template.setAttribute("roleid", role.getId());
+//
+//                    JDBCUpdateTemplate update = new JDBCUpdateTemplate(
+//                            connection, false);
+//                    update.executeUpdate(template.toString());
+//
+//                    return loggedUserID;
+//                }
+//            });
+//
+//        }
+//
+//        // update in transaction
+//        new JDBCTransactionTemplate(connection, true)
+//                .updateWithTransaction(commands
+//                        .toArray(new JDBCCommand[commands.size()]));
+//    }
+//    @Override
+//    public void registerLoggedUser(final User user, final String loggedUserKey)
+//            throws SQLException {
+//        final StringTemplateGroup stGroup = ST_GROUP;
+//        final Connection connection = this.provider.get();
+//
+//        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+//        commands.add(new JDBCCommand() {
+//
+//            @Override
+//            public Object executeJDBCCommand(Connection con)
+//                    throws SQLException {
+//                StringTemplate template = stGroup
+//                        .getInstanceOf("registerLoggedUser");
+//                template.setAttribute("user", user);
+//                template.setAttribute("userkey", loggedUserKey);
+//
+//                JDBCUpdateTemplate update = new JDBCUpdateTemplate(connection,
+//                        false);
+//                Integer retVal = new Integer(update.executeUpdate(template
+//                        .toString()));
+//                return retVal;
+//            }
+//        });
+//
+//        Role[] roles = user.getGroups();
+//
+//        for (final Role role : roles) {
+//            commands.add(new JDBCCommand() {
+//
+//                @Override
+//                public Object executeJDBCCommand(Connection con)
+//                        throws SQLException {
+//                    Integer loggedUserID = (Integer) getPreviousResult();
+//
+//                    StringTemplate template = stGroup
+//                            .getInstanceOf("registerLoggedUserUpdateRoles");
+//                    template.setAttribute("loggeduserid", user.getId());
+//                    template.setAttribute("roleid", role.getId());
+//
+//                    JDBCUpdateTemplate update = new JDBCUpdateTemplate(
+//                            connection, false);
+//                    update.executeUpdate(template.toString());
+//
+//                    return loggedUserID;
+//                }
+//            });
+//
+//        }
+//
+//        // update in transaction
+//        new JDBCTransactionTemplate(connection, true)
+//                .updateWithTransaction(commands
+//                        .toArray(new JDBCCommand[commands.size()]));
+//    }
 
     @Override
     public void deleteUser(final User user) throws SQLException {
@@ -688,11 +750,86 @@ public class DatabaseUserManager implements UserManager {
 
     }
 
+
+    @Override
+    public void updateUser(User user) throws SQLException {
+        final Connection connection = this.provider.get();
+        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+        commands.add(new JDBCCommand() {
+
+            @Override
+            public Object executeJDBCCommand(Connection con)
+                    throws SQLException {
+                StringTemplate template = ST_GROUP
+                        .getInstanceOf("updateUser");
+                template.setAttribute("user", user);
+                JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
+                        false);
+                String sql = template.toString();
+                LOGGER.fine(sql);
+                return jdbcTemplate.executeUpdate(sql, new java.sql.Timestamp(
+                        System.currentTimeMillis()));
+            }
+        });
+
+
+        commands.add(new JDBCCommand() {
+
+            @Override
+            public Object executeJDBCCommand(Connection con)
+                    throws SQLException {
+
+                StringTemplate template = ST_GROUP
+                        .getInstanceOf("disassociateUserRole");
+                JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
+                        false);
+                String sql = template.toString();
+
+                jdbcTemplate.executeUpdate(sql, user.getId());
+                return -1;
+            }
+        });
+
+
+        Role[] groups = user.getGroups();
+        Arrays.stream(groups).forEach(r-> {
+
+            commands.add(new JDBCCommand() {
+
+
+                @Override
+                public Object executeJDBCCommand(Connection con)
+                        throws SQLException {
+
+                    StringTemplate template = ST_GROUP
+                            .getInstanceOf("insertRoleAssoc");
+                    JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
+                            false);
+                    String sql = template.toString();
+
+                    //LOGGER.info(String.format("Role assoiation %d %d", user.getId(), r.getId()));
+                    jdbcTemplate.executeUpdate(sql, user.getId(), r.getId());
+                    return -1;
+                }
+            });
+        });
+
+
+        // update in transaction
+        new JDBCTransactionTemplate(connection, true)
+                .updateWithTransaction(commands
+                        .toArray(new JDBCCommand[commands.size()]));
+
+    }
+
+
+
     @Override
     public void insertUser(final User user, final String pswd)
             throws SQLException {
 
         final Connection connection = this.provider.get();
+
 
         List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
         commands.add(new JDBCCommand() {
@@ -714,24 +851,54 @@ public class DatabaseUserManager implements UserManager {
             }
         });
 
-        commands.add(new JDBCCommand() {
 
-            @Override
-            public Object executeJDBCCommand(Connection con)
-                    throws SQLException {
-                Integer nuser = (Integer) getPreviousResult();
+        Role[] groups = user.getGroups();
+        Arrays.stream(groups).forEach(r-> {
+            commands.add(new JDBCCommand() {
 
-                Role prole = findPublicUsersRole();
-                StringTemplate template = ST_GROUP
-                        .getInstanceOf("insertRoleAssoc");
-                JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
-                        false);
-                String sql = template.toString();
+                @Override
+                public Object executeJDBCCommand(Connection con)
+                        throws SQLException {
 
-                jdbcTemplate.executeUpdate(sql, nuser, prole.getId());
-                return nuser;
-            }
+                    int rid = r.getId();
+                    Integer nuser = (Integer) getPreviousResult();
+
+                    StringTemplate template = ST_GROUP
+                            .getInstanceOf("insertRoleAssoc");
+                    JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
+                            false);
+                    String sql = template.toString();
+
+                    jdbcTemplate.executeUpdate(sql, nuser,rid);
+                    return nuser;
+                }
+            });
         });
+        Optional<Role> any = Arrays.stream(groups).filter(r -> r.getName().equals(DefaultRoles.COMMON_USERS.getName())).findAny();
+        if (!any.isPresent()) {
+            Role commonRole = findRoleByName(DefaultRoles.COMMON_USERS.getName());
+            commands.add(new JDBCCommand() {
+
+                @Override
+                public Object executeJDBCCommand(Connection con)
+                        throws SQLException {
+                    Integer nuser = (Integer) getPreviousResult();
+
+                    StringTemplate template = ST_GROUP
+                            .getInstanceOf("insertRoleAssoc");
+                    JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con,
+                            false);
+                    String sql = template.toString();
+
+                    jdbcTemplate.executeUpdate(sql, nuser, commonRole.getId());
+                    return nuser;
+                }
+            });
+
+        }
+
+
+
 
         commands.add(new JDBCCommand() {
 
@@ -763,6 +930,8 @@ public class DatabaseUserManager implements UserManager {
                         .toArray(new JDBCCommand[commands.size()]));
     }
 
+
+
     @Override
     public void saveUserPassword(User user, String pswd) throws SQLException {
         try {
@@ -788,28 +957,27 @@ public class DatabaseUserManager implements UserManager {
                 user.getLoginname());
     }
 
-    @Override
-    public void insertPublicUsersRole() throws SQLException {
-        Role role = new RoleImpl(-1, PUBLIC_USERS_ROLE_NAME, -1);
-        this.insertRole(role);
-    }
+//    @Override
+//    public void insertPublicUsersRole() throws SQLException {
+//        Role role = new RoleImpl(-1, PUBLIC_USERS_ROLE_NAME, -1);
+//        this.insertRole(role);
+//    }
 
-    @Override
-    public Role findPublicUsersRole() {
-        StringTemplate template = ST_GROUP.getInstanceOf("findPublicRole");
-        List<Role> roles = new JDBCQueryTemplate<Role>(this.provider.get()) {
-
-            @Override
-            public boolean handleRow(ResultSet rs, List<Role> returnsList)
-                    throws SQLException {
-                Role role = SecurityDBUtils.createRole(rs);
-                returnsList.add(role);
-                return true;
-            }
-        }.executeQuery(template.toString(), PUBLIC_USERS_ROLE_NAME);
-
-        return roles.isEmpty() ? null : roles.get(0);
-    }
+//    public Role findPublicUsersRole() {
+//        StringTemplate template = ST_GROUP.getInstanceOf("findPublicRole");
+//        List<Role> roles = new JDBCQueryTemplate<Role>(this.provider.get()) {
+//
+//            @Override
+//            public boolean handleRow(ResultSet rs, List<Role> returnsList)
+//                    throws SQLException {
+//                Role role = SecurityDBUtils.createRole(rs);
+//                returnsList.add(role);
+//                return true;
+//            }
+//        }.executeQuery(template.toString(), PUBLIC_USERS_ROLE_NAME);
+//
+//        return roles.isEmpty() ? null : roles.get(0);
+//    }
 
     public void changeRoles(final User user, final List<String> rnames)
             throws SQLException {

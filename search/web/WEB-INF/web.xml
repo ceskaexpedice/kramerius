@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app>
+    <!--filter>
+        <filter-name>Keycloak Filter</filter-name>
+        <filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>Keycloak Filter</filter-name>
+        <url-pattern>/keycloak/*</url-pattern>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping-->
+    <!--init-param>
+        <param-name>keycloak.config.skipPattern</param-name>
+        <param-value>^/(path1|path2|path3).*</param-value>
+    </init-param-->
 
-    <!--
+    <!-- Disabled
     <filter>
         <filter-name>mockshibb</filter-name>
         <filter-class>cz.incad.kramerius.auth.mochshib.MockShibFilter</filter-class>
@@ -11,6 +24,11 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     -->
+
+    <init-param>
+        <param-name>com.sun.jersey.config.feature.DisableWADL</param-name>
+        <param-value>true</param-value>
+    </init-param>
 
     <filter>
         <filter-name>clientClosedRequest</filter-name>
@@ -70,16 +88,38 @@
     </filter-mapping>
     -->
 
+
     <!--  thrid party authentication -->
     <filter>
-        <filter-name>thirdpartyauthfilter</filter-name>
-        <filter-class>cz.incad.kramerius.auth.thirdparty.shibb.internal.InternalShibbolethAuthFilter</filter-class>
+        <filter-name>keyclocaksupport</filter-name>
+        <filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>thirdpartyauthfilter</filter-name>
+        <filter-name>keyclocaksupport</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <!--  third party authentication, shibboleth and keyclocak - interal users -->
+    <filter>
+        <filter-name>shibfilter</filter-name>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.shibb.internal.InternalShibbolethAuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>shibfilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Disabled in cdk
+    <filter>
+        <filter-name>keycloack</filter-name>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.keycloack.KeycloackFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>keycloack</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    -->
+    <!-- -->
 
     <!-- Guice, must be last -->
     <filter>
@@ -522,67 +562,10 @@
         <url-pattern>/localPrintPDF</url-pattern>
     </servlet-mapping>
 
-	
-    <security-role>
-        <role-name>krameriusAdmin</role-name>
-        <role-name>mock</role-name>
-        <role-name>static_export_CD</role-name>
-        <role-name>reindex</role-name>
-        <role-name>replikator_monographs</role-name>
-        <role-name>replikator_periodicals</role-name>
-        <role-name>enumerator</role-name>
-        <role-name>replicationrights</role-name>
-        <role-name>setpublic</role-name>
-        <role-name>setprivate</role-name>
-        <role-name>delete</role-name>
-        <role-name>export</role-name>
-        <role-name>convert</role-name>
-        <role-name>import</role-name>
-    </security-role>
 
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>Protected area</web-resource-name>
-            <description>no description</description>
-            <url-pattern>/redirect.jsp</url-pattern>
-            <url-pattern>/singleSignOn.jsp</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <description>no description</description>
-            <role-name>krameriusAdmin</role-name>
-            <role-name>mock</role-name>
-            <role-name>static_export_CD</role-name>
-            <role-name>reindex</role-name>
-            <role-name>replikator_monographs</role-name>
-            <role-name>replikator_periodicals</role-name>
-            <role-name>enumerator</role-name>
-            <role-name>replicationrights</role-name>
-            <role-name>setpublic</role-name>
-            <role-name>setprivate</role-name>
-            <role-name>delete</role-name>
-            <role-name>export</role-name>
-            <role-name>convert</role-name>
-            <role-name>import</role-name>
-        </auth-constraint>
-        
-        <!-- uncomment to enable SSL login (requires server certificate installation)
-<user-data-constraint>
-                     			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
-      		</user-data-constraint>
-      		-->
-    </security-constraint>
-
-    <login-config>
-        <auth-method>FORM</auth-method>
-        <realm-name>Protected</realm-name>
-        <form-login-config>
-            <form-login-page>/login.jsp</form-login-page>
-            <form-error-page>/login.jsp?failure=true</form-error-page>
-        </form-login-config>
-    </login-config>
 
     <welcome-file-list>
-        <welcome-file>search.jsp</welcome-file>
+        <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 	
     <resource-ref>

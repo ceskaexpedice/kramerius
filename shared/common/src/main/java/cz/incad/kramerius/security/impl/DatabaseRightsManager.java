@@ -26,10 +26,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.impl.LabelImpl;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.utils.DatabaseUtils;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -40,13 +41,11 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.database.InitSecurityDatabase;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.utils.RightsDBUtils;
-import cz.incad.kramerius.security.utils.SecurityDBUtils;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
-import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 public class DatabaseRightsManager implements RightsManager {
@@ -83,13 +82,9 @@ public class DatabaseRightsManager implements RightsManager {
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
                 int userId = rs.getInt("user_id");
                 int groupId = rs.getInt("group_id");
-                AbstractUser dbUser = null;
-                if (userId > 0) {
-                    dbUser = userManager.findUser(userId);
-                } else {
-                    dbUser = userManager.findRole(groupId);
-                }
-                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
+                String role = rs.getString("role");
+
+                returnsList.add(RightsDBUtils.createRight(rs, new RoleImpl(role), criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql);
@@ -99,11 +94,15 @@ public class DatabaseRightsManager implements RightsManager {
 
     @Override
     public Right[] findAllRightByCriteriumNames(String actionName, String[] criteriumNames, User user) {
-        int[] ids = Arrays.stream(user.getGroups()).mapToInt(Role::getId).toArray();
+
+        //Arrays.stream(user.getGroups()).map(Role::getName).toArray();
+
+
+        //int[] ids = Arrays.stream(user.getGroups()).mapToInt(Role::getId).toArray();
 
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRightsWithGroupsAndCriteriums");
         template.setAttribute("userid", user.getId());
-        template.setAttribute("groupids", ids);
+        template.setAttribute("groupids", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList()));
         template.setAttribute("action", actionName);
         template.setAttribute("criteriums", criteriumNames);
 
@@ -113,13 +112,8 @@ public class DatabaseRightsManager implements RightsManager {
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
                 int userId = rs.getInt("user_id");
                 int groupId = rs.getInt("group_id");
-                AbstractUser dbUser = null;
-                if (userId > 0) {
-                    dbUser = userManager.findUser(userId);
-                } else {
-                    dbUser = userManager.findRole(groupId);
-                }
-                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
+                String role = rs.getString("role");
+                returnsList.add(RightsDBUtils.createRight(rs, new RoleImpl(role), criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql);
@@ -152,13 +146,14 @@ public class DatabaseRightsManager implements RightsManager {
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
                 int userId = rs.getInt("user_id");
                 int groupId = rs.getInt("group_id");
-                AbstractUser dbUser = null;
-                if (userId > 0) {
-                    dbUser = userManager.findUser(userId);
-                } else {
-                    dbUser = userManager.findRole(groupId);
-                }
-                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
+                String role = rs.getString("role");
+//                AbstractUser dbUser = null;
+//                if (userId > 0) {
+//                    dbUser = userManager.findUser(userId);
+//                } else {
+//                    dbUser = userManager.findRole(groupId);
+//                }
+                returnsList.add(RightsDBUtils.createRight(rs, new RoleImpl(groupId, role, -1), criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql);
@@ -178,7 +173,7 @@ public class DatabaseRightsManager implements RightsManager {
         }
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findRightsForGroup");
         template.setAttribute("pids", pids);
-        template.setAttribute("groups", new int[] {group.getId()});
+        template.setAttribute("groups",  Arrays.asList(group.getName()));
         template.setAttribute("action", action);
 
         String sql = template.toString();
@@ -188,13 +183,8 @@ public class DatabaseRightsManager implements RightsManager {
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
                 int userId = rs.getInt("user_id");
                 int groupId = rs.getInt("group_id");
-                AbstractUser dbUser = null;
-                if (userId > 0) {
-                    dbUser = userManager.findUser(userId);
-                } else {
-                    dbUser = userManager.findRole(groupId);
-                }
-                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
+                String role = rs.getString("role");
+                returnsList.add(RightsDBUtils.createRight(rs, new RoleImpl(role), criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql);
@@ -204,13 +194,11 @@ public class DatabaseRightsManager implements RightsManager {
     @Override
     @InitSecurityDatabase
     public Right[] findRights(final String[] pids, final String action, final User user) {
-        Role[] grps = user.getGroups();
-        int[] grpIds = new int[grps.length];
-        {
-            for (int i = 0; i < grps.length; i++) {
-                grpIds[i] = grps[i].getId();
-            }
-        }
+        //Role[] grps = user.getGroups();
+
+        List<String> collected = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
+
+
         for (int i = 0; i < pids.length; i++) {
             if (!pids[i].startsWith("uuid:") && !pids[i].startsWith("vc:")) {
                 pids[i] = "uuid:" + pids[i];
@@ -218,7 +206,7 @@ public class DatabaseRightsManager implements RightsManager {
         }
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findRightFromWithGroups");
         template.setAttribute("pids", pids);
-        template.setAttribute("groups", grpIds);
+        template.setAttribute("groups", collected);
         template.setAttribute("user", user.getId());
         template.setAttribute("action", action);
 
@@ -231,16 +219,17 @@ public class DatabaseRightsManager implements RightsManager {
 
                 int userId = rs.getInt("user_id");
                 int groupId = rs.getInt("group_id");
+                String role = rs.getString("role");
 
-                AbstractUser dbUser = null;
-                LOGGER.fine("finding user ");
-                if (userId > 0) {
-                    dbUser = SecurityDBUtils.createUser(rs);
-                } else {
-                    dbUser = SecurityDBUtils.createUser(rs);
-                }
+//                AbstractUser dbUser = null;
+//                LOGGER.fine("finding user ");
+//                if (userId > 0) {
+//                    dbUser = SecurityDBUtils.createUser(rs);
+//                } else {
+//                    dbUser = SecurityDBUtils.createUser(rs);
+//                }
                 
-                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
+                returnsList.add(RightsDBUtils.createRight(rs, new RoleImpl(role), criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql);
@@ -354,13 +343,8 @@ public class DatabaseRightsManager implements RightsManager {
             public boolean handleRow(ResultSet rs, List<Right> returnsList) throws SQLException {
                 int userId = rs.getInt("user_id");
                 int groupId = rs.getInt("group_id");
-                AbstractUser dbUser = null;
-                if (userId > 0) {
-                    dbUser = userManager.findUser(userId);
-                } else {
-                    dbUser = userManager.findRole(groupId);
-                }
-                returnsList.add(RightsDBUtils.createRight(rs, dbUser, criteriumWrapperFactory));
+                String role = rs.getString("role");
+                returnsList.add(RightsDBUtils.createRight(rs, new RoleImpl(role), criteriumWrapperFactory));
                 return true;
             }
         }.executeQuery(sql, id);
@@ -434,7 +418,7 @@ public class DatabaseRightsManager implements RightsManager {
     @InitSecurityDatabase
     public int insertRight(final Right right) throws SQLException {
         final RightCriteriumWrapper criteriumWrapper = right.getCriteriumWrapper();
-        final Label label = getLabel(criteriumWrapper);
+        final License license = getLabel(criteriumWrapper);
 
         final RightCriteriumParams params = criteriumWrapper != null ? criteriumWrapper.getCriteriumParams() : null;
         final Connection con = provider.get();
@@ -482,9 +466,9 @@ public class DatabaseRightsManager implements RightsManager {
         });
     }
 
-    private Label getLabel(RightCriteriumWrapper criteriumWrapper) {
+    private License getLabel(RightCriteriumWrapper criteriumWrapper) {
         if (criteriumWrapper != null && criteriumWrapper.getRightCriterium() !=null && criteriumWrapper.getRightCriterium() instanceof RightCriteriumLabelAware) {
-            return ((RightCriteriumLabelAware)criteriumWrapper.getRightCriterium()).getLabel();
+            return ((RightCriteriumLabelAware)criteriumWrapper.getRightCriterium()).getLicense();
         } else return null;
     }
 
@@ -539,7 +523,7 @@ public class DatabaseRightsManager implements RightsManager {
     public void updateRightImpl(Connection con, Right right) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("updateRight");
         template.setAttribute("right", right);
-        template.setAttribute("association", right.getUser() instanceof Role ? "group_id" : "user_id");
+        //template.setAttribute("association", right.getRole() instanceof Role ? "group_id" : "user_id");
         template.setAttribute("priority", right.getFixedPriority() == 0 ? "NULL" : "" + right.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
         String sql = template.toString();
@@ -602,49 +586,58 @@ public class DatabaseRightsManager implements RightsManager {
     public void deleteRightCriteriumParams(final int id) throws SQLException {
         final Connection connection = this.provider.get();
 
-        List<Integer> ids = new JDBCQueryTemplate<Integer>(connection,false) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
-                int id = rs.getInt("crit_id");
-                returnsList.add(id);
-                return super.handleRow(rs, returnsList);
-            }
-        }.executeQuery(SecurityDatabaseUtils.stGroup().getInstanceOf("findCriteriumsDependsOnParams").toString(), id);
+        try {
+            List<Integer> ids = new JDBCQueryTemplate<Integer>(connection,false) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                    int id = rs.getInt("crit_id");
+                    returnsList.add(id);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(SecurityDatabaseUtils.stGroup().getInstanceOf("findCriteriumsDependsOnParams").toString(), id);
 
-        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
-        for (final Integer criteriumId : ids) {
+            List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+            for (final Integer criteriumId : ids) {
+
+                commands.add(new JDBCCommand() {
+                    @Override
+                    public Object executeJDBCCommand(Connection con) throws SQLException {
+                        DatabaseRightsManager.this.deleteRightCriterium(criteriumId);
+                        return null;
+                    }
+                });
+            }
 
             commands.add(new JDBCCommand() {
+
                 @Override
                 public Object executeJDBCCommand(Connection con) throws SQLException {
-                    DatabaseRightsManager.this.deleteRightCriterium(criteriumId);
+                    StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRightCriteriumParams");
+                    JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(provider.get(), true);
+                    String sql = template.toString();
+                    LOGGER.fine(sql);
+                    jdbcTemplate.executeUpdate(sql, id);
                     return null;
                 }
             });
+
+            new JDBCTransactionTemplate(connection, true).updateWithTransaction(commands);
+        } finally {
+            DatabaseUtils.tryClose(connection);
         }
-        
-        commands.add(new JDBCCommand() {
-            
-            @Override
-            public Object executeJDBCCommand(Connection con) throws SQLException {
-                StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("deleteRightCriteriumParams");
-                JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(provider.get(), true);
-                String sql = template.toString();
-                LOGGER.fine(sql);
-                jdbcTemplate.executeUpdate(sql, id);
-                return null;
-            }
-        });
-        
-        new JDBCTransactionTemplate(connection, true).updateWithTransaction(commands);
-        
+
     }
 
     
 
     @Override
     public void deleteRightCriterium(int id) throws SQLException {
-        this.deleteRightCriteriumImpl(this.provider.get(), id);
+        Connection con = this.provider.get();
+        try {
+            this.deleteRightCriteriumImpl(con, id);
+        } finally {
+            DatabaseUtils.tryClose(con);
+        }
     }
 
 
@@ -692,7 +685,7 @@ public class DatabaseRightsManager implements RightsManager {
     @InitSecurityDatabase
     public int insertRightImpl(Connection con, Right right) throws SQLException {
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRight");
-        template.setAttribute("association", right.getUser() instanceof Role ? "group_id" : "user_id");
+        //template.setAttribute("association", right.getRole() instanceof Role ? "group_id" : "user_id");
         template.setAttribute("right", right);
         template.setAttribute("priority", right.getFixedPriority() == 0 ? "NULL" : "" + right.getFixedPriority());
         JDBCUpdateTemplate jdbcTemplate = new JDBCUpdateTemplate(con, false);
@@ -767,8 +760,15 @@ public class DatabaseRightsManager implements RightsManager {
     @Override
     @InitSecurityDatabase
     public void updateRightCriteriumParams(RightCriteriumParams criteriumParams) throws SQLException {
-        final Connection con = provider.get();  
-        updateRightCriteriumParamsImpl(con, criteriumParams);
+        new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(
+                new JDBCCommand() {
+            @Override
+            public Object executeJDBCCommand(Connection con) throws SQLException {
+                updateRightCriteriumParamsImpl(con, criteriumParams);
+                return null;
+            }
+        });
+
     }
 
 

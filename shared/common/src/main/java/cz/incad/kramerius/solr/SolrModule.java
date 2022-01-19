@@ -14,24 +14,23 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
  */
 public class SolrModule extends AbstractModule {
 
-
     @Override
-    protected void configure() {}
-
+    protected void configure() {
+    }
 
     @Provides
     @Named("processingQuery")
     @Singleton
     public SolrClient processingQueryClient() {
-        String solrUrl = KConfiguration.getInstance().getConfiguration().getString("processingSolrHost");
-       return new HttpSolrClient.Builder(solrUrl).build();
+        String processingSolrHost = KConfiguration.getInstance().getSolrProcessingHost();
+        return new HttpSolrClient.Builder(processingSolrHost).build();
     }
 
     @Provides
     @Named("processingUpdate")
     @Singleton
     public SolrClient processingUpdateClient() {
-        String processingSolrHost = KConfiguration.getInstance().getProperty("processingSolrHost");
+        String processingSolrHost = KConfiguration.getInstance().getSolrProcessingHost();
         return new ConcurrentUpdateSolrClient.Builder(processingSolrHost).withQueueSize(100).build();
     }
 }

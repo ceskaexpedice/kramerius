@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaIPAddrUtils.matchIPAddresses;
 
+// TODO: DNNT Flag is not used; remove
+@Deprecated
 public class ReadDNNTFlagIPFiltered extends AbstractCriterium {
 
     public transient  static final Logger LOGGER = Logger.getLogger(ReadDNNTFlagIPFiltered.class.getName());

@@ -22,7 +22,7 @@ import cz.incad.kramerius.security.CriteriumType;
 import cz.incad.kramerius.security.RightCriterium;
 import cz.incad.kramerius.security.RightCriteriumParams;
 import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.licenses.License;
 
 public class CriteriumGuiWrapper implements RightCriteriumWrapper{
 
@@ -123,14 +123,14 @@ public class CriteriumGuiWrapper implements RightCriteriumWrapper{
     }
 
     @Override
-    public Label getLabel() {
+    public License getLabel() {
         return this.criteriumWrapper != null ? this.criteriumWrapper.getLabel() : null;
     }
 
     @Override
-    public void setLabel(Label label) {
+    public void setLabel(License license) {
         if (this.criteriumWrapper != null) {
-            this.criteriumWrapper.setLabel(label);
+            this.criteriumWrapper.setLabel(license);
         }
     }
 

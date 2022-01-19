@@ -42,6 +42,7 @@ public class DownloadOriginalViewObject extends AbstractViewObject {
     RightsResolver rightsResolver;
     
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

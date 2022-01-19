@@ -22,7 +22,7 @@ public class ConvertorConfig {
 
     private int contractLength;
     
-    private boolean defaultVisibility = false;
+    private boolean policyPublic = false;
     
     private String contract;
 
@@ -74,12 +74,12 @@ public class ConvertorConfig {
         this.contractLength = contractLength;
     }
 
-    public boolean isDefaultVisibility() {
-        return defaultVisibility;
+    public boolean isPolicyPublic() {
+        return policyPublic;
     }
 
-    public void setDefaultVisibility(boolean defaultVisibility) {
-        this.defaultVisibility = defaultVisibility;
+    public void setPolicyPublic(boolean policyPublic) {
+        this.policyPublic = policyPublic;
     }
 
     public Connection getDbConnection() {

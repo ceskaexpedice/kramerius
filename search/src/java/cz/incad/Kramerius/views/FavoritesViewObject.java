@@ -64,6 +64,7 @@ public class FavoritesViewObject extends AbstractViewObject implements Initializ
     Locale locale;
     
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

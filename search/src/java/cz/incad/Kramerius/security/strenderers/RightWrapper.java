@@ -79,11 +79,11 @@ public class RightWrapper implements Right{
         return right.getAction();
     }
 
-    public AbstractUser getUser() {
-        return  new AbstractUserWrapper(right.getUser());
+    public Role getRole() {
+        return  new AbstractUserWrapper(right.getRole());
     }
 
-    public void setUser(AbstractUser user) {
+    public void setRole(Role role) {
         throw new UnsupportedOperationException("this is unsupported");
     }
 

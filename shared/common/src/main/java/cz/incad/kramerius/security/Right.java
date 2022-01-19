@@ -61,13 +61,13 @@ public interface Right {
      * Returns assocaited user. It can be user or group.
      * @return
      */
-    public AbstractUser getUser();
+    public Role getRole();
     
     /**
      * Associate user with right.
-     * @param user
+     * @param role
      */
-    public void setUser(AbstractUser user);
+    public void setRole(Role role);
     
     /**
      * Returns associated criterium.

@@ -45,8 +45,6 @@ public class ItemSolrRootPidDecorate extends AbstractItemDecorator {
     public static final String SOLR_ROOTPID_KEY = AbstractItemDecorator
             .key("ROOTPID");
 
-    @Inject
-    SolrAccess solrAccess;
 
     @Inject
     SolrMemoization memo;
@@ -65,10 +63,10 @@ public class ItemSolrRootPidDecorate extends AbstractItemDecorator {
                 Element doc = this.memo.getRememberedIndexedDoc(pid);
                 if (doc == null) doc = this.memo.askForIndexDocument(pid);
                 if (doc != null) {
-                    String root_pid = SOLRUtils.value(doc, "root_pid",
+                    String root_pid = SOLRUtils.value(doc, "root.pid",
                             String.class);
                     if (root_pid != null) {
-                        jsonObject.put("root_pid", root_pid);
+                        jsonObject.put("root.pid", root_pid);
                     }
                 }
             } catch (IOException e) {

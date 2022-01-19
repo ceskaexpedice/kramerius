@@ -4,6 +4,7 @@ import java.util.logging.Level;
 
 import javax.ws.rs.core.MediaType;
 
+import cz.incad.kramerius.auth.thirdparty.shibb.external.ExternalThirdPartyUsersSupportImpl;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,9 +14,6 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.auth.thirdparty.UsersWrapper;
-import cz.incad.kramerius.auth.thirdparty.shibb.external.ExternalAuthenticatedUsersImpl;
-import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
@@ -71,11 +69,11 @@ public class RemoteUsersUtils {
                     .entity(object.toString(), MediaType.APPLICATION_JSON)
                     .put(String.class);
         } catch (UniformInterfaceException e) {
-            ExternalAuthenticatedUsersImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            ExternalThirdPartyUsersSupportImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (ClientHandlerException  e) {
-            ExternalAuthenticatedUsersImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            ExternalThirdPartyUsersSupportImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (JSONException e) {
-            ExternalAuthenticatedUsersImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            ExternalThirdPartyUsersSupportImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

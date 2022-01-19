@@ -22,8 +22,13 @@ public abstract class ClientApiResource extends ApiResource {
     @Inject
     Provider<User> userProvider;
 
+    // basic rights resolver  / images
     @Inject
     RightsResolver rightsResolver;
+
+    @Inject
+    @Named("cachedRightsResolver")
+    RightsResolver cachedRightsResolver;
 
     @Inject
     @Named("new-index")
@@ -46,7 +51,7 @@ public abstract class ClientApiResource extends ApiResource {
             checkSupportedObjectPid(pid);
             String dsId = datastreamId.toString();
             User user = this.userProvider.get();
-            boolean allowed = userIsAllowedToReadDatastream(user, pid, dsId);
+            boolean allowed = userIsAllowedToRead(user, pid);
             if (!allowed) {
                 throw new ForbiddenException("user '%s' is not allowed to read datastream '%s' of object '%s'", user.getLoginname(), dsId, pid); //403
             }
@@ -55,8 +60,30 @@ public abstract class ClientApiResource extends ApiResource {
         }
     }
 
+    public void checkUserByJsessionidIsAllowedToReadIIPTile(String pid) {
+        try {
+            checkSupportedObjectPid(pid);
+            User user = this.userProvider.get();
+            boolean allowed = userIsAllowedToReadCachedVersion(user, pid);
+            if (!allowed) {
+                throw new ForbiddenException("user '%s' is not allowed to read tile of object '%s'", user.getLoginname(),  pid); //403
+            }
+        } catch (IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+
     //see cz.incad.kramerius.security.SecuredFedoraAccessImpl.getDataStream(String pid, String datastreamName)
-    private boolean userIsAllowedToReadDatastream(User user, String pid, String datastreamName) throws IOException {
+    private boolean userIsAllowedToRead(User user, String pid) throws IOException {
+        return userIsAllowedToRead(this.rightsResolver, user, pid);
+    }
+    private boolean userIsAllowedToReadCachedVersion(User user, String pid) throws IOException {
+        return userIsAllowedToRead(this.cachedRightsResolver, user, pid);
+    }
+
+    private boolean userIsAllowedToRead(RightsResolver rightsResolver, User user, String pid) throws IOException {
         checkSupportedObjectPid(pid);
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         if (paths.length == 0) {
@@ -67,7 +94,7 @@ public abstract class ClientApiResource extends ApiResource {
         }
         for (int i = 0; i < paths.length; i++) {
             ObjectPidsPath path = paths[i];
-            if (this.rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, datastreamName, path).flag()) {
+            if (rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, null, path.injectRepository()).flag()) {
                 return true;
             }
         }

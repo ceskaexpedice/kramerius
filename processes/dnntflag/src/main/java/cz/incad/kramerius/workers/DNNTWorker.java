@@ -8,14 +8,13 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.IterationUtils;
 import cz.incad.kramerius.services.MigrationUtils;
+import cz.incad.kramerius.solr.SolrFieldsMapping;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang3.tuple.Triple;
-import org.fcrepo.common.rdf.FedoraNamespace;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.ws.rs.core.MediaType;
@@ -30,6 +29,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * Default dnnt flag, label worker
+ */
 public abstract class DNNTWorker implements Runnable {
 
     public static final Logger LOGGER = Logger.getLogger(DNNTWorker.class.getName());
@@ -48,20 +50,20 @@ public abstract class DNNTWorker implements Runnable {
     }
 
     protected static String selectUrl() {
-        String shost = KConfiguration.getInstance().getSolrHost();
+        String shost = KConfiguration.getInstance().getSolrSearchHost();
         shost = shost  + (shost.endsWith("/") ? ""  : "/") + "select";
         return shost;
     }
 
     protected static String updateUrl() {
-        String shost = KConfiguration.getInstance().getSolrHost();
+        String shost = KConfiguration.getInstance().getSolrSearchHost();
         shost = shost  + (shost.endsWith("/") ? ""  : "/") + "update";
         return shost;
     }
 
     protected static boolean configuredUseCursor() {
         boolean useCursor = KConfiguration.getInstance().getConfiguration().getBoolean("dnnt.usecursor", true);
-        DNNTLabeledWrokerFlag.LOGGER.info("Use cursor "+useCursor);
+        LOGGER.info("Use cursor "+useCursor);
         return useCursor;
     }
 
@@ -77,36 +79,36 @@ public abstract class DNNTWorker implements Runnable {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 InputStream entityInputStream = resp.getEntityInputStream();
                 IOUtils.copyStreams(entityInputStream, bos);
-                DNNTLabeledWrokerFlag.LOGGER.log(Level.SEVERE, new String(bos.toByteArray()));
+                LOGGER.log(Level.SEVERE, new String(bos.toByteArray()));
             }
         } catch (UniformInterfaceException | ClientHandlerException | IOException | TransformerException e) {
-            DNNTLabeledWrokerFlag.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
 
     protected Set<String> fetchAllPids(String q) throws UnsupportedEncodingException {
-        String masterQuery = URLEncoder.encode(q,"UTF-8");
+        //String masterQuery = URLEncoder.encode(q,"UTF-8");
         Set<String> allSet = new HashSet<>();
         if (configuredUseCursor()) {
             try {
-                IterationUtils.cursorIteration(client, KConfiguration.getInstance().getSolrHost() ,masterQuery,(em, i) -> {
+                IterationUtils.cursorIteration(client, KConfiguration.getInstance().getSolrSearchHost() ,q,(em, i) -> {
                     List<String> pp = MigrationUtils.findAllPids(em);
                     allSet.addAll(pp);
-                }, ()->{});
+                }, ()->{}, null);
             } catch (ParserConfigurationException | SAXException | IOException | InterruptedException | MigrateSolrIndexException | BrokenBarrierException e  ) {
-                DNNTWorkerFlag.LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
             }
 
 
         } else try {
-            IterationUtils.queryFilterIteration(client, MigrationUtils.configuredSourceServer(), masterQuery, (em, i) -> {
+            IterationUtils.queryFilterIteration(client, MigrationUtils.configuredSourceServer(), q, (em, i) -> {
                 List<String> pp = MigrationUtils.findAllPids(em);
                 allSet.addAll(pp);
             }, () -> {
-            });
+            }, null);
         } catch (MigrateSolrIndexException | IOException | SAXException | ParserConfigurationException | BrokenBarrierException | InterruptedException e) {
-            DNNTWorkerFlag.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return allSet;
     }
@@ -116,17 +118,15 @@ public abstract class DNNTWorker implements Runnable {
         // &fl=pid_path&wt=xml
         try {
             List<String> paths = new ArrayList<>();
-            Element element = IterationUtils.executeQuery(this.client, selectUrl(), "?q="+URLEncoder.encode("PID:\"" + pid + "\"", "UTF-8")+"&fl=pid_path&wt=xml");
+            Element element = IterationUtils.executeQuery(this.client, selectUrl(), "?q="+URLEncoder.encode(SolrFieldsMapping.getInstance().getPidField() + ":\"" + pid + "\"", "UTF-8")+"&fl="+ SolrFieldsMapping.getInstance().getPidPathField()+"&wt=xml");
             Element pidPath = XMLUtils.findElement(element, (e) -> {
-                if (e.getNodeName().equals("arr") && e.getAttribute("name").equals("pid_path")) {
+                if (e.getNodeName().equals("str") && e.getAttribute("name").equals(SolrFieldsMapping.getInstance().getPidPathField())) {
                     return true;
                 } else return false;
             });
             if (pidPath != null) {
-                NodeList childNodes = pidPath.getChildNodes();
-                for(int i=0, ll=childNodes.getLength();i<ll;i++) {
-                    paths.add(childNodes.item(i).getTextContent().trim());
-                }
+                String textContent = pidPath.getTextContent();
+                paths.add(textContent.trim());
             }
             return paths;
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -138,13 +138,14 @@ public abstract class DNNTWorker implements Runnable {
     @Override
     public void run() {
         try {
-            LOGGER.info("DNNT Flag thread "+Thread.currentThread().getName()+" "+this.parentPid);
+            LOGGER.info("Setting label thread "+Thread.currentThread().getName()+" "+this.parentPid);
 
             List<String> paths = solrPidPaths(this.parentPid);
             if (!paths.isEmpty()) {
 
-                String q = solrChildrenQuery(paths);
-                boolean changedFoxmlFlag = changeFOXML(this.parentPid);
+                String q = URLEncoder.encode(solrChildrenQuery(paths), "UTF-8");
+                // change literal propagating down
+                boolean changedFoxmlFlag = changeFOXMLDown(this.parentPid);
 
                 Set<String> allSet = fetchAllPids(q);
                 List<String> all = new ArrayList<>(allSet);
@@ -161,11 +162,26 @@ public abstract class DNNTWorker implements Runnable {
                 for(int i=0;i<numberOfBatches;i++) {
                     int start = i * batchSize;
                     List<String> sublist = all.subList(start, Math.min(start + batchSize, all.size()));
-                    Document batch = createBatch(sublist, changedFoxmlFlag);
-
+                    Document batch = createSOLRBatchForChildren(sublist, changedFoxmlFlag);
                     sendToDest(client, batch);
                 }
-                LOGGER.info("DNNT Flag for  "+this.parentPid+" has been set");
+
+                LOGGER.info("Settings all contains-licenses for parents");
+                List<String> parentPids = solrPidParents(this.parentPid, paths);
+                if (!parentPids.isEmpty()) {
+                    if (this.addRemoveFlag) {
+                        parentPids.stream().forEach(this::changeFOXMLUp);
+
+                        // zrusit odeberiani smerem nahoru
+                        Document batchForParents = createSOLRBatchForParents(parentPids, changedFoxmlFlag);
+                        if (batchForParents != null) {
+                            sendToDest(client, batchForParents);
+                        }
+                    } else {
+                        LOGGER.info("Removing contains-licences is not supported; must be done by separate process");
+                    }
+                }
+                LOGGER.info("Label for  "+this.parentPid+" has been set");
             }
         } catch (UnsupportedEncodingException e) {
             LOGGER.severe("DNNT Flag for  "+this.parentPid+" hasn't been set");
@@ -185,39 +201,34 @@ public abstract class DNNTWorker implements Runnable {
         this.barrier = barrier;
     }
 
-    protected abstract  Document createBatch(List<String> sublist, boolean changedFoxmlFlag);
+    /** Creating batch for setting (flag,label) for children */
+    protected abstract  Document createSOLRBatchForChildren(List<String> sublist, boolean changedFoxmlFlag);
+
+    /** Creating batch for setting (flag,label) for parents */
+    protected abstract  Document createSOLRBatchForParents(List<String> sublist, boolean changedFoxmlFlag);
+
+    /** Construct Children query */
     protected  abstract String solrChildrenQuery(List<String> pidPaths);
-    protected abstract boolean changeFOXML(String pid);
 
-    protected List<String> changeDNNTLabelInFOXML(String pid, String label) {
+    /** Change foxml downwards */
+    protected abstract boolean changeFOXMLDown(String pid);
 
+    /** Change foxml upwards */
+    protected abstract boolean changeFOXMLUp(String pid);
 
-        try {
-            Repository repo = fedoraAccess.getInternalAPI();
-            if (repo.objectExists(pid)) {
-                boolean exists = repo.getObject(pid).literalExists( "dnnt-label",FedoraNamespaces.KRAMERIUS_URI, label);
-
-                if (!exists) {
-                    if (addRemoveFlag) repo.getObject(pid).addLiteral("dnnt-label", FedoraNamespaces.KRAMERIUS_URI,label);
-                } else {
-                    repo.getObject(pid).removeLiteral(pid, FedoraNamespaces.KRAMERIUS_URI, label);
-                    if (addRemoveFlag) repo.getObject(pid).addLiteral("dnnt-label", FedoraNamespaces.KRAMERIUS_URI,label);
-                }
-
-                List<Triple<String, String, String>> literals = repo.getObject(pid).getLiterals(FedoraNamespaces.KRAMERIUS_URI);
-                return  literals.stream().filter(tr -> {
-                    return tr.getLeft().equals("dnnt-label");
-                }).map(Triple::getRight).collect(Collectors.toList());
-
-            } else {
-                LOGGER.warning(String.format("Cannot change label for %s: Pid not found", pid));
-                return new ArrayList<>();
+    List<String> solrPidParents(String pid, List<String> pidPaths) {
+        List<String> parents = new ArrayList<>();
+        pidPaths.stream().forEach(onePath-> {
+            List<String> list = Arrays.stream(onePath.split("/")).collect(Collectors.toList());
+            int indexOf = list.indexOf(pid);
+            if (indexOf > -1) {
+                parents.addAll(list.subList(0, indexOf));
             }
-        } catch (RepositoryException e) {
-            LOGGER.warning(String.format("Cannot change label for %s: Pid not found", pid));
-            return new ArrayList<>();
-        }
+        });
+        return parents;
     }
+
+
 
     protected boolean changeDNNTInFOXML(String pid, boolean flag) {
         try {
@@ -235,7 +246,6 @@ public abstract class DNNTWorker implements Runnable {
             } else {
                 return false;
             }
-
         } catch (RepositoryException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
             return false;

@@ -21,7 +21,7 @@ import org.kramerius.dc.ElementType;
 import org.kramerius.dc.OaiDcType;
 import org.kramerius.importmets.MetsConvertor;
 import org.kramerius.importmets.MetsConvertor.NamespacePrefixMapperImpl;
-import org.kramerius.importmets.MetsConvertor.NamespacePrefixMapperInternalImpl;
+//import org.kramerius.importmets.MetsConvertor.NamespacePrefixMapperInternalImpl;
 import org.kramerius.importmets.utils.UUIDManager;
 import org.kramerius.importmets.utils.XSLTransformer;
 import org.kramerius.importmets.valueobj.*;
@@ -241,7 +241,7 @@ public abstract class BaseConvertor {
             marshallerMODS.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
             marshallerMODS.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             try {
-                marshallerMODS.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
+                marshallerMODS.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
             } catch (PropertyException ex) {
                 marshallerMODS.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
             }
@@ -263,7 +263,7 @@ public abstract class BaseConvertor {
             marshallerDC.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
             marshallerDC.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             try {
-                marshallerDC.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
+                marshallerDC.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
             } catch (PropertyException ex) {
                 marshallerDC.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
             }
@@ -308,7 +308,7 @@ public abstract class BaseConvertor {
             marshallerALTO.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
             marshallerALTO.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             try {
-                marshallerALTO.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
+                marshallerALTO.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
             } catch (PropertyException ex) {
                 marshallerALTO.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
             }

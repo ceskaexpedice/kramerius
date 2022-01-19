@@ -125,7 +125,6 @@ public class GuiceConfigBean extends GuiceServletContextListener {
             LOGGER.log(Level.SEVERE,"ignoring API extensions");
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
-
         Injector injector = Guice.createInjector(modules);
         return injector;
     }

@@ -113,6 +113,7 @@ public class PrintPDFServlet extends GuiceServlet {
     FedoraAccess fedoraAccess;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
     
     @Inject
@@ -223,7 +224,7 @@ public class PrintPDFServlet extends GuiceServlet {
     private boolean canBeRead(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth).flag()) {
+            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth.injectRepository()).flag()) {
                 return true;
             }
         }
@@ -233,7 +234,7 @@ public class PrintPDFServlet extends GuiceServlet {
     private boolean canBeRenderedAsPDF(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth).flag()) {
+            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth.injectRepository()).flag()) {
                 return true;
             }
         }

@@ -8,7 +8,7 @@ import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
@@ -40,7 +40,8 @@ import java.io.*;
 
 
 /**
- * Nastroj pro konverzi XML z ANL do formatu Fedora Object XML
+ * Nástroj pro konverzi balíku ve formátu NKD METS do formátu Fedora Object XML.
+ * Po konverzi vždy následuje import do repozitáře. A volitelně i indexace (pokud je spuštěno jako proces).
  *
  * @author vlahoda
  */
@@ -48,70 +49,87 @@ public class MetsConvertor {
 
     private static final Logger log = Logger.getLogger(MetsConvertor.class);
 
-    private static Marshaller marshaller = null;
-    private static Unmarshaller unmarshaller = null;
-    private static boolean foundvalidPSP = false;
+    private final Marshaller marshaller;
+    private final Unmarshaller unmarshaller;
+    private boolean foundvalidPSP = false;
 
+    /**
+     * args[0] - authToken
+     * args[1] - policy (PUBLIC/PRIVATE)
+     * args[2] - import dir, optional
+     * args[3] - export dir, optional
+     * args[4] - start indexer, optional
+     */
     public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, RepositoryException, SolrServerException {
-
-        if (args.length  != 3) {
+        /*for (int i = 0; i < args.length; i++) {
+            System.out.println("arg " + i + ": " + args[i]);
+        }*/
+        if (args.length < 2 || args[0].equalsIgnoreCase("true") || args[0].equalsIgnoreCase("false")) { //through CLI with 0-3 args
             System.out.println("ANL METS to FOXML conversion tool.\n");
-            System.out.println("Usage: conversion-tool defaultVisibility <input-folder> <output-folder>");
-            throw new RuntimeException("bad usage");
-        } else {
-            boolean defaultVisibility = Boolean.parseBoolean(args[0]);
-
-            String importRoot = null;
-            if (args.length == 1){
-                importRoot = KConfiguration.getInstance().getConfiguration().getString("migration.directory");
-            } else{
-                importRoot = args[1];
+            System.out.println("Usage: conversion-tool policyPublic <input-folder> <output-folder>");
+            if (args.length == 0) {
+                throw new RuntimeException("bad usage: missing at least 'policyPublic'");
             }
-            String exportRoot = null;
-            if (args.length == 3) {
-                exportRoot = args[2];
-            } else {
-                exportRoot = importRoot + "-converted";
+            int argsIndex = 0;
+            boolean policyPublic = Boolean.parseBoolean(args[argsIndex++]);
+            String importRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.directory");
+            String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, false, null);
+        } else { // as a process
+            if (args.length < 2) {
+                throw new RuntimeException("Not enough arguments.");
             }
-            initMarshallers();
-            checkAndConvertDirectory(importRoot, exportRoot,  defaultVisibility);
-            if (!foundvalidPSP){
-                throw new RuntimeException("No valid PSP found.");
-            }
-
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-            SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
-            ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-
-            Import.ingest(fa,feeder,sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), exportRoot);
-
+            int argsIndex = 0;
+            //token for keeping possible following processes in same batch
+            String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+            //process params
+            String policy = args[argsIndex++];
+            boolean policyPublic = "PUBLIC".equals(policy);
+            String importRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.directory");
+            String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
+            boolean startIndexer = Boolean.valueOf(args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
+            ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken);
         }
     }
 
-    private static void initMarshallers(){
-        try {
+    private MetsConvertor() {
+        try { //init marshallers
             JAXBContext jaxbContext = JAXBContext.newInstance(Mets.class, DigitalObject.class);
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            try{
-                marshaller.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
-            } catch (PropertyException ex){
+            try {
+                marshaller.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
+            } catch (PropertyException ex) {
                 marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
             }
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
-
             unmarshaller = jaxbContext.createUnmarshaller();
-
-
         } catch (Exception e) {
             log.error("Cannot init JAXB", e);
             throw new RuntimeException(e);
         }
     }
 
-    private static void checkAndConvertDirectory(String importRoot, String exportRoot, boolean defaultVisibility)throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
+        checkAndConvertDirectory(importRoot, exportRoot, policyPublic);
+        if (!foundvalidPSP) {
+            throw new RuntimeException("No valid PSP found.");
+        }
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
+
+        Import.run(fa, feeder, sortingServiceLocal,
+                KConfiguration.getInstance().getProperty("ingest.url"),
+                KConfiguration.getInstance().getProperty("ingest.user"),
+                KConfiguration.getInstance().getProperty("ingest.password"),
+                exportRoot, startIndexer, authToken);
+    }
+
+    private void checkAndConvertDirectory(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         File importFolder = new File(importRoot);
 
         if (!importFolder.exists()) {
@@ -119,29 +137,27 @@ public class MetsConvertor {
             throw new RuntimeException("Import root folder doesn't exist: " + importFolder.getAbsolutePath());
         }
         File exportFolderFile = IOUtils.checkDirectory(exportRoot);
-        if (!useContractSubfolders()){
+        if (!useContractSubfolders()) {
             IOUtils.cleanDirectory(exportFolderFile);
         }
 
-
         File infoFile = findInfoFile(importFolder);
         if (!infoFile.exists()) {
-            for(File child: importFolder.listFiles()){
-                if (child.isDirectory()){
-                    String subFolder = System.getProperty("file.separator")+child.getName();
-                    checkAndConvertDirectory(importRoot+subFolder, exportRoot+subFolder, defaultVisibility);
+            for (File child : importFolder.listFiles()) {
+                if (child.isDirectory()) {
+                    String subFolder = System.getProperty("file.separator") + child.getName();
+                    checkAndConvertDirectory(importRoot + subFolder, exportRoot + subFolder, policyPublic);
                 }
             }
-        }else{
-            convert(importRoot, exportRoot, defaultVisibility);
+        } else {
+            convert(importRoot, exportRoot, policyPublic);
         }
-
     }
 
-    private static File findInfoFile(File importFolder) {
+    private File findInfoFile(File importFolder) {
         File infoFile = null;
         File[] lfiles = importFolder.listFiles(new FileFilter() {
-            
+
             @Override
             public boolean accept(File p) {
                 String fname = p.getName().toLowerCase();
@@ -150,92 +166,75 @@ public class MetsConvertor {
                 } else return false;
             }
         });
-        infoFile = (lfiles !=null && lfiles.length >0) ? lfiles[0] : new File(importFolder, "info.xml");
+        infoFile = (lfiles != null && lfiles.length > 0) ? lfiles[0] : new File(importFolder, "info.xml");
         return infoFile;
     }
 
-
-    private static String convert(String importRoot, String exportRoot, boolean defaultVisibility) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    private String convert(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         System.setProperty("java.awt.headless", "true");
         StringBuffer convertedURI = new StringBuffer();
 
-
-
         File importFolder = new File(importRoot);
-
         File infoFile = findInfoFile(importFolder);
-
         String packageid = getPackageid(infoFile);
-
         String metsFilename = getMetsFilename(infoFile);
 
         File importFile = null;
-        if (metsFilename != null){
+        if (metsFilename != null) {
             importFile = new File(importFolder, metsFilename);
-        }else {
+        } else {
             importFile = findMetsFile(importFolder);
         }
 
-        if (importFile!= null&&importFile.exists()) {
+        if (importFile != null && importFile.exists()) {
             foundvalidPSP = true;
-        }else{
+        } else {
             foundvalidPSP = false;
         }
 
-
-
-
-
-        String exportFolder = exportRoot;
-
         ConvertorConfig config = new ConvertorConfig();
         config.setMarshaller(marshaller);
-        config.setExportFolder(exportFolder);
+        config.setExportFolder(exportRoot);
         config.setImportFolder(importRoot);
-
-        config.setDefaultVisibility(defaultVisibility);
-
+        config.setPolicyPublic(policyPublic);
         config.setContract(packageid);
 
-        if ( KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerDirectorySubfolders", false)){
+        if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerDirectorySubfolders", false)) {
             config.setImgTree();
         }
 
-        int l=5;
-        try{
-            l=KConfiguration.getInstance().getConfiguration().getInt("contractNo.length");
-        }catch(NumberFormatException ex){
+        int l = 5;
+        try {
+            l = KConfiguration.getInstance().getConfiguration().getInt("contractNo.length");
+        } catch (NumberFormatException ex) {
             log.error("Cannot parse property contractNo.length", ex);
         }
         config.setContractLength(l);
-
         convertOneDirectory(unmarshaller, importFile, config, convertedURI);
-
         return convertedURI.toString();
     }
 
-    private static File findMetsFile(File importFolder){
+    private File findMetsFile(File importFolder) {
         File[] fileList = importFolder.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
                 return pathname.isFile() && pathname.getName().toLowerCase().endsWith(".xml") && pathname.getName().toLowerCase().startsWith("mets");
             }
         });
-        if (fileList.length!=1){
+        if (fileList.length != 1) {
             log.error("Invalid PSP package. Cannot find single main METS file");
             throw new RuntimeException("Invalid PSP package. Cannot find single main METS file");
         }
         return fileList[0];
     }
 
-    private static String getPackageid(File infoFile) {
+    private String getPackageid(File infoFile) {
         try {
             Document doc = XMLUtils.parseDocument(new BOMInputStream(new FileInputStream(infoFile)));
             Element elem = XMLUtils.findElement(doc.getDocumentElement(), "packageid");
             if (elem != null) {
                 return elem.getTextContent();
             }
-
         } catch (Exception e) {
             log.error("Invalid import descriptor: " + infoFile.getAbsolutePath());
             throw new RuntimeException("Invalid import descriptor: " + infoFile.getAbsolutePath());
@@ -243,15 +242,13 @@ public class MetsConvertor {
         return null;
     }
 
-
-    private static String getMetsFilename(File infoFile) {
+    private String getMetsFilename(File infoFile) {
         try {
             Document doc = XMLUtils.parseDocument(new BOMInputStream(new FileInputStream(infoFile)));
             Element elem = XMLUtils.findElement(doc.getDocumentElement(), "mainmets");
             if (elem != null) {
                 return elem.getTextContent();
             }
-
         } catch (Exception e) {
             log.error("Invalid import descriptor: " + infoFile.getAbsolutePath());
             throw new RuntimeException("Invalid import descriptor: " + infoFile.getAbsolutePath());
@@ -259,17 +256,12 @@ public class MetsConvertor {
         return null;
     }
 
-
-
-    private static void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean defaultVisibility, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
-
+    private void visitAllDirsAndFiles(File importFile, String importRoot, String exportRoot, boolean defaultVisibility, StringBuffer convertedURI, String titleId) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         if (importFile.isDirectory()) {
             String subFolderName = importFile.getAbsolutePath().substring(importRoot.length());
-
             String exportFolder = exportRoot + subFolderName;
-
             File exportFolderFile = IOUtils.checkDirectory(exportFolder);
-            if (!useContractSubfolders()){
+            if (!useContractSubfolders()) {
                 IOUtils.cleanDirectory(exportFolderFile);
             }
             File[] children = importFile.listFiles();
@@ -278,13 +270,11 @@ public class MetsConvertor {
             }
         } else {
             if (importFile.getName().endsWith(".xml")) {
-
                 String importFolder = importFile.getParent();
                 if (importFolder == null) {
                     importFolder = ".";
                 }
                 String subFolderName = importFolder.substring(importRoot.length());
-
                 String exportFolder = exportRoot + subFolderName;
 
                 ConvertorConfig config = new ConvertorConfig();
@@ -292,11 +282,11 @@ public class MetsConvertor {
                 config.setExportFolder(exportFolder);
                 config.setImportFolder(importFolder);
 
-                config.setDefaultVisibility(defaultVisibility);
-                int l=5;
-                try{
-                    l=KConfiguration.getInstance().getConfiguration().getInt("contractNo.length");
-                }catch(NumberFormatException ex){
+                config.setPolicyPublic(defaultVisibility);
+                int l = 5;
+                try {
+                    l = KConfiguration.getInstance().getConfiguration().getInt("contractNo.length");
+                } catch (NumberFormatException ex) {
                     log.error("Cannot parse property contractNo.length", ex);
                 }
                 config.setContractLength(l);
@@ -316,19 +306,19 @@ public class MetsConvertor {
         }
     }
 
-    private static void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+    private void convertOneDirectory(Unmarshaller unmarshaller, File importFile, ConvertorConfig config, StringBuffer convertedURI) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
         long timeStart = System.currentTimeMillis();
 
         XMLReader reader = XMLReaderFactory.createXMLReader();
-        reader.setEntityResolver(new EntityResolver(){
+        reader.setEntityResolver(new EntityResolver() {
             @Override
             public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
                 return new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
             }
         });
-        SAXSource saxSource = new SAXSource( reader, new InputSource( new FileInputStream(importFile) ) );
+        SAXSource saxSource = new SAXSource(reader, new InputSource(new FileInputStream(importFile)));
         Object source = unmarshaller.unmarshal(saxSource);
-        log.info("File "+importFile +" loaded: "+source);
+        log.info("File " + importFile + " loaded: " + source);
 
 /*
         XMLTools reader = new XMLTools();
@@ -343,7 +333,7 @@ public class MetsConvertor {
 */
         int objectCounter = 0;
         MetsPeriodicalConvertor pc = new MetsPeriodicalConvertor(config, unmarshaller);
-        pc.convert((Mets)source, convertedURI);
+        pc.convert((Mets) source, convertedURI);
         objectCounter = pc.getObjectCounter();
 
         /*
@@ -381,10 +371,9 @@ public class MetsConvertor {
 
         long timeFinish = System.currentTimeMillis();
         if (log.isInfoEnabled()) {
-            log.info("Elapsed time: " + ((timeFinish - timeStart) / 1000.0) + " seconds. "+objectCounter + " digital objects (files) written.");
+            log.info("Elapsed time: " + ((timeFinish - timeStart) / 1000.0) + " seconds. " + objectCounter + " digital objects (files) written.");
         }
     }
-
 
     /**
      *
@@ -425,6 +414,42 @@ public class MetsConvertor {
 
     }
 
+//    public static class NamespacePrefixMapperInternalImpl extends com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper {
+//
+//        public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
+//            if ("info:fedora/fedora-system:def/foxml#".equals(namespaceUri)) {
+//                return "foxml";
+//            }
+//            if ("http://www.loc.gov/mods/v3".equals(namespaceUri)) {
+//                return "mods";
+//            }
+//            if ("http://purl.org/dc/elements/1.1/".equals(namespaceUri)) {
+//                return "dc";
+//            }
+//            if ("http://www.openarchives.org/OAI/2.0/oai_dc/".equals(namespaceUri)) {
+//                return "oai_dc";
+//            }
+//            if ("info:fedora/fedora-system:def/model#".equals(namespaceUri)) {
+//                return "fedora-model";
+//            }
+//            if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(namespaceUri)) {
+//                return "rdf";
+//            }
+//            if ("http://www.nsdl.org/ontologies/relationships#".equals(namespaceUri)) {
+//                return "kramerius";
+//            }
+//            if ("http://www.w3.org/1999/xlink".equals(namespaceUri)) {
+//                return "xlink";
+//            }
+//            if ("http://www.loc.gov/METS/".equals(namespaceUri)) {
+//                return "mets";
+//            }
+//            return suggestion;
+//        }
+//
+//    }
+
+
     public static class NamespacePrefixMapperImpl extends com.sun.xml.bind.marshaller.NamespacePrefixMapper {
 
         public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
@@ -434,25 +459,25 @@ public class MetsConvertor {
             if ("http://www.loc.gov/mods/v3".equals(namespaceUri)) {
                 return "mods";
             }
-            if ("http://purl.org/dc/elements/1.1/".equals(namespaceUri)){
+            if ("http://purl.org/dc/elements/1.1/".equals(namespaceUri)) {
                 return "dc";
             }
-            if ("http://www.openarchives.org/OAI/2.0/oai_dc/".equals(namespaceUri)){
+            if ("http://www.openarchives.org/OAI/2.0/oai_dc/".equals(namespaceUri)) {
                 return "oai_dc";
             }
-            if ("info:fedora/fedora-system:def/model#".equals(namespaceUri)){
+            if ("info:fedora/fedora-system:def/model#".equals(namespaceUri)) {
                 return "fedora-model";
             }
-            if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(namespaceUri)){
+            if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(namespaceUri)) {
                 return "rdf";
             }
-            if ("http://www.nsdl.org/ontologies/relationships#".equals(namespaceUri)){
+            if ("http://www.nsdl.org/ontologies/relationships#".equals(namespaceUri)) {
                 return "kramerius";
             }
-            if ("http://www.w3.org/1999/xlink".equals(namespaceUri)){
+            if ("http://www.w3.org/1999/xlink".equals(namespaceUri)) {
                 return "xlink";
             }
-            if ("http://www.loc.gov/METS/".equals(namespaceUri)){
+            if ("http://www.loc.gov/METS/".equals(namespaceUri)) {
                 return "mets";
             }
             return suggestion;
@@ -460,14 +485,12 @@ public class MetsConvertor {
 
     }
 
-
-
-    public static boolean useContractSubfolders(){
-        return System.getProperties().containsKey("convert.useContractSubfolders") ?  new Boolean(System.getProperty("convert.useContractSubfolders")) :  KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
+    public static boolean useContractSubfolders() {
+        return System.getProperties().containsKey("convert.useContractSubfolders") ? new Boolean(System.getProperty("convert.useContractSubfolders")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
     }
 
-    public static boolean copyOriginal(){
-        return System.getProperties().containsKey("convert.copyOriginal") ?   new Boolean(System.getProperty("convert.copyOriginal")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);
+    public static boolean copyOriginal() {
+        return System.getProperties().containsKey("convert.copyOriginal") ? new Boolean(System.getProperty("convert.copyOriginal")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);
     }
 
 }

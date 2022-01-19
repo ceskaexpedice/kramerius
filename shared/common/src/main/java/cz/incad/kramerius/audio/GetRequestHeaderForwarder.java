@@ -25,6 +25,7 @@ import org.apache.http.client.methods.HttpRequestBase;
  * server to audio proxy's http GET request to repository.
  *
  * @author Martin Řehánek <Martin.Rehanek at mzk.cz>
+ * @deprecated use AudioStreamForwardingHelper instead
  */
 public class GetRequestHeaderForwarder {
 
@@ -35,8 +36,7 @@ public class GetRequestHeaderForwarder {
      * Initializes Forwarder.
      *
      * @param clientRequest client request to proxy
-     * @param proxyRequest proxy request to repository
-     *
+     * @param proxyRequest  proxy request to repository
      */
     public GetRequestHeaderForwarder(HttpServletRequest clientRequest, HttpRequestBase proxyRequest) {
         this.clientRequest = clientRequest;
@@ -50,7 +50,6 @@ public class GetRequestHeaderForwarder {
      *
      * @param headerName name of header
      * @return value of header if header is found or null
-     *
      */
     public String forwardHeaderIfPresent(String headerName) {
         String headerValue = clientRequest.getHeader(headerName);

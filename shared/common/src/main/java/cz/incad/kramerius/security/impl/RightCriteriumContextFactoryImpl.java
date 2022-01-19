@@ -27,6 +27,7 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
     
     private FedoraAccess fedoraAccess;
     private SolrAccess solrAccess;
+    private SolrAccess solrAccessNewIndex;
     private UserManager userManager;
     
     public RightCriteriumContextFactoryImpl() {
@@ -53,7 +54,12 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
         this.solrAccess = solrAccess;
     }
 
-    
+
+    @Inject
+    public void setSolrAccessNewIndex(@Named("new-index")SolrAccess newIndex) {
+        this.solrAccessNewIndex = newIndex;
+    }
+
     
     public UserManager getUserManager() {
         return userManager;
@@ -77,6 +83,7 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
                                         .setUser(user)
                                         .setFedoraAccess(this.fedoraAccess)
                                         .setSolrAccess(this.solrAccess)
+                                        .setSolrAccessNewIndex(this.solrAccessNewIndex)
                                         .setUserManager(this.userManager)
                                         .setRemoteHost(remoteHost)
                                         .setRemoteAddress(remoteAddr)

@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstract {
 
@@ -36,7 +34,7 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
     }
 
     @Override
-    public Pair<String, List<String>> getPidsOfParents(String pid) throws ResourceIndexException {
+    public Pair<String, Set<String>> getPidsOfParents(String pid) throws ResourceIndexException {
         JsonObject structure = getStructure(pid);
         JsonObject parentsJson = structure.getAsJsonObject("parents");
         //own
@@ -46,7 +44,7 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
         }
         //foster
         JsonArray fosterParentsJson = parentsJson.getAsJsonArray("foster");
-        List<String> fosterParents = new ArrayList<>();
+        Set<String> fosterParents = new HashSet<>();
         Iterator<JsonElement> fosterParentsIt = fosterParentsJson.iterator();
         while (fosterParentsIt.hasNext()) {
             fosterParents.add(fosterParentsIt.next().getAsJsonObject().get("pid").getAsString());
@@ -93,8 +91,8 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
     private JsonObject fetchStructure(String pid) throws ResourceIndexException {
         InputStream inputStream = null;
         try {
-            //GET http://localhost:8080/search/api/client/v6.0/items/uuid:db886a43-93cd-48a1-86db-a96c5b15b2b2/info/structure
-            URL url = new URL(coreBaseUrl + "/api/client/v6.0/items/" + pid + "/info/structure");
+            //GET http://localhost:8080/search/api/client/v7.0/items/uuid:db886a43-93cd-48a1-86db-a96c5b15b2b2/info/structure
+            URL url = new URL(coreBaseUrl + "/api/client/v7.0/items/" + pid + "/info/structure");
             //System.out.println(url);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");

@@ -25,19 +25,20 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
 
 
     private Map<String,List<String>> plainValueFields = new HashMap<>();
+
+    private Map<String,String> restValueFields = new HashMap<>();
     private Map<String, String> sortValueFields = new HashMap<>();
     private Map<String, String> firstValue = new HashMap<>();
 
     public K7SourceToDestTransform() {
+        // Plain copy fields
         plainValueFields.put("PID", Arrays.asList("pid"));
         plainValueFields.put("fedora.model", Arrays.asList("model"));
         plainValueFields.put("created_date", Arrays.asList("created"));
         plainValueFields.put("modified_date", Arrays.asList("modified", "indexed"));
-
         plainValueFields.put("timestamp", Arrays.asList("indexed"));
         plainValueFields.put("keywords",  Arrays.asList("keywords.search","keywords.facet"));
         plainValueFields.put("geographic_names",  Arrays.asList("geographic_names.search","geographic_names.facet"));
-        //plainValueFields.put("dc.autor",  Arrays.asList("authors"));
         plainValueFields.put("search_autor",  Arrays.asList("authors","authors.search"));
         plainValueFields.put("facet_autor",  Arrays.asList("authors.facet"));
         plainValueFields.put("dc.title",  Arrays.asList("title.search"));
@@ -46,32 +47,30 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
         plainValueFields.put("root_model",  Arrays.asList("root.model"));
         plainValueFields.put("root_title",  Arrays.asList("root.title"));
         plainValueFields.put("pid_path",  Arrays.asList("pid_paths"));
-        //plainValueFields.put("model_path",  Arrays.asList("model_paths"));
-        //plainValueFields.put("rels_ext_index",  Arrays.asList("rels_ext_index.sort"));
         plainValueFields.put("parent_model",  Arrays.asList("own_parent.model"));
         plainValueFields.put("parent_title",  Arrays.asList("own_parent.title"));
         plainValueFields.put("parent_pid",  Arrays.asList("foster_parents.pids"));
         plainValueFields.put("mtd",  Arrays.asList("mtd"));
         plainValueFields.put("ddt",  Arrays.asList("ddt"));
         plainValueFields.put("level",  Arrays.asList("level"));
-
-
         plainValueFields.put("mods.physicalLocation",  Arrays.asList("physical_locations.facet"));
         plainValueFields.put("mods.shelfLocator",  Arrays.asList("shelf_locators"));
         plainValueFields.put("dostupnost",  Arrays.asList("accessibility"));
         plainValueFields.put("img_full_mime",  Arrays.asList("ds.img_full.mime"));
         plainValueFields.put("language",  Arrays.asList("languages.facet"));
         plainValueFields.put("datum_str",  Arrays.asList("date.str"));
-
         plainValueFields.put("dnnt-labels",  Arrays.asList("licenses"));
         plainValueFields.put("contains-dnnt-labels",  Arrays.asList("contains-licenses"));
-
         plainValueFields.put("text_ocr",  Arrays.asList("text_ocr"));
 
+        // all values but first
+        restValueFields.put("parent_pid","foster_parents.pids");
 
+        // sort values
         sortValueFields.put("dc.title","title.sort");
         sortValueFields.put("root_title","root.title.sort");
 
+        // first values
         firstValue.put("pid_path","own_pid_path");
         firstValue.put("model_path","own_model_path");
         firstValue.put("rels_ext_index",  "rels_ext_index.sort");
@@ -169,6 +168,40 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
 
 
                         field(destDocument, destDocElem, firstVal, this.firstValue.get(name));
+                    }
+                } else {
+                    throw new IllegalStateException("only src fields are supported for sorting");
+                }
+            });
+
+            //rest values
+            XMLUtils.getElements(sourceDocElm, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    String nodeName = element.getNodeName();
+                    if (nodeName.equals("arr")) {
+                        String nameAttr = element.getAttribute("name");
+                        if (nameAttr != null) return restValueFields.containsKey(nameAttr);
+                    }
+                    return false;
+                }
+            }).stream().forEach(elm-> {
+                String name = elm.getAttribute("name");
+                if (elm.getNodeName().equals("arr")) {
+                    List<Element> elements = XMLUtils.getElements(elm);
+
+                    if (!elements.isEmpty() && elements.size() > 1) {
+
+                        List<Element> nlist = elements.subList(1, elements.size()-1);
+                        nlist.stream().forEach(newElm-> {
+                            String val = newElm.getTextContent();
+                            if (!document.containsKey(this.restValueFields.get(name))) {
+                                document.put(this.restValueFields.get(name), new ArrayList<String>());
+                            }
+                            document.get(this.restValueFields.get(name)).add(val);
+                            field(destDocument, destDocElem, val, this.restValueFields.get(name));
+
+                        });
                     }
                 } else {
                     throw new IllegalStateException("only src fields are supported for sorting");

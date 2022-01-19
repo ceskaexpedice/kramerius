@@ -2,9 +2,9 @@ package cz.incad.Kramerius.views.rights;
 
 import com.google.inject.Inject;
 import cz.incad.kramerius.Initializable;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.LabelsManager;
-import cz.incad.kramerius.security.labels.LabelsManagerException;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,9 +16,9 @@ public class LabelEditView extends AbstractRightsView implements Initializable {
     public static final String LABEL_ID_PARAM = "id";
 
     @Inject
-    LabelsManager labelsManager;
+    LicensesManager labelsManager;
 
-    Label label;
+    License label;
 
     @Override
     public void init() {
@@ -27,7 +27,7 @@ public class LabelEditView extends AbstractRightsView implements Initializable {
             if (roleId != null) {
                 this.label = this.labelsManager.getLabelById(Integer.parseInt(roleId));
             }
-        } catch (LabelsManagerException e) {
+        } catch (LicensesManagerException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }

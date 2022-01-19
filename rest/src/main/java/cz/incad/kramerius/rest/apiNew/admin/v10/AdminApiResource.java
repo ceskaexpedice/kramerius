@@ -13,6 +13,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.keycloak.adapters.spi.KeycloakAccount;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -26,13 +27,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class AdminApiResource extends ApiResource {
 
-    //TODO: move url into configuration
-    private static final String AUTH_URL = "https://api.kramerius.cloud/api/v1/auth/validate_token";
+    public static Logger LOGGER = Logger.getLogger(AdminApiResource.class.getName());
 
-    private static final String HEADER_PROCESS_AUTH_TOKEN = "process-auth-token";
+    private static final String HEADER_PARENT_PROCESS_AUTH_TOKEN = "parent-process-auth-token";
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -43,11 +45,24 @@ public abstract class AdminApiResource extends ApiResource {
     @Inject
     RightsResolver rightsResolver;
 
-    public ClientAuthHeaders extractClientAuthHeaders() {
-        return ClientAuthHeaders.extract(requestProvider);
-    }
+    //TODO: cleanup
 
-    public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
+    //private static final AuthenticatedUser ANONYMOUS = new AuthenticatedUser("anonymous", "anonymous", new ArrayList<>());
+
+//    public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
+//        KeycloakAccount keycloakAccount = null;
+//        try {
+//            keycloakAccount = (KeycloakAccount) requestProvider.get().getAttribute(KeycloakAccount.class.getName());
+//        }catch (Throwable th){
+//            LOGGER.log(Level.INFO,"Error retrieving KeycloakAccount", th);
+//        }
+//        if (keycloakAccount == null){
+//            return  ANONYMOUS;
+//        }
+//        return new AuthenticatedUser(keycloakAccount.getPrincipal().getName(), keycloakAccount.getPrincipal().getName(), new ArrayList<>(keycloakAccount.getRoles()));
+//    }
+
+    /*public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
         ClientAuthHeaders authHeaders = extractClientAuthHeaders();
         //System.out.println(authHeaders);
         try {
@@ -105,7 +120,7 @@ public abstract class AdminApiResource extends ApiResource {
         } catch (IOException e) {
             throw new InternalErrorException("error communicating with authentication service: %s ", e.getMessage());
         }
-    }
+    }*/
 
     private String inputstreamToString(InputStream in) throws IOException {
         BufferedReader reader = null;
@@ -137,8 +152,8 @@ public abstract class AdminApiResource extends ApiResource {
         return result;
     }
 
-    public String getProcessAuthToken() {
-        return requestProvider.get().getHeader(HEADER_PROCESS_AUTH_TOKEN);
+    public String getParentProcessAuthToken() {
+        return requestProvider.get().getHeader(HEADER_PARENT_PROCESS_AUTH_TOKEN);
     }
 
     @Deprecated
@@ -148,7 +163,7 @@ public abstract class AdminApiResource extends ApiResource {
         return (String) requestProvider.get().getSession().getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
     }
 
-
+    @Deprecated
     public void checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions action) {
         User user = this.userProvider.get();
         if (user == null || user.getLoginname().equals("not_logged")) {

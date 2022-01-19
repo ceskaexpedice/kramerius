@@ -1,13 +1,15 @@
-
-
 dependencies {
     compile project(':security:security-core')
-    compile project(':shared:common') 
+    compile project(':shared:common')
     compile project(':processes:indexer')
     compile project(':processes:import')
     compile project(':processes:solr-migration')
 
-
+    compile project(':search-index')
 
     compile "org.apache.commons:commons-csv:1.6"
+
+    //dom4j
+    implementation 'jaxen:jaxen:1.2.0'
+    implementation 'org.dom4j:dom4j:2.1.1'
 }

@@ -18,7 +18,9 @@ package cz.incad.kramerius.security.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.RightsResolverBase;
@@ -31,24 +33,23 @@ public class RightsResolverBaseImpl implements RightsResolverBase {
     // rightsadmin
     // rightssubadmin
     
-    private static String getGroupIds(User user) {
-        StringBuffer buffer = new StringBuffer();
-        Role[] grps = user.getGroups();
-        for (int i = 0; i < grps.length; i++) {
-            Role grp = grps[i];
-            buffer.append(grp.getId());
-            if (i <= grps.length-1) { buffer.append(","); }
-        }
-        return buffer.toString();
-    }
+//    private static String getGroupIds(User user) {
+//        StringBuffer buffer = new StringBuffer();
+//        Role[] grps = user.getGroups();
+//        for (int i = 0; i < grps.length; i++) {
+//            Role grp = grps[i];
+//            buffer.append(grp.getId());
+//            if (i <= grps.length-1) { buffer.append(","); }
+//        }
+//        return buffer.toString();
+//    }
     
     @Override
     public boolean isActionAllowed(User user, String actionName) {
         String query = "select * from right_entity ent"+
-            "left join  user_entity users on  (ent.user_id = users.user_id)"+
-            "left join  group_entity groups on  (ent.group_id = groups.group_id)"+
+            //"left join  group_entity groups on  (ent.group_id = groups.group_id)"+
         "where uuid='uuid:1' and \"action\"='" +actionName+"'"+
-            " (ent.user_id="+user.getId()+" or ent.group_id in ("+getGroupIds(user)+"))";
+            "ent.role in ("+ Arrays.stream(user.getGroups()).map(Role::getName).map(it-> {return "'"+it+"'";}).collect(Collectors.joining(","))+"))";
         
         List<String> results = new JDBCQueryTemplate<String>(SecurityDBUtils.getConnection()){
             @Override

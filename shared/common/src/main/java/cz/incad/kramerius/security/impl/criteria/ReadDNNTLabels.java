@@ -3,20 +3,21 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
-import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.licenses.License;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+//TODO: Rename to ReadLicense
 public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumLabelAware{
 
     public static final String PROVIDED_BY_DNNT_LABEL = "providedByLabel";
 
     public transient static final Logger LOGGER = Logger.getLogger(ReadDNNTLabels.class.getName());
 
-    private Label label;
+    private License license;
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
@@ -27,13 +28,13 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
             if (!SpecialObjects.isSpecialObject(pid)) {
 
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
-                    SolrAccess solrAccess = ctx.getSolrAccess();
+                    SolrAccess solrAccess = ctx.getSolrAccessNewIndex();
                     Document doc = solrAccess.getSolrDataByPid(pid);
 
-                    boolean applied =  CriteriaDNNTUtils.matchLabel(doc, getLabel());
+                    boolean applied =  CriteriaDNNTUtils.matchLicense(doc, getLicense());
                     if (applied) {
                         // select label
-                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, getLabel().getName());
+                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, getLicense().getName());
                         return EvaluatingResultState.TRUE;
                     }
                 }
@@ -86,12 +87,12 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
     }
 
     @Override
-    public void setLabel(Label label) {
-        this.label = label;
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
-    public Label getLabel() {
-        return this.label;
+    public License getLicense() {
+        return this.license;
     }
 }

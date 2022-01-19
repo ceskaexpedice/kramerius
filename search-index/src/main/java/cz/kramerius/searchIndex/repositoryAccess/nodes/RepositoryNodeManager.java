@@ -1,10 +1,7 @@
 package cz.kramerius.searchIndex.repositoryAccess.nodes;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.searchIndex.indexer.conversions.extraction.AuthorsExtractor;
-import cz.kramerius.searchIndex.indexer.conversions.extraction.DateExtractor;
-import cz.kramerius.searchIndex.indexer.conversions.extraction.LanguagesExtractor;
-import cz.kramerius.searchIndex.indexer.conversions.extraction.TitlesExtractor;
+import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
@@ -34,6 +31,7 @@ public class RepositoryNodeManager {
         try {
             return getKrameriusNodeWithCycleDetection(pid, new ArrayList<>());
         } catch (RuntimeException e) {
+            e.printStackTrace();
             if (surviveInconsistentObjects) {
                 //e.printStackTrace();
                 System.err.println(e.getMessage());
@@ -82,7 +80,7 @@ public class RepositoryNodeManager {
                 return null;
             }
             //System.out.println("building node for " + pid);
-            Pair<String, List<String>> parents = krameriusRepositoryAccessAdapter.getPidsOfParents(pid);
+            Pair<String, Set<String>> parents = krameriusRepositoryAccessAdapter.getPidsOfParents(pid);
             //process parents first
             RepositoryNode ownParent = parents.getFirst() == null ? null : getKrameriusNodeWithCycleDetection(parents.getFirst(), path);
             List<RepositoryNode> fosterParents = new ArrayList<>();
@@ -107,7 +105,7 @@ public class RepositoryNodeManager {
                 }
             }*/
 
-            //Document relsExtDoc = krameriusRepositoryAccessAdapter.getRelsExt(pid, true);
+            Document relsExtDoc = krameriusRepositoryAccessAdapter.getRelsExt(pid, false);
             //String model = KrameriusRepositoryUtils.extractKrameriusModelName(relsExtDoc);
             String model = krameriusRepositoryAccessAdapter.getModel(pid);
             List<String> ownChildren = null;
@@ -135,6 +133,8 @@ public class RepositoryNodeManager {
             List<AuthorInfo> myOtherAuthors = extractNonPrimaryAuthorsFromMods(model, modsDoc);
             List<AuthorInfo> primaryAuthors = mergePrimaryAuthors(ownParent, fosterParents, myPrimaryAuthors);
             List<AuthorInfo> otherAuthors = mergeOtherAuthors(ownParent, fosterParents, myOtherAuthors);
+            List<String> myLicences = extractLicenses(model, relsExtDoc);
+            List<String> licencesOfOwnAncestors = getLicensesFromAllAncestors(ownParent, fosterParents);
 
             //pids of all foster parents
             List<String> fosterParentsPids = toPidList(fosterParents);
@@ -157,7 +157,19 @@ public class RepositoryNodeManager {
 
             String pidPath = ownParent == null ? pid : ownParent.getPidPath() + "/" + pid;
             String modelPath = ownParent == null ? model : ownParent.getModelPath() + "/" + model;
-
+            List<String> allPathsThroughAllParents = new ArrayList<>();
+            if (ownParent == null) { //nema vlastniho rodice, tj. jedina cesta ve vlastim strome: PID
+                allPathsThroughAllParents.add(pid);
+            } else {
+                for (String anyPathToOwnParent : ownParent.getAllPidPathsThroughAllParents()) { //vsechno, co vede na vlastniho rodice, treba skrz sbirky
+                    allPathsThroughAllParents.add(anyPathToOwnParent + "/" + pid);
+                }
+            }
+            for (RepositoryNode fosterParent : fosterParents) {//vsechno, co vede na vsechny nevlastni rodice, treba skrz sbirky/hierarchie sbirek
+                for (String anyPathToFosterParent : fosterParent.getAllPidPathsThroughAllParents()) {
+                    allPathsThroughAllParents.add(anyPathToFosterParent + "/" + pid);
+                }
+            }
             String rootPid = ownParent == null ? pid : ownParent.getRootPid();
             String rootModel = ownParent == null ? model : ownParent.getRootModel();
             Title rootTitle = ownParent == null ? title : ownParent.getRootTitle();
@@ -169,12 +181,13 @@ public class RepositoryNodeManager {
 
             return new RepositoryNode(
                     pid, model, title,
-                    pidPath, modelPath,
+                    pidPath, modelPath, allPathsThroughAllParents,
                     rootPid, rootModel, rootTitle,
                     ownParentPid, ownParentModel, ownParentTitle, positionInOwnParent,
                     fosterParentsPids, fosterParentsOfTypeCollectionPids, anyAncestorsOfTypeCollectionPids,
                     ownChildren, fosterChildren,
-                    languages, primaryAuthors, otherAuthors, dateInfo
+                    languages, primaryAuthors, otherAuthors, dateInfo,
+                    myLicences, licencesOfOwnAncestors
             );
         } catch (IOException | ResourceIndexException e) {
             throw new RuntimeException(e);
@@ -191,8 +204,7 @@ public class RepositoryNodeManager {
         return null;
     }
 
-    private List<String> mergeLanguages(RepositoryNode
-                                                ownParent, List<RepositoryNode> fosterParents, List<String> myLanguages) {
+    private List<String> mergeLanguages(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<String> myLanguages) {
         //fill set
         Set<String> set = new HashSet<>();
         if (ownParent != null) {
@@ -204,6 +216,24 @@ public class RepositoryNodeManager {
         set.addAll(myLanguages);
         //return list
         List<String> list = new ArrayList<>();
+        list.addAll(set);
+        return list;
+    }
+
+    //from both own and foster ancestors
+    private List<String> getLicensesFromAllAncestors(RepositoryNode ownParent, List<RepositoryNode> fosterParents) {
+        //fill set
+        Set<java.lang.String> set = new HashSet<>();
+        if (ownParent != null) {
+            set.addAll(ownParent.getLicenses());
+            set.addAll(ownParent.getLicensesOfAncestors());
+        }
+        for (RepositoryNode fosterParent : fosterParents) {
+            set.addAll(fosterParent.getLicenses());
+            set.addAll(fosterParent.getLicensesOfAncestors());
+        }
+        //return list
+        List<java.lang.String> list = new ArrayList<>();
         list.addAll(set);
         return list;
     }
@@ -246,7 +276,6 @@ public class RepositoryNodeManager {
         if (parentsOwnChildren == null || parentsOwnChildren.isEmpty()) {
             return null;
         }
-
         int position = parentsOwnChildren.indexOf(childPid);
         return position == -1 ? null : Integer.valueOf(position);
     }
@@ -273,6 +302,12 @@ public class RepositoryNodeManager {
         LanguagesExtractor extractor = new LanguagesExtractor();
         List<String> languages = extractor.extractLanguages(modsDoc.getRootElement(), model);
         return languages;
+    }
+
+    private List<String> extractLicenses(String model, Document relsExtDoc) {
+        LicensesExtractor extractor = new LicensesExtractor();
+        List<String> licenses = extractor.extractLicenses(relsExtDoc.getRootElement(), model);
+        return licenses;
     }
 
     private List<AuthorInfo> extractPrimaryAuthorsFromMods(String model, Document modsDoc) throws IOException {

@@ -1,5 +1,6 @@
 package cz.incad.kramerius.csv;
 
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
@@ -29,9 +30,18 @@ public class ParametrizedLabelSetDNNTFlag {
     }
 
 
-
-    public static void main(String[] args) throws InterruptedException, SAXException, JAXBException, BrokenBarrierException, IOException {
-        ParametrizedLabelSetDNNTFlag.process("c:\\Users\\pavel.stastny\\.kramerius4\\import-dnnt\\test.csv", "test-01");
+    public static void main(String[] args) throws BrokenBarrierException, InterruptedException, IOException {
+        try {
+            System.setProperty(AbstractDNNTCSVProcess.DNNT_FILE_KEY, "/c:/Users/happy/.kramerius4/import-dnnt/periodicalvolume.csv");
+            System.setProperty(AbstractDNNTCSVProcess.DNNTUNSET_FILE_KEY, "/c:/Users/happy/.kramerius4/import-dnnt/periodicalvolume.csv");
+            DDNTCSVLabeledFlag.main(new String[]{Boolean.TRUE.toString(), "dnnto"});
+        } finally {
+            LOGGER.info("Trying to shutdown akubra manager");
+            AkubraDOManager.shutdown();
+            LOGGER.info("Akubra is down");
+        }
+        //
     }
+
 
 }

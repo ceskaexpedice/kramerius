@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class ResourceIndexImplByKrameriusOldApis extends ResourceIndexImplAbstract {
 
@@ -25,7 +23,7 @@ public class ResourceIndexImplByKrameriusOldApis extends ResourceIndexImplAbstra
     }
 
     @Override
-    public Pair<String, List<String>> getPidsOfParents(String pid) throws ResourceIndexException {
+    public Pair<String, Set<String>> getPidsOfParents(String pid) throws ResourceIndexException {
         InputStream inputStream = null;
         try {
             //GET http://localhost:8080/search/api/v5.0/item/uuid:a8263737-eb03-4107-9723-7200d00036f5/parents
@@ -49,7 +47,7 @@ public class ResourceIndexImplByKrameriusOldApis extends ResourceIndexImplAbstra
                 }
                 //split to own and foster (with an assumption that the own parent is always first)
                 String ownParent = null;
-                List<String> fosterParents = new ArrayList<>();
+                Set<String> fosterParents = new HashSet<>();
                 if (parents != null && !parents.isEmpty()) {
                     ownParent = parents.get(0);
                     for (int i = 1; i < parents.size(); i++) {

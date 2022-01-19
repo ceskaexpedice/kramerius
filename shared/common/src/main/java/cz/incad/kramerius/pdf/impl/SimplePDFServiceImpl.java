@@ -71,7 +71,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
     @Inject
     public SimplePDFServiceImpl(
             @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
-            SolrAccess solrAccess, KConfiguration configuration,
+            @Named("new-index") SolrAccess solrAccess, KConfiguration configuration,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService) {
         super();

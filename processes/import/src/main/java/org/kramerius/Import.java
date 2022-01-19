@@ -11,10 +11,11 @@ import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
+import cz.incad.kramerius.processes.new_api.IndexationScheduler;
+import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
-import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -47,6 +48,7 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import cz.incad.kramerius.utils.*;
 
 
@@ -55,7 +57,6 @@ import static cz.incad.kramerius.FedoraNamespaces.*;
 
 
 public class Import {
-
 
     static ObjectFactory of;
     static int counter = 0;
@@ -74,19 +75,13 @@ public class Import {
     static {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
-
             unmarshaller = jaxbContext.createUnmarshaller();
-
-
             JAXBContext jaxbdatastreamContext = JAXBContext.newInstance(DatastreamType.class);
             datastreamMarshaller = jaxbdatastreamContext.createMarshaller();
-
-
         } catch (Exception e) {
             log.log(Level.SEVERE, "Cannot init JAXB", e);
             throw new RuntimeException(e);
         }
-
         rootModels = Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.topLevelModels"));
         if (rootModels == null) {
             rootModels = new ArrayList<String>();
@@ -94,21 +89,57 @@ public class Import {
     }
 
     /**
-     * @param args
-     * @throws UnsupportedEncodingException
+     * args[0] - authToken
+     * args[1] - import dir, optional
+     * args[2] - start indexer, optional
      */
     public static void main(String[] args) throws IOException, RepositoryException, SolrServerException {
+        /*for (int i = 0; i < args.length; i++) {
+            System.out.println("arg " + i + ": " + args[i]);
+        }*/
+        if (args.length < 1) {
+            throw new RuntimeException("Not enough arguments.");
+        }
+        int argsIndex = 0;
+        //token for keeping possible following processes in same batch
+        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+        //process params
+        String importDirFromArgs = args.length > argsIndex ? args[argsIndex++] : null;
+        Boolean startIndexerFromArgs = args.length > argsIndex ? Boolean.valueOf(args[argsIndex++]) : null;
+
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
-        String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
+
+        //priority: 1. args, 2. System property, 3. KConfiguration, 4. explicit defalut value
+        String importDirectory = KConfiguration.getInstance().getProperty("import.directory");
+        if (importDirFromArgs != null) {
+            importDirectory = importDirFromArgs;
+        } else if (System.getProperties().containsKey("import.directory")) {
+            importDirectory = System.getProperty("import.directory");
+        }
+        Boolean startIndexer = Boolean.valueOf(KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
+        if (startIndexerFromArgs != null) {
+            startIndexer = startIndexerFromArgs;
+        } else if (System.getProperties().containsKey("ingest.startIndexer")) {
+            startIndexer = Boolean.valueOf(System.getProperty("ingest.startIndexer"));
+        }
+
+        ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
+        log.info("import dir: " + importDirectory);
+        log.info("start indexer: " + startIndexer);
+
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Import.ingest(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
+        Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken);
     }
 
+    public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
+        run(fa, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null);
+    }
 
-    public static void ingest(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
-        log.info("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
+    public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken) throws IOException, SolrServerException {
+        //log.info("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
+        log.info("INGEST - url:" + url + " user:" + user + " importRoot:" + importRoot);
         sortingService = sortingServiceParam;
 
         // system property 
@@ -186,28 +217,24 @@ public class Import {
                 log.info("RELATIONS SORTING DISABLED.");
             }
 
-            String startIndexerProperty = System.getProperties().containsKey("ingest.startIndexer") ? System.getProperty("ingest.startIndexer") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true");
-            if (new Boolean(startIndexerProperty)) {
+            if (startIndexer) {
                 if (roots.isEmpty()) {
                     log.info("NO ROOT OBJECTS FOR INDEXING FOUND.");
                 } else {
-                    StringBuilder pids = new StringBuilder();
-                    String pidSeparator = KConfiguration.getInstance().getConfiguration().getString("indexer.pidSeparator", ";");
-                    for (TitlePidTuple tpt : roots) {
-                        if (pids.length() > 0) {
-                            pids.append(pidSeparator);
-                        }
-                        pids.append(tpt.pid);
-                    }
-
                     try {
                         String waitIndexerProperty = System.getProperties().containsKey("ingest.startIndexer.wait") ? System.getProperty("ingest.startIndexer.wait") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer.wait", "1000");
                         // should wait
                         log.info("Waiting for soft commit :" + waitIndexerProperty + " s");
                         Thread.sleep(Integer.parseInt(waitIndexerProperty));
 
-                        IndexerProcessStarter.spawnIndexer(true, importFile.getName(), pids.toString());
-                        log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
+                        if (authToken != null) {
+                            for (TitlePidTuple root : roots) {
+                                IndexationScheduler.scheduleIndexation(root.pid, root.title, true, authToken);
+                            }
+                            log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
+                        } else {
+                            log.warning("cannot schedule indexation due to missing process credentials");
+                        }
                     } catch (Exception e) {
                         log.log(Level.WARNING, e.getMessage(), e);
                     }
@@ -229,8 +256,6 @@ public class Import {
                 return new PasswordAuthentication(user, pwd.toCharArray());
             }
         });
-
-
         of = new ObjectFactory();
     }
 
@@ -283,7 +308,7 @@ public class Import {
                                 DatastreamVersionType dsversion = ds.getDatastreamVersion().get(0);
                                 if (dsversion.getXmlContent() != null) {
                                     Element element = dsversion.getXmlContent().getAny().get(0);
-									if (dsName.equals(FedoraUtils.DC_STREAM)) {
+                                    if (dsName.equals(FedoraUtils.DC_STREAM)) {
                                         String rights = DCUtils.rightsFromDC(element);
                                         if (rights != null) {
                                             Element elm = findElement(element, "rights", DC_NAMESPACE_URI);
@@ -523,7 +548,7 @@ public class Import {
                     }
                 }
             }
-        }finally{
+        } finally {
             writeLock.unlock();
         }
         return touched;

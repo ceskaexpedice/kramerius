@@ -31,8 +31,6 @@ public class NKPXMLFormatter implements StatisticsReportFormatter {
     @Named("rawFedoraAccess")
     FedoraAccess fedoraAccess;
 
-    @Inject
-    SolrAccess solrAccess;
 
     @Override
     public String getMimeType() {
@@ -62,21 +60,6 @@ public class NKPXMLFormatter implements StatisticsReportFormatter {
         try {
 
             String pid = (String) record.get("pid");
-
-            Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
-
-            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(null, solrDoc);
-            ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(solrDoc);
-
-            String rootTitle  = SElemUtils.selem("str", "root_title", solrDoc);
-            String rootPid  = SElemUtils.selem("str", "root_pid", solrDoc);
-            String dctitle = SElemUtils.selem("str", "dc.title", solrDoc);
-            String solrDate = SElemUtils.selem("str", "datum_str", solrDoc);
-            String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
-            String policy = SElemUtils.selem("str", "dostupnost", solrDoc);
-
-            List<String> sAuthors = DNNTStatisticsAccessLogImpl.solrAuthors(rootPid, solrAccess);
-            List<String> dcPublishers = DNNTStatisticsAccessLogImpl.dcPublishers(paths, fedoraAccess);
 
             StringBuilder builder = new StringBuilder("<record>\n");
 

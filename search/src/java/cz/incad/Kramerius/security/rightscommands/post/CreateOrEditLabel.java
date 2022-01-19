@@ -2,22 +2,18 @@ package cz.incad.Kramerius.security.rightscommands.post;
 
 import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.LabelsManager;
-import cz.incad.kramerius.security.labels.LabelsManagerException;
-import cz.incad.kramerius.security.labels.impl.LabelImpl;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -42,20 +38,20 @@ public class CreateOrEditLabel extends ServletRightsCommand {
             try {
                 if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid())).flag()) {
                     if (labelId != null && Integer.parseInt(labelId) > -1) {
-                        Label foundLabel = labelsManager.getLabelById(Integer.parseInt(labelId));
-                        if (foundLabel != null) {
-                            labelsManager.updateLabel(new LabelImpl(Integer.parseInt(labelId), labelName, labelDesc, LabelsManager.LOCAL_GROUP_NAME));
+                        License foundLicense = licensesManager.getLabelById(Integer.parseInt(labelId));
+                        if (foundLicense != null) {
+                            licensesManager.updateLabel(new LicenseImpl(Integer.parseInt(labelId), labelName, labelDesc, LicensesManager.LOCAL_GROUP_NAME));
                         } else {
-                            labelsManager.addLocalLabel(new LabelImpl(labelName, labelDesc, LabelsManager.LOCAL_GROUP_NAME));
+                            licensesManager.addLocalLabel(new LicenseImpl(labelName, labelDesc, LicensesManager.LOCAL_GROUP_NAME));
                         }
                     } else {
-                        labelsManager.addLocalLabel(new LabelImpl(labelName, labelDesc, LabelsManager.LOCAL_GROUP_NAME));
+                        licensesManager.addLocalLabel(new LicenseImpl(labelName, labelDesc, LicensesManager.LOCAL_GROUP_NAME));
                     }
                 } else {
                     this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
                 }
 
-            } catch (LabelsManagerException e) {
+            } catch (LicensesManagerException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
             }
         }

@@ -281,6 +281,8 @@ public interface UserManager {
      */
     public void insertUser(User user, String pswd) throws SQLException;
 
+    public void updateUser(User user) throws SQLException;
+
     /**
      * Delete user
      * @param user
@@ -317,14 +319,10 @@ public interface UserManager {
      * Find public role
      * @return
      */
-    public Role findPublicUsersRole();
+    //public Role findPublicUsersRole();
     
     
     //TODO:  remove
     public boolean isLoggedUser(User user);
-    // TODO: remove
-    public void insertPublicUsersRole() throws SQLException;
-    //TODO : remove
-    public void registerLoggedUser(User user, String loggedUserKey) throws SQLException;
-    
+
 }

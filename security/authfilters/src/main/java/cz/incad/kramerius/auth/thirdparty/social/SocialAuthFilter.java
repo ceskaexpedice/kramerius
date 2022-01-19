@@ -7,9 +7,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
 import org.brickred.socialauth.SocialAuthManager;
 
-import cz.incad.kramerius.auth.thirdparty.AuthenticatedUsers;
 import cz.incad.kramerius.auth.thirdparty.ExtAuthFilter;
 import cz.incad.kramerius.auth.thirdparty.social.utils.OpenIDFlag;
 
@@ -19,7 +19,7 @@ public class SocialAuthFilter extends ExtAuthFilter {
 
     public static final String PROVIDER_KEY = "provider";
     
-    private AuthenticatedUsers authenticatedUsers;
+    private ThirdPartyUsersSupport thirdPartyUsersSupport;
     
     public static void loginReqests(HttpServletRequest req, HttpServletResponse resp, String provider,
             String successUrl) throws Exception {
@@ -31,13 +31,13 @@ public class SocialAuthFilter extends ExtAuthFilter {
 
     @Override
     public void init(FilterConfig arg0) throws ServletException {
-        this.authenticatedUsers = new OpenIDAuthenticatedUsers();
+        this.thirdPartyUsersSupport = new OpenIDThirdPartyUsersSupport();
     }
 
 
     @Override
-    protected AuthenticatedUsers getExternalAuthenticatedUsers() {
-        return this.authenticatedUsers;
+    protected ThirdPartyUsersSupport getThirdPartyUsersSupport() {
+        return this.thirdPartyUsersSupport;
     }
 
 

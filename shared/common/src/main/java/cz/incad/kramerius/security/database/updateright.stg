@@ -25,24 +25,24 @@ select_admin_role() ::=<<
 >>
 
 insertDisplayAdminMenuRight() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','display_admin_menu',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','display_admin_menu',group_id, 'k4_admins'
         from group_entity
         where gname='k4_admins'
 >>
 
 
 insertRight_VirtualCollections() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','virtualcollection_manage',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','virtualcollection_manage',group_id ,'k4_admins'
         from group_entity
         where gname='k4_admins'
 >>
 
 
 insertRight_DisplayAdminMenu() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','criteria_rights_manage',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','criteria_rights_manage',group_id , 'k4_admins'
         from group_entity
         where gname='k4_admins'
 >>
@@ -50,60 +50,60 @@ insertRight_DisplayAdminMenu() ::=<<
 
 
 insertRight_K4ReplicationImport() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','import_k4_replications',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','import_k4_replications',group_id , 'k4_admins'
         from group_entity
         where gname='k4_admins'
 >>
 
 insertRight_K4ReplicationExport() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','export_k4_replications',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','export_k4_replications',group_id , 'k4_admins'
         from group_entity
         where gname='k4_admins'
 >>
 
 insertRight_ReplikatorK3()::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','replikator_k3',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','replikator_k3',group_id , 'k4_admins'
         from group_entity
         where gname='k4_admins'
 >>
 
 insertRight_NDKMetsImport() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','ndk_mets_import',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','ndk_mets_import',group_id , 'k4_admins'
         from group_entity
         where gname='k4_admins'
 >>
 
 
 insertRight_aggregate() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','aggregate',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','aggregate',group_id , 'k4_admins'
         from group_entity
         where gname='common_users'
 >>
 
 insertRight_showstatistics() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','show_statictics',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','show_statictics',group_id, 'k4_admins'
         from group_entity
         where gname='k4_admins'
 >>
 
 
 insertRight_sort() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','sort',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','sort',group_id ,  'k4_admins'
         from group_entity
         where gname='k4_admins'
 >>
 
 
 insertRight_show_print_menu() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','show_print_menu',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','show_print_menu',group_id , 'k4_admins'
         from group_entity
         where gname='k4_admins'
 >>
@@ -133,18 +133,18 @@ updateUserEntities() ::=<<
 >>
 
 updateShowItems() ::=<<
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','show_client_print_menu',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','show_client_print_menu',group_id , 'common_users'
         from group_entity
         where gname='common_users';
 
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','show_client_pdf_menu',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','show_client_pdf_menu',group_id , 'common_users'
         from group_entity
         where gname='common_users';
 
-    insert into right_entity (right_id, uuid, "action", group_id)
-        select nextval('right_id_sequence'),'uuid:1','pdf_resource',group_id 
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','pdf_resource',group_id , 'common_users'
         from group_entity
         where gname='common_users';
 

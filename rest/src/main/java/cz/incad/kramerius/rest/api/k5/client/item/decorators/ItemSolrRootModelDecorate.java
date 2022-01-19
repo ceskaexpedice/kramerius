@@ -45,8 +45,6 @@ public class ItemSolrRootModelDecorate extends AbstractItemDecorator {
     public static final String SOLR_ROOTMODEL_KEY = AbstractItemDecorator
             .key("ROOTMODEL");
 
-    @Inject
-    SolrAccess solrAccess;
 
     @Inject
     SolrMemoization memo;

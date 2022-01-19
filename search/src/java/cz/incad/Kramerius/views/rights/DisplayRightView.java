@@ -18,7 +18,6 @@ package cz.incad.Kramerius.views.rights;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,9 +28,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.LabelsManager;
-import cz.incad.kramerius.security.labels.LabelsManagerException;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
 
 
 public class DisplayRightView extends AbstractRightsView {
@@ -52,7 +51,7 @@ public class DisplayRightView extends AbstractRightsView {
     RightsManager rightsManager;
 
     @Inject
-    LabelsManager labelsManager;
+    LicensesManager labelsManager;
     
     Right right;
     
@@ -63,7 +62,7 @@ public class DisplayRightView extends AbstractRightsView {
         } else {
             Right right = getRight();
             //TODO: change it !!
-            Role role = (Role) right.getUser();
+            Role role = (Role) right.getRole();
             return role.getName();
         }
     }
@@ -189,7 +188,7 @@ public class DisplayRightView extends AbstractRightsView {
     }
 
 
-    public List<Label> getLabels() throws LabelsManagerException {
+    public List<License> getLabels() throws LicensesManagerException {
         return this.labelsManager.getLabels();
     }
 

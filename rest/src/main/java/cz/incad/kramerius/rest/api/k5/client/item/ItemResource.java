@@ -64,6 +64,7 @@ import java.util.logging.Logger;
  * Item endpoint
  *
  * @author pavels
+ * @deprecated use cz.incad.kramerius.rest.apiNew instead
  */
 @Path("/v5.0/item")
 public class ItemResource {
@@ -76,6 +77,7 @@ public class ItemResource {
     FedoraAccess fedoraAccess;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

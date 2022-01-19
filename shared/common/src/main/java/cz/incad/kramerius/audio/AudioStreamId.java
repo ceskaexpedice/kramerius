@@ -42,7 +42,7 @@ public class AudioStreamId implements Serializable {
      * Creates audio stream id from path info obtained from HttpServletRequest
      *
      * @param pathInfo String in form
-     * "/uuid:17646b3a-3b53-4b40-9c97-c711e42ccedb/MP3"
+     *                 "/uuid:17646b3a-3b53-4b40-9c97-c711e42ccedb/MP3"
      * @return
      */
     public static AudioStreamId fromPathInfo(String pathInfo) {
@@ -54,7 +54,6 @@ public class AudioStreamId implements Serializable {
     }
 
     /**
-     *
      * @return Fedora pid of object containing audio datastream
      */
     public String getPid() {
@@ -62,7 +61,6 @@ public class AudioStreamId implements Serializable {
     }
 
     /**
-     *
      * @return Format of audio datastream
      */
     public AudioFormat getFormat() {
@@ -97,6 +95,6 @@ public class AudioStreamId implements Serializable {
 
     @Override
     public String toString() {
-        return "ImageId{" + "pid=" + pid + ", version=" + format + '}';
+        return "AudioStreamId{" + "pid=" + pid + ", version=" + format + '}';
     }
 }

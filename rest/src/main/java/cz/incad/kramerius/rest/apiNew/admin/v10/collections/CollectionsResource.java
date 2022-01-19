@@ -4,12 +4,12 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
-import cz.incad.kramerius.rest.apiNew.admin.v10.AuthenticatedUser;
-import cz.incad.kramerius.rest.apiNew.admin.v10.ClientAuthHeaders;
 import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.security.Role;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -20,17 +20,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-@Path("/admin/v1.0/collections")
+@Path("/admin/v7.0/collections")
 public class CollectionsResource extends AdminApiResource {
 
     public static final Logger LOGGER = Logger.getLogger(CollectionsResource.class.getName());
@@ -48,6 +51,9 @@ public class CollectionsResource extends AdminApiResource {
     @Inject
     ProcessSchedulingHelper processSchedulingHelper;
 
+    @javax.inject.Inject
+    Provider<User> userProvider;
+
     /**
      * Creates new collection and assigns a pid to it.
      *
@@ -60,10 +66,14 @@ public class CollectionsResource extends AdminApiResource {
     public Response createCollection(JSONObject collectionDefinition) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            //authorization
+
             String role = ROLE_CREATE_COLLECTION;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to create collections (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing role '%s')", user1.getLoginname(), role); //403
             }
             Collection collection = extractCollectionFromJson(collectionDefinition);
             if ((collection.nameCz == null || collection.nameCz.isEmpty()) && (collection.nameEn == null || collection.nameEn.isEmpty())) {
@@ -73,7 +83,7 @@ public class CollectionsResource extends AdminApiResource {
             Document foxml = foxmlBuilder.buildFoxml(collection, null);
             krameriusRepositoryApi.getLowLevelApi().ingestObject(foxml);
             //schedule reindexation - new collection (only object)
-            scheduleReindexation(collection.pid, user, "OBJECT", UUID.randomUUID().toString(), false, "sbírka " + collection.pid);
+            scheduleReindexation(collection.pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", UUID.randomUUID().toString(), false, "sbírka " + collection.pid);
             return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -96,10 +106,13 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkSupportedObjectPid(pid);
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
             String role = ROLE_READ_COLLECTION;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to read collections (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to read collections (missing role '%s')", user1.getLoginname(), role); //403
             }
             checkObjectExists(pid);
             Collection collection = fetchCollectionFromRepository(pid, true, true);
@@ -124,10 +137,15 @@ public class CollectionsResource extends AdminApiResource {
     public Response getCollections(@QueryParam("withItem") String itemPid) {
         try {
             //authentication & authorization by external provider of identities & rights
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
+
             String role = ROLE_LIST_COLLECTIONS;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to list collections (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to list collections (missing role '%s')", user1.getLoginname(), role); //403
             }
             //authentication with JSESSIONID cookie and authorization against (global) SecuredAction - i.e. schema used Kramerius legacy APIs and servlets
             //checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions.VIRTUALCOLLECTION_MANAGE);
@@ -172,10 +190,12 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkSupportedObjectPid(pid);
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
             String role = ROLE_EDIT_COLLECTION;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
             }
             checkObjectExists(pid);
             Collection current = fetchCollectionFromRepository(pid, true, false);
@@ -192,7 +212,7 @@ public class CollectionsResource extends AdminApiResource {
                 //rebuild and update rels-ext (because of "standalone")
                 krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
                 //schedule reindexation - l (only object)
-                scheduleReindexation(pid, user, "OBJECT", UUID.randomUUID().toString(), false, "sbírka " + pid);
+                scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", UUID.randomUUID().toString(), false, "sbírka " + pid);
             }
             return Response.ok().build();
         } catch (WebApplicationException e) {
@@ -203,19 +223,13 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    private void scheduleReindexation(String objectPid, AuthenticatedUser user, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
-        String newProcessAuthToken = UUID.randomUUID().toString();
+    private void scheduleReindexation(String objectPid, String userid, String username, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
         List<String> paramsList = new ArrayList<>();
-        //Kramerius
-        paramsList.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(extractClientAuthHeaders()));
-        //Solr
-        paramsList.addAll(processSchedulingHelper.processParamsSolr());
-        //indexation params
         paramsList.add(indexationType);
         paramsList.add(objectPid);
         paramsList.add(Boolean.toString(ignoreInconsistentObjects));
         paramsList.add(title);
-        processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, user.getId(), user.getName(), batchToken, newProcessAuthToken);
+        processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, userid, username, batchToken);
     }
 
     /**
@@ -258,27 +272,63 @@ public class CollectionsResource extends AdminApiResource {
             checkSupportedObjectPid(collectionPid);
             checkSupportedObjectPid(itemPid);
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
+
             String role = ROLE_EDIT_COLLECTION;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
             }
             checkObjectExists(collectionPid);
             checkObjectExists(itemPid);
+            checkCanAddItemToCollection(itemPid, collectionPid);
+            //extract relsExt and update by adding new relation
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
-            foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            if (!addedNow) {
+                throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
+            }
+            //save updated rels-ext
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
             //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
             String batchToken = UUID.randomUUID().toString();
-            //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky
-            scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
-            //scheduleReindexation(collectionPid, user, "OBJECT", batchToken, false, "sbírka " + collectionPid);
+            //mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+            scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
             return Response.status(Response.Status.CREATED).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    private void checkCanAddItemToCollection(String itemPid, String collectionPid) throws SolrServerException, RepositoryException, IOException {
+        //pid of object that item is to be added into must belong to collection
+        if (!"collection".equals(krameriusRepositoryApi.getModel(collectionPid))) {
+            throw new ForbiddenException("not a collection: " + collectionPid);
+        }
+        //cannot add to itself
+        if (collectionPid.equals(itemPid)) {
+            throw new ForbiddenException("cannot add collection into itself: " + collectionPid);
+        }
+        //detect cycle
+        if ("collection".equals(krameriusRepositoryApi.getModel(itemPid))) {
+            detectCyclicPath(itemPid, collectionPid, String.format("%s --contains--> %s", collectionPid, itemPid));
+        }
+    }
+
+    private void detectCyclicPath(String pid, String pidOfObjectNotAllowedOnPath, String pathSoFar) throws SolrServerException, RepositoryException, IOException {
+        List<RepositoryApi.Triplet> fosterChildrenTriplets = krameriusRepositoryApi.getChildren(pid).getSecond();
+        for (RepositoryApi.Triplet triplet : fosterChildrenTriplets) {
+            String path = String.format("%s --%s--> %s ", pathSoFar, triplet.relation, triplet.target);
+            if (pidOfObjectNotAllowedOnPath.equals(triplet.target)) {
+                throw new ForbiddenException("adding item to collection would create cycle: " + path);
+            } else {
+                detectCyclicPath(triplet.target, pidOfObjectNotAllowedOnPath, path);
+            }
         }
     }
 
@@ -291,32 +341,53 @@ public class CollectionsResource extends AdminApiResource {
      */
     @DELETE
     @Path("{collectionPid}/items/{itemPid}")
-    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, @PathParam("itemPid") String itemPid) {
+    public Response removeItemFromCollection(@PathParam("collectionPid") String
+                                                     collectionPid, @PathParam("itemPid") String itemPid) {
         try {
             checkSupportedObjectPid(collectionPid);
             checkSupportedObjectPid(itemPid);
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
             String role = ROLE_EDIT_COLLECTION;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
             }
             checkObjectExists(collectionPid);
             checkObjectExists(itemPid);
+            checkCanRemoveItemFromCollection(itemPid, collectionPid);
+            //extract relsExt and update by removing relation
             Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
-            foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+            if (!removed) {
+                throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
+            }
+            //save updated rels-ext
             krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
             //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
             String batchToken = UUID.randomUUID().toString();
-            //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky
-            scheduleReindexation(itemPid, user, "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
-            //scheduleReindexation(collectionPid, user, "OBJECT", batchToken, false, "sbírka " + collectionPid);
+            //mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+            scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
             return Response.status(Response.Status.OK).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    private void checkCanRemoveItemFromCollection(String itemPid, String collectionPid) throws SolrServerException, RepositoryException, IOException {
+        //pid of object that item is to be removed from must belong to collection
+        if (!"collection".equals(krameriusRepositoryApi.getModel(collectionPid))) {
+            throw new ForbiddenException("not a collection: " + collectionPid);
+        }
+        //cannot remove collection from itself
+        if (collectionPid.equals(itemPid)) {
+            throw new ForbiddenException("collection and item pids are the same: " + collectionPid);
         }
     }
 
@@ -332,32 +403,32 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkSupportedObjectPid(pid);
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
             String role = ROLE_DELETE_COLLECTION;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to delete collections (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to delete collections (missing role '%s')", user1.getLoginname(), role); //403
             }
             //extract children before deleting collection
             Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
             List<String> childrenPids = new ArrayList<>();
             for (RepositoryApi.Triplet ownChildTpl : childrenTpls.getFirst()) {
                 String childPid = ownChildTpl.target;
-                System.out.println(childPid);
                 childrenPids.add(childPid);
             }
             for (RepositoryApi.Triplet fosterChildTpl : childrenTpls.getSecond()) {
                 String childPid = fosterChildTpl.target;
-                System.out.println(childPid);
                 childrenPids.add(childPid);
             }
             //delete collection object form repository (not managed datastreams, since those for IMG_THUMB are referenced from other objects - pages)
             krameriusRepositoryApi.getLowLevelApi().deleteObject(pid, false);
             //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees), 3. no need to reindex collections owning this one
             String batchToken = UUID.randomUUID().toString();
-            scheduleReindexation(pid, user, "OBJECT", batchToken, false, "sbírka " + pid);
+            scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", batchToken, false, "sbírka " + pid);
             for (String childPid : childrenPids) {
-                //TODO: namísto TREE_AND_FOSTER_TREES nový typ indexace, co bude řešit jen sbírky
-                scheduleReindexation(childPid, user, "TREE_AND_FOSTER_TREES", batchToken, true, childPid);
+                //mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+                scheduleReindexation(childPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", batchToken, true, childPid);
             }
             return Response.ok().build();
         } catch (WebApplicationException e) {
@@ -368,7 +439,8 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    private Collection fetchCollectionFromRepository(String pid, boolean withContent, boolean withItems) throws IOException, RepositoryException, SolrServerException {
+    private Collection fetchCollectionFromRepository(String pid, boolean withContent, boolean withItems) throws
+            IOException, RepositoryException, SolrServerException {
         Collection collection = new Collection();
         collection.pid = pid;
         //timestamps from Foxml properties

@@ -72,6 +72,11 @@ public class ProcessCriteriumContext implements RightCriteriumContext {
     }
 
     @Override
+    public SolrAccess getSolrAccessNewIndex() {
+        return null;
+    }
+
+    @Override
     public UserManager getUserManager() {
         throw new UnsupportedOperationException("unsupported for this context");
     }

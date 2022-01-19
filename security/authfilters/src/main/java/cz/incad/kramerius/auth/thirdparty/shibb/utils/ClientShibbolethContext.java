@@ -1,8 +1,5 @@
 package cz.incad.kramerius.auth.thirdparty.shibb.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.ShibbolethContext;
@@ -10,9 +7,9 @@ import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.ShibbolethContext;
 public  class ClientShibbolethContext implements ShibbolethContext {
 
     private HttpServletRequest request;
-    private ShibbolethUserWrapper user;
+    private Shibboleth3rdUser user;
     
-    public ClientShibbolethContext(HttpServletRequest request, ShibbolethUserWrapper uwrap) {
+    public ClientShibbolethContext(HttpServletRequest request, Shibboleth3rdUser uwrap) {
         super();
         this.request = request;
         this.user = uwrap;

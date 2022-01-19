@@ -18,6 +18,7 @@ package cz.incad.kramerius.security.guice;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -34,6 +35,8 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.security.impl.http.MockGuiceSecurityHTTPModule;
 
+
+@Ignore
 public class TestGuiceModule extends AbstractGuiceTestCase {
 
     @Test

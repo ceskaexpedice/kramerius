@@ -54,7 +54,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
     public void convert(Mets mets, StringBuffer convertedURI)
             throws ServiceException {
         try {
-            policyID = config.isDefaultVisibility() ? POLICY_PUBLIC : POLICY_PRIVATE;
+            policyID = config.isPolicyPublic() ? POLICY_PUBLIC : POLICY_PRIVATE;
             loadModsAndDcMap(mets);
             loadFileMap(mets);
             processStructMap(mets);

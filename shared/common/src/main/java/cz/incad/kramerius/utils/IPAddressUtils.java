@@ -6,6 +6,7 @@ import org.apache.commons.configuration.Configuration;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,7 +15,7 @@ public class IPAddressUtils {
 
     public static Logger LOGGER = Logger.getLogger(IPAddressUtils.class.getName());
 
-    public static final String X_IP_FORWARD = "X_IP_FORWARD";
+    public static final String X_IP_FORWARD = "x-forwarded-for";
     public static String[] LOCALHOSTS = {"127.0.0.1", "localhost", "0:0:0:0:0:0:0:1", "::1"};
 
     static {
@@ -27,9 +28,21 @@ public class IPAddressUtils {
     }
 
     public static String getRemoteAddress(HttpServletRequest httpReq, Configuration conf) {
-        String headerFowraded = httpReq.getHeader(X_IP_FORWARD);
+        //String headerFowraded = httpReq.getHeader(X_IP_FORWARD);
+
+        String headerFowraded = null;
+        Enumeration headerNames = httpReq.getHeaderNames();
+        while(headerNames.hasMoreElements()) {
+            String header = headerNames.nextElement().toString();
+            if(header.toLowerCase().equals(X_IP_FORWARD)) {
+                headerFowraded = httpReq.getHeader(header);
+            }
+        }
+
         if (StringUtils.isAnyString(headerFowraded) && IPAddressUtils.matchConfigurationAddress(httpReq, conf)) {
-            return headerFowraded;
+            if (headerFowraded.contains(",")) {
+                return headerFowraded.split(",")[0];
+            } else return headerFowraded;
         } else {
             return httpReq.getRemoteAddr();
         }

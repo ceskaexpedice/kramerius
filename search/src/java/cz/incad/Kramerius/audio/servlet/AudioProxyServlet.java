@@ -18,6 +18,7 @@ package cz.incad.Kramerius.audio.servlet;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioStreamForwardUtils;
@@ -48,6 +49,7 @@ import java.util.logging.Logger;
  * Response: Client <- Audio proxy <- external Audio repository
  *
  * @author Martin Řehánek <Martin.Rehanek at mzk.cz>
+ * @deprecated use cz.incad.kramerius.rest.apiNew.client.v60.ItemsResource instead
  */
 public class AudioProxyServlet extends GuiceServlet {
 
@@ -55,8 +57,11 @@ public class AudioProxyServlet extends GuiceServlet {
 
     @Inject
     RightsResolver rightsResolver;
+
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
+
     @Inject
     Provider<User> userProvider;
 

@@ -82,6 +82,13 @@ public interface RightCriteriumContext {
     public SolrAccess getSolrAccess();
 
     /**
+     * Return solr access
+     * @return
+     */
+    public SolrAccess getSolrAccessNewIndex();
+
+
+    /**
      * Returns user's manager
      * @return
      * @see UserManager

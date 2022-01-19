@@ -9,6 +9,7 @@ import org.dom4j.Document;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class is an adapter for Kramerius-specific operations over general repository (formally Fedora, newly Akubra) and Resource Index.
@@ -46,16 +47,16 @@ public class KrameriusRepositoryAccessAdapter {
 
     /**
      * @param pid
-     * @return pids of own parent and foster parents
+     * @return pids of own parent (first) and foster parents (second)
      * @throws ResourceIndexException
      */
-    public Pair<String, List<String>> getPidsOfParents(String pid) throws ResourceIndexException {
+    public Pair<String, Set<String>> getPidsOfParents(String pid) throws ResourceIndexException {
         return resourceIndex.getPidsOfParents(pid);
     }
 
     /**
      * @param pid
-     * @return pids of own children and foster children
+     * @return pids of own children (first) and foster children (second) in an order matching RELS-EXT elements
      * @throws ResourceIndexException
      */
     public Pair<List<String>, List<String>> getPidsOfChildren(String pid) throws ResourceIndexException {
@@ -65,70 +66,100 @@ public class KrameriusRepositoryAccessAdapter {
     //RELS-EXT
 
     public boolean isRelsExtAvailable(String pid) throws IOException {
-        return repository.isStreamAvailable(pid, KnownDatastreams.RELS_EXT_STREAM);
+        return repository.isStreamAvailable(pid, KnownDatastreams.RELS_EXT);
     }
 
     public Document getRelsExt(String pid, boolean nsAware) throws IOException {
-        InputStream is = repository.getDataStream(pid, KnownDatastreams.RELS_EXT_STREAM);
+        InputStream is = repository.getDataStream(pid, KnownDatastreams.RELS_EXT);
         return Utils.inputstreamToDocument(is, nsAware);
     }
 
     //DC
 
     public boolean isDublinCoreAvailable(String pid) throws IOException {
-        return repository.isStreamAvailable(pid, KnownDatastreams.DC_STREAM);
+        return repository.isStreamAvailable(pid, KnownDatastreams.METADATA_DC);
     }
 
     public Document getDublinCore(String pid, boolean nsAware) throws IOException {
-        InputStream is = repository.getDataStream(pid, KnownDatastreams.DC_STREAM);
+        InputStream is = repository.getDataStream(pid, KnownDatastreams.METADATA_DC);
         return Utils.inputstreamToDocument(is, nsAware);
     }
 
     //MODS
 
     public boolean isModsAvailable(String pid) throws IOException {
-        return repository.isStreamAvailable(pid, KnownDatastreams.BIBLIO_MODS_STREAM);
+        return repository.isStreamAvailable(pid, KnownDatastreams.METADATA_MODS);
     }
 
     public Document getMods(String pid, boolean nsAware) throws IOException {
-        InputStream is = repository.getDataStream(pid, KnownDatastreams.BIBLIO_MODS_STREAM);
+        InputStream is = repository.getDataStream(pid, KnownDatastreams.METADATA_MODS);
         return Utils.inputstreamToDocument(is, nsAware);
     }
 
+    //OCR
+
     public boolean isOcrTextAvailable(String pid) throws IOException {
-        return repository.isStreamAvailable(pid, KnownDatastreams.TEXT_OCR_STREAM);
+        return repository.isStreamAvailable(pid, KnownDatastreams.OCR_TEXT);
     }
 
     public String getOcrText(String pid) throws IOException {
-        InputStream is = repository.getDataStream(pid, KnownDatastreams.TEXT_OCR_STREAM);
+        InputStream is = repository.getDataStream(pid, KnownDatastreams.OCR_TEXT);
         String result = Utils.inputstreamToString(is);
         return result == null ? null : result.trim();
     }
 
     //IMAGE
     public String getImgFullMimetype(String pid) throws IOException {
-        return repository.getDatastreamMimeType(pid, KnownDatastreams.IMG_FULL_STREAM);
+        return repository.getDatastreamMimeType(pid, KnownDatastreams.IMG_FULL);
     }
 
     public InputStream getImgFull(String pid) throws IOException {
-        InputStream is = repository.getDataStream(pid, KnownDatastreams.IMG_FULL_STREAM);
+        InputStream is = repository.getDataStream(pid, KnownDatastreams.IMG_FULL);
+        return is;
+    }
+
+    //AUDIO
+    public boolean isAudioWavAvailable(String pid) throws IOException {
+        return repository.isStreamAvailable(pid, KnownDatastreams.AUDIO_WAV);
+    }
+
+    public InputStream getAudioWav(String pid) throws IOException {
+        InputStream is = repository.getDataStream(pid, KnownDatastreams.AUDIO_WAV);
+        return is;
+    }
+
+    public boolean isAudioMp3Available(String pid) throws IOException {
+        return repository.isStreamAvailable(pid, KnownDatastreams.AUDIO_MP3);
+    }
+
+    public InputStream getAudioMp3(String pid) throws IOException {
+        InputStream is = repository.getDataStream(pid, KnownDatastreams.AUDIO_MP3);
+        return is;
+    }
+
+    public boolean isAudioOggAvailable(String pid) throws IOException {
+        return repository.isStreamAvailable(pid, KnownDatastreams.AUDIO_OGG);
+    }
+
+    public InputStream getAudioOgg(String pid) throws IOException {
+        InputStream is = repository.getDataStream(pid, KnownDatastreams.AUDIO_OGG);
         return is;
     }
 
     public static class KnownDatastreams {
-        public static final String RELS_EXT_STREAM = "RELS-EXT";
-        public static final String IMG_THUMB_STREAM = "IMG_THUMB";
-        public static final String IMG_FULL_STREAM = "IMG_FULL";
-        public static final String IMG_PREVIEW_STREAM = "IMG_PREVIEW";
-        public static final String ALTO_STREAM = "ALTO";
-        public static final String DC_STREAM = "DC";
-        public static final String BIBLIO_MODS_STREAM = "BIBLIO_MODS";
-        public static final String TEXT_OCR_STREAM = "TEXT_OCR";
-        public static final String MP3_STREAM = "MP3";
-        public static final String OGG_STREAM = "OGG";
-        public static final String WAV_STREAM = "WAV";
-        public static final String MIGRATION_STREAM = "MIGRATION";
-        public static final String POLICY_STREAM = "POLICY";
+        public static final String RELS_EXT = "RELS-EXT";
+        public static final String IMG_THUMB = "IMG_THUMB";
+        public static final String IMG_FULL = "IMG_FULL";
+        public static final String IMG_PREVIEW = "IMG_PREVIEW";
+        public static final String OCR_ALTO = "ALTO";
+        public static final String OCR_TEXT = "TEXT_OCR";
+        public static final String METADATA_DC = "DC";
+        public static final String METADATA_MODS = "BIBLIO_MODS";
+        public static final String AUDIO_WAV = "WAV";
+        public static final String AUDIO_MP3 = "MP3";
+        public static final String AUDIO_OGG = "OGG";
+        public static final String POLICY = "POLICY";
+        public static final String MIGRATION = "MIGRATION";
     }
 
 

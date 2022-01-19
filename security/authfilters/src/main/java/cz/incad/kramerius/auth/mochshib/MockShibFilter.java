@@ -58,8 +58,6 @@ public class MockShibFilter implements Filter {
             }
         }
 
-
-
         if (session != null &&  session.getAttribute(SHIB_KEY) != null ) {
             HttpServletRequest httpReq = (HttpServletRequest) servletRequest;
             Object o = Proxy.newProxyInstance(servletRequest.getClass().getClassLoader(), new Class[]{HttpServletRequest.class}, new MockHTTPServletInvocationHandler(table, httpReq));

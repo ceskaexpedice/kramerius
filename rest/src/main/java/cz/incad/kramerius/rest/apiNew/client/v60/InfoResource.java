@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.info.InfoResource
  */
-@Path("/client/v6.0/info")
+@Path("/client/v7.0/info")
 public class InfoResource extends ClientApiResource {
 
     public static Logger LOGGER = Logger.getLogger(InfoResource.class.getName());
@@ -74,8 +74,13 @@ public class InfoResource extends ClientApiResource {
     private String getVersion() throws IOException {
         Properties buildProperties = new Properties();
         InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("build.properties");
-        buildProperties.load(revisions);
-        return buildProperties.getProperty("version");
+        if (revisions != null) {
+            buildProperties.load(revisions);
+            return buildProperties.getProperty("version");
+        } else {
+            LOGGER.warning("build.properties is not present");
+            return "";
+        }
     }
 
     @Deprecated //TODO: replace with database (table CONFIG with columns KEY and VALUE)

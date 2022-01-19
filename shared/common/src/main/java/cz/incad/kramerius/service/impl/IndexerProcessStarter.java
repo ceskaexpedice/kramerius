@@ -21,6 +21,8 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.ClientFilter;
 
+//TODO: replace with cz.incad.kramerius.processes.new_api.IndexationScheduler
+@Deprecated
 public class IndexerProcessStarter {
 
     private static final Logger log = Logger.getLogger(IndexerProcessStarter.class.getName());

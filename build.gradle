@@ -26,7 +26,7 @@ buildScan {
     licenseAgreementUrl = 'https://gradle.com/terms-of-service'
     licenseAgree = 'yes'
 }*/
-println "Building K4-K5; please read BUILD-README.txt"
+println "Building K7; please read BUILD-README.txt"
 
 apply plugin: 'java' // -> generate javadoc
 
@@ -50,7 +50,7 @@ dependencies {
     // editor dependency
     // editors group: "cz.incad.kramerius", name: "editor", version: "5.1.1", ext: "war"
     // rightseditor dependency
-    editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.1", ext: "war"
+    //editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.1", ext: "war"
 }
 
 
@@ -80,7 +80,8 @@ allprojects {
     ext.guiceversion ='4.2.2'
     ext.postgresversion = '42.1.4'
     ext.slf4jversion='1.6.0'
-    ext.jerseyversion = '1.17.1'
+    //ext.jerseyversion = '1.17.1'
+    ext.jerseyversion = '1.19.4'
 
     ext.generatedSources = "generated-sources"
 
@@ -242,9 +243,9 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
     baseName "kramerius"
     group "Distribution"
     from {'search/build/libs'}
-    from {'processes/migration/build/distributions'}
+    //from {'processes/migration/build/distributions'}
     from {'security/security-core/build/libs'}
-    from configurations.editors
+    //from configurations.editors
     from configurations.database
     from {'build/installation'}
     eachFile {
@@ -290,6 +291,7 @@ task zipInstallDir(type:Zip) {
 
 
 // disabled distributions
+/*
 task zipAllJavadocs(type: Zip) {
     String[] _spr = ["shared:common","security:security-core","rest","search"];
     description "create javadocs for ${_spr} and zip it"
@@ -301,5 +303,5 @@ task zipAllJavadocs(type: Zip) {
         }
 
     }
-}
+}*/
 

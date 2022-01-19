@@ -48,8 +48,10 @@ import cz.incad.kramerius.utils.stemplates.ResourceBundleUtils;
 
 /**
  * @author pavels
- *
+ * @deprecated this is only used for process ndkmets, that is itself deprecated
+ * @see org.kramerius.importmets.parametrized.ParametrizedMetsNKDImport
  */
+@Deprecated
 public class MetsImportInputTemplate implements ProcessInputTemplate {
 
     @Inject

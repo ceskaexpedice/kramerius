@@ -7,7 +7,7 @@ import cz.incad.kramerius.auth.thirdparty.shibb.rules.ShibRuleLexer;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.ShibRuleParser;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.ShibRules;
 import cz.incad.kramerius.auth.thirdparty.shibb.utils.ClientShibbolethContext;
-import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUserWrapper;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.Shibboleth3rdUser;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Assert;
@@ -58,7 +58,7 @@ public class ShibbolethRulesRegularExpressionTest {
         EasyMock.replay(req);
 
         String userName = "user@mzk.cz";
-        ShibbolethUserWrapper wrapper = new ShibbolethUserWrapper(userName);
+        Shibboleth3rdUser wrapper = new Shibboleth3rdUser(userName);
         ClientShibbolethContext ctx = new ClientShibbolethContext(req, wrapper);
 
         ShibRuleLexer shibRuleLexer = new ShibRuleLexer(new StringReader(rules));

@@ -7,32 +7,34 @@ import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
-import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-@Path("/admin/v1.0/processes")
+@Path("/admin/v7.0/processes")
 public class ProcessResource extends AdminApiResource {
 
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
@@ -52,7 +54,7 @@ public class ProcessResource extends AdminApiResource {
     private static final String ROLE_CANCEL_OR_KILL_PROCESSES = "kramerius_admin";
 
     @Inject
-    LRProcessManager lrProcessManager; //here only for scheduling
+    LRProcessManager lrProcessManager;
 
     /*@Inject
     DefinitionManager definitionManager; //process definitions*/
@@ -60,8 +62,12 @@ public class ProcessResource extends AdminApiResource {
     /*@Inject
     Provider<HttpServletRequest> requestProvider;*/
 
-    @Inject
-    LoggedUsersSingleton loggedUsersSingleton;
+//    @Inject
+//    Provider<User> loggedUsersSingleton;
+
+    @javax.inject.Inject
+    Provider<User> userProvider;
+
 
     @Inject
     RightsResolver rightsResolver;
@@ -83,10 +89,14 @@ public class ProcessResource extends AdminApiResource {
     public Response getOwners() {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
             String role = ROLE_READ_PROCESS_OWNERS;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
             }
             //get data from db
             List<ProcessOwner> owners = this.processManager.getProcessesOwners();
@@ -126,10 +136,18 @@ public class ProcessResource extends AdminApiResource {
     public Response getProcessByProcessId(@PathParam("process_id") String processId) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            System.out.println("user: " + user1);
+            System.out.println("roles: ");
+            for (String role : roles) {
+                System.out.println(role);
+            }
+
             String role = ROLE_READ_PROCESSES;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
             }
             //id
             Integer processIdInt = null;
@@ -218,7 +236,6 @@ public class ProcessResource extends AdminApiResource {
      * @param offsetStr
      * @param limitStr
      * @return JSON with selected lines (defined by offset, limit) of the standard log
-     * @see cz.incad.Kramerius.views.ProcessLogsViewObject
      */
     @GET
     @Path("by_process_uuid/{process_uuid}/logs/out/lines")
@@ -243,7 +260,6 @@ public class ProcessResource extends AdminApiResource {
      * @param offsetStr
      * @param limitStr
      * @return JSON with selected lines (defined by offset, limit) of the error log
-     * @see cz.incad.Kramerius.views.ProcessLogsViewObject
      */
     @GET
     @Path("by_process_uuid/{process_uuid}/logs/err/lines")
@@ -263,10 +279,13 @@ public class ProcessResource extends AdminApiResource {
 
     private Response getProcessLogsLinesByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
         //authentication
-        AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+        User user1 = this.userProvider.get();
+        List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
         String role = ROLE_READ_PROCESSES;
-        if (!user.getRoles().contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+        if (!roles.contains(role)) {
+            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
         }
         //offset & limit
         long offset = GET_LOGS_DEFAULT_OFFSET;
@@ -344,10 +363,13 @@ public class ProcessResource extends AdminApiResource {
     public Response deleteBatch(@PathParam("process_id") String processId) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
+
             String role = ROLE_DELETE_PROCESSES;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
             }
             //id
             Integer processIdInt = null;
@@ -390,10 +412,16 @@ public class ProcessResource extends AdminApiResource {
     public Response killBatch(@PathParam("process_id") String processId) {
         try {
             //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            //authorization
+
+
             String role = ROLE_CANCEL_OR_KILL_PROCESSES;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
             }
             //id
             Integer processIdInt = null;
@@ -465,11 +493,18 @@ public class ProcessResource extends AdminApiResource {
             //access control with basic access authentication (deprecated)
             checkAccessControlByBasicAccessAuth();
 
-            //authentication
-            AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            System.out.println("user: " + user1);
+            System.out.println("roles: ");
+            for (String role : roles) {
+                System.out.println(role);
+            }
+            //authorization
+
             String role = ROLE_READ_PROCESSES;
-            if (!user.getRoles().contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
             }
 
             //offset & limit
@@ -539,8 +574,7 @@ public class ProcessResource extends AdminApiResource {
     private void checkAccessControlByBasicAccessAuth() {
         boolean disabled = true;
         if (!disabled) {
-            String loggedUserKey = findLoggedUserKey();
-            User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+            User user = this.userProvider.get();
             if (user == null) {
                 throw new UnauthorizedException("user==null"); //401
             }
@@ -562,7 +596,7 @@ public class ProcessResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response scheduleProcess(JSONObject processDefinition) {
         try {
-            String processAuthToken = getProcessAuthToken();
+            String parentProcessAuthToken = getParentProcessAuthToken();
             if (processDefinition == null) {
                 throw new BadRequestException("missing process definition");
             }
@@ -574,35 +608,33 @@ public class ProcessResource extends AdminApiResource {
             if (processDefinition.has("params")) {
                 params = processDefinition.getJSONObject("params");
             }
-            //authentication & authorization
-            ClientAuthHeaders clientAuthHeaders = extractClientAuthHeaders();
-            if (processAuthToken != null) { //run by process (so the new process will be it's sibling in same batch)
-                //System.out.println("process auth token found");
-                ProcessManager.ProcessAboutToScheduleSibling originalProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(processAuthToken);
-                if (originalProcess == null) {
+
+            if (parentProcessAuthToken != null) { //run by "parent" process (more precisely it's "older sibling" process - the new process will be its sibling within same batch)
+                ProcessManager.ProcessAboutToScheduleSibling parentProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(parentProcessAuthToken);
+                if (parentProcess == null) {
                     throw new UnauthorizedException("invalid token"); //401
                 }
-                String userId = originalProcess.getOwnerId();
-                String userName = originalProcess.getOwnerName();
-                String batchToken = originalProcess.getBatchToken();
-                String newProcessAuthToken = UUID.randomUUID().toString();
+                String userId = parentProcess.getOwnerId();
+                String userName = parentProcess.getOwnerName();
+                String batchToken = parentProcess.getBatchToken();
                 List<String> paramsList = new ArrayList<>();
-                paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
-                return scheduleProcess(defid, paramsList, userId, userName, batchToken, newProcessAuthToken);
+                paramsList.addAll(paramsToList(defid, params));
+                return scheduleProcess(defid, paramsList, userId, userName, batchToken);
             } else { //run by user (through web client)
                 //System.out.println("process auth token NOT found");
                 String batchToken = UUID.randomUUID().toString();
                 List<String> paramsList = new ArrayList<>();
-                String newProcessAuthToken = UUID.randomUUID().toString();
-                paramsList.addAll(paramsToList(defid, params, clientAuthHeaders));
-                //authentication
-                AuthenticatedUser user = getAuthenticatedUserByOauth();
+                paramsList.addAll(paramsToList(defid, params));
+
+                User user1 = this.userProvider.get();
+                List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
                 //authorization
                 String role = ROLE_SCHEDULE_PROCESSES;
-                if (!user.getRoles().contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getName(), role); //403
+                if (!roles.contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
                 }
-                return scheduleProcess(defid, paramsList, user.getId(), user.getName(), batchToken, newProcessAuthToken);
+                return scheduleProcess(defid, paramsList, user1.getLoginname(), user1.getLoginname(), batchToken);
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -612,8 +644,8 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken, String newProcessAuthToken) {
-        LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, params, ownerId, ownerName, batchToken, newProcessAuthToken);
+    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken) {
+        LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, params, ownerId, ownerName, batchToken);
         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
     }
@@ -635,7 +667,7 @@ public class ProcessResource extends AdminApiResource {
         return jsonObject;
     }
 
-    private List<String> paramsToList(String id, JSONObject params, ClientAuthHeaders clientAuthHeaders) {
+    private List<String> paramsToList(String id, JSONObject params) {
         switch (id) {
             case "new_process_api_test": {
                 //duration (of every process in the batch) in seconds
@@ -646,9 +678,6 @@ public class ProcessResource extends AdminApiResource {
                 String finalState = extractOptionalParamWithValueFromEnum(params, "finalState", ProcessApiTestProcess.FinalState.class, ProcessApiTestProcess.FinalState.FINISHED.name());
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//protoze spousti podprocesy
-                //test process params
                 result.add(duration.toString());
                 result.add(processesInBatch.toString());
                 result.add(finalState);
@@ -661,11 +690,6 @@ public class ProcessResource extends AdminApiResource {
                 String title = extractOptionalParamString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders)); //pro pristup k repozitari pres verejne rest api
-                //Solr
-                result.addAll(processSchedulingHelper.processParamsSolr());
-                //indexation params
                 result.add(type);//indexation type
                 result.add(pid);//indexation's root pid
                 result.add(ignoreInconsistentObjects.toString());
@@ -682,11 +706,6 @@ public class ProcessResource extends AdminApiResource {
                 Boolean indexIndexed = extractOptionalParamBoolean(params, "indexIndexed", false);
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //Solr
-                result.addAll(processSchedulingHelper.processParamsSolr());
-                //indexation params
                 result.add(type); //indexation type
                 result.add(pid); //indexation's root pid
                 result.add(ignoreInconsistentObjects.toString());
@@ -703,18 +722,85 @@ public class ProcessResource extends AdminApiResource {
                 String title = extractOptionalParamString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
-                //Kramerius APIs
-                result.addAll(processSchedulingHelper.processParamsKrameriusAdminApiCredentials(clientAuthHeaders));//pro pristup k repozitari pres verejne rest api
-                //set-policy params
                 result.add(scope);
                 result.add(policy);
                 result.add(pid);
                 result.add(title);
                 return result;
             }
+            case "processing_rebuild": {
+                return Collections.emptyList();
+            }
+            case "processing_rebuild_for_object": {
+                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+
+                List<String> result = new ArrayList<>();
+                result.add(pid);
+                return result;
+            }
+            case "import": {
+                File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
+                Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
+
+                List<String> result = new ArrayList<>();
+                result.add(inputDataDir.getPath());
+                result.add(startIndexer.toString());
+                return result;
+            }
+            case "convert_and_import": {
+                String policy = extractMandatoryParamWithValueFromEnum(params, "policy", Policy.class);
+                File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("convert.directory")));
+                String convertedDataDirSuffix = new SimpleDateFormat("yyMMdd_HHmmss_SSS").format(System.currentTimeMillis());
+                File convertedDataDir = new File(new File(KConfiguration.getInstance().getProperty("convert.target.directory")), inputDataDir.getName() + "_" + convertedDataDirSuffix);
+                Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
+
+                List<String> result = new ArrayList<>();
+                result.add(policy);
+                result.add(inputDataDir.getPath());
+                result.add(convertedDataDir.getPath());
+                result.add(startIndexer.toString());
+                return result;
+            }
+            case "add_license":
+            case "remove_license": {
+                String license = extractMandatoryParamString(params, "license");
+                String pid = extractOptionalParamString(params, "pid", null);
+                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+                File pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
+                String target;
+                if (pid != null) {
+                    target = "pid:" + pid;
+                } else if (pidlist != null) {
+                    target = "pidlist:" + pidlist.stream().collect(Collectors.joining(";"));
+                } else if (pidlistFile != null) {
+                    target = "pidlist_file:" + pidlistFile.getAbsolutePath();
+                } else {
+                    throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist, pidlist_file");
+                }
+
+                List<String> result = new ArrayList<>();
+                result.add(license);
+                result.add(target);
+                return result;
+            }
             default: {
                 throw new BadRequestException("unsupported process id '%s'", id);
             }
+        }
+    }
+
+    private List<String> extractOptionalParamStringList(JSONObject params, String paramName, List<String> defaultValue) {
+        if (params.has(paramName)) {
+            System.out.println("ok, pidlist found");
+            JSONArray jsonArray = params.getJSONArray(paramName);
+            System.out.println(jsonArray.toString(2));
+            List<String> result = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                result.add(jsonArray.getString(i));
+            }
+            return result;
+        } else {
+            return defaultValue;
         }
     }
 
@@ -747,13 +833,66 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+    private Boolean extractMandatoryParamBoolean(JSONObject params, String paramName) {
+        if (params.has(paramName)) {
+            return params.getBoolean(paramName);
+        } else {
+            throw new BadRequestException("missing mandatory parameter %s: ", paramName);
+        }
+    }
+
+    private String extractMandatoryParamString(JSONObject params, String paramName) {
+        String value = extractOptionalParamString(params, paramName, null);
+        if (value == null) {
+            throw new BadRequestException("missing mandatory parameter %s: ", paramName);
+        } else {
+            return value;
+        }
+    }
+
+    private File extractMandatoryParamFileContainedInADir(JSONObject params, String paramName, File rootDir) {
+        String value = extractOptionalParamString(params, paramName, null);
+        if (value == null) {
+            throw new BadRequestException("missing mandatory parameter %s: ", paramName);
+        } else {
+            return extractFileContainedInADirFromParamValue(value, paramName, rootDir);
+        }
+    }
+
+    private File extractOptionalParamFileContainedInADir(JSONObject params, String paramName, File rootDir) {
+        String value = extractOptionalParamString(params, paramName, null);
+        return value == null ? null : extractFileContainedInADirFromParamValue(value, paramName, rootDir);
+    }
+
+    private File extractFileContainedInADirFromParamValue(String paramValue, String paramName, File rootDir) {
+        //sanitize against problematic characters
+        char[] forbiddenChars = new char[]{'~', '#', '%', '&', '{', '}', '<', '>', '*', '?', '$', '!', '\'', '"', ':', '@', '+', '`', '|', '=', ';', ' ', '\t', '\\'};
+        for (char forbiddenChar : forbiddenChars) {
+            if (paramValue.indexOf(forbiddenChar) != -1) {
+                throw new BadRequestException("invalid value of %s (contains forbidden character '%s'): '%s'", paramName, forbiddenChar, paramValue);
+            }
+        }
+        try {//sanitize against values that would leave the root dir, for example "../../something"
+            File paramFile = new File(rootDir, paramValue).getCanonicalFile();
+            String paramFileCanPath = paramFile.getPath();
+            String rootDirCanPath = rootDir.getCanonicalPath();
+            if (!paramFileCanPath.startsWith(rootDirCanPath)) {
+                throw new BadRequestException("invalid value of %s (not within root dir '%s'): '%s'", paramName, rootDirCanPath, paramValue);
+            }
+            return paramFile;
+        } catch (IOException e) { //protoze getCanonicalPath saha na filesystem
+            throw new BadRequestException("invalid value of %s (IOException): '%s': %s", paramName, paramValue, e.getMessage());
+        }
+    }
+
+
     private String extractMandatoryParamWithValuePrefixed(JSONObject params, String paramName, String prefix) {
         String value = extractOptionalParamString(params, paramName, null);
         if (value == null) {
             throw new BadRequestException("missing mandatory parameter %s: ", paramName);
         } else {
             if (!value.toLowerCase().startsWith(prefix)) {
-                throw new BadRequestException("invalid value of %s (doesn't start with '%s') : '%s'", paramName, prefix, value);
+                throw new BadRequestException("invalid value of %s (doesn't start with '%s'): '%s'", paramName, prefix, value);
             }
             return value;
         }
@@ -957,5 +1096,9 @@ public class ProcessResource extends AdminApiResource {
         public LocalDateTime planned;
         public LocalDateTime started;
         public LocalDateTime finished;
+    }
+
+    public enum Policy {
+        PRIVATE, PUBLIC
     }
 }

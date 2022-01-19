@@ -27,6 +27,7 @@ package cz.incad.kramerius.utils.java;
 
 import java.io.Serializable;
 
+//import javafx.beans.NamedArg;
 
 /**
  * <p>A convenience class to represent pairs of values.</p>

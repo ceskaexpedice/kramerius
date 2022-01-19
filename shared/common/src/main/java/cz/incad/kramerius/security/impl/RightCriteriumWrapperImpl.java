@@ -17,7 +17,7 @@
 package cz.incad.kramerius.security.impl;
 
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.licenses.License;
 
 import java.io.Serializable;
 
@@ -109,15 +109,15 @@ public class RightCriteriumWrapperImpl implements RightCriteriumWrapper, Seriali
     }
 
     @Override
-    public Label getLabel() {
-        Label label = isLabelAwareCriterium() ? ((RightCriteriumLabelAware) this.wrappedInstance).getLabel() : null;
-        return label;
+    public License getLabel() {
+        License license = isLabelAwareCriterium() ? ((RightCriteriumLabelAware) this.wrappedInstance).getLicense() : null;
+        return license;
     }
 
     @Override
-    public void setLabel(Label label) {
+    public void setLabel(License license) {
         if (isLabelAwareCriterium()) {
-            ((RightCriteriumLabelAware)this.wrappedInstance).setLabel(label);
+            ((RightCriteriumLabelAware)this.wrappedInstance).setLicense(license);
         }
     }
 }

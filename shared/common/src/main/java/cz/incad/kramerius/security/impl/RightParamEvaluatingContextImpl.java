@@ -34,6 +34,8 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private User user;
     private FedoraAccess fedoraAccess;
     private SolrAccess solrAccess;
+    private SolrAccess solrAccessNewIndex;
+
     private UserManager userManager;
     private String remoteHost;
     private String remoteAddr;    
@@ -52,6 +54,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         this.user = builder.user;
         this.fedoraAccess = builder.fedoraAccess;
         this.solrAccess = builder.solrAccess;
+        this.solrAccessNewIndex = builder.solrAccessNewIndex;
         this.remoteHost = builder.remoteHost;
         this.remoteAddr = builder.remoteAddr;
         this.userManager = builder. userManager;
@@ -122,6 +125,11 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     }
 
     @Override
+    public SolrAccess getSolrAccessNewIndex() {
+        return this.solrAccessNewIndex;
+    }
+
+    @Override
     public SecuredActions getAction() {
         return this.action;
     }
@@ -144,6 +152,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         protected User user;
         protected FedoraAccess fedoraAccess;
         protected SolrAccess solrAccess;
+        private SolrAccess solrAccessNewIndex;
         protected UserManager userManager;
 
         protected String remoteHost;
@@ -188,6 +197,11 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
             return this;
         }
 
+        public Builder setSolrAccessNewIndex(SolrAccess newIndex) {
+            this.solrAccessNewIndex = newIndex;
+            return this;
+        }
+
         public Builder setRemoteHost(String remoteHost) {
             this.remoteHost = remoteHost;
             return this;
@@ -211,5 +225,6 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         public RightParamEvaluatingContextImpl build() {
             return new RightParamEvaluatingContextImpl(this);
         }
+
     }
 }

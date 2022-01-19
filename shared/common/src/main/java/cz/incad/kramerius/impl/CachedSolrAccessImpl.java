@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Martin Rumanek
  */
-public class CachedSolrAccessImpl extends SolrAccessImpl implements SolrAccess {
+public class CachedSolrAccessImpl extends SolrAccessImplNewIndex implements SolrAccess {
 
     private static final String CACHE_ALIAS = "SolrDocumentCache";
     private Cache<String, Document> cache;

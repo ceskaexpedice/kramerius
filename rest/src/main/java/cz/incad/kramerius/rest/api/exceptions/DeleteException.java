@@ -21,11 +21,11 @@ import javax.servlet.http.HttpServletResponse;
 public class DeleteException extends AbstractRestJSONException{
 
 	public DeleteException(String message, Exception ex) {
-		super(message, ex, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		super(message, ex, HttpServletResponse.SC_CONFLICT);
 	}
 
 	public DeleteException(String message) {
-		super(message, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		super(message, HttpServletResponse.SC_CONFLICT);
 	}
 	
 }

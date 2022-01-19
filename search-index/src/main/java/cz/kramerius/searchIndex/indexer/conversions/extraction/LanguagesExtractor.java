@@ -11,7 +11,7 @@ public class LanguagesExtractor {
 
     public List<String> extractLanguages(Element modsEl, String model) {
         List<String> result = new ArrayList<>();
-        List<Node> languageEls = Dom4jUtils.buildXpath("mods/language").selectNodes(modsEl);
+        List<Node> languageEls = Dom4jUtils.buildXpath("mods/language[not(@objectPart='translation')]").selectNodes(modsEl);
         for (Node languageEl : languageEls) {
             List<Node> languageTermAllEls = Dom4jUtils.buildXpath("languageTerm").selectNodes(languageEl);
             List<Node> languageTermIso6392bEls = Dom4jUtils.buildXpath("languageTerm[@authority='iso639-2b']").selectNodes(languageEl);

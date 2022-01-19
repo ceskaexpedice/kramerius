@@ -53,7 +53,7 @@ public class SolrInputBuilder {
     public void convertFoxmlToSolrInput(File inFoxmlFile, File outSolrImportFile) throws IOException, DocumentException {
         //System.out.println("processing " + inFoxmlFile.getName());
         Document foxmlDoc = Dom4jUtils.parseXmlFromFile(inFoxmlFile);
-        SolrInput solrInput = processObjectFromRepository(foxmlDoc, null, null, null, null, false);
+        SolrInput solrInput = processObjectFromRepository(foxmlDoc, null, null, null, null, null, false);
         solrInput.printTo(outSolrImportFile, true);
     }
 
@@ -142,7 +142,7 @@ public class SolrInputBuilder {
         return solrInput;
     }
 
-    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, boolean setFullIndexationInProgress) throws IOException, DocumentException {
+    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, Integer audioLength, boolean setFullIndexationInProgress) throws IOException, DocumentException {
         //remove namespaces before applying xpaths etc
         foxmlDoc.accept(new NamespaceRemovingVisitor(true, true));
 
@@ -224,17 +224,10 @@ public class SolrInputBuilder {
                 Integer level = repositoryNode.getModelPath().split("/").length - 1;
                 addSolrField(solrInput, "level", level.toString());
             }
-            //pid_paths
-            addSolrField(solrInput, "pid_paths", repositoryNode.getPidPath());
-            if (repositoryNode.getPidsOfFosterParents() != null) {
-                for (String fosterParent : repositoryNode.getPidsOfFosterParents()) {
-                    RepositoryNode fosterParentNode = nodeManager.getKrameriusNode(fosterParent);
-                    if (fosterParentNode != null) {
-                        addSolrField(solrInput, "pid_paths", fosterParentNode.getPidPath() + "/" + pid);
-                    }
-                }
+            //pid_paths (vsechny cesty do pres vsechny rodice - pro kazdeho rodice muze byt x cest, napr. pres nekolik sbirek/hierarchi sbirek)
+            for (String path : repositoryNode.getAllPidPathsThroughAllParents()) {
+                addSolrField(solrInput, "pid_paths", path);
             }
-
             //own, foster children
             /*if (krameriusNode.getPidsOfOwnChildren() != null) {
                 for (String ownChild : krameriusNode.getPidsOfOwnChildren()) {
@@ -257,6 +250,29 @@ public class SolrInputBuilder {
                 for (String collection : repositoryNode.getPidsOfAnyAncestorsOfTypeCollection()) {
                     addSolrField(solrInput, "in_collections", collection);
                 }
+            }
+            //licenses
+            List<Node> containsLicenseEls = Dom4jUtils.buildXpath(
+                    "Description/containsLicense" + //toto je spravny zapis, ostatni jsou chybne/stara data
+                            "|Description/containsLicenses" +
+                            "|Description/containsLicence" +
+                            "|Description/containsLicences" +
+                            "|Description/contains-license" +
+                            "|Description/contains-licenses" +
+                            "|Description/contains-licence" +
+                            "|Description/contains-licences" +
+                            "|Description/contains-dnnt-label" +
+                            "|Description/contains-dnnt-labels"
+            ).selectNodes(relsExtRootEl);
+            for (Node containsLicenseEl : containsLicenseEls) {
+                String license = containsLicenseEl.getStringValue();
+                addSolrField(solrInput, "contains_licenses", license);
+            }
+            for (String license : repositoryNode.getLicenses()) {
+                addSolrField(solrInput, "licenses", license);
+            }
+            for (String license : repositoryNode.getLicensesOfAncestors()) {
+                addSolrField(solrInput, "licenses_of_ancestors", license);
             }
             //languages from tree, foster trees
             for (String language : repositoryNode.getLanguages()) {
@@ -527,6 +543,10 @@ public class SolrInputBuilder {
             //collection.is_standalone
             String standaloneStr = toStringOrNull(Dom4jUtils.buildXpath("Description/standalone").selectSingleNode(relsExtRootEl));
             addSolrField(solrInput, "collection.is_standalone", Boolean.valueOf(standaloneStr));
+        }
+
+        if ("track".equals(model) && audioLength != null) {
+            addSolrField(solrInput, "track.length", audioLength);
         }
 
         //accessibility

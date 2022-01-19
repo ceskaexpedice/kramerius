@@ -5,7 +5,9 @@ dependencies {
 
     compile project(':shared:common')
     compile project(':security:security-core')
+    compile project(':security:oauth')
     compile project(':search-index')
+    compile project(':processes:solr-migration')
 
     compile name:"iiif-presentation-model-api-3.2.5"
     compile name:"iiif-presentation-model-impl-3.2.5"
@@ -17,6 +19,9 @@ dependencies {
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
 	
 	compile 'commons-codec:commons-codec:1.5'
+
+    compile 'org.keycloak:keycloak-servlet-filter-adapter:15.0.2'
+    compile 'org.keycloak:keycloak-authz-client:15.0.2'
 
     //dom4j
     implementation 'jaxen:jaxen:1.2.0'

@@ -34,7 +34,7 @@ public class SolrIndexAccess {
     private static final int SOCKET_TIMEOUT = 60000;
 
     private final HttpSolrClient solrClient;
-    private final String collection; //because solrClient is buggy and still requires explicit collection-name as an parameter of some operations even though it gets collection-name in the constructor
+    private final String collection; //because solrClient is buggy and still requires explicit collection-name as a parameter for some operations even though it gets collection-name in the constructor
 
     public SolrIndexAccess(SolrConfig config) {
         this.solrClient = config.login == null
@@ -196,6 +196,52 @@ public class SolrIndexAccess {
         } catch (IOException | SolrServerException e) {
             e.printStackTrace();
             throw new RuntimeException((e));
+        }
+    }
+
+    public void addSingleFieldValueForMultipleObjects(List<String> pids, String fieldName, Object value, boolean explicitCommit) {
+        if (!pids.isEmpty()) {
+            try {
+                List<SolrInputDocument> inputDocs = new ArrayList<>();
+                for (String pid : pids) {
+                    SolrInputDocument inputDoc = new SolrInputDocument();
+                    inputDoc.addField("pid", pid);
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("add-distinct", value == null ? null : value.toString());
+                    inputDoc.addField(fieldName, updateData);
+                    inputDocs.add(inputDoc);
+                }
+                solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
+                if (explicitCommit) {
+                    solrClient.commit(collection);
+                }
+            } catch (IOException | SolrServerException e) {
+                e.printStackTrace();
+                throw new RuntimeException((e));
+            }
+        }
+    }
+
+    public void removeSingleFieldValueFromMultipleObjects(List<String> pids, String fieldName, Object value, boolean explicitCommit) {
+        if (!pids.isEmpty()) {
+            try {
+                List<SolrInputDocument> inputDocs = new ArrayList<>();
+                for (String pid : pids) {
+                    SolrInputDocument inputDoc = new SolrInputDocument();
+                    inputDoc.addField("pid", pid);
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("removeregex", value == null ? null : value.toString()); //'remove' neodstranuje vsechny kopie stejne hodnoty (ac to tvrdi dokumentace)
+                    inputDoc.addField(fieldName, updateData);
+                    inputDocs.add(inputDoc);
+                }
+                solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
+                if (explicitCommit) {
+                    solrClient.commit(collection);
+                }
+            } catch (IOException | SolrServerException e) {
+                e.printStackTrace();
+                throw new RuntimeException((e));
+            }
         }
     }
 }

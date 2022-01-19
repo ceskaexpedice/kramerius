@@ -69,7 +69,7 @@ public interface ProcessManager {
 
     /**
      * @param processAuthToken
-     * @return Process data, that will be used by new process (sibling) or null if process was not found by token,
+     * @return Process data, that will be used by new process (older sibling) or null if process was not found by token,
      * either when process has already finished (and token has been dropped) or no such token ever existed
      */
     public ProcessAboutToScheduleSibling getProcessAboutToScheduleSiblingByAuthToken(String processAuthToken);

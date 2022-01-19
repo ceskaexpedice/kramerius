@@ -4,9 +4,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.LabelsManager;
-import cz.incad.kramerius.security.labels.LabelsManagerException;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
 import cz.incad.kramerius.service.ResourceBundleService;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -28,7 +28,7 @@ public abstract  class AbstractDNNTCSVInputTemplate implements ProcessInputTempl
     Provider<Locale> localeProvider;
 
     @Inject
-    LabelsManager labelsManager;
+    LicensesManager licensesManager;
 
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
@@ -72,10 +72,10 @@ public abstract  class AbstractDNNTCSVInputTemplate implements ProcessInputTempl
             template.setAttribute("process", process());
             template.setAttribute("labelProcess", labeledProcess());
 
-            template.setAttribute("allLabels", labelsManager.getLabels().stream().map(Label::getName).collect(Collectors.toList()));
+            template.setAttribute("allLabels", licensesManager.getLabels().stream().map(License::getName).collect(Collectors.toList()));
 
             writer.write(template.toString());
-        } catch (LabelsManagerException e) {
+        } catch (LicensesManagerException e) {
             throw new IOException(e.getMessage(), e);
         }
     }

@@ -18,6 +18,7 @@ import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
+import cz.incad.kramerius.solr.SolrFieldsMapping;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONException;
@@ -42,6 +43,7 @@ public class DNNTDecorator extends AbstractItemDecorator {
     Provider<HttpServletRequest> requestProvider;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject
@@ -69,56 +71,54 @@ public class DNNTDecorator extends AbstractItemDecorator {
                     if (doc != null) {
                         Optional<Element> optional = Optional.of(doc);
 
-                        List<String> dnntLabels = SOLRUtils.narray(doc, "dnnt-labels", String.class);
+                        List<String> dnntLabels = SOLRUtils.narray(doc, SolrFieldsMapping.getInstance().getDnntLabelsField(), String.class);
+                        dnntLabels.addAll(SOLRUtils.narray(doc, SolrFieldsMapping.getInstance().getDnntLabelsLicensesOfAncestors(), String.class));
 
-                        Boolean value = SOLRUtils.value(doc, "dnnt",  Boolean.class);
-
-                        if (value != null) {
-                            jsonObject.put("dnnt", value);
-
-                            if (dnntLabels != null && !dnntLabels.isEmpty()) {
-                                jsonObject.put("dnnt-labels", dnntLabels);
-                            }
-
-                            Element element = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
-                                @Override
-                                public boolean acceptElement(Element element) {
-                                    if (element.getNodeName().equals("bool") &&
-                                            element.getAttribute("name") != null &&
-                                            element.getAttribute("name").equals("dnnt")) {
-
-                                        try {
-                                            ObjectPidsPath[] paths = solrAccess.getPidPaths(null, optional.get());
-                                            for (ObjectPidsPath p : paths) {
-                                                RightsReturnObject actionAllowed = isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
-                                                if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
-                                                    String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
-                                                    if ( qName.equals(ReadDNNTFlag.class.getName()) ||
-                                                            qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||
-                                                            qName.equals(ReadDNNTLabels.class.getName()) ||
-                                                            qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
-                                                        )
-
-                                                    {
-                                                        jsonObject.put("providedByDnnt", true);
+                        //Boolean value = SOLRUtils.value(doc, "dnnt",  Boolean.class);
 
 
-                                                        Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
-                                                        if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
-                                                            jsonObject.put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL));
-                                                        }
-                                                        break;
+                        if (dnntLabels != null && !dnntLabels.isEmpty()) {
+                            jsonObject.put("licenses", dnntLabels);
+                        }
+
+                        Element element = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                if (element.getNodeName().equals("bool") &&
+                                        element.getAttribute("name") != null &&
+                                        element.getAttribute("name").equals("dnnt")) {
+
+                                    try {
+                                        ObjectPidsPath[] paths = solrAccess.getPidPaths(null, optional.get());
+                                        for (ObjectPidsPath p : paths) {
+                                            RightsReturnObject actionAllowed = isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
+                                            if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
+                                                String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
+                                                if ( qName.equals(ReadDNNTFlag.class.getName()) ||
+                                                        qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||
+                                                        qName.equals(ReadDNNTLabels.class.getName()) ||
+                                                        qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
+                                                    )
+
+                                                {
+                                                    jsonObject.put("providedByDnnt", true);
+
+
+                                                    Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
+                                                    if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
+                                                        jsonObject.put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL));
                                                     }
+                                                    break;
                                                 }
                                             }
-                                        } catch (IOException e) {
-                                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
                                         }
+                                    } catch (IOException e) {
+                                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
                                     }
-                                    return false;
                                 }
-                            });
-                        }
+                                return false;
+                            }
+                        });
                     }
 
                 }

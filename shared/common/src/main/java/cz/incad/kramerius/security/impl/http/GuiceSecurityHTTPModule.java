@@ -18,6 +18,7 @@ package cz.incad.kramerius.security.impl.http;
 
 import com.google.inject.AbstractModule;
 
+import com.google.inject.name.Names;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
 
@@ -28,7 +29,10 @@ public class GuiceSecurityHTTPModule extends AbstractModule {
     
     @Override
     protected void configure() {
-        bind(RightsResolver.class).to(RightsResolverFromRequestCached.class);
+        //bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
+        bind(RightsResolver.class).to(RightsResolverFromRequest.class);
+        bind(RightsResolver.class).annotatedWith(Names.named("cachedRightsResolver")).to(RightsResolverFromRequestCached.class);
+
         bind(User.class).toProvider(DbCurrentLoggedUser.class);
     }
 }

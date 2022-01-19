@@ -36,8 +36,6 @@ public class SolrISSNDecorate extends AbstractFeederDecorator {
     public static Logger LOGGER = Logger.getLogger(SolrISSNDecorate.class
             .getName());
 
-    @Inject
-    SolrAccess solrAccess;
 
     @Inject
     SolrMemoization memo;
@@ -59,9 +57,9 @@ public class SolrISSNDecorate extends AbstractFeederDecorator {
                 doc = this.memo.askForIndexDocument(pid);
  
             if (doc != null) {
-                String date = SOLRUtils.value(doc, "issn", String.class);
+                String date = SOLRUtils.value(doc, "id_issn", String.class);
                 if (date != null) {
-                    jsonObject.put("issn", date);
+                    jsonObject.put("id_issn", date);
                 }
             }
         } catch (IOException e) {

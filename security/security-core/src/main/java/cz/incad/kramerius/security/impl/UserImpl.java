@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,6 +19,7 @@ package cz.incad.kramerius.security.impl;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public class UserImpl implements User {
     private int personalAdminId;
     private Role[] groups;
 
-    private Map<String,String> sessionAttributes = new HashMap<>();
+    private Map<String, String> sessionAttributes = new HashMap<>();
 
     public UserImpl(int id, String firstName, String surName, String loginName, int personalAdminId) {
         super();
@@ -51,20 +52,20 @@ public class UserImpl implements User {
 
     @Override
     public String getFirstName() {
-        return this.firstName==null ? "" : this.firstName;
+        return this.firstName == null ? "" : this.firstName;
     }
 
     public void setFirstName(String fname) {
         this.firstName = fname;
     }
-    
+
     public void setSurname(String sname) {
         this.surName = sname;
     }
-    
+
     @Override
     public String getSurname() {
-        return this.surName==null ? "" : this.surName;
+        return this.surName == null ? "" : this.surName;
     }
 
     @Override
@@ -72,7 +73,7 @@ public class UserImpl implements User {
         return this.loginName;
     }
 
-    
+
     @Override
     public Role[] getGroups() {
         return this.groups;
@@ -98,10 +99,8 @@ public class UserImpl implements User {
         }
         return false;
     }
-    
 
-    
-    
+
     public String getEmail() {
         return email;
     }
@@ -114,7 +113,7 @@ public class UserImpl implements User {
     public boolean hasSuperAdministratorRole() {
         Role[] groups = this.getGroups();
         for (Role group : groups) {
-            if (group.getPersonalAdminId() <= 0 ) {
+            if (group.getPersonalAdminId() <= 0) {
                 return true;
             }
         }
@@ -169,5 +168,19 @@ public class UserImpl implements User {
     @Override
     public void removeSessionAttribute(String key) {
         this.sessionAttributes.remove(key);
+    }
+
+    @Override
+    public String toString() {
+        return "UserImpl{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", surName='" + surName + '\'' +
+                ", loginName='" + loginName + '\'' +
+                ", email='" + email + '\'' +
+                ", personalAdminId=" + personalAdminId +
+                ", groups=" + Arrays.toString(groups) +
+                ", sessionAttributes=" + sessionAttributes +
+                '}';
     }
 }

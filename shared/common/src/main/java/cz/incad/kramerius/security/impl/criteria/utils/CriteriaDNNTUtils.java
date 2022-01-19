@@ -3,7 +3,7 @@ package cz.incad.kramerius.security.impl.criteria.utils;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.*;
-import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.w3c.dom.Document;
 
@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class CriteriaDNNTUtils {
-
 
     public static ThreadLocal<RightsReturnObject> currentThreadReturnObject = new ThreadLocal<>();
 
@@ -40,12 +39,12 @@ public class CriteriaDNNTUtils {
 
     // allowed by dnntlabel right
 
-    public static boolean allowedByReadDNNTLabelsRight(RightsReturnObject obj, Label label) {
+    public static boolean allowedByReadDNNTLabelsRight(RightsReturnObject obj, License license) {
         if (obj.getRight() != null && obj.getRight().getCriteriumWrapper() != null) {
             if (obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabels.class.getName()) ||
                     obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabelsIPFiltered.class.getName())) {
                 String s = obj.getEvaluateInfoMap().get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL);
-                return label != null && label.getName() != null && s != null && s.equals(label.getName());
+                return license != null && license.getName() != null && s != null && s.equals(license.getName());
             }
         }
         return false;
@@ -109,10 +108,10 @@ public class CriteriaDNNTUtils {
         checkContainsCriterium(ctx, manager, PDFDNNTFlag.class);
     }
 
-    public static boolean matchLabel(Document solrDoc, Label label) {
-        List<String> indexedLabels = SolrUtils.disectDNNTLabels(solrDoc.getDocumentElement());
-        if (indexedLabels != null && label != null) {
-            String labelName = label.getName();
+    public static boolean matchLicense(Document solrDoc, License license) {
+        List<String> indexedLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
+        if (indexedLabels != null && license != null) {
+            String labelName = license.getName();
             if (indexedLabels.contains(labelName)) return true;
         }
         return false;

@@ -18,6 +18,7 @@ package cz.incad.Kramerius.views.inc.details.tabs;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
@@ -67,6 +68,7 @@ public class ImageViewObject {
     RightsResolver rightsResolver;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
     
     public String getNotAllowedMessageText() throws IOException {

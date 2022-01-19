@@ -91,7 +91,7 @@ public class XmlTestBuilder {
         List<DynamicTest> result = new ArrayList<>();
 
         for (XmlTest test : tests) {
-            // TODO: 2019-08-20 jmena testu se nepouzivaji, viz https://github.com/gradle/gradle/issues/5975
+            //jmena testu se nepouzivaji, viz https://github.com/gradle/gradle/issues/5975
             DynamicTest dTest = DynamicTest.dynamicTest(test.getName(), buildTestExec(test));
             result.add(dTest);
         }
@@ -127,14 +127,15 @@ public class XmlTestBuilder {
             DateInfo dateInfo = new DateExtractor().extractDateInfoFromMultipleSources(test.getInDoc().getRootElement(), null);
             RepositoryNode node = new RepositoryNode(
                     null, test.getDocType(), null,
-                    null, null,
+                    null, null, null,
                     null, null, null,
                     null, null, null, null,
                     null, null, null,
                     null, null,
-                    languages, primaryAuthors, otherAuthors, dateInfo
+                    languages, primaryAuthors, otherAuthors, dateInfo,
+                    null, null
             );
-            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, true);
+            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
                     "indexer_version",
                     "full_indexation_in_progress",
@@ -167,14 +168,15 @@ public class XmlTestBuilder {
                     .build();
             RepositoryNode node = new RepositoryNode(
                     null, test.getDocType(), null,
-                    null, null,
+                    null, null, null,
                     null, null, null,
                     null, null, null, null,
                     null, null, null,
                     null, null,
-                    null, null, null, null
+                    null, null, null, null,
+                    null, null
             );
-            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, true);
+            SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
                     "indexer_version",
                     "full_indexation_in_progress",

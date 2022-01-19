@@ -23,26 +23,25 @@ import cz.incad.kramerius.security.User;
 
 /**
  * Utility class for sharing funcionality between servlet and API point
- * @author pavels
  *
+ * @author pavels
+ * @deprecated use AudioStreamForwardingHelper instead
  */
 public class AudioStreamForwardUtils {
 
     public static Logger LOGGER = Logger.getLogger(AudioStreamForwardUtils.class.getName());
-    
+
     public static boolean canBeRead(String pid, SolrAccess sa, User user, RightsResolver rightsResolver) throws IOException {
         ObjectPidsPath[] paths = sa.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
-            if (rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, null, pth).flag()) {
+            if (rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, null, pth.injectRepository()).flag()) {
                 return true;
             }
         }
         return false;
     }
 
-    
-    
-    
+
     public static ResponseBuilder GET(AudioStreamId id, HttpServletRequest request,
                                       ResponseBuilder builder, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException {
         LOGGER.info(id.toString());
@@ -64,9 +63,9 @@ public class AudioStreamForwardUtils {
         } else {
             throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, id.getPid()));
         }
-    
+
     }
-    
+
     public static void GET(AudioStreamId id, HttpServletRequest request,
                            HttpServletResponse response, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException, ServletException {
         LOGGER.info(id.toString());
@@ -92,7 +91,7 @@ public class AudioStreamForwardUtils {
     public static void HEAD(AudioStreamId id, HttpServletRequest request,
                             HttpServletResponse response, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException, ServletException {
         LOGGER.info(id.toString());
-        if (canBeRead(id.getPid(),solrAccess, user, rightsResolver)) {
+        if (canBeRead(id.getPid(), solrAccess, user, rightsResolver)) {
             try {
                 URL url = urlManager.getAudiostreamRepositoryUrl(id);
                 if (url == null) {
@@ -114,7 +113,7 @@ public class AudioStreamForwardUtils {
     public static ResponseBuilder HEAD(AudioStreamId id, HttpServletRequest request,
                                        ResponseBuilder builder, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException {
         LOGGER.info(id.toString());
-        if (canBeRead(id.getPid(),solrAccess, user, rightsResolver)) {
+        if (canBeRead(id.getPid(), solrAccess, user, rightsResolver)) {
             try {
                 URL url = urlManager.getAudiostreamRepositoryUrl(id);
                 if (url == null) {
@@ -130,7 +129,7 @@ public class AudioStreamForwardUtils {
             }
         } else {
             throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, id.getPid()));
-       }
+        }
     }
 
 }

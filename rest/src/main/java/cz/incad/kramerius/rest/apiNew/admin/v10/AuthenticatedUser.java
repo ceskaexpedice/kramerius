@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v10;
 
 import java.util.List;
 
+@Deprecated
 public class AuthenticatedUser {
 
     private final String id;

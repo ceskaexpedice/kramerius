@@ -67,8 +67,6 @@ public class UsersServlet extends GuiceServlet {
     @Inject
     transient Provider<User> userProvider;
 
-    @Inject
-    transient SolrAccess solrAccess;
 
     @Inject
     transient ResourceBundleService resourceBundleService;

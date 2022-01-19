@@ -19,6 +19,8 @@ public class RepositoryNode {
     //paths
     private final String pidPath;
     private final String modelPath;
+    private final List<String> allPidPathsThroughAllParents;
+
     //root
     private final String rootPid;
     private final String rootModel;
@@ -42,19 +44,23 @@ public class RepositoryNode {
     private final List<AuthorInfo> primaryAuthors;
     private final List<AuthorInfo> otherAuthors;
     private final DateInfo dateInfo;
+    private final List<String> licenses;
+    private final List<String> licensesOfAncestors; //including foster ancestors
 
     public RepositoryNode(String pid, String model, Title title,
-                          String pidPath, String modelPath,
+                          String pidPath, String modelPath, List<String> allPathsToAllParents,
                           String rootPid, String rootModel, Title rootTitle,
                           String ownParentPid, String ownParentModel, Title ownParentTitle, Integer positionInOwnParent,
                           List<String> pidsOfFosterParents, List<String> pidsOfFosterParentsOfTypeCollection, List<String> pidsOfAnyAncestorsOfTypeCollection,
                           List<String> pidsOfOwnChildren, List<String> pidsOfFosterChildren,
-                          List<String> languages, List<AuthorInfo> primaryAuthors, List<AuthorInfo> otherAuthors, DateInfo dateInfo) {
+                          List<String> languages, List<AuthorInfo> primaryAuthors, List<AuthorInfo> otherAuthors, DateInfo dateInfo,
+                          List<String> licenses, List<String> licensesOfAncestors) {
         this.pid = pid;
         this.model = model;
         this.title = title;
         this.pidPath = pidPath;
         this.modelPath = modelPath;
+        this.allPidPathsThroughAllParents = allPathsToAllParents;
         this.rootPid = rootPid;
         this.rootModel = rootModel;
         this.rootTitle = rootTitle;
@@ -71,7 +77,8 @@ public class RepositoryNode {
         this.primaryAuthors = primaryAuthors;
         this.otherAuthors = otherAuthors;
         this.dateInfo = dateInfo;
-
+        this.licenses = licenses;
+        this.licensesOfAncestors = licensesOfAncestors;
     }
 
     public String getPid() {
@@ -92,6 +99,14 @@ public class RepositoryNode {
 
     public String getModelPath() {
         return modelPath;
+    }
+
+    public List<String> getAllPidPathsThroughAllParents() {
+        if (allPidPathsThroughAllParents == null) {
+            return Collections.emptyList();
+        } else {
+            return Collections.unmodifiableList(allPidPathsThroughAllParents);
+        }
     }
 
     public String getRootPid() {
@@ -178,4 +193,14 @@ public class RepositoryNode {
         return dateInfo;
     }
 
+    public List<String> getLicenses() {
+        return licenses == null ? Collections.emptyList() : licenses;
+    }
+
+    /**
+     * @return licenses of all ancestors, including foster parents and theier ancestors
+     */
+    public List<String> getLicensesOfAncestors() {
+        return licensesOfAncestors == null ? Collections.emptyList() : licensesOfAncestors;
+    }
 }

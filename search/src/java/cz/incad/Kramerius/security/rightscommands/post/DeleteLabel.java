@@ -4,10 +4,8 @@ import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.LabelsManager;
-import cz.incad.kramerius.security.labels.LabelsManagerException;
-import cz.incad.kramerius.security.labels.impl.LabelImpl;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,15 +34,15 @@ public class DeleteLabel extends ServletRightsCommand {
             try {
                 if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid())).flag()) {
                     if (labelId != null && Integer.parseInt(labelId) > -1) {
-                        Label foundLabel = labelsManager.getLabelById(Integer.parseInt(labelId));
-                        if (foundLabel != null) {
-                            labelsManager.removeLocalLabel(foundLabel);
+                        License foundLicense = licensesManager.getLabelById(Integer.parseInt(labelId));
+                        if (foundLicense != null) {
+                            licensesManager.removeLocalLabel(foundLicense);
                         }
                     }
                 } else {
                     this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
                 }
-            } catch (LabelsManagerException e) {
+            } catch (LicensesManagerException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
             }
         }

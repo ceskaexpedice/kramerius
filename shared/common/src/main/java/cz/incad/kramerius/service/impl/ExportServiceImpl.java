@@ -8,6 +8,7 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.service.ExportService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -37,6 +38,7 @@ public class ExportServiceImpl implements ExportService {
     @Inject
     KConfiguration configuration;
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     private static final String INFO = "info:fedora/";
@@ -195,7 +197,7 @@ public class ExportServiceImpl implements ExportService {
             ExportServiceImpl inst = new ExportServiceImpl();
             inst.fedoraAccess = fa;
             inst.configuration = KConfiguration.getInstance();
-            inst.solrAccess = new SolrAccessImpl();
+            inst.solrAccess = new SolrAccessImplNewIndex();
             inst.exportTree(args[i]);
 
             if (exportParents == null) {

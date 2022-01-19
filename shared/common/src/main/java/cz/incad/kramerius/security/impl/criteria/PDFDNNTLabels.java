@@ -3,18 +3,19 @@ package cz.incad.kramerius.security.impl.criteria;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
-import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.licenses.License;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+//TODO: Rename
 public class PDFDNNTLabels extends AbstractCriterium implements RightCriteriumLabelAware{
 
     public transient  static final Logger LOGGER = Logger.getLogger(PDFDNNTLabels.class.getName());
 
-    private Label label;
+    private License license;
 
     @Override
     public EvaluatingResultState evalute() throws RightCriteriumException {
@@ -23,10 +24,10 @@ public class PDFDNNTLabels extends AbstractCriterium implements RightCriteriumLa
             requestedPid = this.getEvaluateContext().getRequestedPid();
             if (requestedPid != null && !SpecialObjects.isSpecialObject(requestedPid)) {
                 RightsResolver rightsResolver = this.getEvaluateContext().getRightsResolver();
-                ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccess().getPidPaths(requestedPid);
+                ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccessNewIndex().getPidPaths(requestedPid);
                 for (ObjectPidsPath path : paths) {
                     RightsReturnObject obj = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), requestedPid, null, path);
-                    if (CriteriaDNNTUtils.allowedByReadDNNTLabelsRight(obj, getLabel())) return EvaluatingResultState.FALSE;
+                    if (CriteriaDNNTUtils.allowedByReadDNNTLabelsRight(obj, getLicense())) return EvaluatingResultState.FALSE;
                 }
             }
         } catch (IOException e) {
@@ -38,13 +39,13 @@ public class PDFDNNTLabels extends AbstractCriterium implements RightCriteriumLa
     }
 
     @Override
-    public Label getLabel() {
-        return this.label;
+    public License getLicense() {
+        return this.license;
     }
 
     @Override
-    public void setLabel(Label label) {
-        this.label = label;
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override

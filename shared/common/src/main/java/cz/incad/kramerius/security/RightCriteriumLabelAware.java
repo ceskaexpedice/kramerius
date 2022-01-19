@@ -1,10 +1,10 @@
 package cz.incad.kramerius.security;
 
-import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.licenses.License;
 
 public interface RightCriteriumLabelAware {
 
-    public Label getLabel();
+    public License getLicense();
 
-    public void setLabel(Label label);
+    public void setLicense(License license);
 }

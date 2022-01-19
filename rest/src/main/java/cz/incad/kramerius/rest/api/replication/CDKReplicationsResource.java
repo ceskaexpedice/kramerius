@@ -48,7 +48,7 @@ import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 /**
  * CDK replication resource
- * 
+ * TODO: Check in k7
  * @author pavels
  */
 @Path("/v4.6/cdk")
@@ -74,6 +74,7 @@ public class CDKReplicationsResource {
     FedoraAccess fedoraAccess;
 
     @Inject
+    @javax.inject.Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

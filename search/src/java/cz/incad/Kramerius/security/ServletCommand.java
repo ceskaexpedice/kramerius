@@ -44,7 +44,7 @@ import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.security.labels.LabelsManager;
+import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.users.NotActivatedUsersSingleton;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -67,6 +67,7 @@ public abstract class ServletCommand {
     protected Provider<User> userProvider;
 
     @Inject
+    @Named("new-index")
     protected SolrAccess solrAccess;
 
     @Inject
@@ -92,7 +93,7 @@ public abstract class ServletCommand {
     protected NotActivatedUsersSingleton notActivatedUsersSingleton;
 
     @Inject
-    protected LabelsManager labelsManager;
+    protected LicensesManager licensesManager;
     
     public abstract void doCommand() throws IOException;
 

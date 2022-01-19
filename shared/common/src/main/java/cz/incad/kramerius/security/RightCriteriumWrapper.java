@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.security;
 
-import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.licenses.License;
 
 /**
  * This is internal class for wrapping real right criterium (class or script) 
@@ -72,13 +72,17 @@ public interface RightCriteriumWrapper {
 
     public boolean isJustCreated();
 
+    /**
+     * Script criterium is not supported; it should be deprecated
+     * @return
+     */
     public CriteriumType getCriteriumType();
 
 
     public boolean isLabelAwareCriterium();
 
-    public Label getLabel();
+    public License getLabel();
 
-    public void setLabel(Label label);
+    public void setLabel(License license);
 
 }

@@ -16,7 +16,6 @@
  */
 package cz.incad.kramerius.audio.jersey;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.http.Header;
@@ -29,8 +28,9 @@ import cz.incad.kramerius.audio.ResponseHeaderForwarder;
  * to audio proxy's response to client.
  *
  * @author Martin Řehánek <Martin.Rehanek at mzk.cz>
+ * @deprecated use AudioStreamForwardingHelper instead
  */
-public class JerseyResponseHeaderForwarder  implements ResponseHeaderForwarder{
+public class JerseyResponseHeaderForwarder implements ResponseHeaderForwarder {
 
     private final HttpResponse repositoryResponse;
     private final ResponseBuilder proxyResponse;
@@ -39,8 +39,7 @@ public class JerseyResponseHeaderForwarder  implements ResponseHeaderForwarder{
      * Initializes Forwarder.
      *
      * @param repositoryResponse response from repository to proxy
-     * @param proxyResponse response from proxy to client
-     *
+     * @param proxyResponse      response from proxy to client
      */
     public JerseyResponseHeaderForwarder(HttpResponse repositoryResponse, ResponseBuilder proxyResponse) {
         this.repositoryResponse = repositoryResponse;

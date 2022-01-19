@@ -74,14 +74,19 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
 
     @Override
     public synchronized String registerLoggedUser(User user) {
+        return registerLoggedUser(user, this.requeProvider.get());
+    }
+
+    @Override
+    public String registerLoggedUser(User user, HttpServletRequest req) {
         String randomUUID = UUID.randomUUID().toString();
         Connection con = null;
         try {
             con = this.connectionProvider.get();
             Integer activeUserId = ActiveUsersUtils.findAndRegisterActiveUser(user, con);
-            sessionKeyId(con, activeUserId, randomUUID);
+            sessionKeyId(con, activeUserId, randomUUID, req);
             return randomUUID;
-            
+
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new RuntimeException(e.getMessage());
@@ -90,11 +95,11 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
         }
     }
 
-    
-    public void sessionKeyId(Connection con, Integer activeUserId, String loggedUserKey) throws SQLException {
+
+    public void sessionKeyId(Connection con, Integer activeUserId, String loggedUserKey, HttpServletRequest req ) throws SQLException {
         StringTemplate tmpl = stGroup.getInstanceOf("registerSessionKey");
         JDBCUpdateTemplate update = new JDBCUpdateTemplate(con,false);
-        HttpServletRequest req = this.requeProvider.get();
+        //HttpServletRequest req = this.requeProvider.get();
         update.executeUpdate(tmpl.toString(), loggedUserKey,activeUserId, req.getRemoteAddr());
     }
     

@@ -81,6 +81,106 @@ public interface KrameriusRepositoryApi {
         }
     }
 
+
+    public enum OwnRelationsMapping {
+
+        page{
+            @Override
+            public KnownRelations relation() {
+                return KnownRelations.HAS_PAGE;
+            }
+        },
+
+        unit {
+            @Override
+            public KnownRelations relation() {
+                return KnownRelations.HAS_UNIT;
+            }
+        },
+        volume {
+            @Override
+            public KnownRelations relation() {
+                return KnownRelations.HAS_VOLUME;
+            }
+        },
+        periodicalitem {
+            @Override
+            public KnownRelations relation() {
+                return KnownRelations.HAS_ITEM;
+            }
+        },
+        supplement {
+            @Override
+            public KnownRelations relation() {
+                return KnownRelations.HAS_ITEM;
+            }
+        },
+        soundunit {
+            @Override
+            public KnownRelations relation() {
+                return KnownRelations.HAS_SOUND_UNIT;
+            }
+        },
+        soundrecording {
+            @Override
+            public KnownRelations relation() {
+                return KnownRelations.HAS_SOUND_UNIT;
+            }
+        },
+
+        internalpart {
+            @Override
+            public KnownRelations relation() {
+                return KnownRelations.HAS_INT_COMP_PART;
+            }
+        };
+
+        public static OwnRelationsMapping find(String name) {
+            OwnRelationsMapping[] values = values();
+            for (OwnRelationsMapping relMap :  values()) {
+                if (relMap.name().equals(name)) {
+                    return relMap;
+                }
+            }
+            return null;
+        }
+
+        public abstract KnownRelations relation();
+
+    }
+
+
+    public enum FosterRelationsMapping {
+        page{
+            @Override
+            public KnownRelations relation(String parentModel) {
+                List<String> parent = Arrays.asList("article", "internalpart");
+                if (parent.contains(parentModel)) {
+                    return KnownRelations.IS_ON_PAGE;
+                } else return KnownRelations.CONTAINS;
+            }
+        },
+        anything {
+            @Override
+            public KnownRelations relation(String parentModel) {
+                return KnownRelations.CONTAINS;
+            }
+        };
+
+        public static FosterRelationsMapping find(String name) {
+            FosterRelationsMapping[] values = FosterRelationsMapping.values();
+            for (FosterRelationsMapping relMap : values) {
+                if (relMap.name().equals(name)) return relMap;
+            }
+            return anything;
+
+        }
+
+        public abstract KnownRelations relation(String parentModel);
+
+    }
+
+
     List<KnownRelations> OWN_RELATIONS = Arrays.asList(new KnownRelations[]{
             KnownRelations.HAS_PAGE, KnownRelations.HAS_UNIT, KnownRelations.HAS_VOLUME, KnownRelations.HAS_ITEM,
             KnownRelations.HAS_SOUND_UNIT, KnownRelations.HAS_TRACK, KnownRelations.CONTAINS_TRACK, KnownRelations.HAS_INT_COMP_PART

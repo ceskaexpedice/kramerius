@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.inject.name.Named;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,8 +43,6 @@ public class SolrContextDecorate extends AbstractItemDecorator {
     public static final String SOLR_CONTEXT_KEY = AbstractItemDecorator
             .key("CONTEXT");
 
-    @Inject
-    SolrAccess solrAccess;
 
     @Inject
     SolrMemoization memo;
@@ -62,10 +61,10 @@ public class SolrContextDecorate extends AbstractItemDecorator {
             if (doc == null) doc = this.memo.askForIndexDocument(pid);
 
             if (doc != null) {
-                    List<String> pidPaths = SOLRUtils.narray(doc, "pid_path",
+                    List<String> pidPaths = SOLRUtils.narray(doc, "pid_paths",
                             String.class);
                     List<String> modelPaths = SOLRUtils.narray(doc,
-                            "model_path", String.class);
+                            "own_model_path", String.class);
                     if (pidPaths != null && modelPaths != null) {
                         JSONArray jaContext = new JSONArray();
                         for (int i = 0; i < pidPaths.size(); i++) {

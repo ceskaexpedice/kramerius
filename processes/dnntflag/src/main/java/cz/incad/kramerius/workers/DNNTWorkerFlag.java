@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * Responsible for setting flag
+ */
+@Deprecated
 public class DNNTWorkerFlag extends DNNTWorker {
 
     public static Logger LOGGER = Logger.getLogger(DNNTWorkerFlag.class.getName());
@@ -24,7 +28,7 @@ public class DNNTWorkerFlag extends DNNTWorker {
     }
 
 
-    protected Document createBatch(List<String> sublist,boolean changedFoxml){
+    protected Document createSOLRBatchForChildren(List<String> sublist, boolean changedFoxml){
         try {
             return DNNTBatchUtils.createLegacyDNNT(sublist, this.addRemoveFlag);
         } catch (ParserConfigurationException e) {
@@ -33,6 +37,10 @@ public class DNNTWorkerFlag extends DNNTWorker {
     }
 
 
+    @Override
+    protected Document createSOLRBatchForParents(List<String> sublist, boolean changedFoxmlFlag) {
+        return null;
+    }
 
     protected  String solrChildrenQuery(List<String> pidPaths) {
         String pidPathQuery = "pid_path:("+pidPaths.stream().map(it -> "\"" + it + "\"").collect(Collectors.joining(" OR "))+")";
@@ -41,7 +49,12 @@ public class DNNTWorkerFlag extends DNNTWorker {
                 KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY_UNSET,"("+pidPathQuery+" dnnt:[* TO *]) || ("+pidPathQuery+" +dnnt:true)");
     }
 
-    protected boolean changeFOXML(String pid) {
+    protected boolean changeFOXMLDown(String pid) {
         return changeDNNTInFOXML(pid);
+    }
+
+    @Override
+    protected boolean changeFOXMLUp(String pid) {
+        return true;
     }
 }

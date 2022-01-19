@@ -4,10 +4,9 @@ import cz.incad.Kramerius.security.rightscommands.ServletRightsCommand;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.labels.Label;
-import cz.incad.kramerius.security.labels.LabelsManager;
-import cz.incad.kramerius.security.labels.LabelsManagerException;
-import cz.incad.kramerius.security.labels.impl.LabelImpl;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,11 +35,11 @@ public class ChangeProrityLabel extends ServletRightsCommand {
         if(labelId != null) {
             try {
                 if (this.rightsResolver.isActionAllowed(SecuredActions.ADMINISTRATE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid())).flag()) {
-                    Direction.valueOf(dir).move(Integer.parseInt(labelId), this.labelsManager);
+                    Direction.valueOf(dir).move(Integer.parseInt(labelId), this.licensesManager);
                 } else {
                     this.responseProvider.get().sendError(HttpServletResponse.SC_FORBIDDEN);
                 }
-            } catch (LabelsManagerException e) {
+            } catch (LicensesManagerException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
             }
         }
@@ -49,18 +48,18 @@ public class ChangeProrityLabel extends ServletRightsCommand {
     static enum Direction{
         UP {
             @Override
-            protected void move(int id, LabelsManager labelsManager) throws LabelsManagerException {
-                Label label = labelsManager.getLabelById(id);
-                if (label != null)  labelsManager.moveUp(label);
+            protected void move(int id, LicensesManager licensesManager) throws LicensesManagerException {
+                License license = licensesManager.getLabelById(id);
+                if (license != null)  licensesManager.moveUp(license);
             }
         },
         DOWN {
             @Override
-            protected void move(int id, LabelsManager labelsManager) throws LabelsManagerException {
-                Label label = labelsManager.getLabelById(id);
-                if (label != null)  labelsManager.moveDown(label);
+            protected void move(int id, LicensesManager licensesManager) throws LicensesManagerException {
+                License license = licensesManager.getLabelById(id);
+                if (license != null)  licensesManager.moveDown(license);
             }
         };
-        protected abstract void move(int id, LabelsManager labelsManager) throws LabelsManagerException;
+        protected abstract void move(int id, LicensesManager labelsManager) throws LicensesManagerException;
     }
 }
