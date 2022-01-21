@@ -3,12 +3,10 @@ package cz.incad.kramerius.service.replication;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,7 +24,6 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -41,21 +38,36 @@ public class CDKFormat implements ReplicationFormat {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    // TODO: Change it
-    public static final String[] DATA_STREAMS_TO_BINARY = {FedoraUtils.IMG_THUMB_STREAM};
+    // GET/HEAD {pid}/image                                 - obsah IMG_FULL konkrétního objektu
+    // GET      {pid}/image/thumb                           - IMG_THUMB objektu nebo potomka
+    // GET      {pid}/image/preview                         - IMG_PREVIEW objektu nebo potomka
+    // GET      {pid}/image/zoomify/ImageProperties.xml     - ImageProperties.xml pro zoomify
+    // GET      {pid}/image/zoomify/{tileGroup}/{tile}.jpg  - dlaždice zoomify
+    // GET/HEAD {pid}/audio/mp3
+    // GET/HEAD {pid}/audio/ogg
+    // GET/HEAD {pid}/audio/wav
 
-    public static final String[] DATA_STREAMS_TO_REFERENCE = { FedoraUtils.IMG_FULL_STREAM, /*
-                                                                                * FedoraUtils
-                                                                                * .
-                                                                                * IMG_THUMB_STREAM
-                                                                                * ,
-                                                                                */
-    FedoraUtils.IMG_PREVIEW_STREAM,
-    
-    
-    // media files
-    FedoraUtils.OGG_STREAM, FedoraUtils.MP3_STREAM, FedoraUtils.WAV_STREAM 
-    };
+
+
+    public static final Map<String, String> IMG_STREAMS_TO_BINARY = new HashMap<>();
+    static {
+        IMG_STREAMS_TO_BINARY.put(FedoraUtils.IMG_THUMB_STREAM,"%s/image/thumb");
+    }
+
+
+    public static final Map<String, String> IMG_STREAMS_TO_REFERENCE = new HashMap<>();
+    static  {
+        IMG_STREAMS_TO_REFERENCE.put(FedoraUtils.IMG_FULL_STREAM,"%s/image");
+        IMG_STREAMS_TO_REFERENCE.put(FedoraUtils.IMG_PREVIEW_STREAM,"%s/image/preview");
+    }
+
+    public static final Map<String, String> AUDIO_STREAMS_TO_REFERENCE = new HashMap<>();
+    static {
+        AUDIO_STREAMS_TO_REFERENCE.put(FedoraUtils.OGG_STREAM, "%s/audio/ogg");
+        AUDIO_STREAMS_TO_REFERENCE.put(FedoraUtils.MP3_STREAM, "%s/audio/mp3");
+        AUDIO_STREAMS_TO_REFERENCE.put(FedoraUtils.WAV_STREAM, "%s/audio/wav");
+    }
+
 
     @Override
     public byte[] formatFoxmlData(byte[] input, Object... params)
@@ -67,14 +79,13 @@ public class CDKFormat implements ReplicationFormat {
             if (docElement.getLocalName().equals("digitalObject")) {
 
                 // Streams that should be referenced
-                List<Element> referencedDatastreams = XMLUtils.getElements(
+                List<Element> imgReferenceStream = XMLUtils.getElements(
                         docElement, new XMLUtils.ElementsFilter() {
                             @Override
                             public boolean acceptElement(Element elm) {
                                 String elmName = elm.getLocalName();
                                 String idName = elm.getAttribute("ID");
-                                boolean idContains = Arrays
-                                        .asList(DATA_STREAMS_TO_REFERENCE).contains(idName);
+                                boolean idContains = new ArrayList<String>(IMG_STREAMS_TO_REFERENCE.keySet()).contains(idName);
                                 return elmName.equals("datastream")
                                         && idContains
                                         && elm.hasAttribute("CONTROL_GROUP");
@@ -83,11 +94,36 @@ public class CDKFormat implements ReplicationFormat {
                             }
                         });
 
-                for (Element datStreamElm : referencedDatastreams) {
+                for (Element datStreamElm : imgReferenceStream) {
                     List<Element> versions = versions(datStreamElm);
                     String idAttr = datStreamElm.getAttribute("ID");
                     for (Element version: versions) {
-                        URL url = makeURL(document,  idAttr);
+                        URL url = makeUrl(document,  idAttr, IMG_STREAMS_TO_REFERENCE);
+                        ReplicationUtils.referenceForStream(document, datStreamElm, version, url);
+                    }
+                }
+
+                // Streams that should be referenced
+                List<Element> audioStreams = XMLUtils.getElements(
+                        docElement, new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element elm) {
+                                String elmName = elm.getLocalName();
+                                String idName = elm.getAttribute("ID");
+                                boolean idContains = new ArrayList<String>(AUDIO_STREAMS_TO_REFERENCE.keySet()).contains(idName);
+                                return elmName.equals("datastream")
+                                        && idContains
+                                        && elm.hasAttribute("CONTROL_GROUP");
+                                //&& elm.getAttribute("CONTROL_GROUP")
+                                //        .equals("M");
+                            }
+                        });
+
+                for (Element datStreamElm : audioStreams) {
+                    List<Element> versions = versions(datStreamElm);
+                    String idAttr = datStreamElm.getAttribute("ID");
+                    for (Element version: versions) {
+                        URL url = makeUrl(document,  idAttr, AUDIO_STREAMS_TO_REFERENCE);
                         ReplicationUtils.referenceForStream(document, datStreamElm, version, url);
                     }
                 }
@@ -99,8 +135,7 @@ public class CDKFormat implements ReplicationFormat {
                             public boolean acceptElement(Element elm) {
                                 String elmName = elm.getLocalName();
                                 String idName = elm.getAttribute("ID");
-                                boolean idContains = Arrays
-                                        .asList(DATA_STREAMS_TO_BINARY).contains(idName);
+                                boolean idContains = new ArrayList<String>(IMG_STREAMS_TO_BINARY.keySet()).contains(idName);
                                 return elmName.equals("datastream")
                                         && idContains
                                         && elm.hasAttribute("CONTROL_GROUP")
@@ -112,7 +147,7 @@ public class CDKFormat implements ReplicationFormat {
                     List<Element> versions = versions(datStreamElm);
                     String idAttr = datStreamElm.getAttribute("ID");
                     for (Element version: versions) {
-                        URL url = makeURL(document,  idAttr);
+                        URL url = makeUrl(document,  idAttr, IMG_STREAMS_TO_BINARY);
                         ReplicationUtils.binaryContentForStream(document, datStreamElm, version, url);
                     }
                 }
@@ -191,13 +226,9 @@ public class CDKFormat implements ReplicationFormat {
                 if (iip.getNamespaceURI()
                         .equals(FedoraNamespaces.KRAMERIUS_URI)
                         && iip.getLocalName().equals("tiles-url")) {
-                    if (iip.getTextContent().contains("DeepZoom")) {
-                        iip.setTextContent(deepZoomURI(document).toURI()
-                                .toString());
-                    } else {
+
                         iip.setTextContent(zoomifyURI(document).toURI()
                                 .toString());
-                    }
                 }
             }
         }
@@ -207,7 +238,7 @@ public class CDKFormat implements ReplicationFormat {
     private URL zoomifyURI(Document doc) throws MalformedURLException {
         HttpServletRequest req = this.requestProvider.get();
         String pid = doc.getDocumentElement().getAttribute("PID");
-        String is = ApplicationURL.applicationURL(req) + "/zoomify/" + pid;
+        String is = ApplicationURL.applicationURL(req) + String.format("/api/client/v7.0/%s/image/zoomify/",pid);
         return new URL(is);
     }
 
@@ -289,6 +320,20 @@ public class CDKFormat implements ReplicationFormat {
 //        }
 //    }
 
+
+    //api/client/v7.0/items/uuid:b1f0b7d2-7313-417f-8f9d-012844808ea2/image/zoomify/ImageProperties.xml
+    private URL makeUrl(Document doc, String idAttr, Map<String,String> refmap) throws MalformedURLException {
+        HttpServletRequest req = this.requestProvider.get();
+        String pid = doc.getDocumentElement().getAttribute("PID");
+        String appUrl = ApplicationURL.applicationURL(req);
+
+        appUrl = appUrl + (appUrl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" ;
+        appUrl = appUrl + String.format(refmap.get(idAttr), pid);
+
+        return new URL(appUrl);
+    }
+
+
     private URL makeURL(Document doc, String idAttr)
             throws MalformedURLException {
         HttpServletRequest req = this.requestProvider.get();
@@ -296,59 +341,11 @@ public class CDKFormat implements ReplicationFormat {
 
         String imgServ = ApplicationURL.applicationURL(req) + "/img?pid=" + pid
                 + "&stream=" + idAttr + "&action=GETRAW";
+
         return new URL(imgServ);
     }
 
 
-//
-//    /**
-//     * Change datastream to reference
-//     * @param version
-//     * @throws IOException
-//     * @throws URISyntaxException
-//     * @throws DOMException
-//     */
-//    private void changeDataStream(Document document, Element datastream,
-//            Element version, URL url) throws IOException, DOMException,
-//            URISyntaxException {
-//        InputStream is = null;
-//        try {
-//            Element digestElm = XMLUtils.findElement(version, "contentDigest",
-//                    version.getNamespaceURI());
-//            if (digestElm != null) {
-//                version.removeChild(XMLUtils.findElement(version,
-//                        "contentDigest", version.getNamespaceURI()));
-//            }
-//
-//            // in case of M - remove binary
-//            Element binaryContent = XMLUtils.findElement(version, "binaryContent",
-//                    version.getNamespaceURI());
-//            if (binaryContent != null) {
-//                version.removeChild(binaryContent);
-//            }
-//
-//            // in case of E - remove old url
-//            Element contentLocation = XMLUtils.findElement(version, "contentLocation",
-//                    version.getNamespaceURI());
-//            if (contentLocation != null) {
-//                version.removeChild(contentLocation);
-//            }
-//
-//
-//            Element location = document.createElementNS(
-//                    version.getNamespaceURI(), "contentLocation");
-//            location.setAttribute("REF", url.toURI().toString());
-//            location.setAttribute("TYPE", "URL");
-//
-//            document.adoptNode(location);
-//            version.appendChild(location);
-//
-//            datastream.setAttribute("CONTROL_GROUP", "E");
-//
-//        } finally {
-//            IOUtils.tryClose(is);
-//        }
-//    }
 
     @Override
     public byte[] formatFoxmlData(byte[] input) throws ReplicateException {
