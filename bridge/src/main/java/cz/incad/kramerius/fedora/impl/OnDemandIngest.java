@@ -28,8 +28,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class OnDemandIngest {
+
+    public static final Logger LOGGER = Logger.getLogger(OnDemandIngest.class.getName());
 
     public static Object INGESTING_LOCK = new Object();
     private final Client client;
@@ -51,6 +54,7 @@ public class OnDemandIngest {
             List<String> sources = CDKUtils.findSources(solrDataDocument.getDocumentElement());
 
             String source = leader != null ? leader : (!sources.isEmpty() ? sources.get(0) : null);
+            LOGGER.info(String.format("Leader for pid %s is %s", pid, leader));
             if (source != null) {
                 //Collection collection = this.collectionsManager.getCollection(sources.get(0));
                 PIDParser parser = new PIDParser(source);
@@ -58,14 +62,15 @@ public class OnDemandIngest {
                 String objectId = parser.getObjectId();
 
                 String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".baseurl");
-
                 String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".username");
                 String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".pswd");
-
                 if (StringUtils.isAnyString(username) && StringUtils.isAnyString(password)) {
                     String url = baseurl  +(baseurl.endsWith("/") ? "" : "/")+ "api/v4.6/cdk/" + pid + "/foxml?collection=" + parser.getObjectPid();
 
-                    if (internalAPI.objectExists(pid)) return;
+                    if (internalAPI.objectExists(pid)) {
+                        LOGGER.info("Object exists");
+                        return;
+                    }
                     InputStream foxml = foxml(url, username, password);
                     long foxmlTime = System.currentTimeMillis();
                     // only ingesting is synchronized by shared lock
