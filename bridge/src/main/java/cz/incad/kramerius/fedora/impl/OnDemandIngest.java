@@ -13,6 +13,7 @@ import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -26,6 +27,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,6 +84,13 @@ public class OnDemandIngest {
                     }
                 } else throw new IOException("Cannot read data from "+ baseurl +".  Missing property "+"cdk.collections.sources." + objectId + ".username or "+"cdk.collections.sources." + objectId + ".pswd  for pid  "+pid);
 
+            } else {
+                LOGGER.warning(String.format("No source or leader for pid %s", pid));
+
+                StringWriter stringWriter = new StringWriter();
+                XMLUtils.print(solrDataDocument, stringWriter);
+
+                LOGGER.info("document output "+stringWriter.toString());
             }
         } catch (IOException | JAXBException | TransformerException | LexerException | RepositoryException e) {
             FedoraAccessProxyAkubraImpl.LOGGER.log(Level.SEVERE, e.getMessage(),e);
