@@ -1,5 +1,6 @@
 package cz.incad.kramerius.repository;
 
+import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -89,6 +90,12 @@ public interface RepositoryApi {
     //DELETE
     public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams) throws RepositoryException, IOException;
 
+
+    /**
+     * Returns low level storage
+     * @return
+     */
+    public Repository getStorage();
 
     class Triplet {
         public final String source;

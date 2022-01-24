@@ -77,6 +77,8 @@
         <url-pattern>/iiif-presentation/*</url-pattern>
     </filter-mapping>
 
+
+
     <!-- mod_proxy filter; doesnt work in krameriusdemo don't know why (logout doesn't work)
     <filter>
         <filter-name>mod_proxy</filter-name>
@@ -89,7 +91,8 @@
     -->
 
 
-    <!--  thrid party authentication -->
+    <!--  thrid party authentication, disabled here.  -->
+    <!--
     <filter>
         <filter-name>keyclocaksupport</filter-name>
         <filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter</filter-class>
@@ -98,6 +101,7 @@
         <filter-name>keyclocaksupport</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+    -->
 
     <!--  third party authentication, shibboleth and keyclocak - interal users -->
     <filter>

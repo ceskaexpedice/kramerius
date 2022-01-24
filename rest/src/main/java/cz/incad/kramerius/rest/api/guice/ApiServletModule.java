@@ -107,7 +107,9 @@ public class ApiServletModule extends JerseyServletModule {
 
         //        bind(VirtualCollectionsResource.class);
         bind(StatisticsResource.class);
-        bind(KrameriusRepositoryApi.class).to(KrameriusRepositoryApiImpl.class);
+
+        //bind(KrameriusRepositoryApi.class).to(KrameriusRepositoryApiImpl.class);
+
         bind(LicensesResource.class);
 
         // API Client 6.0 Resources

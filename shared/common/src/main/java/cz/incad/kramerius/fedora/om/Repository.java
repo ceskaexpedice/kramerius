@@ -28,6 +28,7 @@ import java.util.function.Consumer;
  * The simple object model represents access to fedora 4 repository
  * It is basic tool for ingesting also it is basic point for FedoraAccess facade
  * @author pavels
+ * TODO: Rename to storage
  */
 public abstract class Repository {
 

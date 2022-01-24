@@ -38,10 +38,10 @@ public class KrameriusRepositoryApiProxyImpl extends KrameriusRepositoryApiImpl 
     private SolrAccess solrAccess;
 
     @Inject
-    public KrameriusRepositoryApiProxyImpl(RepositoryApiImpl repositoryApi, AggregatedAccessLogs accessLog, OnDemandIngest onDemIng, Repository akubra, @Named("new-index") SolrAccess solrAccess) {
+    public KrameriusRepositoryApiProxyImpl(RepositoryApiImpl repositoryApi, AggregatedAccessLogs accessLog, OnDemandIngest onDemIng, @Named("new-index") SolrAccess solrAccess) {
         super(repositoryApi, accessLog);
         this.onDemandIngest = onDemIng;
-        this.akubra = akubra;
+        this.akubra = repositoryApi.getStorage();
         this.solrAccess = solrAccess;
     }
 
@@ -364,10 +364,10 @@ public class KrameriusRepositoryApiProxyImpl extends KrameriusRepositoryApiImpl 
             ownChildrenAndFosterChildren(this.solrAccess, objectPid, ownChildrenTriplets, fosterChildrenTriplets);
 
             //return super.getChildren(objectPid);
+            return new Pair<>(ownChildrenTriplets,fosterChildrenTriplets);
         } catch (CollectionException | LexerException | MigrateSolrIndexException | SAXException | BrokenBarrierException | ParserConfigurationException |  InterruptedException | JAXBException | TransformerException | XPathExpressionException e) {
             throw new RepositoryException(e);
         }
-        return null;
     }
 
     static void ownChildrenAndFosterChildren(SolrAccess solrAccess, String objectPid, List<RepositoryApi.Triplet> ownChildrenTriplets, List<RepositoryApi.Triplet> fosterChildrenTriplets) throws IOException, ParserConfigurationException, MigrateSolrIndexException, SAXException, InterruptedException, BrokenBarrierException {
@@ -463,11 +463,22 @@ public class KrameriusRepositoryApiProxyImpl extends KrameriusRepositoryApiImpl 
 
     @Override
     public boolean isPidAvailable(String pid) throws IOException, RepositoryException {
-        return super.isPidAvailable(pid);
+        // problematic part - all children in repo
+        try {
+            onDemandIngest.ingestIfNecessary(this.akubra, pid);
+            return super.isPidAvailable(pid);
+        } catch (CollectionException |  LexerException | JAXBException |TransformerException | XPathExpressionException e) {
+            throw new RepositoryException(e);
+        }
     }
 
     @Override
     public boolean isStreamAvailable(String pid, String dsId) throws IOException, RepositoryException {
-        return super.isStreamAvailable(pid, dsId);
+        try {
+            onDemandIngest.ingestIfNecessary(this.akubra, pid);
+            return super.isStreamAvailable(pid, dsId);
+        } catch (CollectionException |  LexerException | JAXBException |TransformerException | XPathExpressionException e) {
+            throw new RepositoryException(e);
+        }
     }
 }

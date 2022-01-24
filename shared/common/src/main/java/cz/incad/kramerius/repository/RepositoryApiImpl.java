@@ -3,6 +3,7 @@ package cz.incad.kramerius.repository;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
@@ -391,4 +392,8 @@ public class RepositoryApiImpl implements RepositoryApi {
         return node == null ? null : Dom4jUtils.toStringOrNull(node);
     }
 
+    @Override
+    public Repository getStorage() {
+        return this.akubraRepository;
+    }
 }
