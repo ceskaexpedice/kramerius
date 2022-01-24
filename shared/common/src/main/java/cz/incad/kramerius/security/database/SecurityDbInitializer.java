@@ -307,6 +307,10 @@ public class SecurityDbInitializer {
             makeSureThatRoleColumnExists(connection);
             // update role column from relations
             makeSureRolesInTable(connection);
+
+            // labels table
+            makeSureThatLabelsTable(connection);
+
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
