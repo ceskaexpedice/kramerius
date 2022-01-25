@@ -653,7 +653,7 @@ public class ItemsResource extends ClientApiResource {
             //checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             //checkUserByJsessionidIsAllowedToReadIIPTile(pid);
 
-            String formatted = String.format("image/zoomify/%s/%s", tileGroup, tileStr);
+            String formatted = String.format("image/zoomify/%s/%s", tileGroupStr, tileStr);
             return sendImageRedirect(pid, formatted);
             //return zoomifyHelper.buildTileResponse(pid, requestProvider.get(), tileGroup, Integer.valueOf(tileTokens[0]), Integer.valueOf(tileTokens[1]), Integer.valueOf(tileTokens[2]));
         } catch (WebApplicationException e) {
