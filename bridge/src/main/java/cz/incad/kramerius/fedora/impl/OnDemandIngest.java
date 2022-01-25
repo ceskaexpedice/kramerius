@@ -99,18 +99,18 @@ public class OnDemandIngest {
 
     public void ingestWholePathNecessary(Repository internalAPI, String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
         if (!pid.startsWith(PIDParser.VC_PREFIX)) {
-            if (!internalAPI.objectExists(pid)) {
-                ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
-                for (ObjectPidsPath path : pidPaths) {
-                    String[] pidsInPath = path.getPathFromLeafToRoot();
-                    ingestIfNecessary(internalAPI, pidsInPath);
-                }
+            ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+            for (ObjectPidsPath path : pidPaths) {
+                String[] pidsInPath = path.getPathFromLeafToRoot();
+                ingestIfNecessary(internalAPI, pidsInPath);
             }
         }
     }
 
     public void ingestIfNecessary(Repository internalAPI, String... pids) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
-        for (String pid : pids) { ingestIfNecessary(internalAPI, pid); }
+        for (String pid : pids) {
+            ingestIfNecessary(internalAPI, pid);
+        }
     }
 
     public void ingestIfNecessary(Repository internalAPI, String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {

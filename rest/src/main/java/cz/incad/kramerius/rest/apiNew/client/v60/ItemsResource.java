@@ -8,6 +8,7 @@ import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
@@ -23,7 +24,11 @@ import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.utils.pid.PIDParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
@@ -40,6 +45,8 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -182,12 +189,12 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/providedByLicenses")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProvidingLicenses(@PathParam("pid") String pid) {
+        // must be redirected
         try {
+
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            JSONObject responseJson = new JSONObject();
-            responseJson.put("licenses", extractLicensesProvidingAccess(pid));
-            return Response.ok(responseJson).build();
+            return sendImageRedirect(pid, "info/providedByLicenses");
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -529,13 +536,42 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            return Response.ok().build();
+
+            return sendImageRedirect(pid, "image");
+            //return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    public Response sendImageRedirect(String pid, String endpoint) throws IOException, LexerException, URISyntaxException {
+        org.w3c.dom.Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
+        String leader = CDKUtils.findCDKLeader(solrDataByPid.getDocumentElement());
+        List<String> sources = CDKUtils.findSources(solrDataByPid.getDocumentElement());
+        String source = leader != null ? leader : (!sources.isEmpty() ? sources.get(0) : null);
+        if (!sources.isEmpty()) {
+
+            PIDParser parser = new PIDParser(source);
+            parser.objectPid();
+            String objectId = parser.getObjectId();
+
+            String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".baseurl");
+            String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".username");
+            String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".pswd");
+            if (StringUtils.isAnyString(username) && StringUtils.isAnyString(password)) {
+
+                String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + pid + "/" + endpoint;
+                LOGGER.info(String.format("Redirecting to %s", url));
+                return Response.temporaryRedirect(new URL(url).toURI()).build();
+
+            } else {
+                LOGGER.warning(String.format("No source or leader for pid %s", pid));
+            }
+        }
+        return Response.ok().build();
     }
 
     /***
@@ -550,14 +586,16 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
-            InputStream is = krameriusRepositoryApi.getImgFull(pid);
-            StreamingOutput stream = output -> {
-                IOUtils.copy(is, output);
-                IOUtils.closeQuietly(is);
-            };
-            return Response.ok().entity(stream).type(mimeType).build();
+//            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+//            String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
+//            InputStream is = krameriusRepositoryApi.getImgFull(pid);
+//            StreamingOutput stream = output -> {
+//                IOUtils.copy(is, output);
+//                IOUtils.closeQuietly(is);
+//            };
+//            return Response.ok().entity(stream).type(mimeType).build();
+
+            return sendImageRedirect(pid, "image");
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -578,8 +616,11 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            return zoomifyHelper.buildImagePropertiesResponse(pid, requestProvider.get());
+//            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+//            return zoomifyHelper.buildImagePropertiesResponse(pid, requestProvider.get());
+
+            return sendImageRedirect(pid, "image/zoomify/ImageProperties.xml");
+
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -610,9 +651,11 @@ public class ItemsResource extends ClientApiResource {
             //KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             //checkObjectAndDatastreamExist(pid, dsId);
             //checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            checkUserByJsessionidIsAllowedToReadIIPTile(pid);
+            //checkUserByJsessionidIsAllowedToReadIIPTile(pid);
 
-            return zoomifyHelper.buildTileResponse(pid, requestProvider.get(), tileGroup, Integer.valueOf(tileTokens[0]), Integer.valueOf(tileTokens[1]), Integer.valueOf(tileTokens[2]));
+            String formatted = String.format("image/zoomify/%s/%s", tileGroup, tileStr);
+            return sendImageRedirect(pid, formatted);
+            //return zoomifyHelper.buildTileResponse(pid, requestProvider.get(), tileGroup, Integer.valueOf(tileTokens[0]), Integer.valueOf(tileTokens[1]), Integer.valueOf(tileTokens[2]));
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
