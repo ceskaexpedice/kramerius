@@ -51,6 +51,10 @@ public class ApplicationURL {
             String header = request.getHeader("x-forwarded-host");
             if (header != null) {
                 String requestUri = request.getRequestURI();
+                // should be covered:
+                //X-Forwarded-Proto
+                //X-Forwarded-Port
+
                 String protocol = new URL(request.getRequestURL().toString()).getProtocol();
                 // check if header contains more than one value, if so, it takes first
                 if (header.contains(",")) {

@@ -54,7 +54,7 @@ public class ReplicationServiceImpl implements ReplicationService{
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ReplicationServiceImpl.class.getName());
     
     @Inject
-    @Named("securedFedoraAccess")
+    @Named("rawFedoraAccess")
     FedoraAccess fedoraAccess;
 
     @Inject

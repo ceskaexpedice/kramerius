@@ -238,16 +238,20 @@ public class CDKFormat implements ReplicationFormat {
     private URL zoomifyURI(Document doc) throws MalformedURLException {
         HttpServletRequest req = this.requestProvider.get();
         String pid = doc.getDocumentElement().getAttribute("PID");
-        String is = ApplicationURL.applicationURL(req) + String.format("/api/client/v7.0/%s/image/zoomify/",pid);
+        String url = applicationURLAndCheckHttps(req);
+        String is = url + String.format("/api/client/v7.0/%s/image/zoomify/",pid);
         return new URL(is);
     }
 
-    private URL deepZoomURI(Document doc) throws MalformedURLException {
-        HttpServletRequest req = this.requestProvider.get();
-        String pid = doc.getDocumentElement().getAttribute("PID");
-        String is = ApplicationURL.applicationURL(req) + "/deepZoom/" + pid;
-        return new URL(is);
+    private String applicationURLAndCheckHttps(HttpServletRequest req) {
+        boolean forceHttps = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.makeurls.forcehttps", true);
+        String url = ApplicationURL.applicationURL(req);
+        if (forceHttps && url != null && url.toLowerCase().startsWith("http://")) {
+            url = "https://"+url.substring("http://".length());
+        }
+        return url;
     }
+
 
     private void virtualCollectionName(String vcname, Document document,
             Element element) {
@@ -295,7 +299,7 @@ public class CDKFormat implements ReplicationFormat {
     private URL makeHANDLE(Document doc) throws MalformedURLException {
         HttpServletRequest req = this.requestProvider.get();
         String pid = doc.getDocumentElement().getAttribute("PID");
-        String imgServ = ApplicationURL.applicationURL(req) + "/handle/" + pid;
+        String imgServ = applicationURLAndCheckHttps(req) + "/handle/" + pid;
         return new URL(imgServ);
     }
 
@@ -325,7 +329,7 @@ public class CDKFormat implements ReplicationFormat {
     private URL makeUrl(Document doc, String idAttr, Map<String,String> refmap) throws MalformedURLException {
         HttpServletRequest req = this.requestProvider.get();
         String pid = doc.getDocumentElement().getAttribute("PID");
-        String appUrl = ApplicationURL.applicationURL(req);
+        String appUrl =applicationURLAndCheckHttps(req);
 
         appUrl = appUrl + (appUrl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" ;
         appUrl = appUrl + String.format(refmap.get(idAttr), pid);
@@ -334,16 +338,6 @@ public class CDKFormat implements ReplicationFormat {
     }
 
 
-    private URL makeURL(Document doc, String idAttr)
-            throws MalformedURLException {
-        HttpServletRequest req = this.requestProvider.get();
-        String pid = doc.getDocumentElement().getAttribute("PID");
-
-        String imgServ = ApplicationURL.applicationURL(req) + "/img?pid=" + pid
-                + "&stream=" + idAttr + "&action=GETRAW";
-
-        return new URL(imgServ);
-    }
 
 
 
