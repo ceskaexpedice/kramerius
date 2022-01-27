@@ -11,6 +11,7 @@ import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.IterationUtils;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.virtualcollections.CollectionException;
@@ -377,7 +378,10 @@ public class KrameriusRepositoryApiProxyImpl extends KrameriusRepositoryApiImpl 
             return (elm.getNodeName().equals("str") && name.equals("model"));
         });
 
-        IterationUtils.IterationContext ownParentContext = new IterationUtils.IterationContext("pid", 100, Arrays.asList("pid","own_parent","model", "foster_parents.pids"));
+        // use composite id in solr cloud
+        String id = KConfiguration.getInstance().getConfiguration().getString("kramerius.api.id", "compositeId");
+        IterationUtils.IterationContext ownParentContext = new IterationUtils.IterationContext(id, 100, Arrays.asList("pid","own_parent","model", "foster_parents.pids"));
+
         String ownparentQuery =  "own_parent.pid:" +URLEncoder.encode("\""+objectPid+"\"", "UTF-8");
         IterationUtils.cursorIteration(solrAccess, ownparentQuery, (results,iterationToken)-> {
             List<Map<String, Object>> collectedDocuments = resultsToMap(results);
@@ -392,7 +396,8 @@ public class KrameriusRepositoryApiProxyImpl extends KrameriusRepositoryApiImpl 
         }, ()->{}, ownParentContext);
 
         if (parentModel != null) {
-            IterationUtils.IterationContext fosterContext = new IterationUtils.IterationContext("pid", 100, Arrays.asList("pid","own_parent","model", "foster_parents.pids"));
+            IterationUtils.IterationContext fosterContext = new IterationUtils.IterationContext(id, 100, Arrays.asList("pid","own_parent","model", "foster_parents.pids"));
+
             String fosterQuery = "foster_parents.pids:"+ URLEncoder.encode("\""+objectPid+"\"", "UTF-8");;
             IterationUtils.cursorIteration(solrAccess, fosterQuery, (results,iterationToken)-> {
                 List<Map<String, Object>> collectedDocuments = resultsToMap(results);
