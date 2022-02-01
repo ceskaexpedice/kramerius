@@ -171,13 +171,13 @@ public class KrameriusKeycloakFilter implements Filter {
                 return;
             }
             AuthenticatedActionsHandler actions = new AuthenticatedActionsHandler(deployment, facade);
-            if (actions.handledRequest()) {
-                return;
-            } else {
+//            if (actions.handledRequest()) {
+//                return;
+//            } else {
                 HttpServletRequestWrapper wrapper = tokenStore.buildWrapper();
                 chain.doFilter(wrapper, res);
                 return;
-            }
+//            }
         }
 //        AuthChallenge challenge = authenticator.getChallenge();
 //        if (challenge != null) {
