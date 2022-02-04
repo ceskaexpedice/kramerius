@@ -9,7 +9,7 @@ import org.gradle.api.tasks.SourceSet
 
 import java.util.concurrent.Callable
 
-import static org.gradle.api.plugins.JavaPlugin.COMPILE_CONFIGURATION_NAME
+import static org.gradle.api.plugins.JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME
 
 class JAXBPlugin implements Plugin<ProjectInternal> {
 	
@@ -26,7 +26,7 @@ class JAXBPlugin implements Plugin<ProjectInternal> {
 		
 		Configuration jaxbConfiguration = project.getConfigurations().create(XJC_CONFIGURATION_NAME).setVisible(false)
 		.setTransitive(true).setDescription("Xjc deps");
-		project.getConfigurations().getByName(COMPILE_CONFIGURATION_NAME).extendsFrom(jaxbConfiguration);
+		project.getConfigurations().getByName(IMPLEMENTATION_CONFIGURATION_NAME).extendsFrom(jaxbConfiguration);
 		
 		project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().all(
 			new Action<SourceSet>() {

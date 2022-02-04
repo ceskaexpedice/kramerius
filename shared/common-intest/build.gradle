@@ -3,10 +3,10 @@ description "Integration tests"
 apply plugin: 'java'
 
 dependencies {
-    compile project(':shared:common')
-    compile project(':security:security-core')
+    api project(':shared:common')
+    api project(':security:security-core')
 
-    testCompile('org.apache.solr:solr-core:6.3.0')
+    testImplementation('org.apache.solr:solr-core:6.3.0')
 }
 
 

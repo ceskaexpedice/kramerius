@@ -1,8 +1,8 @@
 
 
 dependencies {
-    compile project(':security:security-core')
-    compile project(':shared:common')
-    compile project(':processes:indexer')
+    implementation project(':security:security-core')
+    implementation project(':shared:common')
+    implementation project(':processes:indexer')
    
 }

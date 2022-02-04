@@ -1,7 +1,7 @@
 
 
 dependencies {
-    compile project(':security:security-core')
-    compile project(':shared:common')
-    compile project(':processes:import')
+    implementation project(':security:security-core')
+    implementation project(':shared:common')
+    implementation project(':processes:import')
 }

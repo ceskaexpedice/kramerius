@@ -27,7 +27,7 @@ test {
 
 dependencies {
     //compile project(':security:security-core')
-    compile project(':shared:common')
+    implementation project(':shared:common')
 
     //  testCompile group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
@@ -48,7 +48,7 @@ dependencies {
 
     implementation 'joda-time:joda-time:2.10.3'
 
-    implementation 'com.google.guava:guava:27.1-jre'
+    implementation 'com.google.guava:guava:31.0.1-jre'
 
     //json-lib nahrazeno, posledni release z 2010 a pro javu 5, dost mozna nebude fungovat (nebo pomalu) na novejsi jave
     //http://json-lib.sourceforge.net/usage.html

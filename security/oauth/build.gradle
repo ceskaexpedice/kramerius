@@ -6,11 +6,11 @@ configurations {
     provided
 }
 dependencies {
-    compile project(':shared:common')
-    compile project(':security:security-core')
+    api project(':shared:common')
+    api project(':security:security-core')
 
-    compile (group: 'org.keycloak', name: 'keycloak-servlet-filter-adapter', version: '15.0.2')
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+    api (group: 'org.keycloak', name: 'keycloak-servlet-filter-adapter', version: '15.0.2')
+    api 'com.squareup.okhttp3:okhttp:4.9.1'
 
     provided "javax.servlet.jsp:jsp-api:2.2",
             "javax.servlet:javax.servlet-api:3.1.0"

@@ -21,22 +21,22 @@ sourceSets {
 }
 
 dependencies {
-    compile project(':security:security-core')
-    compile project(':shared:common')
+    api project(':security:security-core')
+    api project(':shared:common')
 
-	compile group: 'org.jsoup', name: 'jsoup', version: '1.10.1'
+    api group: 'org.jsoup', name: 'jsoup', version: '1.10.1'
 
-    compile 'org.apache.lucene:lucene-analyzers:2.9.1'
-    compile 'org.apache.lucene:lucene-core:2.9.1'
-    compile 'org.apache.lucene:lucene-highlighter:2.9.1'
-    compile 'org.apache.lucene:lucene-memory:2.9.1'
-    compile 'org.apache.lucene:lucene-queries:2.9.1'
-    compile 'org.apache.lucene:lucene-misc:2.9.1'
-    compile 'org.apache.lucene:lucene-snowball:2.9.1'
-    compile 'org.apache.lucene:lucene-spellchecker:2.9.1'
-    compile 'org.apache.lucene:lucene-demos:2.9.1'
+    api 'org.apache.lucene:lucene-analyzers:2.9.1'
+    api 'org.apache.lucene:lucene-core:2.9.1'
+    api 'org.apache.lucene:lucene-highlighter:2.9.1'
+    api 'org.apache.lucene:lucene-memory:2.9.1'
+    api 'org.apache.lucene:lucene-queries:2.9.1'
+    api 'org.apache.lucene:lucene-misc:2.9.1'
+    api 'org.apache.lucene:lucene-snowball:2.9.1'
+    api 'org.apache.lucene:lucene-spellchecker:2.9.1'
+    api 'org.apache.lucene:lucene-demos:2.9.1'
 
-    testCompile "junit:junit:4.4"
+    testImplementation "junit:junit:4.13.2"
 
 }
 

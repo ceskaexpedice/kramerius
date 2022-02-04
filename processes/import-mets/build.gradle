@@ -10,21 +10,21 @@ compileJava {
 
 
 dependencies {
-    compile project(':security:security-core')
-    compile project(':shared:common')
-    
-    compile project(':processes:import')
-    compile project(':processes:import-jaxb')
-    compile project(':processes:import-jaxb-periodical')
-    compile project(':processes:import-jaxb-monograph')
-    compile project(':processes:import-jaxb-srwdc')
-    compile project(':processes:import-jaxb-alto')
-    compile project(':processes:import-jaxb-mets')
-    compile project(':processes:import-jaxb-mods')
-    compile project(':processes:import-jaxb-dc')
+    api project(':security:security-core')
+    api project(':shared:common')
 
-    compile 'commons-codec:commons-codec:1.5'
-    compile 'org.safehaus.jug:jug:2.0.0:lgpl@jar'
+    api project(':processes:import')
+    api project(':processes:import-jaxb')
+    api project(':processes:import-jaxb-periodical')
+    api project(':processes:import-jaxb-monograph')
+    api project(':processes:import-jaxb-srwdc')
+    api project(':processes:import-jaxb-alto')
+    api project(':processes:import-jaxb-mets')
+    api project(':processes:import-jaxb-mods')
+    api project(':processes:import-jaxb-dc')
+
+    api 'commons-codec:commons-codec:1.5'
+    api 'org.safehaus.jug:jug:2.0.0:lgpl@jar'
 }
 
 

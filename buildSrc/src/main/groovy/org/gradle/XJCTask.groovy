@@ -2,6 +2,7 @@ package org.gradle
 
 import org.gradle.api.file.*;
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.artifacts.*;
 
@@ -33,12 +34,17 @@ public class XJCTask extends DefaultTask {
 	public static final String DEFAULT_PACKAGE_NAME="com.qbizm.kramerius.imp.jaxb";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(XJCTask.class);
-	
-    
+
+
 	private FileCollection xjcClasspath;
+
 	private File outputDirectory;
+	@Input
 	private String packageName = DEFAULT_PACKAGE_NAME;
+	@Input
 	private List<File> xsds = new ArrayList<File>();
+	@Input
+	@org.gradle.api.tasks.Optional
 	private String catalog;
 		
 	

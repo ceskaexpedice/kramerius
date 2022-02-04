@@ -2,11 +2,11 @@ description "NKP logs"
 
 
 dependencies {
-    compile project(':shared:common')
-    compile project(':processes:import')
+    implementation project(':shared:common')
+    implementation project(':processes:import')
 
-    compile 'org.json:json:20140107'
-    compile 'commons-codec:commons-codec:1.5'
+    implementation 'org.json:json:20140107'
+    implementation 'commons-codec:commons-codec:1.5'
 
 }
 
