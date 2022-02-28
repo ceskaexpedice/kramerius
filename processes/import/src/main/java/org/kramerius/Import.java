@@ -68,7 +68,7 @@ public class Import {
     private static Unmarshaller unmarshaller = null;
     private static Marshaller datastreamMarshaller = null;
 
-    private static List<String> rootModels = null;
+    private static List<String> classicRootModels = null; //top-level models, not including convolutes
     private static SortingService sortingService;
     private static Map<String, List<String>> updateMap = new HashMap<String, List<String>>();
 
@@ -82,9 +82,9 @@ public class Import {
             log.log(Level.SEVERE, "Cannot init JAXB", e);
             throw new RuntimeException(e);
         }
-        rootModels = Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.topLevelModels"));
-        if (rootModels == null) {
-            rootModels = new ArrayList<String>();
+        classicRootModels = Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.topLevelModels"));
+        if (classicRootModels == null) {
+            classicRootModels = new ArrayList<>();
         }
     }
 
@@ -164,10 +164,11 @@ public class Import {
 
             initialize(user, pwd);
 
-            Set<TitlePidTuple> roots = new HashSet<TitlePidTuple>();
+            Set<TitlePidTuple> classicRoots = new HashSet<TitlePidTuple>();
+            Set<TitlePidTuple> convolutes = new HashSet<TitlePidTuple>();
             Set<String> sortRelations = new HashSet<String>();
             if (importFile.isDirectory()) {
-                visitAllDirsAndFiles(fa, importFile, roots, sortRelations, updateExisting);
+                visitAllDirsAndFiles(fa, importFile, classicRoots, convolutes, sortRelations, updateExisting);
             } else {
                 BufferedReader reader = null;
                 try {
@@ -191,7 +192,7 @@ public class Import {
                             continue;
                         }
                         log.info("Importing " + importItem.getAbsolutePath());
-                        visitAllDirsAndFiles(fa, importItem, roots, sortRelations, updateExisting);
+                        visitAllDirsAndFiles(fa, importItem, classicRoots, convolutes, sortRelations, updateExisting);
                     }
                     reader.close();
                 } catch (IOException e) {
@@ -218,7 +219,7 @@ public class Import {
             }
 
             if (startIndexer) {
-                if (roots.isEmpty()) {
+                if (classicRoots.isEmpty()) {
                     log.info("NO ROOT OBJECTS FOR INDEXING FOUND.");
                 } else {
                     try {
@@ -228,10 +229,31 @@ public class Import {
                         Thread.sleep(Integer.parseInt(waitIndexerProperty));
 
                         if (authToken != null) {
-                            for (TitlePidTuple root : roots) {
+                            for (TitlePidTuple root : classicRoots) {
                                 IndexationScheduler.scheduleIndexation(root.pid, root.title, true, authToken);
                             }
                             log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
+                        } else {
+                            log.warning("cannot schedule indexation due to missing process credentials");
+                        }
+                    } catch (Exception e) {
+                        log.log(Level.WARNING, e.getMessage(), e);
+                    }
+                }
+                if (convolutes.isEmpty()) {
+                    log.info("NO CONVOLUTES FOR INDEXING FOUND.");
+                } else {
+                    try {
+                        String waitIndexerProperty = System.getProperties().containsKey("ingest.startIndexer.wait") ? System.getProperty("ingest.startIndexer.wait") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer.wait", "1000");
+                        // should wait
+                        log.info("Waiting for soft commit :" + waitIndexerProperty + " s");
+                        Thread.sleep(Integer.parseInt(waitIndexerProperty));
+
+                        if (authToken != null) {
+                            for (TitlePidTuple convolute : convolutes) {
+                                IndexationScheduler.scheduleIndexation(convolute.pid, convolute.title, false, authToken);
+                            }
+                            log.info("ALL CONVOLUTES SCHEDULED FOR INDEXING.");
                         } else {
                             log.warning("cannot schedule indexation due to missing process credentials");
                         }
@@ -259,7 +281,7 @@ public class Import {
         of = new ObjectFactory();
     }
 
-    private static void visitAllDirsAndFiles(FedoraAccess fa, File importFile, Set<TitlePidTuple> roots, Set<String> sortRelations, boolean updateExisting) {
+    private static void visitAllDirsAndFiles(FedoraAccess fa, File importFile, Set<TitlePidTuple> classicRoots, Set<TitlePidTuple> convolutes, Set<String> sortRelations, boolean updateExisting) {
         if (importFile == null) {
             return;
         }
@@ -278,7 +300,7 @@ public class Import {
                 Arrays.sort(children);
             }
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(fa, children[i], roots, sortRelations, updateExisting);
+                visitAllDirsAndFiles(fa, children[i], classicRoots, convolutes, sortRelations, updateExisting);
             }
         } else {
             DigitalObject dobj = null;
@@ -363,17 +385,18 @@ public class Import {
                             }
                         }
                     }
-                    if (roots != null) {
+                    if (classicRoots != null) {
                         TitlePidTuple npt = new TitlePidTuple("", dobj.getPID());
-                        roots.add(npt);
+                        classicRoots.add(npt);
                         log.info("Added updated object for indexing:" + dobj.getPID());
+                        //NOTE: inefficient for updated convolutes, everyting new/changed inside it will be indexed twice
                     }
                 } else {
                     final DigitalObject transactionDigitalObject = dobj;
 
-                    ingest(fa.getInternalAPI(), importFile, transactionDigitalObject.getPID(), sortRelations, roots, updateExisting);
-                    checkRoot(transactionDigitalObject, roots);
-
+                    ingest(fa.getInternalAPI(), importFile, transactionDigitalObject.getPID(), sortRelations, classicRoots, updateExisting);
+                    checkModelIsClassicRoot(transactionDigitalObject, classicRoots);
+                    checkModelIsConvolute(transactionDigitalObject, convolutes);
                 }
             } catch (Throwable t) {
                 log.severe("Error when ingesting PID: " + dobj.getPID() + ", " + t.getMessage());
@@ -750,11 +773,12 @@ public class Import {
     /**
      * Parse FOXML file and if it has model in fedora.topLevelModels, add its
      * PID to roots list. Objects in the roots list then will be submitted to
-     * indexer
+     * Indexer (whole-tree indexation).
+     * Note that object might not be actual root, when it is part of a convolute,
+     * but here it is still considered a root.
      */
-    private static void checkRoot(DigitalObject dobj, Set<TitlePidTuple> roots) {
+    private static void checkModelIsClassicRoot(DigitalObject dobj, Set<TitlePidTuple> roots) {
         try {
-
             boolean isRootObject = false;
             String title = "";
             for (DatastreamType ds : dobj.getDatastream()) {
@@ -784,7 +808,7 @@ public class Import {
                                 String type = types.item(i).getAttributes().getNamedItemNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").getNodeValue();
                                 if (type.startsWith("info:fedora/model:")) {
                                     String model = type.substring(18);//get the string after info:fedora/model:
-                                    isRootObject = rootModels.contains(model);
+                                    isRootObject = classicRootModels.contains(model);
                                 }
                             }
                         }
@@ -796,7 +820,7 @@ public class Import {
                 TitlePidTuple npt = new TitlePidTuple(title, dobj.getPID());
                 if (roots != null) {
                     roots.add(npt);
-                    log.info("Found object for indexing - " + npt);
+                    log.info("Found (root) object for indexing - " + npt);
                 }
             }
 
@@ -804,6 +828,63 @@ public class Import {
             log.log(Level.WARNING, "Error in Ingest.checkRoot for file " + dobj.getPID() + ", file cannot be checked for auto-indexing : " + ex);
         }
     }
+
+    /**
+     * Parse FOXML file and if it has model "convolute", add its
+     * PID to convolutes list. Objects in the convolutes list then will be submitted to
+     * Indexer (object-only indexation)
+     */
+    private static void checkModelIsConvolute(DigitalObject dobj, Set<TitlePidTuple> convolutes) {
+        try {
+            boolean isConvolute = false;
+            String title = "";
+            for (DatastreamType ds : dobj.getDatastream()) {
+                if ("DC".equals(ds.getID())) {//obtain title from DC stream
+                    List<DatastreamVersionType> versions = ds.getDatastreamVersion();
+                    if (versions != null) {
+                        DatastreamVersionType v = versions.get(versions.size() - 1);
+                        XmlContentType dcxml = v.getXmlContent();
+                        List<Element> elements = dcxml.getAny();
+                        for (Element el : elements) {
+                            NodeList titles = el.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "title");
+                            if (titles.getLength() > 0) {
+                                title = titles.item(0).getTextContent();
+                            }
+                        }
+                    }
+                }
+                if ("RELS-EXT".equals(ds.getID())) { //check for root model in RELS-EXT
+                    List<DatastreamVersionType> versions = ds.getDatastreamVersion();
+                    if (versions != null) {
+                        DatastreamVersionType v = versions.get(versions.size() - 1);
+                        XmlContentType dcxml = v.getXmlContent();
+                        List<Element> elements = dcxml.getAny();
+                        for (Element el : elements) {
+                            NodeList types = el.getElementsByTagNameNS("info:fedora/fedora-system:def/model#", "hasModel");
+                            for (int i = 0; i < types.getLength(); i++) {
+                                String type = types.item(i).getAttributes().getNamedItemNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").getNodeValue();
+                                if (type.startsWith("info:fedora/model:")) {
+                                    String model = type.substring(18);//get the string after info:fedora/model:
+                                    isConvolute = "convolute".equals(model);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (isConvolute) {
+                TitlePidTuple npt = new TitlePidTuple(title, dobj.getPID());
+                if (convolutes != null) {
+                    convolutes.add(npt);
+                    log.info("Found (convolute) object for indexing - " + npt);
+                }
+            }
+
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Error in Ingest.checkRoot for file " + dobj.getPID() + ", file cannot be checked for auto-indexing : " + ex);
+        }
+    }
+
 
     /**
      * Checks if fedora contains object with given PID

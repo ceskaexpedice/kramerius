@@ -7,11 +7,11 @@ package cz.incad.kramerius;
 
 /**
  * This enums contains all models used in kramerius
+ *
  * @author Administrator
  */
 @Deprecated
 public enum KrameriusModels {
-
 
     MONOGRAPH("monograph"),
     MONOGRAPHUNIT("monographunit"),
@@ -33,40 +33,45 @@ public enum KrameriusModels {
     ARCHIVE("archive"),
     SOUNDRECORDING("soundrecording"),
     SOUNDUNIT("soundunit"),
-    TRACK("track");
+    TRACK("track"),
+    CONVOLUTE("convolute");
 
     private KrameriusModels(String value) {
-		this.value = value;
-	}
+        this.value = value;
+    }
+
     private String value;
 
     /**
      * Returns raw value
+     *
      * @return
      */
-	public String getValue() {
-		return value;
-	}
+    public String getValue() {
+        return value;
+    }
 
-	/**
-	 * Parsing enum object from given raw string 
-	 * @param s raw string
-	 * @return parsed enum object
-	 */
-	public static KrameriusModels parseString(String s) {
-		KrameriusModels[] values = values();
-		for (KrameriusModels model : values) {
-			if (model.getValue().equalsIgnoreCase(s)) return model;
-		}
+    /**
+     * Parsing enum object from given raw string
+     *
+     * @param s raw string
+     * @return parsed enum object
+     */
+    public static KrameriusModels parseString(String s) {
+        KrameriusModels[] values = values();
+        for (KrameriusModels model : values) {
+            if (model.getValue().equalsIgnoreCase(s)) return model;
+        }
         throw new RuntimeException("Unsupported type");
     }
-	
-	/**
-	 * String representation method
-	 * @param km enum object instance
-	 * @return string representation
-	 */
-	public static String toString(KrameriusModels km) {
-    	return km.getValue();
+
+    /**
+     * String representation method
+     *
+     * @param km enum object instance
+     * @return string representation
+     */
+    public static String toString(KrameriusModels km) {
+        return km.getValue();
     }
 }

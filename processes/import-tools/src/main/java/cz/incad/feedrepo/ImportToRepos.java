@@ -51,6 +51,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
+//FIXME: looks like duplicate of org.kramerius.Import, is it still used or can we remove it? Also not correctly indexing Convolutes
 public class ImportToRepos {
 
     static ObjectFactory of;

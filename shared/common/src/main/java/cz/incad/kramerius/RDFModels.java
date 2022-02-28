@@ -6,41 +6,40 @@ package cz.incad.kramerius;
 
 
 /**
- *
  * @author Administrator
  */
 
 
-
 public class RDFModels {
 
-    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-            .getLogger(RDFModels.class.getName());
-
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(RDFModels.class.getName());
 
     public static KrameriusModels convertRDFToModel(String rdf) {
-        if(rdf.contains("hasPage")){
-                return KrameriusModels.PAGE;
-        }else if(rdf.contains("hasUnit")){
-                return KrameriusModels.MONOGRAPHUNIT;
-        }else if(rdf.contains("hasVolume")){
-                return KrameriusModels.PERIODICALVOLUME;
-        }else if(rdf.contains("hasItem")){
-                return KrameriusModels.PERIODICALITEM;
-        }else if(rdf.contains("hasIntCompPart")){
-                return KrameriusModels.INTERNALPART;
-        }else if(rdf.contains("isOnPage")){
-                return KrameriusModels.PAGE;
-        }else if(rdf.contains("hasDonator")){
-                return KrameriusModels.DONATOR;
-        }else{
-            //System.out.println("Unfffsupported rdf: " + rdf);
+        if (rdf.contains("hasPage")) {
+            return KrameriusModels.PAGE;
+        } else if (rdf.contains("hasUnit")) {
+            //return KrameriusModels.MONOGRAPHUNIT;
+            throw new RuntimeException("relation hasUnit doesn't uniquely determine target object"); //it can be: monograph -hasUnit-> monographUnit, but also: convolute -hasUnit-> monograph, or: convolute -hasUnit-> sheetmusic etc
+        } else if (rdf.contains("hasVolume")) {
+            return KrameriusModels.PERIODICALVOLUME;
+        } else if (rdf.contains("hasItem")) {
+            //return KrameriusModels.PERIODICALITEM;
+            throw new RuntimeException("relation hasItem doesn't uniquely determine target object"); //it can be: periodicalvolume -hasItem-> periodicalitem, but also: periodicalvolume -hasItem-> supplement etc
+        } else if (rdf.contains("hasIntCompPart")) {
+            //return KrameriusModels.INTERNALPART;
+            throw new RuntimeException("relation hasIntCompPart doesn't uniquely determine target object"); //it can be: periodicalitem -hasIntCompPart-> article, but also: periodicalitem -hasIntCompPart-> article
+        } else if (rdf.contains("isOnPage")) {
+            return KrameriusModels.PAGE;
+        } else if (rdf.contains("hasDonator")) {
+            return KrameriusModels.DONATOR;
+        } else {
+            //System.out.println("Unsupported rdf: " + rdf);
             return null;
         }
     }
 
-    public static String convertToRdf(KrameriusModels km){
-        switch(km){
+    public static String convertToRdf(KrameriusModels km) {
+        switch (km) {
             case MONOGRAPH:
                 return "monograph";
             case MONOGRAPHUNIT:
