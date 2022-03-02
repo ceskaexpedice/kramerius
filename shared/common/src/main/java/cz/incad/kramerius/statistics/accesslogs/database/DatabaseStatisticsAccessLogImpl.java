@@ -1,21 +1,21 @@
 /*
  * Copyright (C) 2012 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package cz.incad.kramerius.statistics.accesslogs.database;
 
@@ -88,7 +88,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
     @Inject
     @Named("new-index")
     SolrAccess solrAccess;
-    
+
     @Inject
     @Named("cachedFedoraAccess")
     FedoraAccess fedoraAccess;
@@ -98,10 +98,10 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;
-    
+
     @Inject
     Provider<User> userProvider;
-    
+
     @Inject
     Set<StatisticReport> reports;
 
@@ -153,61 +153,66 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                     final String detailPid = pathFromLeafToRoot[j];
 
                     String kModel = fedoraAccess.getKrameriusModelName(detailPid);
-                    Document dc = fedoraAccess.getDC(detailPid);
-                    Document sDoc = this.solrAccess.getSolrDataByPid(pid);
-
-                    Object dateFromDC = DCUtils.dateFromDC(dc);
-                    dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);
-
-                    Object dateFromSolr = SElemUtils.selem("str", "datum_str", solrDoc);
-                    dateFromSolr = dateFromSolr != null ? dateFromSolr :  new JDBCUpdateTemplate.NullObject(String.class);
-
-                    Object languageFromDc = DCUtils.languageFromDC(dc);
-                    languageFromDc = languageFromDc != null ? languageFromDc : new JDBCUpdateTemplate.NullObject(String.class);
-                                      
-                    Object title = DCUtils.titleFromDC(dc);
-                    title = title != null ? title : new JDBCUpdateTemplate.NullObject(String.class);
-
-                    Object rights = DCUtils.rightsFromDC(dc);
-                    rights = rights != null ? rights : new JDBCUpdateTemplate.NullObject(String.class);
-
-                    Document mods =  fedoraAccess.getBiblioMods(detailPid);
-                    List<String> languagesFromMods = null;
-
-                    Map<String, List<String>> identifiers = null;
+                    //Document sDoc = this.solrAccess.getSolrDataByPid(pid);
+                    Document dc = null;
                     try {
-                        identifiers = ModsUtils.identifiersFromMods(mods);
-                    } catch (XPathExpressionException e) {
-                        Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+                        dc = fedoraAccess.getDC(detailPid);
+                    } catch (IOException e) {
+                        LOGGER.warning("datastream DC not found for " + detailPid + ", ignoring statistics");
                     }
+                    if (dc != null) {
+                        Object dateFromDC = DCUtils.dateFromDC(dc);
+                        dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);
 
-                    try {
-                        languagesFromMods = ModsUtils.languagesFromMods(mods);
-                    } catch (XPathExpressionException ex) {
-                        Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    }
-                    
-                    if (!languagesFromMods.isEmpty()) {
-                        for (String languageFromMods : languagesFromMods) {
-                            InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, dateFromSolr, languageFromMods, title, identifiers, pathIndex);
+                        Object dateFromSolr = SElemUtils.selem("str", "datum_str", solrDoc);
+                        dateFromSolr = dateFromSolr != null ? dateFromSolr : new JDBCUpdateTemplate.NullObject(String.class);
+
+                        Object languageFromDc = DCUtils.languageFromDC(dc);
+                        languageFromDc = languageFromDc != null ? languageFromDc : new JDBCUpdateTemplate.NullObject(String.class);
+
+                        Object title = DCUtils.titleFromDC(dc);
+                        title = title != null ? title : new JDBCUpdateTemplate.NullObject(String.class);
+
+                        Object rights = DCUtils.rightsFromDC(dc);
+                        rights = rights != null ? rights : new JDBCUpdateTemplate.NullObject(String.class);
+
+                        Document mods = fedoraAccess.getBiblioMods(detailPid);
+                        List<String> languagesFromMods = null;
+
+                        Map<String, List<String>> identifiers = null;
+                        try {
+                            identifiers = ModsUtils.identifiersFromMods(mods);
+                        } catch (XPathExpressionException e) {
+                            Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+                        }
+
+                        try {
+                            languagesFromMods = ModsUtils.languagesFromMods(mods);
+                        } catch (XPathExpressionException ex) {
+                            Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        }
+
+                        if (!languagesFromMods.isEmpty()) {
+                            for (String languageFromMods : languagesFromMods) {
+                                InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, dateFromSolr, languageFromMods, title, identifiers, pathIndex);
+                                commands.add(insertDetail);
+                            }
+                        } else {
+                            InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, dateFromSolr, languageFromDc, title, identifiers, pathIndex);
                             commands.add(insertDetail);
                         }
-                    }
-                    else {
-                        InsertDetail insertDetail = new InsertDetail(detailPid, kModel, rights, dateFromDC, dateFromSolr, languageFromDc, title, identifiers, pathIndex);
-                        commands.add(insertDetail);
-                    }
 
-                    String[] creatorsFromDC = DCUtils.creatorsFromDC(dc);
-                    for (String cr : creatorsFromDC) {
-                        InsertAuthor insertAuth = new InsertAuthor(cr);
-                        commands.add(insertAuth);
-                    }
+                        String[] creatorsFromDC = DCUtils.creatorsFromDC(dc);
+                        for (String cr : creatorsFromDC) {
+                            InsertAuthor insertAuth = new InsertAuthor(cr);
+                            commands.add(insertAuth);
+                        }
 
-                    String[] publishersFromDC = DCUtils.publishersFromDC(dc);
-                    for (String p : publishersFromDC) {
-                        InsertPublisher inserPublisher = new InsertPublisher(p);
-                        commands.add(inserPublisher);
+                        String[] publishersFromDC = DCUtils.publishersFromDC(dc);
+                        for (String p : publishersFromDC) {
+                            InsertPublisher inserPublisher = new InsertPublisher(p);
+                            commands.add(inserPublisher);
+                        }
                     }
                 }
             }
@@ -224,8 +229,6 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
     }
 
 
-
-
     @Override
     public void reportAccess(String pid, String streamName, String actionName) throws IOException {
         ReportedAction action = ReportedAction.valueOf(actionName);
@@ -234,12 +237,10 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
     }
 
 
-
     @Override
     public boolean isReportingAccess(String pid, String streamName) {
-        return streamName.equals(ImageStreams.IMG_FULL.name()) || streamName.equals(ImageStreams.IMG_PREVIEW.name()); 
+        return streamName.equals(ImageStreams.IMG_FULL.name()) || streamName.equals(ImageStreams.IMG_PREVIEW.name());
     }
-    
 
 
     @Override
@@ -249,9 +250,9 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
         String sql = records.toString();
 
         new JDBCQueryTemplate<String>(this.connectionProvider.get()) {
-            
-            private int record_id=-1;
-            
+
+            private int record_id = -1;
+
             @Override
             public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
                 int record_id = rs.getInt("record_id");
@@ -262,7 +263,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                     processDetail(rs);
                 }
                 this.record_id = record_id;
-                
+
                 return super.handleRow(rs, returnsList);
             }
 
@@ -274,7 +275,8 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                 String lang = rs.getString("dlang");
                 String title = rs.getString("dtitle");
 
-                Map<String, Object> record = new HashMap<String, Object>(); {
+                Map<String, Object> record = new HashMap<String, Object>();
+                {
                     record.put("model", model);
                     record.put("pid", pid);
                     record.put("issued_date", issuedDate);
@@ -283,7 +285,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                     record.put("title", title);
                 }
                 sup.processDetailRecord(record);
-            } 
+            }
 
             private void processMaster(ResultSet rs) throws SQLException {
                 String pid = rs.getString("spid");
@@ -295,21 +297,22 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                 String sessionId = rs.getString("ssession_id");
 
 
-                Map<String, Object> record = new HashMap<String, Object>(); {
+                Map<String, Object> record = new HashMap<String, Object>();
+                {
                     record.put("pid", pid);
                     record.put("date", d);
                     record.put("remote_ip_address", remote);
                     record.put("user", user);
-                    record.put("action",action);
+                    record.put("action", action);
                     record.put("session_id", sessionId);
                     record.put("requested_url", requestedUrl);
                 }
                 sup.processMainRecord(record);
-                
+
             }
-            
+
         }.executeQuery(sql);
-        
+
     }
 
     @Override
@@ -326,13 +329,13 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
     }
 
     public static String disectedURL(Provider<HttpServletRequest> requestProvider) {
-        String url = requestProvider.get().getRequestURL().toString() +"?"+requestProvider.get().getQueryString();
+        String url = requestProvider.get().getRequestURL().toString() + "?" + requestProvider.get().getQueryString();
         return url;
     }
-    
- 
+
+
     public static class InsertRecord extends JDBCCommand {
-        
+
         private LoggedUsersSingleton loggedUserSingleton;
         private Provider<HttpServletRequest> requestProvider;
         private Provider<User> userProvider;
@@ -348,7 +351,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
         private String[] dnnt_labels;
 
-        public InsertRecord(String pid,LoggedUsersSingleton loggedUserSingleton, Provider<HttpServletRequest> requestProvider, Provider<User> userProvider, ReportedAction action, boolean dnnt, boolean providedByDnnt, Map evaulateMap, Map userSesionAttributes, String dbversion, List<String> dnnt_labels) {
+        public InsertRecord(String pid, LoggedUsersSingleton loggedUserSingleton, Provider<HttpServletRequest> requestProvider, Provider<User> userProvider, ReportedAction action, boolean dnnt, boolean providedByDnnt, Map evaulateMap, Map userSesionAttributes, String dbversion, List<String> dnnt_labels) {
             super();
             this.loggedUserSingleton = loggedUserSingleton;
             this.requestProvider = requestProvider;
@@ -368,39 +371,36 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
         }
 
 
-
-
         public Object executeJDBCCommand(Connection con) throws SQLException {
             Map<String, Integer> previousResult = (Map<String, Integer>) getPreviousResult();
             if (previousResult == null) previousResult = new HashMap<String, Integer>();
-            
+
             final StringTemplate statRecord = stGroup.getInstanceOf("insertStatisticRecord");
             String sessionId = requestProvider.get().getSession().getId();
             boolean logged = loggedUserSingleton.isLoggedUser(requestProvider);
             Object user = logged ? userProvider.get().getLoginname() : new JDBCUpdateTemplate.NullObject(String.class);
 
             String url = disectedURL(requestProvider); //requestProvider.get().getRequestURL().toString() +"?"+requestProvider.get().getQueryString();
-            int record_id  = new JDBCUpdateTemplate(con, false)
-                .executeUpdate(
-                    statRecord.toString(),
-                    pid,
-                    new java.sql.Timestamp(System.currentTimeMillis()),
-                    requestProvider.get().getRemoteAddr(),
-                    user,
-                    url,
-                    action != null ? action.name() : ReportedAction.READ.name() ,
-                    sessionId,
-                    dnnt,
-                    providedByDnnt,
-                    evaluateMap != null && !evaluateMap.isEmpty() ?  new JSONObject(evaluateMap).toString() : new JDBCUpdateTemplate.NullObject(String.class),
-                    userSesionAttributes != null && !userSesionAttributes.isEmpty() ? new JSONObject(userSesionAttributes).toString() :new JDBCUpdateTemplate.NullObject(String.class),
-                    dbversion,
-                    dnnt_labels
-            );
+            int record_id = new JDBCUpdateTemplate(con, false)
+                    .executeUpdate(
+                            statRecord.toString(),
+                            pid,
+                            new java.sql.Timestamp(System.currentTimeMillis()),
+                            requestProvider.get().getRemoteAddr(),
+                            user,
+                            url,
+                            action != null ? action.name() : ReportedAction.READ.name(),
+                            sessionId,
+                            dnnt,
+                            providedByDnnt,
+                            evaluateMap != null && !evaluateMap.isEmpty() ? new JSONObject(evaluateMap).toString() : new JDBCUpdateTemplate.NullObject(String.class),
+                            userSesionAttributes != null && !userSesionAttributes.isEmpty() ? new JSONObject(userSesionAttributes).toString() : new JDBCUpdateTemplate.NullObject(String.class),
+                            dbversion,
+                            dnnt_labels
+                    );
 
 
             previousResult.put("record_id", new Integer(record_id));
-
 
 
             return previousResult;
@@ -416,13 +416,13 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
         private Object date = null;
         private Object solrDate = null;
         private int pathIndex = 0;
-        private Object rights=null;
+        private Object rights = null;
 
         private String[] isbn = new String[0];
-        private String[] issn  = new String[0];
-        private String[] ccnb  = new String[0];
+        private String[] issn = new String[0];
+        private String[] ccnb = new String[0];
 
-        public InsertDetail(String detailPid, String kModel,Object rights ,Object date, Object solrDate, Object language, Object title, Map<String,List<String>> modsIdents, int pathIndex) {
+        public InsertDetail(String detailPid, String kModel, Object rights, Object date, Object solrDate, Object language, Object title, Map<String, List<String>> modsIdents, int pathIndex) {
             super();
             this.detailPid = detailPid;
             this.kModel = kModel;
@@ -434,13 +434,13 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             this.solrDate = solrDate;
 
             if (modsIdents.containsKey(ISBN_MODS_KEY)) {
-                isbn = modsIdents.get(ISBN_MODS_KEY).toArray(new String[ modsIdents.get(ISBN_MODS_KEY).size() ]);
+                isbn = modsIdents.get(ISBN_MODS_KEY).toArray(new String[modsIdents.get(ISBN_MODS_KEY).size()]);
             }
             if (modsIdents.containsKey(ISSN_MODS_KEY)) {
-                issn =  modsIdents.get(ISSN_MODS_KEY).toArray(new String[ modsIdents.get(ISSN_MODS_KEY).size() ]);
+                issn = modsIdents.get(ISSN_MODS_KEY).toArray(new String[modsIdents.get(ISSN_MODS_KEY).size()]);
             }
             if (modsIdents.containsKey(CCNB_MODS_KEY)) {
-                ccnb = modsIdents.get(CCNB_MODS_KEY).toArray(new String[ modsIdents.get(CCNB_MODS_KEY).size() ]);
+                ccnb = modsIdents.get(CCNB_MODS_KEY).toArray(new String[modsIdents.get(CCNB_MODS_KEY).size()]);
             }
         }
 
@@ -453,17 +453,17 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             String sql = detail.toString();
             int record_id = previousResult.get("record_id");
 
-            int detail_id  = new JDBCUpdateTemplate(con, false)
-                .executeUpdate(sql, detailPid, kModel, date, solrDate, rights , language, title, pathIndex,record_id, issn, isbn, ccnb);
-            
+            int detail_id = new JDBCUpdateTemplate(con, false)
+                    .executeUpdate(sql, detailPid, kModel, date, solrDate, rights, language, title, pathIndex, record_id, issn, isbn, ccnb);
+
             previousResult.put("detail_id", detail_id);
-            
+
             return previousResult;
-        } 
+        }
     }
 
     public static class InsertAuthor extends JDBCCommand {
-        
+
         private String authorName;
 
         public InsertAuthor(String authorName) {
@@ -481,10 +481,10 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             String sql = detail.toString();
             int record_id = previousResult.get("record_id");
             int detail_id = previousResult.get("detail_id");
-            
+
             new JDBCUpdateTemplate(con, false)
-            .executeUpdate(sql, this.authorName, detail_id, record_id);
-            
+                    .executeUpdate(sql, this.authorName, detail_id, record_id);
+
             return previousResult;
         }
     }
@@ -516,9 +516,10 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             return previousResult;
         }
     }
-    
+
 
     public static StringTemplateGroup stGroup;
+
     static {
         InputStream is = DatabaseStatisticsAccessLogImpl.class.getResourceAsStream("res/statistics.stg");
         stGroup = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);

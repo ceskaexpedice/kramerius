@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
-public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
+public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
     public static final String PUBLISHERS_KEY = "publishers";
     public static final String DNNT_LABELS_KEY = "dnnt-labels";
@@ -80,8 +80,8 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(null, solrDoc);
         ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(solrDoc);
 
-        String rootTitle  = SElemUtils.selem("str", "root.title", solrDoc);
-        String rootPid  = SElemUtils.selem("str", "root.pid", solrDoc);
+        String rootTitle = SElemUtils.selem("str", "root.title", solrDoc);
+        String rootPid = SElemUtils.selem("str", "root.pid", solrDoc);
         String dctitle = SElemUtils.selem("str", "title.search", solrDoc);
         String solrDate = SElemUtils.selem("str", "date.str", solrDoc);
         //String dnnt = SElemUtils.selem("bool", "dnnt", solrDoc);
@@ -100,7 +100,7 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
     }
 
 
-    public static  List<String> solrAuthors(String rootPid, SolrAccess solrAccess) throws IOException {
+    public static List<String> solrAuthors(String rootPid, SolrAccess solrAccess) throws IOException {
         List<String> sAuthors = new ArrayList<>();
         if (rootPid != null) {
             Document rootSolrDoc = solrAccess.getSolrDataByPid(rootPid);
@@ -121,7 +121,7 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
         return sAuthors;
     }
 
-    public static  List<String> dcPublishers(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) throws IOException {
+    public static List<String> dcPublishers(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) throws IOException {
         List<String> dcPublishers = new ArrayList<>();
         for (int i = 0, ll = paths.length; i < ll; i++) {
             if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -131,12 +131,18 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
             String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
             for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                 final String detailPid = pathFromLeafToRoot[j];
-                Document document = fedoraAccess.getDC(detailPid);
-
-                List<String> collected = Arrays.stream(DCUtils.publishersFromDC(document)).map(it -> {
-                    return it.replaceAll("\\r?\\n", " ");
-                }).collect(Collectors.toList());
-                dcPublishers.addAll(collected);
+                Document dc = null;
+                try {
+                    dc = fedoraAccess.getDC(detailPid);
+                } catch (IOException e) {
+                    LOGGER.warning("datastream DC not found for " + detailPid + ", ignoring statistics");
+                }
+                if (dc != null) {
+                    List<String> collected = Arrays.stream(DCUtils.publishersFromDC(dc)).map(it -> {
+                        return it.replaceAll("\\r?\\n", " ");
+                    }).collect(Collectors.toList());
+                    dcPublishers.addAll(collected);
+                }
             }
         }
         return dcPublishers;
@@ -183,12 +189,12 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
 
     public static Map<String, List<String>> identifiers(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) throws IOException {
         try {
-            Map<String,List<String>> retmap = new HashMap<>();
+            Map<String, List<String>> retmap = new HashMap<>();
             for (ObjectPidsPath path : paths) {
                 String[] pathFromLeafToRoot = path.getPathFromLeafToRoot();
                 for (String detailPid : pathFromLeafToRoot) {
                     Map<String, List<String>> map = ModsUtils.identifiersFromMods(fedoraAccess.getBiblioMods(detailPid));
-                    Arrays.asList(ISBN_MODS_KEY,ISSN_MODS_KEY,CCNB_MODS_KEY).stream().forEach(key-> {
+                    Arrays.asList(ISBN_MODS_KEY, ISSN_MODS_KEY, CCNB_MODS_KEY).stream().forEach(key -> {
                         if (map.containsKey(key)) {
                             if (retmap.containsKey(key)) {
                                 retmap.get(key).addAll(map.get(key));
@@ -234,7 +240,7 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
                     ObjectModelsPath[] mpaths, Map<String, List<String>> identifiers, List<String> labels) throws IOException {
         User user = this.userProvider.get();
         RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
-        boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
+        boolean providedByDnnt = rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
 
         // store json object
         JSONObject jObject = toJSON(pid, rootTitle, dcTitle,
@@ -259,113 +265,119 @@ public class DNNTStatisticsAccessLogImpl  extends AbstractStatisticsAccessLog {
         DNNTStatisticsAccessLogImpl.KRAMERIUS_LOGGER_FOR_KIBANA.log(Level.INFO, jObject.toString());
     }
 
-    public static  JSONObject toJSON(String pid,
-                             String rootTitle,
-                             String dcTitle,
-                             String remoteAddr,
-                             String username,
-                             String email,
-                             String solrDate,
-                             String modsDate,
-                             String dnntFlag,
-                             boolean providedByDnnt,
-                             String policy,
-                             Map<String,String> rightEvaluationAttribute,
-                             Map<String,String> sessionAttributes,
-                             List<String> dcAuthors,
-                             List<String> dcPublishers,
-                             ObjectPidsPath[] paths,
-                             ObjectModelsPath[] mpaths,
-                             Map<String, List<String>> identifiers,
-                             List<String> labels
-                             ) throws IOException {
+    public static JSONObject toJSON(String pid,
+                                    String rootTitle,
+                                    String dcTitle,
+                                    String remoteAddr,
+                                    String username,
+                                    String email,
+                                    String solrDate,
+                                    String modsDate,
+                                    String dnntFlag,
+                                    boolean providedByDnnt,
+                                    String policy,
+                                    Map<String, String> rightEvaluationAttribute,
+                                    Map<String, String> sessionAttributes,
+                                    List<String> dcAuthors,
+                                    List<String> dcPublishers,
+                                    ObjectPidsPath[] paths,
+                                    ObjectModelsPath[] mpaths,
+                                    Map<String, List<String>> identifiers,
+                                    List<String> labels
+    ) throws IOException {
 
         LocalDateTime date = LocalDateTime.now();
         String timestamp = date.format(DateTimeFormatter.ISO_DATE_TIME);
 
         JSONObject jObject = new JSONObject();
 
-        jObject.put("pid",pid);
-        jObject.put("remoteAddr",remoteAddr);
-        jObject.put("username",username);
-        jObject.put("email",email);
+        jObject.put("pid", pid);
+        jObject.put("remoteAddr", remoteAddr);
+        jObject.put("username", username);
+        jObject.put("email", email);
 
-        jObject.put("rootTitle",rootTitle);
-        jObject.put("dcTitle",dcTitle);
+        jObject.put("rootTitle", rootTitle);
+        jObject.put("dcTitle", dcTitle);
 
-        if (dnntFlag != null )  jObject.put(DNNT_KEY, dnntFlag.trim().toLowerCase().equals("true"));
+        if (dnntFlag != null) jObject.put(DNNT_KEY, dnntFlag.trim().toLowerCase().equals("true"));
 
         // info from criteriums
-        rightEvaluationAttribute.keySet().stream().forEach(key->{ jObject.put(key, rightEvaluationAttribute.get(key)); });
+        rightEvaluationAttribute.keySet().stream().forEach(key -> {
+            jObject.put(key, rightEvaluationAttribute.get(key));
+        });
 
         jObject.put(PROVIDED_BY_DNNT_KEY, providedByDnnt);
         jObject.put(POLICY_KEY, policy);
 
 
-        if (solrDate != null)  jObject.put(SOLR_DATE_KEY, solrDate);
+        if (solrDate != null) jObject.put(SOLR_DATE_KEY, solrDate);
         if (modsDate != null) jObject.put("publishedDate", modsDate);
 
 
-        jObject.put("date",timestamp);
+        jObject.put("date", timestamp);
 
-        sessionAttributes.keySet().stream().forEach(key->{ jObject.put(key, sessionAttributes.get(key)); });
+        sessionAttributes.keySet().stream().forEach(key -> {
+            jObject.put(key, sessionAttributes.get(key));
+        });
 
 
         if (!dcAuthors.isEmpty()) {
             JSONArray authorsArray = new JSONArray();
-            for (int i=0,ll=dcAuthors.size();i<ll;i++) {
+            for (int i = 0, ll = dcAuthors.size(); i < ll; i++) {
                 authorsArray.put(dcAuthors.get(i));
             }
-            jObject.put(AUTHORS_KEY,authorsArray);
+            jObject.put(AUTHORS_KEY, authorsArray);
         }
 
         if (!dcPublishers.isEmpty()) {
             JSONArray publishersArray = new JSONArray();
-            for (int i=0,ll=dcPublishers.size();i<ll;i++) {
+            for (int i = 0, ll = dcPublishers.size(); i < ll; i++) {
                 publishersArray.put(dcPublishers.get(i));
             }
-            jObject.put(PUBLISHERS_KEY,publishersArray);
+            jObject.put(PUBLISHERS_KEY, publishersArray);
         }
 
         if (!labels.isEmpty()) {
 
             JSONArray solrLabels = new JSONArray();
-            for (int i=0,ll=labels.size();i<ll;i++) {
+            for (int i = 0, ll = labels.size(); i < ll; i++) {
                 solrLabels.put(labels.get(i));
             }
-            jObject.put(DNNT_LABELS_KEY,solrLabels);
+            jObject.put(DNNT_LABELS_KEY, solrLabels);
         }
 
         JSONArray pidsArray = new JSONArray();
         for (int i = 0; i < paths.length; i++) {
             pidsArray.put(Arrays.stream(paths[i].getPathFromRootToLeaf()).collect(Collectors.joining("/")));
         }
-        jObject.put(PIDS_PATH_KEY,pidsArray);
+        jObject.put(PIDS_PATH_KEY, pidsArray);
 
         JSONArray modelsArray = new JSONArray();
         for (int i = 0; i < mpaths.length; i++) {
             modelsArray.put(Arrays.stream(mpaths[i].getPathFromRootToLeaf()).collect(Collectors.joining("/")));
         }
-        jObject.put(MODELS_PATH_KEY,modelsArray);
+        jObject.put(MODELS_PATH_KEY, modelsArray);
         if (paths.length > 0) {
             String[] pathFromRootToLeaf = paths[0].getPathFromRootToLeaf();
             if (pathFromRootToLeaf.length > 0) {
-                jObject.put(ROOT_PID_KEY,pathFromRootToLeaf[0]);
+                jObject.put(ROOT_PID_KEY, pathFromRootToLeaf[0]);
             }
         }
 
         if (mpaths.length > 0) {
             String[] mpathFromRootToLeaf = mpaths[0].getPathFromRootToLeaf();
             if (mpathFromRootToLeaf.length > 0) {
-                jObject.put(ROOT_MODEL_KEY,mpathFromRootToLeaf[0]);
+                jObject.put(ROOT_MODEL_KEY, mpathFromRootToLeaf[0]);
             }
         }
 
-        identifiers.keySet().forEach(key-> {jObject.put(key, identifiers.get(key).stream().filter(Objects::nonNull).distinct().collect(Collectors.toList()));});
+        identifiers.keySet().forEach(key -> {
+            jObject.put(key, identifiers.get(key).stream().filter(Objects::nonNull).distinct().collect(Collectors.toList()));
+        });
         return jObject;
     }
 
-    private  String getDate(DNNTStatisticsDateFormat dateFormat, String publishedDate)  {
+    private String getDate(DNNTStatisticsDateFormat dateFormat, String publishedDate) {
         if (dateFormat != null && publishedDate != null)
             return dateFormat.format(publishedDate);
         else
