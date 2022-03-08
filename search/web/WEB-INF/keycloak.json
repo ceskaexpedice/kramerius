@@ -5,7 +5,7 @@
   "resource": "krameriusClient",
   "verify-token-audience": false,
   "credentials": {
-    "secret": "kyPtgyMN7rFfPiJzgaaE90cpBryAQ4nG"
+    "secret": "changeme"
   },
   "confidential-port": 0,
   "policy-enforcer": {}
