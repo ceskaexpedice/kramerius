@@ -58,7 +58,7 @@ public class SetPolicyProcess {
         Scope scope = Scope.valueOf(args[argsIndex++]);
         Policy policy = Policy.valueOf(args[argsIndex++]);
         String pid = args[argsIndex++];
-        String title = mergeArraysEnd(args, argsIndex);
+        String title = shortenIfTooLong(mergeArraysEnd(args, argsIndex), 256);
         String scopeDesc = scope == Scope.OBJECT ? "jen objekt" : "objekt včetně potomků";
         if (title != null) {
             ProcessStarter.updateName(String.format("Změna viditelnosti %s (%s, %s, %s)", title, pid, policy, scopeDesc));
@@ -149,6 +149,7 @@ public class SetPolicyProcess {
         repository.updateDublinCore(pid, dc);
     }
 
+    //FIXME: duplicate code (same method in NewIndexerProcessIndexObject, SetPolicyProcess), use abstract/utility class, but not before bigger cleanup in process scheduling
     //["Quartet A minor", " op. 51", " no. 2. Andante moderato"] => "Quartet A minor, op. 51, no. 2 Andante moderato"
     private static String mergeArraysEnd(String[] args, int argsIndex) {
         String result = "";
@@ -163,6 +164,16 @@ public class SetPolicyProcess {
         }
         result = result.trim();
         return result.isEmpty() ? null : result;
+    }
+
+    //FIXME: duplicate code (same method in NewIndexerProcessIndexObject, SetPolicyProcess), use abstract/utility class, but not before bigger cleanup in process scheduling
+    private static String shortenIfTooLong(String string, int maxLength) {
+        if (string == null || string.isEmpty() || string.length() <= maxLength) {
+            return string;
+        } else {
+            String suffix = "...";
+            return string.substring(0, maxLength - suffix.length()) + suffix;
+        }
     }
 
     public enum Scope {

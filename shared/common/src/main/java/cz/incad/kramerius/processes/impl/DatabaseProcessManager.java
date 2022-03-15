@@ -158,12 +158,20 @@ public class DatabaseProcessManager implements LRProcessManager {
         Connection connection = null;
         try {
             connection = getConnectionOrThrowNotReadyException();
-            new JDBCUpdateTemplate(connection).executeUpdate("update processes set NAME = ? where UUID = ?", lrProcess.getProcessName(), lrProcess.getUUID());
+            new JDBCUpdateTemplate(connection).executeUpdate("update processes set NAME = ? where UUID = ?", shortenIfTooLong(lrProcess.getProcessName(), 512), lrProcess.getUUID());
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
+    private String shortenIfTooLong(String string, int maxLength) {
+        if (string == null || string.isEmpty() || string.length() <= maxLength) {
+            return string;
+        } else {
+            String suffix = "...";
+            return string.substring(0, maxLength - suffix.length()) + suffix;
+        }
+    }
 
     @Override
     public void deleteBatchLongRunningProcess(LRProcess longRunningProcess) {

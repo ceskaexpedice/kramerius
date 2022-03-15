@@ -60,7 +60,7 @@ public class NewIndexerProcessIndexObject {
         //["TREE_AND_FOSTER_TREES", "uuid:23345cf7-7e62-47e9-afad-018624a19ea6", "Quartet A minor, op. 51, no. 2. Andante moderato"] se pri registraci procesu ulozi a po jeho spusteni nacte jako:
         //["TREE_AND_FOSTER_TREES", "uuid:23345cf7-7e62-47e9-afad-018624a19ea6", "Quartet A minor", " op. 51", " no. 2. Andante moderato"]
         //proto nazev, co muze obsahovat carku, pouzivam jako posledni argument
-        String title = mergeArraysEnd(args, argsIndex);
+        String title = shortenIfTooLong(mergeArraysEnd(args, argsIndex), 256);
 
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
@@ -105,6 +105,7 @@ public class NewIndexerProcessIndexObject {
         });
     }
 
+    //FIXME: duplicate code (same method in NewIndexerProcessIndexObject, SetPolicyProcess), use abstract/utility class, but not before bigger cleanup in process scheduling
     //["Quartet A minor", " op. 51", " no. 2. Andante moderato"] => "Quartet A minor, op. 51, no. 2 Andante moderato"
     private static String mergeArraysEnd(String[] args, int argsIndex) {
         String result = "";
@@ -120,4 +121,15 @@ public class NewIndexerProcessIndexObject {
         result = result.trim();
         return result.isEmpty() ? null : result;
     }
+
+    //FIXME: duplicate code (same method in NewIndexerProcessIndexObject, SetPolicyProcess), use abstract/utility class, but not before bigger cleanup in process scheduling
+    private static String shortenIfTooLong(String string, int maxLength) {
+        if (string == null || string.isEmpty() || string.length() <= maxLength) {
+            return string;
+        } else {
+            String suffix = "...";
+            return string.substring(0, maxLength - suffix.length()) + suffix;
+        }
+    }
+
 }
