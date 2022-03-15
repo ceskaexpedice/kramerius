@@ -51,13 +51,14 @@ public abstract class ProcessUpdatingChannel {
         }
     }
 
-    public static class StandardProcessUpdatingChannel extends   ProcessUpdatingChannel {
+    public static class StandardProcessUpdatingChannel extends ProcessUpdatingChannel {
 
         @Override
         public boolean updateStatus(States state) throws IOException {
             String uuid = System.getProperty(ProcessStarter.UUID_KEY);
             String lrURl = ProcessUtils.getLrServlet();
             String restURL = lrURl + "?action=updateStatus&uuid=" + uuid + "&state=" + state;
+            LOGGER.info("requesting url: " + restURL);
             ProcessUtils.httpGet(restURL);
             return true;
         }
@@ -68,6 +69,7 @@ public abstract class ProcessUpdatingChannel {
             String lrURl = ProcessUtils.getLrServlet();
 
             String restURL = lrURl + "?action=updatePID&uuid=" + uuid + "&pid=" + pid;
+            LOGGER.info("requesting url: " + restURL);
             ProcessUtils.httpGet(restURL);
             return true;
         }
@@ -78,13 +80,10 @@ public abstract class ProcessUpdatingChannel {
             String lrURl = ProcessUtils.getLrServlet();
 
             String restURL = lrURl + "?action=updateName&uuid=" + uuid + "&name=" + URLEncoder.encode(name, "UTF-8");
-            LOGGER.info("requesting url :" + restURL);
+            LOGGER.info("requesting url: " + restURL);
             ProcessUtils.httpGet(restURL);
             return true;
         }
-
-
-
 
     }
 
