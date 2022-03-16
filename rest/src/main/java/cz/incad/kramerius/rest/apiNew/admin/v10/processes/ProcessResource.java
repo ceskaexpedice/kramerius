@@ -90,13 +90,13 @@ public class ProcessResource extends AdminApiResource {
         try {
             //authentication
             //AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-
+            //authorization
             String role = ROLE_READ_PROCESS_OWNERS;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
             }
             //get data from db
             List<ProcessOwner> owners = this.processManager.getProcessesOwners();
@@ -137,17 +137,18 @@ public class ProcessResource extends AdminApiResource {
         try {
             //authentication
             //AuthenticatedUser user = getAuthenticatedUserByOauth();
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-            System.out.println("user: " + user1);
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
+            System.out.println("user: " + user);
             System.out.println("roles: ");
             for (String role : roles) {
                 System.out.println(role);
             }
 
+            //authorization
             String role = ROLE_READ_PROCESSES;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
             }
             //id
             Integer processIdInt = null;
@@ -279,13 +280,12 @@ public class ProcessResource extends AdminApiResource {
 
     private Response getProcessLogsLinesByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
         //authentication
-
-        User user1 = this.userProvider.get();
-        List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-
+        User user = this.userProvider.get();
+        List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
+        //authorization
         String role = ROLE_READ_PROCESSES;
         if (!roles.contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
+            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
         }
         //offset & limit
         long offset = GET_LOGS_DEFAULT_OFFSET;
@@ -363,13 +363,13 @@ public class ProcessResource extends AdminApiResource {
     public Response deleteBatch(@PathParam("process_id") String processId) {
         try {
             //authentication
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-
+            //authorization
             String role = ROLE_DELETE_PROCESSES;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
             }
             //id
             Integer processIdInt = null;
@@ -413,15 +413,13 @@ public class ProcessResource extends AdminApiResource {
         try {
             //authentication
             //AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-
-
             String role = ROLE_CANCEL_OR_KILL_PROCESSES;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
             }
             //id
             Integer processIdInt = null;
@@ -491,20 +489,16 @@ public class ProcessResource extends AdminApiResource {
     ) {
         try {
             //access control with basic access authentication (deprecated)
-            checkAccessControlByBasicAccessAuth();
+            //checkAccessControlByBasicAccessAuth();
 
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-            System.out.println("user: " + user1);
-            System.out.println("roles: ");
-            for (String role : roles) {
-                System.out.println(role);
-            }
+            //authentication
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
+
             //authorization
-
             String role = ROLE_READ_PROCESSES;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
             }
 
             //offset & limit
@@ -625,16 +619,15 @@ public class ProcessResource extends AdminApiResource {
                 String batchToken = UUID.randomUUID().toString();
                 List<String> paramsList = new ArrayList<>();
                 paramsList.addAll(paramsToList(defid, params));
-
-                User user1 = this.userProvider.get();
-                List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-
+                //authentication
+                User user = this.userProvider.get();
+                List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
                 //authorization
                 String role = ROLE_SCHEDULE_PROCESSES;
                 if (!roles.contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user1.getLoginname(), role); //403
+                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
                 }
-                return scheduleProcess(defid, paramsList, user1.getLoginname(), user1.getLoginname(), batchToken);
+                return scheduleProcess(defid, paramsList, user.getLoginname(), user.getLoginname(), batchToken);
             }
         } catch (WebApplicationException e) {
             throw e;
