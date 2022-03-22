@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
+package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.apiNew.admin.v10;
+package cz.incad.kramerius.rest.apiNew.admin.v70;
 
 import java.util.List;
 

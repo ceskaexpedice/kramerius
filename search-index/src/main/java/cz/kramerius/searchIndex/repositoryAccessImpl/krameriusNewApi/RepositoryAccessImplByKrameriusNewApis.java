@@ -128,7 +128,7 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
     }
 
     public static class Credentials {
-        //@see cz.incad.kramerius.rest.apiNew.admin.v10.ClientAuthHeaders
+        //@see cz.incad.kramerius.rest.apiNew.admin.v70.ClientAuthHeaders
         public final String client;
         public final String uid;
         public final String accessToken;

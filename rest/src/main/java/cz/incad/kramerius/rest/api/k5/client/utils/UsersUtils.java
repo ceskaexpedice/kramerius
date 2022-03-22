@@ -23,7 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.rest.apiNew.admin.v10.rights.RolesResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RolesResource;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 

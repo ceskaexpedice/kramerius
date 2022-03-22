@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.apiNew.client.v60;
+package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -47,7 +47,6 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.PasswordDigest;
-import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
 
 //@Path("/v5.0/user")

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.apiNew.admin.v10.rights;
+package cz.incad.kramerius.rest.apiNew.admin.v70.rights;
 
 import static cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.simpleFilter;
 import static cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.transform;

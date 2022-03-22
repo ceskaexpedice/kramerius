@@ -20,11 +20,11 @@ import com.google.inject.multibindings.Multibinder;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
-import cz.incad.kramerius.rest.apiNew.admin.v10.license.LicensesResource;
-import cz.incad.kramerius.rest.apiNew.admin.v10.rights.RightsResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
-import cz.incad.kramerius.rest.apiNew.admin.v10.rights.RolesResource;
-import cz.incad.kramerius.rest.apiNew.admin.v10.rights.UsersResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RolesResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.rights.UsersResource;
 import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
@@ -51,7 +51,7 @@ import cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
-import cz.incad.kramerius.rest.apiNew.client.v60.ClientUserResource;
+import cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
@@ -96,18 +96,18 @@ public class ApiServletModule extends JerseyServletModule {
         bind(StatisticsResource.class);
         bind(LicensesResource.class);
 
-        // API Client 6.0 Resources
-        bind(cz.incad.kramerius.rest.apiNew.client.v60.InfoResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v60.ItemsResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v60.SearchResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v60.ConfigResource.class);
+        // API Client 7.0 Resources
+        bind(cz.incad.kramerius.rest.apiNew.client.v70.InfoResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.client.v70.SearchResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.client.v70.ConfigResource.class);
 
-        // API Admin 1.0 Resources
-        bind(cz.incad.kramerius.rest.apiNew.admin.v10.processes.ProcessResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v10.collections.CollectionsResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v10.ConfigResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v10.ItemsResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v10.ServerFilesResource.class);
+        // API Admin 7.0 Resources
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.collections.CollectionsResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.ConfigResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.ItemsResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.ServerFilesResource.class);
 
         bind(KeycloakProxy.class);
 

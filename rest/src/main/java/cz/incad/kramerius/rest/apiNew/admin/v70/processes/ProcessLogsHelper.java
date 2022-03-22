@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.apiNew.admin.v10.processes;
+package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
 import cz.incad.kramerius.processes.LRProcess;
 

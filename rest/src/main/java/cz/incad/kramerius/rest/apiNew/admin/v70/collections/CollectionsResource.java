@@ -1,10 +1,10 @@
-package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
+package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.rest.apiNew.admin.v10.AdminApiResource;
-import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
+import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.ProcessSchedulingHelper;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;

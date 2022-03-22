@@ -1,19 +1,14 @@
-package cz.incad.kramerius.rest.apiNew.admin.v10;
+package cz.incad.kramerius.rest.apiNew.admin.v70;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.apiNew.ApiResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
-import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.rest.apiNew.exceptions.ProxyAuthenticationRequiredException;
 import cz.incad.kramerius.rest.apiNew.exceptions.UnauthorizedException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.keycloak.adapters.spi.KeycloakAccount;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -22,12 +17,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class AdminApiResource extends ApiResource {

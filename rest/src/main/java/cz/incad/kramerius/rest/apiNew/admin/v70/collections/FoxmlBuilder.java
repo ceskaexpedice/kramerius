@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
+package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;

@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.apiNew.client.v60;
+package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

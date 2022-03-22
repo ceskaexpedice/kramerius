@@ -1,4 +1,4 @@
-package cz.incad.kramerius.rest.apiNew.admin.v10.license;
+package cz.incad.kramerius.rest.apiNew.admin.v70.license;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
