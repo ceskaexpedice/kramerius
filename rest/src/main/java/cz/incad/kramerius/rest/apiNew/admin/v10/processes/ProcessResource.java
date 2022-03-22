@@ -139,11 +139,6 @@ public class ProcessResource extends AdminApiResource {
             //AuthenticatedUser user = getAuthenticatedUserByOauth();
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-            System.out.println("user: " + user);
-            System.out.println("roles: ");
-            for (String role : roles) {
-                System.out.println(role);
-            }
 
             //authorization
             String role = ROLE_READ_PROCESSES;
@@ -443,7 +438,7 @@ public class ProcessResource extends AdminApiResource {
                 for (ProcessInBatch process : processes) {
                     String uuid = process.processUuid;
                     LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
-                    if (lrProcess != null && !States.notRunningState(lrProcess.getProcessState())) {
+                    if (lrProcess != null && !States.notRunningState(lrProcess.getProcessState())) { //process in batch is running
                         //System.out.println(lrProcess.getProcessState());
                         try {
                             lrProcess.stopMe();
@@ -451,8 +446,8 @@ public class ProcessResource extends AdminApiResource {
                         } catch (Throwable e) { //because AbstractLRProcessImpl.stopMe() throws java.lang.IllegalStateException: cannot stop this process! No PID associated
                             e.printStackTrace();
                         }
-                    } else {
-                        System.out.println(lrProcess.getProcessState());
+                    } else { //process in batch not running
+                        //System.out.println(lrProcess.getProcessState());
                     }
                 }
             }
@@ -784,9 +779,7 @@ public class ProcessResource extends AdminApiResource {
 
     private List<String> extractOptionalParamStringList(JSONObject params, String paramName, List<String> defaultValue) {
         if (params.has(paramName)) {
-            System.out.println("ok, pidlist found");
             JSONArray jsonArray = params.getJSONArray(paramName);
-            System.out.println(jsonArray.toString(2));
             List<String> result = new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
                 result.add(jsonArray.getString(i));
