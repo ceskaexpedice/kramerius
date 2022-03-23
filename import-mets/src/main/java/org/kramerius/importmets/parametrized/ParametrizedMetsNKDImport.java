@@ -44,7 +44,8 @@ public class ParametrizedMetsNKDImport {
                 @ParameterName("defaultRights")Boolean defaultRights,
                 @ParameterName("imageServerTilesURLPrefix")String isTilesPrefix,
                 @ParameterName("imageServerImagesURLPrefix")String isImagesPrefix,
-                @ParameterName("imageServerDirectory")String isDirectory
+                @ParameterName("imageServerDirectory")String isDirectory,
+                @ParameterName("shutImageServer")Boolean shutImageServer
     ) {
 
         System.setProperty("convert.defaultRights", defaultRights.toString());
@@ -70,7 +71,7 @@ public class ParametrizedMetsNKDImport {
         try {
             //TODO: I18N
             ProcessStarter.updateName("Parametrizovany import NDK METS z '"+convertDirectory.getAbsolutePath()+"'");
-            MetsConvertor.main(new String[] {defaultRights.toString(), convertDirectory.getAbsolutePath(), targetDirectory.getAbsolutePath()});
+            MetsConvertor.main(new String[] {defaultRights.toString(), convertDirectory.getAbsolutePath(), targetDirectory.getAbsolutePath(), shutImageServer.toString()});
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

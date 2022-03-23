@@ -196,6 +196,11 @@ public abstract class BaseConvertor {
      * globální viditelnost foxml objektů (publi/private), nastavuje se podle konfigurace
      */
     protected String policyID = POLICY_PUBLIC;
+    
+    /**
+     * globální využití image serveru
+     */
+    protected boolean useImageServer = false;
 
     protected Unmarshaller unmarshallerMODS;
     protected Unmarshaller unmarshallerDC;
@@ -659,9 +664,8 @@ public abstract class BaseConvertor {
      * @throws ServiceException
      */
     private void addBase64Streams(DigitalObject foxmlObject, FileDescriptor[] files, Foxml foxmlModel) throws ServiceException {
-        boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
         boolean usePdfServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.usePdfServer", false);
-
+        
         if (files != null) {
             for (FileDescriptor f : files) {
                 if (f != null) {
@@ -926,7 +930,7 @@ public abstract class BaseConvertor {
             // long start = System.currentTimeMillis();
 
             File pageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + filename);
-
+            
             if ("encoded".equalsIgnoreCase(streamType)) {
                 byte[] binaryContent = FileUtils.readFileToByteArray(pageFile);
                 version.setBinaryContent(binaryContent);
@@ -996,7 +1000,6 @@ public abstract class BaseConvertor {
         try {
             String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
             boolean convertToJPG = KConfiguration.getInstance().getConfiguration().getBoolean("convert.originalToJPG", false);
-            boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
             if (useImageServer) {
                 streamType = "external";
                 convertToJPG = false;
@@ -1116,7 +1119,6 @@ public abstract class BaseConvertor {
     private DatastreamType createThumbnailStream(BufferedImage img, String filename) throws ServiceException {
         try {
             String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.thumbnails", "encoded");
-            boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
             if (useImageServer) {
                 streamType = "external";
             }
@@ -1193,7 +1195,6 @@ public abstract class BaseConvertor {
     private DatastreamType createPreviewStream(BufferedImage img, String filename) throws ServiceException {
         try {
             String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.previews", "encoded");
-            boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
             if (useImageServer) {
                 streamType = "external";
             }

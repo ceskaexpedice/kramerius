@@ -35,13 +35,15 @@ form(convertDirectory,targetDirectory,convertRootDirectory, visibility,otherSett
             var defaultRights = \$('#defaultRightsPublic').attr('checked');
             var importToFedora = \$('#importToFedora').attr('checked');
             var ingestSkip = !importToFedora;
+            var shutImageServer = \$('#shutImageServer').attr('checked');
 
 
             var vals = 'convertTargetDirectory='+\$('#targetDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';convertDirectory='+   \$('#convertDirectory').val().escapeChars(charsThatMustBeEscaped)
                 +';startIndexer='+   startIndexer
                 +';defaultRights='+ defaultRights
-                +';ingestSkip='+ingestSkip;
+                +';ingestSkip='+ ingestSkip
+                +';shutImageServer='+ shutImageServer;
 
             var url = "lr?action=form_post&def=ndkmets&paramsMapping="+encodeURI("{")+vals+encodeURI("}")+"&out=text";
             processStarter("ndkmets").start(url);

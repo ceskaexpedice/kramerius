@@ -96,7 +96,7 @@ public class MetsImportInputTemplate implements ProcessInputTemplate {
         Boolean startIndexer = configuration.getConfiguration().getBoolean("ingest.startIndexer");
 
         OtherSettingsTemplate oSettings = OtherSettingsTemplate.disectTemplate(importToFedora, startIndexer);
-        template.setAttribute("otherSettingsTemplate", oSettings.name());
+        template.setAttribute("otherSettingsTemplate", oSettings.name() + "NDK");
 
         writer.write(template.toString());
     }
