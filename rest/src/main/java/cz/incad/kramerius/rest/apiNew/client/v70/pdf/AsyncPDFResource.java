@@ -1,35 +1,29 @@
-package cz.incad.kramerius.rest.api.k5.client.pdf;
+package cz.incad.kramerius.rest.apiNew.client.v70.pdf;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
+import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
+import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
+import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceNotFound;
+import cz.incad.kramerius.utils.IOUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+/**
+ * replaces cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource
+ */
+//@Path("/v5.0/asyncpdf")
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
-import cz.incad.kramerius.utils.IOUtils;
-
-
-@Deprecated
-@Path("/v5.0/asyncpdf")
-public class AsyncPDFResource  extends AbstractPDFResource{
-
+@Path("/client/v7.0/asyncpdf")
+public class AsyncPDFResource extends AbstractPDFResource {
     public static Logger LOGGER = Logger.getLogger(PDFResource.class.getName());
 
     //private boolean acquired;
@@ -44,33 +38,25 @@ public class AsyncPDFResource  extends AbstractPDFResource{
 
     @GET
     @Path("handle")
-    @Produces({ "application/pdf" })
+    @Produces({"application/pdf"})
     public Response handle(@QueryParam("handle") String handle) {
         final File pFile = PDFExlusiveGenerateSupport.popFile(handle);
         if (pFile != null) {
             try {
                 final InputStream fis = new FileInputStream(pFile);
                 StreamingOutput stream = new StreamingOutput() {
-                    public void write(OutputStream output)
-                            throws IOException, WebApplicationException {
+                    public void write(OutputStream output) throws IOException, WebApplicationException {
                         try {
                             IOUtils.copyStreams(fis, output);
                         } catch (Exception e) {
                             throw new WebApplicationException(e);
                         } finally {
-                            if (pFile != null)
-                                pFile.delete();
+                            if (pFile != null) pFile.delete();
                         }
                     }
                 };
-                SimpleDateFormat sdate = new SimpleDateFormat(
-                        "yyyyMMdd_mmhhss");
-                return Response
-                        .ok()
-                        .header("Content-disposition",
-                                    "attachment; filename="
-                                            + sdate.format(new Date()) + ".pdf")
-                        .entity(stream).build();
+                SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
+                return Response.ok().header("Content-disposition", "attachment; filename=" + sdate.format(new Date()) + ".pdf").entity(stream).build();
             } catch (FileNotFoundException e) {
                 throw new PDFResourceNotFound("uuid not found");
             }
@@ -109,7 +95,7 @@ public class AsyncPDFResource  extends AbstractPDFResource{
 //                    }
 //                    AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage
 //                            .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
-//                            
+//
 //                    int pages = Integer.MAX_VALUE;
 //                    if ((number != null) && (!number.trim().equals(""))) {
 //                        pages = ConfigurationUtils.checkNumber(number);

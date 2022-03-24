@@ -101,6 +101,9 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.SearchResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.ConfigResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.AbstractPDFResource.class); //TODO: cleanup
+        bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.AsyncPDFResource.class);
 
         // API Admin 7.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessResource.class);

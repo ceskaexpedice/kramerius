@@ -1,5 +1,41 @@
-package cz.incad.kramerius.rest.api.k5.client.pdf;
+package cz.incad.kramerius.rest.apiNew.client.v70.pdf;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Rectangle;
+import cz.incad.kramerius.*;
+import cz.incad.kramerius.document.DocumentService;
+import cz.incad.kramerius.document.model.AbstractPage;
+import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.pdf.FirstPagePDFService;
+import cz.incad.kramerius.pdf.GeneratePDFService;
+import cz.incad.kramerius.pdf.OutOfRangeException;
+import cz.incad.kramerius.pdf.SimplePDFService;
+import cz.incad.kramerius.pdf.utils.pdf.FontMap;
+import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
+import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceBadRequestException;
+import cz.incad.kramerius.security.RightsResolver;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,59 +47,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import org.apache.pdfbox.multipdf.PDFMergerUtility;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Rectangle;
-
-import cz.incad.kramerius.AbstractObjectPath;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.MostDesirable;
-import cz.incad.kramerius.ObjectModelsPath;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.document.DocumentService;
-import cz.incad.kramerius.document.model.AbstractPage;
-import cz.incad.kramerius.document.model.PreparedDocument;
-import cz.incad.kramerius.pdf.FirstPagePDFService;
-import cz.incad.kramerius.pdf.GeneratePDFService;
-import cz.incad.kramerius.pdf.OutOfRangeException;
-import cz.incad.kramerius.pdf.SimplePDFService;
-import cz.incad.kramerius.pdf.utils.pdf.FontMap;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
-import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
-import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.statistics.ReportedAction;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-
-@Deprecated
+/**
+ * Replaces cz.incad.kramerius.rest.api.k5.client.pdf.AbstractPDFResource
+ */
+@Path("/client/v7.0/abstract-pdf")
 public class AbstractPDFResource {
-
     public enum FirstPage {
         IMAGES, TEXT;
     }
 
-    public static final Logger LOGGER = Logger.getLogger(AbstractPDFResource.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(cz.incad.kramerius.rest.api.k5.client.pdf.AbstractPDFResource.class.getName());
 
     @Inject
     @Named("TEXT")
@@ -71,7 +64,7 @@ public class AbstractPDFResource {
 
     @Inject
     @Named("IMAGE")
-    FirstPagePDFService imageFirstPage  ;
+    FirstPagePDFService imageFirstPage;
 
     @Inject
     @Named("securedFedoraAccess")
@@ -108,32 +101,32 @@ public class AbstractPDFResource {
     @Inject
     SimplePDFService simplePdfService;
 
-    
+
     @Inject
     MostDesirable mostDesirable;
-    
-    
+
+
     @Inject
     RightsResolver rightsResolver;
-    
+
     @Inject
     Provider<User> userProvider;
-    
+
     @Inject
     AggregatedAccessLogs statisticsAccessLog;
-    
+
     @GET
     @Path("conf")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response info() {
+        //TODO: duplikace PDFResource info()
+        LOGGER.info("info()");
         JSONObject jsonObject = new JSONObject();
         try {
-            String maxPage = KConfiguration.getInstance().getProperty(
-                    "generatePdfMaxRange");
+            String maxPage = KConfiguration.getInstance().getProperty("generatePdfMaxRange");
             jsonObject.put("maxpage", maxPage);
 
-            boolean turnOff = KConfiguration.getInstance().getConfiguration()
-                    .getBoolean("turnOffPdfCheck");
+            boolean turnOff = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
             jsonObject.put("turnOffPdfCheck", turnOff);
         } catch (JSONException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -141,11 +134,10 @@ public class AbstractPDFResource {
         return Response.ok().entity(jsonObject.toString()).build();
     }
 
-    
-    public File selection(String[] pids, Rectangle rect,FirstPage fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException {
+    public File selection(String[] pids, Rectangle rect, FirstPage fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
-        PreparedDocument rdoc = documentService.buildDocumentFromSelection(pids, new int[] {(int)rect.getWidth(), (int)rect.getHeight()});
+        PreparedDocument rdoc = documentService.buildDocumentFromSelection(pids, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
         checkRenderedPDFDoc(rdoc);
 
         File parentFile = null;
@@ -157,7 +149,7 @@ public class AbstractPDFResource {
 
             firstPageFile = File.createTempFile("head", "pdf");
             FileOutputStream fpageFos = new FileOutputStream(firstPageFile);
-            
+
             // most desirable
             for (String p : pids) {
                 this.mostDesirable.saveAccess(p, new Date());
@@ -169,29 +161,28 @@ public class AbstractPDFResource {
             } else {
                 this.textFirstPage.selection(rdoc, fpageFos, pids, fmap);
             }
-            this.simplePdfService.pdf(rdoc, bodyTmpFos,  fmap);
+            this.simplePdfService.pdf(rdoc, bodyTmpFos, fmap);
 
             File generatedPDF = File.createTempFile("rendered", "pdf");
             FileOutputStream fos = new FileOutputStream(generatedPDF);
 
-            AbstractPDFResource.mergeToOutput(fos, parentFile, firstPageFile);
+            mergeToOutput(fos, parentFile, firstPageFile);
             return generatedPDF;
         } finally {
             saveDeleteFile(parentFile, firstPageFile);
         }
     }
 
-    public File parent(String pid, int n, Rectangle rect, FirstPage fp) throws DocumentException,
-            IOException, NumberFormatException, ProcessSubtreeException {
+    public File parent(String pid, int n, Rectangle rect, FirstPage fp) throws DocumentException, IOException, NumberFormatException, ProcessSubtreeException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
         Map<String, AbstractObjectPath[]> pathsMap = solrAccess.getModelAndPidPaths(pid);
         ObjectPidsPath[] paths = (ObjectPidsPath[]) pathsMap.get(ObjectPidsPath.class.getName());
-        final ObjectPidsPath path = AbstractPDFResource.selectOnePath(pid, paths);
+        final ObjectPidsPath path = selectOnePath(pid, paths);
 
         File parentFile = null;
         File firstPageFile = null;
         try {
-            PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, n, new int[] {(int)rect.getWidth(), (int)rect.getHeight()});
+            PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, n, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
             checkRenderedPDFDoc(rdoc);
 
             this.mostDesirable.saveAccess(pid, new Date());
@@ -216,7 +207,7 @@ public class AbstractPDFResource {
             File generatedPDF = File.createTempFile("rendered", "pdf");
             FileOutputStream fos = new FileOutputStream(generatedPDF);
 
-            AbstractPDFResource.mergeToOutput(fos, parentFile, firstPageFile);
+            mergeToOutput(fos, parentFile, firstPageFile);
             return generatedPDF;
         } catch (OutOfRangeException e) {
             throw new PDFResourceBadRequestException(e.getMessage());
@@ -234,7 +225,7 @@ public class AbstractPDFResource {
         }
     }
 
-    private static void saveDeleteFile(File ... files) {
+    private static void saveDeleteFile(File... files) {
         for (File f : files) {
             if (f != null) {
                 f.delete();

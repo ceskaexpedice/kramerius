@@ -1,60 +1,7 @@
-/*
- * Copyright (C) 2013 Pavel Stastny
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-package cz.incad.kramerius.rest.api.k5.client.pdf;
+package cz.incad.kramerius.rest.apiNew.client.v70.pdf;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.xml.xpath.XPathExpressionException;
-
-import cz.incad.kramerius.utils.StringUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Image;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Rectangle;
+import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfWriter;
-
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
@@ -62,28 +9,45 @@ import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+//TODO: move exceptions from cz.incad.kramerius.rest.api.k5
+import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceBadRequestException;
+import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceNotReadyException;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.xml.xpath.XPathExpressionException;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Generating pdf documents
- * @author pavels
+ * replaces cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource
  */
-@Deprecated
-@Path("/v5.0/pdf")
-public class PDFResource extends AbstractPDFResource  {
-
+//@Path("/v5.0/pdf")
+@Path("/client/v7.0/pdf")
+public class PDFResource extends AbstractPDFResource {
     public static Logger LOGGER = Logger.getLogger(PDFResource.class.getName());
 
     /**
      * Paper size
-     * @author pavels
      *
+     * @author pavels
      */
     static enum Size {
 
@@ -102,41 +66,50 @@ public class PDFResource extends AbstractPDFResource  {
         A2(PageSize.A2),
         A1(PageSize.A1),
         A0(PageSize.A0),
-        
+
         LETTER(PageSize.LETTER),
         POSTCARD(PageSize.POSTCARD),
         TABLOID(PageSize.TABLOID);
-        
+
         protected Rectangle rect;
 
         private Size(Rectangle rect) {
             this.rect = rect;
-        } 
-        
+        }
+
         public Rectangle getRectangle() {
             return rect;
         }
     }
 
+    @GET
+    @Produces({"application/json"})
+    @Path("test")
+    public Response test() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("test", "ok");
+        return Response.ok().entity(jsonObject.toString()).build();
+    }
+
     /**
      * Returns informations about resouce (how many pages can be generated and if resource is busy)
+     *
      * @return
      */
     @GET
-    @Produces({ "application/json" })
+    @Produces({"application/json"})
     public Response info() {
         try {
             JSONObject jsonObject = new JSONObject();
-            String maxPage = KConfiguration.getInstance().getProperty(
-                    "generatePdfMaxRange");
-            
+            String maxPage = KConfiguration.getInstance().getProperty("generatePdfMaxRange");
+
             boolean turnOff = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
             if (turnOff) {
                 jsonObject.put("pdfMaxRange", "unlimited");
             } else {
                 jsonObject.put("pdfMaxRange", maxPage);
             }
-            boolean acquired =  false;
+            boolean acquired = false;
             try {
                 acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
                 if (acquired) {
@@ -157,11 +130,12 @@ public class PDFResource extends AbstractPDFResource  {
     }
 
     /**
-     * Print only part of image 
-     * @param pid PID
-     * @param xpos Determine x-position. Value is defined by percentage of total width. 
-     * @param ypos Determine y-position. Value is defined by percentage of total height.
-     * @param width Deterime width. Value is defiend by percentage of total width.
+     * Print only part of image
+     *
+     * @param pid    PID
+     * @param xpos   Determine x-position. Value is defined by percentage of total width.
+     * @param ypos   Determine y-position. Value is defined by percentage of total height.
+     * @param width  Deterime width. Value is defiend by percentage of total width.
      * @param height Determine height. Value is defined by percentage of total height
      * @param format Page format. Possible values : A0,...A5, B0,...B5, LETTER, POSTCARD
      * @return
@@ -169,13 +143,13 @@ public class PDFResource extends AbstractPDFResource  {
      */
     @GET
     @Path("part")
-    @Produces({ "application/pdf", "application/json" })
-    public Response part(@QueryParam("pid") String pid, 
-            @QueryParam("xpos") String xpos,
-            @QueryParam("ypos") String ypos,
-            @QueryParam("width") String width,
-            @QueryParam("height") String height,
-            @QueryParam("format") String format) throws OutOfRangeException {
+    @Produces({"application/pdf", "application/json"})
+    public Response part(@QueryParam("pid") String pid,
+                         @QueryParam("xpos") String xpos,
+                         @QueryParam("ypos") String ypos,
+                         @QueryParam("width") String width,
+                         @QueryParam("height") String height,
+                         @QueryParam("format") String format) throws OutOfRangeException {
         boolean acquired = false;
         try {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
@@ -184,8 +158,8 @@ public class PDFResource extends AbstractPDFResource  {
                     File fileToDelete = null;
                     try {
                         pid = this.fedoraAccess.findFirstViewablePid(pid);
-                        
-                        BufferedImage bufImage = KrameriusImageSupport.readImage(pid,FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
+
+                        BufferedImage bufImage = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
 
                         double xPerctDouble = Double.parseDouble(xpos);
                         double yPerctDouble = Double.parseDouble(ypos);
@@ -193,20 +167,20 @@ public class PDFResource extends AbstractPDFResource  {
                         double widthPerctDouble = Double.parseDouble(width);
                         double heightPerctDouble = Double.parseDouble(height);
 
-                        BufferedImage subImage =  KrameriusImageSupport.partOfImage(bufImage, xPerctDouble, yPerctDouble,
+                        BufferedImage subImage = KrameriusImageSupport.partOfImage(bufImage, xPerctDouble, yPerctDouble,
                                 widthPerctDouble, heightPerctDouble);
-            
+
                         fileToDelete = File.createTempFile("subimage", ".png");
                         FileOutputStream fos = new FileOutputStream(fileToDelete);
                         KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), fos);
                         fos.close();
 
                         reportAccess(pid);
-                        
-                        StreamingOutput stream = streamingOutput(fileToDelete,format);
+
+                        StreamingOutput stream = streamingOutput(fileToDelete, format);
                         return Response
-                            .ok()
-                            .entity(stream).type("application/pdf").build();
+                                .ok()
+                                .entity(stream).type("application/pdf").build();
                     } catch (NumberFormatException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         throw new GenericApplicationException(e.getMessage());
@@ -235,26 +209,26 @@ public class PDFResource extends AbstractPDFResource  {
 
     /**
      * Generate pdf from selection
+     *
      * @param pidsParam List of pids
-     * @param pageType First page type. Possible values TEXT, IMAGE
-     * @param format Page format. Possible values : A0,...A5, B0,...B5, LETTER, POSTCARD
+     * @param pageType  First page type. Possible values TEXT, IMAGE
+     * @param format    Page format. Possible values : A0,...A5, B0,...B5, LETTER, POSTCARD
      * @return
      * @throws OutOfRangeException
      */
     @GET
     @Path("selection")
-    @Produces({ "application/pdf", "application/json" })
+    @Produces({"application/pdf", "application/json"})
     public Response selection(@QueryParam("pids") String pidsParam,
-            @QueryParam("firstPageType") @DefaultValue("TEXT") String pageType,
-            @QueryParam("format") String format) throws OutOfRangeException {
+                              @QueryParam("firstPageType") @DefaultValue("TEXT") String pageType,
+                              @QueryParam("format") String format) throws OutOfRangeException {
         boolean acquired = false;
         try {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
             if (acquired) {
                 try {
 
-                    AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage
-                            .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
+                    AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage.valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
 
                     if (StringUtils.isAnyString(pidsParam)) {
                         String[] pids = pidsParam.split(",");
@@ -300,7 +274,7 @@ public class PDFResource extends AbstractPDFResource  {
                 } catch (DocumentException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
-                } catch(SecurityException e) {
+                } catch (SecurityException e) {
                     LOGGER.log(Level.INFO, e.getMessage());
                     throw new ActionNotAllowed(e.getMessage());
                 }
@@ -315,19 +289,20 @@ public class PDFResource extends AbstractPDFResource  {
 
     /**
      * Generate whole document
-     * @param pid PID of generating document
-     * @param number Number of pages (whole document or maximum number of pages)
+     *
+     * @param pid      PID of generating document
+     * @param number   Number of pages (whole document or maximum number of pages)
      * @param pageType Type of firt page. Possible values: TEXT,IMAGE
-     * @param format Page format. Possible values : A0,...A5, B0,...B5, LETTER, POSTCARD
+     * @param format   Page format. Possible values : A0,...A5, B0,...B5, LETTER, POSTCARD
      * @return
      */
     @GET
     @Path("parent")
-    @Produces({ "application/pdf", "application/json" })
+    @Produces({"application/pdf", "application/json"})
     public Response parent(@QueryParam("pid") String pid,
-            @QueryParam("number") String number,
-            @QueryParam("firstPageType") @DefaultValue("TEXT") String pageType,
-            @QueryParam("format") String format) {
+                           @QueryParam("number") String number,
+                           @QueryParam("firstPageType") @DefaultValue("TEXT") String pageType,
+                           @QueryParam("format") String format) {
         boolean acquired = false;
         try {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
@@ -381,7 +356,7 @@ public class PDFResource extends AbstractPDFResource  {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
                 } catch (OutOfRangeException e1) {
-                    LOGGER.log(Level.WARNING,"too much pages for pdf generating - consider changing config attribute (generatePdfMaxRange)");
+                    LOGGER.log(Level.WARNING, "too much pages for pdf generating - consider changing config attribute (generatePdfMaxRange)");
                     throw new PDFResourceBadRequestException(e1.getMessage());
                 } catch (SecurityException e1) {
                     LOGGER.log(Level.INFO, e1.getMessage());
@@ -396,8 +371,7 @@ public class PDFResource extends AbstractPDFResource  {
         }
     }
 
-    public static BufferedImage partOfImage(BufferedImage bufferedImage, HttpServletRequest req,
-            String pid) throws MalformedURLException, IOException, JSONException, XPathExpressionException {
+    public static BufferedImage partOfImage(BufferedImage bufferedImage, HttpServletRequest req, String pid) throws MalformedURLException, IOException, JSONException, XPathExpressionException {
 
         String xperct = req.getParameter("xpos");
         String yperct = req.getParameter("ypos");
@@ -445,14 +419,14 @@ public class PDFResource extends AbstractPDFResource  {
     }
 
     public static Rectangle formatRect(String format) {
-        Rectangle formatRect =  Size.A4.getRectangle();
+        Rectangle formatRect = PDFResource.Size.A4.getRectangle();
         if (format != null) {
-            Size enumValueOf = Size.valueOf(format);
+            PDFResource.Size enumValueOf = PDFResource.Size.valueOf(format);
             try {
                 formatRect = enumValueOf.getRectangle();
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                formatRect = Size.A4.getRectangle();
+                formatRect = PDFResource.Size.A4.getRectangle();
             }
         }
         return formatRect;
