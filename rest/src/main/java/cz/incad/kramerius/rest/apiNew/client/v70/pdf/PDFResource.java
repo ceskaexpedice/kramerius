@@ -39,7 +39,6 @@ import java.util.logging.Logger;
 /**
  * replaces cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource
  */
-//@Path("/v5.0/pdf")
 @Path("/client/v7.0/pdf")
 public class PDFResource extends AbstractPDFResource {
     public static Logger LOGGER = Logger.getLogger(PDFResource.class.getName());
@@ -104,6 +103,7 @@ public class PDFResource extends AbstractPDFResource {
             String maxPage = KConfiguration.getInstance().getProperty("generatePdfMaxRange");
 
             boolean turnOff = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
+            jsonObject.put("turnOffPdfCheck", turnOff);
             if (turnOff) {
                 jsonObject.put("pdfMaxRange", "unlimited");
             } else {

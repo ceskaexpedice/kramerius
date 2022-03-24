@@ -50,13 +50,12 @@ import java.util.logging.Logger;
 /**
  * Replaces cz.incad.kramerius.rest.api.k5.client.pdf.AbstractPDFResource
  */
-@Path("/client/v7.0/abstract-pdf")
 public class AbstractPDFResource {
     public enum FirstPage {
         IMAGES, TEXT;
     }
 
-    public static final Logger LOGGER = Logger.getLogger(cz.incad.kramerius.rest.api.k5.client.pdf.AbstractPDFResource.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(AbstractPDFResource.class.getName());
 
     @Inject
     @Named("TEXT")
@@ -114,25 +113,6 @@ public class AbstractPDFResource {
 
     @Inject
     AggregatedAccessLogs statisticsAccessLog;
-
-    @GET
-    @Path("conf")
-    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
-    public Response info() {
-        //TODO: duplikace PDFResource info()
-        LOGGER.info("info()");
-        JSONObject jsonObject = new JSONObject();
-        try {
-            String maxPage = KConfiguration.getInstance().getProperty("generatePdfMaxRange");
-            jsonObject.put("maxpage", maxPage);
-
-            boolean turnOff = KConfiguration.getInstance().getConfiguration().getBoolean("turnOffPdfCheck");
-            jsonObject.put("turnOffPdfCheck", turnOff);
-        } catch (JSONException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-        return Response.ok().entity(jsonObject.toString()).build();
-    }
 
     public File selection(String[] pids, Rectangle rect, FirstPage fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());

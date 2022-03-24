@@ -20,11 +20,9 @@ import java.util.logging.Logger;
 /**
  * replaces cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource
  */
-//@Path("/v5.0/asyncpdf")
-
 @Path("/client/v7.0/asyncpdf")
 public class AsyncPDFResource extends AbstractPDFResource {
-    public static Logger LOGGER = Logger.getLogger(PDFResource.class.getName());
+    public static Logger LOGGER = Logger.getLogger(AsyncPDFResource.class.getName());
 
     //private boolean acquired;
 
