@@ -123,6 +123,16 @@ public class SolrUtils   {
         XPathExpression pidExpr = fact.newXPath().compile("//arr[@name='own_parent.pid']/str");
         return pidExpr;
     }
+
+    /**
+     * Constructs XPath for disecting root PID
+     * @return Compiled XPath expression
+     * @throws XPathExpressionException Cannot compile xpath
+     */
+    public static XPathExpression rootPidExpr() throws XPathExpressionException {
+        XPathExpression rootExpr = fact.newXPath().compile("//str[@name='root.pid']");
+        return rootExpr;
+    }
     
     /**
      * Constructs XPath for disecting date
@@ -324,6 +334,23 @@ public class SolrUtils   {
             if (parentPidNode != null) {
                 Element parentPidElm = (Element) parentPidNode;
                 return parentPidElm.getTextContent().trim();
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Disect root PID from given solr document
+     * @param parseDocument Parsed solr document
+     * @return root PID
+     * @throws XPathExpressionException cannot disect root PID
+     */
+    public static String disectRootPid(Document parseDocument) throws XPathExpressionException {
+        synchronized(parseDocument) {
+            Node rootPidNode = (Node) rootPidExpr().evaluate(parseDocument, XPathConstants.NODE);
+            if (rootPidNode != null) {
+                Element rootPidElm = (Element) rootPidNode;
+                return rootPidElm.getTextContent().trim();
             }
             return null;
         }
