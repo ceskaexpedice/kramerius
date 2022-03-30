@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -59,7 +59,7 @@ import cz.incad.kramerius.utils.pid.LexerException;
 
 /**
  * Default document service implementation
- * 
+ *
  * @author pavels
  */
 public class DocumentServiceImpl implements DocumentService {
@@ -72,11 +72,12 @@ public class DocumentServiceImpl implements DocumentService {
     private ResourceBundleService resourceBundleService;
     private SolrAccess solrAccess;
     private KConfiguration kConfiguration;
-    
+
     @Inject
     public DocumentServiceImpl(
             @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
-            SolrAccess solrAccess, KConfiguration configuration,
+            @Named("new-index") SolrAccess solrAccess,
+            KConfiguration configuration,
             Provider<Locale> localeProvider,
             ResourceBundleService resourceBundleService,
             KConfiguration kConfig) {
@@ -209,7 +210,7 @@ public class DocumentServiceImpl implements DocumentService {
             public void process(String pid, int level)
                     throws ProcessSubtreeException {
                 try {
-                	AbstractPage page = null; 
+                	AbstractPage page = null;
 
                 	if (fedoraAccess.isImageFULLAvailable(pid)) {
                     	page = createPage(renderedDocument, pid);
@@ -222,7 +223,7 @@ public class DocumentServiceImpl implements DocumentService {
                         this.currOutline.debugInformations(buffer, 0);
 
                     } else {
-                    	// no page 
+                    	// no page
                     }
                 } catch (DOMException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -261,7 +262,7 @@ public class DocumentServiceImpl implements DocumentService {
         });
 
     }
-    
+
 	protected AbstractPage createTextPage(final PreparedDocument renderedDocument,
             String pid) throws LexerException, IOException {
 		throw new IllegalStateException();
@@ -334,7 +335,7 @@ public class DocumentServiceImpl implements DocumentService {
                 }
 
             } else {
-            		
+
             		page = new TextPage(modelName,
                             this.fedoraAccess.findFirstViewablePid(pid));
                     page.setOutlineDestination(pid);
@@ -410,7 +411,7 @@ public class DocumentServiceImpl implements DocumentService {
                 renderedDocument.mapDCConent(pid,
                         DCUtils.contentFromDC(fedoraAccess.getDC(pid)));
             }
-            
+
             /*
              * renderedDocument.setDocumentTitle(TitlesUtils.title(leaf,
              * this.solrAccess, this.fedoraAccess));
@@ -442,8 +443,7 @@ public class DocumentServiceImpl implements DocumentService {
         }
         renderedDocument.setObjectPidsPath(path);
         // title ??
-        renderedDocument.setDocumentTitle(TitlesUtils.title(leaf,
-                this.solrAccess, this.fedoraAccess, resourceBundle));
+        renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess, resourceBundle));
         renderedDocument.setUuidTitlePage(path.getLeaf());
         renderedDocument.setUuidMainTitle(path.getRoot());
 

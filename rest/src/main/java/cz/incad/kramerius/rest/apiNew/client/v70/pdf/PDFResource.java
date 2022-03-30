@@ -81,17 +81,8 @@ public class PDFResource extends AbstractPDFResource {
         }
     }
 
-    @GET
-    @Produces({"application/json"})
-    @Path("test")
-    public Response test() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("test", "ok");
-        return Response.ok().entity(jsonObject.toString()).build();
-    }
-
     /**
-     * Returns informations about resouce (how many pages can be generated and if resource is busy)
+     * Returns information about resource (how many pages can be generated and if resource is busy)
      *
      * @return
      */
@@ -99,6 +90,9 @@ public class PDFResource extends AbstractPDFResource {
     @Produces({"application/json"})
     public Response info() {
         try {
+            if (PDF_ENDPOINTS_DISABLED) {
+                return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+            }
             JSONObject jsonObject = new JSONObject();
             String maxPage = KConfiguration.getInstance().getProperty("generatePdfMaxRange");
 
@@ -150,6 +144,9 @@ public class PDFResource extends AbstractPDFResource {
                          @QueryParam("width") String width,
                          @QueryParam("height") String height,
                          @QueryParam("format") String format) throws OutOfRangeException {
+        if (PDF_ENDPOINTS_DISABLED) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
         boolean acquired = false;
         try {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
@@ -167,7 +164,8 @@ public class PDFResource extends AbstractPDFResource {
                         double widthPerctDouble = Double.parseDouble(width);
                         double heightPerctDouble = Double.parseDouble(height);
 
-                        BufferedImage subImage = KrameriusImageSupport.partOfImage(bufImage, xPerctDouble, yPerctDouble,
+                        BufferedImage subImage = KrameriusImageSupport.partOfImage(bufImage,
+                                xPerctDouble, yPerctDouble,
                                 widthPerctDouble, heightPerctDouble);
 
                         fileToDelete = File.createTempFile("subimage", ".png");
@@ -210,9 +208,9 @@ public class PDFResource extends AbstractPDFResource {
     /**
      * Generate pdf from selection
      *
-     * @param pidsParam List of pids
-     * @param pageType  First page type. Possible values TEXT, IMAGE
-     * @param format    Page format. Possible values : A0,...A5, B0,...B5, LETTER, POSTCARD
+     * @param pidsParam     List of pids
+     * @param firstPageType First page type. Possible values TEXT, IMAGE
+     * @param format        Page format. Possible values : A0,...A5, B0,...B5, LETTER, POSTCARD
      * @return
      * @throws OutOfRangeException
      */
@@ -220,23 +218,26 @@ public class PDFResource extends AbstractPDFResource {
     @Path("selection")
     @Produces({"application/pdf", "application/json"})
     public Response selection(@QueryParam("pids") String pidsParam,
-                              @QueryParam("firstPageType") @DefaultValue("TEXT") String pageType,
+                              @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
                               @QueryParam("format") String format) throws OutOfRangeException {
+        if (PDF_ENDPOINTS_DISABLED) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
         boolean acquired = false;
         try {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
             if (acquired) {
                 try {
-
-                    AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage.valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
-
+                    FirstPageType fistPageTypeEn = extractFirstPageType(firstPageType);
                     if (StringUtils.isAnyString(pidsParam)) {
                         String[] pids = pidsParam.split(",");
                         // max number test
-                        ConfigurationUtils.checkNumber(pids);
+                        int numberOfPages = extractNumberOfPages("" + pids.length);
+                        //ConfigurationUtils.checkNumber(pids);
+                        LOGGER.info("number of pages: " + numberOfPages); //TODO: remove for production
 
                         Rectangle formatRect = formatRect(format);
-                        final File generatedPDF = super.selection(pids, formatRect, fp);
+                        final File generatedPDF = super.selection(pids, formatRect, fistPageTypeEn);
                         final InputStream fis = new FileInputStream(generatedPDF);
                         StreamingOutput stream = new StreamingOutput() {
                             public void write(OutputStream output)
@@ -251,13 +252,11 @@ public class PDFResource extends AbstractPDFResource {
                                 }
                             }
                         };
-                        SimpleDateFormat sdate = new SimpleDateFormat(
-                                "yyyyMMdd_mmhhss");
+                        SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
                         return Response
                                 .ok()
                                 .header("Content-disposition",
-                                        "attachment; filename="
-                                                + sdate.format(new Date()) + ".pdf")
+                                        "attachment; filename=" + sdate.format(new Date()) + ".pdf")
                                 .entity(stream).type("application/pdf").build();
                     } else {
                         return Response.status(Response.Status.BAD_REQUEST).build();
@@ -290,55 +289,56 @@ public class PDFResource extends AbstractPDFResource {
     /**
      * Generate whole document
      *
-     * @param pid      PID of generating document
-     * @param number   Number of pages (whole document or maximum number of pages)
-     * @param pageType Type of firt page. Possible values: TEXT,IMAGE
-     * @param format   Page format. Possible values : A0,...A5, B0,...B5, LETTER, POSTCARD
+     * @param pid           PID of generating document
+     * @param numberOfPages Number of pages (whole document or maximum number of pages)
+     * @param firstPageType Type of first page. Possible values: TEXT,IMAGE
+     * @param format        Page format. Possible values : A0,...A5, B0,...B5, LETTER, POSTCARD
      * @return
      */
     @GET
     @Path("parent")
     @Produces({"application/pdf", "application/json"})
     public Response parent(@QueryParam("pid") String pid,
-                           @QueryParam("number") String number,
-                           @QueryParam("firstPageType") @DefaultValue("TEXT") String pageType,
+                           @QueryParam("numberOfPages") String numberOfPages,
+                           @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
                            @QueryParam("format") String format) {
+        if (PDF_ENDPOINTS_DISABLED) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
         boolean acquired = false;
         try {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
             if (acquired) {
                 try {
-                    AbstractPDFResource.FirstPage fp = pageType != null ? AbstractPDFResource.FirstPage
-                            .valueOf(pageType) : AbstractPDFResource.FirstPage.TEXT;
+                    FirstPageType firstPageTypeEn = extractFirstPageType(firstPageType);
 
                     // max number test
-                    int n = ConfigurationUtils.checkNumber(number);
+                    int numberOfPagesInt = extractNumberOfPages(numberOfPages);
+                    //int n = ConfigurationUtils.checkNumber(number);
+                    LOGGER.info("number of pages: " + numberOfPagesInt); //TODO: remove for production
                     Rectangle formatRect = formatRect(format);
 
-                    final File generatedPdf = super.parent(pid, n, formatRect, fp);
+                    final File generatedPdf = super.parent(pid, numberOfPagesInt, formatRect, firstPageTypeEn);
 
                     final InputStream fis = new FileInputStream(generatedPdf);
                     StreamingOutput stream = new StreamingOutput() {
-                        public void write(OutputStream output)
-                                throws IOException, WebApplicationException {
+                        public void write(OutputStream output) throws WebApplicationException {
                             try {
                                 IOUtils.copyStreams(fis, output);
                             } catch (Exception e) {
                                 throw new WebApplicationException(e);
                             } finally {
-                                if (generatedPdf != null)
+                                if (generatedPdf != null) {
                                     generatedPdf.delete();
+                                }
                             }
                         }
                     };
 
-                    SimpleDateFormat sdate = new SimpleDateFormat(
-                            "yyyyMMdd_mmhhss");
+                    SimpleDateFormat sdate = new SimpleDateFormat("yyyyMMdd_mmhhss");
                     return Response
                             .ok()
-                            .header("Content-disposition",
-                                    "attachment; filename="
-                                            + sdate.format(new Date()) + ".pdf")
+                            .header("Content-disposition", "attachment; filename=" + sdate.format(new Date()) + ".pdf")
                             .entity(stream).type("application/pdf").build();
                 } catch (NumberFormatException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -366,8 +366,9 @@ public class PDFResource extends AbstractPDFResource {
                 throw new PDFResourceNotReadyException("not ready");
             }
         } finally {
-            if (acquired)
+            if (acquired) {
                 PDFExlusiveGenerateSupport.PDF_SEMAPHORE.release();
+            }
         }
     }
 
@@ -390,8 +391,7 @@ public class PDFResource extends AbstractPDFResource {
 
     private static StreamingOutput streamingOutput(final File file, final String format) {
         return new StreamingOutput() {
-            public void write(OutputStream output)
-                    throws IOException, WebApplicationException {
+            public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
                     Rectangle formatRect = formatRect(format);
                     Document document = new Document(formatRect);

@@ -38,6 +38,9 @@ public class AsyncPDFResource extends AbstractPDFResource {
     @Path("handle")
     @Produces({"application/pdf"})
     public Response handle(@QueryParam("handle") String handle) {
+        if (PDF_ENDPOINTS_DISABLED) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
         final File pFile = PDFExlusiveGenerateSupport.popFile(handle);
         if (pFile != null) {
             try {

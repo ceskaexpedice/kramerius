@@ -26,16 +26,10 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -51,11 +45,14 @@ import java.util.logging.Logger;
  * Replaces cz.incad.kramerius.rest.api.k5.client.pdf.AbstractPDFResource
  */
 public class AbstractPDFResource {
-    public enum FirstPage {
+    public enum FirstPageType {
         IMAGES, TEXT;
     }
 
     public static final Logger LOGGER = Logger.getLogger(AbstractPDFResource.class.getName());
+
+    final boolean PDF_ENDPOINTS_DISABLED = true; //TODO: remove after endpoints are fixed
+
 
     @Inject
     @Named("TEXT")
@@ -114,7 +111,7 @@ public class AbstractPDFResource {
     @Inject
     AggregatedAccessLogs statisticsAccessLog;
 
-    public File selection(String[] pids, Rectangle rect, FirstPage fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException {
+    public File selection(String[] pids, Rectangle rect, FirstPageType fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
         PreparedDocument rdoc = documentService.buildDocumentFromSelection(pids, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
@@ -136,7 +133,7 @@ public class AbstractPDFResource {
                 reportAccess(p);
             }
 
-            if (fp == FirstPage.IMAGES) {
+            if (fp == FirstPageType.IMAGES) {
                 this.imageFirstPage.selection(rdoc, fpageFos, pids, fmap);
             } else {
                 this.textFirstPage.selection(rdoc, fpageFos, pids, fmap);
@@ -153,16 +150,25 @@ public class AbstractPDFResource {
         }
     }
 
-    public File parent(String pid, int n, Rectangle rect, FirstPage fp) throws DocumentException, IOException, NumberFormatException, ProcessSubtreeException {
+    public File parent(String pid, int numberOfPags, Rectangle rect, FirstPageType firstPageType) throws DocumentException, IOException, NumberFormatException, ProcessSubtreeException {
+        LOGGER.info("parent(" + pid + ", ...)"); //TODO: remove for production
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
-        Map<String, AbstractObjectPath[]> pathsMap = solrAccess.getModelAndPidPaths(pid);
-        ObjectPidsPath[] paths = (ObjectPidsPath[]) pathsMap.get(ObjectPidsPath.class.getName());
+        //Map<String, AbstractObjectPath[]> pathsMap = solrAccess.getModelAndPidPaths(pid);
+        //ObjectPidsPath[] paths = (ObjectPidsPath[]) pathsMap.get(ObjectPidsPath.class.getName());
+
+        ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
+        /*System.out.println("paths: " + paths.length);
+        for (ObjectPidsPath path1 : paths) {
+            System.out.println(path1);
+        }*/
+
         final ObjectPidsPath path = selectOnePath(pid, paths);
+        //System.out.println("path: " + path);
 
         File parentFile = null;
         File firstPageFile = null;
         try {
-            PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, n, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
+            PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, numberOfPags, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
             checkRenderedPDFDoc(rdoc);
 
             this.mostDesirable.saveAccess(pid, new Date());
@@ -176,7 +182,7 @@ public class AbstractPDFResource {
             firstPageFile = File.createTempFile("head", "pdf");
             FileOutputStream fpageFos = new FileOutputStream(firstPageFile);
 
-            if (fp == FirstPage.IMAGES) {
+            if (firstPageType == FirstPageType.IMAGES) {
                 this.imageFirstPage.parent(rdoc, fpageFos, path, fmap);
             } else {
                 this.textFirstPage.parent(rdoc, fpageFos, path, fmap);
@@ -247,5 +253,27 @@ public class AbstractPDFResource {
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
         }
+    }
+
+    //replaces ConfigurationUtils.checkNumber(string)
+    int extractNumberOfPages(String numberOfPagesStr) throws OutOfRangeException {
+        Configuration config = KConfiguration.getInstance().getConfiguration();
+        boolean ignoreMaxRange = config.getBoolean("turnOffPdfCheck");
+        int maxRange = config.getInt("generatePdfMaxRange");
+        if (numberOfPagesStr == null || numberOfPagesStr.trim().isEmpty()) { //numberOfPages not specified
+            return ignoreMaxRange ? Integer.MAX_VALUE : maxRange;
+        }
+        //numberOfPages specified
+        int numberOfPages = Integer.valueOf(numberOfPagesStr);
+        if (!ignoreMaxRange && numberOfPages > maxRange) {
+            throw new OutOfRangeException(String.format("too many pages (requested: %d, max: %d)", numberOfPages, maxRange));
+        }
+        return numberOfPages;
+    }
+
+    FirstPageType extractFirstPageType(String firstPageTypeStr) {
+        return firstPageTypeStr == null || firstPageTypeStr.trim().isEmpty()
+                ? FirstPageType.TEXT
+                : FirstPageType.valueOf(firstPageTypeStr);
     }
 }
