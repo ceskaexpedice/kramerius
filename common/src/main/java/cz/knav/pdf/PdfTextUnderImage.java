@@ -9,6 +9,7 @@ import com.lowagie.text.pdf.ColumnText;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfWriter;
 import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -122,27 +123,39 @@ public class PdfTextUnderImage {
 	}
 
 	private String getFontFamily(Element element, org.w3c.dom.Document alto) {
-		String r = null;
-		Element textStyle = getTextStyle(element, alto);
-		if (textStyle != null) {
-			final String s = "FONTFAMILY";
-			if (textStyle.hasAttribute(s)) {
-				r = textStyle.getAttribute(s);
-			}
-		}
-        if (r == null) {
-            if (isSP(element) || isHYP(element)) {
-                r = "Arial";
-            } else {
-                throwPdfTextUnderImageException();
+            boolean ignoreSizeAndStyle = KConfiguration.getInstance()
+                        .getConfiguration()
+                        .getBoolean("pdfQueue.ignoreMissingSizeAndStyle", true);
+            String r = null;
+            Element textStyle = getTextStyle(element, alto);
+            if (textStyle != null) {
+                final String s = "FONTFAMILY";
+                    if (textStyle.hasAttribute(s)) {
+                        r = textStyle.getAttribute(s);
+                    }
             }
+            if (r == null) {
+                if (isSP(element) || isHYP(element)) {
+                    r = "Arial";
+                } else {
+                    if (ignoreSizeAndStyle) {
+                        r = "Arial";
+                    }
+                    else {
+                       throwPdfTextUnderImageException(); 
+                    }
+                }
+            }
+            return r;
         }
-		return r;
-	}
 
 	
 	private Float getFontSize(Element element, org.w3c.dom.Document alto, ScaledImageOptions options) {
 		//TODO: change it
+                boolean ignoreSizeAndStyle = KConfiguration.getInstance()
+                        .getConfiguration()
+                        .getBoolean("pdfQueue.ignoreMissingSizeAndStyle", true);
+                
 		Float r = null;
 		Element textStyle = getTextStyle(element, alto);
 		if (textStyle != null) {
@@ -151,18 +164,23 @@ public class PdfTextUnderImage {
 				r = new Float(pxOrPtOr(textStyle.getAttribute(s), true));
 			}
 		}
-        if (r == null) {
-            if (isSP(element) || isHYP(element)) {
-                r = 10f;
-            } else {
-                throwPdfTextUnderImageException();
-            }
-        }
+                if (r == null) {
+                    if (isSP(element) || isHYP(element)) {
+                        r = 10f;
+                    } else {
+                        if (ignoreSizeAndStyle) {
+                            r = 10f;
+                        }
+                        else {
+                            throwPdfTextUnderImageException();
+                        }
+                    }
+                }
 		
-		if (options.getScaleFactor() != 1.0) {
-			r = r * options.getScaleFactor();
+                if (options.getScaleFactor() != 1.0) {
+                    r = r * options.getScaleFactor();
 		}
-		return r;
+                return r;
 	}
 
 	private int getFontStyle(Element element, org.w3c.dom.Document alto) {
