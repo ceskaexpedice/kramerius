@@ -68,14 +68,26 @@ public class SearchResource {
     private JSONDecoratorsAggregate jsonDecoratorAggregates; //TODO: do we need the decorators, and which are injected?
 
     @GET
-    public Response get(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
+    public Response get(@Context UriInfo uriInfo, @Context HttpHeaders headers, @QueryParam("wt") String wt) {
         try {
             if ("json".equals(wt)) {
                 return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
             } else if ("xml".equals(wt)) {
                 return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo)).build();
-            } else { //json is default
-                return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
+            } else { //format not specified in query param "wt"
+                boolean preferXmlAccordingToHeaderAccept = false;
+                List<String> headerValues = headers.getRequestHeader("Accept");
+                for (String headerValue : headerValues) {
+                    if ("application/xml".equals(headerValue) || "text/xml".equals(headerValue)) {
+                        preferXmlAccordingToHeaderAccept = true;
+                        break;
+                    }
+                }
+                if (preferXmlAccordingToHeaderAccept) { //header Accept contains "application/xml" or "text/xml"
+                    return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo)).build();
+                } else { //default format: json
+                    return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
+                }
             }
         } catch (WebApplicationException e) {
             throw e;
