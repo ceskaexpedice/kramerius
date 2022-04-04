@@ -1,0 +1,3 @@
+Directory search is a copy of search-index/src/main/resources/solr_core/solr7x/search.
+If those differ, that means that installation directory is not up-to-date and search-index/src/main/resources/solr_core/solr7x/search has precedence.
+This issue might concern especially file conf/managed-schema.
