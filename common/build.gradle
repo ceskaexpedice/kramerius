@@ -21,7 +21,7 @@ dependencies {
     compile 'org.json:json:20140107'
 
     compile 'commons-codec:commons-codec:1.5'
-    compile 'org.apache.pdfbox:pdfbox:2.0.2'
+    compile 'org.apache.pdfbox:pdfbox:2.0.25'
     compile 'com.levigo.jbig2:levigo-jbig2-imageio:1.6.5'
 
     compile 'com.ibm.icu:icu4j:56.1'

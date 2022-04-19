@@ -161,9 +161,9 @@ subprojects {
             url "http://download.osgeo.org/webdav/geotools/"
         }
 
-        maven {
-            url "http://repo.jfrog.org/artifactory/libs-releases/"
-        }
+//        maven {
+//            url "http://repo.jfrog.org/artifactory/libs-releases/"
+//        }
 
         /*
         maven {
