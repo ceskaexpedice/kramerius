@@ -33,7 +33,7 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
 
     public static final Logger LOGGER = Logger.getLogger(KeycloackUserSupport.class.getName());
 
-    public static final String KEYCLOACK_USER_PREFIX = "_keycloack_";
+
 
 //    public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
 //        KeycloakAccount keycloakAccount = null;
@@ -147,7 +147,7 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
             if (request.getUserPrincipal() instanceof KeycloakPrincipal){
                 return ((KeycloakPrincipal)request.getUserPrincipal()).getKeycloakSecurityContext().getToken().getPreferredUsername();
             } else {
-                return  KEYCLOACK_USER_PREFIX+ request.getUserPrincipal().getName();
+                return  request.getUserPrincipal().getName();
             }
         }else{
             return "null";
