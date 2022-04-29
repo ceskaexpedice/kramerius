@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public abstract class AdminApiResource extends ApiResource {
@@ -35,6 +36,9 @@ public abstract class AdminApiResource extends ApiResource {
 
     @Inject
     RightsResolver rightsResolver;
+
+    @Inject
+    ProcessSchedulingHelper processSchedulingHelper;
 
     //TODO: cleanup
 
@@ -165,5 +169,18 @@ public abstract class AdminApiResource extends ApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to perform global action '%s'", user.getLoginname(), action.getFormalName()); //403
             }
         }
+    }
+
+    protected void scheduleReindexationInBatch(String objectPid, String userid, String username, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
+        List<String> paramsList = new ArrayList<>();
+        paramsList.add(indexationType);
+        paramsList.add(objectPid);
+        paramsList.add(Boolean.toString(ignoreInconsistentObjects));
+        paramsList.add(title);
+        processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, userid, username, batchToken);
+    }
+
+    protected void scheduleReindexation(String objectPid, String userid, String username, String indexationType, boolean ignoreInconsistentObjects, String title) {
+        scheduleReindexationInBatch(objectPid, userid, username, indexationType, UUID.randomUUID().toString(), ignoreInconsistentObjects, title);
     }
 }

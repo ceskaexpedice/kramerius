@@ -41,7 +41,6 @@ public class ItemsResource extends AdminApiResource {
     private static final String ROLE_EDIT_OBJECTS = "kramerius_admin";
 
 
-
     @javax.inject.Inject
     Provider<User> userProvider;
 
@@ -49,7 +48,7 @@ public class ItemsResource extends AdminApiResource {
     /**
      * Returns array of pids (with titles) that have given model. Only partial array with offset & limit.
      * All top-level objects without model specification cannot be returned here, because this information (being top-level) is not available from resource index.
-     * Instead it is derived during indexation process and stored in search index.
+     * Instead, it is derived during indexation process and stored in search index.
      * Accessing this information from search index would violate architecture and possibly cause circular dependency.
      *
      * @param model
@@ -68,12 +67,12 @@ public class ItemsResource extends AdminApiResource {
                              @QueryParam("order") @DefaultValue("ASC") String order) {
         try {
 
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
             String role = ROLE_READ_ITEMS;
             if (!roles.contains(role)) {
-                                                                                                        // request doesnt contain user principal
+                // request doesnt contain user principal
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", requestProvider.get().getUserPrincipal().getName(), role); //403
             }
             //model
@@ -146,12 +145,12 @@ public class ItemsResource extends AdminApiResource {
         try {
             checkSupportedObjectPid(pid);
             //authentication
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
             String role = ROLE_READ_ITEMS;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
             }
 
             checkObjectExists(pid);
@@ -171,12 +170,12 @@ public class ItemsResource extends AdminApiResource {
         try {
             checkSupportedObjectPid(pid);
             //authentication
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
             String role = ROLE_READ_FOXML;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
             }
 
             checkObjectExists(pid);
@@ -196,12 +195,12 @@ public class ItemsResource extends AdminApiResource {
         try {
             checkSupportedObjectPid(pid);
             //authentication
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
             String role = ROLE_DELETE_OBJECTS;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
             }
 
             checkObjectExists(pid);
@@ -210,7 +209,9 @@ public class ItemsResource extends AdminApiResource {
             //some of the reference are managed, so deleting for example collection should not include deleting file with thumbnail
             boolean deleteManagedDatastreamsData = "page".equals(model);
             krameriusRepositoryApi.getLowLevelApi().deleteObject(pid, deleteManagedDatastreamsData);
-            //TODO: schedule indexation of the affected objects
+            //schedule indexation of the affected object - i.e. remove object from index
+            //TODO: optimalizace: nevytvaret proces, rovnou odstranit z indexu
+            scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT", false, "reindexace po smazání " + pid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
@@ -226,12 +227,12 @@ public class ItemsResource extends AdminApiResource {
         try {
             checkSupportedObjectPid(pid);
             //authentication
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
             String role = ROLE_READ_FOXML;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
             }
 
             checkObjectAndDatastreamExist(pid, dsid);
@@ -257,12 +258,12 @@ public class ItemsResource extends AdminApiResource {
         try {
             checkSupportedObjectPid(pid);
             //authentication
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
             String role = ROLE_READ_FOXML;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
             }
 
             checkObjectAndDatastreamExist(pid, dsid);
@@ -335,12 +336,12 @@ public class ItemsResource extends AdminApiResource {
         try {
             checkSupportedObjectPid(pid);
             //authentication
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
             String role = ROLE_READ_FOXML;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getLoginname(), role); //403
             }
 
             checkObjectAndDatastreamExist(pid, dsId);
@@ -416,12 +417,12 @@ public class ItemsResource extends AdminApiResource {
     public Response setImgThumb(@PathParam("pid") String targetPid, @QueryParam("srcPid") String sourcePid) {
         try {
             //authentication
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
             String role = ROLE_EDIT_OBJECTS;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getLoginname(), role); //403
             }
             //check target object
             checkSupportedObjectPid(targetPid);
@@ -461,12 +462,12 @@ public class ItemsResource extends AdminApiResource {
     public Response setMODS(@PathParam("pid") String pid, InputStream xml) {
         try {
             //authentication
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
             String role = ROLE_EDIT_OBJECTS;
             if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user1.getLoginname(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getLoginname(), role); //403
             }
             //check target object
             checkSupportedObjectPid(pid);
