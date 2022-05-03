@@ -2,12 +2,15 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.*;
+import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
 import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
@@ -25,8 +28,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -771,7 +777,61 @@ public class ProcessResource extends AdminApiResource {
                 result.add(target);
                 return result;
             }
+            case "nkplogs": {
+            	
+            	String dateFrom = extractMandatoryParamString(params, "dateFrom");
+            	String dateTo = extractMandatoryParamString(params, "dateTo");
+            	String folder = extractMandatoryParamString(params, "folder");
+            	String visibility = extractMandatoryParamString(params, "visibility");
+            	String institution = extractMandatoryParamString(params, "institution");
+            	String anonymization = extractMandatoryParamString(params, "anonymization");
+
+            	try {
+					StatisticReport.DATE_FORMAT.parse(dateFrom);
+				} catch (ParseException e) {
+                    throw new BadRequestException("cannot parse dateFrom, following pattern is excepted 'yyyy.MM.dd'");
+				}
+            	try {
+					StatisticReport.DATE_FORMAT.parse(dateTo);
+				} catch (ParseException e) {
+                    throw new BadRequestException("cannot parse dateTo, following pattern is excepted 'yyyy.MM.dd'");
+				}
+            	
+            	try {
+					VisibilityFilter.VisbilityType.valueOf(visibility);
+				} catch (Exception e) {
+                    throw new BadRequestException("invalid value of visibility, following values are excepted "+Arrays.stream(VisibilityFilter.VisbilityType.values()).map(it-> {
+                    	return it.name();
+                    }).collect(Collectors.toList()));
+				}
+            	
+            	
+				File f = new File(folder);
+				if (f.exists() && f.isDirectory()) {
+					// ok
+				} else {
+                    throw new BadRequestException("folder parameter should be valid folder");
+				}
+					
+					
+            	
+            	
+            	
+            	List<String> result = new ArrayList<>();
+            	result.add(dateFrom);
+            	result.add(dateTo);
+            	result.add(folder);
+            	result.add(visibility);
+            	result.add(institution);
+            	result.add(anonymization);
+
+            	return result;
+            	
+            }
+            
+            // TODO: Support annotation @Process and @ProcessParam - mapping in old API
             default: {
+            	LOGGER.log(Level.SEVERE,String.format("unsupported process id '%s'", id));
                 throw new BadRequestException("unsupported process id '%s'", id);
             }
         }

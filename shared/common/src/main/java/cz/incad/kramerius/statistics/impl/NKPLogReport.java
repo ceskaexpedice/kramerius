@@ -93,7 +93,8 @@ public class NKPLogReport implements StatisticReport {
 
     @Override
     public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer filters) throws StatisticsReportException {
-        try {
+    	Connection conn = null;
+    	try {
 
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
@@ -111,7 +112,7 @@ public class NKPLogReport implements StatisticReport {
                 @SuppressWarnings("rawtypes")
                 List params = StatisticUtils.jdbcParams(dateFilter);
                 String sql = statRecord.toString();
-                Connection conn = connectionProvider.get();
+                conn = connectionProvider.get();
 
                 new StastisticsIteration(sql, params, conn, collectedRecord-> {
                     logReport(collectedRecord, sup, visFilter);
@@ -123,7 +124,15 @@ public class NKPLogReport implements StatisticReport {
 
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
-        }
+        } finally {
+        	try {
+				if (conn != null && !conn.isClosed()) {
+				    conn.close();
+				}
+			} catch (SQLException e) {
+	            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+			}
+		}
 
     }
 
@@ -206,8 +215,6 @@ public class NKPLogReport implements StatisticReport {
 
 
         if (selected) {
-            // disable solr and fedora access
-            // disable solr and fedora access
             boolean disbleFedoraAccess = KConfiguration.getInstance().getConfiguration().getBoolean("nkp.logs.disablefedoraaccess", false);
             Map map = record.toMap();
             Object dbversion = map.get("dbversion");
@@ -266,7 +273,7 @@ public class NKPLogReport implements StatisticReport {
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
-            } else if (dbversion != null && versionCondition(dbversion.toString(), "=", "6.6.6")) {
+            } else if (dbversion != null && versionCondition(dbversion.toString(), ">=", "6.6.6")) {
                 if (!disbleFedoraAccess) {
                     try {
                         Document solrDoc = solrAccess.getSolrDataByPid(record.pid);
