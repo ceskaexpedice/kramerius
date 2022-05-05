@@ -40,6 +40,9 @@ public abstract class AdminApiResource extends ApiResource {
     @Inject
     ProcessSchedulingHelper processSchedulingHelper;
 
+    @Inject
+    SearchIndexHelper searchIndexHelper;
+
     //TODO: cleanup
 
     //private static final AuthenticatedUser ANONYMOUS = new AuthenticatedUser("anonymous", "anonymous", new ArrayList<>());
@@ -183,4 +186,13 @@ public abstract class AdminApiResource extends ApiResource {
     protected void scheduleReindexation(String objectPid, String userid, String username, String indexationType, boolean ignoreInconsistentObjects, String title) {
         scheduleReindexationInBatch(objectPid, userid, username, indexationType, UUID.randomUUID().toString(), ignoreInconsistentObjects, title);
     }
+
+    protected void deleteFromSearchIndex(String pid) throws IOException {
+        this.searchIndexHelper.deleteFromIndex(pid);
+    }
+
+    protected void deleteFromSearchIndex(List<String> pids) throws IOException {
+        this.searchIndexHelper.deleteFromIndex(pids);
+    }
+
 }

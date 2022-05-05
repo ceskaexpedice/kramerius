@@ -207,8 +207,7 @@ public class CollectionsResource extends AdminApiResource {
                 krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
                 //rebuild and update rels-ext (because of "standalone")
                 krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
-                //schedule reindexation - l (only object)
-                //TODO: mozna nahradit primo smazanim bez nasledneho procesu
+                //schedule reindexation - (only collection object)
                 scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
             }
             return Response.ok().build();

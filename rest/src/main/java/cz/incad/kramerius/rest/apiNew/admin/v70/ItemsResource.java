@@ -189,6 +189,26 @@ public class ItemsResource extends AdminApiResource {
         }
     }
 
+    /**
+     * Low level deletion from Repository and Search index.
+     * Relations pointing to this object from another objects will be NOT automatically removed.
+     * I.e. this operation can cause incorrect state of data in Repository (according to Kramerius) and Search index.
+     * <p>
+     * For example:
+     * <p>
+     * before deletion:
+     * Periodical1 --hasVolume--> Volume1 --hasItem--> Issue1 --hasPage--> Page1
+     * <p>
+     * after deletion of issue1:
+     * - Issue1 will be removed from Akubra (FOXML, managed datastreams)
+     * - Issue1 will be removed from Processing index
+     * - relations to and from Issue1 will be removed from Processing index
+     * - Volume1 will still reference Issue1 in it's FOXML (with hasItem)
+     * - Page1 will have incorrect data in Search Index (pid paths etc). But after reindexation this will be corrected will lose any connection to Periodical1, Volume1, Issue!1.
+     *
+     * @param pid
+     * @return
+     */
     @DELETE
     @Path("{pid}")
     public Response deleteObject(@PathParam("pid") String pid) {
@@ -209,9 +229,8 @@ public class ItemsResource extends AdminApiResource {
             //some of the reference are managed, so deleting for example collection should not include deleting file with thumbnail
             boolean deleteManagedDatastreamsData = "page".equals(model);
             krameriusRepositoryApi.getLowLevelApi().deleteObject(pid, deleteManagedDatastreamsData);
-            //schedule indexation of the affected object - i.e. remove object from index
-            //TODO: optimalizace: nevytvaret proces, rovnou odstranit z indexu
-            scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT", false, "reindexace po smazání " + pid);
+            //remove object from Search index (directly, without scheduling process)
+            deleteFromSearchIndex(pid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;

@@ -141,6 +141,17 @@ public class SolrIndexAccess {
         return null;
     }
 
+    public UpdateResponse deleteByIds(List<String> ids) throws IOException, SolrServerException {
+        //System.out.println("deleting " + id);
+        for (String id : ids) {
+            UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
+            //System.out.println("delete response: " + deleteResponse);
+        }
+        UpdateResponse commitResponse = solrClient.commit(collection);
+        //System.out.println("commit response: " + commitResponse);
+        return null;
+    }
+
     public UpdateResponse deleteAll() throws IOException, SolrServerException {
         //System.out.println("deleting all");
         UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "*");
@@ -149,7 +160,6 @@ public class SolrIndexAccess {
         //System.out.println("commit response: " + commitResponse);
         return null;
     }
-
 
     public SolrDocumentList searchInAllFields(String query) throws IOException, SolrServerException {
         Map<String, String> queryParamMap = new HashMap<>();
