@@ -104,7 +104,7 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
         String password = null;
         T wrapper = createUserWrapper(req, userName);
 
-        // don't store or update to database
+        
         if (checkIfUserExists(userName)) {
             password = updateExistingUser(userName, wrapper);
         } else {

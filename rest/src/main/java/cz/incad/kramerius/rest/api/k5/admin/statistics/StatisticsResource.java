@@ -66,12 +66,12 @@ import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.database.Offset;
 
-@Path("/v5.0/admin/statistics")
+//TODO: Move to right place
+//@Path("/v5.0/admin/statistics")
+@Path("/admin/v7.0/statistics")
 public class StatisticsResource {
 
     public static final Semaphore STATISTIC_SEMAPHORE = new Semaphore(1);
-
-
 
 
     @Inject
@@ -282,7 +282,11 @@ public class StatisticsResource {
         String authToken = this.requestProvider.get().getHeader(LRResource.AUTH_TOKEN_HEADER_KEY);
         if (authToken != null && !lrProcessManager.isAuthTokenClosed(authToken)) {
             String sessionKey = lrProcessManager.getSessionKey(authToken);
-            user =  this.loggedUsersSingleton.getUser(sessionKey);
+            if (sessionKey != null) {
+                user =  this.loggedUsersSingleton.getUser(sessionKey);
+            } else {
+                user = this.userProvider.get();
+            }
         } else {
             user = this.userProvider.get();
         }

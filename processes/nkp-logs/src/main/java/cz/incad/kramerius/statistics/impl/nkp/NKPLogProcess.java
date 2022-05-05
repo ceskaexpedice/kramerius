@@ -35,17 +35,44 @@ public class NKPLogProcess {
 
 
     public static Logger LOGGER = Logger.getLogger(NKPLogProcess.class.getName());
+    
+   
+    public static void main(String[] args) throws NoSuchAlgorithmException, ParseException, IOException {
+    	LOGGER.log(Level.INFO, "Process parameters: "+Arrays.asList(args).toString());
+    	
+        String url = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point")+(KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=%s", "one", "tow", "three");
+        System.out.println(url);
 
-    // annonymize
+    	
+    	if (args.length > 5) {
+			String from = args[1];
+			String to = args[2];
+			String folder = args[3];
+			String visibility = args[4];
+			String institution = args[5];
+			String anonymization = "";
+			if (args.length> 6) anonymization = args[6];
+			process(from, to, folder, institution, visibility, anonymization);
+		}
+	}
 
+// Annotation is not supported ?
+//    @Process
+//    public static void  process(@ParameterName("dateFrom")String from,
+//                                @ParameterName("dateTo")String to,
+//                                @ParameterName("folder")String folder,
+//                                @ParameterName("institution")String institution,
+//                                @ParameterName("visibility")String visibility,
+//                                @ParameterName("anonymization")String anonymization
+//            ) throws ParseException, IOException, NoSuchAlgorithmException {
 
-    @Process
-    public static void  process(@ParameterName("dateFrom")String from,
-                                @ParameterName("dateTo")String to,
-                                @ParameterName("folder")String folder,
-                                @ParameterName("institution")String institution,
-                                @ParameterName("visibility")String visibility,
-                                @ParameterName("anonymization")String anonymization
+    
+    public static void  process(String from,
+                                String to,
+                                String folder,
+                                String institution,
+                                String visibility,
+                                String anonymization
             ) throws ParseException, IOException, NoSuchAlgorithmException {
 
 
@@ -68,13 +95,13 @@ public class NKPLogProcess {
             localDateTime = localDateTime.plusDays(1);
             Date nextDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-            String url = KConfiguration.getInstance().getConfiguration().getString("api.point")+(KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("admin/statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=%s", StatisticReport.DATE_FORMAT.format(processingDate), StatisticReport.DATE_FORMAT.format(nextDate), visibility);
+            String url = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point")+(KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=%s", StatisticReport.DATE_FORMAT.format(processingDate), StatisticReport.DATE_FORMAT.format(nextDate), visibility);
             WebResource r = client.resource(url);
-            String authHeader = System.getProperty(ProcessStarter.AUTH_TOKEN_KEY);
-            String groupHeader = System.getProperty(ProcessStarter.TOKEN_KEY);
+            //String authHeader = System.getProperty(ProcessStarter.AUTH_TOKEN_KEY);
+            //String groupHeader = System.getProperty(ProcessStarter.TOKEN_KEY);
 
 
-            WebResource.Builder builder = r.header("auth-token", authHeader).header("token", groupHeader).accept(MediaType.APPLICATION_JSON);
+            WebResource.Builder builder = r.accept(MediaType.APPLICATION_JSON);
             InputStream clientResponse = builder.get(InputStream.class);
 
 

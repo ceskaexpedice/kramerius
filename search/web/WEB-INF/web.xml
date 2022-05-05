@@ -557,7 +557,9 @@
         <url-pattern>/localPrintPDF</url-pattern>
     </servlet-mapping>
 
-
+	<session-config>
+        <tracking-mode>URL</tracking-mode>
+    </session-config>
 
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

@@ -86,13 +86,19 @@ public class ClientUserResource {
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response info() {
+    public Response info(@QueryParam("sessionAttributes") String sessionAttributes) {
         try {
+        	
+        	Boolean flag  = Boolean.valueOf(sessionAttributes);
+        	if (flag == null) {
+        		flag = new Boolean(false);
+        	}
+        	
             User user = this.userProvider.get();
             // DNNT extension
             List<String> labels = findLabels(user);
             if (user != null) {
-                return Response.ok().entity(UsersUtils.userToJSON(user,labels).toString())
+                return Response.ok().entity(UsersUtils.userToJSON(user,labels,flag).toString())
                         .build();
             } else {
                 return Response.ok().entity("{}").build();
@@ -143,7 +149,7 @@ public class ClientUserResource {
                             .getString("pswd"));
                     this.userManager.saveNewPassword(user.getId(), newPswd);
                     return Response.ok()
-                            .entity(UsersUtils.userToJSON(user).toString())
+                            .entity(UsersUtils.userToJSON(user, false).toString())
                             .build();
                 } else {
                     throw new ObjectNotFound("cannot find user " + user.getId());

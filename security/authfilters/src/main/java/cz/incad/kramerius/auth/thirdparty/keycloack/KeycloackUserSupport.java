@@ -35,18 +35,6 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
 
 
 
-//    public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
-//        KeycloakAccount keycloakAccount = null;
-//        try {
-//            keycloakAccount = (KeycloakAccount) requestProvider.get().getAttribute(KeycloakAccount.class.getName());
-//        }catch (Throwable th){
-//            LOGGER.log(Level.INFO,"Error retrieving KeycloakAccount", th);
-//        }
-//        if (keycloakAccount == null){
-//            return  ANONYMOUS;
-//        }
-//        return new AuthenticatedUser(keycloakAccount.getPrincipal().getName(), keycloakAccount.getPrincipal().getName(), new ArrayList<>(keycloakAccount.getRoles()));
-//    }
 
 
     @Override
@@ -133,9 +121,11 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
         keycloack3rdUser.setRoles(new ArrayList<>(roleSet));
 
         AccessToken token = ((KeycloakPrincipal<KeycloakSecurityContext>) req.getUserPrincipal()).getKeycloakSecurityContext().getToken();
+
         keycloack3rdUser.setProperty(UserUtils.FIRST_NAME_KEY, token.getGivenName());
         keycloack3rdUser.setProperty(UserUtils.LAST_NAME_KEY, token.getFamilyName());
         keycloack3rdUser.setProperty(UserUtils.EMAIL_KEY, token.getEmail());
+        
         keycloack3rdUser.setProperty("preffered_user_name", token.getPreferredUsername());
 
         return keycloack3rdUser;
@@ -145,7 +135,12 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
     public String calculateUserName(HttpServletRequest request) {
         if (request.getUserPrincipal()!= null){
             if (request.getUserPrincipal() instanceof KeycloakPrincipal){
-                return ((KeycloakPrincipal)request.getUserPrincipal()).getKeycloakSecurityContext().getToken().getPreferredUsername();
+            	AccessToken token =  ((KeycloakPrincipal)request.getUserPrincipal()).getKeycloakSecurityContext().getToken();
+            	if (token.getEmail() != null) {
+            		return token.getEmail();
+            	} else {
+            		return token.getPreferredUsername();
+            	}
             } else {
                 return  request.getUserPrincipal().getName();
             }

@@ -27,6 +27,7 @@ import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RolesResource;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 
+//TODO: Check; might by possible that it is used only in client resource
 public class UsersUtils {
 
     public static final String LNAME = "lname";
@@ -37,23 +38,32 @@ public class UsersUtils {
     public static final String LICENSES = "licenses";
     public static final String SESSION = "session";
 
-    public static JSONObject userToJSON(User user) throws JSONException {
-        return  userToJSON(user, new ArrayList<>());
+    public static final String AUTHENTICATED = "authenticated";
+    public static final String UID="uid";
+    public static final String NAME="name";
+    
+    
+    
+    public static JSONObject userToJSON(User user, boolean enhanceBySessionAttributes) throws JSONException {
+        return  userToJSON(user, new ArrayList<>(),enhanceBySessionAttributes);
     }
 
-    public static JSONObject userToJSON(User user, List<String> labels) throws JSONException {
+    
+    public static JSONObject userToJSON(User user, List<String> labels, boolean enhanceBySessionAttributes) throws JSONException {
         JSONObject jsonObj = new JSONObject();
-        jsonObj.put(LNAME, user.getLoginname());
-        jsonObj.put(FIRSTNAME, user.getFirstName());
-        jsonObj.put(SURNAME, user.getSurname());
-        jsonObj.put(ID, user.getId());
+        jsonObj.put(UID, user.getLoginname());
+        if (user.getId() != -1) {
+            jsonObj.put(NAME, user.getFirstName() +" "+user.getSurname());
+        	
+        }
+        jsonObj.put(AUTHENTICATED, user.getId() != -1);
 
         JSONArray jsonArr = new JSONArray();
         Role[] roles = user.getGroups();
         if (roles != null) {
             for (Role r : roles) {
-                JSONObject json = RolesResource.roleToJSON(r);
-                jsonArr.put(json);
+                //JSONObject json = RolesResource.roleToJSON(r);
+                jsonArr.put(r.getName());
             }
             jsonObj.put(ROLES, jsonArr);
         }
@@ -61,16 +71,19 @@ public class UsersUtils {
         JSONArray labelsArray = new JSONArray();
         labels.stream().forEach(labelsArray::put);
         jsonObj.put(LICENSES, labelsArray);
+        
 
-
-        JSONObject jsonSessionAttributes = new JSONObject();
-        user.getSessionAttributes().keySet().stream().forEach(key-> jsonSessionAttributes.put(key, user.getSessionAttributes().get(key)));
-        jsonObj.put(SESSION, jsonSessionAttributes);
-
-
+        // session attributes - Question 
+        if (enhanceBySessionAttributes) {
+            JSONObject jsonSessionAttributes = new JSONObject();
+            user.getSessionAttributes().keySet().stream().forEach(key-> jsonSessionAttributes.put(key, user.getSessionAttributes().get(key)));
+            jsonObj.put(SESSION, jsonSessionAttributes);
+        }
 
         return jsonObj;
     }
+
+
 
 
 }
