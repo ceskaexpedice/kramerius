@@ -8,6 +8,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 
 import java.io.IOException;
+import java.util.Date;
 
 public class AggregatedAccessLogs implements StatisticsAccessLog{
 
@@ -56,4 +57,11 @@ public class AggregatedAccessLogs implements StatisticsAccessLog{
     public StatisticReport getReportById(String reportId) {
         return this.databaseAccessLog.getReportById(reportId);
     }
+
+	@Override
+	public int cleanData(Date dateFrom, Date dateTo) {
+		throw new UnsupportedOperationException("unsupported");
+		
+	}
+    
 }

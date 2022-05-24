@@ -72,7 +72,12 @@ public interface StatisticsAccessLog {
      */
     public StatisticReport getReportById(String reportId);
 
-
-
+    
+    /**
+     * Cleaning statistics tables 
+     * @param dateFrom From date
+     * @param dateTo To date
+     */
+    public int cleanData(Date dateFrom, Date dateTo) throws IOException;
 
 }

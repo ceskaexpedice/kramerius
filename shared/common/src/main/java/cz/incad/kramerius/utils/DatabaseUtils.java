@@ -55,6 +55,26 @@ public class DatabaseUtils {
         }
     }
 
+    public static boolean materializedViewExists(Connection con, String mView) throws SQLException {
+    	String sql = String.format("SELECT oid::regclass::text  AS objectname "
+    			+ "     , relkind   AS objecttype "
+    			+ "     , reltuples AS entries "
+    			+ "     , pg_size_pretty(pg_table_size(oid)) AS size "
+    			+ " FROM   pg_class "
+    			+ " WHERE  relkind IN ( 'm') AND oid::regclass::text = '%s' ", mView);
+    	
+        PreparedStatement pstm = con.prepareStatement(sql);
+        //pstm.setString(1, mView);
+        ResultSet rs = null;
+        try {
+            rs = pstm.executeQuery();
+            return rs.next();
+        } finally {
+            tryClose(pstm);
+            if (rs != null) tryClose(rs);
+        }
+    }
+    
     public static boolean indexExists(Connection con, String tableName, String columnName) throws SQLException {
         String sql = "select t.relname as table_name, i.relname as index_name, a.attname as column_name\n" +
                 "from\n" +

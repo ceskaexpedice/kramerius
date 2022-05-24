@@ -70,43 +70,18 @@ select
 
 
 
-
 /** Model report */
 selectModelReport(action, model, paging, fromDefined, toDefined, visibility, licenseDefined ) ::=<<
-
-	select count(pid) AS count, last(pid) as pid,last(model) as model,  last(title) AS title, last(dnnt_labels) as dnnt_labels
-	from _model_$model$  
+	select * from _model_$model$  
      where 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ $visibilityFilter(visibility=visibility)$ $license(licenseDefined=licenseDefined)$
-	GROUP BY pid
 	order by count desc
     $if(paging)$ $paging()$ $endif$
 >>
 
-selectModelReportCounts(action, model, paging, fromDefined, toDefined, visibility,licenseDefined) ::=<<
-	select count(pid) as sum from _model_$model$
-	where 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $license(licenseDefined=licenseDefined)$
+
+selectModels() ::=<<
+    select distinct model from statistic_access_log_detail
 >>
-/** end of model report */
-
-/** Language report */
-selectLangReport(action,paging, fromDefined, toDefined, visibility, licenseDefined) ::=<<
-
-select count(*) as count, last(lang) as lang from _lang
-WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $license(licenseDefined=licenseDefined)$ 
-group by lang 
-order by count desc 
-$if(paging)$ $paging()$ $endif$ 
->>
-
-/** author report */ 
-selectAuthorReport(action, paging, fromDefined, toDefined, visibility, licenseDefined) ::=<<
-select count(*) as count, last(author_name) as author_name from _authors
-WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $license(licenseDefined=licenseDefined)$ 
-group by author_name 
-order by count desc 
-$if(paging)$ $paging()$ $endif$
->>
-
 
 /** date filter **/
 dateFilter(fromDefined, toDefined) ::=<<
@@ -130,12 +105,6 @@ and "rights" =  'policy:private'
 $endif$
 >>
 
-/** license filter */
-license(licenseDefined) ::=<<
-$if(licenseDefined)$
-AND ? = ANY(dnnt_labels)
-$endif$
->>
 
 
 /** ipaddr filter **/
@@ -145,18 +114,60 @@ AND NOT remote_ip_address::text SIMILAR TO '$ipaddr$'
 $endif$
 >>
 
+/** author report */ 
+selectAuthorReport(action, paging, fromDefined, toDefined, visibility, licenseDefined) ::=<<
+select count(*) as count, last(author_name) as author_name from _authors
+WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $license(licenseDefined=licenseDefined)$ 
+group by author_name 
+order by count desc 
+>>
 
+
+/** license filter */
+license(licenseDefined) ::=<<
+AND ? = ANY(dnnt_labels)
+>>
 
 /** paging */
 paging() ::=<<offset ? limit ?>>
 
 
+/** Language report */
+selectLangReport(action, fromDefined, toDefined, visibility, licenseDefined) ::=<<
 
-/** pids */
+select count(*) as count, last(lang) as lang from _lang
+WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$  $visibilityFilter(visibility=visibility)$ $license(licenseDefined=licenseDefined)$ 
+group by lang 
+order by count desc 
+ 
+>>
+
+
+/** pids filter */
 pids(pids, column_name) ::=<< $pids:{pid|$column_name$= '$pid$'};separator=" OR "$ >>
 
 
 
+/** vybrane pidy */
+preparePidsView(action, pids, paging, ipaddr) ::=<<
+ CREATE OR REPLACE VIEW pids_view AS 
+   SELECT 
+    last(l.record_id) AS record_id,
+    last(date) as date,
+    last(detail_id) as detail_id,
+    last(rights) as rights,
+    l.session_id,
+    model,
+    d.pid,
+    stat_action,
+    last(d.title) as title,
+    last(remote_ip_address) as remote_ip_address
+    
+   FROM statistics_access_log l
+     JOIN statistic_access_log_detail d USING (record_id)
+  WHERE ($pids(pids=pids, column_name="d.pid")$) $ipAddrFilter(ipaddr=ipaddr)$
+  GROUP BY l.session_id,model,d.pid,stat_action;
+>>
 
 
 /** pids */ 
@@ -265,4 +276,3 @@ WHERE 1=1 $dateFilter(fromDefined=fromDefined,toDefined=toDefined)$ $visibilityF
 order by sl.record_id, sd.detail_id, sd.branch_id, sa.author_id
 
 >>
-

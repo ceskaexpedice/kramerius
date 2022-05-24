@@ -73,7 +73,7 @@ public class PidsReport implements StatisticReport {
                 statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
                 
                 @SuppressWarnings("rawtypes")
-                List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
+                List params = StatisticUtils.jdbcParams(dateFilter,null, rOffset);
                 String sql = statRecord.toString();
                 Connection conn = connectionProvider.get();
 
@@ -111,37 +111,6 @@ public class PidsReport implements StatisticReport {
     
     @Override
     public void prepareViews(ReportedAction action, StatisticsFiltersContainer filters) throws StatisticsReportException {
-        try {
-            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-            PidsFilter pidsFilter = filters.getFilter(PidsFilter.class);
-            
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("preparePidsView");
-            statRecord.setAttribute("action", action != null ? action.name() : null);
-            statRecord.setAttribute("paging", false);
-            
-            statRecord.setAttribute("pids", pidsFilter.getPids().split(","));
-            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
-            
-            String sql = statRecord.toString();
-            Connection conn = connectionProvider.get();
-            
-            String viewName =  "statistics_grouped_by_sessionandpid_pid";
-            boolean tableExists = DatabaseUtils.viewExists(conn, viewName.toUpperCase());
-            if (!tableExists) {
-                JDBCUpdateTemplate updateTemplate = new JDBCUpdateTemplate(conn, true);
-                updateTemplate.setUseReturningKeys(false);
-                updateTemplate
-                    .executeUpdate(sql);
-            }
-            // if table exists; we have to close connection manually
-            if (!conn.isClosed()) {
-                conn.close();
-            }
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new StatisticsReportException(e);
-        }
     }
 
 
@@ -198,8 +167,8 @@ public class PidsReport implements StatisticReport {
         }
     }
 
-    @Override
-    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
-        return true;
-    }
+	@Override
+	public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+		return new ArrayList<>();
+	}
 }

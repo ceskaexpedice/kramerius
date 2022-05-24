@@ -11,7 +11,7 @@ package cz.incad.kramerius.statistics.filters;
  */
 public class PidsFilter implements StatisticsFilter {
     
-    private String pids;
+    private String pids = "";
     
     public String getPids() {
         return this.pids;

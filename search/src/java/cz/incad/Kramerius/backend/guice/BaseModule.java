@@ -72,6 +72,7 @@ public class BaseModule extends AbstractModule {
         reports.addBinding().to(AnnualStatisticsReport.class);
         reports.addBinding().to(PidsReport.class);
 
+        reports.addBinding().to(MultimodelReport.class);
         reports.addBinding().to(NKPLogReport.class);
 
         

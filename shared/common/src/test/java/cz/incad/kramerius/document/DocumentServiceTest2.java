@@ -8,6 +8,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -20,6 +21,7 @@ import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.utils.pid.LexerException;
 
+@Ignore
 public class DocumentServiceTest2 {
 
     // Cely dokumennt - turnOffPdfCheck = true 

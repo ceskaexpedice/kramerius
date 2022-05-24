@@ -1,0 +1,17 @@
+-- publishers
+alter table statistic_access_log_detail_publishers drop constraint  statistic_access_log_detail_publishers_record_id_fkey;
+alter table  statistic_access_log_detail_publishers add constraint  statistic_access_log_detail_publishers_record_id_fkey foreign key (record_id) references statistics_access_log(record_id) on delete cascade;
+
+alter table statistic_access_log_detail_publishers drop constraint  statistic_access_log_detail_publishers_detail_id_fkey;
+alter table statistic_access_log_detail_publishers  add constraint  statistic_access_log_detail_publishers_detail_id_fkey foreign key (detail_id) references statistic_access_log_detail(detail_id) on delete cascade;
+
+-- authors
+alter table statistic_access_log_detail_authors drop constraint  statistic_access_log_detail_authors_record_id_fkey;
+alter table  statistic_access_log_detail_authors add constraint  statistic_access_log_detail_authors_record_id_fkey foreign key (record_id) references statistics_access_log(record_id) on delete cascade;
+
+alter table statistic_access_log_detail_authors drop constraint  statistic_access_log_detail_authors_detail_id_fkey;
+alter table statistic_access_log_detail_authors add constraint  statistic_access_log_detail_authors_detail_id_fkey foreign key (detail_id) references statistic_access_log_detail(detail_id) on delete cascade;
+
+-- detail
+alter table statistic_access_log_detail drop constraint  statistic_access_log_detail_record_id_fkey;
+alter table statistic_access_log_detail add constraint  statistic_access_log_detail_record_id_fkey foreign key (record_id) references statistics_access_log(record_id) on delete cascade;

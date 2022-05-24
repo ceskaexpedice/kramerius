@@ -23,10 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -525,5 +526,16 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
         stGroup = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
     }
 
+    
+    
+	@Override
+	public int cleanData(Date dateFrom, Date dateTo) throws IOException{
+        try {
+			return new JDBCUpdateTemplate(connectionProvider.get(), true)
+			.executeUpdate("delete from statistics_access_log where date >= ? AND date<=?", new java.sql.Date(dateFrom.getTime()), new java.sql.Date(dateTo.getTime()));
+		} catch (SQLException e) {
+			throw new IOException(e.getMessage());
+		}
+	}
 
 }

@@ -43,8 +43,10 @@ import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.LicenseFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -65,32 +67,24 @@ public class LangReport implements StatisticReport{
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,  StatisticsFiltersContainer filters,Offset rOffset) {
         try {
-            DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            
-            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-          
-            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
-            
-            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate statRecord;
-            
-            if (isUniqueSelected == false) {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+        	// date filter 
+        	DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
+
+            final StringTemplate statRecord =DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectLangReport");
-            }
-            else {
-               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectLangReportUnique"); 
-            }
-          
-            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
+            
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
+            statRecord.setAttribute("visibility", visFilter.asMap());
+            
+            statRecord.setAttribute("licenseDefined", licFilter.getLicence() != null);
+            //statRecord.setAttribute("license", licFilter.getLicence());
 
             
             @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(dateFilter);
+            List params = StatisticUtils.jdbcParams(dateFilter, licFilter , null);
             //statRecord.setAttribute("paging", true);
             String sql = statRecord.toString();
             Connection conn = connectionProvider.get();
@@ -132,7 +126,7 @@ public class LangReport implements StatisticReport{
     @Override
     public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) {
         // TODO Auto-generated method stub
-        
+    	// zjistim, zda je pritomne view a pokud ne, pak vracim 
     }
 
     @Override
@@ -140,24 +134,14 @@ public class LangReport implements StatisticReport{
             final StatisticsFiltersContainer container) throws StatisticsReportException {
         try {
             DateFilter dateFilter = container.getFilter(DateFilter.class);
-            IPAddressFilter ipFilter = container.getFilter(IPAddressFilter.class);
-            UniqueIPAddressesFilter uniqueIPFilter = container.getFilter(UniqueIPAddressesFilter.class);
-            
-            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate statRecord;
-            
-            if (isUniqueSelected == false) {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+            VisibilityFilter visFilter = container.getFilter(VisibilityFilter.class);
+            final StringTemplate statRecord =  DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectLangReport");
-            }
-            else {
-               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectLangReportUnique"); 
-            }
+            
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
+            statRecord.setAttribute("visibility", visFilter.asMap());
             statRecord.setAttribute("paging", false);
 
 
@@ -183,8 +167,12 @@ public class LangReport implements StatisticReport{
         }
     }
 
-    @Override
-    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
-        return true;
-    }
+	@Override
+	public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+    	List<String> list = new ArrayList<>();
+		DateFilter dateFilter = container.getFilter(DateFilter.class);
+		VerificationUtils.dateVerification(list, dateFilter.getFromDate());
+		VerificationUtils.dateVerification(list, dateFilter.getToDate());
+		return list;
+	}
 }

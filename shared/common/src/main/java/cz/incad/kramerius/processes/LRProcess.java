@@ -296,6 +296,7 @@ public interface LRProcess {
      *
      * @return Authentication token
      */
+    //TODO: Auth token is not necessary now
     public String getAuthToken();
 
     /**
@@ -303,6 +304,7 @@ public interface LRProcess {
      *
      * @param authToken authentication token
      */
+    //TODO: Auth token is not necessary now
     public void setAuthToken(String authToken);
 
 

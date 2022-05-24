@@ -28,6 +28,7 @@ import cz.incad.kramerius.security.User;
  * Manages logged users 
  * @author pavels
  */
+//TODO: Remove it
 public interface LoggedUsersSingleton {
 
     /**

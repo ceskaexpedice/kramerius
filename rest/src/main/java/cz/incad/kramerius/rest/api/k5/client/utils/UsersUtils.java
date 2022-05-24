@@ -85,5 +85,37 @@ public class UsersUtils {
 
 
 
+    
+    public static JSONObject legacyUserToJSON(User user, List<String> labels) throws JSONException {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put(LNAME, user.getLoginname());
+        jsonObj.put(FIRSTNAME, user.getFirstName());
+        jsonObj.put(SURNAME, user.getSurname());
+        // TODO: Change it 
+        jsonObj.put(AUTHENTICATED, user.getId() != -1);
+        jsonObj.put(ID, user.getId());
+
+        
+        JSONArray jsonArr = new JSONArray();
+        Role[] roles = user.getGroups();
+        if (roles != null) {
+            for (Role r : roles) {
+                JSONObject json = RolesResource.roleToJSON(r);
+                jsonArr.put(json);
+            }
+            jsonObj.put(ROLES, jsonArr);
+        }
+
+        JSONArray labelsArray = new JSONArray();
+        labels.stream().forEach(labelsArray::put);
+        jsonObj.put(LICENSES, labelsArray);
+
+
+        JSONObject jsonSessionAttributes = new JSONObject();
+        user.getSessionAttributes().keySet().stream().forEach(key-> jsonSessionAttributes.put(key, user.getSessionAttributes().get(key)));
+        jsonObj.put(SESSION, jsonSessionAttributes);
+
+        return jsonObj;
+    }
 
 }

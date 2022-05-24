@@ -149,7 +149,7 @@ public class ClientUserResource {
                             .getString("pswd"));
                     this.userManager.saveNewPassword(user.getId(), newPswd);
                     return Response.ok()
-                            .entity(UsersUtils.userToJSON(user, false).toString())
+                            .entity(UsersUtils.userToJSON(user,false).toString())
                             .build();
                 } else {
                     throw new ObjectNotFound("cannot find user " + user.getId());

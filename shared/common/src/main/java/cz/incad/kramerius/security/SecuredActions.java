@@ -109,6 +109,9 @@ public enum SecuredActions {
 
     /** show statistics item */
     SHOW_STATISTICS("show_statictics"),
+    
+    /** manage statistics */
+    MANAGE_STATISTICS("show_statictics"),
 
     /** show print admin menu item  */
     SHOW_PRINT_MENU("show_print_menu"),

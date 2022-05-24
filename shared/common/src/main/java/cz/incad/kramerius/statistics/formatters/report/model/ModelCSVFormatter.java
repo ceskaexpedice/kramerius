@@ -76,17 +76,6 @@ public class ModelCSVFormatter implements StatisticsReportFormatter{
         return CSV_FORMAT;
     }
 
-//    @Override
-//    public void beforeProcess(HttpServletResponse response) throws IOException {
-//        this.firstLine = true;
-//        this.printHeader();
-//    }
-
-//    @Override
-//    public void afterProcess(HttpServletResponse response) throws IOException {
-//        this.os = null;
-//        this.firstLine = false;
-//    }
 
     @Override
     public String getReportId() {
@@ -97,14 +86,6 @@ public class ModelCSVFormatter implements StatisticsReportFormatter{
     public String getMimeType() {
         return CSV_MIME_TYPE;
     }
-
-//    @Override
-//    public void addInfo(HttpServletResponse response, String info) throws IOException {
-//        this.os = response.getOutputStream();
-//        String text = "Report dle modelu: ";
-//        String comment = "# " + text + info + "\n";
-//        this.os.write(comment.getBytes(DEFAULT_ENCODING));
-//    }
 
 
     @Override

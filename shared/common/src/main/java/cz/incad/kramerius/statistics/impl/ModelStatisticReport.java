@@ -37,12 +37,14 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import antlr.StringUtils;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.LicenseFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
@@ -74,32 +76,36 @@ public class ModelStatisticReport implements StatisticReport {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
-            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
-            
-            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate statRecord;
-            
-            if (isUniqueSelected == false) {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+            LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
+
+            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectModelReport");
-            }
-            else {
-               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectModelReportUnique"); 
-            }
+
+            final StringTemplate counts = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectModelReportCounts");
+            
             statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
             statRecord.setAttribute("paging", true);
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
             statRecord.setAttribute("visibility", visFilter.asMap());
+            statRecord.setAttribute("licenseDefined", licFilter.getLicence() != null);
+
+            counts.setAttribute("model", modelFilter.getModel());
+            counts.setAttribute("action", repAction != null ? repAction.name() : null);
+            counts.setAttribute("paging", false);
+            counts.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            counts.setAttribute("toDefined", dateFilter.getToDate() != null);
+            counts.setAttribute("visibility", visFilter.asMap());
+            counts.setAttribute("licenseDefined", licFilter.getLicence() != null);
 
 
             @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
+            List params = StatisticUtils.jdbcParams(dateFilter, licFilter,rOffset);
             String sql = statRecord.toString();
-            Connection conn = connectionProvider.get();
-            List<Map<String, Object>> models = new JDBCQueryTemplate<Map<String, Object>>(conn) {
+
+            List<Map<String, Object>> models = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
                     Map<String, Object> val = new HashMap<>();
@@ -111,13 +117,23 @@ public class ModelStatisticReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql, params.toArray());
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
+            
+            // connection provider
+            List<Map<String,Object>> sum = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+                    Map<String, Object> val = new HashMap<>();
+                    val.put("sum", rs.getInt("sum"));
+                    returnsList.add(val);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(counts.toString(), StatisticUtils.jdbcParams(dateFilter, licFilter,null).toArray());
+
+            models.addAll(sum);
+            
             return models;
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return new ArrayList<Map<String, Object>>();
-        } catch (SQLException ex) {
-            Logger.getLogger(ModelStatisticReport.class.getName()).log(Level.SEVERE, null, ex);
             return new ArrayList<Map<String, Object>>();
         }
     }
@@ -152,41 +168,6 @@ public class ModelStatisticReport implements StatisticReport {
     
     @Override
     public void prepareViews(ReportedAction action, StatisticsFiltersContainer filters) throws StatisticsReportException {
-        try {
-            ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
-            DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-            
-            
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
-            statRecord.setAttribute("model", modelFilter.getModel());
-            statRecord.setAttribute("action", action != null ? action.name() : null);
-            statRecord.setAttribute("paging", false);
-            
-            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
-            
-            String sql = statRecord.toString();
-            Connection conn = connectionProvider.get();
-            
-            String viewName =  "statistics_grouped_by_sessionandpid_"+modelFilter.getModel();
-            boolean tableExists = DatabaseUtils.viewExists(conn,viewName.toUpperCase());
-            if (!tableExists) {
-                JDBCUpdateTemplate updateTemplate = new JDBCUpdateTemplate(connectionProvider.get(), true);
-                updateTemplate.setUseReturningKeys(false);
-                updateTemplate
-                    .executeUpdate(sql);
-            }
-            // if viewExists; we have to close connection manually
-            if (!conn.isClosed()) {
-                conn.close();
-            }
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new StatisticsReportException(e);
-        }
     }
 
     @Override
@@ -196,20 +177,11 @@ public class ModelStatisticReport implements StatisticReport {
             ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
-            //IPAddressFilter ipAddrFilter = filters.getFilter(IPAddressFilter.class);
-            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
+            LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
             
-            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate statRecord;
-            
-            if (isUniqueSelected == false) {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectModelReport");
-            }
-            else {
-               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectModelReportUnique"); 
-            }
+            
             
             statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
@@ -218,6 +190,9 @@ public class ModelStatisticReport implements StatisticReport {
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
             statRecord.setAttribute("visibility", visFilter.asMap());
+            
+            statRecord.setAttribute("licenseDefined", licFilter.getLicence() != null);
+            statRecord.setAttribute("license", licFilter.getLicence());
             
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
@@ -250,8 +225,17 @@ public class ModelStatisticReport implements StatisticReport {
     }
 
     @Override
-    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
-        ModelFilter modelFilter = container.getFilter(ModelFilter.class);
-        return modelFilter.getModel() != null;
-    }
+    public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+    	List<String> list = new ArrayList<>();
+    	ModelFilter modelFilter = container.getFilter(ModelFilter.class);
+        if (modelFilter.getModel() == null)  {
+        	list.add("model is mandatory");
+        }
+		DateFilter dateFilter = container.getFilter(DateFilter.class);
+		VerificationUtils.dateVerification(list, dateFilter.getFromDate());
+		VerificationUtils.dateVerification(list, dateFilter.getToDate());
+        
+        return list;
+
+	}
 }

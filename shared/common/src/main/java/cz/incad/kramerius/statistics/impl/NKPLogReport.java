@@ -293,12 +293,19 @@ public class NKPLogReport implements StatisticReport {
         }
     }
 
-    @Override
-    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer filters) {
-        DateFilter dateFilter = filters.getFilter(DateFilter.class);
-        return dateFilter.getToDate() != null && dateFilter.getFromDate() != null;
+    
+    public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer filters) {
+    	List<String> list = new ArrayList<>();
+    	DateFilter dateFilter = filters.getFilter(DateFilter.class);
+		boolean flag = dateFilter.getToDate() != null && dateFilter.getFromDate() != null;
+		if (!flag) {
+			list.add("dateFrom and dateTo are mandatory");
+		} 
+		VerificationUtils.dateVerification(list, dateFilter.getFromDate());
+		VerificationUtils.dateVerification(list, dateFilter.getToDate());
+		return list;
     }
-
+    
 
     static class Record {
 

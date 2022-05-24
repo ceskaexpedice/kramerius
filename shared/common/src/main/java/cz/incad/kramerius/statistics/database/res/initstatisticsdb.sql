@@ -22,7 +22,7 @@ create table statistic_access_log_detail(
     LANG VARCHAR(255),
     TITLE VARCHAR(1024),
     BRANCH_ID INT NOT NULL,
-    RECORD_ID INT NOT NULL REFERENCES statistics_access_log(record_ID),
+    RECORD_ID INT NOT NULL REFERENCES statistics_access_log(record_ID) on delete cascade,
     PRIMARY KEY(detail_ID)
 );
 
@@ -31,8 +31,8 @@ CREATE SEQUENCE statistic_access_log_detail_authors_ID_SEQUENCE INCREMENT BY 1 S
 create table statistic_access_log_detail_authors(
    author_id int not null,
    AUTHOR_NAME VARCHAR(1024), 
-   DETAIL_ID INT NOT NULL REFERENCES statistic_access_log_detail(detail_id),
-   RECORD_ID INT NOT NULL REFERENCES statistics_access_log(record_ID),
+   DETAIL_ID INT NOT NULL REFERENCES statistic_access_log_detail(detail_id) on delete cascade,
+   RECORD_ID INT NOT NULL REFERENCES statistics_access_log(record_ID) on delete cascade,
    PRIMARY KEY(author_id)
 );
  

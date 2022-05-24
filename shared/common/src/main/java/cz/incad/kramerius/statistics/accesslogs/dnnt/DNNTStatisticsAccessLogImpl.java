@@ -383,4 +383,11 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         else
             return null;
     }
+
+
+	@Override
+	public int cleanData(Date dateFrom, Date dateTo) {
+		throw new UnsupportedOperationException("unsupported");
+	}
 }
+

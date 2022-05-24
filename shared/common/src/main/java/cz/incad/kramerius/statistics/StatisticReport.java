@@ -45,7 +45,7 @@ public interface StatisticReport {
 
     public static final String DATE_FROM = "from";
     public static final String DATE_TO = "to";
-
+    
 
 
     /**
@@ -94,7 +94,7 @@ public interface StatisticReport {
      * @param action Reporting action
      * @param container Filters container
      */
-    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container);
+    public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container);
 
 
 

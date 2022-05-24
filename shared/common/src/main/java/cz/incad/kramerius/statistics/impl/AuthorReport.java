@@ -43,8 +43,10 @@ import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.LicenseFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -68,29 +70,24 @@ public class AuthorReport implements StatisticReport{
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticsFiltersContainer filters, Offset rOffset) {
         try {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
-            
-            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate statRecord;
-            
-            if (isUniqueSelected == false) {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
+
+            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectAuthorReport");
-            }
-            else {
-               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectAuthorReportUnique"); 
-            }
             
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
             statRecord.setAttribute("paging", true);
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
-           
+            statRecord.setAttribute("visibility", visFilter.asMap());
+
+            statRecord.setAttribute("licenseDefined", licFilter.getLicence() != null);
+            //statRecord.setAttribute("license", licFilter.getLicence());
+
+            
             @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
+            List params = StatisticUtils.jdbcParams(dateFilter, licFilter,rOffset);
             String sql = statRecord.toString();  
             Connection conn = connectionProvider.get();
             List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(conn) {
@@ -126,7 +123,6 @@ public class AuthorReport implements StatisticReport{
 
     @Override
     public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) {
-        // TODO Auto-generated method prepareViews
     }
 
     @Override
@@ -134,26 +130,16 @@ public class AuthorReport implements StatisticReport{
             StatisticsFiltersContainer filters) throws StatisticsReportException {
         try {
             final DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
+            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
             
-            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();         
-            final StringTemplate statRecord;
-            
-            if (isUniqueSelected) {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                        .getInstanceOf("selectAuthorReportUnique");
-            }
-            else {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
+            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                         .getInstanceOf("selectAuthorReport");
-            }
             
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
             statRecord.setAttribute("paging", false);
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
+            statRecord.setAttribute("visibility", visFilter.asMap());
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
@@ -161,7 +147,6 @@ public class AuthorReport implements StatisticReport{
             String sql = statRecord.toString();
             Connection conn = connectionProvider.get();
             new JDBCQueryTemplate<Map<String,Object>>(conn) {
-
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
                     Map<String, Object> map = new HashMap<String, Object>();
@@ -181,8 +166,12 @@ public class AuthorReport implements StatisticReport{
         }
     }
 
-    @Override
-    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
-        return true;
-    }
+	@Override
+	public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+    	List<String> list = new ArrayList<>();
+		DateFilter dateFilter = container.getFilter(DateFilter.class);
+		VerificationUtils.dateVerification(list, dateFilter.getFromDate());
+		VerificationUtils.dateVerification(list, dateFilter.getToDate());
+		return list;
+	}
 }

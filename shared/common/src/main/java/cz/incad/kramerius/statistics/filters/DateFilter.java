@@ -30,7 +30,7 @@ public class DateFilter implements StatisticsFilter {
         if (fromDate != null && (!fromDate.trim().equals(""))) {
             this.fromDate = fromDate;
         } else {
-            LOGGER.severe("bad value");
+            //LOGGER.severe("bad value");
         }
     }
 
@@ -50,7 +50,7 @@ public class DateFilter implements StatisticsFilter {
         if (toDate != null && (!toDate.trim().equals(""))) {
             this.toDate = toDate;
         } else {
-            LOGGER.severe("bad value");
+            //LOGGER.severe("bad value");
         }
     }
 

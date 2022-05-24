@@ -66,7 +66,7 @@ public class StatisticDbInitializer {
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
-                createLangsView(connection);
+                //createLangsView(connection);
 
                 checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
@@ -89,7 +89,7 @@ public class StatisticDbInitializer {
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
-                createLangsView(connection);
+                //createLangsView(connection);
 
                 checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
@@ -99,6 +99,7 @@ public class StatisticDbInitializer {
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
 
+            	changeStatisticsForeignKeys(connection);
 
             } else if (versionCondition(version, "=", "6.0.0")) {
                 alterStatisticsTableStatAction(connection);
@@ -111,7 +112,7 @@ public class StatisticDbInitializer {
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
-                createLangsView(connection);
+                //createLangsView(connection);
 
                 checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
@@ -121,6 +122,7 @@ public class StatisticDbInitializer {
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
 
+            	changeStatisticsForeignKeys(connection);
 
             } else if (versionCondition(version, "=", "6.1.0")) {
                 alterStatisticsTableSessionId(connection);
@@ -131,7 +133,7 @@ public class StatisticDbInitializer {
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
-                createLangsView(connection);
+                //createLangsView(connection);
 
                 checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
@@ -141,6 +143,7 @@ public class StatisticDbInitializer {
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
 
+            	changeStatisticsForeignKeys(connection);
 
             } else if ((versionCondition(version, ">", "6.1.0")) && (versionCondition(version, "<", "6.5.0"))) {
                 // Issue 619
@@ -149,7 +152,7 @@ public class StatisticDbInitializer {
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
-                createLangsView(connection);
+                //createLangsView(connection);
 
                 checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
@@ -159,13 +162,14 @@ public class StatisticDbInitializer {
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
 
+                changeStatisticsForeignKeys(connection);
 
             } else if (versionCondition(version, ">=", "6.5.0") && (versionCondition(version, "<", "6.6.4"))) {
                 createFirstFunction(connection);
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
-                createLangsView(connection);
+                //createLangsView(connection);
 
                 checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
@@ -175,11 +179,12 @@ public class StatisticDbInitializer {
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
 
+            	changeStatisticsForeignKeys(connection);
 
             } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.6"))) {
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
-                createLangsView(connection);
+                //createLangsView(connection);
 
                 checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
@@ -189,8 +194,9 @@ public class StatisticDbInitializer {
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
 
+            	changeStatisticsForeignKeys(connection);
 
-            } else if (versionCondition(version, ">=", "6.6.6")) {
+            } else if (versionCondition(version, ">=", "6.6.6") && (versionCondition(version, "<=", "6.8.3"))) {
                 checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
                 checkAndAddEvaluateMap(connection);
@@ -198,6 +204,9 @@ public class StatisticDbInitializer {
 
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
+                
+            } else if (versionCondition(version, ">", "6.8.3")) {
+            	changeStatisticsForeignKeys(connection);
             }
 
             // check if date column contains index, if not, creates it
@@ -211,10 +220,87 @@ public class StatisticDbInitializer {
 
             // check if labels exists
             checkLabelsColumns(connection);
-
+            
+            // materialized view - lang
+            checkStatisticsView_Lang(connection);
+            // materialized view - models
+            checkStatisticsView_Models(connection);
+            // materialized view - authors
+            checkStatisticsView_Authors(connection);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    private static void changeStatisticsForeignKeys(Connection connection) throws SQLException, IOException {
+        InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/rebuildconstraints.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+	}
+
+    
+    
+	private static void checkStatisticsView_Lang(Connection connection) {
+        try {
+        	if (!DatabaseUtils.materializedViewExists(connection, "_lang") || !DatabaseUtils.materializedViewExists(connection, "_statistic_access_log_detail_lang_not_null")) {
+            	LOGGER.info("Preparing materialized views (lang)");
+                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initlang.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            } else {
+            	LOGGER.info("Refreshing materialized views (lang)");
+                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/refreshlang.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            }
+        } catch (SQLException | IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+   
+    
+    private static void checkStatisticsView_Authors(Connection connection) {
+        try {
+            if (!DatabaseUtils.materializedViewExists(connection, "_authors")) {
+            	LOGGER.info("Preparing materialized views (authors)");
+                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initauthors.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            } else {
+            	LOGGER.info("Refreshing materialized views (authors)");
+                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/refreshauthors.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            }
+        } catch (SQLException | IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    private static void checkStatisticsView_Models(Connection connection) {
+        try {
+            if (!DatabaseUtils.materializedViewExists(connection, "_model_monograph")) {
+            	LOGGER.info("Preparing materialized views (models)");
+                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initmodels.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            } else {
+            	LOGGER.info("Refreshing materialized views (models)");
+                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/refreshmodels.sql");
+                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                template.setUseReturningKeys(false);
+                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+            }
+        } catch (SQLException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
@@ -611,44 +697,47 @@ public class StatisticDbInitializer {
         new JDBCTransactionTemplate(connection, false).updateWithTransaction(authorsView);
     }
 
-    private static void createLangsView(Connection connection) throws SQLException, IOException {
-        JDBCCommand langsView = new JDBCCommand() {
-
-            @Override
-            public Object executeJDBCCommand(Connection con) throws SQLException {
-                try {
-                    JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
-                    dropTemplate.setUseReturningKeys(false);
-                    dropTemplate.executeUpdate("DROP VIEW IF EXISTS _langs_view");
-                } catch (SQLException e) {
-                    LOGGER.info("Cannot DROP VIEW _langs_view:" + e);
-                }
-
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(
-                        "CREATE or REPLACE VIEW _langs_view AS " +
-                                "(SELECT  pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address, t1.record_id "
-                                + "FROM "
-                                + "(SELECT * FROM "
-                                + "(SELECT  sta.record_id as record_id, dta.pid as pid, dta.model as model, sta.session_id as session_id, sta.date as date, dta.rights as rights, sta.stat_action as stat_action,dta.lang as lang1, remote_ip_address as remote_ip_address "
-                                + "FROM statistics_access_log sta "
-                                + "JOIN statistic_access_log_detail dta USING (record_id)) AS tmp "
-                                + "WHERE (tmp.model = 'article') OR (tmp.model = 'page'  AND ((tmp.record_id, 'periodical') in "
-                                + "(SELECT  sta.record_id as record_id, dta.model as model "
-                                + "FROM statistics_access_log sta "
-                                + "JOIN statistic_access_log_detail dta USING (record_id)))) "
-                                + "OR (tmp.model = 'monograph')  OR  (tmp.model = 'archive') OR (tmp.model = 'manuscript') OR (tmp.model = 'sheetmusic') OR (tmp.model = 'soundrecording') OR (tmp.model = 'graphic') OR (tmp.model = 'map')) as T1 "
-                                + "LEFT JOIN "
-                                + "(SELECT  sta.record_id as record_id, dta.lang as lang2 "
-                                + "FROM statistics_access_log sta "
-                                + "JOIN statistic_access_log_detail dta USING (record_id) "
-                                + "WHERE dta.model = 'periodicalitem') as T2 "
-                                + "ON (t1.lang1 IS NULL AND t1.model = 'page' AND t1.record_id = t2.record_id));", new Object[0]);
-                return null;
-            }
-        };
-
-        new JDBCTransactionTemplate(connection, false).updateWithTransaction(langsView);
-    }
+    // mno... bude se muset prepsat
+//    private static void createLangsView(Connection connection) throws SQLException, IOException {
+//        JDBCCommand langsView = new JDBCCommand() {
+//
+//            @Override
+//            public Object executeJDBCCommand(Connection con) throws SQLException {
+//                try {
+//                    JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
+//                    dropTemplate.setUseReturningKeys(false);
+//                    dropTemplate.executeUpdate("DROP VIEW IF EXISTS _langs_view");
+//                } catch (SQLException e) {
+//                    LOGGER.info("Cannot DROP VIEW _langs_view:" + e);
+//                }
+//
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(
+//                        "CREATE or REPLACE VIEW _langs_view AS " +
+//                                "(SELECT  pid, model, session_id, date, rights, stat_action, CASE WHEN lang1 IS NULL THEN lang2 ELSE lang1 END as lang, remote_ip_address, t1.record_id "
+//                                + "FROM "
+//                                + "(SELECT * FROM "
+//                                + "(SELECT  sta.record_id as record_id, dta.pid as pid, dta.model as model, sta.session_id as session_id, sta.date as date, dta.rights as rights, sta.stat_action as stat_action,dta.lang as lang1, remote_ip_address as remote_ip_address "
+//                                + "FROM statistics_access_log sta "
+//                                + "JOIN statistic_access_log_detail dta USING (record_id)) AS tmp "
+//                                + "WHERE (tmp.model = 'article') OR (tmp.model = 'page'  AND ((tmp.record_id, 'periodical') in "
+//                                + "(SELECT  sta.record_id as record_id, dta.model as model "
+//                                + "FROM statistics_access_log sta "
+//                                + "JOIN statistic_access_log_detail dta USING (record_id)))) "
+//                                + "OR (tmp.model = 'monograph')  OR  (tmp.model = 'archive') OR (tmp.model = 'manuscript') OR (tmp.model = 'sheetmusic') OR (tmp.model = 'soundrecording') OR (tmp.model = 'graphic') OR (tmp.model = 'map')) as T1 "
+//                                + "LEFT JOIN "
+//                                + "(SELECT  sta.record_id as record_id, dta.lang as lang2 "
+//                                + "FROM statistics_access_log sta "
+//                                + "JOIN statistic_access_log_detail dta USING (record_id) "
+//                                + "WHERE dta.model = 'periodicalitem') as T2 "
+//                                + "ON (t1.lang1 IS NULL AND t1.model = 'page' AND t1.record_id = t2.record_id));", new Object[0]);
+//                return null;
+//            }
+//        };
+//
+//        new JDBCTransactionTemplate(connection, false).updateWithTransaction(langsView);
+//    }
+    
+    
 }

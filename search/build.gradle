@@ -53,7 +53,7 @@ dependencies {
     api 'javax.servlet:jstl:1.2'
     api 'taglibs:standard:1.1.2'
     api 'xalan:xalan:2.7.2'
-    api 'net.sf:simplecaptcha:1.2.1'
+	
 
 
     api 'xerces:xercesImpl:2.12.2'

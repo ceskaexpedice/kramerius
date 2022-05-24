@@ -34,85 +34,27 @@ public class AuthorReportTest {
     @Test
     public void testTemplate() {
         StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
-        statRecord.setAttribute("action", "PDF");
         statRecord.setAttribute("paging", true);
         String str = statRecord.toString();
+        Assert.assertNotNull(statRecord.toString());
         Assert.assertTrue(str.contains(" offset "));
         Assert.assertTrue(str.contains(" limit "));
-        Assert.assertNotNull(statRecord.toString());
-        Assert.assertFalse(str.contains("SIMILAR TO"));
 
 
         statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
-        statRecord.setAttribute("action", "PDF");
         statRecord.setAttribute("paging", false);
         str = statRecord.toString();
         Assert.assertFalse(str.contains(" offset "));
         Assert.assertFalse(str.contains(" limit "));
-        Assert.assertNotNull(statRecord.toString());
-        Assert.assertFalse(str.contains("SIMILAR TO"));
-
 
         statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
-        statRecord.setAttribute("action", null);
-        statRecord.setAttribute("paging", true);
-        str = statRecord.toString();
-        Assert.assertTrue(str.contains(" offset "));
-        Assert.assertTrue(str.contains(" limit "));
-        Assert.assertNotNull(str);
-        Assert.assertFalse(str.contains("SIMILAR TO"));
-
-
-        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
-        statRecord.setAttribute("action", null);
         statRecord.setAttribute("paging", false);
+        statRecord.setAttribute("licenseDefined", true);
         str = statRecord.toString();
         Assert.assertFalse(str.contains(" offset "));
         Assert.assertFalse(str.contains(" limit "));
-        Assert.assertNotNull(str);
-        Assert.assertFalse(str.contains("SIMILAR TO"));
+        Assert.assertTrue(str.contains(" ANY(dnnt_labels) "));
 
-        
-        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
-        statRecord.setAttribute("action", "PDF");
-        statRecord.setAttribute("paging", true);
-        statRecord.setAttribute("fromDefined", true);
-        statRecord.setAttribute("toDefined", false);
-        str = statRecord.toString();
-        Assert.assertFalse(str.contains("SIMILAR TO"));
-
-        Assert.assertTrue(str.contains(" offset "));
-        Assert.assertTrue(str.contains(" limit "));
-        Assert.assertNotNull(str);
-
-        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
-        statRecord.setAttribute("action", "PDF");
-        statRecord.setAttribute("paging", true);
-        statRecord.setAttribute("fromDefined", true);
-        statRecord.setAttribute("toDefined", true);
-
-        str = statRecord.toString();
-        Assert.assertFalse(str.contains("SIMILAR TO"));
-        
-        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
-        statRecord.setAttribute("action", "PDF");
-        statRecord.setAttribute("paging", false);
-        statRecord.setAttribute("fromDefined", true);
-        statRecord.setAttribute("toDefined", true);
-
-        str = statRecord.toString();
-        Assert.assertFalse(str.contains("SIMILAR TO"));
-        
-        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectAuthorReport");
-        statRecord.setAttribute("action", "PDF");
-        statRecord.setAttribute("paging", false);
-        statRecord.setAttribute("fromDefined", true);
-        statRecord.setAttribute("toDefined", true);
-
-        statRecord.setAttribute("ipaddr", "192.*");
-
-        str = statRecord.toString();
-        Assert.assertTrue(str.contains("SIMILAR TO"));
 
     }
 }

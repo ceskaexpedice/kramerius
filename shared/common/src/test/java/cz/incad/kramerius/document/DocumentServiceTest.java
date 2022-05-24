@@ -31,6 +31,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.FedoraUtils;
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -46,6 +47,7 @@ import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.utils.pid.LexerException;
 
+@Ignore
 public class DocumentServiceTest {
 
     public static String BUNLDE = "# procesy\n"

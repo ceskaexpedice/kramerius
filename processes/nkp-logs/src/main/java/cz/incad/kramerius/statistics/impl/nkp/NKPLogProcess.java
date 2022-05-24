@@ -39,11 +39,6 @@ public class NKPLogProcess {
    
     public static void main(String[] args) throws NoSuchAlgorithmException, ParseException, IOException {
     	LOGGER.log(Level.INFO, "Process parameters: "+Arrays.asList(args).toString());
-    	
-        String url = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point")+(KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=%s", "one", "tow", "three");
-        System.out.println(url);
-
-    	
     	if (args.length > 5) {
 			String from = args[1];
 			String to = args[2];
@@ -55,16 +50,6 @@ public class NKPLogProcess {
 			process(from, to, folder, institution, visibility, anonymization);
 		}
 	}
-
-// Annotation is not supported ?
-//    @Process
-//    public static void  process(@ParameterName("dateFrom")String from,
-//                                @ParameterName("dateTo")String to,
-//                                @ParameterName("folder")String folder,
-//                                @ParameterName("institution")String institution,
-//                                @ParameterName("visibility")String visibility,
-//                                @ParameterName("anonymization")String anonymization
-//            ) throws ParseException, IOException, NoSuchAlgorithmException {
 
     
     public static void  process(String from,
