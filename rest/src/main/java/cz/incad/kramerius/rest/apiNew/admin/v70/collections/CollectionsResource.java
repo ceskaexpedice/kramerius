@@ -110,9 +110,11 @@ public class CollectionsResource extends AdminApiResource {
             if (!roles.contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to read collections (missing role '%s')", user1.getLoginname(), role); //403
             }
-            checkObjectExists(pid);
-            Collection collection = fetchCollectionFromRepository(pid, true, true);
-            return Response.ok(collection.toJson()).build();
+            synchronized (CollectionsResource.class) {
+                checkObjectExists(pid);
+                Collection collection = fetchCollectionFromRepository(pid, true, true);
+                return Response.ok(collection.toJson()).build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -138,7 +140,6 @@ public class CollectionsResource extends AdminApiResource {
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-
             String role = ROLE_LIST_COLLECTIONS;
             if (!roles.contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to list collections (missing role '%s')", user1.getLoginname(), role); //403
@@ -146,23 +147,25 @@ public class CollectionsResource extends AdminApiResource {
             //authentication with JSESSIONID cookie and authorization against (global) SecuredAction - i.e. schema used Kramerius legacy APIs and servlets
             //checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions.VIRTUALCOLLECTION_MANAGE);
 
-            List<String> pids = null;
-            if (itemPid != null) {
-                checkSupportedObjectPid(itemPid);
-                checkObjectExists(itemPid);
-                pids = krameriusRepositoryApi.getPidsOfCollectionsContainingItem(itemPid);
-            } else {
-                pids = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection");
+            synchronized (CollectionsResource.class) {
+                List<String> pids = null;
+                if (itemPid != null) {
+                    checkSupportedObjectPid(itemPid);
+                    checkObjectExists(itemPid);
+                    pids = krameriusRepositoryApi.getPidsOfCollectionsContainingItem(itemPid);
+                } else {
+                    pids = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection");
+                }
+                JSONArray collections = new JSONArray();
+                for (String pid : pids) {
+                    Collection collection = fetchCollectionFromRepository(pid, false, false);
+                    collections.put(collection.toJson());
+                }
+                JSONObject result = new JSONObject();
+                result.put("total_size", pids.size());
+                result.put("collections", collections);
+                return Response.ok(result.toString()).build();
             }
-            JSONArray collections = new JSONArray();
-            for (String pid : pids) {
-                Collection collection = fetchCollectionFromRepository(pid, false, false);
-                collections.put(collection.toJson());
-            }
-            JSONObject result = new JSONObject();
-            result.put("total_size", pids.size());
-            result.put("collections", collections);
-            return Response.ok(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -193,24 +196,25 @@ public class CollectionsResource extends AdminApiResource {
             if (!roles.contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
             }
-            checkObjectExists(pid);
-            Collection current = fetchCollectionFromRepository(pid, true, false);
-
-            Collection updated = current.withUpdatedDataModifiableByClient(extractCollectionFromJson(collectionDefinition));
-            if ((updated.nameCz == null || updated.nameCz.isEmpty()) && (updated.nameEn == null || updated.nameEn.isEmpty())) {
-                throw new BadRequestException("name can't be empty");
+            synchronized (CollectionsResource.class) {
+                checkObjectExists(pid);
+                Collection current = fetchCollectionFromRepository(pid, true, false);
+                Collection updated = current.withUpdatedDataModifiableByClient(extractCollectionFromJson(collectionDefinition));
+                if ((updated.nameCz == null || updated.nameCz.isEmpty()) && (updated.nameEn == null || updated.nameEn.isEmpty())) {
+                    throw new BadRequestException("name can't be empty");
+                }
+                if (!current.equalsInDataModifiableByClient(updated)) {
+                    //fetch items in collection first (otherwise eventual consistency of processing index would cause no items in new version of rels-ext)
+                    List<String> itemsInCollection = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
+                    //rebuild and update mods
+                    krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
+                    //rebuild and update rels-ext (because of "standalone")
+                    krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
+                    //schedule reindexation - (only collection object)
+                    scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
+                }
+                return Response.ok().build();
             }
-            if (!current.equalsInDataModifiableByClient(updated)) {
-                //fetch items in collection first (otherwise eventual consistency of processing index would cause no items in new version of rels-ext)
-                List<String> itemsInCollection = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
-                //rebuild and update mods
-                krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
-                //rebuild and update rels-ext (because of "standalone")
-                krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
-                //schedule reindexation - (only collection object)
-                scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
-            }
-            return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -242,8 +246,10 @@ public class CollectionsResource extends AdminApiResource {
     public Response setItemsInCollection(@PathParam("pid") String pid, JSONArray pidsOfItems) {
         try {
             checkSupportedObjectPid(pid);
-            //TODO: implement
-            throw new RuntimeException("not implemented yet");
+            synchronized (CollectionsResource.class) {
+                //TODO: implement
+                throw new RuntimeException("not implemented yet");
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -263,7 +269,7 @@ public class CollectionsResource extends AdminApiResource {
     @Path("{pid}/items")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response addItemToCollection(@PathParam("pid") String collectionPid, String itemPid) {
-        //TODO: maybe JSONArray insted of single String, to be able to add multiple items at once.
+        //TODO: maybe JSONArray insted of single String, to be able to add multiple items at once. But with limited size of batch
         try {
             checkSupportedObjectPid(collectionPid);
             checkSupportedObjectPid(itemPid);
@@ -272,26 +278,27 @@ public class CollectionsResource extends AdminApiResource {
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-
             String role = ROLE_EDIT_COLLECTION;
             if (!roles.contains(role)) {
                 throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
             }
-            checkObjectExists(collectionPid);
-            checkObjectExists(itemPid);
-            checkCanAddItemToCollection(itemPid, collectionPid);
-            //extract relsExt and update by adding new relation
-            Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
-            boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
-            if (!addedNow) {
-                throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
+            synchronized (CollectionsResource.class) {
+                checkObjectExists(collectionPid);
+                checkObjectExists(itemPid);
+                checkCanAddItemToCollection(itemPid, collectionPid);
+                //extract relsExt and update by adding new relation
+                Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
+                boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+                if (!addedNow) {
+                    throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
+                }
+                //save updated rels-ext
+                krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
+                //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
+                //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                return Response.status(Response.Status.CREATED).build();
             }
-            //save updated rels-ext
-            krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
-            //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
-            //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-            scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
-            return Response.status(Response.Status.CREATED).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -336,41 +343,43 @@ public class CollectionsResource extends AdminApiResource {
      */
     @DELETE
     @Path("{collectionPid}/items/{itemPid}")
-    public Response removeItemFromCollection(@PathParam("collectionPid") String
-                                                     collectionPid, @PathParam("itemPid") String itemPid) {
-        try {
-            checkSupportedObjectPid(collectionPid);
-            checkSupportedObjectPid(itemPid);
-            //authentication
-            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid,
+                                             @PathParam("itemPid") String itemPid) {
+        synchronized (CollectionsResource.class) {
+            try {
+                checkSupportedObjectPid(collectionPid);
+                checkSupportedObjectPid(itemPid);
+                //authentication
+                //AuthenticatedUser user = getAuthenticatedUserByOauth();
 
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+                User user1 = this.userProvider.get();
+                List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            String role = ROLE_EDIT_COLLECTION;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
+                String role = ROLE_EDIT_COLLECTION;
+                if (!roles.contains(role)) {
+                    throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
+                }
+                checkObjectExists(collectionPid);
+                checkObjectExists(itemPid);
+                checkCanRemoveItemFromCollection(itemPid, collectionPid);
+                //extract relsExt and update by removing relation
+                Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
+                boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+                if (!removed) {
+                    throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
+                }
+                //save updated rels-ext
+                krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
+                //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
+                //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                return Response.status(Response.Status.OK).build();
+            } catch (WebApplicationException e) {
+                throw e;
+            } catch (Throwable e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
             }
-            checkObjectExists(collectionPid);
-            checkObjectExists(itemPid);
-            checkCanRemoveItemFromCollection(itemPid, collectionPid);
-            //extract relsExt and update by removing relation
-            Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
-            boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
-            if (!removed) {
-                throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
-            }
-            //save updated rels-ext
-            krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
-            //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
-            //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-            scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
-            return Response.status(Response.Status.OK).build();
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
         }
     }
 
