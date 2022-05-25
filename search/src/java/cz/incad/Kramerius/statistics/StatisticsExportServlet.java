@@ -52,6 +52,7 @@ import cz.incad.kramerius.utils.StringUtils;
  * @author pavels
  *
  */
+// TODO: Disabled
 public class StatisticsExportServlet extends GuiceServlet {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(StatisticsExportServlet.class.getName());
@@ -94,149 +95,149 @@ public class StatisticsExportServlet extends GuiceServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        String action = req.getParameter(ACTION_ATTRIBUTE);
-        String format = req.getParameter(FORMAT_ATTRIBUTE);
-        String dateFrom = req.getParameter(DATE_FROM_ATTRIBUTE);
-        String dateTo = req.getParameter(DATE_TO_ATTRIBUTE);
-        
-        String reportId = req.getParameter(REPORT_ID_ATTRIBUTE);
-        String filteredValue = req.getParameter(MODEL_ATTRIBUTE);
-        String visibilityValue = req.getParameter(VISIBILITY_ATTRIBUTE);
-        String ipAddresses = req.getParameter(IP_ATTRIBUTE);
-        String uniqueIpAddresses = req.getParameter(UNIQUE_IP_ATTRIBUTE);
-        String pids = req.getParameter(PIDS_ATTRIBUTE);
-
-
-        String file = req.getParameter(FILE_ATTRIBUTE);
-
-        String annual = req.getParameter(ANNUAL_YEAR);
-        AnnualYearFilter annualYearFilter = new AnnualYearFilter();
-        annualYearFilter.setAnnualYear(annual);
-        
-        DateFilter dateFilter = new DateFilter();
-        dateFilter.setFromDate(dateFrom != null && (!dateFrom.trim().equals("")) ? dateFrom : null);
-        dateFilter.setToDate(dateTo != null && (!dateTo.trim().equals("")) ? dateTo : null);
-        
-        ModelFilter modelFilter = new ModelFilter();
-        modelFilter.setModel(filteredValue);
-        
-        UniqueIPAddressesFilter uniqueIPFilter = new UniqueIPAddressesFilter();
-        uniqueIPFilter.setUniqueIPAddressesl(Boolean.valueOf(uniqueIpAddresses));
-        
-        PidsFilter pidsFilter = new PidsFilter();
-        pidsFilter.setPids(pids);
-        
-        IPAddressFilter ipAddr = new IPAddressFilter();
-        if (ipAddresses != null && !ipAddresses.isEmpty()) {
-            ipAddresses = ipAddresses.replace(",", "|");
-            ipAddresses = ipAddresses.replace("*", "%");
-            ipAddresses = ipAddresses.replace(" ", "");   
-            ipAddr.setIpAddress(ipAddresses);
-        }
-        else {
-            String ipConfigVal = ipAddr.getValue();
-            if (ipConfigVal != null) {
-                ipConfigVal = ipConfigVal.replace("*", "%");
-            }
-            ipAddr.setIpAddress(ipConfigVal);
-        }
-        
-        if (action != null && action.equals("null")) {
-            action = null;
-        }
-        
-        if (dateFrom == null) {
-            dateFrom = "";
-        }
-        
-        if (dateTo == null) {
-            dateTo = "";
-        }
-        
-        MultimodelFilter multimodelFilter = new MultimodelFilter();
-
-        VisibilityFilter visFilter = null;
-        if (visibilityValue != null && StringUtils.isAnyString(visibilityValue))  {
-            visibilityValue = visibilityValue.toUpperCase();
-            visFilter = new VisibilityFilter();
-            visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
-        }
-
-
-        if (permit(userProvider.get())) {
-            if (reportId != null && (!reportId.equals(""))) {
-                // report
-                StatisticReport report = this.statisticAccessLog.getReportById(reportId);
-                try {
-                    StatisticsReportFormatter selectedFormatter = null;
-                    for (StatisticsReportFormatter rf : this.reportFormatters) {
-                        if (format.equals( rf.getFormat()) && (reportId.equals(rf.getReportId())))  {
-                            selectedFormatter = rf;
-                            break;
-                        }
-                    }
-                    if (selectedFormatter != null) {
-                        // check if it is possible to render report
-                        if (report.verifyFilters(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr, multimodelFilter, annualYearFilter, pidsFilter}))) {
-                            String info = null;
-                            info = ((annual == null) ? "" : annual + ", ") + ((filteredValue == null) ? "" : filteredValue + ", ") + ((dateFrom.equals("")) ? "" : "od: " + dateFrom + ", ") + ((dateTo.equals("")) ? "" : "do: " + dateTo + ", ")
-                                    + "akce: " + ((action == null) ? "ALL" : action) + ", viditelnosti: " + visibilityValue + ", "
-                                    + ((ipAddr.getIpAddress().equals("")) ? "" : "zakázané IP adresy: " + ipAddr.getIpAddress() + ", ")
-                                    + "unikátní IP adresy: " + uniqueIpAddresses + ".";
-                            OutputStream responseOutputStream = resp.getOutputStream();
-                            selectedFormatter.addInfo(responseOutputStream, info);
-                            selectedFormatter.beforeProcess(responseOutputStream);
-                            resp.setCharacterEncoding("UTF-8");
-                            resp.setContentType(selectedFormatter.getMimeType());
-                            if (file != null && StringUtils.isAnyString(file)) {
-                                resp.setHeader("Content-disposition", "attachment; filename="+file);
-                            } else {
-                                resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
-                            }
-                            //TODO: Syncrhonization
-                            report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr, multimodelFilter, annualYearFilter, pidsFilter}));
-                            report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter,ipAddr, multimodelFilter, annualYearFilter, uniqueIPFilter, pidsFilter}));
-                            selectedFormatter.afterProcess(responseOutputStream);
-                        } else {
-                            // TODO: Expecting filters
-                            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                        }
-                    }
-                } catch (StatisticsReportException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                }
-            } else {
-                StatisticsExportMainLogFormatter selectedFormatter = null;
-                for (StatisticsExportMainLogFormatter mainFormatter : this.mainLogFormatters) {
-                    if (format.equals( mainFormatter.getFormat()))  {
-                        selectedFormatter = mainFormatter;
-                        break;
-                    }
-                }
-                if (selectedFormatter != null) {
-                    String info = null;
-                    info = ((annual == null) ? "" : annual + ", ") + ((filteredValue == null) ? "" : filteredValue + ", ") + ((dateFrom.equals("")) ? "" : "od: " + dateFrom + ", ") + ((dateTo.equals("")) ? "" : "do: " + dateTo + ", ")
-                            + "akce: " + ((action == null) ? "ALL" : action) + ", viditelnosti: " + visibilityValue + ", "
-                            + ((ipAddr.getIpAddress().equals("")) ? "" : "zakázané IP adresy: " + ipAddr.getIpAddress() + ", ")
-                            + "unikátní IP adresy: " + uniqueIpAddresses + ".";
-
-                    OutputStream responseOutputStream = resp.getOutputStream();
-                    selectedFormatter.addInfo(responseOutputStream, info);
-                    selectedFormatter.beforeProcess(responseOutputStream);
-                    resp.setCharacterEncoding("UTF-8");
-                    resp.setContentType(selectedFormatter.getMimeType());
-                    if (file != null && StringUtils.isAnyString(file)) {
-                        resp.setHeader("Content-disposition", "attachment; filename="+file);
-                    } else {
-                        resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
-                    }
-                    this.statisticAccessLog.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter);
-                    selectedFormatter.afterProcess(responseOutputStream);
-                }
-            }
-        } else {
+//        String action = req.getParameter(ACTION_ATTRIBUTE);
+//        String format = req.getParameter(FORMAT_ATTRIBUTE);
+//        String dateFrom = req.getParameter(DATE_FROM_ATTRIBUTE);
+//        String dateTo = req.getParameter(DATE_TO_ATTRIBUTE);
+//        
+//        String reportId = req.getParameter(REPORT_ID_ATTRIBUTE);
+//        String filteredValue = req.getParameter(MODEL_ATTRIBUTE);
+//        String visibilityValue = req.getParameter(VISIBILITY_ATTRIBUTE);
+//        String ipAddresses = req.getParameter(IP_ATTRIBUTE);
+//        String uniqueIpAddresses = req.getParameter(UNIQUE_IP_ATTRIBUTE);
+//        String pids = req.getParameter(PIDS_ATTRIBUTE);
+//
+//
+//        String file = req.getParameter(FILE_ATTRIBUTE);
+//
+//        String annual = req.getParameter(ANNUAL_YEAR);
+//        AnnualYearFilter annualYearFilter = new AnnualYearFilter();
+//        annualYearFilter.setAnnualYear(annual);
+//        
+//        DateFilter dateFilter = new DateFilter();
+//        dateFilter.setFromDate(dateFrom != null && (!dateFrom.trim().equals("")) ? dateFrom : null);
+//        dateFilter.setToDate(dateTo != null && (!dateTo.trim().equals("")) ? dateTo : null);
+//        
+//        ModelFilter modelFilter = new ModelFilter();
+//        modelFilter.setModel(filteredValue);
+//        
+//        UniqueIPAddressesFilter uniqueIPFilter = new UniqueIPAddressesFilter();
+//        uniqueIPFilter.setUniqueIPAddressesl(Boolean.valueOf(uniqueIpAddresses));
+//        
+//        PidsFilter pidsFilter = new PidsFilter();
+//        pidsFilter.setPids(pids);
+//        
+//        IPAddressFilter ipAddr = new IPAddressFilter();
+//        if (ipAddresses != null && !ipAddresses.isEmpty()) {
+//            ipAddresses = ipAddresses.replace(",", "|");
+//            ipAddresses = ipAddresses.replace("*", "%");
+//            ipAddresses = ipAddresses.replace(" ", "");   
+//            ipAddr.setIpAddress(ipAddresses);
+//        }
+//        else {
+//            String ipConfigVal = ipAddr.getValue();
+//            if (ipConfigVal != null) {
+//                ipConfigVal = ipConfigVal.replace("*", "%");
+//            }
+//            ipAddr.setIpAddress(ipConfigVal);
+//        }
+//        
+//        if (action != null && action.equals("null")) {
+//            action = null;
+//        }
+//        
+//        if (dateFrom == null) {
+//            dateFrom = "";
+//        }
+//        
+//        if (dateTo == null) {
+//            dateTo = "";
+//        }
+//        
+//        MultimodelFilter multimodelFilter = new MultimodelFilter();
+//
+//        VisibilityFilter visFilter = null;
+//        if (visibilityValue != null && StringUtils.isAnyString(visibilityValue))  {
+//            visibilityValue = visibilityValue.toUpperCase();
+//            visFilter = new VisibilityFilter();
+//            visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
+//        }
+//
+//
+//        if (permit(userProvider.get())) {
+//            if (reportId != null && (!reportId.equals(""))) {
+//                // report
+//                StatisticReport report = this.statisticAccessLog.getReportById(reportId);
+//                try {
+//                    StatisticsReportFormatter selectedFormatter = null;
+//                    for (StatisticsReportFormatter rf : this.reportFormatters) {
+//                        if (format.equals( rf.getFormat()) && (reportId.equals(rf.getReportId())))  {
+//                            selectedFormatter = rf;
+//                            break;
+//                        }
+//                    }
+//                    if (selectedFormatter != null) {
+//                        // check if it is possible to render report
+//                        if (report.verifyFilters(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr, multimodelFilter, annualYearFilter, pidsFilter}))) {
+//                            String info = null;
+//                            info = ((annual == null) ? "" : annual + ", ") + ((filteredValue == null) ? "" : filteredValue + ", ") + ((dateFrom.equals("")) ? "" : "od: " + dateFrom + ", ") + ((dateTo.equals("")) ? "" : "do: " + dateTo + ", ")
+//                                    + "akce: " + ((action == null) ? "ALL" : action) + ", viditelnosti: " + visibilityValue + ", "
+//                                    + ((ipAddr.getIpAddress().equals("")) ? "" : "zakázané IP adresy: " + ipAddr.getIpAddress() + ", ")
+//                                    + "unikátní IP adresy: " + uniqueIpAddresses + ".";
+//                            OutputStream responseOutputStream = resp.getOutputStream();
+//                            selectedFormatter.addInfo(responseOutputStream, info);
+//                            selectedFormatter.beforeProcess(responseOutputStream);
+//                            resp.setCharacterEncoding("UTF-8");
+//                            resp.setContentType(selectedFormatter.getMimeType());
+//                            if (file != null && StringUtils.isAnyString(file)) {
+//                                resp.setHeader("Content-disposition", "attachment; filename="+file);
+//                            } else {
+//                                resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
+//                            }
+//                            //TODO: Syncrhonization
+//                            report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr, multimodelFilter, annualYearFilter, pidsFilter}));
+//                            report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter,ipAddr, multimodelFilter, annualYearFilter, uniqueIPFilter, pidsFilter}));
+//                            selectedFormatter.afterProcess(responseOutputStream);
+//                        } else {
+//                            // TODO: Expecting filters
+//                            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+//                        }
+//                    }
+//                } catch (StatisticsReportException e) {
+//                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+//                }
+//            } else {
+//                StatisticsExportMainLogFormatter selectedFormatter = null;
+//                for (StatisticsExportMainLogFormatter mainFormatter : this.mainLogFormatters) {
+//                    if (format.equals( mainFormatter.getFormat()))  {
+//                        selectedFormatter = mainFormatter;
+//                        break;
+//                    }
+//                }
+//                if (selectedFormatter != null) {
+//                    String info = null;
+//                    info = ((annual == null) ? "" : annual + ", ") + ((filteredValue == null) ? "" : filteredValue + ", ") + ((dateFrom.equals("")) ? "" : "od: " + dateFrom + ", ") + ((dateTo.equals("")) ? "" : "do: " + dateTo + ", ")
+//                            + "akce: " + ((action == null) ? "ALL" : action) + ", viditelnosti: " + visibilityValue + ", "
+//                            + ((ipAddr.getIpAddress().equals("")) ? "" : "zakázané IP adresy: " + ipAddr.getIpAddress() + ", ")
+//                            + "unikátní IP adresy: " + uniqueIpAddresses + ".";
+//
+//                    OutputStream responseOutputStream = resp.getOutputStream();
+//                    selectedFormatter.addInfo(responseOutputStream, info);
+//                    selectedFormatter.beforeProcess(responseOutputStream);
+//                    resp.setCharacterEncoding("UTF-8");
+//                    resp.setContentType(selectedFormatter.getMimeType());
+//                    if (file != null && StringUtils.isAnyString(file)) {
+//                        resp.setHeader("Content-disposition", "attachment; filename="+file);
+//                    } else {
+//                        resp.setHeader("Content-disposition", "attachment; filename=export."+(format.toLowerCase()) );
+//                    }
+//                    this.statisticAccessLog.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter);
+//                    selectedFormatter.afterProcess(responseOutputStream);
+//                }
+//            }
+//        } else {
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        }
+//        }
     }
 
 
