@@ -31,25 +31,6 @@ import org.junit.Test;
  */
 public class ModelStatisticReportTest {
 
-    @Test
-    public void testPrepareView() {
-        StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
-        statRecord.setAttribute("model", "monograph");
-        statRecord.setAttribute("action", "PDF");
-        statRecord.setAttribute("fromDefined", true);
-        statRecord.setAttribute("toDefined", true);
-       
-        Assert.assertFalse(statRecord.toString().contains(" SIMILAR TO "));
-        
-        statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
-        statRecord.setAttribute("model", "monograph");
-        statRecord.setAttribute("action", "PDF");
-        statRecord.setAttribute("fromDefined", true);
-        statRecord.setAttribute("toDefined", true);
-        statRecord.setAttribute("ipaddr", "192.* | 191.*");
-
-        Assert.assertTrue(statRecord.toString().contains(" SIMILAR TO "));
-    }
 
     @Test
     public void testTemplate() {

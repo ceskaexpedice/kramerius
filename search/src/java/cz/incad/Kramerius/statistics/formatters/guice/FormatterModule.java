@@ -37,6 +37,7 @@ import cz.incad.kramerius.statistics.formatters.report.nkp.NKPJSONFormatter;
 import cz.incad.kramerius.statistics.formatters.report.nkp.NKPXMLFormatter;
 import cz.incad.kramerius.statistics.formatters.report.pids.PidsCSVFormatter;
 import cz.incad.kramerius.statistics.formatters.report.pids.PidsXMLFormatter;
+import cz.incad.kramerius.statistics.formatters.report.summary.SummaryCSVFormatter;
 
 /**
  * @author pavels
@@ -71,5 +72,7 @@ public class FormatterModule extends AbstractModule {
 
         reportFormatter.addBinding().to(NKPXMLFormatter.class);
         reportFormatter.addBinding().to(NKPJSONFormatter.class);
+
+        reportFormatter.addBinding().to(SummaryCSVFormatter.class);
     }
 }

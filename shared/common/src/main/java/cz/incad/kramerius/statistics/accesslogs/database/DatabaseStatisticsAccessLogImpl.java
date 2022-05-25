@@ -22,6 +22,7 @@ package cz.incad.kramerius.statistics.accesslogs.database;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,7 +44,9 @@ import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
 import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
+import cz.incad.kramerius.statistics.database.StatisticDbInitializer;
 import cz.incad.kramerius.utils.DatabaseUtils;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -531,6 +534,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 	@Override
 	public int cleanData(Date dateFrom, Date dateTo) throws IOException{
         try {
+        	// musi se udelat jinak
 			return new JDBCUpdateTemplate(connectionProvider.get(), true)
 			.executeUpdate("delete from statistics_access_log where date >= ? AND date<=?", new java.sql.Date(dateFrom.getTime()), new java.sql.Date(dateTo.getTime()));
 		} catch (SQLException e) {
@@ -538,4 +542,31 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 		}
 	}
 
+	@Override
+	public void refresh() throws IOException {
+		try {
+			LOGGER.info("Refreshing materialized views (lang)");
+			InputStream langIs = StatisticDbInitializer.class.getResourceAsStream("res/refreshlang.sql");
+			JDBCUpdateTemplate langTemplate = new JDBCUpdateTemplate(connectionProvider.get(), true);
+			langTemplate.setUseReturningKeys(false);
+			langTemplate.executeUpdate(IOUtils.readAsString(langIs, Charset.forName("UTF-8"), true));
+			
+			
+			LOGGER.info("Refreshing materialized views (authors)");
+			InputStream authorsIs = StatisticDbInitializer.class.getResourceAsStream("res/refreshauthors.sql");
+			JDBCUpdateTemplate authorsTemplate = new JDBCUpdateTemplate(connectionProvider.get(), true);
+			authorsTemplate.setUseReturningKeys(false);
+			authorsTemplate.executeUpdate(IOUtils.readAsString(authorsIs, Charset.forName("UTF-8"), true));
+
+			LOGGER.info("Refreshing materialized views (models)");
+			InputStream modelsIs = StatisticDbInitializer.class.getResourceAsStream("res/refreshmodels.sql");
+			JDBCUpdateTemplate modelsTemplate = new JDBCUpdateTemplate(connectionProvider.get(), true);
+			modelsTemplate.setUseReturningKeys(false);
+			modelsTemplate.executeUpdate(IOUtils.readAsString(modelsIs, Charset.forName("UTF-8"), true));
+
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+		}
+
+	}
 }

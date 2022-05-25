@@ -131,6 +131,7 @@ public class AuthorReport implements StatisticReport{
         try {
             final DateFilter dateFilter = filters.getFilter(DateFilter.class);
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
             
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                         .getInstanceOf("selectAuthorReport");
@@ -140,6 +141,7 @@ public class AuthorReport implements StatisticReport{
             statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
             statRecord.setAttribute("visibility", visFilter.asMap());
+            statRecord.setAttribute("licenseDefined", licFilter.getLicence() != null);
 
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);

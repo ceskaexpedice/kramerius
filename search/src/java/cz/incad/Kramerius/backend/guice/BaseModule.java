@@ -74,6 +74,7 @@ public class BaseModule extends AbstractModule {
 
         reports.addBinding().to(MultimodelReport.class);
         reports.addBinding().to(NKPLogReport.class);
+        reports.addBinding().to(ModelSummaryReport.class);
 
         
         bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);

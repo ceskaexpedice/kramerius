@@ -6,6 +6,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static org.easymock.EasyMock.*;
 
+@Ignore
 public class CDKFormatTest {
 
 
@@ -34,7 +36,7 @@ public class CDKFormatTest {
         HttpServletRequest req = createMock(HttpServletRequest.class);
 
         EasyMock.expect(req.getHeader("x-forwarded-host")).andReturn(null).anyTimes();
-        EasyMock.expect(req.getRequestURL()).andReturn(new StringBuffer("https://k7.inovatika.dev/search/api/v4.6/cdk/solr/select?q=*:*")).anyTimes();
+        EasyMock.expect(req.getRequestURL()).andReturn(new StringBuffer("http://k7.inovatika.dev/search/api/v4.6/cdk/solr/select?q=*:*")).anyTimes();
 
         EasyMock.replay(req);
 
@@ -47,7 +49,11 @@ public class CDKFormatTest {
         byte[] input = IOUtils.toByteArray(resourceAsStream);
         byte[] output = format.formatFoxmlData(input);
 
+        StringWriter stringWriter = new StringWriter();
         Document document = XMLUtils.parseDocument(new ByteArrayInputStream(output));
+
+        XMLUtils.print(document.getDocumentElement(), stringWriter);
+        System.out.println(stringWriter);
 
         List<Element> imgThumbs = XMLUtils.getElementsRecursive(document.getDocumentElement(), (elm) -> {
             if (elm.getNodeName().equals("datastream")) {

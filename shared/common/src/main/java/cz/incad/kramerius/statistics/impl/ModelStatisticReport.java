@@ -151,11 +151,6 @@ public class ModelStatisticReport implements StatisticReport {
                 return super.handleRow(rs, returnsList);
             }
         }.executeQuery(sql);
-        try {
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         return returns;
     }
 
@@ -182,6 +177,8 @@ public class ModelStatisticReport implements StatisticReport {
             final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectModelReport");
             
+            final StringTemplate counts = DatabaseStatisticsAccessLogImpl.stGroup
+                    .getInstanceOf("selectModelReportCounts");
             
             statRecord.setAttribute("model", modelFilter.getModel());
             statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
@@ -192,13 +189,21 @@ public class ModelStatisticReport implements StatisticReport {
             statRecord.setAttribute("visibility", visFilter.asMap());
             
             statRecord.setAttribute("licenseDefined", licFilter.getLicence() != null);
-            statRecord.setAttribute("license", licFilter.getLicence());
-            
+            //statRecord.setAttribute("license", licFilter.getLicence());
+
+            counts.setAttribute("model", modelFilter.getModel());
+            counts.setAttribute("action", repAction != null ? repAction.name() : null);
+            counts.setAttribute("paging", false);
+            counts.setAttribute("fromDefined", dateFilter.getFromDate() != null);
+            counts.setAttribute("toDefined", dateFilter.getToDate() != null);
+            counts.setAttribute("visibility", visFilter.asMap());
+            counts.setAttribute("licenseDefined", licFilter.getLicence() != null);
+
             @SuppressWarnings("rawtypes")
             List params = StatisticUtils.jdbcParams(dateFilter);
             String sql = statRecord.toString();
             Connection conn = connectionProvider.get();
-            
+
             new JDBCQueryTemplate<Map<String, Object>>(conn) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
@@ -215,6 +220,17 @@ public class ModelStatisticReport implements StatisticReport {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(sql,params.toArray());
+            
+            List<Map<String,Object>> sum = new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
+                    Map<String, Object> val = new HashMap<>();
+                    val.put(modelFilter.getModel(), rs.getInt("sum"));
+                    returnsList.add(val);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(counts.toString(), StatisticUtils.jdbcParams(dateFilter, licFilter,null).toArray());
+
             LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

@@ -55,17 +55,21 @@ public class StatisticDbInitializer {
     public static void initDatabase(Connection connection, VersionService versionService) {
         try {
             String version = versionService.getVersion();
+
+            createStatisticTables(connection);
+            checkPublisherTables(connection);
+
             if (version == null) {
                 createStatisticTables(connection);
-                alterStatisticsTableStatAction(connection);
-                createDatesDurationViews(connection);
+                checkStatisticsTableStatAction(connection);
+
                 alterStatisticsTableSessionId(connection);
                 // Issue 619
                 alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
-                createTmpAuthorView(connection);
-                createAuthorsView(connection);
+                //createTmpAuthorView(connection);
+                //createAuthorsView(connection);
                 //createLangsView(connection);
 
                 checkAndAddDNNTFlag(connection);
@@ -79,16 +83,15 @@ public class StatisticDbInitializer {
 
             } else if (versionCondition(version, "<", "6.0.0")) {
                 createStatisticTables(connection);
-                alterStatisticsTableStatAction(connection);
-                createDatesDurationViews(connection);
+                checkStatisticsTableStatAction(connection);
+
                 alterStatisticsTableSessionId(connection);
 
                 // Issue 619
                 alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
-                createTmpAuthorView(connection);
-                createAuthorsView(connection);
+
                 //createLangsView(connection);
 
                 checkAndAddDNNTFlag(connection);
@@ -102,7 +105,7 @@ public class StatisticDbInitializer {
             	changeStatisticsForeignKeys(connection);
 
             } else if (versionCondition(version, "=", "6.0.0")) {
-                alterStatisticsTableStatAction(connection);
+                checkStatisticsTableStatAction(connection);
                 createDatesDurationViews(connection);
                 alterStatisticsTableSessionId(connection);
 
@@ -165,7 +168,9 @@ public class StatisticDbInitializer {
                 changeStatisticsForeignKeys(connection);
 
             } else if (versionCondition(version, ">=", "6.5.0") && (versionCondition(version, "<", "6.6.4"))) {
-                createFirstFunction(connection);
+            	createStatisticTables(connection);
+            	
+            	createFirstFunction(connection);
                 createLastFunction(connection);
                 createTmpAuthorView(connection);
                 createAuthorsView(connection);
@@ -182,7 +187,9 @@ public class StatisticDbInitializer {
             	changeStatisticsForeignKeys(connection);
 
             } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.6"))) {
-                createTmpAuthorView(connection);
+            	createStatisticTables(connection);
+
+            	createTmpAuthorView(connection);
                 createAuthorsView(connection);
                 //createLangsView(connection);
 
@@ -197,7 +204,9 @@ public class StatisticDbInitializer {
             	changeStatisticsForeignKeys(connection);
 
             } else if (versionCondition(version, ">=", "6.6.6") && (versionCondition(version, "<=", "6.8.3"))) {
-                checkAndAddDNNTFlag(connection);
+            	createStatisticTables(connection);
+            	
+            	checkAndAddDNNTFlag(connection);
                 checkAndAddProvidedByDNNTFlag(connection);
                 checkAndAddEvaluateMap(connection);
                 checkAndAddUserAttributesMap(connection);
@@ -205,8 +214,6 @@ public class StatisticDbInitializer {
                 checkPublisherTables(connection);
                 checkAndAddSolrDate(connection);
                 
-            } else if (versionCondition(version, ">", "6.8.3")) {
-            	changeStatisticsForeignKeys(connection);
             }
 
             // check if date column contains index, if not, creates it
@@ -403,15 +410,17 @@ public class StatisticDbInitializer {
         new JDBCTransactionTemplate(con, false).updateWithTransaction(commands);
     }
 
-    private static void alterStatisticsTableStatAction(Connection con) throws SQLException {
-        PreparedStatement prepareStatement = con
-                .prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN STAT_ACTION VARCHAR(255);");
-        try {
-            int r = prepareStatement.executeUpdate();
-            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-        } finally {
-            DatabaseUtils.tryClose(prepareStatement);
-        }
+    private static void checkStatisticsTableStatAction(Connection con) throws SQLException {
+    	 if (!DatabaseUtils.columnExists(con, "statistics_access_log", "STAT_ACTION")) {
+    	        PreparedStatement prepareStatement = con
+    	                .prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN STAT_ACTION VARCHAR(255);");
+    	        try {
+    	            int r = prepareStatement.executeUpdate();
+    	            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+    	        } finally {
+    	            DatabaseUtils.tryClose(prepareStatement);
+    	        }
+    	 }
     }
 
     private static void checkAndAddDNNTFlag(Connection con) throws SQLException {
@@ -536,10 +545,13 @@ public class StatisticDbInitializer {
      * @throws SQLException
      */
     private static void createStatisticTables(Connection connection) throws SQLException, IOException {
-        InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initstatisticsdb.sql");
-        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-        template.setUseReturningKeys(false);
-        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+        if (!DatabaseUtils.tableExists(connection, "STATISTICS_ACCESS_LOG")) {
+            InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initstatisticsdb.sql");
+            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+            template.setUseReturningKeys(false);
+            template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+        	
+        }
     }
 
     /**

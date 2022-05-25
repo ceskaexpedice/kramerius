@@ -61,7 +61,11 @@ public class AggregatedAccessLogs implements StatisticsAccessLog{
 	@Override
 	public int cleanData(Date dateFrom, Date dateTo) {
 		throw new UnsupportedOperationException("unsupported");
-		
 	}
-    
+
+	@Override
+	public void refresh() throws IOException {
+	}
+
+	
 }

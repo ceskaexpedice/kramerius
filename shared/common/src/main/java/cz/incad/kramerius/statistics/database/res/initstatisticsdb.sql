@@ -8,6 +8,15 @@ CREATE table statistics_access_log(
     REMOTE_IP_ADDRESS VARCHAR(255), 
     "USER" VARCHAR(255), 
     REQUESTED_URL VARCHAR(2048), 
+    STAT_ACTION VARCHAR(255),
+    SESSION_ID VARCHAR(255), 
+    dnnt boolean,
+    providedbydnnt boolean,
+    evaluatemap TEXT,
+    usersessionattributes TEXT,
+    dbversion VARCHAR(255), 
+    dnnt_labels text[],
+    
         PRIMARY KEY(record_ID));
 
         
@@ -21,6 +30,11 @@ create table statistic_access_log_detail(
     RIGHTS VARCHAR(255),
     LANG VARCHAR(255),
     TITLE VARCHAR(1024),
+    solr_date text,
+    issn text[],
+    isbn text[],
+    ccnb text[],
+    
     BRANCH_ID INT NOT NULL,
     RECORD_ID INT NOT NULL REFERENCES statistics_access_log(record_ID) on delete cascade,
     PRIMARY KEY(detail_ID)

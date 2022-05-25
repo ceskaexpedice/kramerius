@@ -74,10 +74,16 @@ public interface StatisticsAccessLog {
 
     
     /**
+     * TODO: Presunout jinam
      * Cleaning statistics tables 
      * @param dateFrom From date
      * @param dateTo To date
      */
     public int cleanData(Date dateFrom, Date dateTo) throws IOException;
 
+    /**
+     * TODO: Presunout jinam
+     * @throws IOException
+     */
+    public void refresh() throws IOException;
 }

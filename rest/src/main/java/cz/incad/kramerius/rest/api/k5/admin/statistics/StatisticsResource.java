@@ -102,6 +102,39 @@ public class StatisticsResource {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
+    @GET
+    @Path("manage/refresh")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response refresh( @QueryParam("dateFrom") String dateFrom,
+            @QueryParam("dateTo") String dateTo) {
+    	// mel by byt nekdo jiny nez ten kdo resi prohlizeni statistik
+    	if (permit()) {
+    		try {
+    			if (StringUtils.isAnyString(dateFrom) && StringUtils.isAnyString(dateTo)) {
+    				try {
+						Date dateFromd = StatisticReport.DATE_FORMAT.parse(dateFrom);
+						Date dateTod = StatisticReport.DATE_FORMAT.parse(dateTo);
+						
+						int cleanData = this.statisticsAccessLog.cleanData(dateFromd, dateTod);
+						JSONObject jsonObject = new JSONObject();
+						jsonObject.put("deleted",cleanData);
+						return Response.ok().entity(jsonObject.toString()).build();
+					} catch (ParseException e) {
+	        	    	throw new BadRequestException("parsing exception dateFrom, dateTo");
+					}
+    			} else {
+        	    	throw new BadRequestException("expecting parameters dateFrom, dateTo");
+    				
+    			}
+    		} catch (IOException e) {
+                throw new GenericApplicationException(e.getMessage());
+    		}
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
+    }
+    
+    // jak to udelat ? 
     @DELETE
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response cleanData( @QueryParam("dateFrom") String dateFrom,
@@ -262,13 +295,30 @@ public class StatisticsResource {
                                   @DefaultValue("ALL") @QueryParam("visibility") String visibilityValue,
                                   @QueryParam("annualyear") String annual,
                                   @QueryParam("pids") String pids,
-                                 
+                                  @QueryParam("license") String license,
                                   @DefaultValue("export.data") @QueryParam("file") String file) {
 
         return export(rip, action, dateFrom, dateTo, model, visibilityValue,  annual,
-				pids, file,  MediaType.APPLICATION_JSON);
+				pids, file, license,  MediaType.APPLICATION_JSON);
     }
 
+    @GET
+    @Path("{report}/export/json")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response exportJSONPath(@PathParam("report") String rip,
+                                  @QueryParam("action") String action,
+                                  @QueryParam("dateFrom") String dateFrom,
+                                  @QueryParam("dateTo") String dateTo,
+                                  @QueryParam("model") String model,
+                                  @DefaultValue("ALL") @QueryParam("visibility") String visibilityValue,
+                                  @QueryParam("annualyear") String annual,
+                                  @QueryParam("pids") String pids,
+                                  @QueryParam("license") String license,
+                                  @DefaultValue("export.data") @QueryParam("file") String file) {
+
+        return export(rip, action, dateFrom, dateTo, model, visibilityValue,  annual,
+				pids, file, license,  MediaType.APPLICATION_JSON);
+    }
 
     @GET
     @Path("{report}/export")
@@ -282,13 +332,32 @@ public class StatisticsResource {
                                   @DefaultValue("ALL") @QueryParam("visibility") String visibilityValue,
                                   @QueryParam("annualyear") String annual,
                                   @QueryParam("pids") String pids,
+                                  @QueryParam("license") String license,
+                                  @DefaultValue("export.data") @QueryParam("file") String file) {
+
+        return export(rip, action, dateFrom, dateTo, model, visibilityValue, annual,
+				pids, file, license, "text/csv");
+    }
+
+    @GET
+    @Path("{report}/export/csv")
+    @Produces({ "text/csv" })
+    public Response exportCSVPath(@PathParam("report") String rip,
+                                  @QueryParam("action") String action,
+                                  @QueryParam("dateFrom") String dateFrom,
+                                  @QueryParam("dateTo") String dateTo,
+                                  @QueryParam("model") String model,
+                                  @DefaultValue("ALL") @QueryParam("visibility") String visibilityValue,
+                                  @QueryParam("annualyear") String annual,
+                                  @QueryParam("license") String license,
+                                  @QueryParam("pids") String pids,
                                  
                                   @DefaultValue("export.data") @QueryParam("file") String file) {
 
         return export(rip, action, dateFrom, dateTo, model, visibilityValue, annual,
-				pids, file,  "text/csv");
+				pids, file, license, "text/csv");
     }
-    
+
     //public Response delete
     
     
@@ -304,16 +373,17 @@ public class StatisticsResource {
                                   @DefaultValue("ALL")  @QueryParam("visibility") String visibilityValue,
                                   @QueryParam("annualyear") String annual,
                                   @QueryParam("pids") String pids,
+                                  @QueryParam("license") String license,
                                   @DefaultValue("export.data") @QueryParam("file") String file) {
 
         return export(rip, action, dateFrom, dateTo, model, visibilityValue,  annual,
-				pids, file,  MediaType.APPLICATION_XML);
+				pids, file,license, MediaType.APPLICATION_XML);
     }
 
 
 	private Response export(String rip, String action, String dateFrom, String dateTo, String model,
 			String visibilityValue,  String annual, String pids,
-			String file, String format) {
+			String file, String license, String format) {
 		AnnualYearFilter annualYearFilter = new AnnualYearFilter();
         annualYearFilter.setAnnualYear(annual);
 
@@ -343,7 +413,8 @@ public class StatisticsResource {
 
         MultimodelFilter multimodelFilter = new MultimodelFilter();
 
-        
+		LicenseFilter licenseFilter = new LicenseFilter(license);
+
         VisibilityFilter visFilter = new VisibilityFilter();
 		visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
 
@@ -375,7 +446,7 @@ public class StatisticsResource {
 
                             // Must be synchronized - only one report at the time
                             report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,  multimodelFilter, annualYearFilter, pidsFilter}));
-                            report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter, multimodelFilter, annualYearFilter,  pidsFilter}));
+                            report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter, multimodelFilter, annualYearFilter,  pidsFilter, licenseFilter}));
                             selectedFormatter.afterProcess(bos);
 
                             return Response.ok(new StreamingOutput() {

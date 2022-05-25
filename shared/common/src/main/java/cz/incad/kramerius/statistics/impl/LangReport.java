@@ -135,6 +135,7 @@ public class LangReport implements StatisticReport{
         try {
             DateFilter dateFilter = container.getFilter(DateFilter.class);
             VisibilityFilter visFilter = container.getFilter(VisibilityFilter.class);
+            LicenseFilter licFilter = container.getFilter(LicenseFilter.class);
             final StringTemplate statRecord =  DatabaseStatisticsAccessLogImpl.stGroup
                     .getInstanceOf("selectLangReport");
             
@@ -143,6 +144,7 @@ public class LangReport implements StatisticReport{
             statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
             statRecord.setAttribute("visibility", visFilter.asMap());
             statRecord.setAttribute("paging", false);
+            statRecord.setAttribute("licenseDefined", licFilter.getLicence() != null);
 
 
             @SuppressWarnings("rawtypes")
