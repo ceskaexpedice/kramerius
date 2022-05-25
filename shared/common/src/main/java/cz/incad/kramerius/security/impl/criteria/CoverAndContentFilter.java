@@ -79,7 +79,8 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
 
     private EvaluatingResultState isNotPeriodical(String pid) throws IOException {
         try {
-            SolrAccess solrAccess = getEvaluateContext().getSolrAccess();
+            //SolrAccess solrAccess = getEvaluateContext().getSolrAccess();
+            SolrAccess solrAccess = getEvaluateContext().getSolrAccessNewIndex();
             Document doc = solrAccess.getSolrDataByPid(pid); //SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
             String rootPID = SolrUtils.disectRootPid(doc);
             doc = solrAccess.getSolrDataByPid(rootPID);

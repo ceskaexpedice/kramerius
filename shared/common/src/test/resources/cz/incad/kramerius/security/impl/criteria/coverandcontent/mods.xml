@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3" xmlns="info:fedora/fedora-system:def/foxml#" xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><mods:mods xmlns:ns4="info:fedora/fedora-system:def/foxml#" version="3.6"><mods:identifier type="uuid">de1f041f-e2e7-49a6-9836-41ba9b7e46db</mods:identifier><mods:typeOfResource>text</mods:typeOfResource><mods:note>singlePage</mods:note><mods:part type="FrontCover"><mods:detail type="pageNumber"><mods:number>[1a]</mods:number> 
+              </mods:detail><mods:detail type="pageIndex"><mods:number>1</mods:number> 
+              </mods:detail> 
+            </mods:part> 
+          </mods:mods> 
+        </mods:modsCollection>
