@@ -11,8 +11,11 @@ import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.processes.impl.ProcessStarter;
 import cz.incad.kramerius.service.DeleteService;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.fedora.api.RelationshipTuple;
+import java.io.File;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import org.w3c.dom.Document;
 
 public class DeleteServiceImpl implements DeleteService {
 
@@ -40,12 +44,38 @@ public class DeleteServiceImpl implements DeleteService {
     public void deleteTree(String pid, String pidPath, String message, boolean deleteEmptyParents) throws IOException {
         Set<String> pids = fedoraAccess.getPids(pid);
         boolean purge = KConfiguration.getInstance().getConfiguration().getBoolean("delete.purgeObjects", true);
+        boolean deleteFromImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("delete.fromImageServer", false);
+        String folder = null;
         for (String s : pids) {
             String p = s.replace(INFO, "");
             if (purge){
-                LOGGER.info("Purging object: "+p);
+                String location = null;
+                if (deleteFromImageServer) {
+                    String type = null;
+                    if (fedoraAccess.isImageFULLAvailable(p)) {
+                        Document doc = fedoraAccess.getImageFULLProfile(p);
+                        type = XMLUtils.getTextOfElement(doc, "dsLocationType");
+                    }
+                    if (type != null && type.equals("URL")) {
+                        Document doc = fedoraAccess.getImageFULLProfile(p);
+                        if (doc != null) {
+                            String url = XMLUtils.getTextOfElement(doc, "dsLocation");
+                            // http://xxx/cgi-bin/iipsrv.fcgi?FIF=/home/kramerius/image/yyy/zzz.jp2&HEI=128&CVT=jpeg -> /home/kramerius/image/yyy/zzz.jp2
+                            location = StringUtils.getStringBetweenTwoStrings(url, "FIF=", "&");
+                        }
+                    }
+                }
                 try{
                     fedoraAccess.getAPIM().purgeObject(p, message, false);
+                    if (deleteFromImageServer) {
+                        if (location != null) {
+                            File image = new File(location);
+                            if (image.exists() && image.isFile()) {
+                                image.delete();
+                                folder = image.getParent();
+                            }
+                        }
+                    }
                 }catch(Exception ex){
                     LOGGER.warning("Cannot purge object "+p+", skipping: "+ex);
                 }
@@ -55,6 +85,15 @@ public class DeleteServiceImpl implements DeleteService {
                     fedoraAccess.getAPIM().modifyObject(p, "D", null, null, message);
                 }catch(Exception ex){
                     LOGGER.warning("Cannot mark object "+p+" as deleted, skipping: "+ex);
+                }
+            }
+        }
+            
+        if (deleteFromImageServer) {
+            if (folder != null) {
+                File imagefolder = new File(folder);
+                if (imagefolder.exists() && imagefolder.isDirectory()) {
+                    imagefolder.delete();
                 }
             }
         }
@@ -112,12 +151,12 @@ public class DeleteServiceImpl implements DeleteService {
      * args[2] deleteEmptyParents (optional)
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
         LOGGER.info("DeleteService: "+Arrays.toString(args));
 
 
         DeleteServiceImpl inst = new DeleteServiceImpl();
-        inst.fedoraAccess = new FedoraAccessImpl(null, null);
+        inst.fedoraAccess = new FedoraAccessImpl(KConfiguration.getInstance(), null);
         inst.predicates =  KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates");
         SolrAccess solrAccess = new SolrAccessImpl();
         

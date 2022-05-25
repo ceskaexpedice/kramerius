@@ -408,4 +408,22 @@ public class XMLUtils {
          */
         public boolean acceptElement(Element element);
     }
+    
+    /**
+     * Gets text content of the first element which has desired name
+     * @param doc W3C document
+     * @param elementName Desired name of element from which we want to get text
+     * @return
+     */
+    public static String getTextOfElement(Document doc, String elementName) {
+        String text = null;
+        if (doc != null) {
+            NodeList nodeList = doc.getElementsByTagName(elementName);
+            if (nodeList.getLength() > 0) {
+                Node node = nodeList.item(0);
+                text = node.getTextContent();
+            }
+        }
+        return text;
+    }
 }
