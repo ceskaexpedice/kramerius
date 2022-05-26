@@ -54,8 +54,9 @@ public class CriteriaDNNTUtils {
     // allowed by dnnt right
     public static boolean allowedByReadDNNTFlagRight(RightsReturnObject obj) {
         if (obj.getRight() != null && obj.getRight().getCriteriumWrapper() != null) {
-            if (    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlag.class.getName()) ||
-                    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlagIPFiltered.class.getName()) ||
+            if (    /*obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlag.class.getName()) ||
+                    obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTFlagIPFiltered.class.getName()) ||*/
+                    
                     obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabels.class.getName()) ||
                     obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabelsIPFiltered.class.getName())
             ) {
@@ -80,11 +81,6 @@ public class CriteriaDNNTUtils {
 //    }
 
 
-    // check if there is
-    public static void checkContainsCriteriumPDFDNNT(RightCriteriumContext ctx, RightsManager manager) throws CriteriaPrecoditionException {
-        //PDFDNNTFlag.class.getName()
-        checkContainsCriterium(ctx, manager, PDFDNNTFlag.class);
-    }
 
     public static void checkContainsCriterium(RightCriteriumContext ctx, RightsManager manager, Class ... clzs) throws CriteriaPrecoditionException {
         String[] pids = new String[] {SpecialObjects.REPOSITORY.getPid()};
@@ -104,9 +100,6 @@ public class CriteriaDNNTUtils {
         throw new CriteriaPrecoditionException("These flags are not set : "+collections);
     }
 
-    public static void checkContainsCriterium(RightCriteriumContext ctx, RightsManager manager) throws CriteriaPrecoditionException {
-        checkContainsCriterium(ctx, manager, PDFDNNTFlag.class);
-    }
 
     public static boolean matchLicense(Document solrDoc, License license) {
         List<String> indexedLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());

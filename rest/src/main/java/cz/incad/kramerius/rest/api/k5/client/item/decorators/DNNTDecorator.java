@@ -14,8 +14,6 @@ import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.solr.SolrFieldsMapping;
@@ -94,8 +92,9 @@ public class DNNTDecorator extends AbstractItemDecorator {
                                             RightsReturnObject actionAllowed = isActionAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
                                             if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
                                                 String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
-                                                if ( qName.equals(ReadDNNTFlag.class.getName()) ||
-                                                        qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||
+                                                if ( /*qName.equals(ReadDNNTFlag.class.getName()) ||
+                                                        qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||*/
+                                                		
                                                         qName.equals(ReadDNNTLabels.class.getName()) ||
                                                         qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
                                                     )
