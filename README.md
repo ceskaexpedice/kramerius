@@ -4,6 +4,9 @@ Aktuální distribuční verze je k dispozici v sekci Releases na projektovém s
 
 Upozornění pro vývojáře: Větev master nyní obsahuje beta verzi Kramerius 7 s integrovaným úložištěm Akubra. Dosavadní produkční verze Kramerius 5 je převedena do režimu údržby ve samostatné větvi kramerius5
 
+# Kramerius system
+
+is a digital library open source software solution (GNU GPL v3) primarily for digitized library collections, monographs and periodicals. It can be used also for other types of documents such as maps, music sheets and old prints, or parts of documents such as articles and chapters. The system is also suitable for digital born documents, i.e. documents that were created in electronic form. Kramerius is continuously adjusted so that the metadata structure corresponds to the standards announced by the National Library of the Czech Republic.
 
 # Systém Kramerius 
 
