@@ -1,22 +1,8 @@
 ## Novinky 
 
-###  Dokumentace ke Krameriu 7 a k Mobilním klientům pro iOS a Android byla doplněna do menu wiki (1/2022)
-
-### Bezpečnostní problém v knihovne log4j
-Kramerius v aktualni verzi 5 i chystane verzi 7 tuto knihovnu neobsahuje, pro logovani pouziva jiny mechanismus. 
-
-Knihovna log4j je ale vyuzivana v indexeru SOLR, ktery je instalovan jako samostatne  bezici soucast Krameria. Vetsina instalaci Krameria pouziva SOLR verze 6 (typicky 6.3), kde tento problem take neni, log4j je zde ve verzi 1. 
-Pokud ale vase instalace vyuziva novejsi verze SOLR 7.4 vyse nebo verzi 8, kde je pouzita knihovna log4j 2.11, je potreba problem resit - bud aktualizaci na nejnovejsi verzi SOLR 8.11.1 nebo nastavenim systemove property log4j2.formatMsgNoLookups=true ve spoustecim skriptu indexeru.
-Podrobnejsi popis reseni je uveden zde: https://solr.apache.org/security.html#apache-solr-affected-by-apache-log4j-cve-2021-44228
-
-
-
-
-Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub (https://github.com/ceskaexpedice/kramerius/releases/latest)
-Zapojení do České digitální knihovny je možné od verze Kramerius 5. 
+Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub (https://github.com/ceskaexpedice/kramerius/releases/latest) 
 
 Upozornění pro vývojáře: Větev master nyní obsahuje beta verzi Kramerius 7 s integrovaným úložištěm Akubra. Dosavadní produkční verze Kramerius 5 je převedena do režimu údržby ve samostatné větvi kramerius5
-
 
 
 # Systém Kramerius 
