@@ -6,7 +6,7 @@ Upozornění pro vývojáře: Větev master nyní obsahuje beta verzi Kramerius 
 
 # Kramerius system
 
-is a digital library open source software solution (GNU GPL v3) primarily designated for digitized library collections, monographs and periodicals. It can be used also for other types of documents such as maps, music sheets and old prints, or parts of documents such as articles and chapters. The system is also suitable for digital born documents, i.e. documents that were created in electronic form. Kramerius is continuously adjusted so that the metadata structure corresponds to the standards announced by the National Library of the Czech Republic.
+is a digital library open source software solution (GNU GPL v3) primarily designated for digitized library collections, monographs and periodicals. It can be used also for other types of documents such as maps, music sheets and old prints or parts of documents such as articles and chapters. The system is also suitable for digital born documents, i.e. documents that were created in electronic form. Kramerius is continuously developed so that the metadata structure corresponds to the standards announced by the National Library of the Czech Republic.
 
 # Systém Kramerius 
 
