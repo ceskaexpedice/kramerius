@@ -8,6 +8,8 @@ Upozornění pro vývojáře: Větev master nyní obsahuje beta verzi Kramerius 
 
 is a digital library open source software solution (GNU GPL v3) primarily designated for digitized library collections, monographs and periodicals. It can be used also for other types of documents such as maps, music sheets and old prints or parts of documents such as articles and chapters. The system is also suitable for digital born documents, i.e. documents that were created in electronic form. Kramerius is continuously developed so that the metadata structure corresponds to the standards announced by the National Library of the Czech Republic.
 
+Main development coordinator: Martin Lhoták, Library of the Czech Academy of Sciences lhotak@knav.cz
+
 # Systém Kramerius 
 
 je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárně je určen pro digitalizované knihovní sbírky, monografie a periodika. Využit může být ke zpřístupnění dalších typů dokumentů např. map, hudebnin a starých tisků, případně částí dokumentů jako jsou články a kapitoly. Systém je vhodný také pro tzv. digital born dokumenty, tedy dokumenty, které vznikly v elektronické podobě. Kramerius je průběžně upravován tak, aby struktura metadat odpovídala standardům vyhlašovaným Národní knihovnou České republiky. Systém poskytuje rozhraní pro přístup koncových uživatelů, zajišťující vyhledávání v metadatech a v plných textech, generování vícestránkových PDF dokumentů z vybraných stran, vytváření virtuálních sbírek a další operace nad uloženou sbírkou digitálních dokumentů.
