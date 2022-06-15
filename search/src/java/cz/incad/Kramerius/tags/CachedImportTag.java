@@ -2,9 +2,7 @@ package cz.incad.Kramerius.tags;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import org.apache.taglibs.standard.tag.common.core.ImportSupport;
 import org.ehcache.CacheManager;
-import sun.misc.Cache;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;

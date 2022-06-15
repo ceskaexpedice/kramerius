@@ -100,6 +100,11 @@ subprojects {
         compile "com.google.inject.extensions:guice-assistedinject:${guiceversion}"
         compile "javax.inject:javax.inject:1"
 
+        //JAXB
+        compile "javax.xml.bind:jaxb-api:2.3.1"
+        compile "com.sun.xml.bind:jaxb-impl:2.3.1"
+        compile "javax.activation:activation:1.1"
+
         // logging
         compile "org.slf4j:slf4j-api:${slf4jversion}"
         compile "org.slf4j:log4j-over-slf4j:${slf4jversion}"

@@ -21,7 +21,6 @@ import org.kramerius.dc.ElementType;
 import org.kramerius.dc.OaiDcType;
 import org.kramerius.importmets.MetsConvertor;
 import org.kramerius.importmets.MetsConvertor.NamespacePrefixMapperImpl;
-import org.kramerius.importmets.MetsConvertor.NamespacePrefixMapperInternalImpl;
 import org.kramerius.importmets.utils.UUIDManager;
 import org.kramerius.importmets.utils.XSLTransformer;
 import org.kramerius.importmets.valueobj.*;
@@ -243,11 +242,11 @@ public abstract class BaseConvertor {
             marshallerMODS = jaxbContext.createMarshaller();
             marshallerMODS.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
             marshallerMODS.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            try {
-                marshallerMODS.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
-            } catch (PropertyException ex) {
+//            try {
+//                marshallerMODS.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
+//            } catch (PropertyException ex) {
                 marshallerMODS.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
-            }
+            //}
             //marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
 
             unmarshallerMODS = jaxbContext.createUnmarshaller();
@@ -265,11 +264,11 @@ public abstract class BaseConvertor {
             marshallerDC = jaxbContext.createMarshaller();
             marshallerDC.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
             marshallerDC.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            try {
-                marshallerDC.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
-            } catch (PropertyException ex) {
+//            try {
+//                marshallerDC.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
+//            } catch (PropertyException ex) {
                 marshallerDC.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
-            }
+            //}
             //marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
 
             unmarshallerDC = jaxbContext.createUnmarshaller();
@@ -310,11 +309,11 @@ public abstract class BaseConvertor {
             marshallerALTO = jaxbContext.createMarshaller();
             marshallerALTO.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
             marshallerALTO.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            try {
-                marshallerALTO.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
-            } catch (PropertyException ex) {
+//            try {
+//                marshallerALTO.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
+//            } catch (PropertyException ex) {
                 marshallerALTO.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
-            }
+            //}
             //marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
 
             unmarshallerALTO = jaxbContext.createUnmarshaller();

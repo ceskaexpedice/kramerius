@@ -86,11 +86,11 @@ public class Main {
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            try{
-            	marshaller.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
-            } catch (PropertyException ex){
+//            try{
+//            	marshaller.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new NamespacePrefixMapperInternalImpl());
+//            } catch (PropertyException ex){
             	marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl());
-            }
+            //}
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
 
             unmarshaller = jaxbContext.createUnmarshaller();
@@ -259,34 +259,34 @@ public class Main {
    * 
    */
     
-    static class NamespacePrefixMapperInternalImpl extends com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper {
-
-        public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
-            if ("info:fedora/fedora-system:def/foxml#".equals(namespaceUri)) {
-                return "foxml";
-            }
-            if ("http://www.loc.gov/mods/v3".equals(namespaceUri)) {
-                return "mods";
-            }
-            if ("http://purl.org/dc/elements/1.1/".equals(namespaceUri)){
-                return "dc";
-            }
-            if ("http://www.openarchives.org/OAI/2.0/oai_dc/".equals(namespaceUri)){
-                return "oai_dc";
-            }
-            if ("info:fedora/fedora-system:def/model#".equals(namespaceUri)){
-                return "fedora-model";
-            }
-            if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(namespaceUri)){
-                return "rdf";
-            }
-            if ("http://www.nsdl.org/ontologies/relationships#".equals(namespaceUri)){
-                return "kramerius";
-            }
-            return suggestion;
-        }
-
-    }
+//    static class NamespacePrefixMapperInternalImpl extends com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper {
+//
+//        public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
+//            if ("info:fedora/fedora-system:def/foxml#".equals(namespaceUri)) {
+//                return "foxml";
+//            }
+//            if ("http://www.loc.gov/mods/v3".equals(namespaceUri)) {
+//                return "mods";
+//            }
+//            if ("http://purl.org/dc/elements/1.1/".equals(namespaceUri)){
+//                return "dc";
+//            }
+//            if ("http://www.openarchives.org/OAI/2.0/oai_dc/".equals(namespaceUri)){
+//                return "oai_dc";
+//            }
+//            if ("info:fedora/fedora-system:def/model#".equals(namespaceUri)){
+//                return "fedora-model";
+//            }
+//            if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(namespaceUri)){
+//                return "rdf";
+//            }
+//            if ("http://www.nsdl.org/ontologies/relationships#".equals(namespaceUri)){
+//                return "kramerius";
+//            }
+//            return suggestion;
+//        }
+//
+//    }
     
     static class NamespacePrefixMapperImpl extends com.sun.xml.bind.marshaller.NamespacePrefixMapper {
 

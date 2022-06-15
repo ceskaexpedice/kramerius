@@ -9,9 +9,11 @@ repositories {
 dependencies {
     compile gradleApi()
     compile localGroovy()
-    compile 'com.sun.xml.bind:jaxb-xjc:2.2.7'
+    compile 'com.sun.xml.bind:jaxb-xjc:2.3.6'
+    //compile 'com.sun.xml.bind:jaxb-xjc:2.2.7'
     //compile 'com.sun.xml.bind:jaxb-xjc:2.2.1'
-    compile 'com.sun.xml.ws:jaxws-tools:2.2.1'
+    compile 'com.sun.xml.ws:jaxws-tools:2.3.5'
+    //compile 'com.sun.xml.ws:jaxws-tools:2.2.1'
     //compile 'org.gradle.api.plugins:gradle-cargo-plugin:1.5'
 }
 
