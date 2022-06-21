@@ -30,8 +30,11 @@ dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5'
     providedCompile 'javax.servlet:jsp-api:2.0'
     providedCompile 'javax.portlet:portlet-api:2.0'
-    compile 'com.foxtrottechnologies:javadjvu:0.8.09'
-    compile 'com.foxtrottechnologies:djvuframe:0.8.09'
+    //compile 'com.foxtrottechnologies:javadjvu:0.8.09'
+    //compile 'com.foxtrottechnologies:djvuframe:0.8.09'
+    compile files('../buildSrc/lib/javadjvu-0.8.09.jar',
+     '../buildSrc/lib/djvuframe-0.8.09.jar')
+
     compile 'nl.captcha:simplecaptcha:1.2.1'
 
     compile project(':fedora-api')
