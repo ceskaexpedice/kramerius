@@ -45,7 +45,7 @@ dependencies {
     compile "org.antlr:stringtemplate:3.2.1"
     compile name:"djvuframe-0.8.09"
     compile name:"javadjvu-0.8.09"
-    compile "commons-configuration:commons-configuration:1.6"
+    compile "commons-configuration:commons-configuration:1.10"
     compile "org.apache.commons:commons-lang3:3.5"
 
     compile "com.yourmediashelf.fedora.client:fedora-client-core:0.7"
