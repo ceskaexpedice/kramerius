@@ -42,7 +42,7 @@ dependencies {
     compile project(':authfilters')
    
     compile "com.sun.media:jai_imageio:1.1"
-    compile "net.sf:simplecaptcha:1.2.1"
+    compile "nl.captcha:simplecaptcha:1.2.1"
     compile "org.brickred:socialauth:4.12"
 
 }
