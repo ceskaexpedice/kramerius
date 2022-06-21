@@ -119,17 +119,15 @@ subprojects {
 
     repositories {
 
-        flatDir {
-            dirs '../buildSrc/lib'
-        }
 
-        maven {
-            url "http://kramerius.googlecode.com/svn/mvnrepo"
-        }
 
-        maven {
-            url "http://aplikator.googlecode.com/svn/mvnrepository"
-        }
+//        maven {
+//            url "http://kramerius.googlecode.com/svn/mvnrepo"
+//        }
+//
+//        maven {
+//            url "http://aplikator.googlecode.com/svn/mvnrepository"
+//        }
 
 
         mavenLocal()
@@ -183,6 +181,10 @@ subprojects {
         maven {
             url "http://download.java.net/maven/2/"
         }*/
+
+        flatDir {
+            dirs '../buildSrc/lib'
+        }
 
     }
 
