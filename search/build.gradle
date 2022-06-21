@@ -30,6 +30,9 @@ dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5'
     providedCompile 'javax.servlet:jsp-api:2.0'
     providedCompile 'javax.portlet:portlet-api:2.0'
+    compile 'com.foxtrottechnologies:javadjvu:0.8.09'
+    compile 'com.foxtrottechnologies:djvuframe:0.8.09'
+    compile 'nl.captcha:simplecaptcha:1.2.1'
 
     compile project(':fedora-api')
     compile project(':common')
@@ -51,10 +54,9 @@ dependencies {
     compile 'javax.servlet:jstl:1.1.2'
     compile 'taglibs:standard:1.1.2'
     compile 'xalan:xalan:2.7.1'
-    compile 'nl.captcha:simplecaptcha:1.2.1'
+
     compile 'xerces:xercesImpl:2.9.1'
-    compile 'com.foxtrottechnologies:javadjvu:0.8.09'
-    compile 'com.foxtrottechnologies:djvuframe:0.8.09'
+
 
     compile "org.slf4j:slf4j-api:${slf4jversion}"
     compile "org.slf4j:log4j-over-slf4j:${slf4jversion}"
