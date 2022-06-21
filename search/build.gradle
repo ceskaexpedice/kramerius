@@ -33,9 +33,10 @@ dependencies {
     //compile 'com.foxtrottechnologies:javadjvu:0.8.09'
     //compile 'com.foxtrottechnologies:djvuframe:0.8.09'
     compile files('../buildSrc/lib/javadjvu-0.8.09.jar',
-     '../buildSrc/lib/djvuframe-0.8.09.jar')
+     '../buildSrc/lib/djvuframe-0.8.09.jar',
+            '../buildSrc/lib/simplecaptcha-1.2.1.jar')
 
-    compile 'nl.captcha:simplecaptcha:1.2.1'
+    //compile 'nl.captcha:simplecaptcha:1.2.1'
 
     compile project(':fedora-api')
     compile project(':common')
