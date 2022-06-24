@@ -1,21 +1,14 @@
 package cz.incad.kramerius.service.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.Vector;
+import java.net.URLConnection;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.util.*;
 import java.util.logging.Level;
 
 import com.google.inject.Inject;
@@ -48,13 +41,14 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
         return dir;
     }
 
+
+
     @Override
     public ResourceBundle getResourceBundle(final String name,
             final Locale locale) throws IOException {
         LOGGER.fine("resource bundle " + name + "  " + locale);
         final File resourcesDir = checkFiles(name);
-        return ResourceBundle.getBundle(name, locale, new ResourceClassLoader(
-                resourcesDir));
+        return ResourceBundle.getBundle(name, ResourceBundleCache.resolveSupportedLocale(locale), UTF8cl, control);
     }
 
     public File checkFiles(String name) throws IOException {
@@ -79,7 +73,65 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
         }
     }
 
-    public static class ResourceClassLoader extends ClassLoader {
+    private UTF8ClassLoader UTF8cl = new UTF8ClassLoader();
+    private ResourceBundle.Control control = new UserControl();
+
+    /**
+     * ResourceBundle Control implementation that loads resource bundle from the property file located in the directory
+     * defined in HOME property (by default ${user.home}/.kramerius). The resource bundle has parent bundle loaded by
+     * Default Control implementation
+     */
+    public class UserControl extends ResourceBundle.Control {
+
+        public final List<String> FORMATS = Collections.unmodifiableList(Arrays.asList("java.properties"));
+
+        public List<String> getFormats(String baseName) {
+            if (baseName == null)
+                throw new NullPointerException();
+            return FORMATS;
+        }
+
+        public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload) throws IllegalAccessException, InstantiationException, IOException {
+            if (baseName == null || locale == null || format == null || loader == null)
+                throw new NullPointerException();
+            ResourceBundle bundle = null;
+            if (format.equals("java.properties")) {
+                ResourceBundle defaultBundle = super.newBundle(baseName, locale, "java.properties", loader, reload);
+                String bundleName = toBundleName(baseName, locale);
+                String resourceName = "file://" + checkFiles(baseName) + "/" + bundleName + ".properties";
+                InputStream stream = null;
+                try {
+                    URL url = new URL(resourceName);
+                    if (url != null) {
+                        URLConnection connection = url.openConnection();
+                        if (connection != null) {
+                            if (reload) {
+                                // Disable caches to get fresh data for
+                                // reloading.
+                                connection.setUseCaches(false);
+                            }
+                            stream = connection.getInputStream();
+                        }
+                    }
+                } catch (Throwable t) {
+                }
+                if (stream != null) {
+                    BufferedInputStream bis = new BufferedInputStream(stream);
+                    bundle = new UserResourceBundle(UTF8ClassLoader.readUTFStreamToEscapedASCII(bis), defaultBundle);
+                    bis.close();
+                } else {
+                    return defaultBundle;
+                }
+            }
+            return bundle;
+        }
+
+    }
+
+
+
+    public static class UTF8ClassLoader extends ClassLoader {
+
         /**
          * Charset used when reading a properties file.
          */
@@ -90,15 +142,45 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
          */
         private static final int BUFFER_SIZE = 2000;
 
-        private File folder;
-
-        public ResourceClassLoader(File folder) {
-            super();
-            this.folder = folder;
+        public UTF8ClassLoader() {
+            super(UTF8ClassLoader.class.getClassLoader());
         }
 
-        static InputStream readUTFStreamToEscapedASCII(InputStream is)
-                throws IOException {
+        @Override
+        public InputStream getResourceAsStream(String name) {
+            try {
+                return readUTFStreamToEscapedASCII(super.getResourceAsStream(name));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        // The following utility method is extracted from the Tapestry5 project
+        // class org.apache.tapestry5.internal.services.MessagesSourceImpl
+        //
+        // Copyright 2006, 2007, 2008 The Apache Software Foundation
+        //
+        // Licensed under the Apache License, Version 2.0 (the "License");
+        // you may not use this file except in compliance with the License.
+        // You may obtain a copy of the License at
+        //
+        // http://www.apache.org/licenses/LICENSE-2.0
+        //
+        // Unless required by applicable law or agreed to in writing, software
+        // distributed under the License is distributed on an "AS IS" BASIS,
+        // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+        // implied.
+        // See the License for the specific language governing permissions and
+        // limitations under the License.
+
+        /**
+         * Reads a UTF-8 stream, performing a conversion to ASCII (i.e.,
+         * ISO8859-1 encoding). Characters outside the normal range for
+         * ISO8859-1 are converted to unicode escapes. In effect, it is
+         * performing native2ascii on the files, on the fly.
+         */
+        private static InputStream readUTFStreamToEscapedASCII(InputStream is) throws IOException {
             Reader reader = new InputStreamReader(is, CHARSET);
 
             StringBuilder builder = new StringBuilder(BUFFER_SIZE);
@@ -129,81 +211,14 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
             return new ByteArrayInputStream(resourceContent);
         }
 
-        @Override
-        public InputStream getResourceAsStream(String name) {
-            LOGGER.fine("reading stream '" + name + "'");
-            if (name.endsWith("_en.properties"))
-                name = name.substring(0,
-                        name.length() - "_en.properties".length())
-                        + ".properties";
-            InputStream defaultPropsInputStream = null;
-            InputStream filePropsInputStream = null;
-            try {
-                File propsFile = new File(this.folder, name);
-
-                Properties defaultProps = new Properties();
-
-                defaultPropsInputStream = this.getClass().getClassLoader()
-                        .getResourceAsStream(name);
-                if (defaultPropsInputStream != null || propsFile.exists()) {
-                    defaultProps.load(new InputStreamReader(
-                            defaultPropsInputStream, CHARSET));
-
-                    Properties fileProps = new Properties();
-                    if (propsFile.exists()) {
-                        filePropsInputStream = new FileInputStream(propsFile);
-                        fileProps.load(new InputStreamReader(
-                                filePropsInputStream, CHARSET));
-                    }
-
-                    Set<Object> keySet = defaultProps.keySet();
-                    for (Object key : keySet) {
-                        if (!fileProps.containsKey(key)) {
-                            fileProps.setProperty(key.toString(),
-                                    defaultProps.getProperty(key.toString()));
-                        }
-                    }
-
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    fileProps.store(bos, "");
-
-                    return readUTFStreamToEscapedASCII(new ByteArrayInputStream(
-                            bos.toByteArray()));
-                } else
-                    return null;
-
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } finally {
-                try {
-                    if (defaultPropsInputStream != null) {
-                        defaultPropsInputStream.close();
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-                try {
-                    if (filePropsInputStream != null) {
-                        filePropsInputStream.close();
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected URL findResource(String name) {
-            return null;
-        }
-
-        @Override
-        protected Enumeration<URL> findResources(String name)
-                throws IOException {
-            Enumeration<URL> elements = new Vector().elements();
-            return elements;
-        }
     }
 
+    public class UserResourceBundle extends PropertyResourceBundle {
+
+        public UserResourceBundle(InputStream stream, ResourceBundle parent) throws IOException {
+            super(stream);
+            setParent(parent);
+        }
+
+    }
 }
