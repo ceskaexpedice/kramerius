@@ -26,7 +26,6 @@ import java.util.Optional;
 
 import static cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils.*;
 
-//@Path("/v5.0/admin/licenses")
 @Path("/admin/v7.0/licenses")
 public class LicensesResource {
 
@@ -62,7 +61,7 @@ public class LicensesResource {
                 if (licenseById != null) {
                     return Response.ok().entity(LicenseUtils.licenseToJSON(licenseById).toString()).build();
                 } else {
-                    throw new ObjectNotFound(String.format("cannot find lisences %s", id));
+                    throw new ObjectNotFound(String.format("cannot find licenses %s", id));
                 }
             } catch (JSONException | LicensesManagerException e) {
                 throw new GenericApplicationException(e.getMessage(), e);

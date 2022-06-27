@@ -451,7 +451,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 
         LRProcessDefinition definition = this.lrpdm.getLongRunningProcessDefinition(definitionId);
         if (definition == null) {
-            LOGGER.warning("cannot find definition '" + definitionId + "'");
+            LOGGER.fine("cannot find definition '" + definitionId + "'");
             return null;
         }
 

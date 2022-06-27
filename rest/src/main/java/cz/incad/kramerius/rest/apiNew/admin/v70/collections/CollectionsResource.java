@@ -271,6 +271,7 @@ public class CollectionsResource extends AdminApiResource {
     public Response addItemToCollection(@PathParam("pid") String collectionPid, String itemPid) {
         //TODO: maybe JSONArray insted of single String, to be able to add multiple items at once. But with limited size of batch
         try {
+            //LOGGER.info("addItemToCollection start, Thread " + Thread.currentThread().getName() + ", item: " + itemPid);
             checkSupportedObjectPid(collectionPid);
             checkSupportedObjectPid(itemPid);
             //authentication
@@ -283,6 +284,7 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
             }
             synchronized (CollectionsResource.class) {
+                //LOGGER.info("addItemToCollection execute, Thread " + Thread.currentThread().getName());
                 checkObjectExists(collectionPid);
                 checkObjectExists(itemPid);
                 checkCanAddItemToCollection(itemPid, collectionPid);
@@ -297,6 +299,7 @@ public class CollectionsResource extends AdminApiResource {
                 //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
                 scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                //LOGGER.info("addItemToCollection end, Thread " + Thread.currentThread().getName());
                 return Response.status(Response.Status.CREATED).build();
             }
         } catch (WebApplicationException e) {

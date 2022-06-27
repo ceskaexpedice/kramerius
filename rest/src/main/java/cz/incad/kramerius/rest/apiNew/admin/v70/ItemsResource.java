@@ -7,10 +7,13 @@ import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -181,6 +184,52 @@ public class ItemsResource extends AdminApiResource {
             checkObjectExists(pid);
             Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
             return Response.ok().entity(foxml.asXML()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{pid}/licenses")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLicenses(@PathParam("pid") String pid) {
+        try {
+            checkSupportedObjectPid(pid);
+            //authentication
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
+            //authorization
+            String role = ROLE_READ_FOXML;
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
+            }
+            checkObjectExists(pid);
+
+            Document relsExt = krameriusRepositoryApi.getRelsExt(pid, true);
+            List<Node> licenseEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:license").selectNodes(relsExt);
+            JSONArray licenseArray = new JSONArray();
+            for (Node relationEl : licenseEls) {
+                licenseArray.put(relationEl.getText());
+            }
+            List<Node> containsLicenseEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:containsLicense").selectNodes(relsExt);
+            JSONArray containsLicenseArray = new JSONArray();
+            for (Node relationEl : containsLicenseEls) {
+                containsLicenseArray.put(relationEl.getText());
+            }
+            Element policyEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:policy").selectSingleNode(relsExt);
+            String policy = null;
+            if (policyEl != null) {
+                policy = policyEl.getText().substring("policy:".length()).trim();
+            }
+            JSONObject result = new JSONObject();
+            result.put("pid", pid);
+            result.put("licenses", licenseArray);
+            result.put("policy", policy);
+            //result.put("contains_licenses", containsLicenseArray); //tady irelevantní až matoucí
+            return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
