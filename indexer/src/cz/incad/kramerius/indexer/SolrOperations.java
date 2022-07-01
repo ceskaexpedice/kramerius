@@ -543,7 +543,17 @@ public class SolrOperations {
             
             logger.log(Level.FINE, "indexDoc=\n{0}", docSrc);
             if (sb.indexOf("name=\"" + UNIQUEKEY) > 0) {
-                postData(config.getString("IndexBase") + "/update", docSrc, new StringBuilder());
+                try {
+                    postData(config.getString("IndexBase") + "/update", docSrc, new StringBuilder());
+                } 
+                catch (Exception ex) {
+                    if(config.getBoolean("indexer.continueOnError", false)) {
+                        logger.log(Level.SEVERE, "Error indexing pdf page " + i + ". Continuing.", ex);
+                    }
+                    else {
+                        throw ex;   
+                    }
+                }
                 updateTotal++;
             }
         }
@@ -573,7 +583,7 @@ public class SolrOperations {
                 + "\u0009\r\n"
                 + "\u0020-\uD7FF"
                 + "\uE000-\uFFFD"
-                + "\ud800\udc00-\udbff\udfff"
+                //+ "\ud800\udc00-\udbff\udfff"
                 + "]";
         return inString.replaceAll(xml10pattern, "");
         //return inString.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", " ");
