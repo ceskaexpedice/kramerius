@@ -161,27 +161,25 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                     } catch (FedoraIOException e1) {
                         // fedora exception
                         LOGGER.log(Level.WARNING, "Missing " + stream + " datastream for " + pid);
-                        resp.setStatus(e1.getContentResponseCode());
-                        resp.getWriter().write(e1.getContentResponseBody());
+                        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                        //resp.getWriter().write(e1.getContentResponseBody());
                     } catch (FileNotFoundException e1) {
                         LOGGER.log(Level.WARNING, e1.getMessage());
                         resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     } catch (IOException e1) {
-                        if ("ClientAbortException".equals(e1.getClass().getSimpleName())) {
-                            LOGGER.info("Client closed request: " + req.getRequestURL());
-                        } else {
+
                             LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                        }
+                            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+
                     } catch (SecurityException e1) {
                         LOGGER.log(Level.INFO, e1.getMessage());
                         resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     } catch (XPathExpressionException e1) {
                         LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                        resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+                        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     } catch (Exception e1) {
                         LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-                        resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+                        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     }
                 } else {
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
