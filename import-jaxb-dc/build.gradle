@@ -13,6 +13,7 @@ configurations {
 
 dependencies {
 	xjc 'com.sun.xml.bind:jaxb-xjc:2.3.6'
+    xjc 'com.sun.xml.ws:jaxws-rt:2.3.5'
 }
 
 clean {

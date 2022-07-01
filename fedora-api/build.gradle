@@ -14,7 +14,8 @@ configurations {
 }
 
 dependencies {
-    wsimport 'com.sun.xml.ws:jaxws-tools:2.2.1'
+    wsimport 'com.sun.xml.ws:jaxws-tools:2.3.5'
+    wsimport 'com.sun.xml.ws:jaxws-rt:2.3.5'
 }
 
 clean {
