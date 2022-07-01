@@ -40,7 +40,7 @@ public class LoggingLoader {
         rootLogger.addHandler(stoutConsoleHandler);
         
         ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setLevel(Level.WARNING);
+        consoleHandler.setLevel(Level.SEVERE);
 
         rootLogger.addHandler(consoleHandler);
         LogManager.getLogManager().addLogger(rootLogger);
