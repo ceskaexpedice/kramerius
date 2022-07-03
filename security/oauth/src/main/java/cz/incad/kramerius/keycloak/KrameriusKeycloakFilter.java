@@ -19,6 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import static cz.incad.kramerius.Constants.WORKING_DIR;
+
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
@@ -90,10 +92,12 @@ public class KrameriusKeycloakFilter implements Filter {
                         throw new RuntimeException(e);
                     }
                 } else {
-                    String path = "/WEB-INF/keycloak.json";
-                    String pathParam = filterConfig.getInitParameter(CONFIG_PATH_PARAM);
-                    if (pathParam != null) path = pathParam;
-                    is = filterConfig.getServletContext().getResourceAsStream(path);
+                    String path = WORKING_DIR+"/keycloak.json";
+                    try {
+                        is = new FileInputStream(path);
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 KeycloakDeployment kd = createKeycloakDeploymentFrom(is);
                 deploymentContext = new AdapterDeploymentContext(kd);
