@@ -46,7 +46,7 @@ public class CriteriaDNNTUtilsTest extends TestCase  {
         replay(solrAccess);
 
         RightCriteriumContextFactoryImpl contextFactory = new RightCriteriumContextFactoryImpl();
-        contextFactory.setSolrAccess(solrAccess);
+        contextFactory.setSolrAccessNewIndex(solrAccess);
 
         RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1", null);
         return context;

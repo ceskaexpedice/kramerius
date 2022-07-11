@@ -30,7 +30,15 @@ import java.util.Map;
  * @author pavels
  */
 public interface SolrAccess {
-
+    
+    /**
+     * Returning solr data containing document with given pid
+     * @param pid
+     * @return JSON solr response, i.e.{docs: [{...} 
+     * @throws IOException
+     */
+    public JSONObject getJSONSolrDataByPid(String pid) throws IOException;
+    
     /**
      * Returns SOLR data containing document with given pid.
      * Including solr response envelope, i.e. <response><result><doc>...</doc></result></response>, not just <doc>...</doc>
@@ -41,6 +49,8 @@ public interface SolrAccess {
      */
     public Document getSolrDataByPid(String pid) throws IOException;
 
+    
+    
     /**
      * Returns SOLR data containing document with given handle
      * Examples of handle: handle/ABA001/12b34a, handle/uuid:8b0b25e0-49b7-11de-a45e-000d606f5dc6
@@ -74,6 +84,13 @@ public interface SolrAccess {
      */
     public ObjectPidsPath[] getPidPaths(String pid) throws IOException;
 
+    
+    public ObjectPidsPath[] getPidPaths(Document solrDataDoc) throws IOException;
+    public ObjectPidsPath[] getOwnPidPaths(Document solrDataDoc) throws IOException;
+    
+   // public ObjectPidsPath[] getPidPaths(JSONObject solrDataDoc) throws IOException;
+    
+
     /**
      * Returns all paths from given Solr data (Ended by datastream if datastream is defined)
      *
@@ -96,6 +113,8 @@ public interface SolrAccess {
     public ObjectPidsPath[] getPidPaths(String datastreamName, Element solrDocParentElement) throws IOException;
 
 
+    
+    
     /**
      * Returns all model's paths
      *
@@ -104,14 +123,18 @@ public interface SolrAccess {
      * @throws IOException
      */
     public ObjectModelsPath[] getModelPaths(String pid) throws IOException;
-
+    
+    
     /**
      * @param solrDataDoc Parsed SOLR document, including solr response envelope, i.e. <response><result><doc>...</doc></result></response>, not just <doc>...</doc>
-     * @return all model paths dissected from solr document
+     * @return all model paths
      * @throws IOException
      */
     public ObjectModelsPath[] getModelPaths(Document solrDataDoc) throws IOException;
 
+    //public ObjectModelsPath[] getModelPaths(JSONObject solrDataDoc) throws IOException;
+
+    
     /**
      * Wrapper allows to return ObjectPidPaths and ObjectModelsPath in one response
      * Example:

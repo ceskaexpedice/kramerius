@@ -24,10 +24,10 @@ public class GuiceModelInjector extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessAkubraImpl.class).in(Scopes.SINGLETON);
-        bind(FedoraAccessBridge.class);
-        bind(SolrOperations.class);
-        bind(FedoraOperations.class);
+        //bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessAkubraImpl.class).in(Scopes.SINGLETON);
+        //bind(FedoraAccessBridge.class);
+        //bind(SolrOperations.class);
+       // bind(FedoraOperations.class);
 
 
     }

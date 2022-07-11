@@ -42,6 +42,7 @@ dependencies {
     api project(':processes:mw-process')
     api project(':processes:indexer')
     api project(':processes:import')
+
     api project(':processes:import-mets')
     api project(':processes:solr-migration')
     api project(':processes:data-migration')

@@ -99,10 +99,10 @@ public class SolrOperations {
             initDocCount = getDocCount();
             if ("deleteDocument".equals(action)) {
                 for(String v : value.split(pidSeparator)){
-                    SolrAccess sa = new SolrAccessImpl();
-                    ObjectPidsPath[] path = sa.getPidPaths(v);
+                    //SolrAccess sa = new SolrAccessImpl();
+                    //ObjectPidsPath[] path = sa.getPidPaths(v);
                     // don't need iterate over all array
-                    ObjectPidsPath one = path[0];
+                    ObjectPidsPath one = null;
                     String[] pathFromRootToLeaf = one.getPathFromRootToLeaf();
                     String joined = String.join("/", pathFromRootToLeaf);
                     logger.info(" Deleting pidpath "+joined);

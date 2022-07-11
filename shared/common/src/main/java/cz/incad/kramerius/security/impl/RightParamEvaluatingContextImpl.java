@@ -33,7 +33,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private String associatedPID;
     private User user;
     private FedoraAccess fedoraAccess;
-    private SolrAccess solrAccess;
+    //private SolrAccess solrAccess;
     private SolrAccess solrAccessNewIndex;
 
     private UserManager userManager;
@@ -53,7 +53,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         this.requestedStream = builder.requestedStream;
         this.user = builder.user;
         this.fedoraAccess = builder.fedoraAccess;
-        this.solrAccess = builder.solrAccess;
+//        this.solrAccess = builder.solrAccess;
         this.solrAccessNewIndex = builder.solrAccessNewIndex;
         this.remoteHost = builder.remoteHost;
         this.remoteAddr = builder.remoteAddr;
@@ -93,7 +93,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     @Override
     public ObjectPidsPath[] getPathsToRoot() {
         try {
-            return this.solrAccess.getPidPaths(getRequestedPid());
+            return this.getSolrAccessNewIndex().getPidPaths(getRequestedPid());
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -119,10 +119,6 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         return this.requestedStream;
     }
 
-    @Override
-    public SolrAccess getSolrAccess() {
-        return this.solrAccess;
-    }
 
     @Override
     public SolrAccess getSolrAccessNewIndex() {

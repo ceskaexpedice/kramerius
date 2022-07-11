@@ -78,9 +78,9 @@ public class ApiServletModule extends JerseyServletModule {
         bind(CDKReplicationsResource.class);
         bind(LRResource.class);
 
-        // API Client 5.0 Resources
+        // API Client 5.0 Resources - TODO: disable
         bind(ClientUserResource.class);
-        bind(ItemResource.class);
+        //bind(ItemResource.class);
         bind(FeederResource.class);
         bind(ClientVirtualCollections.class);
         bind(SearchResource.class);
@@ -136,43 +136,44 @@ public class ApiServletModule extends JerseyServletModule {
         // serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
     }
 
+    // not necessary in k7
     public static void decoratorsBindings(Multibinder<JSONDecorator> decs) {
-        // feeder
-        decs.addBinding().to(SolrISSNDecorate.class);
-        decs.addBinding().to(SolrDateDecorate.class);
-        decs.addBinding().to(SolrLanguageDecorate.class);
-        decs.addBinding().to(FeederSolrRootModelDecorate.class);
-        decs.addBinding().to(FeederSolrRootPidDecorate.class);
-        decs.addBinding().to(FeederSolrTitleDecorate.class);
-        decs.addBinding().to(FeederSolrAuthorDecorate.class);
-        decs.addBinding().to(FeederSolrPolicyDecorate.class);
-        decs.addBinding().to(FeederSolrMimeDecorate.class);
-
-        // item
-        decs.addBinding().to(HandleDecorate.class);
-        decs.addBinding().to(ItemSolrTitleDecorate.class);
-        decs.addBinding().to(ItemSolrRootModelDecorate.class);
-        decs.addBinding().to(ItemSolrRootPidDecorate.class);
-        decs.addBinding().to(SolrContextDecorate.class);
-        //decs.addBinding().to(SolrDataNode.class);
-        //decs.addBinding().to(CollectionsDecorator.class);
-        decs.addBinding().to(ReplicatedFromDecorator.class);
-        //decs.addBinding().to(SolrRightsFlag.class);
-        //decs.addBinding().to(DonatorDecorate.class);
-        //decs.addBinding().to(DNNTDecorator.class);
-
-        // item, display
-        decs.addBinding().to(ZoomDecorate.class);
-        decs.addBinding().to(PDFDecorate.class);
-
-        // item, details
-        decs.addBinding().to(MonographUnitDecorate.class);
-        decs.addBinding().to(PageDetailDecorate.class);
-        decs.addBinding().to(PeriodicalItemDecorate.class);
-        decs.addBinding().to(PeriodicalVolumeDecorator.class);
-        decs.addBinding().to(InternalPartDecorate.class);
-        decs.addBinding().to(InternalPartDecorate.class);
-        decs.addBinding().to(SupplementDecorator.class);
+//        // feeder
+//        decs.addBinding().to(SolrISSNDecorate.class);
+//        decs.addBinding().to(SolrDateDecorate.class);
+//        decs.addBinding().to(SolrLanguageDecorate.class);
+//        decs.addBinding().to(FeederSolrRootModelDecorate.class);
+//        decs.addBinding().to(FeederSolrRootPidDecorate.class);
+//        decs.addBinding().to(FeederSolrTitleDecorate.class);
+//        decs.addBinding().to(FeederSolrAuthorDecorate.class);
+//        decs.addBinding().to(FeederSolrPolicyDecorate.class);
+//        decs.addBinding().to(FeederSolrMimeDecorate.class);
+//
+//        // item
+//        decs.addBinding().to(HandleDecorate.class);
+//        decs.addBinding().to(ItemSolrTitleDecorate.class);
+//        decs.addBinding().to(ItemSolrRootModelDecorate.class);
+//        decs.addBinding().to(ItemSolrRootPidDecorate.class);
+//        decs.addBinding().to(SolrContextDecorate.class);
+//        //decs.addBinding().to(SolrDataNode.class);
+//        //decs.addBinding().to(CollectionsDecorator.class);
+//        decs.addBinding().to(ReplicatedFromDecorator.class);
+//        //decs.addBinding().to(SolrRightsFlag.class);
+//        //decs.addBinding().to(DonatorDecorate.class);
+//        //decs.addBinding().to(DNNTDecorator.class);
+//
+//        // item, display
+//        decs.addBinding().to(ZoomDecorate.class);
+//        decs.addBinding().to(PDFDecorate.class);
+//
+//        // item, details
+//        decs.addBinding().to(MonographUnitDecorate.class);
+//        decs.addBinding().to(PageDetailDecorate.class);
+//        decs.addBinding().to(PeriodicalItemDecorate.class);
+//        decs.addBinding().to(PeriodicalVolumeDecorator.class);
+//        decs.addBinding().to(InternalPartDecorate.class);
+//        decs.addBinding().to(InternalPartDecorate.class);
+//        decs.addBinding().to(SupplementDecorator.class);
     }
 
     private void decorators() {

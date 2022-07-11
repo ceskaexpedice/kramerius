@@ -19,34 +19,48 @@
  */
 package cz.incad.kramerius.statistics.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
+import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl;
+
 import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.IdentifiersFilter;
 import cz.incad.kramerius.statistics.filters.LicenseFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter;
+import cz.incad.kramerius.statistics.utils.ReportUtils;
+import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
@@ -54,7 +68,7 @@ import cz.incad.kramerius.utils.database.Offset;
  * 
  * @author pavels
  */
-public class LangReport implements StatisticReport{
+public class LangReport extends AbstractStatisticsReport implements StatisticReport{
 
     public static final Logger LOGGER = Logger.getLogger(LangReport.class.getName());
     
@@ -64,48 +78,39 @@ public class LangReport implements StatisticReport{
     @Named("kramerius4")
     Provider<Connection> connectionProvider;
 
+    
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,  StatisticsFiltersContainer filters,Offset rOffset) {
         try {
-        	// date filter 
-        	DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            String selectEndpint = super.logsEndpoint();
+            
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            List<Map<String,Object>> langs = new ArrayList<>();
+            
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
             LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
+            IdentifiersFilter idFilter = filters.getFilter(IdentifiersFilter.class);
 
-            final StringTemplate statRecord =DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectLangReport");
-            
-            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("visibility", visFilter.asMap());
-            
-            statRecord.setAttribute("licenseDefined", licFilter.getLicence() != null);
-            //statRecord.setAttribute("license", licFilter.getLicence());
+            StringBuilder builder = new StringBuilder("q=*");
+            ReportUtils.enhanceLicense(builder, licFilter);
+            ReportUtils.enhanceDateFilter(builder, dateFilter);
+            ReportUtils.enhanceIdentifiers(builder, idFilter);
 
-            
-            @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(dateFilter, licFilter , null);
-            //statRecord.setAttribute("paging", true);
-            String sql = statRecord.toString();
-            Connection conn = connectionProvider.get();
-            List<Map<String,Object>> langs = new JDBCQueryTemplate<Map<String,Object>>(conn) {
+            String facetField = "langs";
+            builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
+            String string = IOUtils.toString(iStream, "UTF-8");
 
-                @Override
-                public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
-                    Map<String, Object> map = new HashMap<String, Object>();
-                    map.put("count", rs.getInt("count"));
-                    map.put("lang", rs.getString("lang"));
-                    returnsList.add(map);
-                    return super.handleRow(rs, returnsList);
-                }
-            }.executeQuery(sql.toString(),params.toArray());
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
+            ReportUtils.facetIterate(facetField, string, p-> {
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put(COUNT_KEY, p.getValue());
+                map.put(LANG_KEY, p.getKey());
+                langs.add(map);
+            });
+
             return langs;
-        } catch (ParseException e) {
+        } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            return new ArrayList<Map<String,Object>>();
-        } catch (SQLException ex) {
-            Logger.getLogger(LangReport.class.getName()).log(Level.SEVERE, null, ex);
             return new ArrayList<Map<String,Object>>();
         }
     }
@@ -120,9 +125,6 @@ public class LangReport implements StatisticReport{
         return REPORT_ID;
     }
 
-    
-    
-
     @Override
     public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) {
         // TODO Auto-generated method stub
@@ -131,38 +133,30 @@ public class LangReport implements StatisticReport{
 
     @Override
     public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,
-            final StatisticsFiltersContainer container) throws StatisticsReportException {
+            final StatisticsFiltersContainer filters) throws StatisticsReportException {
         try {
-            DateFilter dateFilter = container.getFilter(DateFilter.class);
-            VisibilityFilter visFilter = container.getFilter(VisibilityFilter.class);
-            LicenseFilter licFilter = container.getFilter(LicenseFilter.class);
-            final StringTemplate statRecord =  DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectLangReport");
-            
-            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("visibility", visFilter.asMap());
-            statRecord.setAttribute("paging", false);
-            statRecord.setAttribute("licenseDefined", licFilter.getLicence() != null);
+            String selectEndpint = super.logsEndpoint();
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
+            IdentifiersFilter idFilter = filters.getFilter(IdentifiersFilter.class);
 
+            StringBuilder builder = new StringBuilder("q=*");
+            ReportUtils.enhanceLicense(builder, licFilter);
+            ReportUtils.enhanceDateFilter(builder, dateFilter);
+            ReportUtils.enhanceIdentifiers(builder, idFilter);
 
-            @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(dateFilter);
+            String facetField = "langs";
+            builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
+            String string = IOUtils.toString(iStream, "UTF-8");
 
-            String sql = statRecord.toString();
-            Connection conn = connectionProvider.get();
-            new JDBCQueryTemplate<Map<String,Object>>(conn) {
-                @Override
-                public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
-                    Map<String, Object> map = new HashMap<String, Object>();
-                    map.put(COUNT_KEY, rs.getInt("count"));
-                    map.put(LANG_KEY, rs.getString("lang"));
-                    sup.processReportRecord(map);
-                    return super.handleRow(rs, returnsList);
-                }
-            }.executeQuery(sql.toString(), params.toArray());
-            conn.close();
+            ReportUtils.facetIterate(facetField, string, p-> {
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put(COUNT_KEY, p.getValue());
+                map.put(LANG_KEY, p.getKey());
+                sup.processReportRecord(map);
+            });
+
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
@@ -173,8 +167,8 @@ public class LangReport implements StatisticReport{
 	public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
     	List<String> list = new ArrayList<>();
 		DateFilter dateFilter = container.getFilter(DateFilter.class);
-		VerificationUtils.dateVerification(list, dateFilter.getFromDate());
-		VerificationUtils.dateVerification(list, dateFilter.getToDate());
+		VerificationUtils.dateVerification(list, dateFilter.getRawFromDate());
+		VerificationUtils.dateVerification(list, dateFilter.getRawToDate());
 		return list;
 	}
 }

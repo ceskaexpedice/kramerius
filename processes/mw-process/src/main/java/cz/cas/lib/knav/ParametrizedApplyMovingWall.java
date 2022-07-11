@@ -14,6 +14,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
@@ -32,7 +33,7 @@ public class ParametrizedApplyMovingWall {
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
 
-        SolrAccess sa = new SolrAccessImpl();
+        SolrAccess sa = new SolrAccessImplNewIndex();
         CollectPidForIndexing coll = new CollectPidForIndexing();
 
         String[] pids = pidsString.split(",");

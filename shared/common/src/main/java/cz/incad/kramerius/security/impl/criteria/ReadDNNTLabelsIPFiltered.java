@@ -34,6 +34,7 @@ public class ReadDNNTLabelsIPFiltered extends AbstractCriterium implements Right
                         EvaluatingResultState result = matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
                         if (result.equals(EvaluatingResultState.TRUE)) {
                             getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, getLicense().getName());
+                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LICENSE, getLicense().getName());
                         }
                         return result;
 

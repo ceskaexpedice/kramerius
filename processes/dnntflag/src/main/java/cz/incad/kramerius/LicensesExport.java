@@ -4,10 +4,10 @@ import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.services.IterationUtils;
 import cz.incad.kramerius.services.MigrationUtils;
 import cz.incad.kramerius.solr.SolrFieldsMapping;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.IterationUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.csv.CSVFormat;
@@ -56,7 +56,7 @@ public class LicensesExport {
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(csvFile), Charset.forName("UTF-8"));
         try (CSVPrinter printer = new CSVPrinter(outputStreamWriter, CSVFormat.DEFAULT.withHeader("pid","model","dctitle","labels"))) {
             IterationUtils.cursorIteration(client,KConfiguration.getInstance().getSolrSearchHost() ,  URLEncoder.encode(q,"UTF-8"),(em, i) -> {
-                List<String> pp = MigrationUtils.findAllPids(em);
+                List<String> pp = IterationUtils.findAllPids(em);
                 if (!pp.isEmpty()) {
                     Lists.partition(pp, 10).stream().forEach(it->{
                         try {

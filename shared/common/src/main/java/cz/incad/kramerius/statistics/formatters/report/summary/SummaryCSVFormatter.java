@@ -60,12 +60,9 @@ public class SummaryCSVFormatter implements StatisticsReportFormatter{
             if (!firstLine) os.write("\n".getBytes());
             StringBuilder builder = new StringBuilder();
             if (!record.isEmpty()) {
-                Entry<String, Object> entry = record.entrySet().iterator().next();
-                builder.append(entry.getKey()).append(',');
-                builder.append(StringUtils.nullify((String)entry.getValue().toString()));
-           	
+                builder.append(StringUtils.nullify((String)record.get("model"))).append(',');
+                builder.append(record.get("count"));
             }
-
             os.write(builder.toString().getBytes(DEFAULT_ENCODING));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

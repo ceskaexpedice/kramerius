@@ -80,6 +80,8 @@ dependencies {
     api "com.sun.jersey.contribs:jersey-apache-client:${jerseyversion}"
     api "com.sun.jersey.contribs:jersey-guice:${jerseyversion}"
 
+
+
     /*
     api("org.fcrepo:fcrepo4-client:4.4.1-SNAPSHOT") {
        exclude group:"ch.qos.logback", module:"logback-classic"

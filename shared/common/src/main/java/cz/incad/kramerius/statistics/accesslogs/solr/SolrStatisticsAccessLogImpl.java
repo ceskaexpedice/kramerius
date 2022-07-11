@@ -1,0 +1,321 @@
+package cz.incad.kramerius.statistics.accesslogs.solr;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.json.JSONObject;
+import org.w3c.dom.Document;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
+import com.sun.jersey.api.client.Client;
+
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.ObjectModelsPath;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.database.VersionService;
+import cz.incad.kramerius.pdf.utils.ModsUtils;
+import cz.incad.kramerius.processes.NotReadyException;
+import cz.incad.kramerius.security.RightsReturnObject;
+import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
+import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.LogRecord;
+import cz.incad.kramerius.statistics.accesslogs.LogRecordDetail;
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl.InsertAuthor;
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl.InsertDetail;
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl.InsertPublisher;
+import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl.InsertRecord;
+import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.DatabaseUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
+import cz.incad.kramerius.utils.solr.SolrUtils;
+
+public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
+
+	static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
+
+
+    @Inject
+    @Named("new-index")
+    SolrAccess solrAccess;
+
+    @Inject
+    @Named("cachedFedoraAccess")
+    FedoraAccess fedoraAccess;
+
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
+
+    @Inject
+    LoggedUsersSingleton loggedUsersSingleton;
+
+    @Inject
+    Provider<User> userProvider;
+
+    @Inject
+    Set<StatisticReport> reports;
+
+    @Inject
+    VersionService versionService;
+
+    private XPathFactory xpfactory;
+    private Client client;
+    private DocumentBuilderFactory documentBuilderFactory;
+    
+    public SolrStatisticsAccessLogImpl() {
+        this.xpfactory = XPathFactory.newInstance();
+        
+        this.client = Client.create();
+        this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        
+        client.setReadTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
+        client.setConnectTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
+    }
+
+    @Override
+    public void reportAccess(final String pid, final String streamName) throws IOException {
+        Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(solrDoc);
+        ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(solrDoc);
+        ObjectPidsPath[] ownPidPaths = this.solrAccess.getOwnPidPaths(solrDoc);
+
+        LogRecord logRecord = LogRecord.buildRecord(pid);
+
+        // jestlize je uzivatel, pak tokenid, pokud ne, pak session id
+        if (userProvider.get() != null) {
+            String sessionId = requestProvider.get().getSession().getId();
+            logRecord.setSessionToken(sessionId);
+        } else {
+            // user store token id 
+        }
+
+        String requestedUrl = requestProvider.get().getRequestURL().toString();
+        logRecord.setRequestedUrl(requestedUrl);
+        
+        logRecord.setPidsPaths(Arrays.stream(paths).map(ObjectPidsPath::getPathFromRootToLeaf).map(array-> {
+            return Arrays.stream(array).collect(Collectors.joining("/"));
+        }).collect(Collectors.toSet()));
+
+        // only one now 
+        if (mpaths.length > 0) {
+            logRecord.setOwnModelPath(Arrays.stream(mpaths[0].getPathFromRootToLeaf()).collect(Collectors.joining("/")));
+        }
+        
+        if (ownPidPaths.length > 0) {
+            logRecord.setOwnPidpath(Arrays.stream(ownPidPaths[0].getPathFromRootToLeaf()).collect(Collectors.joining("/")));
+        }
+        try {
+            String rootTitle = SolrUtils.rootTitle(solrDoc);
+            logRecord.setRootTitle(rootTitle);
+            
+            String rootModel = SolrUtils.rootModel(solrDoc);
+            logRecord.setRootModel(rootModel);
+            
+            String rootPid = SolrUtils.rootPid(solrDoc);
+            logRecord.setRootPid(rootPid);
+            
+            logRecord.setLicenses(new LinkedHashSet<>(SolrUtils.disectLicenses(solrDoc.getDocumentElement())));
+            User user = this.userProvider.get();
+            logRecord.setUser(user.getLoginname());
+            
+            RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
+            Map<String, String> evaluateInfoMap = rightsReturnObject != null ? rightsReturnObject.getEvaluateInfoMap() : new HashMap<>();
+            if (evaluateInfoMap != null) {
+                try {
+                    JSONObject evaluateMap =   new JSONObject(evaluateInfoMap);
+                    logRecord.setEvaluatedMap(evaluateMap.toString());
+                    String providedByLicense = null;
+                    if (evaluateMap.has(ReadDNNTLabels.PROVIDED_BY_DNNT_LICENSE)) {
+                        providedByLicense = evaluateMap.getString(ReadDNNTLabels.PROVIDED_BY_DNNT_LICENSE);
+                    } else if (evaluateMap.has(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
+                        providedByLicense = evaluateMap.getString(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL);
+                    }
+                    if (providedByLicense != null) {
+                        logRecord.setProvidedByLicense(providedByLicense);
+                    }
+                } catch(Exception e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                }
+                // provided 
+            }
+            
+            if (user.getSessionAttributes() != null) {
+                logRecord.setUserSessionAttributes(new JSONObject(user.getSessionAttributes()).toString());
+            }
+            
+            logRecord.setReportedAction(this.reportedAction != null  && this.reportedAction.get() != null ?  this.reportedAction.get().name() : ReportedAction.READ.name());
+            logRecord.setDbVersion(versionService.getVersion());
+            // pokud je user != null -> tokenid
+            // jinak sessionid
+            if (user != null) {
+                //user.get
+            } else {
+                String sessionId = requestProvider.get().getSession().getId();
+                logRecord.setSessionToken(sessionId);
+            }
+            
+            for (int i = 0, ll = paths.length; i < ll; i++) {
+                if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
+                    paths[i] = paths[i].cutHead(0);
+                }
+                String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
+                for (int j = 0; j < pathFromLeafToRoot.length; j++) {
+                    final String detailPid = pathFromLeafToRoot[j];
+                    String detailModel = fedoraAccess.getKrameriusModelName(detailPid);
+                    LogRecordDetail logDetail = LogRecordDetail.buildDetail(detailPid, detailModel);
+
+                    Document dc = null;
+                    try {
+                        dc = fedoraAccess.getDC(detailPid);
+                    } catch (IOException e) {
+                        LOGGER.warning("datastream DC not found for " + detailPid + ", ignoring statistics");
+                    }
+                    if (dc != null) {
+                        Object dateFromDC = DCUtils.dateFromDC(dc);
+                        if (dateFromDC != null) {
+                            logRecord.addIssueDate(dateFromDC.toString());
+                        }
+                        
+                        Object dateFromSolr = SElemUtils.selem("str", "datum_str", solrDoc);
+                        dateFromSolr = dateFromSolr != null ? dateFromSolr : null;
+                        if (dateFromSolr != null) {
+                            logRecord.addSolrDate(dateFromSolr.toString());
+                        }
+                        
+                        Object languageFromDc = DCUtils.languageFromDC(dc);
+                        if (languageFromDc != null) {
+                            logRecord.addLang(languageFromDc.toString());
+                        }
+                        
+                        Object title = DCUtils.titleFromDC(dc);
+                        if (title != null) {
+                            logRecord.addTitle(title.toString());
+                            logDetail.setTitle(title.toString());
+                        }
+                        Document mods = fedoraAccess.getBiblioMods(detailPid);
+                        Map<String, List<String>> identifiers = null;
+                        try {
+                            identifiers = ModsUtils.identifiersFromMods(mods);
+                            for (String key : identifiers.keySet()) {
+                                if (key.equals(ISBN_MODS_KEY)) {
+                                    identifiers.get(ISBN_MODS_KEY).stream().forEach(isbn-> {
+                                        logRecord.addISBN(isbn);
+                                    });
+                                }
+                                if (key.equals(ISSN_MODS_KEY)) {
+                                    identifiers.get(ISSN_MODS_KEY).stream().forEach(issn -> {
+                                        logRecord.addISSN(issn);
+                                    });
+                                }
+                                if (key.equals(CCNB_MODS_KEY)) {
+                                    identifiers.get(CCNB_MODS_KEY).stream().forEach(ccnb-> {
+                                        logRecord.addISBN(ccnb);
+                                    });
+                                }
+                                
+                            }
+                        } catch (XPathExpressionException e) {
+                            Logger.getLogger(SolrStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+                        }
+                        
+                        String[] creatorsFromDC = DCUtils.creatorsFromDC(dc);
+                        for (String cr : creatorsFromDC) {
+                            logRecord.addAuthor(cr);
+                        }
+
+                        String[] publishersFromDC = DCUtils.publishersFromDC(dc);
+                        for (String p : publishersFromDC) {
+                            logRecord.addPublisher(p);
+                        }
+                    }
+                    logRecord.addDetail(logDetail);
+                }
+            }
+        } catch (SQLException | XPathExpressionException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            try {
+                String loggerPoint = KConfiguration.getInstance().getProperty("k7.log.solr.point","http://localhost:8983/solr/logs");
+                String updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
+                SolrUpdateUtils.sendToDest(this.client, logRecord.toSolrBatch(this.documentBuilderFactory), updateUrl);
+            } catch (ParserConfigurationException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
+    }
+    
+    //TODO: Implement
+    @Override
+    public void reportAccess(String pid, String streamName, String actionName) throws IOException {
+        ReportedAction action = ReportedAction.valueOf(actionName);
+        this.reportedAction.set(action);
+        this.reportAccess(pid, streamName);
+    }
+
+    @Override
+    public boolean isReportingAccess(String pid, String streamName) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public StatisticReport[] getAllReports() {
+        return (StatisticReport[]) this.reports.toArray(new StatisticReport[this.reports.size()]);
+    }
+
+    @Override
+    public StatisticReport getReportById(String reportId) {
+        for (StatisticReport rep : this.reports) {
+            if (rep.getReportId().equals(reportId)) return rep;
+        }
+        return null;
+    }
+
+    @Override
+    public int cleanData(Date dateFrom, Date dateTo) throws IOException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void refresh() throws IOException {
+        // TODO Auto-generated method stub
+        
+    }
+
+}

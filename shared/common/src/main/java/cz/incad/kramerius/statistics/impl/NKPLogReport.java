@@ -1,12 +1,41 @@
 package cz.incad.kramerius.statistics.impl;
 
+import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.versionCondition;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.name.Named;
+import com.sun.jersey.api.client.Client;
+
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.database.VersionService;
+import cz.incad.kramerius.solr.SolrFieldsMapping;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
@@ -16,50 +45,32 @@ import cz.incad.kramerius.statistics.accesslogs.dnnt.date.YearLogFormat;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
-import cz.incad.kramerius.statistics.filters.VisibilityFilter;
+import cz.incad.kramerius.statistics.utils.ReportUtils;
+import cz.incad.kramerius.utils.IterationUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.IterationUtils.IterationCallback;
+import cz.incad.kramerius.utils.IterationUtils.IterationEndCallback;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 import cz.incad.kramerius.utils.solr.SolrUtils;
-import org.antlr.stringtemplate.StringTemplate;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.w3c.dom.Document;
-
-import java.io.IOException;
-import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.versionCondition;
-
 
 /**
  * Creates report for NKP
  *
  */
-public class NKPLogReport implements StatisticReport {
+public class NKPLogReport extends AbstractStatisticsReport implements StatisticReport {
 
     public static final String RUNTIME_ATTRS = "runtimeAttributes";
     public static final String MISSING_ATTRS = "missingAttributes";
-    //public static List<String> EXPECTED_FIELDS = Arrays.asList("");
+    // public static List<String> EXPECTED_FIELDS = Arrays.asList("");
 
-    public static final SimpleDateFormat ACCESS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
+    //public static final SimpleDateFormat SOLR_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    //public static final SimpleDateFormat INPUT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    
     public static final Logger LOGGER = Logger.getLogger(AuthorReport.class.getName());
 
     public static final String REPORT_ID = "nkp";
 
-
-    @Inject
-    @Named("kramerius4")
-    Provider<Connection> connectionProvider;
 
     @Inject
     @Named("new-index")
@@ -72,9 +83,9 @@ public class NKPLogReport implements StatisticReport {
     @Inject
     VersionService versionService;
 
-
     @Override
-    public List<Map<String, Object>> getReportPage(ReportedAction reportedAction, StatisticsFiltersContainer filters, Offset rOffset) throws StatisticsReportException {
+    public List<Map<String, Object>> getReportPage(ReportedAction reportedAction, StatisticsFiltersContainer filters,
+            Offset rOffset) throws StatisticsReportException {
         throw new UnsupportedOperationException("unsupported for this report");
     }
 
@@ -89,518 +100,302 @@ public class NKPLogReport implements StatisticReport {
     }
 
     @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) throws StatisticsReportException { }
+    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container)
+            throws StatisticsReportException {
+    }
 
     @Override
-    public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer filters) throws StatisticsReportException {
-    	Connection conn = null;
-    	try {
-
+    public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer filters)
+            throws StatisticsReportException {
+        try {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
-
             if (dateFilter.getFromDate() != null && dateFilter.getToDate() != null) {
-                final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("nkpLogsReport");
-                statRecord.setAttribute("action", ReportedAction.READ.name());
+                dateFilter.setInputFormat(DATE_FORMAT);
+                dateFilter.setOutputFormat(SOLR_DATE_FORMAT);
+                
+                StringBuilder builder = new StringBuilder("*");
+                ReportUtils.enhanceDateFilter(builder, dateFilter);
+                
+                String selectEndpoint = logsEndpoint();
+                Client client = Client.create();
+                logsCursorIteration(client, selectEndpoint, builder.toString(), (elm, i) -> {
 
-                statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-                statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-                // visibility must be filtered in the runtime
-                //statRecord.setAttribute("visibility", visFilter.asMap());
+                    Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
+                        @Override
+                        public boolean acceptElement(Element element) {
+                            String nodeName = element.getNodeName();
+                            return nodeName.equals("result");
+                        }
+                    });
+                    if (result != null) {
+                        List<Element> elements = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                String nodeName = element.getNodeName();
+                                return nodeName.equals("doc");
+                            }
+                        });
 
-
-                @SuppressWarnings("rawtypes")
-                List params = StatisticUtils.jdbcParams(dateFilter);
-                String sql = statRecord.toString();
-                conn = connectionProvider.get();
-
-                new StastisticsIteration(sql, params, conn, collectedRecord-> {
-                    logReport(collectedRecord, sup, visFilter);
-                }).iterate();
-
-            } else {
-                throw new UnsupportedOperationException("Full report is not supported. Please, use dateFrom and dateTo");
-            }
-
-        } catch (ParseException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-        } finally {
-        	try {
-				if (conn != null && !conn.isClosed()) {
-				    conn.close();
-				}
-			} catch (SQLException e) {
-	            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-			}
-		}
-
-    }
-
-    static class StastisticsIteration extends JDBCQueryTemplate<Object> {
-
-
-        private Record currentRecord = new Record();
-
-        private Consumer<Record> consumer;
-        private String sql;
-        private List params;
-
-        public StastisticsIteration(String sql, List params, Connection connection, Consumer<Record> consumer) {
-            super(connection);
-            this.consumer = consumer;
-            this.params = params;
-            this.sql = sql;
-        }
-
-        public void iterate() {
-            executeQuery(sql,params.toArray());
-            if (currentRecord != null && currentRecord.pid != null) consumer.accept(currentRecord);
-        }
-
-        @Override
-        public boolean handleRow(ResultSet rs, List<Object> returnsList) throws SQLException {
-            try {
-                int recordId = rs.getInt("slrecord_id");
-                int detailId = rs.getInt("sddetail_id");
-                int authorId = rs.getInt("saauthor_id");
-                int publisherId = rs.getInt("sppublisher_id");
-
-                if (currentRecord.isDifferent(recordId)) {
-                    if (currentRecord.recordId != -1) {
-                        consumer.accept(currentRecord);
-                    }
-                    currentRecord = Record.load(rs);
-                }
-
-                if (currentRecord.lastDetail() == null || currentRecord.lastDetail().isDifferent(detailId)) {
-                    currentRecord.details.add(Detail.load(rs));
-                }
-
-                if (authorId != -1) {
-                    currentRecord.lastDetail().authors.add(Author.load(rs));
-                }
-                if (publisherId != -1) {
-                    currentRecord.lastDetail().publishers.add(Publisher.load(rs));
-                }
-
-
-
-
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
-            return super.handleRow(rs, returnsList);
-        }
-
-    }
-
-
-
-    void logReport(Record record, StatisticsReportSupport sup, VisibilityFilter visibilityFilter) {
-
-        // Must be filtered in runtime
-        boolean selected = visibilityFilter.getSelected().equals(VisibilityFilter.VisbilityType.ALL);
-        if (!selected) {
-
-            List<Detail> firstBranch = record.details.stream().filter(detail -> {
-                return detail.branchId == 0;
-            }).collect(Collectors.toList());
-
-            Detail detail = firstBranch.get(0);
-            if (detail != null && detail.rights != null) {
-                String trim = detail.rights.trim();
-                selected = trim.contains(visibilityFilter.getSelected().name().toLowerCase());
-            }
-        }
-
-
-        if (selected) {
-            boolean disbleFedoraAccess = KConfiguration.getInstance().getConfiguration().getBoolean("nkp.logs.disablefedoraaccess", false);
-            Map map = record.toMap();
-            Object dbversion = map.get("dbversion");
-            if (dbversion != null) map.remove("dbversion");
-            if (dbversion == null || versionCondition(dbversion.toString(), "<", "6.6.6")) {
-                try {
-                    if (!disbleFedoraAccess) {
-                        // only one place where we are connecting
-                        Document solrDoc = solrAccess.getSolrDataByPid(record.pid);
-                        if (solrDoc != null) {
-
-                            map.put(DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY, new YearLogFormat().format(SElemUtils.selem("str", "datum_str", solrDoc)));
-                            // fill publishers
-                            ObjectPidsPath[] paths = solrAccess.getPidPaths(null, solrDoc);
-                            List<String> dcPublishers = DNNTStatisticsAccessLogImpl.dcPublishers(paths, fedoraAccess);
-                            if (!dcPublishers.isEmpty()) {
-                                JSONArray publishersArray = new JSONArray();
-                                for (int i=0,ll=dcPublishers.size();i<ll;i++) {
-                                    publishersArray.put(dcPublishers.get(i));
+                        List<String> idents = elements.stream().map(item -> {
+                                    Element str = XMLUtils.findElement(item, new XMLUtils.ElementsFilter() {
+                                                @Override
+                                                public boolean acceptElement(Element element) {
+                                                    return element.getNodeName().equals("str");
+                                                }
+                                            }
+                                    );
+                                    return str.getTextContent();
                                 }
-                                map.put(DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY ,publishersArray);
-                            }
+                        ).collect(Collectors.toList());
 
-                            // fill identifiers
-                            Map<String, List<String>> identifiers = DNNTStatisticsAccessLogImpl.identifiers(paths, fedoraAccess);
-                            identifiers.keySet().forEach(key-> map.put(key, identifiers.get(key)));
+                        reportIdents(idents, sup);
+                    } 
+                }, ()->{});
+                
+            } else {
+                throw new UnsupportedOperationException(
+                        "Full report is not supported. Please, use dateFrom and dateTo");
+            }
 
-                            List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
-                            map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (InterruptedException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (BrokenBarrierException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
 
-                            String s = SolrUtils.disectDNNTFlag(solrDoc.getDocumentElement());
-                            if (s != null) {
-                                map.put(DNNTStatisticsAccessLogImpl.DNNT_KEY, Boolean.valueOf(s));
-                            }
+    
+    public static void logsCursorIteration(Client client,String address, String masterQuery,IterationCallback callback, IterationEndCallback endCallback) throws ParserConfigurationException,  SAXException, IOException, InterruptedException, BrokenBarrierException {
+        String cursorMark = null;
+        String queryCursorMark = null;
+        do {
+            Element element = pidsCursorQuery(client, address, masterQuery, cursorMark);
+            cursorMark =  IterationUtils.findCursorMark(element);
+            queryCursorMark = IterationUtils.findQueryCursorMark(element);
+            callback.call(element, cursorMark);
+        } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
+        endCallback.end();
+    }
 
-                            List<String> runtimeFileds = new ArrayList<>(Arrays.asList(DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY ,
-                                                                                        DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
-                                                                                        DNNTStatisticsAccessLogImpl.DNNT_KEY,
-                                                                                        DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
-                                                                                        DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
-                            identifiers.keySet().forEach(runtimeFileds::add);
+    static Element pidsCursorQuery(Client client, String url, String mq,  String cursor)  throws ParserConfigurationException, SAXException, IOException{
+        int rows = 1000;
+        String query = "select" + "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode("id desc", "UTF-8")+"&fl=id";
+        return IterationUtils.executeQuery(client, url, query);
+    }
 
-                            map.put(RUNTIME_ATTRS, runtimeFileds);
-                            map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel"));
-                        }
-                    } else {
-                        map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel",
-                                DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY ,
-                                DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
-                                DNNTStatisticsAccessLogImpl.DNNT_KEY,
-                                DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
-                                DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY
-                                ));
+    
+    private void reportIdents(List<String> idents, StatisticsReportSupport sup) {
+        String selectEndpoint = super.logsEndpoint();
+        Lists.partition(idents, 10).stream().forEach(it->{
+            try {
+                StringBuilder builder = new StringBuilder("q=*");
+                String joinedIds = it.stream().map(oneIdent-> {
+                    return '"'+ oneIdent+'"';
+                }).collect(Collectors.joining(" OR "));
+                
+                builder.append("&fq="+URLEncoder.encode("id:("+joinedIds+")", "UTF-8"));
+                //String encoded = URLEncoder.encode(builder.toString(), "UTF-8");
 
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpoint, builder.toString(), "json");
+                String string = IOUtils.toString(iStream, "UTF-8");
+                JSONObject result = new JSONObject(string);
+                JSONObject response = result.getJSONObject("response");
+                JSONArray docs = response.getJSONArray("docs");
+                for (int i = 0; i < docs.length(); i++) {
+                    JSONObject jsonObject = docs.getJSONObject(i);
+                    Map map = toMap(jsonObject);
+                    logReport(map, sup);
                 }
-            } else if (dbversion != null && versionCondition(dbversion.toString(), ">=", "6.6.6")) {
+            } catch (JSONException | IOException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            }
+        });
+    }
+
+
+    void logReport(Map map,  StatisticsReportSupport sup) {
+        String pid = map.get("pid").toString();
+        boolean disbleFedoraAccess = KConfiguration.getInstance().getConfiguration()
+                .getBoolean("nkp.logs.disablefedoraaccess", false);
+        //Map map = record.toMap();
+        Object dbversion = map.get("dbversion");
+        if (dbversion != null)
+            map.remove("dbversion");
+        if (dbversion == null || versionCondition(dbversion.toString(), "<", "6.6.6")) {
+            try {
                 if (!disbleFedoraAccess) {
-                    try {
-                        Document solrDoc = solrAccess.getSolrDataByPid(record.pid);
-                        if (solrDoc != null) {
-                            List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
-                            map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
-                            map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+                    // only one place where we are connecting
+                    Document solrDoc = solrAccess.getSolrDataByPid(pid);
+                    if (solrDoc != null) {
+
+                        map.put(DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY,
+                                new YearLogFormat().format(SElemUtils.selem("str", "datum_str", solrDoc)));
+
+                        // fill publishers
+                        ObjectPidsPath[] paths = solrAccess.getPidPaths(null, solrDoc);
+                        List<String> dcPublishers = DNNTStatisticsAccessLogImpl.dcPublishers(paths, fedoraAccess);
+                        if (!dcPublishers.isEmpty()) {
+                            JSONArray publishersArray = new JSONArray();
+                            for (int i = 0, ll = dcPublishers.size(); i < ll; i++) {
+                                publishersArray.put(dcPublishers.get(i));
+                            }
+                            map.put(DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY, publishersArray);
                         }
-                    } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
+                        // fill identifiers
+                        Map<String, List<String>> identifiers = DNNTStatisticsAccessLogImpl.identifiers(paths,
+                                fedoraAccess);
+                        identifiers.keySet().forEach(key -> map.put(key, identifiers.get(key)));
+
+                        List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
+                        map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
+
+                        String s = SolrUtils.disectDNNTFlag(solrDoc.getDocumentElement());
+                        if (s != null) {
+                            map.put(DNNTStatisticsAccessLogImpl.DNNT_KEY, Boolean.valueOf(s));
+                        }
+
+                        List<String> runtimeFileds = new ArrayList<>(Arrays.asList(
+                                DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY,
+                                DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY, DNNTStatisticsAccessLogImpl.DNNT_KEY,
+                                DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
+                                DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
+                        identifiers.keySet().forEach(runtimeFileds::add);
+
+                        map.put(RUNTIME_ATTRS, runtimeFileds);
+                        map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel"));
                     }
                 } else {
-                    map.put(MISSING_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+                    map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel",
+                            DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY, DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
+                            DNNTStatisticsAccessLogImpl.DNNT_KEY, DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
+                            DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
+
                 }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
-            sup.processReportRecord(map);
+        } else if (dbversion != null && versionCondition(dbversion.toString(), ">=", "6.6.6")) {
+            if (!disbleFedoraAccess) {
+                try {
+                    Document solrDoc = solrAccess.getSolrDataByPid(pid);
+                    if (solrDoc != null) {
+                        List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
+                        map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
+                        map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+                    }
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            } else {
+                map.put(MISSING_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+            }
         }
+        sup.processReportRecord(map);
     }
 
-    
     public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer filters) {
-    	List<String> list = new ArrayList<>();
-    	DateFilter dateFilter = filters.getFilter(DateFilter.class);
-		boolean flag = dateFilter.getToDate() != null && dateFilter.getFromDate() != null;
-		if (!flag) {
-			list.add("dateFrom and dateTo are mandatory");
-		} 
-		VerificationUtils.dateVerification(list, dateFilter.getFromDate());
-		VerificationUtils.dateVerification(list, dateFilter.getToDate());
-		return list;
+        List<String> list = new ArrayList<>();
+        DateFilter dateFilter = filters.getFilter(DateFilter.class);
+        boolean flag = dateFilter.getToDate() != null && dateFilter.getFromDate() != null;
+        if (!flag) {
+            list.add("dateFrom and dateTo are mandatory");
+        }
+        VerificationUtils.dateVerification(list, dateFilter.getRawFromDate());
+        VerificationUtils.dateVerification(list, dateFilter.getRawToDate());
+        return list;
     }
+
+
     
-
-    static class Record {
-
-        private int recordId=-1;
-        private String pid;
-        private String date;
-        private String remoteIpAddress;
-        private String user;
-        private String requestedUrl;
-        private Boolean dnnt;
-        private Boolean providedbydnnt;
-        private String evaluateMap;
-        private String userSessionAttributes;
-        private String dbversion;
-
-        private List<String> dnntLabels = new ArrayList<>();
-
-
-        private List<Detail> details = new ArrayList<>();
-
-        Map toMap() {
-            Map map = new HashMap();
-            map.put("pid", this.pid);
-            map.put("date", this.date);
-            map.put("remoteAddr", this.remoteIpAddress);
-            if (this.user != null) map.put("username", this.user);
-            if (this.dnnt != null)  map.put("dnnt",this.dnnt);
-            if (this.providedbydnnt != null) map.put("providedByDnnt", this.providedbydnnt);
-            if (this.evaluateMap != null) {
-                JSONObject evalmap =  new JSONObject(this.evaluateMap);
-                for (Object key : evalmap.keySet()) {
-                    map.put(key.toString(), evalmap.get(key.toString()));
-                }
+    private static Map toMap(JSONObject obj) {
+        Map map = new HashMap();
+        map.put("pid", obj.optString("pid"));
+        map.put("date", obj.optString("date"));
+        map.put("remoteAddr", obj.optString("ip_address"));
+        if (obj.has("user")) {
+            map.put("username", obj.optString("user"));
+        }
+        
+        List<String> licenses = listString(obj, "licenses");
+        map.put("dnnt", licenses.contains("dnntt") || licenses.contains("dnnto"));
+        
+        if (obj.has("evaluated_map")) {
+            String evaluatedMap = obj.getString("evaluated_map");
+            JSONObject evaluatedMapJSON = new JSONObject(evaluatedMap);
+            for (Object key : evaluatedMapJSON.keySet()) {
+                map.put(key.toString(), evaluatedMapJSON.get(key.toString()));
             }
-            if (this.userSessionAttributes != null) {
-                JSONObject uSessionMap =  new JSONObject(userSessionAttributes);
-                for (Object key : uSessionMap.keySet()) {
-                    map.put(key.toString(), uSessionMap.get(key.toString()));
-                }
+        }
+        if (obj.has("user_session_attributes")) {
+            String userSessionAttributes = obj.getString("user_session_attributes");
+            JSONObject userSessionAttributesJSON = new JSONObject(userSessionAttributes);
+            for (Object key : userSessionAttributesJSON.keySet()) {
+                map.put(key.toString(), userSessionAttributesJSON.get(key.toString()));
             }
+        }
+        
+        if (!licenses.isEmpty()) { 
+            map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, licenses);
+        }            
+        
+        // root title 
+        if (obj.has("root_title")) {
+            map.put("rootTitle", obj.optString("root_title"));
+        }
+        //if (obj.has(""))
+        List<String> titles = listString(obj, "titles");
+        if (!titles.isEmpty()) {
+            map.put("dcTitle", titles.get(0));
+        }
+        if (obj.has("root_model")) {
+            map.put("rootModel", obj.optString("root_model"));
+        }
+        // map.put("models_path", )
+        map.put("models_path", obj.optString("own_model_path"));
+        map.put("pids_path", obj.optString("own_pid_path"));
 
-            map.put("dbversion", this.dbversion);
-
-            if (!this.details.isEmpty()) {
-                // filter branch 0
-                List<Detail> firstBranch = this.details.stream().filter(detail -> {
-                    return detail.branchId == 0;
-                }).collect(Collectors.toList());
-
-                List<Detail> secondBranch = this.details.stream().filter(detail -> {
-                    return detail.branchId == 1;
-                }).collect(Collectors.toList());
-
-                map.put("rootTitle", firstBranch.get(firstBranch.size() -1).title);
-                map.put("dcTitle",  firstBranch.get(0).title);
-
-                map.put("rootPid", firstBranch.get(firstBranch.size() -1).pid);
-                map.put("rootModel", firstBranch.get(firstBranch.size() -1).model);
-
-                map.put("policy", firstBranch.get(0).rights);
-
-                List<String> pidPaths = new ArrayList<>();
-                List<String> modelPaths = new ArrayList<>();
-
-                List<String> firstBranchPids = firstBranch.stream().map(detail -> {
-                    return detail.pid;
-                }).collect(Collectors.toList());
-                Collections.reverse(firstBranchPids);
-                pidPaths.add(firstBranchPids.stream().collect(Collectors.joining("/")));
-
-                if(!secondBranch.isEmpty()) {
-                    List<String> secondBranchPids = secondBranch.stream().map(detail -> {
-                        return detail.pid;
-                    }).collect(Collectors.toList());
-                    Collections.reverse(secondBranchPids);
-                    pidPaths.add(secondBranchPids.stream().collect(Collectors.joining("/")));
-                }
-
-                List<String> firstBranchModels = firstBranch.stream().map(detail -> {
-                    return detail.model;
-                }).collect(Collectors.toList());
-                Collections.reverse(firstBranchModels);
-                modelPaths.add(firstBranchModels.stream().collect(Collectors.joining("/")));
-
-                if(!secondBranch.isEmpty()) {
-                    List<String> secondBranchModels = secondBranch.stream().map(detail -> {
-                        return detail.model;
-                    }).collect(Collectors.toList());
-                    Collections.reverse(secondBranchModels);
-                    modelPaths.add(secondBranchModels.stream().collect(Collectors.joining("/")));
-                }
-
-
-                //map.put("models_path", )
-                map.put("models_path", modelPaths);
-                map.put("pids_path", pidPaths);
-
-                Optional<String> issuedDate = details.stream().map(detail -> {
-                    return detail.issuedDate;
-                }).filter(Objects::nonNull).findFirst();
-
-                if (issuedDate.isPresent()) {
-                    map.put("publishedDate", issuedDate.get());
-                }
-
-                Optional<String> solrDate = details.stream().map(detail -> {
-                    return detail.solrDate;
-                }).filter(Objects::nonNull).findFirst();
-
-                if (solrDate.isPresent()) {
-                    map.put("solrDate", solrDate.get());
-                }
-
-                List<String> publishers = details.stream().map(detail -> {
-                    return detail.publishers;
-                }).flatMap(Collection::stream).map(publisher -> {
-                    return publisher.publisher;
-                }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-
-                if (!publishers.isEmpty()) {
-                    map.put("publishers", publishers);
-                }
-
-                List<String> authors = details.stream().map(detail -> {
-                    return detail.authors;
-                }).flatMap(Collection::stream).map(author -> {
-                    return author.author;
-                }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-
-                if (!authors.isEmpty()) {
-                    map.put("authors", authors);
-                }
-
-                List<String> isbn = details.stream().map(detail -> {
-                    return detail.isbn;
-                }).flatMap(Collection::stream).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-                if (!isbn.isEmpty()) map.put("isbn", isbn);
-
-                List<String> issn = details.stream().map(detail -> {
-                    return detail.issn;
-                }).flatMap(Collection::stream).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-                if (!issn.isEmpty()) map.put("issn", issn);
-
-                List<String> ccnb = details.stream().map(detail -> {
-                    return detail.ccnb;
-                }).flatMap(Collection::stream).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-                if (!ccnb.isEmpty()) map.put("ccnb", ccnb);
-
-            }
-            return map;
+        //List<String> publishers = new ArrayList<>();
+        List<String> publishers = listString(obj, "publishers");
+        if (!publishers.isEmpty()) {
+            map.put("publishers", publishers);
+            
+        }
+        List<String> authors = listString(obj, "authors");
+        if (!authors.isEmpty()) {
+            map.put("authors", authors);
+        }
+        List<String> issns = listString(obj, "id_issn");
+        if (!issns.isEmpty()) {
+            map.put("issn", issns);
+        }
+        List<String> isbns = listString(obj, "id_isbn");
+        if (!isbns.isEmpty()) {
+            map.put("isbn", isbns);
         }
 
-
-
-        private static  Record load(ResultSet rs) throws SQLException {
-            Record nrecord = new Record();
-            nrecord.recordId= rs.getInt("slrecord_id");
-            nrecord.pid = rs.getString("slpid");
-            nrecord.date = ACCESS_DATE_FORMAT.format(rs.getTimestamp("sldate"));
-            nrecord.remoteIpAddress=rs.getString("slremote_ip_address");
-            nrecord.user=rs.getString("slUSER");
-
-            // test on 9.2
-            nrecord.dnnt= (Boolean) rs.getObject("sldnnt");// rs.getBoolean("sldnnt");
-            // if null; must be provided by dnnt false
-            nrecord.providedbydnnt= rs.getBoolean("slprovidedByDnnt");
-
-            nrecord.evaluateMap=rs.getString("slevaluatemap");
-            nrecord.userSessionAttributes=rs.getString("slusersessionattributes");
-            nrecord.dbversion = rs.getString("sldbversion");
-
-                                                    // sldnnt_labels
-            Array dnntLabels = rs.getArray("sldnnt_labels");
-            if (dnntLabels != null) {
-                String[] sdissnArray = (String[]) dnntLabels.getArray();
-                if (sdissnArray != null) nrecord.dnntLabels.addAll(Arrays.stream(sdissnArray).collect(Collectors.toList()));
-            }
-
-            return nrecord;
+        List<String> cnbs = listString(obj, "id_ccnb");
+        if (!isbns.isEmpty()) {
+            map.put("ccnb", cnbs);
         }
 
-        public boolean isDifferent(int rId) {
-            return this.recordId != rId;
-        }
-
-
-        public Detail lastDetail() {
-            return details.isEmpty() ? null : details.get(details.size() -1);
-        }
+        return map;
     }
 
-    static class Detail {
-
-        int detailId=-1;
-        String pid;
-        String model;
-        String issuedDate;
-        String solrDate;
-        String rights;
-        String title;
-        int branchId;
-
-        List<String> issn = new ArrayList<>();
-        List<String> isbn = new ArrayList<>();
-        List<String> ccnb = new ArrayList<>();
-
-        private List<Author> authors = new ArrayList<>();
-        private List<Publisher> publishers = new ArrayList<>();
-
-        private static Detail load(ResultSet rs) throws SQLException {
-            Detail detail = new Detail();
-            detail.detailId = rs.getInt("sddetail_id");
-            detail.pid = rs.getString("sdpid");
-            detail.model = rs.getString("sdmodel");
-            detail.issuedDate = new YearLogFormat().format(rs.getString("sdissued_date"));
-            detail.solrDate = new YearLogFormat().format(rs.getString("sdsolr_date"));
-            String rights = rs.getString("sdrights");
-            detail.rights= rights != null ? rights.contains(":") ? rights.split(":")[1] : rights : null;
-            detail.title= rs.getString("sdtitle");
-            detail.branchId = rs.getInt("sdbranch_id");
-
-            Array sdissn = rs.getArray("sdissn");
-            if (sdissn != null) {
-                String[] sdissnArray = (String[]) sdissn.getArray();
-                if (sdissnArray != null) detail.issn.addAll(Arrays.stream(sdissnArray).collect(Collectors.toList()));
+    private static List<String> listString(JSONObject obj, String key) {
+        List<String> retvals = new ArrayList<>();
+        if (obj.has(key)) {
+            JSONArray publisherArray = obj.getJSONArray(key);
+            for (int i = 0; i < publisherArray.length(); i++) {
+                retvals.add(publisherArray.getString(i));
             }
-
-            Array sdisbn = rs.getArray("sdisbn");
-            if (sdisbn != null) {
-                String[] sdisbnArray = (String[]) sdisbn.getArray();
-                if (sdisbnArray != null) detail.isbn.addAll(Arrays.stream(sdisbnArray).collect(Collectors.toList()));
-            }
-
-            Array sdccnb = rs.getArray("sdccnb");
-            if (sdccnb != null) {
-                String[] sdccnbArray = (String[]) sdccnb.getArray();
-                if (sdccnbArray != null) detail.ccnb.addAll(Arrays.stream(sdccnbArray).collect(Collectors.toList()));
-            }
-
-            return detail;
         }
-
-        public Author lastAuthor() {
-            return authors.isEmpty() ? null : authors.get(authors.size() -1);
-        }
-
-        public Publisher lastPublisher() {
-            return publishers.isEmpty() ? null : publishers.get(publishers.size() -1);
-        }
-
-        public boolean isDifferent(int dId) {
-            return this.detailId != dId;
-        }
-    }
-
-    static class Author {
-
-        int authorId=-1;
-        String author;
-
-        private static Author load(ResultSet rs) throws SQLException {
-            int authorId = rs.getInt("saauthor_id");
-            if (authorId != -1) {
-                Author author = new Author();
-                author.authorId = rs.getInt("saauthor_id");
-                author.author = rs.getString("saauthor_name");
-                return author;
-            } else return null;
-        }
-
-        public boolean isDifferent(int aId) {
-            return authorId != aId;
-        }
-
-    }
-
-    static class Publisher {
-
-        int publisherId=-1;
-        String publisher;
-
-
-        private static Publisher load(ResultSet rs) throws SQLException {
-            int publisherId = rs.getInt("sppublisher_id");
-            if (publisherId != -1) {
-                Publisher publisher = new Publisher();
-                publisher.publisherId = rs.getInt("sppublisher_id");
-                publisher.publisher = rs.getString("sppublisher_name");
-                return publisher;
-            } else return null;
-        }
-
-        public boolean isDifferent(int pId) {
-            return publisherId != pId;
-        }
-
+        return retvals;
     }
 }

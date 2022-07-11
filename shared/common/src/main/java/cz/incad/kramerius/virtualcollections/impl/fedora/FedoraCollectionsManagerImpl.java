@@ -45,7 +45,7 @@ public class FedoraCollectionsManagerImpl implements CollectionsManager {
     private SolrAccess sa;
 
     @Inject
-    public FedoraCollectionsManagerImpl(IResourceIndex g, SolrAccess sa,  @Named("rawFedoraAccess")FedoraAccess fa) {
+    public FedoraCollectionsManagerImpl(IResourceIndex g, @Named("new-index")SolrAccess sa,  @Named("rawFedoraAccess")FedoraAccess fa) {
         super();
         this.factory = XPathFactory.newInstance();
         this.fa = fa;

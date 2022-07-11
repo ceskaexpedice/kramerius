@@ -26,7 +26,7 @@ public class CriteriaDNNTUtils {
     // check dnnt flag from solr
     public static EvaluatingResultState checkDnnt(RightCriteriumContext ctx) {
         try {
-            SolrAccess solrAccess = ctx.getSolrAccess();
+            SolrAccess solrAccess = ctx.getSolrAccessNewIndex();
             String pid = ctx.getRequestedPid();
             Document doc = solrAccess.getSolrDataByPid(pid);
             String val = SolrUtils.disectDNNTFlag(doc.getDocumentElement());

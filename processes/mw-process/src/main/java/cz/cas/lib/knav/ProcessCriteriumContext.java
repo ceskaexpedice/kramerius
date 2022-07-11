@@ -66,10 +66,6 @@ public class ProcessCriteriumContext implements RightCriteriumContext {
         return this.fa;
     }
 
-    @Override
-    public SolrAccess getSolrAccess() {
-        return this.sa;
-    }
 
     @Override
     public SolrAccess getSolrAccessNewIndex() {

@@ -26,7 +26,6 @@ import cz.incad.kramerius.security.*;
 public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFactory {
     
     private FedoraAccess fedoraAccess;
-    private SolrAccess solrAccess;
     private SolrAccess solrAccessNewIndex;
     private UserManager userManager;
     
@@ -45,14 +44,6 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
     
     
 
-    public SolrAccess getSolrAccess() {
-        return solrAccess;
-    }
-
-    @Inject
-    public void setSolrAccess(SolrAccess solrAccess) {
-        this.solrAccess = solrAccess;
-    }
 
 
     @Inject
@@ -82,7 +73,7 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
                                         .setRequestedStream(requestedStream)
                                         .setUser(user)
                                         .setFedoraAccess(this.fedoraAccess)
-                                        .setSolrAccess(this.solrAccess)
+                                        //.setSolrAccess(this.solrAccess)
                                         .setSolrAccessNewIndex(this.solrAccessNewIndex)
                                         .setUserManager(this.userManager)
                                         .setRemoteHost(remoteHost)

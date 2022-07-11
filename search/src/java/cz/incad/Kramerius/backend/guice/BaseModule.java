@@ -34,6 +34,7 @@ import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
+import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.impl.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.Collection;
@@ -60,7 +61,8 @@ public class BaseModule extends AbstractModule {
 
 
 
-        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(DatabaseStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
+        //bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(DatabaseStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
+        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(SolrStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
         bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(DNNTStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
 
 
@@ -77,7 +79,7 @@ public class BaseModule extends AbstractModule {
         reports.addBinding().to(ModelSummaryReport.class);
 
         
-        bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
+        //bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
         bind(SolrAccess.class).annotatedWith(Names.named("new-index")).to(SolrAccessImplNewIndex.class).in(Scopes.SINGLETON);
         bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);
 

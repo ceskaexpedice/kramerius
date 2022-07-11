@@ -75,11 +75,6 @@ public interface RightCriteriumContext {
      */
     public FedoraAccess getFedoraAccess();
 
-    /**
-     * Return solr access
-     * @return
-     */
-    public SolrAccess getSolrAccess();
 
     /**
      * Return solr access

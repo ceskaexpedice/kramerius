@@ -3,6 +3,8 @@ package cz.incad.kramerius.services;
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.service.MigrateSolrIndex;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.utils.IterationUtils;
+
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
@@ -77,7 +79,7 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
 
     private void addNewWorkToWorkers(List<SolrWorker> worksWhatHasToBeDone, Element element) {
         try {
-            worksWhatHasToBeDone.add(new SolrWorker(client, MigrationUtils.findAllPids(element)));
+            worksWhatHasToBeDone.add(new SolrWorker(client, IterationUtils.findAllPids(element)));
             if (worksWhatHasToBeDone.size() >= MigrationUtils.configuredNumberOfThreads()) {
                 startWorkers(worksWhatHasToBeDone);
                 worksWhatHasToBeDone.clear();

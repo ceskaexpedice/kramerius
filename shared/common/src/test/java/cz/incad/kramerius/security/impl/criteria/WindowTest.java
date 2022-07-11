@@ -87,7 +87,7 @@ public class WindowTest {
 
         RightCriteriumContextFactoryImpl contextFactory = new RightCriteriumContextFactoryImpl();
         contextFactory.setFedoraAccess(fa4);
-        contextFactory.setSolrAccess(solrAccess);
+        contextFactory.setSolrAccessNewIndex(solrAccess);
 
         RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1", null);
 

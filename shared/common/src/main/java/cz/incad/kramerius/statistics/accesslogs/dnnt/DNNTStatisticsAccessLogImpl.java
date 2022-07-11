@@ -22,6 +22,8 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+
+import org.apache.commons.collections.map.HashedMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -252,7 +254,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 dnntFlag,
                 providedByDnnt,
                 policy,
-                rightsReturnObject.getEvaluateInfoMap(),
+                rightsReturnObject != null ?  rightsReturnObject.getEvaluateInfoMap(): new HashMap(),
                 user.getSessionAttributes(),
                 dcAuthors,
                 dcPublishers,

@@ -55,6 +55,7 @@ public class ClientRightsResource {
     RightsResolver rightsResolver;
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
     
     @Inject

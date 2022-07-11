@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.inject.Named;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
@@ -45,6 +47,7 @@ public class PageDetailDecorate extends AbstractDetailDecorator {
             .key("DETAILS.PERIODICAL");
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

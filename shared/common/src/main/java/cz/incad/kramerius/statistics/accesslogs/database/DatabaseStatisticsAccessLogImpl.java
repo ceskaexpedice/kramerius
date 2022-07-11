@@ -144,6 +144,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
             Map<String, String> evaluateInfoMap = rightsReturnObject != null ? rightsReturnObject.getEvaluateInfoMap() : new HashMap<>();
 
+            // insert standardni zaznam 
             commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get(), false, false, evaluateInfoMap, user.getSessionAttributes(), versionService.getVersion(), licenses));
             for (int i = 0, ll = paths.length; i < ll; i++) {
 

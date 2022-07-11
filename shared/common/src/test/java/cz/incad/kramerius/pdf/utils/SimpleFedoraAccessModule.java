@@ -30,6 +30,6 @@ public class SimpleFedoraAccessModule extends AbstractModule {
     protected void configure() {
         bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(FedoraAccess.class).to(FedoraAccessAkubraImpl.class);
-        bind(SolrAccess.class).to(SolrAccessImpl.class);
+        //bind(SolrAccess.class).to(SolrAccessImpl.class);
     }
 }

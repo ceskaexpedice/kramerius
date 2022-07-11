@@ -9,6 +9,7 @@ package cz.incad.kramerius.statistics.filters;
  *
  * @author Gabriela Melingerová
  */
+@Deprecated
 public class PidsFilter implements StatisticsFilter {
     
     private String pids = "";

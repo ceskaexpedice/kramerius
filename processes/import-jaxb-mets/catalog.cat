@@ -1,9 +1,0 @@
---
-  sample catalog file.
-  
-  double hyphens are used to begin and end a comment section.
---
-
-PUBLIC "http://www.loc.gov/standards/xlink/xlink.xsd" "xlink.xsd"
-
-PUBLIC "http://www.w3.org/1999/xlink" "xlink.xsd"

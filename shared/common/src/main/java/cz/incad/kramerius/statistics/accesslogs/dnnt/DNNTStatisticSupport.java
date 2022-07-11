@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+//TODO: Rewrite it 
 public class DNNTStatisticSupport {
 
     private Provider<HttpServletRequest> requestProvider;

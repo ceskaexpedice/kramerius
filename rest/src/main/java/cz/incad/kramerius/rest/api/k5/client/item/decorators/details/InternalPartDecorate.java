@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import javax.inject.Named;
+
 /**
  * Created by pstastny on 9/15/2017.
  */
@@ -24,6 +26,7 @@ public class InternalPartDecorate extends  AbstractDetailDecorator{
     public static final String INTERNALPART = AbstractItemDecorator.key("DETAILS.INTERNALPART");
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

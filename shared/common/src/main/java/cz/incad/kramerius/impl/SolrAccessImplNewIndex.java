@@ -24,13 +24,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -44,8 +38,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static org.apache.http.HttpStatus.SC_OK;
+import java.util.stream.Collectors;
 
 public class SolrAccessImplNewIndex implements SolrAccess {
 
@@ -57,6 +50,41 @@ public class SolrAccessImplNewIndex implements SolrAccess {
         //TODO: allow datastreams pids?
         String query = "q=" + URLEncoder.encode("pid:" + pid.replace(":", "\\:"), "UTF-8");
         return utils.requestWithSelectReturningXml(query);
+    }
+
+    @Override
+    public JSONObject getJSONSolrDataByPid(String pid) throws IOException {
+        JSONObject solrData = utils.getSolrDataJson(pid);
+        return solrData;
+    }
+
+    @Override
+    public ObjectPidsPath[] getPidPaths(Document solrDataDoc) throws IOException {
+        try {
+            List<String> disected = cz.incad.kramerius.utils.solr.SolrUtils.disectPidPaths(solrDataDoc);
+            List<ObjectPidsPath> collected = disected.stream().map(p-> {
+                return new ObjectPidsPath(p.split("/"));
+            }).collect(Collectors.toList());
+            
+            return collected.toArray(new ObjectPidsPath[collected.size()]);
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        }
+    }
+    
+    
+    @Override
+    public ObjectPidsPath[] getOwnPidPaths(Document solrDataDoc) throws IOException {
+        try {
+            List<String> disected = cz.incad.kramerius.utils.solr.SolrUtils.disectOwnPidPaths(solrDataDoc);
+            List<ObjectPidsPath> collected = disected.stream().map(p-> {
+                return new ObjectPidsPath(p.split("/"));
+            }).collect(Collectors.toList());
+            
+            return collected.toArray(new ObjectPidsPath[collected.size()]);
+        } catch (XPathExpressionException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
@@ -202,17 +230,17 @@ public class SolrAccessImplNewIndex implements SolrAccess {
 
     @Override
     public InputStream requestWithSelectReturningInputStream(String query, String type) throws IOException {
-        return utils.requestWithSelectReturningStream(query, type);
+        return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(KConfiguration.getInstance().getSolrSearchHost(), query, type);
     }
 
     @Override
     public String requestWithSelectReturningString(String query, String type) throws IOException {
-        return utils.requestWithSelectReturningString(query, type);
+        return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(KConfiguration.getInstance().getSolrSearchHost(), query, type);
     }
 
     @Override
     public InputStream requestWithTerms(String query, String type) throws IOException {
-        return utils.requestWithTermsReturningStream(query, type);
+        return cz.incad.kramerius.utils.solr.SolrUtils.requestWithTermsReturningStream(KConfiguration.getInstance().getSolrSearchHost(),query, type);
     }
 
     @Override
@@ -250,73 +278,19 @@ public class SolrAccessImplNewIndex implements SolrAccess {
          *              i.e. url encoded and without query param wt
          */
         JSONObject requestWithSelectReturningJson(String query) throws IOException {
-            String jsonStr = requestWithSelectReturningString(query, "json");
+            String jsonStr = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(this.solrHost,  query, "json");
             JSONObject jsonObject = new JSONObject(jsonStr);
             return jsonObject;
         }
 
         Document requestWithSelectReturningXml(String query) throws IOException {
             try {
-                InputStream in = requestWithSelectReturningStream(query, "xml");
+                InputStream in = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.solrHost,query, "xml");
                 return XMLUtils.parseDocument(in);
             } catch (ParserConfigurationException e) {
                 throw new IOException(e);
             } catch (SAXException e) {
                 throw new IOException(e);
-            }
-        }
-
-        String requestWithSelectReturningString(String query, String type) throws IOException {
-            InputStream in = requestWithSelectReturningStream(query, type);
-            BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            StringBuilder responseStrBuilder = new StringBuilder();
-            String inputStr;
-            while ((inputStr = streamReader.readLine()) != null) {
-                responseStrBuilder.append(inputStr);
-            }
-            return responseStrBuilder.toString();
-        }
-
-        /**
-         * @param query for example: q=model%3Amonograph&fl=pid%2Ctitle.search&start=0&sort=created+desc&fq=model%3Aperiodical+OR+model%3Amonograph&rows=24&hl.fragsize=20
-         *              i.e. url encoded and without query param wt
-         */
-        InputStream requestWithSelectReturningStream(String query, String type) throws IOException {
-            String url = String.format("%s/select?%s&wt=%s", solrHost, query, type);
-            HttpGet httpGet = new HttpGet(url);
-            CloseableHttpClient client = HttpClients.createDefault();
-            try (CloseableHttpResponse response = client.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() == SC_OK) {
-                    return readContentAndProvideThroughBufferedStream(response.getEntity());
-                } else {
-                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-                }
-            }
-        }
-
-        /**
-         * @param query for example: q=model%3Amonograph&fl=pid%2Ctitle.search&start=0&sort=created+desc&fq=model%3Aperiodical+OR+model%3Amonograph&rows=24&hl.fragsize=20
-         *              i.e. url encoded and without query param wt
-         */
-        InputStream requestWithTermsReturningStream(String query, String type) throws IOException {
-            String url = String.format("%s/terms?%s&wt=%s", solrHost, query, type);
-            HttpGet httpGet = new HttpGet(url);
-            CloseableHttpClient client = HttpClients.createDefault();
-            try (CloseableHttpResponse response = client.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() == SC_OK) {
-                    return readContentAndProvideThroughBufferedStream(response.getEntity());
-                } else {
-                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-                }
-            }
-        }
-
-        //reads and closes entity's content stream
-        private InputStream readContentAndProvideThroughBufferedStream(HttpEntity entity) throws IOException {
-            try (InputStream src = entity.getContent()) {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                IOUtils.copy(src, bos);
-                return new ByteArrayInputStream(bos.toByteArray());
             }
         }
     }

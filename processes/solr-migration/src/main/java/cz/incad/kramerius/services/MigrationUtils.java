@@ -5,7 +5,6 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,6 +22,7 @@ import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.IterationUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -225,42 +225,6 @@ public class MigrationUtils {
         String fieldlist = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_FIELD_LIST_KEY, DEFAULT_FIELDLIST);
         String query =  IterationUtils.SELECT_ENDPOINT + "?q=pid:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8");
         return IterationUtils.executeQuery(client, url, query);
-    }
-
-
-
-
-
-    public static List<String> findAllPids(Element elm) {
-        Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
-            @Override
-            public boolean acceptElement(Element element) {
-                String nodeName = element.getNodeName();
-                return nodeName.equals("result");
-            }
-        });
-        if (result != null) {
-            List<Element> elements = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String nodeName = element.getNodeName();
-                    return nodeName.equals("doc");
-                }
-            });
-
-            return elements.stream().map(item -> {
-                        Element str = XMLUtils.findElement(item, new XMLUtils.ElementsFilter() {
-                                    @Override
-                                    public boolean acceptElement(Element element) {
-                                        return element.getNodeName().equals("str");
-                                    }
-                                }
-                        );
-                        return str.getTextContent();
-                    }
-            ).collect(Collectors.toList());
-
-        } else return new ArrayList<>();
     }
 
 

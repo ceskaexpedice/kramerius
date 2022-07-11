@@ -6,20 +6,20 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.services.IterationUtils;
 import cz.incad.kramerius.services.MigrationUtils;
 import cz.incad.kramerius.solr.SolrFieldsMapping;
-import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.utils.IterationUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
+
 import org.apache.commons.lang3.tuple.Triple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
+
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
@@ -67,23 +67,8 @@ public abstract class DNNTWorker implements Runnable {
         return useCursor;
     }
 
-
-    protected void sendToDest(Client client, Document batchDoc) {
-        try {
-            StringWriter writer = new StringWriter();
-            XMLUtils.print(batchDoc, writer);
-            String shost = updateUrl();
-            WebResource r = client.resource(shost);
-            ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
-            if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                InputStream entityInputStream = resp.getEntityInputStream();
-                IOUtils.copyStreams(entityInputStream, bos);
-                LOGGER.log(Level.SEVERE, new String(bos.toByteArray()));
-            }
-        } catch (UniformInterfaceException | ClientHandlerException | IOException | TransformerException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
+    public static void sendToDest(Client client, Document batchDoc) {
+        SolrUpdateUtils.sendToDest(client, batchDoc, updateUrl());
     }
 
 
@@ -93,17 +78,17 @@ public abstract class DNNTWorker implements Runnable {
         if (configuredUseCursor()) {
             try {
                 IterationUtils.cursorIteration(client, KConfiguration.getInstance().getSolrSearchHost() ,q,(em, i) -> {
-                    List<String> pp = MigrationUtils.findAllPids(em);
+                    List<String> pp = IterationUtils.findAllPids(em);
                     allSet.addAll(pp);
                 }, ()->{});
-            } catch (ParserConfigurationException | SAXException | IOException | InterruptedException | MigrateSolrIndexException | BrokenBarrierException e  ) {
+            } catch (ParserConfigurationException | SAXException | IOException | InterruptedException |  BrokenBarrierException e  ) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
             }
 
 
         } else try {
             IterationUtils.queryFilterIteration(client, MigrationUtils.configuredSourceServer(), q, (em, i) -> {
-                List<String> pp = MigrationUtils.findAllPids(em);
+                List<String> pp = IterationUtils.findAllPids(em);
                 allSet.addAll(pp);
             }, () -> {
             });

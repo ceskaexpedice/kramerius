@@ -1,11 +1,12 @@
-package cz.incad.kramerius.services;
+package cz.incad.kramerius.utils;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.solr.SolrFieldsMapping;
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -15,12 +16,26 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+//TODO: Merge it with cdk iterations
 public class IterationUtils {
+
+
+    private static final String SOLR_ITERATION_FQUERY_KEY = ".iteration.solr.fqquery";
+
+    private static final String SOLR_MIGRATION_FIELD_LIST_KEY = ".iteration.solr.fieldlist";
+    private static final String SOLR_MIGRATION_SORT_FIELD_KEY = ".iteration.solr.sort";
+
+    private static final String SOLR_ITERATION_ROWS_KEY = ".iteration.solr.rows";
+
+    private static final String SOLR_MIGRATION_THREAD_KEY = ".iteration.threads";
+    private static final String SOLR_MIGRATION_BATCHSIZE_KEY = ".iteration.solr.batchsize";
+
 
     public static final String SELECT_ENDPOINT = "select";
     //public static final String SEARCH_ENDPOINT = "search";
@@ -44,7 +59,7 @@ public class IterationUtils {
      * @throws InterruptedException
      * @throws BrokenBarrierException
      */
-    public static void cursorIteration(Client client,String address, String masterQuery,IterationCallback callback, IterationEndCallback endCallback) throws ParserConfigurationException, MigrateSolrIndexException, SAXException, IOException, InterruptedException, BrokenBarrierException {
+    public static void cursorIteration(Client client,String address, String masterQuery,IterationCallback callback, IterationEndCallback endCallback) throws ParserConfigurationException,  SAXException, IOException, InterruptedException, BrokenBarrierException {
         String cursorMark = null;
         String queryCursorMark = null;
         do {
@@ -90,7 +105,7 @@ public class IterationUtils {
         int numberOfResult = Integer.MAX_VALUE;
         do {
             Element element =  paginationQuery(client, address,masterQuery,  ""+offset);
-            int rows = MigrationUtils.configuredRowsSize();
+            int rows = configuredRowsSize();
             if (numberOfResult == Integer.MAX_VALUE) {
                 numberOfResult = findNumberOfResults(element);
             }
@@ -102,10 +117,10 @@ public class IterationUtils {
     }
 
 
-    private static Element pidsFilterQuery(Client client, String url, String mq, String lastPid)
+    public static Element pidsFilterQuery(Client client, String url, String mq, String lastPid)
             throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
-        int rows = MigrationUtils.configuredRowsSize();
-        String fq = MigrationUtils.filterQuery();
+        int rows = configuredRowsSize();
+        String fq = filterQuery();
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
             fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *] AND "+fq, "UTF-8")) : String.format("&rows=%d&fq=%s", rows, URLEncoder.encode(fq,"UTF-8")));
@@ -117,9 +132,9 @@ public class IterationUtils {
         return executeQuery(client, url, query);
     }
 
-    private static Element paginationQuery(Client client, String url, String mq, String offset) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException {
-        int rows = MigrationUtils.configuredRowsSize();
-        String fq = MigrationUtils.filterQuery();
+    public static Element paginationQuery(Client client, String url, String mq, String offset) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException {
+        int rows = configuredRowsSize();
+        String fq = filterQuery();
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
             fullQuery = String.format("?q=%s&start=%s&rows=%d&fq=%s&fl=PID",mq,offset, rows,URLEncoder.encode(fq,"UTF-8"));
@@ -131,15 +146,16 @@ public class IterationUtils {
     }
 
 
-    public static Element pidsCursorQuery(Client client, String url, String mq,  String cursor)  throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
-        int rows = MigrationUtils.configuredRowsSize();
+    public static Element pidsCursorQuery(Client client, String url, String mq,  String cursor)  throws ParserConfigurationException, SAXException, IOException{
+        int rows = configuredRowsSize();
         String query = SELECT_ENDPOINT + "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(String.format(DEFAULT_SORT_FIELD, SolrFieldsMapping.getInstance().getPidField()), "UTF-8")+"&fl="+SolrFieldsMapping.getInstance().getPidField();
         return IterationUtils.executeQuery(client, url, query);
     }
 
-    static int findNumberOfResults(Element elm) {
-        Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
+    
 
+    public static int findNumberOfResults(Element elm) {
+        Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
                 String nodeName = element.getNodeName();
@@ -152,7 +168,7 @@ public class IterationUtils {
         return numfound;
     }
 
-    static String findCursorMark(Element elm) {
+    public static String findCursorMark(Element elm) {
         Element element = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
@@ -164,7 +180,7 @@ public class IterationUtils {
         return element != null ? element.getTextContent() : null;
     }
 
-    static String findQueryCursorMark(Element elm) {
+    public static String findQueryCursorMark(Element elm) {
         Element queryParams = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
@@ -226,7 +242,7 @@ public class IterationUtils {
 
 
     public interface IterationCallback {
-            public void call(Element results, String iterationToken) throws ParserConfigurationException, MigrateSolrIndexException, SAXException, IOException;
+            public void call(Element results, String iterationToken) throws ParserConfigurationException, SAXException, IOException;
     }
 
     public interface IterationEndCallback {
@@ -243,5 +259,48 @@ public class IterationUtils {
         Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
         return parseDocument.getDocumentElement();
     }
+
+   public static int configuredRowsSize() {
+       int rows = KConfiguration.getInstance().getConfiguration().getInt(SOLR_ITERATION_ROWS_KEY, 1000);
+       return rows;
+   }
+
+   public static String filterQuery() {
+       String fq = KConfiguration.getInstance().getConfiguration().getString(SOLR_ITERATION_FQUERY_KEY, "");
+       return  fq;
+   }
+
+public static List<String> findAllPids(Element elm) {
+    Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
+        @Override
+        public boolean acceptElement(Element element) {
+            String nodeName = element.getNodeName();
+            return nodeName.equals("result");
+        }
+    });
+    if (result != null) {
+        List<Element> elements = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                String nodeName = element.getNodeName();
+                return nodeName.equals("doc");
+            }
+        });
+
+        return elements.stream().map(item -> {
+                    Element str = XMLUtils.findElement(item, new XMLUtils.ElementsFilter() {
+                                @Override
+                                public boolean acceptElement(Element element) {
+                                    return element.getNodeName().equals("str");
+                                }
+                            }
+                    );
+                    return str.getTextContent();
+                }
+        ).collect(Collectors.toList());
+
+    } else return new ArrayList<>();
+}
+
 
 }

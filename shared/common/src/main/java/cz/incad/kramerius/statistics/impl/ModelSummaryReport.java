@@ -19,12 +19,14 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IdentifiersFilter;
 import cz.incad.kramerius.statistics.filters.LicenseFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
 import cz.incad.kramerius.statistics.filters.MultimodelFilter;
@@ -35,155 +37,123 @@ import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
 public class ModelSummaryReport implements StatisticReport {
-	
-	public static final Logger LOGGER = Logger.getLogger(ModelSummaryReport.class.getName());
-	
+
+    private static final List<String> SUPPORTED_MODELS = Arrays.asList("monograph", "periodical", "article", "convolute", "map", "graphic", "archive",
+            "manuscript", "soundrecording", "collection");
+
+    public static final Logger LOGGER = Logger.getLogger(ModelSummaryReport.class.getName());
+
     public static final String REPORT_ID = "summary";
 
-	@Inject
-    @Named("kramerius4")
-    Provider<Connection> connectionProvider;
-	@Override
-	public List<Map<String, Object>> getReportPage(ReportedAction reportedAction, StatisticsFiltersContainer filters,
-			Offset rOffset) throws StatisticsReportException {
-		MultimodelFilter mfilter= new MultimodelFilter();
-		mfilter.setModels(Arrays.asList("monograph",
-									"periodical", 
-									"article",
-									"convolute", 
-									"map",
-									"graphic",
-									"archive",
-									"manuscript",
-									"soundrecording",
-									"collection"
-		));
-	
-		Map<String, Object> multimodels = new HashMap<>();
-		Map<String, Object> sums = new HashMap<>();
-		
-		mfilter.getModels().stream().forEach(model-> {
-			ModelFilter modelFilter = new ModelFilter();
-			modelFilter.setModel(model);
-			
-			DateFilter dateFilter = filters.getFilter(DateFilter.class);
+    @Inject
+    @Named("new-index")
+    SolrAccess solrAccess;
+    
+    
+    @Override
+    public List<Map<String, Object>> getReportPage(ReportedAction reportedAction, StatisticsFiltersContainer filters,
+            Offset rOffset) throws StatisticsReportException {
+
+        MultimodelFilter mfilter = new MultimodelFilter();
+        mfilter.setModels(SUPPORTED_MODELS);
+
+        Map<String, Object> multimodels = new HashMap<>();
+        Map<String, Object> sums = new HashMap<>();
+
+        mfilter.getModels().stream().forEach(model -> {
+            ModelFilter modelFilter = new ModelFilter();
+            modelFilter.setModel(model);
+
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
             VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
             LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
+            IdentifiersFilter idFilter = filters.getFilter(IdentifiersFilter.class);
+
+            StatisticsFiltersContainer container = new StatisticsFiltersContainer(
+                    new StatisticsFilter[] { dateFilter, visFilter, licFilter, modelFilter,idFilter });
+
+            ModelStatisticReport report = new ModelStatisticReport();
+            report.solrAccess = this.solrAccess;
+            List<Map<String, Object>> reportPage = report.getReportPage(reportedAction, container, rOffset);
+            reportPage.stream().forEach(it -> {
+                if (it.containsKey("sum")) {
+                    Integer sum = (Integer) it.get("sum");
+                    if (sum > 0) {
+                        sums.put(model, (Integer) it.get("sum"));
+                    }
+                    it.remove("sum");
+                }
+            });
+        });
         
-            StatisticsFiltersContainer container = new StatisticsFiltersContainer(new  StatisticsFilter[] {dateFilter, visFilter, licFilter, modelFilter});
+        multimodels.put("sums", sums);
+        return Arrays.asList(multimodels);
+    }
 
-			ModelStatisticReport report = new ModelStatisticReport();
-			report.connectionProvider = connectionProvider;
+    @Override
+    public List<String> getOptionalValues() {
+        return null;
+    }
 
-			List<Map<String,Object>> reportPage = report.getReportPage(reportedAction, container, rOffset);
-			reportPage.stream().forEach(it-> {
-				if(it.containsKey("sum")) {
-					Integer sum = (Integer) it.get("sum");
-					if (sum > 0 ) {
-						sums.put(model, (Integer) it.get("sum"));
-					}
-					it.remove("sum");
-				}
-			});
+    @Override
+    public String getReportId() {
+        return REPORT_ID;
+    }
 
-		});
-		
-		multimodels.put("sums", sums);
-		
-		return Arrays.asList(multimodels);
-	}
+    @Override
+    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container)
+            throws StatisticsReportException {
+        // TODO Auto-generated method stub
 
-	@Override
-	public List<String> getOptionalValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
 
-	@Override
-	public String getReportId() {
-		return REPORT_ID;
-	}
+    @Override
+    public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer filters)
+            throws StatisticsReportException {
 
-	@Override
-	public void prepareViews(ReportedAction action, StatisticsFiltersContainer container)
-			throws StatisticsReportException {
-		// TODO Auto-generated method stub
-		
-	}
+        MultimodelFilter mfilter = new MultimodelFilter();
+        mfilter.setModels(SUPPORTED_MODELS);
 
-	@Override
-	public void processAccessLog(ReportedAction action, StatisticsReportSupport sup,
-			StatisticsFiltersContainer filters) throws StatisticsReportException {
-        try {
-        	
-    		MultimodelFilter mfilter= new MultimodelFilter();
-    		mfilter.setModels(Arrays.asList("monograph",
-    									"periodical", 
-    									"article",
-    									"convolute", 
-    									"map",
-    									"graphic",
-    									"archive",
-    									"manuscript",
-    									"soundrecording",
-    									"collection"
-    		));
-    	
-    		
-    		mfilter.getModels().stream().forEach(model-> {
-    			ModelFilter modelFilter = new ModelFilter();
-    			modelFilter.setModel(model);
-    			
-    			DateFilter dateFilter = filters.getFilter(DateFilter.class);
-                VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
-                LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
+//        Map<String, Object> multimodels = new HashMap<>();
+//        Map<String, Object> sums = new HashMap<>();
 
-                
-                
-                final StringTemplate counts = DatabaseStatisticsAccessLogImpl.stGroup
-                        .getInstanceOf("selectModelReportCounts");
+        mfilter.getModels().stream().forEach(model -> {
+            ModelFilter modelFilter = new ModelFilter();
+            modelFilter.setModel(model);
 
-                counts.setAttribute("model", modelFilter.getModel());
-                counts.setAttribute("action", action != null ? action.name() : null);
-                counts.setAttribute("paging", false);
-                counts.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-                counts.setAttribute("toDefined", dateFilter.getToDate() != null);
-                counts.setAttribute("visibility", visFilter.asMap());
-                counts.setAttribute("licenseDefined", licFilter.getLicence() != null);
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
+            LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
+            IdentifiersFilter idFilter = filters.getFilter(IdentifiersFilter.class);
 
-                
-                try {
-					new JDBCQueryTemplate<Map<String, Object>>(connectionProvider.get()) {
-					    @Override
-					    public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
-					        Map<String, Object> val = new HashMap<>();
-					        val.put(modelFilter.getModel(), rs.getInt("sum"));
+            StatisticsFiltersContainer container = new StatisticsFiltersContainer(
+                    new StatisticsFilter[] { dateFilter, visFilter, licFilter, modelFilter,idFilter });
 
-					        sup.processReportRecord(val);
-					        
-					        //returnsList.add(val);
-					        return super.handleRow(rs, returnsList);
-					    }
-					}.executeQuery(counts.toString(), StatisticUtils.jdbcParams(dateFilter, licFilter,null).toArray());
-				} catch (ParseException e) {
-		            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-				}
-    		});
-        	
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new StatisticsReportException(e);
-        }
-		
-	}
+            ModelStatisticReport report = new ModelStatisticReport();
+            report.solrAccess = this.solrAccess;
+            
+            List<Map<String, Object>> reportPage = report.getReportPage(action, container, null);
+            reportPage.stream().forEach(it -> {
+                if (it.containsKey("sum")) {
+                    Integer sum = (Integer) it.get("sum");
+                    if (sum > 0) {
+                        Map<String, Object> map = new HashMap<String, Object>();
+                        map.put(COUNT_KEY, (Integer) it.get("sum"));
+                        map.put(MODEL_KEY, model);
+                        sup.processReportRecord(map);
+                    }
+                }
+            });
+        });
+    }
 
-	@Override
-	public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
-    	List<String> list = new ArrayList<>();
-		DateFilter dateFilter = container.getFilter(DateFilter.class);
-		VerificationUtils.dateVerification(list, dateFilter.getFromDate());
-		VerificationUtils.dateVerification(list, dateFilter.getToDate());
+    @Override
+    public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+        List<String> list = new ArrayList<>();
+        DateFilter dateFilter = container.getFilter(DateFilter.class);
+        VerificationUtils.dateVerification(list, dateFilter.getRawFromDate());
+        VerificationUtils.dateVerification(list, dateFilter.getRawToDate());
         return list;
-	}
+    }
 
 }

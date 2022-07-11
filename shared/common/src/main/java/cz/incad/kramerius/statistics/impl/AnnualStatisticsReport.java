@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.util.*;
 import java.util.logging.Logger;
 
+//TODO: Vyhodit
 public class AnnualStatisticsReport implements StatisticReport {
 
 
@@ -50,22 +51,22 @@ public class AnnualStatisticsReport implements StatisticReport {
 
     @Override
     public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer container) throws StatisticsReportException {
-        MultimodelFilter multimodel = container.getFilter(MultimodelFilter.class);
-        List<String> models = multimodel.getModels();
-        for (String model : models) {
-            ModelFilter modelFilter = new ModelFilter();
-            modelFilter.setModel(model);
-            StatisticsFilter[] filters = new StatisticsFilter[]{
-                    modelFilter,
-                    getDateFilter(container.getFilter(AnnualYearFilter.class)),
-                    container.getFilter(IPAddressFilter.class),
-                    container.getFilter(VisibilityFilter.class),
-                    container.getFilter(UniqueIPAddressesFilter.class)
-            };
-            ModelStatisticReport report = new ModelStatisticReport();
-            report.connectionProvider = connectionProvider;
-            report.processAccessLog(action, sup, new StatisticsFiltersContainer(filters));
-        }
+//        MultimodelFilter multimodel = container.getFilter(MultimodelFilter.class);
+//        List<String> models = multimodel.getModels();
+//        for (String model : models) {
+//            ModelFilter modelFilter = new ModelFilter();
+//            modelFilter.setModel(model);
+//            StatisticsFilter[] filters = new StatisticsFilter[]{
+//                    modelFilter,
+//                    getDateFilter(container.getFilter(AnnualYearFilter.class)),
+//                    container.getFilter(IPAddressFilter.class),
+//                    container.getFilter(VisibilityFilter.class),
+//                    container.getFilter(UniqueIPAddressesFilter.class)
+//            };
+//            ModelStatisticReport report = new ModelStatisticReport();
+//            report.connectionProvider = connectionProvider;
+//            report.processAccessLog(action, sup, new StatisticsFiltersContainer(filters));
+//        }
     }
 
     public static StatisticsFilter getDateFilter(AnnualYearFilter afilter) {

@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.inject.Named;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
@@ -40,6 +42,7 @@ public class SolrLanguageDecorate extends AbstractFeederDecorator {
             .getName());
 
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

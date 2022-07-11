@@ -85,7 +85,10 @@ public class UserUtils {
 
     /** Additional properties for user when third party authentication is used  */
     public static final String THIRD_PARTY_SESSION_PARAMS = "session_";
-
+        
+    /** Third party token id */
+    public static final String THIRD_PARTY_TOKEN_ID ="token_id";
+    
     public static final String THIRD_PARTY_USER = "third_party_user";
     
 }

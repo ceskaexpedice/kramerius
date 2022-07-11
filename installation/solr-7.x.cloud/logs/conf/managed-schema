@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Solr managed schema - automatically generated - DO NOT EDIT -->
+<schema name="processing-schema" version="1.6">
+  <uniqueKey>id</uniqueKey>
+  <fieldType name="ancestor_path" class="solr.TextField">
+    <analyzer type="index">
+      <tokenizer class="solr.KeywordTokenizerFactory"/>
+    </analyzer>
+    <analyzer type="query">
+      <tokenizer class="solr.PathHierarchyTokenizerFactory" delimiter="/"/>
+    </analyzer>
+  </fieldType>
+  <fieldType name="descendent_path" class="solr.TextField">
+   <analyzer type="index">
+     <tokenizer class="solr.PathHierarchyTokenizerFactory" delimiter="/" />
+   </analyzer>
+   <analyzer type="query">
+     <tokenizer class="solr.KeywordTokenizerFactory" />
+   </analyzer>
+ </fieldType>
+
+
+
+
+  <fieldType name="text_general_ngram" class="solr.TextField" positionIncrementGap="100">
+   <analyzer type="index">
+      <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+      <filter class="solr.NGramFilterFactory" minGramSize="2" maxGramSize="7"/>
+   </analyzer>
+   <analyzer type="query">
+      <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+   </analyzer>
+  </fieldType>
+
+  <fieldType name="text_general_edge_ngram" class="solr.TextField" positionIncrementGap="100">
+   <analyzer type="index">
+      <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+      <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="7"/>
+   </analyzer>
+   <analyzer type="query">
+      <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+   </analyzer>
+  </fieldType>
+
+  <fieldType name="pid_edge_ngram" class="solr.TextField" positionIncrementGap="100">
+   <analyzer type="index">
+	   <tokenizer class="solr.KeywordTokenizerFactory" />
+	   <filter class="solr.EdgeNGramFilterFactory" minGramSize="5" maxGramSize="35"/>
+   </analyzer>
+   <analyzer type="query">
+   	<tokenizer class="solr.KeywordTokenizerFactory" />
+   </analyzer>
+  </fieldType>
+
+
+  <fieldType name="binary" class="solr.BinaryField"/>
+  <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+  <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
+  <fieldType name="date" class="solr.TrieDateField" positionIncrementGap="0" docValues="true" precisionStep="0"/>
+  <fieldType name="dates" class="solr.TrieDateField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="0"/>
+  <fieldType name="double" class="solr.TrieDoubleField" positionIncrementGap="0" docValues="true" precisionStep="0"/>
+  <fieldType name="doubles" class="solr.TrieDoubleField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="0"/>
+  <fieldType name="float" class="solr.TrieFloatField" positionIncrementGap="0" docValues="true" precisionStep="0"/>
+  <fieldType name="floats" class="solr.TrieFloatField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="0"/>
+  <fieldType name="ignored" class="solr.StrField" indexed="false" stored="false" docValues="false" multiValued="true"/>
+  <fieldType name="int" class="solr.TrieIntField" positionIncrementGap="0" docValues="true" precisionStep="0"/>
+  <fieldType name="ints" class="solr.TrieIntField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="0"/>
+  <fieldType name="long" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" precisionStep="0"/>
+  <fieldType name="longs" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="0"/>
+  <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true"/>
+  <fieldType name="strings" class="solr.StrField" sortMissingLast="true" docValues="true" multiValued="true"/>
+  <fieldType name="tdate" class="solr.TrieDateField" positionIncrementGap="0" docValues="true" precisionStep="6"/>
+  <fieldType name="tdates" class="solr.TrieDateField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="6"/>
+  <fieldType name="tdouble" class="solr.TrieDoubleField" positionIncrementGap="0" docValues="true" precisionStep="8"/>
+  <fieldType name="tdoubles" class="solr.TrieDoubleField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"/>
+  <fieldType name="text_cz" class="solr.TextField" positionIncrementGap="100">
+    <analyzer>
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.CzechStemFilterFactory"/>
+    </analyzer>
+  </fieldType>
+  <fieldType name="tfloat" class="solr.TrieFloatField" positionIncrementGap="0" docValues="true" precisionStep="8"/>
+  <fieldType name="tfloats" class="solr.TrieFloatField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"/>
+  <fieldType name="tint" class="solr.TrieIntField" positionIncrementGap="0" docValues="true" precisionStep="8"/>
+  <fieldType name="tints" class="solr.TrieIntField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"/>
+  <fieldType name="tlong" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" precisionStep="8"/>
+  <fieldType name="tlongs" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"/>
+
+  <field name="_root_" type="string" docValues="false" indexed="true" stored="false"/>
+  <field name="_version_" type="long" indexed="true" stored="true"/>
+
+  <field name="id" type="string" indexed="true" stored="true"></field>	
+  <!-- dotazovany pid --> 
+  <field name="pid" type="string" indexed="true" stored="true"/>
+  <!-- datum pristupu -->
+  <field name="date" type="date" indexed="true" stored="true" default="NOW"/>
+  <!-- ip address -->
+  <field name="ip_address" type="string" indexed="true" stored="true"/>
+  <!-- user -->
+  <field name="user" type="string" indexed="true" stored="true"/>
+  <!-- requested url -->
+  <field name="requested_url" type="string" indexed="true" stored="true"/>
+  <!-- session token -->
+  <field name="session_token" type="string" indexed="true" stored="true"/>
+  <!-- evaluated map -->	
+  <field name="evaluated_map" type="string" indexed="true" stored="true"/>
+  <!-- user session attribures -->	
+  <field name="user_session_attributes" type="string" indexed="true" stored="true"/>
+  <!-- db version --> 	
+  <field name="db_version" type="string" indexed="true" stored="true"/>
+  <!-- kram version --> 	
+  <field name="kram_version" type="string" indexed="true" stored="true"/>
+	
+  <!-- kram version --> 	
+  <field name="reported_action" type="string" indexed="true" stored="true"/>
+
+	
+  <!-- licence prirazene dilu -->
+  <field name="licences" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+  <!-- session token -->
+  <field name="provided_by_license" type="string" indexed="true" stored="true" docValues="true"/>
+
+  <!-- issue dates -->
+  <field name="issue_dates" type="string" indexed="true" stored="true" multiValued="true"/>
+
+  <!-- langs dates -->
+  <field name="langs" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+  <!-- titles  -->
+  <field name="titles" type="string" indexed="true" stored="true" multiValued="true"/>
+
+  <!-- root title -->
+  <field name="root_title" type="string" indexed="true" stored="true" multiValued="false"/>
+  <!-- root model -->
+  <field name="root_model" type="string" indexed="true" stored="true" multiValued="false"/>
+
+  <!-- solr dates ?? Je to nutne ??   -->
+  <field name="solr_dates" type="string" indexed="true" stored="true" multiValued="true"/>
+
+  <field name="authors" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+  <field name="publishers" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+  <!--own pid/model path-->
+  <field name="own_pid_path" type="descendent_path" indexed="true" stored="true" multiValued="false" />
+  <field name="own_model_path" type="descendent_path" indexed="true" stored="true" multiValued="false" />
+
+  <!--path from own parent to this + paths from all foster parents to this-->
+  <field name="pid_paths" type="descendent_path" indexed="true" stored="true" multiValued="true"/>
+
+  <!--model from own parent to this + paths from all foster parents to this-->
+  <field name="model_paths" type="descendent_path" indexed="true" stored="true" multiValued="true" />
+
+  <field name="id_isbn" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+  <field name="id_issn" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+  <field name="id_ccnb" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+	
+  <field name="all_pids" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+  <field name="all_models" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+  
+  <field name="all_identifiers" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+  
+  <dynamicField name="pids_*" type="string" indexed="true"  stored="true" multiValued="true" docValues="true"/>
+  
+  <copyField source="id_isbn" dest="all_identifiers"/>
+  <copyField source="id_issn" dest="all_identifiers"/>
+  <copyField source="id_ccnb" dest="all_identifiers"/>
+	
+</schema>

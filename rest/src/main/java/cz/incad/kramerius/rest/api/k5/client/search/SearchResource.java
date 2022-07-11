@@ -34,6 +34,7 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.inject.Named;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -79,6 +80,7 @@ public class SearchResource {
             .getName());
 
     @Inject
+    @Named("new-index")
     private SolrAccess solrAccess;
 
     @Inject

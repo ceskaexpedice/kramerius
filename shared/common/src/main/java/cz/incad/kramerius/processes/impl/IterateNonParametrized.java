@@ -5,6 +5,7 @@ import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -82,7 +83,7 @@ public class IterateNonParametrized {
 
         public SolrRepoItemsSupport(String... flist) {
             super();
-            this.solrAccess = new SolrAccessImpl();
+            this.solrAccess = new SolrAccessImplNewIndex();
             this.fList = Arrays.asList(flist);
         }
 

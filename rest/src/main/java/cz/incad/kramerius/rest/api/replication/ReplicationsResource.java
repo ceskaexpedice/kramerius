@@ -97,6 +97,7 @@ public class ReplicationsResource {
     FedoraAccess fedoraAccess;
     
     @Inject
+    @Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

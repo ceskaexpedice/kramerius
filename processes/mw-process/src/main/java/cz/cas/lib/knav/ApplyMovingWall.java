@@ -15,6 +15,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.solr.SolrModule;
@@ -40,7 +41,7 @@ public class ApplyMovingWall {
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
 
-        SolrAccess sa = new SolrAccessImpl();
+        SolrAccess sa = new SolrAccessImplNewIndex();
         CollectPidForIndexing coll = new CollectPidForIndexing();
 
         String userValue = userValue(args);

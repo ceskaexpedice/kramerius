@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -91,7 +92,7 @@ public class ZoomifyHelper {
             throw new NotFoundException("no tiles-url available for object %s", pid);
         }
         Response.ResponseBuilder resp = Response.ok();
-        setDateHeaders(resp, imgFullLastModified);
+        setNoCacheDateHeaders(resp);
 
         if (tilesUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
             return renderEmbededDZIDescriptor(pid, resp);
@@ -172,6 +173,13 @@ public class ZoomifyHelper {
         }
     }
 
+    protected void setNoCacheDateHeaders(Response.ResponseBuilder resp) {
+        CacheControl noCache = new CacheControl();
+        noCache.setNoStore(true);
+        noCache.setMustRevalidate(true);
+        noCache.setNoCache(true);
+        resp.cacheControl(noCache);
+    }
 
     protected void setDateHeaders(Response.ResponseBuilder resp, Date lastModifiedDate) {
         Calendar inOneYear = Calendar.getInstance();

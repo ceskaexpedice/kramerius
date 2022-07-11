@@ -228,12 +228,6 @@ public class StatisticDbInitializer {
             // check if labels exists
             checkLabelsColumns(connection);
             
-            // materialized view - lang
-            checkStatisticsView_Lang(connection);
-            // materialized view - models
-            checkStatisticsView_Models(connection);
-            // materialized view - authors
-            checkStatisticsView_Authors(connection);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
@@ -250,67 +244,67 @@ public class StatisticDbInitializer {
 
     
     
-	private static void checkStatisticsView_Lang(Connection connection) {
-        try {
-        	if (!DatabaseUtils.materializedViewExists(connection, "_lang") || !DatabaseUtils.materializedViewExists(connection, "_statistic_access_log_detail_lang_not_null")) {
-            	LOGGER.info("Preparing materialized views (lang)");
-                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initlang.sql");
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-            } else {
-            	LOGGER.info("Refreshing materialized views (lang)");
-                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/refreshlang.sql");
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-            }
-        } catch (SQLException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
-
-   
-    
-    private static void checkStatisticsView_Authors(Connection connection) {
-        try {
-            if (!DatabaseUtils.materializedViewExists(connection, "_authors")) {
-            	LOGGER.info("Preparing materialized views (authors)");
-                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initauthors.sql");
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-            } else {
-            	LOGGER.info("Refreshing materialized views (authors)");
-                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/refreshauthors.sql");
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-            }
-        } catch (SQLException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
-
-    private static void checkStatisticsView_Models(Connection connection) {
-        try {
-            if (!DatabaseUtils.materializedViewExists(connection, "_model_monograph")) {
-            	LOGGER.info("Preparing materialized views (models)");
-                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initmodels.sql");
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-            } else {
-            	LOGGER.info("Refreshing materialized views (models)");
-                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/refreshmodels.sql");
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-            }
-        } catch (SQLException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
+//	private static void checkStatisticsView_Lang(Connection connection) {
+//        try {
+//        	if (!DatabaseUtils.materializedViewExists(connection, "_lang") || !DatabaseUtils.materializedViewExists(connection, "_statistic_access_log_detail_lang_not_null")) {
+//            	LOGGER.info("Preparing materialized views (lang)");
+//                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initlang.sql");
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//            } else {
+//            	LOGGER.info("Refreshing materialized views (lang)");
+//                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/refreshlang.sql");
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//            }
+//        } catch (SQLException | IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//        }
+//    }
+//
+//   
+//    
+//    private static void checkStatisticsView_Authors(Connection connection) {
+//        try {
+//            if (!DatabaseUtils.materializedViewExists(connection, "_authors")) {
+//            	LOGGER.info("Preparing materialized views (authors)");
+//                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initauthors.sql");
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//            } else {
+//            	LOGGER.info("Refreshing materialized views (authors)");
+//                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/refreshauthors.sql");
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//            }
+//        } catch (SQLException | IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//        }
+//    }
+//
+//    private static void checkStatisticsView_Models(Connection connection) {
+//        try {
+//            if (!DatabaseUtils.materializedViewExists(connection, "_model_monograph")) {
+//            	LOGGER.info("Preparing materialized views (models)");
+//                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initmodels.sql");
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//            } else {
+//            	LOGGER.info("Refreshing materialized views (models)");
+//                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/refreshmodels.sql");
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//            }
+//        } catch (SQLException | IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//        }
+//    }
 
     private static void checkLabelsColumns(Connection connection) {
         try {
