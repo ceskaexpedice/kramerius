@@ -37,8 +37,7 @@ war/rightseditor
 build
 classes
 deploy
-gradle/wrapper
-gradlew*
+
 
 **/build
 **/out
