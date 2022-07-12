@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 //TODO: Vyhodit
-public class AnnualStatisticsReport implements StatisticReport {
+public class AnnualStatisticsReport extends AbstractStatisticsReport implements StatisticReport {
 
 
 
@@ -36,17 +36,13 @@ public class AnnualStatisticsReport implements StatisticReport {
     }
 
     @Override
-    public List<String> getOptionalValues() {
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
         return new ArrayList<>();
     }
 
     @Override
     public String getReportId() {
         return REPORT_ID;
-    }
-
-    @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) throws StatisticsReportException {
     }
 
     @Override

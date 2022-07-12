@@ -42,6 +42,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
+/**
+ * Agregovany report -> Modely a nejcasteji poskytaovana dila dle modelu
+ * @author happy
+ *
+ */
 public class MultimodelReport implements StatisticReport {
     private static final List<String> SUPPORTED_MODELS = Arrays.asList("monograph", "periodical", "article", "convolute", "map", "graphic", "archive",
             "manuscript", "soundrecording", "collection");
@@ -103,24 +108,7 @@ public class MultimodelReport implements StatisticReport {
     }
 
     @Override
-    public List<String> getOptionalValues() {
-//        final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModels");
-//        String sql = statRecord.toString();
-//        Connection conn = connectionProvider.get();
-//        List<String> returns = new JDBCQueryTemplate<String>(conn) {
-//            @Override
-//            public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-//                String model = rs.getString("model");
-//                returnsList.add(model);
-//                return super.handleRow(rs, returnsList);
-//            }
-//        }.executeQuery(sql);
-//        try {
-//            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return returns;
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
         return new ArrayList<>();
     }
 
@@ -128,12 +116,12 @@ public class MultimodelReport implements StatisticReport {
     public String getReportId() {
         return REPORT_ID;
     }
+    
+    
 
     @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container)
-            throws StatisticsReportException {
-        // TODO Auto-generated method stub
-
+    public boolean convertToObject() {
+        return true;
     }
 
     @Override

@@ -65,6 +65,8 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
 /**
+ * Report pro konkretni model
+ * 
  * @author pavels
  */
 public class ModelStatisticReport extends AbstractStatisticsReport implements StatisticReport {
@@ -82,21 +84,14 @@ public class ModelStatisticReport extends AbstractStatisticsReport implements St
 
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticsFiltersContainer filters, Offset rOffset) {
-        DateFilter dateFilter = filters.getFilter(DateFilter.class);
-        ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
-        LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
-        IdentifiersFilter idFilter = filters.getFilter(IdentifiersFilter.class);
-
         try {
+            ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
+
             String selectEndpoint = super.logsEndpoint();
-            
             List<Map<String,Object>> models = new ArrayList<>();
             
             StringBuilder builder = new StringBuilder("q=*");
-            ReportUtils.enhanceLicense(builder, licFilter);
-            ReportUtils.enhanceDateFilter(builder, dateFilter);
-            ReportUtils.enhanceModelFilter(builder, modelFilter);
-            ReportUtils.enhanceIdentifiers(builder, idFilter);
+            super.applyFilters(filters, builder);
 
             String facetValue = "pids_"+modelFilter.getModel();
             builder.append("&rows=0&facet=true&facet.mincount=1&facet.field="+facetValue);
@@ -145,19 +140,7 @@ public class ModelStatisticReport extends AbstractStatisticsReport implements St
     }
 
     @Override
-    public List<String> getOptionalValues() {
-//        final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModels");
-//        String sql = statRecord.toString();
-//        Connection conn = connectionProvider.get();
-//        List<String> returns = new JDBCQueryTemplate<String>(conn) {
-//            @Override
-//            public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-//                String model = rs.getString("model");
-//                returnsList.add(model);
-//                return super.handleRow(rs, returnsList);
-//            }
-//        }.executeQuery(sql);
-//        return returns;
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
         return new ArrayList<>();
     }
 
@@ -166,11 +149,6 @@ public class ModelStatisticReport extends AbstractStatisticsReport implements St
         return REPORT_ID;
     }
 
-    
-    
-    @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer filters) throws StatisticsReportException {
-    }
 
     @Override
     public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,

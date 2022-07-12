@@ -45,9 +45,12 @@ public interface StatisticReport {
     public static final String ACTION_KEY = "action";
     public static final String LANG_KEY = "lang";
     public static final String AUTHOR_NAME_KEY = "author_name";
-
+    
+    public static final String PROVIDED_LICENSE_KEY="provided_by_license";
+    
     public static final String DATE_FROM = "from";
     public static final String DATE_TO = "to";
+    
     
 
 
@@ -69,7 +72,7 @@ public interface StatisticReport {
      * 
      * @return
      */
-    public List<String> getOptionalValues();
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters);
 
     /**
      * Return report identifier
@@ -78,11 +81,7 @@ public interface StatisticReport {
      */
     public String getReportId();
 
-    /**
-     * Prepares view necessary for rendering plot
-     * @param action
-     */
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) throws StatisticsReportException ;
+    public boolean convertToObject();
     
     
     /**

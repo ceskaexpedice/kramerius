@@ -64,6 +64,7 @@ public interface StatisticsAccessLog {
      * @return
      */
     public StatisticReport[] getAllReports();
+
     
     /**
      * Find report by given id

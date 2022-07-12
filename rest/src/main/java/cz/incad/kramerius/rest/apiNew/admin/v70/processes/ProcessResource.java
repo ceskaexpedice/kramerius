@@ -779,54 +779,26 @@ public class ProcessResource extends AdminApiResource {
             }
             case "nkplogs": {
             	
-            	String dateFrom = extractMandatoryParamString(params, "dateFrom");
-            	String dateTo = extractMandatoryParamString(params, "dateTo");
-            	String folder = extractMandatoryParamString(params, "folder");
-            	String visibility = extractMandatoryParamString(params, "visibility");
-            	String institution = extractMandatoryParamString(params, "institution");
-            	String anonymization = extractMandatoryParamString(params, "anonymization");
-
-            	try {
-					StatisticReport.DATE_FORMAT.parse(dateFrom);
-				} catch (ParseException e) {
+                String dateFrom = extractMandatoryParamString(params, "dateFrom");
+                String dateTo = extractMandatoryParamString(params, "dateTo");
+                
+                try {
+                    StatisticReport.DATE_FORMAT.parse(dateFrom);
+                } catch (ParseException e) {
                     throw new BadRequestException("cannot parse dateFrom, following pattern is excepted 'yyyy.MM.dd'");
-				}
-            	try {
-					StatisticReport.DATE_FORMAT.parse(dateTo);
-				} catch (ParseException e) {
-                    throw new BadRequestException("cannot parse dateTo, following pattern is excepted 'yyyy.MM.dd'");
-				}
-            	
-            	try {
-					VisibilityFilter.VisbilityType.valueOf(visibility);
-				} catch (Exception e) {
-                    throw new BadRequestException("invalid value of visibility, following values are excepted "+Arrays.stream(VisibilityFilter.VisbilityType.values()).map(it-> {
-                    	return it.name();
-                    }).collect(Collectors.toList()));
-				}
-            	
-            	
-				File f = new File(folder);
-				if (f.exists() && f.isDirectory()) {
-					// ok
-				} else {
-                    throw new BadRequestException("folder parameter should be valid folder");
-				}
-					
-					
-            	
-            	
-            	
-            	List<String> result = new ArrayList<>();
-            	result.add(dateFrom);
-            	result.add(dateTo);
-            	result.add(folder);
-            	result.add(visibility);
-            	result.add(institution);
-            	result.add(anonymization);
+                }
 
-            	return result;
-            	
+                try {
+                    StatisticReport.DATE_FORMAT.parse(dateTo);
+                } catch (ParseException e) {
+                    throw new BadRequestException("cannot parse dateTo, following pattern is excepted 'yyyy.MM.dd'");
+                }
+
+                List<String> result = new ArrayList<>();
+                result.add(dateFrom);
+                result.add(dateTo);
+
+                return result;
             }
             
             // TODO: Support annotation @Process and @ProcessParam - mapping in old API

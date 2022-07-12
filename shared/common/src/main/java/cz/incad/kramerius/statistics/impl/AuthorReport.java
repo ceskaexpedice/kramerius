@@ -57,8 +57,8 @@ import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
 /**
+ * Poskytnuti autori
  * @author pavels
- *
  */
 public class AuthorReport extends AbstractStatisticsReport implements StatisticReport{
     
@@ -77,15 +77,8 @@ public class AuthorReport extends AbstractStatisticsReport implements StatisticR
         try {
             String selectEndpoint = super.logsEndpoint();
             
-            DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
-            IdentifiersFilter idFilter = filters.getFilter(IdentifiersFilter.class);
-
             StringBuilder builder = new StringBuilder("q=*");
-
-            ReportUtils.enhanceLicense(builder, licFilter);
-            ReportUtils.enhanceDateFilter(builder, dateFilter);
-            ReportUtils.enhanceIdentifiers(builder, idFilter);
+            super.applyFilters(filters, builder);
             
             String facetField = "authors";
             builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
@@ -108,7 +101,7 @@ public class AuthorReport extends AbstractStatisticsReport implements StatisticR
     }
 
     @Override
-    public List<String> getOptionalValues() {
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
         return new ArrayList<String>();
     }
 
@@ -118,9 +111,6 @@ public class AuthorReport extends AbstractStatisticsReport implements StatisticR
     }
 
 
-    @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) {
-    }
 
     @Override
     public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,

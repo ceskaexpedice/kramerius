@@ -103,20 +103,20 @@ public class StatisticsResource {
     Provider<HttpServletRequest> requestProvider;
 
     
-    // jak to udelat ?
     @DELETE
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response cleanData(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo) {
         // mel by byt nekdo jiny nez ten kdo resi prohlizeni statistik
-        if (permit()) {
+        if (permit(SecuredActions.MANAGE_STATISTICS)) {
             try {
+                // kontrola datumu / break /pokud je vetsi nez break, chybny dotaz
                 if (StringUtils.isAnyString(dateFrom) && StringUtils.isAnyString(dateTo)) {
                     try {
                         Date dateFromd = StatisticReport.DATE_FORMAT.parse(dateFrom);
                         Date dateTod = StatisticReport.DATE_FORMAT.parse(dateTo);
-                        int cleanData = this.statisticsAccessLog.cleanData(dateFromd, dateTod);
+                        int deletedResult = this.statisticsAccessLog.cleanData(dateFromd, dateTod);
                         JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("deleted", cleanData);
+                        jsonObject.put("deleted", deletedResult);
                         return Response.ok().entity(jsonObject.toString()).build();
                     } catch (ParseException e) {
                         throw new BadRequestException("parsing exception dateFrom, dateTo");
@@ -132,10 +132,12 @@ public class StatisticsResource {
         }
     }
 
+    
+    
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response reports() {
-        if (permit()) {
+        if (permit(SecuredActions.SHOW_STATISTICS)) {
             StatisticReport[] allReports = this.statisticsAccessLog.getAllReports();
             List<String> ids = Arrays.asList(allReports).stream().map(StatisticReport::getReportId)
                     .collect(Collectors.toList());
@@ -149,12 +151,60 @@ public class StatisticsResource {
         }
     }
     
-    
-    
+    @GET
+    @Path("{report}/options")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response filters(
+            @PathParam("report") String rip,
+            @QueryParam("action") String raction,
+            @QueryParam("dateFrom") String dateFrom,
+            @QueryParam("dateTo") String dateTo,
+            @QueryParam("model") String model,
+            @QueryParam("models") String models,
+            @QueryParam("identifier") String identifier,
+            @QueryParam("license") String license,
+            @DefaultValue("ALL") @QueryParam("visibility") String visibility,
+            @QueryParam("offset") String filterOffset,
+            @QueryParam("pids") String pids) {
+        if (permit(SecuredActions.SHOW_STATISTICS)) {
+            if (permit(SecuredActions.SHOW_STATISTICS)) {
+                try {
+                    StatisticsFiltersContainer container = container(dateFrom, dateTo, model, visibility,
+                            pids, license, models, identifier);
+                    StatisticReport report = statisticsAccessLog.getReportById(rip);
+                    if (report != null) {
+                        List<String> results = report.verifyFilters(raction != null ? ReportedAction.valueOf(raction) : null, container);
+                        if (results.isEmpty()) {
+                            List<String> optionalValues = report.getOptionalValues(container);
+                            JSONArray jsonArray = new JSONArray();
+                            optionalValues.stream().forEach(jsonArray::put);
+                            JSONObject object = new JSONObject();
+                            object.put(report.getReportId(), jsonArray);
+                            return Response.ok().entity(object).build();
+                        } else {
+                            String body = results.stream().collect(Collectors.joining("\n"));
+                            return Response.status(Response.Status.BAD_REQUEST).entity(body).build();
+                        }
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
+                } catch (JSONException e) {
+                    throw new GenericApplicationException(e.getMessage());
+                }
+            } else {
+                throw new ActionNotAllowed("not allowed");
+            }
+
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
+    }
+
     @GET
     @Path("{report}")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response getReportPage(@PathParam("report") String rip,
+    public Response getReportPage(
+            @PathParam("report") String rip,
             @QueryParam("action") String raction,
             @QueryParam("dateFrom") String dateFrom,
             @QueryParam("dateTo") String dateTo,
@@ -167,7 +217,7 @@ public class StatisticsResource {
             @QueryParam("pids") String pids,
             @QueryParam("resultSize") String filterResultSize) {
         
-        if (permit()) {
+        if (permit(SecuredActions.SHOW_STATISTICS)) {
             try {
                 StatisticsFiltersContainer container = container(dateFrom, dateTo, model, visibility,
                         pids, license, models, identifier);
@@ -184,18 +234,27 @@ public class StatisticsResource {
                         List<Map<String, Object>> repPage = report.getReportPage(
                                 raction != null ? ReportedAction.valueOf(raction)
                                         : null,container, offset);
-                        if (repPage.size() > 1) {
+                        if (report.convertToObject()) {
+                            if (repPage.size() > 1) {
+                                JSONArray jsonArr = new JSONArray();
+                                for (Map<String, Object> map : repPage) {
+                                    JSONObject json = new JSONObject(map);
+                                    jsonArr.put(json);
+                                }
+                                return Response.ok().entity(jsonArr.toString()).build();
+                            } else if (repPage.size() == 1){
+                                JSONObject json = new JSONObject(repPage.get(0));
+                                return Response.ok().entity(json.toString()).build();
+                            } else {
+                                return Response.ok().entity(new JSONArray().toString()).build();
+                            }
+                        } else {
                             JSONArray jsonArr = new JSONArray();
                             for (Map<String, Object> map : repPage) {
                                 JSONObject json = new JSONObject(map);
                                 jsonArr.put(json);
                             }
                             return Response.ok().entity(jsonArr.toString()).build();
-                        } else if (repPage.size() == 1){
-                            JSONObject json = new JSONObject(repPage.get(0));
-                            return Response.ok().entity(json.toString()).build();
-                        } else {
-                            return Response.ok().entity(new JSONArray().toString()).build();
                         }
                     } else {
                     	String body = results.stream().collect(Collectors.joining("\n"));
@@ -204,7 +263,6 @@ public class StatisticsResource {
                 } else {
                     return Response.status(Response.Status.NOT_FOUND).build();
                 }
-                
             } catch (StatisticsReportException e) {
                 throw new GenericApplicationException(e.getMessage());
             } catch (JSONException e) {
@@ -395,7 +453,7 @@ public class StatisticsResource {
         VisibilityFilter visFilter = new VisibilityFilter();
 		visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
 
-        if (permit()) {
+        if (permit(SecuredActions.SHOW_STATISTICS)) {
             if (rip != null && (!rip.equals(""))) {
             	StatisticReport report = this.statisticsAccessLog.getReportById(rip);
             	Optional<StatisticsReportFormatter> opts = reportFormatters.stream().filter(formatter -> {
@@ -417,7 +475,7 @@ public class StatisticsResource {
                             selectedFormatter.beforeProcess(bos);
 
                             // Must be synchronized - only one report at the time
-                            report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,  multimodelFilter, annualYearFilter, pidsFilter}));
+                            //report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,  multimodelFilter, annualYearFilter, pidsFilter}));
                             report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter, multimodelFilter, annualYearFilter,  pidsFilter, licenseFilter, idFilter}));
                             selectedFormatter.afterProcess(bos);
 
@@ -455,7 +513,7 @@ public class StatisticsResource {
 	
 	
 
-    boolean permit() {
+    boolean permit(SecuredActions action) {
         User user = null;
         String authToken = this.requestProvider.get().getHeader(LRResource.AUTH_TOKEN_HEADER_KEY);
         if (authToken != null && !lrProcessManager.isAuthTokenClosed(authToken)) {
@@ -468,14 +526,14 @@ public class StatisticsResource {
         } else {
             user = this.userProvider.get();
         }
-        return permit(user);
+        return permit(user,action);
     }
 
 
-    boolean permit(User user) {
+    boolean permit(User user, SecuredActions action) {
         if (user != null)
             return this.rightsResolver.isActionAllowed(user,
-                    SecuredActions.SHOW_STATISTICS.getFormalName(),
+                    action.getFormalName(),
                     SpecialObjects.REPOSITORY.getPid(), null,
                     ObjectPidsPath.REPOSITORY_PATH).flag();
         else

@@ -389,7 +389,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
 	@Override
 	public int cleanData(Date dateFrom, Date dateTo) {
-		throw new UnsupportedOperationException("unsupported");
+		throw new UnsupportedOperationException("unsupported operation");
 	}
 
 

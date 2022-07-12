@@ -1,6 +1,10 @@
 package cz.incad.kramerius.statistics.accesslogs.solr;
 
+import static org.apache.http.HttpStatus.SC_OK;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,6 +25,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 
@@ -56,6 +69,7 @@ import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.DatabaseUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
@@ -308,8 +322,30 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
     @Override
     public int cleanData(Date dateFrom, Date dateTo) throws IOException {
-        // TODO Auto-generated method stub
-        return 0;
+        // delete by query
+        String loggerPoint = KConfiguration.getInstance().getProperty("k7.log.solr.point","http://localhost:8983/solr/logs");
+        String updateEndpoint = loggerPoint + (loggerPoint.endsWith("/") ? "" : "/" ) +"update";
+
+        HttpPost httpPost = new HttpPost(updateEndpoint);
+        
+        String xml = String.format("<delete><query>date:[%s TO %s]</query></delete>", StatisticReport.SOLR_DATE_FORMAT.format(dateFrom), StatisticReport.SOLR_DATE_FORMAT.format(dateTo));
+        StringEntity entity = new StringEntity(xml);
+        httpPost.setEntity(entity);
+        httpPost.setHeader("Accept", "application/xml");
+        httpPost.setHeader("Content-type", "application/xml");
+        httpPost.setEntity(entity);
+        
+        CloseableHttpClient client = HttpClients.createDefault();
+        try (CloseableHttpResponse response = client.execute(httpPost)) {
+            if (response.getStatusLine().getStatusCode() == SC_OK) {
+                HttpEntity respEntity = response.getEntity();
+                InputStream content = respEntity.getContent();
+                String resp = IOUtils.toString(content, "UTF-8");
+                return 0;
+            } else {
+                throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+            }
+        }
     }
 
     @Override

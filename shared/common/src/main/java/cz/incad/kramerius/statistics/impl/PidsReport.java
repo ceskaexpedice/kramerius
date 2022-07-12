@@ -33,7 +33,7 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 import java.util.logging.Logger;
 
-public class PidsReport implements StatisticReport {
+public class PidsReport extends AbstractStatisticsReport implements StatisticReport {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PidsReport.class.getName());
 
@@ -99,7 +99,7 @@ public class PidsReport implements StatisticReport {
     }
 
     @Override
-    public List<String> getOptionalValues() {
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
         return new ArrayList<String>();
     }
 
@@ -109,9 +109,6 @@ public class PidsReport implements StatisticReport {
     }
 
     
-    @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer filters) throws StatisticsReportException {
-    }
 
 
     @Override

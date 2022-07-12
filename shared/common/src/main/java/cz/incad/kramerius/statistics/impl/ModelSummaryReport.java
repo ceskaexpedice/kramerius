@@ -36,6 +36,11 @@ import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
+/**
+ *  Agregovany report -> Modely a pocty 
+ * @author happy
+ *
+ */
 public class ModelSummaryReport implements StatisticReport {
 
     private static final List<String> SUPPORTED_MODELS = Arrays.asList("monograph", "periodical", "article", "convolute", "map", "graphic", "archive",
@@ -91,8 +96,8 @@ public class ModelSummaryReport implements StatisticReport {
     }
 
     @Override
-    public List<String> getOptionalValues() {
-        return null;
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
+        return new ArrayList<>();
     }
 
     @Override
@@ -100,12 +105,6 @@ public class ModelSummaryReport implements StatisticReport {
         return REPORT_ID;
     }
 
-    @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container)
-            throws StatisticsReportException {
-        // TODO Auto-generated method stub
-
-    }
 
     @Override
     public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer filters)
@@ -145,6 +144,13 @@ public class ModelSummaryReport implements StatisticReport {
                 }
             });
         });
+    }
+
+    
+    
+    @Override
+    public boolean convertToObject() {
+        return true;
     }
 
     @Override

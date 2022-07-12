@@ -108,6 +108,7 @@ public enum SecuredActions {
     DISPLAY_ADMIN_MENU("display_admin_menu"),
 
     /** show statistics item */
+    //TODO: Delete it in the future
     SHOW_STATISTICS("show_statictics"),
     
     /** manage statistics */

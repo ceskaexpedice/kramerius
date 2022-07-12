@@ -38,19 +38,19 @@ public class NKPLogProcess {
     
    
     public static void main(String[] args) throws NoSuchAlgorithmException, ParseException, IOException {
-    	LOGGER.log(Level.INFO, "Process parameters: "+Arrays.asList(args).toString());
-    	if (args.length > 5) {
-			String from = args[1];
-			String to = args[2];
-			String folder = args[3];
-			String visibility = args[4];
-			String institution = args[5];
-			String anonymization = "";
-			if (args.length> 6) anonymization = args[6];
-			process(from, to, folder, institution, visibility, anonymization);
-		}
-	}
+        LOGGER.log(Level.INFO, "Process parameters: " + Arrays.asList(args).toString());
+        if (args.length > 2) {
+            String from = args[1];
+            String to = args[2];
 
+            String folder = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.folder",System.getProperty("java.io.tmpdir"));
+            String visibility = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.visibility", "ALL");
+            String institution = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.institution","-none-");
+            String anonymization = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.anonimization","username,session_eppn,dnnt_user,eduPersonUniqueId,affilation,remoteAddr");
+
+            process(from, to, folder, institution, visibility, anonymization);
+        }
+    }
     
     public static void  process(String from,
                                 String to,
@@ -61,7 +61,7 @@ public class NKPLogProcess {
             ) throws ParseException, IOException, NoSuchAlgorithmException {
 
 
-
+        // folder, institution, visibility from configuration
         LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to,folder,institution,visibility,anonymization));
 
         List<String> annonymizationKeys = anonymization != null ? Arrays.asList(anonymization.split(",")) : new ArrayList<>();
@@ -82,9 +82,6 @@ public class NKPLogProcess {
 
             String url = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point")+(KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=%s", StatisticReport.DATE_FORMAT.format(processingDate), StatisticReport.DATE_FORMAT.format(nextDate), visibility);
             WebResource r = client.resource(url);
-            //String authHeader = System.getProperty(ProcessStarter.AUTH_TOKEN_KEY);
-            //String groupHeader = System.getProperty(ProcessStarter.TOKEN_KEY);
-
 
             WebResource.Builder builder = r.accept(MediaType.APPLICATION_JSON);
             InputStream clientResponse = builder.get(InputStream.class);

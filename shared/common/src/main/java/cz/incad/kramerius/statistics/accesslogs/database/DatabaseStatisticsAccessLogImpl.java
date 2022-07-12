@@ -534,13 +534,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
     
 	@Override
 	public int cleanData(Date dateFrom, Date dateTo) throws IOException{
-        try {
-        	// musi se udelat jinak
-			return new JDBCUpdateTemplate(connectionProvider.get(), true)
-			.executeUpdate("delete from statistics_access_log where date >= ? AND date<=?", new java.sql.Date(dateFrom.getTime()), new java.sql.Date(dateTo.getTime()));
-		} catch (SQLException e) {
-			throw new IOException(e.getMessage());
-		}
+	    throw new UnsupportedOperationException("unsupported operation");
 	}
 
 	@Override

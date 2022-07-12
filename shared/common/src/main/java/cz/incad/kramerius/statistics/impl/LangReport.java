@@ -65,6 +65,7 @@ import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
 /**
+ * Report poskytnutych jazyku
  * 
  * @author pavels
  */
@@ -84,17 +85,14 @@ public class LangReport extends AbstractStatisticsReport implements StatisticRep
         try {
             String selectEndpint = super.logsEndpoint();
             
-            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
             List<Map<String,Object>> langs = new ArrayList<>();
             
-            DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
-            IdentifiersFilter idFilter = filters.getFilter(IdentifiersFilter.class);
 
             StringBuilder builder = new StringBuilder("q=*");
-            ReportUtils.enhanceLicense(builder, licFilter);
-            ReportUtils.enhanceDateFilter(builder, dateFilter);
-            ReportUtils.enhanceIdentifiers(builder, idFilter);
+//            ReportUtils.enhanceLicense(builder, licFilter);
+//            ReportUtils.enhanceDateFilter(builder, dateFilter);
+//            ReportUtils.enhanceIdentifiers(builder, idFilter);
+            super.applyFilters(filters,builder);
 
             String facetField = "langs";
             builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
@@ -116,7 +114,7 @@ public class LangReport extends AbstractStatisticsReport implements StatisticRep
     }
 
     @Override
-    public List<String> getOptionalValues() {
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
         return new ArrayList<String>();
     }
 
@@ -125,11 +123,6 @@ public class LangReport extends AbstractStatisticsReport implements StatisticRep
         return REPORT_ID;
     }
 
-    @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) {
-        // TODO Auto-generated method stub
-    	// zjistim, zda je pritomne view a pokud ne, pak vracim 
-    }
 
     @Override
     public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,

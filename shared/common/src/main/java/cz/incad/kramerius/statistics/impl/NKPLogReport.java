@@ -55,8 +55,7 @@ import cz.incad.kramerius.utils.database.Offset;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 /**
- * Creates report for NKP
- *
+ * NKP Logy 
  */
 public class NKPLogReport extends AbstractStatisticsReport implements StatisticReport {
 
@@ -90,8 +89,8 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
     }
 
     @Override
-    public List<String> getOptionalValues() {
-        return null;
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
+        return new ArrayList<>();
     }
 
     @Override
@@ -99,10 +98,6 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         return REPORT_ID;
     }
 
-    @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container)
-            throws StatisticsReportException {
-    }
 
     @Override
     public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer filters)
