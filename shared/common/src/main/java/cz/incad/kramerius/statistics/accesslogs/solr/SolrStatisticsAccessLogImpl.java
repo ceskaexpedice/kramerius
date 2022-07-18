@@ -350,8 +350,6 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
     @Override
     public void refresh() throws IOException {
-        // TODO Auto-generated method stub
-        
     }
 
 }

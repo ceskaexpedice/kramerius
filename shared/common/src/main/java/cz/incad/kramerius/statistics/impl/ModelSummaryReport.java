@@ -109,7 +109,8 @@ public class ModelSummaryReport implements StatisticReport {
     @Override
     public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer filters)
             throws StatisticsReportException {
-
+        
+        
         MultimodelFilter mfilter = new MultimodelFilter();
         mfilter.setModels(SUPPORTED_MODELS);
 
