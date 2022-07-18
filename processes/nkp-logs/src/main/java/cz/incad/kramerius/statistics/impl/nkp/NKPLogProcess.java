@@ -37,6 +37,8 @@ public class NKPLogProcess {
     public static Logger LOGGER = Logger.getLogger(NKPLogProcess.class.getName());
     
    
+    
+    
     public static void main(String[] args) throws NoSuchAlgorithmException, ParseException, IOException {
         LOGGER.log(Level.INFO, "Process parameters: " + Arrays.asList(args).toString());
         if (args.length > 2) {
