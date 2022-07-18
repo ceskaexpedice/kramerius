@@ -3,6 +3,7 @@ package cz.incad.kramerius;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
@@ -25,11 +26,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -45,6 +43,8 @@ public class SetLicenseProcess {
     }
 
     private static final Logger LOGGER = Logger.getLogger(SetLicenseProcess.class.getName());
+
+    //TODO: properly cleanup what belongs here and what to LicenseHelper
 
     private static String RELS_EXT_RELATION_LICENSE = "license";
     private static String RELS_EXT_RELATION_CONTAINS_LICENSE = "containsLicense";
@@ -207,7 +207,7 @@ public class SetLicenseProcess {
         boolean relsExtNeedsToBeUpdated = false;
 
         //normalize relations with deprecated/incorrect name, possibly including relation we want to add
-        relsExtNeedsToBeUpdated |= normalizeIncorrectRelationNotation(wrongRelationNames, relationName, rootEl, pid);
+        relsExtNeedsToBeUpdated |= LicenseHelper.normalizeIncorrectRelationNotation(wrongRelationNames, relationName, rootEl, pid);
 
         //add new relation if not there already
         List<Node> relationEls = Dom4jUtils.buildXpath("rel:" + relationName).selectNodes(rootEl);
@@ -241,7 +241,7 @@ public class SetLicenseProcess {
 
         //1. Z rels-ext ciloveho objektu se odebere license=L, pokud tam je. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
         LOGGER.info("updating RELS-EXT record of the target object " + targetPid);
-        removeRelsExtRelationAfterNormalization(targetPid, RELS_EXT_RELATION_LICENSE, RELS_EXT_RELATION_LICENSE_DEPRECATED, license, repository);
+        LicenseHelper.removeRelsExtRelationAfterNormalization(targetPid, RELS_EXT_RELATION_LICENSE, RELS_EXT_RELATION_LICENSE_DEPRECATED, license, repository);
 
         //2. Z rels-ext vsech (vlastnich) predku se odebere containsLicence=L, pokud tam je.
         //A pokud neexistuje jiny zdroj pro licenci (jiny potomek predka, ktery ma rels-ext:containsLicense kvuli jineho objektu, nez targetPid)
@@ -249,7 +249,7 @@ public class SetLicenseProcess {
         LOGGER.info("updating RELS-EXT record of all (own) ancestors (without another source of license) of the target object " + targetPid);
         List<String> pidsOfAncestorsWithoutAnotherSourceOfLicense = getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(targetPid, repository, resourceIndex, license);
         for (String ancestorPid : pidsOfAncestorsWithoutAnotherSourceOfLicense) {
-            removeRelsExtRelationAfterNormalization(ancestorPid, RELS_EXT_RELATION_CONTAINS_LICENSE, RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED, license, repository);
+            LicenseHelper.removeRelsExtRelationAfterNormalization(ancestorPid, RELS_EXT_RELATION_CONTAINS_LICENSE, RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED, license, repository);
         }
 
         //3. Aktualizuje se index predku, kteri nemaji jiny zdroj licence (odebere se contains_licenses=L) atomic updatem
@@ -284,7 +284,7 @@ public class SetLicenseProcess {
             }
         }
 
-        //6. pokud ma target nevlastni deti (tj. je sbirka, clanek, nebo obrazek), synchronizuje se jejichi index
+        //6. pokud ma target nevlastni deti (tj. je sbirka, clanek, nebo obrazek), synchronizuje se jejich index
         List<String> fosterChildren = resourceIndex.getPidsOfChildren(targetPid).getSecond();
         if (fosterChildren != null && !fosterChildren.isEmpty()) {
             //6a. vsem potomkum (primi/neprimi, vlastni/nevlastni) budou aktualizovany licence (odebere se licenses_of_ancestors=L)
@@ -310,7 +310,7 @@ public class SetLicenseProcess {
         String currentPid = pid;
         String parentPid;
         while ((parentPid = resourceIndex.getPidsOfParents(currentPid).getFirst()) != null) {
-            if (ownsLicenseByRelsExt(parentPid, license, repository)) {
+            if (LicenseHelper.ownsLicenseByRelsExt(parentPid, license, repository)) {
                 return true;
             }
             currentPid = parentPid;
@@ -320,75 +320,18 @@ public class SetLicenseProcess {
 
     private static List<String> getDescendantsOwningLicense(String targetPid, String license, KrameriusRepositoryApi repository, IResourceIndex resourceIndex) throws ResourceIndexException, RepositoryException, IOException {
         List<String> result = new ArrayList<>();
-        if (containsLicenseByRelsExt(targetPid, license, repository)) { //makes sense only if object itself contains license
+        if (LicenseHelper.containsLicenseByRelsExt(targetPid, license, repository)) { //makes sense only if object itself contains license
             List<String> pidsOfOwnChildren = resourceIndex.getPidsOfChildren(targetPid).getFirst();
             for (String childPid : pidsOfOwnChildren) {
-                if (ownsLicenseByRelsExt(childPid, license, repository)) {
+                if (LicenseHelper.ownsLicenseByRelsExt(childPid, license, repository)) {
                     result.add(childPid);
                 }
-                if (containsLicenseByRelsExt(childPid, license, repository)) {
+                if (LicenseHelper.containsLicenseByRelsExt(childPid, license, repository)) {
                     result.addAll(getDescendantsOwningLicense(childPid, license, repository, resourceIndex));
                 }
             }
         }
         return result;
-    }
-
-    private static boolean ownsLicenseByRelsExt(String pid, String license, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isRelsExtAvailable(pid)) {
-            throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
-        }
-        Document relsExt = repository.getRelsExt(pid, true);
-        Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-        //look for rels-ext:license
-        for (Node relationEl : Dom4jUtils.buildXpath("rel:" + RELS_EXT_RELATION_LICENSE).selectNodes(rootEl)) {
-            String content = relationEl.getText();
-            if (content.equals(license)) {
-                System.out.println("found rels-ext:license for " + pid);
-                return true;
-            }
-        }
-        //look for rels-ext:license (deprecated notation)
-        for (String relation : RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED) {
-            for (Node relationEl : Dom4jUtils.buildXpath("rel:" + relation).selectNodes(rootEl)) {
-                LOGGER.warning(String.format("found depracated notation '%s' for %s, should be replaced with '%s'", relation, pid, RELS_EXT_RELATION_LICENSE));
-                String content = relationEl.getText();
-                if (content.equals(license)) {
-                    System.out.println("found rels-ext:license for " + pid);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static boolean containsLicenseByRelsExt(String pid, String license, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isRelsExtAvailable(pid)) {
-            throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
-        }
-        Document relsExt = repository.getRelsExt(pid, true);
-        Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-
-        //look for rels-ext:containsLicense
-        for (Node relationEl : Dom4jUtils.buildXpath("rel:" + RELS_EXT_RELATION_CONTAINS_LICENSE).selectNodes(rootEl)) {
-            String content = relationEl.getText();
-            if (content.equals(license)) {
-                System.out.println("found rels-ext:containsLicense for " + pid);
-                return true;
-            }
-        }
-        //look for rels-ext:containsLicense (deprecated notation)
-        for (String relation : RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED) {
-            for (Node relationEl : Dom4jUtils.buildXpath("rel:" + relation).selectNodes(rootEl)) {
-                LOGGER.warning(String.format("found depracated notation '%s' for %s, should be replaced with '%s'", relation, pid, RELS_EXT_RELATION_CONTAINS_LICENSE));
-                String content = relationEl.getText();
-                if (content.equals(license)) {
-                    System.out.println("found rels-ext:containsLicense for " + pid);
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**
@@ -400,9 +343,9 @@ public class SetLicenseProcess {
         String pidOfChild = pid;
         String pidOfParent;
         while ((pidOfParent = resourceIndex.getPidsOfParents(pidOfChild).getFirst()) != null) {
-            String pidToBeIgnored = pidOfChild.equals(pid) ? null : pidOfChild; //only grandparent of original pid can be ignored, because it has been already anylized in this loop, but not the original pid
-            boolean hasAnotherSourceOfLicense = hasAnotherSourceOfLicense(pidOfParent, pid, pidToBeIgnored, license, repository, resourceIndex);
-            boolean ownsLicense = ownsLicenseByRelsExt(pidOfParent, license, repository);
+            String pidToBeIgnored = pidOfChild.equals(pid) ? null : pidOfChild; //only grandparent of original pid can be ignored, because it has been already analyzed in this loop, but not the original pid
+            boolean hasAnotherSourceOfLicense = LicenseHelper.hasAnotherSourceOfLicense(pidOfParent, pid, pidToBeIgnored, license, repository, resourceIndex);
+            boolean ownsLicense = LicenseHelper.ownsLicenseByRelsExt(pidOfParent, license, repository);
             if (!hasAnotherSourceOfLicense) { //add this to the list
                 result.add(pidOfParent);
             }
@@ -417,31 +360,6 @@ public class SetLicenseProcess {
         return result;
     }
 
-    /**
-     * Searches object's tree for object, that owns the license (rels-ext:licenses). The tree is not searched completely, only paths labeled with rels-ext:containsLicense are traversed.
-     * Two objects are ignored in different way.
-     *
-     * @param pid
-     * @param pidOfObjectNotCountedAsSource this object's subtree WILL be searched. But if it itself owns the license, that won't be reason for this method to return true.
-     *                                      This is because we are looking for ANOTHER source of license, not this object. But the source can be even somewhere in this object's subtree.
-     * @param pidOfChildToBeIgnored         this object will be completely ignored, i.e. it's ownership of the license won't be checked and it's subtree won't be searched. Because it has been analyzed already.
-     */
-    private static boolean hasAnotherSourceOfLicense(String pid, String pidOfObjectNotCountedAsSource, String pidOfChildToBeIgnored, String license, KrameriusRepositoryApi repository, IResourceIndex resourceIndex) throws ResourceIndexException, RepositoryException, IOException {
-        List<String> pidsOfOwnChildren = resourceIndex.getPidsOfChildren(pid).getFirst();
-        for (String pidOfChild : pidsOfOwnChildren) {
-            if (!pidOfChild.equals(pidOfChildToBeIgnored)) { //this one will be completly ignored, because it has already been analyzed
-                if (!pidOfChild.equals(pidOfObjectNotCountedAsSource) && ownsLicenseByRelsExt(pidOfChild, license, repository)) { // child (and not the one that's not counted) owns the license, source found
-                    return true;
-                }
-                if (containsLicenseByRelsExt(pidOfChild, license, repository)) { //child has descendant, that owns the license
-                    if (hasAnotherSourceOfLicense(pidOfChild, pidOfObjectNotCountedAsSource, null, license, repository, resourceIndex)) { // found child's descendant (and not the one that's not counted) that has a source
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
 
     //private static List<String> getPidsOfAllAncestorsThatDontHaveLicenceFromDifferentDescendant(String targetPid, SolrAccess searchIndex, String license) throws IOException {
     //    List<String> ancestorsAll = getPidsOfAllAncestors(targetPid, searchIndex);
@@ -466,116 +384,5 @@ public class SetLicenseProcess {
     //    return ancestorsWithoutLicenceFromAnotherDescendant;
     //}
 
-    private static boolean removeRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isRelsExtAvailable(pid)) {
-            throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
-        }
-        Document relsExt = repository.getRelsExt(pid, true);
-        Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-        boolean relsExtNeedsToBeUpdated = false;
 
-        //normalize relations with deprecated/incorrect names, possibly including relation we want to remove
-        relsExtNeedsToBeUpdated |= normalizeIncorrectRelationNotation(wrongRelationNames, relationName, rootEl, pid);
-
-        //remove relation if found (even multiple times with same licence)
-        List<Node> relationEls = Dom4jUtils.buildXpath("rel:" + relationName).selectNodes(rootEl);
-        for (Node relationEl : relationEls) {
-            String content = relationEl.getText();
-            if (content.equals(value)) {
-                LOGGER.info(String.format("removing relation '%s' from RELS-EXT of %s", relationName, pid));
-                relationEl.detach();
-                relsExtNeedsToBeUpdated = true;
-            }
-        }
-
-        //update RELS-EXT in repository if there was a change
-        if (relsExtNeedsToBeUpdated) {
-            //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
-            repository.updateRelsExt(pid, relsExt);
-            LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
-        }
-        return relsExtNeedsToBeUpdated;
-    }
-
-    /*
-    Normalizuje vazby v nactenem rels-ext. Napr. nahradi vsechny relace dnnt-labels za license. Dalsi zpracovani (pridavani/odebirani) uz ma korektne zapsana data.
-     */
-    private static boolean normalizeIncorrectRelationNotation(String[] wrongRelationNames, String correctRelationName, Element rootEl, String pid) {
-        boolean updated = false;
-        for (String wrongRelationName : wrongRelationNames) {
-            List<Node> deprecatedRelationEls = Dom4jUtils.buildXpath("rel:" + wrongRelationName).selectNodes(rootEl);
-            for (Node relationEl : deprecatedRelationEls) {
-                String valueOfRelationBeingFixed = relationEl.getText();
-                LOGGER.info(String.format("found incorrect notation (%s) in RELS-EXT of object %s and value '%s', fixing by replacing with %s", wrongRelationName, pid, valueOfRelationBeingFixed, correctRelationName));
-                relationEl.detach(); //setName() pracuje spatne s jmenymi prostory - zpusobi duplikaci atributu xmlns
-                Element newRelationEl = rootEl.addElement(correctRelationName, Dom4jUtils.getNamespaceUri("rel"));
-                newRelationEl.addText(valueOfRelationBeingFixed);
-                updated = true;
-            }
-        }
-        return updated;
-    }
-
-    /**
-     * Vraci PIDy všech potomku v davkach
-     */
-    static class PidsOfDescendantsProducer implements Iterator<List<String>> {
-        private static final int BATCH_SIZE = 1000;
-
-        private final SolrAccess searchIndex;
-        private final String q;
-        private String cursorMark = null;
-        private String nextCursorMark = "*";
-        private int total = 0;
-        private int returned = 0;
-
-        public PidsOfDescendantsProducer(String targetPid, SolrAccess searchIndex, boolean onlyOwnDescendants) {
-            this.searchIndex = searchIndex;
-            String pidEscaped = targetPid.replace(":", "\\:");
-            this.q = onlyOwnDescendants
-                    ? String.format("own_pid_path:%s/* OR own_pid_path:*/%s/* ", pidEscaped, pidEscaped)
-                    : String.format("pid_paths:%s/* OR pid_paths:*/%s/* ", pidEscaped, pidEscaped);
-        }
-
-        public int getTotal() {
-            return total;
-        }
-
-        public int getReturned() {
-            return returned;
-        }
-
-        @Override
-        public boolean hasNext() {
-            if (total > 0 && returned == total) {
-                return false;
-            } else {//obrana proti zacykleni, kdyby se solr zachoval divne a nektery slibeny objekt nevratil
-                return !nextCursorMark.equals(cursorMark);
-            }
-        }
-
-        @Override
-        public List<String> next() {
-            try {
-                List<String> result = new ArrayList<>();
-                cursorMark = nextCursorMark;
-                String query = String.format("fl=pid&sort=pid+asc&rows=%d&q=%s&cursorMark=%s", BATCH_SIZE, URLEncoder.encode(q, "UTF-8"), cursorMark);
-                JSONObject jsonObject = searchIndex.requestWithSelectReturningJson(query);
-                JSONObject response = jsonObject.getJSONObject("response");
-                nextCursorMark = jsonObject.getString("nextCursorMark");
-                total = response.getInt("numFound");
-                if (total != 0) {
-                    JSONArray docs = response.getJSONArray("docs");
-                    for (int i = 0; i < docs.length(); i++) {
-                        String pid = docs.getJSONObject(i).getString("pid");
-                        result.add(pid);
-                    }
-                }
-                returned += result.size();
-                return result;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 }

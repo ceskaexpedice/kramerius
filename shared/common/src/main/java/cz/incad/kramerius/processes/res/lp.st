@@ -341,10 +341,22 @@
         <parameters>REMOVE</parameters>
     </process>
 
+    <!--deprecated, was replaced with delete_tree-->
     <process>
         <id>delete</id>
         <description>Delete</description>
         <mainClass>cz.incad.kramerius.service.impl.DeleteServiceImpl</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+    </process>
+
+    <!--delete object and own tree with this object as a root-->
+    <process>
+        <id>delete_tree</id>
+        <description>Smazání objektu a všech vlastních potomků. Smazání odkazujících vazeb; synchronizace inforamcí o licencích; náležitosti do sbírek u
+            přeživších vlastních/nevlastních předků a nevlastních potomků.
+        </description>
+        <mainClass>cz.incad.kramerius.DeleteTreeProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
     </process>

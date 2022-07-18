@@ -777,21 +777,21 @@ public class ProcessResource extends AdminApiResource {
                 result.add(target);
                 return result;
             }
-            case "nkplogs": {
-            	
+            case "nkplogs": { //TODO: rename to verb like "generate_nkp_logs"
+
                 String dateFrom = extractMandatoryParamString(params, "dateFrom");
                 String dateTo = extractMandatoryParamString(params, "dateTo");
-                
+
                 try {
                     StatisticReport.DATE_FORMAT.parse(dateFrom);
                 } catch (ParseException e) {
-                    throw new BadRequestException("cannot parse dateFrom, following pattern is excepted 'yyyy.MM.dd'");
+                    throw new BadRequestException("cannot parse dateFrom, following pattern is expected: 'yyyy.MM.dd'");
                 }
 
                 try {
                     StatisticReport.DATE_FORMAT.parse(dateTo);
                 } catch (ParseException e) {
-                    throw new BadRequestException("cannot parse dateTo, following pattern is excepted 'yyyy.MM.dd'");
+                    throw new BadRequestException("cannot parse dateTo, following pattern is expected: 'yyyy.MM.dd'");
                 }
 
                 List<String> result = new ArrayList<>();
@@ -800,10 +800,18 @@ public class ProcessResource extends AdminApiResource {
 
                 return result;
             }
-            
+            case "delete_tree": {
+                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                String title = extractOptionalParamString(params, "title", null);
+
+                List<String> result = new ArrayList<>();
+                result.add(pid);
+                result.add(title);
+                return result;
+            }
             // TODO: Support annotation @Process and @ProcessParam - mapping in old API
             default: {
-            	LOGGER.log(Level.SEVERE,String.format("unsupported process id '%s'", id));
+                LOGGER.log(Level.SEVERE, String.format("unsupported process id '%s'", id));
                 throw new BadRequestException("unsupported process id '%s'", id);
             }
         }
