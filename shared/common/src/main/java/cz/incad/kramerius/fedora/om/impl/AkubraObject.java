@@ -37,7 +37,6 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.fcrepo.client.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -59,8 +58,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static cz.incad.kramerius.fedora.utils.Fedora4Utils.endpoint;
-import static cz.incad.kramerius.fedora.utils.Fedora4Utils.extractDate;
 
 /**
  * @author pavels

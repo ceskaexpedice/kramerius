@@ -19,7 +19,6 @@ package cz.incad.kramerius.fedora.om;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import org.fcrepo.client.FcrepoOperationFailedException;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -107,6 +106,6 @@ public abstract class Repository {
 
 
 
-    public abstract void iterateObjects(Consumer<String> consumer ) throws RepositoryException, FcrepoOperationFailedException, IOException;
+    public abstract void iterateObjects(Consumer<String> consumer ) throws RepositoryException,  IOException;
 
 }

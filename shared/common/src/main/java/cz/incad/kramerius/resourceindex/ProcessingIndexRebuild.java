@@ -20,7 +20,6 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.fcrepo.client.FcrepoOperationFailedException;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
@@ -55,7 +54,7 @@ public class ProcessingIndexRebuild {
     private volatile static long counter = 0;
 
 
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException, FcrepoOperationFailedException {
+    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
         ProcessStarter.updateName("Budování Processing indexu");
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));

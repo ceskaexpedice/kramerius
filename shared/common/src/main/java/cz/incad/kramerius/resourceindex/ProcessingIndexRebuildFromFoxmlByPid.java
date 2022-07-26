@@ -17,7 +17,6 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.fcrepo.client.FcrepoOperationFailedException;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.DatatypeConverter;
@@ -47,7 +46,7 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
      * args[0] - authToken
      * args[1] - pid
      */
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException, FcrepoOperationFailedException {
+    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {

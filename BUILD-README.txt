@@ -10,10 +10,6 @@ To build search.war:
 
 ./gradlew :search:clean :search:build
 
-To build client.war:
-
-./gradlew :client:clean :client:build
-
 
 Creating full distribution (contains rightseditor,editor, K5, Client and javadocs ):
 
@@ -24,6 +20,19 @@ Note: It is expected you have rightseditor and editor wars in your m2 manager.
 Creating patch distribution (K5 core, K5 Client, security-core only)
 
 ./gradlew clean build distPatchZip
+
+
+To publish all artifacts to github repository:
+
+1. Put the following authentication properties to ~/.gradle/gradle.properties:
+githubRepositoryToken=your github personal authentication token (generate in Github Profile - Settings -> Developer Settings -> Personal Access Tokens)
+githubRepositoryUser=your user name
+
+2. Set the project version in project_root/gradle.properties
+
+3. ./gradlew publish
+
+
 
 
 

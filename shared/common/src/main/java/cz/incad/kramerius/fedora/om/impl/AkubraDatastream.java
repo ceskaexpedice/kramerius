@@ -8,10 +8,6 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.io.IOUtils;
-import org.fcrepo.client.FcrepoClient;
-import org.fcrepo.client.FcrepoOperationFailedException;
-import org.fcrepo.client.FcrepoResponse;
-import org.fcrepo.client.PatchBuilder;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 

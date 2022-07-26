@@ -59,10 +59,7 @@ repositories {
     mavenLocal()
 }
 
-allprojects {
-    group='cz.incad.kramerius'
-    version='7.0.2'
-}
+
 
 
 /**
@@ -220,6 +217,38 @@ allprojects {
 
     task printAllDependencies(type: DependencyReportTask) {}
 
+}
+
+allprojects {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId = group
+                artifactId = project.name
+                from components.java
+
+                pom {
+                    name = 'Kramerius'
+                    description = 'Kramerius'
+
+                }
+            }
+        }
+        repositories {
+            mavenLocal()
+            maven {
+                name = "GitHubPackages"
+                url = "https://maven.pkg.github.com/ceskaexpedice/kramerius"
+                credentials {
+                    //username = System.getenv("GITHUB_ACTOR")
+                    //password = System.getenv("GITHUB_TOKEN")
+                    username = "$githubRepositoryUser"
+                    password = "$githubRepositoryToken"
+                }
+            }
+        }
+
+    }
 }
 
 /**

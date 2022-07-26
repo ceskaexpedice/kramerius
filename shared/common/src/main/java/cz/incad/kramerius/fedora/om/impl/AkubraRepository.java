@@ -25,7 +25,6 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.fcrepo.client.FcrepoOperationFailedException;
 
 import java.io.IOException;
 import java.util.List;
@@ -145,7 +144,7 @@ public class AkubraRepository extends Repository {
 
 
     @Override
-    public void iterateObjects(Consumer<String> consumer) throws RepositoryException, FcrepoOperationFailedException, IOException {
+    public void iterateObjects(Consumer<String> consumer) throws RepositoryException,  IOException {
         /*
         Stack<String> stack = new Stack<>();
         StringBuilder builder = new StringBuilder(endpoint()).append("/").append(Fedora4Utils.DATA_PREFIX_PATH);
