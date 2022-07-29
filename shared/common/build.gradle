@@ -34,8 +34,8 @@ dependencies {
 
     api 'fast-md5:fast-md5:2.5'
 
-    api name:"djvuframe-0.8.09"
-    api name:"javadjvu-0.8.09"
+    api group:'internal', name:"djvuframe-0.8.09"
+    api group:'internal', name:"javadjvu-0.8.09"
 
     api "commons-configuration:commons-configuration:1.10"
     api "org.apache.commons:commons-lang3:3.5"
@@ -45,7 +45,7 @@ dependencies {
     api "javax.media.jai:com.springsource.javax.media.jai.core:1.1.3"
     api "javax.media.jai:com.springsource.javax.media.jai.codec:1.1.3"
 
-    api module(name:"jai_imageio-1.1") {
+    api module(group:'internal',name:"jai_imageio-1.1") {
     	dependencies name:"jai_core-1.1.3"
     }
 
