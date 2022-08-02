@@ -251,10 +251,13 @@ allprojects {
                 name = "GitHubPackages"
                 url = "https://maven.pkg.github.com/ceskaexpedice/kramerius"
                 credentials {
-                    //username = System.getenv("GITHUB_ACTOR")
-                    //password = System.getenv("GITHUB_TOKEN")
-                    username = "$githubRepositoryUser"
-                    password = "$githubRepositoryToken"
+                    if (project.hasProperty('githubRepositoryUser') && project.hasProperty('githubRepositoryToken')) {
+                        username = "$githubRepositoryUser"
+                        password = "$githubRepositoryToken"
+                    } else {
+                        username = System.getenv("GITHUB_ACTOR")
+                        password = System.getenv("GITHUB_TOKEN")
+                    }
                 }
             }
         }
