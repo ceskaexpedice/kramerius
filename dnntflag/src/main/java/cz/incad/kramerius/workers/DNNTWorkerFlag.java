@@ -5,8 +5,11 @@ import cz.incad.kramerius.utils.DNNTBatchUtils;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -37,11 +40,19 @@ public class DNNTWorkerFlag extends DNNTWorker {
 
 
     @Override
-    protected Document createBatchForParents(List<String> sublist, boolean changedFoxmlFlag) {
+    protected Document createBatchForParents(List<String> sublist) {
         return null;
     }
 
-    protected  String solrChildrenQuery(List<String> pidPaths) {
+	@Override
+	protected boolean checkParentPath(String parentPid, String rootPid, List<String> path)
+			throws ParserConfigurationException, SAXException, IOException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	protected  String solrChildrenQuery(List<String> pidPaths) {
         String pidPathQuery = "pid_path:("+pidPaths.stream().map(it -> "\"" + it + "\"").collect(Collectors.joining(" OR "))+")";
         return this.addRemoveFlag ?
                 KConfiguration.getInstance().getConfiguration().getString( DNNT_QUERY,"("+pidPathQuery+" -dnnt:[* TO *]) || ("+pidPathQuery+" +dnnt:false)")  :

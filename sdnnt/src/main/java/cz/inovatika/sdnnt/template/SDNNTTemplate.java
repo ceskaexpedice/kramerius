@@ -1,0 +1,81 @@
+package cz.inovatika.sdnnt.template;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
+import cz.incad.kramerius.processes.LRProcessDefinition;
+import cz.incad.kramerius.processes.template.ProcessInputTemplate;
+import cz.incad.kramerius.security.labels.Label;
+import cz.incad.kramerius.security.labels.LabelsManager;
+import cz.incad.kramerius.security.labels.LabelsManagerException;
+import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
+public class SDNNTTemplate implements ProcessInputTemplate {
+	
+	public static final String DEFAULT_SDNNT_ENDPOINT = "https://sdnnt-test.nkp.cz/sdnnt/api/v1.0/lists/changes";
+	public static final String DEFAULT_KRAMERIUS_INSTANCE="https://kramerius.domain.cz/search";
+	
+    public static final Logger LOGGER = Logger.getLogger(SDNNTTemplate.class.getName());
+
+    @Inject
+    ResourceBundleService resourceBundleService;
+
+    @Inject
+    Provider<Locale> localeProvider;
+
+    @Inject
+    LabelsManager labelsManager;
+
+    @Override
+    public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
+        try {
+        	
+        	String krameriusInstance = KConfiguration.getInstance().getConfiguration().getString("sdnnt.kramerius.instance", DEFAULT_KRAMERIUS_INSTANCE);
+        	
+            InputStream iStream = this.getClass().getResourceAsStream("sdnnt.st");
+            StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
+            StringTemplate template = templateGroup.getInstanceOf("form");
+            ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localeProvider.get());
+
+            template.setAttribute("bundle", resourceBundleMap(resbundle));
+            template.setAttribute("process", "parametrizedsdnntlist");
+            template.setAttribute("sdnntendoint", DEFAULT_SDNNT_ENDPOINT);
+            template.setAttribute("krameriusinstance", krameriusInstance);
+            
+            template.setAttribute("allLabels", labelsManager.getLabels().stream().map(Label::getName).collect(Collectors.toList()));
+
+            writer.write(template.toString());
+        } catch (LabelsManagerException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+    }
+    
+    public static Map<String, String> resourceBundleMap(ResourceBundle bundle) {
+        Map<String, String> map = new HashMap<String, String>();
+        Set<String> keySet = bundle.keySet();
+        for (String key : keySet) {
+            map.put(key, bundle.getString(key));
+        }
+        return map;
+    }
+
+}

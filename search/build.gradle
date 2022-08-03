@@ -50,6 +50,7 @@ dependencies {
     compile project(':mw-process')
     compile project(':authfilters')
     compile project(':dnntflag')
+    compile project(':sdnnt')
 
     compile project(':solr-migration')
 

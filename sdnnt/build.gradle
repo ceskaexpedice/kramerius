@@ -1,0 +1,22 @@
+description "SDNNT check process"
+
+
+dependencies {
+    
+	
+    compile project(':common') 
+    compile project(':security-core')
+
+    compile "org.apache.commons:commons-csv:1.6"
+	
+}
+
+configurations.findAll {!it.name.endsWith('json-lib')}.each { conf ->
+    conf.exclude group: "net.sf.json-lib", module: "json-lib"
+}
+
+
+
+
+
+

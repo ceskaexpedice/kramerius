@@ -668,6 +668,38 @@
                 <input class="cz.incad.kramerius.statistics.impl.nkp.ParametrizedNKPInputTemplate"></input>
             </templates>
     </process>
+    
+    	<!-- SDNNT LIST -->
+    <process>
+            <id>sdnntlist</id>
+            <description>Check sdnnt list</description>
+            <!-- spoustena trida -->
+            <mainClass>cz.inovatika.sdnnt.SDNNTCheck</mainClass>
+            <!-- standardni vystup -->
+            <standardOs>lrOut</standardOs>
+            <!-- err vystup -->
+            <errOs>lrErr</errOs>
+            <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+    </process>
+	
+	<!-- PARAMETRIZED SDNNT LIST -->
+    <process>
+            <id>parametrizedsdnntlist</id>
+            <description>Check sdnnt list</description>
+            <!-- spoustena trida -->
+            <mainClass>cz.inovatika.sdnnt.ParametrizedSDNNTCheck</mainClass>
+            <!-- standardni vystup -->
+            <standardOs>lrOut</standardOs>
+            <!-- err vystup -->
+            <errOs>lrErr</errOs>
+            <templates>
+                <input class="cz.inovatika.sdnnt.template.SDNNTTemplate"></input>
+            </templates>
+            
+            <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+    </process>
+
+    
 
 
 </processes>

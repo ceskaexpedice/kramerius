@@ -26,9 +26,10 @@ include 'mw-process'
 include 'authfilters'
 include 'solr-migration'
 
+// license
 include 'dnntflag'
 include 'nkp-logs'
-	
+include 'sdnnt'
 
 // filter property -DremoveProjs=projectA,projectB,..
 rootProject.children.removeAll { project ->

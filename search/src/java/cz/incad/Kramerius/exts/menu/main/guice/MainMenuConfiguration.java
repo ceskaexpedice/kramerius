@@ -103,6 +103,7 @@ public class MainMenuConfiguration extends AbstractModule {
 
         adminItems.addBinding().to(ParametrizedNKPLogs.class);
 
+        adminItems.addBinding().to(ParametrizedSDNNTCheck.class);
 
         bind(MainMenu.class).to(MainMenuImpl.class);
     }

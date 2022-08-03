@@ -126,12 +126,13 @@ public class DNNTBatchUtils {
     }
 
     public static Document createContainsLabelsBatch(List<String> parentPids, String label, boolean addRemoveFlag) throws ParserConfigurationException {
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance(). newDocumentBuilder();
-        Document document = builder.newDocument();
+    	DocumentBuilder builder = DocumentBuilderFactory.newInstance(). newDocumentBuilder();
+    	Document document = builder.newDocument();
         Element rootElm = document.createElement("add");
         document.appendChild(rootElm);
         for (String pid : parentPids) {
-            Element doc = addContainsLabel(document, pid, label, addRemoveFlag);
+        	
+        	Element doc = addContainsLabel(document, pid, label, addRemoveFlag);
             rootElm.appendChild(doc);
         }
         return document;
