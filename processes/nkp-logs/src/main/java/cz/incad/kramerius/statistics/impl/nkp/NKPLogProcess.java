@@ -63,6 +63,9 @@ public class NKPLogProcess {
             ) throws ParseException, IOException, NoSuchAlgorithmException {
 
 
+        ProcessStarter.updateName(String.format("Generování logů pro obodbobí '%s' pro %s", from, to));
+
+        
         // folder, institution, visibility from configuration
         LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to,folder,institution,visibility,anonymization));
 
