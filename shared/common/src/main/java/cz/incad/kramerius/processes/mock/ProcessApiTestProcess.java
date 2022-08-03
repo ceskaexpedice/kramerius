@@ -25,7 +25,8 @@ public class ProcessApiTestProcess {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessApiTestProcess.class.getName());
 
-    public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token"; //just for processes
+    public static final String API_AUTH_HEADER_AUTH_TOKEN = "parent-process-auth-token"; //just for processes
+    //public static final String API_AUTH_HEADER_AUTH_TOKEN = "process-auth-token"; //just for processes
     public static final String API_AUTH_HEADER_CLIENT = "client";
     public static final String API_AUTH_HEADER_UID = "uid";
     public static final String API_AUTH_HEADER_ACCESS_TOKEN = "access-token";
@@ -46,9 +47,9 @@ public class ProcessApiTestProcess {
         int argsIndex = 0;
         String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //Kramerius
-        String krameriusApiAuthClient = args[argsIndex++];
-        String krameriusApiAuthUid = args[argsIndex++];
-        String krameriusApiAuthAccessToken = args[argsIndex++];
+        //String krameriusApiAuthClient = args[argsIndex++];
+        //String krameriusApiAuthUid = args[argsIndex++];
+        //String krameriusApiAuthAccessToken = args[argsIndex++];
 
         int durationInSeconds = Integer.valueOf(args[argsIndex++]);
         int processesInBatch = Integer.valueOf(args[argsIndex++]);
@@ -67,7 +68,7 @@ public class ProcessApiTestProcess {
         }
 
         if (processesInBatch > 1) {
-            scheduleNextProcessInBatch(authToken, durationInSeconds, processesInBatch - 1, finalState, krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);
+            scheduleNextProcessInBatch(authToken, durationInSeconds, processesInBatch - 1, finalState);
         }
 
         LOGGER.info("total duration: " + Utils.formatTime(System.currentTimeMillis() - start));
@@ -88,7 +89,7 @@ public class ProcessApiTestProcess {
         }
     }
 
-    public static void scheduleNextProcessInBatch(String authToken, int durationInSeconds, int remainingProcessesInBatch, FinalState finalState, String krameriusApiAuthClient, String krameriusApiAuthUid, String krameriusApiAuthAccessToken) {
+    public static void scheduleNextProcessInBatch(String authToken, int durationInSeconds, int remainingProcessesInBatch, FinalState finalState) {
         //v starem api to funguje tak, ze proces zavola servlet (lr), stejne jako to dela externi klient, dokonce i pro zmeny stavu procesu apod.
         //viz IndexerProcessStarter.spawnIndexer
         //tohle ted mame podobne, akorat se mi nelibi, jakym zpusobem volaji procesy lr servlet
@@ -112,9 +113,9 @@ public class ProcessApiTestProcess {
                     .accept(MediaType.APPLICATION_JSON)
                     .type(MediaType.APPLICATION_JSON)
                     .header(API_AUTH_HEADER_AUTH_TOKEN, authToken)
-                    .header(API_AUTH_HEADER_CLIENT, krameriusApiAuthClient)
-                    .header(API_AUTH_HEADER_UID, krameriusApiAuthUid)
-                    .header(API_AUTH_HEADER_ACCESS_TOKEN, krameriusApiAuthAccessToken)
+                    //.header(API_AUTH_HEADER_CLIENT, krameriusApiAuthClient)
+                    //.header(API_AUTH_HEADER_UID, krameriusApiAuthUid)
+                    //.header(API_AUTH_HEADER_ACCESS_TOKEN, krameriusApiAuthAccessToken)
                     .entity(data.toString(), MediaType.APPLICATION_JSON)
                     .post(String.class);
             //System.out.println("response: " + response);
