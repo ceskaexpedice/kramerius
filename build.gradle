@@ -57,7 +57,7 @@ repositories {
 
 allprojects {
     group = 'cz.incad.kramerius'
-    version = '5.8.0'
+    version = '5.8.1'
 }
 
 /**
@@ -134,10 +134,12 @@ subprojects {
         mavenCentral()
 
 
-
+		// disabled duraspace repo 
+		/*
         maven {
             url "http://m2.duraspace.org/content/repositories/releases"
         }
+		*/
 
         maven {
             url "https://maven.java.net/content/repositories/snapshots/"
