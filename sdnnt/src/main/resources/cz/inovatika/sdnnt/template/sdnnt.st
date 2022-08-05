@@ -12,8 +12,14 @@ form(bundle, sdnntendoint, krameriusinstance,  process, allLabels) ::=<<
         window.onProcessFormSend = function() {
             var charsThatMustBeEscaped = [':',';','}','{', '\\\\'];
 
+            var addlicense = \$('#addlicense').attr('checked');
+            var removelicense = \$('#removelicense').attr('checked');
+
             var vals = 'sdnntchange='+   \$('#sdnntendpoint').val().escapeChars(charsThatMustBeEscaped)
-                +';krameriusInstance='+  \$('#krameriusinstance').val().escapeChars(charsThatMustBeEscaped);
+                +';krameriusInstance='+  \$('#krameriusinstance').val().escapeChars(charsThatMustBeEscaped)
+                +';addlicense='+  addlicense
+                +';removelicense='+  removelicense;
+
 
             var url = "lr?action=form_post&def=parametrizedsdnntlist&paramsMapping={"+vals+"}&out=text";
 
@@ -44,6 +50,10 @@ form(bundle, sdnntendoint, krameriusinstance,  process, allLabels) ::=<<
 				</td>
 			</tr>
 		</table>
+		
+	    <input type="checkbox" id="addlicense" name="addlicense" value="addlicense">Spustit proces pro přidání licencí</input>
+	    <input type="checkbox" id="removelicense" name="removelicense" value="removelicense">Spustit proces pro odebírání licencí</input>
+		
 	
     </div>
 </form>

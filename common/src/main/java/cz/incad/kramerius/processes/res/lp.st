@@ -600,7 +600,7 @@
     <!-- parametrized label dnntset -->
     <process>
         <id>parametrizeddnntlabelset</id>
-        <description>Set the DNNT flag </description>
+        <description>Set the DNNT label </description>
         <mainClass>cz.incad.kramerius.csv.ParametrizedLabelSetDNNTFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
@@ -617,7 +617,7 @@
     <!-- parametrized label dnntunset -->
     <process>
         <id>parametrizeddnntlabelunset</id>
-        <description>Unset the DNNT flag </description>
+        <description>Unset the DNNT label </description>
         <mainClass>cz.incad.kramerius.csv.ParametrizedLabelUnsetDNNTFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>

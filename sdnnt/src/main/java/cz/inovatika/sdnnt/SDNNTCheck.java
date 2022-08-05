@@ -37,9 +37,14 @@ public class SDNNTCheck {
 	private static final SimpleDateFormat S_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 	
 	public static final Logger LOGGER = Logger.getLogger(SDNNTCheck.class.getName());
-
 	
 	public static void main(String[] args) throws IOException {
+		process(args);
+	}
+
+	public static List<String> process(String[] args) throws IOException {
+		List<String> retvals = new ArrayList<>();
+
 		if (args.length >= 3) {
 			String sdnntEndpoint = args[0];
 			String checkingSolr = args[1];
@@ -66,26 +71,30 @@ public class SDNNTCheck {
 			for (String license : licenses) {
 				for (String format : formats) {
 					if (format.equals("BK")) {
-						batchFormatAndLicense(folderDir, checkingSolr, format, license, bkLicenseMapping.get(license));
+						List<String> vals = batchFormatAndLicense(folderDir, checkingSolr, format, license, bkLicenseMapping.get(license));
+						retvals.addAll(vals);
 					} else {
-						batchFormatAndLicense(folderDir, checkingSolr, format, license, seLicenseMapping.get(license));
+						List<String> vals = batchFormatAndLicense(folderDir, checkingSolr, format, license, seLicenseMapping.get(license));
+						retvals.addAll(vals);
 					}
 				}
 			}
 			LOGGER.info("Checking removed license for format BK");
-			checkRemoveLicense(folderDir, checkingSolr, "BK", new ArrayList<>(bkRemovedLicense));
+			retvals.addAll(checkRemoveLicense(folderDir, checkingSolr, "BK", new ArrayList<>(bkRemovedLicense)));
 			LOGGER.info("Checking removed license for format SE");
-			checkRemoveLicense(folderDir, checkingSolr, "SE",new ArrayList<>(seRemovedLicense));
+			retvals.addAll(checkRemoveLicense(folderDir, checkingSolr, "SE",new ArrayList<>(seRemovedLicense)));
 		} else {
 			LOGGER.warning("Expecting two parameters. <sdnnt_endpoint>, <solr_endpoint> <folder>");
 		}
+		return retvals;
 	}
-
-
 	
 	
-	private static void checkRemoveLicense(String csvFolder, String checkingSolr, String format , List<String> list)
+	private static List<String> checkRemoveLicense(String csvFolder, String checkingSolr, String format , List<String> list)
 			throws IOException {
+		
+		List<String> retvals = new ArrayList<>();
+		
 		Map<String, List<String>> removeCSVOutput = new HashMap<>();
 		int maxInBatch = 90;
 		int numberOfBatches = list.size() / maxInBatch;
@@ -109,9 +118,12 @@ public class SDNNTCheck {
 		}
 		if (!removeCSVOutput.isEmpty()) {
 			for (String license : removeCSVOutput.keySet()) {
-				printRemoveLicense(csvFolder, format, license, removeCSVOutput.get(license));
+				String printRemoveLicense = printRemoveLicense(csvFolder, format, license, removeCSVOutput.get(license));
+				retvals.add(printRemoveLicense);
 			}
 		}
+		
+		return retvals;
 	}
 	
 	
@@ -119,9 +131,11 @@ public class SDNNTCheck {
 	/**
 	 * Check if current objetct has set license
 	 */
-	private static void batchFormatAndLicense(String csvFolder, String checkingSolr, String format, String checkingLicense, List<String> list)
+	private static List<String> batchFormatAndLicense(String csvFolder, String checkingSolr, String format, String checkingLicense, List<String> list)
 			throws IOException {
 
+		List<String> retvals = new ArrayList<>();
+		
 		List<String> addCVSOutput = new ArrayList<>();
 		Map<String, List<String>> removeCSVOutput = new HashMap<>();
 		
@@ -154,18 +168,23 @@ public class SDNNTCheck {
 		}
 		
 		if (!addCVSOutput.isEmpty()) {
-			printAddLicense(csvFolder, format, checkingLicense, addCVSOutput);
+			String printAddLicense = printAddLicense(csvFolder, format, checkingLicense, addCVSOutput);
+			retvals.add(printAddLicense);
+			
 		}
 		if (!removeCSVOutput.isEmpty()) {
 			for (String license : removeCSVOutput.keySet()) {
 				List<String> removeLicList = removeCSVOutput.get(license);
-				printReduceLicense(csvFolder, format, license, removeLicList);
+				String reducedLicense = printReduceLicense(csvFolder, format, license, removeLicList);
+				retvals.add(reducedLicense);
 			}
 		}
+		
+		return retvals;
 	}
 
 	
-	private static void printRemoveLicense(String csvFolder, String format, String removingLicense, List<String> list) throws IOException {
+	private static String printRemoveLicense(String csvFolder, String format, String removingLicense, List<String> list) throws IOException {
 		String sFormat = S_DATE_FORMAT.format(new Date());
 		// format_license_sdate
 		String name = String.format("remove_%s_%s_%s.csv",  format, removingLicense, sFormat);
@@ -179,9 +198,10 @@ public class SDNNTCheck {
 	        	printer.printRecord(pid);
 			}
         }
+        return csvFile.getAbsolutePath();
 	}
 	
-	private static void printReduceLicense(String csvFolder, String format, String removingLicense, List<String> list) throws IOException {
+	private static String printReduceLicense(String csvFolder, String format, String removingLicense, List<String> list) throws IOException {
 		String sFormat = S_DATE_FORMAT.format(new Date());
 		// format_license_sdate
 		String name = String.format("reduced_%s_%s_%s.csv",  format, removingLicense, sFormat);
@@ -195,10 +215,11 @@ public class SDNNTCheck {
 	        	printer.printRecord(pid);
 			}
         }
+        return csvFile.getAbsolutePath();
 		
 	}
 
-	private static void printAddLicense(String csvFolder, String format, String addingLicense, List<String> missingLicense) throws IOException {
+	private static String printAddLicense(String csvFolder, String format, String addingLicense, List<String> missingLicense) throws IOException {
 		String sFormat = S_DATE_FORMAT.format(new Date());
 		// format_license_sdate
 		String name = String.format("add_%s_%s_%s.csv", format, addingLicense, sFormat);
@@ -212,6 +233,7 @@ public class SDNNTCheck {
 	        	printer.printRecord(pid);
 			}
         }
+        return csvFile.getAbsolutePath();
 	}
 
 	private static void iterateSDNNTFormat(String sdnntChangesEndpoint, Map<String, List<String>> licenseMapping, Set<String> removedLicense, String format) {

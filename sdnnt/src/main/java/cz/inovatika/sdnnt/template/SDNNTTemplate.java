@@ -14,6 +14,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -27,6 +29,7 @@ import cz.incad.kramerius.security.labels.Label;
 import cz.incad.kramerius.security.labels.LabelsManager;
 import cz.incad.kramerius.security.labels.LabelsManagerException;
 import cz.incad.kramerius.service.ResourceBundleService;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class SDNNTTemplate implements ProcessInputTemplate {
@@ -44,12 +47,15 @@ public class SDNNTTemplate implements ProcessInputTemplate {
 
     @Inject
     LabelsManager labelsManager;
+    
+    @Inject
+    Provider<HttpServletRequest> provider;
 
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
         try {
         	
-        	String krameriusInstance = KConfiguration.getInstance().getConfiguration().getString("sdnnt.kramerius.instance", DEFAULT_KRAMERIUS_INSTANCE);
+        	String krameriusInstance = ApplicationURL.applicationURL(provider.get()); // KConfiguration.getInstance().getConfiguration().getString("sdnnt.kramerius.instance", DEFAULT_KRAMERIUS_INSTANCE);
         	
             InputStream iStream = this.getClass().getResourceAsStream("sdnnt.st");
             StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
