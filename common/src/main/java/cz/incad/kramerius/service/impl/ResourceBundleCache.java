@@ -10,6 +10,11 @@ import java.util.Map;
  */
 public class ResourceBundleCache {
     private static Map<String, Locale> supportedLocales = new HashMap<>();
+    static {
+    	supportedLocales.put("en", new Locale("en"));
+    	supportedLocales.put("cs", new Locale("cs"));
+    	supportedLocales.put("cs", new Locale("cs","CZ"));
+    }
 
     public static void initSupportedLocales(List<String> localeList) {
         for (String s : localeList) {
