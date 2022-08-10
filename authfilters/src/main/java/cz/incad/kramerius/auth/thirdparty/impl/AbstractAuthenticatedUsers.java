@@ -97,16 +97,6 @@ public abstract class AbstractAuthenticatedUsers<T extends UsersWrapper> impleme
         String password = null;
         T wrapper = createUserWrapper(req, userName);
 
-        // don't store or update to database
-        /*
-        if (checkIfUserExists(userName)) {
-            password = updateExistingUser(userName, wrapper);
-        } else {
-            password = createNewUser(userName, wrapper);
-        }*/
-    
-        //this.credentials.put(userName, password);
-
 
         req.getSession().setAttribute(UserUtils.USER_NAME_PARAM, userName);
         req.getSession().setAttribute(UserUtils.PSWD_PARAM, password);

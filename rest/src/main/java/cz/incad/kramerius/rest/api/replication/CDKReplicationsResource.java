@@ -49,14 +49,13 @@ import cz.incad.kramerius.virtualcollections.CollectionsManager;
 
 /**
  * CDK replication resource
- * 
- * @author pavels
  */
 @Path("/v4.6/cdk")
 public class CDKReplicationsResource {
 
     public static Logger LOGGER = Logger
             .getLogger(CDKReplicationsResource.class.getName());
+
 
     public static final SimpleDateFormat FORMAT = new SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -89,6 +88,25 @@ public class CDKReplicationsResource {
     @Inject
     @Named("fedora")
     CollectionsManager colManager;
+
+    
+    @GET
+    @Path("solr/select")
+    @Consumes({ MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
+    public Response sXML(@Context UriInfo uriInfo) throws IOException {
+        if (checkPermission()) return response(uriInfo,"xml");
+        else throw new ActionNotAllowed("action is not allowed");
+    }
+
+    @GET
+    @Path("solr/select")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response sJSON(@Context UriInfo uriInfo) throws IOException {
+    	if (checkPermission()) return response(uriInfo,"json");
+        else throw new ActionNotAllowed("action is not allowed");
+    }
 
     /**
      * Return virtual collections from resource
@@ -305,9 +323,6 @@ public class CDKReplicationsResource {
     }
 
 
-    // Batch support
-    // Consider to move it to different endpoint
-
     /**
      * Returns whole batch of foxml files
      * @param pids Comma separated string of pids
@@ -397,23 +412,7 @@ public class CDKReplicationsResource {
     }
 
 
-    @GET
-    @Path("solr/select")
-    @Consumes({ MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
-    public Response selectXML(@Context UriInfo uriInfo) throws IOException {
-        return solrResponse(uriInfo,"xml");
-    }
-
-    @GET
-    @Path("solr/select")
-    @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response selectJSON(@Context UriInfo uriInfo) throws IOException {
-        return solrResponse(uriInfo,"json");
-    }
-
-    private Response solrResponse(@Context UriInfo uriInfo, String format) throws IOException {
+    private Response response(@Context UriInfo uriInfo, String format) throws IOException {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         StringBuilder builder = new StringBuilder();
         Set<String> keys = queryParameters.keySet();

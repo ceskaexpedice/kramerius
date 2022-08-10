@@ -253,6 +253,9 @@ public class SDNNTCheck {
 			JSONArray items = resObject.getJSONArray("items");
 			for (int i = 0; i < items.length(); i++) {
 				JSONObject mainObject = items.getJSONObject(i);
+				if (!mainObject.has("state")) {
+					throw new IllegalStateException("Missing state; probably talking to older version of API endpoint");
+				}
 				String state = mainObject.getString("state");
 				String pid = mainObject.getString("pid");
 				if (state.equals("A")) {

@@ -70,6 +70,18 @@
     </filter-mapping>
     -->
 
+	<!--  musi byt na konkretni ip adresu;dle hlavicky je to  -->
+    <!-- 
+    <filter>
+        <filter-name>thirdpartyauthfilter_cdk</filter-name>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.shibb.cdk.CDKShibbolethForwardFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>thirdpartyauthfilter_cdk</filter-name>
+        <url-pattern>/api/v5.0/cdk/forward/*</url-pattern>
+    </filter-mapping>
+     -->
+ 
     <!--  thrid party authentication -->
     <filter>
         <filter-name>thirdpartyauthfilter</filter-name>
@@ -79,8 +91,7 @@
         <filter-name>thirdpartyauthfilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-
-
+	
     <!-- Guice, must be last -->
     <filter>
         <filter-name>guiceFilter</filter-name>

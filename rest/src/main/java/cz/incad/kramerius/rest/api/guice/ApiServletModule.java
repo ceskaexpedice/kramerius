@@ -56,10 +56,15 @@ import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
+import cz.incad.kramerius.rest.api.replication.CDKForwardResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
+import cz.incad.kramerius.rest.api.replication.resources.CDKIIIFResource;
+import cz.incad.kramerius.rest.api.replication.resources.CDKItemResource;
+import cz.incad.kramerius.rest.api.replication.resources.CDKUsersResource;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyReader;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyWriter;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * REST API module
@@ -72,9 +77,19 @@ public class ApiServletModule extends JerseyServletModule {
 
     @Override
     protected void configureServlets() {
+        // CDK
+    	bind(CDKReplicationsResource.class);
+    	
+        boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
+        if (channel) {
+        	bind(CDKForwardResource.class);
+        	bind(CDKIIIFResource.class).asEagerSingleton();
+        	bind(CDKItemResource.class).asEagerSingleton();
+        	bind(CDKUsersResource.class).asEagerSingleton();
+        }
+
         // API Resources
         bind(ReplicationsResource.class);
-        bind(CDKReplicationsResource.class);
         bind(LRResource.class);
 
         // k5 - znovu...
