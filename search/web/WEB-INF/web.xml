@@ -70,7 +70,7 @@
     </filter-mapping>
     -->
 
-	<!--  musi byt na konkretni ip adresu;dle hlavicky je to  -->
+	<!--  musi byt na konkretni ip adresu  -->
     <!-- 
     <filter>
         <filter-name>thirdpartyauthfilter_cdk</filter-name>
