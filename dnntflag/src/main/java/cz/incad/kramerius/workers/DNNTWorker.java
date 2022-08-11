@@ -119,7 +119,6 @@ public abstract class DNNTWorker implements Runnable {
     
 
     protected String rootPid(String pid) {
-        // &fl=pid_path&wt=xml
         try {
             Element element = IterationUtils.executeQuery(this.client, selectUrl(), "?q="+URLEncoder.encode(SolrFieldsMapping.getInstance().getPidField() + ":\"" + pid + "\"", "UTF-8")+"&fl=root_pid&wt=xml");
             Element rootPid = XMLUtils.findElement(element, (e) -> {
@@ -170,7 +169,6 @@ public abstract class DNNTWorker implements Runnable {
             if (!paths.isEmpty()) {
 
                 String q = solrChildrenQuery(paths);
-                // pokud opravdu vymlatil dnnt-labels
                 boolean changedFoxmlFlag = changeFOXML(this.parentPid);
 
                 Set<String> allSet = fetchAllPids(q);
@@ -194,39 +192,48 @@ public abstract class DNNTWorker implements Runnable {
 
                 if (!this.addRemoveFlag) {
                     LOGGER.info("Unsetting label for parents");
-                	List<String> selectedParents = new ArrayList<>();
                 	for (String path : paths) {
                 		if (cz.incad.kramerius.utils.StringUtils.isAnyString(path)) {
-                    		List<String> collectedPids = Arrays.stream( path.split("/")).collect(Collectors.toList());
+                			// iteruje pres vsechny cesty 
+                			List<String> collectedPids = Arrays.stream( path.split("/")).collect(Collectors.toList());
                     		ObjectPidsPath objPidPath = new ObjectPidsPath(collectedPids);
                     		if (objPidPath.getLength() > 0) {
 
                     			List<String> changed = Arrays.stream(objPidPath.getPathFromRootToLeaf()).map(str -> {
                         			return str.replaceAll("\\:", "\\\\:");
                         		}).collect(Collectors.toList());
-
+                    			// Pokud neexistuje potomek, ktery ma pridelenou licenci 
                     			boolean indirectChildExist = checkParentPath(this.parentPid, rootPid, changed);
                     			if (!indirectChildExist) {
                     				List<String> parentPids = Arrays.stream(objPidPath.getPathFromRootToLeaf()).collect(Collectors.toList());
-                                    Document batchForParents = createBatchForParents(parentPids);
+                    				// zmena foxml
+                    				for (String pPid : parentPids) {
+                    					changeParentTree(pPid);
+									}
+                    				Document batchForParents = createBatchForParents(parentPids);
                                     if (batchForParents != null) {
                                         sendToDest(client, createBatchForParents(parentPids));
                                     }
                     			}
                     		}
     					}
+                		/*
                     	if (selectedParents != null && !selectedParents.isEmpty()) {
                             Document batchForParents = createBatchForParents(selectedParents);
                             if (batchForParents != null) {
                             	LOGGER.info(String.format("Removed parents %s", selectedParents.toString()));
                             	sendToDest(client, createBatchForParents(selectedParents));
                             }
-                    	}
+                    	}*/
             		}
                 		
                 } else {
-                    List<String> parentPids = solrPidParents(this.parentPid, paths);
-                    Document batchForParents = createBatchForParents(parentPids);
+
+                	List<String> parentPids = solrPidParents(this.parentPid, paths);
+    				for (String pPid : parentPids) {
+    					changeParentTree(pPid);
+					}
+                	Document batchForParents = createBatchForParents(parentPids);
                     if (batchForParents != null) {
                         sendToDest(client, createBatchForParents(parentPids));
                     }
@@ -264,6 +271,9 @@ public abstract class DNNTWorker implements Runnable {
     /** Change foxml */
     protected abstract boolean changeFOXML(String pid);
 
+    /** Change contains-dnnt-labels */
+    protected abstract boolean changeParentTree(String pid);
+    
     /** Check if label or flag exists in one of indirect child */
     protected abstract boolean checkParentPath(String parentPid, String rootPid, List<String> path) throws ParserConfigurationException, SAXException, IOException;
 
@@ -278,6 +288,24 @@ public abstract class DNNTWorker implements Runnable {
             }
         });
         return parents;
+    }
+
+    List<String> changeDNNTContainsLabelInFOXML(String pid, String label) {
+        FedoraAPIM apim = fedoraAccess.getAPIM();
+        String containsLabels = FedoraNamespaces.KRAMERIUS_URI+"contains-dnnt-labels";
+        List<RelationshipTuple> relationships = apim.getRelationships(pid, containsLabels);
+        Optional<RelationshipTuple> any = relationships.stream().filter(tuple -> {
+            return tuple.getObject().equals(label);
+        }).findAny();
+        if (!any.isPresent()) {
+            if (addRemoveFlag) apim.addRelationship(pid, containsLabels,label, true, null);
+        } else {
+            apim.purgeRelationship(pid, containsLabels, any.get().getObject(), any.get().isIsLiteral(), any.get().getDatatype());
+            if (addRemoveFlag) apim.addRelationship(pid, containsLabels,label, true, null);
+        }
+
+        relationships = apim.getRelationships(pid, containsLabels);
+        return relationships.stream().map(RelationshipTuple::getObject).collect(Collectors.toList());
     }
 
     List<String> changeDNNTLabelInFOXML(String pid, String label) {

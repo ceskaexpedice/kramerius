@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Responsible for setting flag
  */
+@Deprecated
 public class DNNTWorkerFlag extends DNNTWorker {
 
     public static Logger LOGGER = Logger.getLogger(DNNTWorkerFlag.class.getName());
@@ -47,6 +48,14 @@ public class DNNTWorkerFlag extends DNNTWorker {
 	@Override
 	protected boolean checkParentPath(String parentPid, String rootPid, List<String> path)
 			throws ParserConfigurationException, SAXException, IOException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	
+
+	@Override
+	protected boolean changeParentTree(String pid) {
 		// TODO Auto-generated method stub
 		return false;
 	}

@@ -77,26 +77,7 @@ public class DNNTLabelWorker extends DNNTWorker {
     	} else return false;
 	}
 
-//	protected boolean checkParentPAth(String rootPid, List<String> path, String label) throws ParserConfigurationException, SAXException, IOException {
-//    	String rootFq = "root_pid:"+URLEncoder.encode(rootPid.replaceAll(":", "\\:"),  "UTF-8"); 
-//    	String pathString =  path.stream().collect(Collectors.joining("/"))+"/*";
-//        String pidPathQuery = SolrFieldsMapping.getInstance().getPidPathField()+":("+pathString+")";
-//        String licenseFq = SolrFieldsMapping.getInstance().getDnntLabelsField()+":"+label;
-//    	
-//    	Element element = IterationUtils.executeQuery(this.client, selectUrl(), "?q= NOT "+ URLEncoder.encode(pidPathQuery, "UTF-8")+"&fq="+rootFq+"&fq="+licenseFq+"&fl="+ SolrFieldsMapping.getInstance().getPidPathField()+"&wt=xml");
-//        Element resultElm = XMLUtils.findElement(element, (e) -> {
-//            if (e.getNodeName().equals("result")) {
-//                return true;
-//            } else return false;
-//        });
-//    	if (resultElm != null && resultElm.getAttribute("numFound") !=null) {
-//    		int numFound = Integer.parseInt(resultElm.getAttribute("numFound"));
-//    		return numFound > 0 ;
-//    	} else return false;
-//    }
-
     
-
     @Override
     protected String solrChildrenQuery(List<String> pidPaths) {
         String pidPathQuery = SolrFieldsMapping.getInstance().getPidPathField()+":("+pidPaths.stream().map(it -> "\"" + it + "\"").collect(Collectors.joining(" OR "))+")";
@@ -106,8 +87,15 @@ public class DNNTLabelWorker extends DNNTWorker {
     }
 
 
+    
 
     @Override
+    protected boolean changeParentTree(String pid) {
+        List<String> labels = changeDNNTContainsLabelInFOXML(pid, this.label);
+        return labels.size() > 0;
+	}
+
+	@Override
     protected boolean changeFOXML(String pid) {
         List<String> labels = changeDNNTLabelInFOXML(pid, this.label);
         return changeDNNTInFOXML(pid, labels.size() > 0);
@@ -119,46 +107,4 @@ public class DNNTLabelWorker extends DNNTWorker {
         return shost;
     }
 
-
-    static void testURL(String rootPid,List<String> path, String label) throws IOException {
-    	//String rootFq = "root_pid:"+URLEncoder.encode(rootPid.replaceAll(":", "\\\\:"),  "UTF-8"); 
-    	String pathString =  path.stream().collect(Collectors.joining("/"))+"/*";
-        String pidPathQuery = SolrFieldsMapping.getInstance().getPidPathField()+":("+pathString+")";
-        String licenseFq = SolrFieldsMapping.getInstance().getDnntLabelsField()+":"+label;
-    	
-    	String url = selectUrl()+ "?q="+URLEncoder.encode("NOT ", "UTF-8")+ URLEncoder.encode(pidPathQuery, "UTF-8")+"&fq="+licenseFq+"&fl="+ SolrFieldsMapping.getInstance().getPidPathField()+"&wt=xml";
-        InputStream inputStream = RESTHelper.inputStream(url, pidPathQuery, licenseFq);
-        String string = org.apache.commons.io.IOUtils.toString(inputStream);
-        System.out.println(string);
-    }
-    
-
-    
-    public static void main(String[] args) throws IOException {
-    	String[] splitted = "uuid:045b1250-7e47-11e0-add1-000d606f5dc6/uuid:f7e50720-80b6-11e0-9ec7-000d606f5dc6/uuid:91214030-80bb-11e0-b482-000d606f5dc6/uuid:ab7e5a1a-bddb-11e0-bff9-0016e6840575".split("/");
-    	
-    	
-    	ObjectPidsPath objPidPath = new ObjectPidsPath(Arrays.asList(splitted));
-		ObjectPidsPath cutTail = objPidPath.cutTail(0);
-		while(cutTail.getLength() > 0) {
-			System.out.println(cutTail);
-			cutTail = cutTail.cutTail(0);
-		}    
-    	
-//		List<String> collectedPids = Arrays.stream( path.split("/")).collect(Collectors.toList());
-//		ObjectPidsPath objPidPath = new ObjectPidsPath(collectedPids);
-//		ObjectPidsPath cutTail = objPidPath.cutTail(0);
-//
-//		while(cutTail.getLength() > 0) {
-//
-//			List<String> changed = Arrays.stream(cutTail.getPathFromRootToLeaf()).map(str -> {
-//    			return str.replaceAll("\\:", "\\\\:");
-//    		}).collect(Collectors.toList());
-//			
-//			System.out.println(changed);
-//			
-//			testURL("uuid:045b1250-7e47-11e0-add1-000d606f5dc6", changed, "dnnto");
-//		}
-    }
-    
 }

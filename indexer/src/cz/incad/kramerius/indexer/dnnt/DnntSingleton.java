@@ -62,5 +62,22 @@ public class DnntSingleton {
         return list;
     }
 
+    public synchronized List<String> dnntContainsDNNTLabels(String pid, FedoraAccess fa) throws IOException, XPathExpressionException {
+        List<String> list = new ArrayList<>();
+        String sxpath = "//kramerius:contains-dnnt-labels";
+        
+        XPathFactory xPathFactory = XPathFactory.newInstance();
+        XPath xpath = xPathFactory.newXPath();
+        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        XPathExpression compiled = xpath.compile(sxpath);
+
+        NodeList value = (NodeList) compiled.evaluate(getRelsExt(pid, fa), XPathConstants.NODESET);
+        for (int i = 0; i < value.getLength(); i++) {
+            Node item = value.item(i);
+            list.add(item.getTextContent());
+        }
+        return list;
+    }
+
 }
 

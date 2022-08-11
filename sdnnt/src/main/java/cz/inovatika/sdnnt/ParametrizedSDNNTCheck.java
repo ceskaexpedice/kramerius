@@ -41,8 +41,8 @@ public class ParametrizedSDNNTCheck {
 			@ParameterName("removelicense")String removelicense
 			) throws IOException {
 		
-		String folder = KConfiguration.getInstance().getProperty("sdnnt.folder");
-
+		
+		String folder = KConfiguration.getInstance().getProperty("import.dnnt.directory");
         try {
             String formatted = String.format("Syncrhonizace s %s  <-> %s", kramInstance, changeEndpoint);
             ProcessStarter.updateName(formatted);

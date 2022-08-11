@@ -69,6 +69,9 @@ public class ExtendedFields {
     // dnnt flag
     private String dnnt;
     private List<String> dnntLabels;
+	private List<String> containsDNNTLabels;
+    
+    
 
     // geo coordinates range
     private List<String> coordinates;
@@ -107,7 +110,8 @@ public class ExtendedFields {
         setDate(biblioMods);
         // coordinates
         this.coordinates = ParsingCoordinates.processBibloModsCoordinates(biblioMods, this.factory);
-        // dnnt
+        
+        this.containsDNNTLabels = DnntSingleton.getInstance().dnntContainsDNNTLabels(pid, fo.fa);
 
         List<String> dnntLabels = new ArrayList<>();
         for(String pidPath: pid_paths) {
@@ -288,10 +292,14 @@ public class ExtendedFields {
                     sb.append("<field name=\"dnnt-labels\">").append(label).append("</field>");
                 });
             }
-
         }
-
-        // dnnt labels
+        /** contains dnnt labels */
+        if (this.containsDNNTLabels != null) {
+            containsDNNTLabels.stream().forEach(cLab-> {
+                sb.append("<field name=\"contains-dnnt-labels\">").append(cLab).append("</field>");
+            });
+        }
+        
 
         if (this.coordinates != null) {
             coordinates.stream().forEach((loc)->{

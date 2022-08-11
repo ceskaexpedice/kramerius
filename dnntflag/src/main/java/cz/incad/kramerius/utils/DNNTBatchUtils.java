@@ -131,7 +131,6 @@ public class DNNTBatchUtils {
         Element rootElm = document.createElement("add");
         document.appendChild(rootElm);
         for (String pid : parentPids) {
-        	
         	Element doc = addContainsLabel(document, pid, label, addRemoveFlag);
             rootElm.appendChild(doc);
         }

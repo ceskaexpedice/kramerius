@@ -13,7 +13,7 @@ public class DNNTSetCSVInputTemplate extends AbstractDNNTCSVInputTemplate {
 
 
     protected  File rootDirectory() {
-        String exportRoot = KConfiguration.getInstance().getConfiguration().getString("import.dnnt.diretory");
+        String exportRoot = KConfiguration.getInstance().getConfiguration().getString("import.dnnt.directory");
         return IOUtils.checkDirectory(exportRoot);
     }
 

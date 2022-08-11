@@ -34,7 +34,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class SDNNTTemplate implements ProcessInputTemplate {
 	
-	public static final String DEFAULT_SDNNT_ENDPOINT = "https://sdnnt-test.nkp.cz/sdnnt/api/v1.0/lists/changes";
+	public static final String DEFAULT_SDNNT_ENDPOINT = "https://sdnnt.nkp.cz/sdnnt/api/v1.0/lists/changes";
 	//public static final String DEFAULT_KRAMERIUS_INSTANCE="https://kramerius.domain.cz/search";
 	
     public static final Logger LOGGER = Logger.getLogger(SDNNTTemplate.class.getName());
