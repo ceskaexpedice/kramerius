@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 /**
  * Prepsana logika z ParametrizedLabelSetDNNTFlag a ParametrizedLabelUnsetDNNTFlag, bez zpracovani CSV
+ * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (add_license, remove_license)
  *
  * @see cz.incad.kramerius.workers.DNNTLabelWorker
  */

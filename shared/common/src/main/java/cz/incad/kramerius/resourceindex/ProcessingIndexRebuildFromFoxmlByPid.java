@@ -30,6 +30,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (processing_rebuild_for_object)
+ */
 public class ProcessingIndexRebuildFromFoxmlByPid {
     public static final Logger LOGGER = Logger.getLogger(ProcessingIndexRebuildFromFoxmlByPid.class.getName());
 
@@ -61,7 +64,7 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
         //process params
         String pid = args[argsIndex++];
 
-        ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML objektu %s", pid));
+        ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekt %s", pid));
         new ProcessingIndexRebuildFromFoxmlByPid().rebuildProcessingIndexFromFoxml(pid);
     }
 

@@ -2,7 +2,6 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.*;
-import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
@@ -10,7 +9,6 @@ import cz.incad.kramerius.rest.apiNew.admin.v70.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
@@ -30,9 +28,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -614,7 +610,7 @@ public class ProcessResource extends AdminApiResource {
                 String batchToken = parentProcess.getBatchToken();
                 List<String> paramsList = new ArrayList<>();
                 paramsList.addAll(paramsToList(defid, params));
-                return scheduleProcess(defid, paramsList, userId, userName, batchToken);
+                return scheduleProcess(defid, paramsList, userId, userName, batchToken, buildInitialProcessName(defid, paramsList));
             } else { //run by user (through web client)
                 //System.out.println("process auth token NOT found");
                 String batchToken = UUID.randomUUID().toString();
@@ -628,7 +624,7 @@ public class ProcessResource extends AdminApiResource {
                 if (!roles.contains(role)) {
                     throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
                 }
-                return scheduleProcess(defid, paramsList, user.getLoginname(), user.getLoginname(), batchToken);
+                return scheduleProcess(defid, paramsList, user.getLoginname(), user.getLoginname(), batchToken, buildInitialProcessName(defid, paramsList));
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -638,8 +634,8 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken) {
-        LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, params, ownerId, ownerName, batchToken);
+    private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken, String processName) {
+        LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, params, ownerId, ownerName, batchToken, processName);
         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
     }
@@ -659,6 +655,66 @@ public class ProcessResource extends AdminApiResource {
         jsonObject.put("userFirstname", lrProcess.getFirstname()); //empty
         jsonObject.put("userSurname", lrProcess.getSurname()); //empty
         return jsonObject;
+    }
+
+    private String buildInitialProcessName(String defId, List<String> params) {
+        try {
+            switch (defId) {
+                case "new_process_api_test":
+                    return String.format("Proces pro testování správy procesů (duration=%s s, processesInBatch=%s, finalState=%s)", params.get(0), params.get(1), params.get(2));
+                case "new_indexer_index_object": {
+                    String type = params.get(0);
+                    String pid = params.get(1);
+                    String title = params.get(3);//params.get(2) is ignoreInconsistentObjects!
+                    return title != null
+                            ? String.format("Indexace %s (%s, typ %s)", title, pid, type)
+                            : String.format("Indexace %s (typ %s)", pid, type);
+                }
+                case "new_indexer_index_model": {
+                    return String.format("Indexace %s (typ %s)", params.get(1), params.get(0));
+                }
+                case "set_policy": {
+                    String scope = params.get(0);
+                    String policy = params.get(1);
+                    String pid = params.get(2);
+                    String title = params.get(3);
+                    return title != null
+                            ? String.format("Změna viditelnosti %s (%s, %s, %s)", title, pid, policy, scope)
+                            : String.format("Změna viditelnosti %s (%s, %s)", pid, policy, scope);
+                }
+                case "processing_rebuild":
+                    return "Přebudování Processing indexu";
+                case "processing_rebuild_for_object":
+                    return String.format("Aktualizace Processing indexu z FOXML pro objekt %s", params.get(0));
+                case "import": {
+                    return String.format("Import FOXML z %s ", params.get(0));
+                }
+                case "convert_and_import": {
+                    return String.format("Import NDK METS z %s ", params.get(1));
+                }
+                case "add_license": {
+                    return String.format("Přidání licence '%s' pro %s", params.get(0), params.get(1));
+                }
+                case "remove_license": {
+                    return String.format("Odebrání licence '%s' pro %s", params.get(0), params.get(1));
+                }
+                case "nkplogs": {
+                    return String.format("Generování NKP logů pro období %s - %s", params.get(0), params.get(1));
+                }
+                case "delete_tree": {
+                    String pid = params.get(0);
+                    String title = params.get(1);
+                    return title != null
+                            ? String.format("Smazání stromu %s (%s)", title, pid)
+                            : String.format("Smazání stromu %s", pid);
+                }
+                default:
+                    return null;
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private List<String> paramsToList(String id, JSONObject params) {

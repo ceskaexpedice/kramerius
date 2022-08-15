@@ -69,11 +69,11 @@ public class DeleteTreeProcess {
         String pid = args[argsIndex++];
         String title = ProcessHelper.shortenIfTooLong(ProcessHelper.mergeArraysEnd(args, argsIndex), 256);
         //String scopeDesc = scope == SetPolicyProcess.Scope.OBJECT ? "jen objekt" : "objekt včetně potomků";
-        if (title != null) {
-            ProcessStarter.updateName(String.format("Mazání stromu %s (%s)", title, pid));
-        } else {
-            ProcessStarter.updateName(String.format("Mazání stromu %s", pid));
-        }
+        ProcessStarter.updateName(title != null
+                ? String.format("Smazání stromu %s (%s)", title, pid)
+                : String.format("Smazání stromu %s", pid)
+        );
+
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation

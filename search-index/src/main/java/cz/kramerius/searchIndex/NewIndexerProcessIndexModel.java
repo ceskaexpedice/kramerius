@@ -85,7 +85,7 @@ public class NewIndexerProcessIndexModel {
             return;
         }
         String model = modelPid.substring("model:".length());
-        ProcessStarter.updateName(String.format("Indexace %s ", modelPid));
+        ProcessStarter.updateName(String.format("Indexace %s (typ %s)", modelPid, type));
 
         if (filters.indexNone()) {
             LOGGER.info("Podle kombinace filtrů není co indexovat, končím");

@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (processing_rebuild)
+ */
 public class ProcessingIndexRebuild {
     public static final Logger LOGGER = Logger.getLogger(ProcessingIndexCheck.class.getName());
 
@@ -55,7 +58,7 @@ public class ProcessingIndexRebuild {
 
 
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
-        ProcessStarter.updateName("Budování Processing indexu");
+        ProcessStarter.updateName("Přebudování Processing indexu");
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         final ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);

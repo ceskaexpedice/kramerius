@@ -33,41 +33,35 @@ import java.util.logging.Logger;
 
 public class NKPLogProcess {
 
-
     public static Logger LOGGER = Logger.getLogger(NKPLogProcess.class.getName());
-    
-   
-    
-    
+
     public static void main(String[] args) throws NoSuchAlgorithmException, ParseException, IOException {
         LOGGER.log(Level.INFO, "Process parameters: " + Arrays.asList(args).toString());
         if (args.length > 2) {
             String from = args[1];
             String to = args[2];
 
-            String folder = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.folder",System.getProperty("java.io.tmpdir"));
+            String folder = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.folder", System.getProperty("java.io.tmpdir"));
             String visibility = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.visibility", "ALL");
-            String institution = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.institution","-none-");
-            String anonymization = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.anonimization","username,session_eppn,dnnt_user,eduPersonUniqueId,affilation,remoteAddr");
+            String institution = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.institution", "-none-");
+            String anonymization = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.anonimization", "username,session_eppn,dnnt_user,eduPersonUniqueId,affilation,remoteAddr");
 
             process(from, to, folder, institution, visibility, anonymization);
         }
     }
-    
-    public static void  process(String from,
-                                String to,
-                                String folder,
-                                String institution,
-                                String visibility,
-                                String anonymization
-            ) throws ParseException, IOException, NoSuchAlgorithmException {
 
+    public static void process(String from,
+                               String to,
+                               String folder,
+                               String institution,
+                               String visibility,
+                               String anonymization
+    ) throws ParseException, IOException, NoSuchAlgorithmException {
 
-        ProcessStarter.updateName(String.format("Generování logů pro obodbobí '%s' pro %s", from, to));
+        ProcessStarter.updateName(String.format("Generování NKP logů pro období %s - %s", from, to));
 
-        
         // folder, institution, visibility from configuration
-        LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to,folder,institution,visibility,anonymization));
+        LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to, folder, institution, visibility, anonymization));
 
         List<String> annonymizationKeys = anonymization != null ? Arrays.asList(anonymization.split(",")) : new ArrayList<>();
 
@@ -79,13 +73,13 @@ public class NKPLogProcess {
 
         Date processingDate = start;
 
-        while(processingDate.before(end)) {
+        while (processingDate.before(end)) {
 
             LocalDateTime localDateTime = processingDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             localDateTime = localDateTime.plusDays(1);
             Date nextDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-            String url = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point")+(KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=%s", StatisticReport.DATE_FORMAT.format(processingDate), StatisticReport.DATE_FORMAT.format(nextDate), visibility);
+            String url = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point") + (KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=%s", StatisticReport.DATE_FORMAT.format(processingDate), StatisticReport.DATE_FORMAT.format(nextDate), visibility);
             WebResource r = client.resource(url);
 
             WebResource.Builder builder = r.accept(MediaType.APPLICATION_JSON);
@@ -93,12 +87,12 @@ public class NKPLogProcess {
 
 
             File outputFolder = new File(folder);
-            if (!outputFolder.exists())  outputFolder.mkdirs();
+            if (!outputFolder.exists()) outputFolder.mkdirs();
             if (outputFolder.exists()) {
 
                 File outputFile = new File(outputFolder, String.format("statistics-%s-%s.log", institution, StatisticReport.DATE_FORMAT.format(processingDate)));
                 FileOutputStream fos = new FileOutputStream(outputFile);
-                try(OutputStreamWriter fileWriter = new OutputStreamWriter(fos, "UTF-8")) {
+                try (OutputStreamWriter fileWriter = new OutputStreamWriter(fos, "UTF-8")) {
 
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientResponse, "UTF-8"));
                     String line = null;
@@ -122,10 +116,10 @@ public class NKPLogProcess {
                             }
                         });
 
-                        fileWriter.write(lineJSONObject.toString()+"\n");
+                        fileWriter.write(lineJSONObject.toString() + "\n");
 
                         // memory dump
-                        boolean nkpLogMemoryDump = KConfiguration.getInstance().getConfiguration().getBoolean("nkp.logs.memorydump",false);
+                        boolean nkpLogMemoryDump = KConfiguration.getInstance().getConfiguration().getBoolean("nkp.logs.memorydump", false);
                         if (nkpLogMemoryDump) {
                             Runtime runtime = Runtime.getRuntime();
                             long freeMemory = runtime.freeMemory();
@@ -134,15 +128,15 @@ public class NKPLogProcess {
                             long usedMemory = totalMemory - freeMemory;
 
                             long maxMemory = runtime.maxMemory();
-                            double ratioA = (double) usedMemory/(double) totalMemory;
-                            double ratioB = (double) usedMemory/(double) maxMemory;
+                            double ratioA = (double) usedMemory / (double) totalMemory;
+                            double ratioB = (double) usedMemory / (double) maxMemory;
 
-                            LOGGER.info(String.format("Free memory (bytes) %d,Used memory (bytes) %d, Total memory(bytes) %d, Max memory (bytes) %d, ratio (used/totalmemory)  %f,ratio (used/maxmemory)  %f", freeMemory, usedMemory, totalMemory, maxMemory, ratioA,ratioB));
+                            LOGGER.info(String.format("Free memory (bytes) %d,Used memory (bytes) %d, Total memory(bytes) %d, Max memory (bytes) %d, ratio (used/totalmemory)  %f,ratio (used/maxmemory)  %f", freeMemory, usedMemory, totalMemory, maxMemory, ratioA, ratioB));
                         }
                     }
                 }
 
-                LOGGER.info(String.format("Storing log to file %s",outputFile.getAbsolutePath()));
+                LOGGER.info(String.format("Storing log to file %s", outputFile.getAbsolutePath()));
             }
             processingDate = nextDate;
 
@@ -150,14 +144,14 @@ public class NKPLogProcess {
     }
 
 
-    public static String hashVal(String value)  {
+    public static String hashVal(String value) {
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             Base64.Encoder base64Encoder = Base64.getEncoder();
             md5.update(value.getBytes("UTF-8"));
             return base64Encoder.encodeToString(md5.digest());
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return value;
         }
     }

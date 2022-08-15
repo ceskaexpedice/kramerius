@@ -60,11 +60,10 @@ public class SetPolicyProcess {
         String pid = args[argsIndex++];
         String title = shortenIfTooLong(mergeArraysEnd(args, argsIndex), 256);
         String scopeDesc = scope == Scope.OBJECT ? "jen objekt" : "objekt včetně potomků";
-        if (title != null) {
-            ProcessStarter.updateName(String.format("Změna viditelnosti %s (%s, %s, %s)", title, pid, policy, scopeDesc));
-        } else {
-            ProcessStarter.updateName(String.format("Změna viditelnosti %s (%s, %s)", pid, policy, scopeDesc));
-        }
+        ProcessStarter.updateName(title != null
+                ? String.format("Změna viditelnosti %s (%s, %s, %s)", title, pid, policy, scopeDesc)
+                : String.format("Změna viditelnosti %s (%s, %s)", pid, policy, scopeDesc)
+        );
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
 

@@ -180,7 +180,10 @@ public abstract class AdminApiResource extends ApiResource {
         paramsList.add(objectPid);
         paramsList.add(Boolean.toString(ignoreInconsistentObjects));
         paramsList.add(title);
-        processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, userid, username, batchToken);
+        String processName = title != null
+                ? String.format("Reindexace %s (%s, typ %s)", title, objectPid, indexationType)
+                : String.format("Reindexace %s (typ %s)", objectPid, indexationType);
+        processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, userid, username, batchToken, processName);
     }
 
     protected void scheduleReindexation(String objectPid, String userid, String username, String indexationType, boolean ignoreInconsistentObjects, String title) {

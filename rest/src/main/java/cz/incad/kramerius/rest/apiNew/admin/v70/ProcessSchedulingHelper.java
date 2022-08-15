@@ -44,7 +44,7 @@ public class ProcessSchedulingHelper {
      * @param batchToken
      * @return
      */
-    public LRProcess scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken) {
+    public LRProcess scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken, String procesName) {
         String newProcessAuthToken = UUID.randomUUID().toString();
         LRProcessDefinition definition = processDefinition(defid);
         if (definition == null) {
@@ -72,6 +72,7 @@ public class ProcessSchedulingHelper {
         //newProcess.setUser(user);
         newProcess.setOwnerId(ownerId);
         newProcess.setOwnerName(ownerName);
+        newProcess.setProcessName(procesName);
 
         Properties properties = definition.isInputTemplateDefined()
                 ? new Properties() //'plain' process

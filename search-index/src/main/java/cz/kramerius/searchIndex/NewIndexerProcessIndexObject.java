@@ -22,7 +22,6 @@ import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceInd
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 /**
@@ -64,12 +63,10 @@ public class NewIndexerProcessIndexObject {
 
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
-        //ProcessStarter.updateName(String.format("Indexace (objekt %s, typ %s)", pid, type));
-        if (title != null) {
-            ProcessStarter.updateName(String.format("Indexace %s (%s, typ %s)", title, pid, type));
-        } else {
-            ProcessStarter.updateName(String.format("Indexace %s (typ %s)", pid, type));
-        }
+        ProcessStarter.updateName(title != null
+                ? String.format("Indexace %s (%s, typ %s)", title, pid, type)
+                : String.format("Indexace %s (typ %s)", pid, type)
+        );
 
         SolrConfig solrConfig = new SolrConfig(KConfiguration.getInstance());
 
