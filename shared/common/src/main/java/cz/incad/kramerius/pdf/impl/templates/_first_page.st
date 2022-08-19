@@ -1,7 +1,7 @@
 <commands>
     <paragraph spacing-after="3" spacing-before="20">
         <textsarray>
-        <text font-formal-name="logo">Kramerius 5</text>
+        <text font-formal-name="logo">Kramerius 7</text>
         </textsarray>
     </paragraph>
 

@@ -51,7 +51,7 @@ public class AbstractPDFResource {
 
     public static final Logger LOGGER = Logger.getLogger(AbstractPDFResource.class.getName());
 
-    final boolean PDF_ENDPOINTS_DISABLED = true; //TODO: remove after endpoints are fixed
+    final boolean PDF_ENDPOINTS_DISABLED = false; //TODO: remove after endpoints are fixed
 
 
     @Inject

@@ -56,7 +56,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-@Deprecated
+//@Deprecated
 public class AbstractPDFResource {
 
     public enum FirstPage {

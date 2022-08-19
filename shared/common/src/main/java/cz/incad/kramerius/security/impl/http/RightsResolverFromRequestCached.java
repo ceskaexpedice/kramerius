@@ -86,7 +86,8 @@ public class RightsResolverFromRequestCached extends RightsResolverFromRequest {
 
 
     public RightsReturnObject isAllowedInternalForFedoraDocuments(String actionName, String pid, String stream, ObjectPidsPath path, User user) throws RightCriteriumException {
-        if ("read".equals(actionName)) {
+        if (SecuredActions.READ.getFormalName().equals(actionName)) {
+        //if ("read".equals(actionName)) {
             String ip = IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration());
             RightsReturnObject allowed = cache.get(new CacheKey(pid, user, ip));
 

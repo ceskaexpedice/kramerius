@@ -234,7 +234,7 @@ public class PDFResource extends AbstractPDFResource {
                         // max number test
                         int numberOfPages = extractNumberOfPages("" + pids.length);
                         //ConfigurationUtils.checkNumber(pids);
-                        LOGGER.info("number of pages: " + numberOfPages); //TODO: remove for production
+                        //LOGGER.info("number of pages: " + numberOfPages); //TODO: remove for production
 
                         Rectangle formatRect = formatRect(format);
                         final File generatedPDF = super.selection(pids, formatRect, fistPageTypeEn);
