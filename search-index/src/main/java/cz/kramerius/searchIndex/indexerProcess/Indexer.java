@@ -242,6 +242,10 @@ public class Indexer {
                         RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                         indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                     }
+                    for (String childPid : parentNode.getPidsOfFosterChildren()) {
+                        RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
+                        indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index fosetr child
+                    }
                 }
             }
             break;
