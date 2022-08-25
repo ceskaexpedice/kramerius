@@ -174,6 +174,22 @@ public class FoxmlBuilder {
     }
 
     /**
+     * @return true if new relation has been added, false if it was already present
+     */
+    public boolean appendRelationToRelsExt(String ownerPid, Document relsExt, String relation, String newItemPid) {
+        Element description = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt.getRootElement());
+        Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='info:fedora/%s']", relation, newItemPid)).selectSingleNode(description);
+        if (relationEl == null) {
+            Element element = description.addElement(new QName(relation.toString(), NS_REL));
+            element.addAttribute(new QName("resource", NS_RDF), "info:fedora/" + newItemPid);
+            return true;
+        } else {
+            LOGGER.warning(String.format("Relation %s:%s already found in rels-ext of %s, ignoring", relation, newItemPid, ownerPid));
+            return false;
+        }
+    }
+
+    /**
      * @return true if relation has been removed, false if it was not there
      */
     public boolean removeRelationFromRelsExt(String ownerPid, Document relsExt, KrameriusRepositoryApi.KnownRelations relation, String itemPid) {

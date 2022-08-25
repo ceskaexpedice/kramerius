@@ -1,7 +1,9 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
+import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
+import cz.incad.kramerius.rest.apiNew.admin.v70.collections.FoxmlBuilder;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -17,14 +19,14 @@ import org.dom4j.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -40,12 +42,16 @@ public class ItemsResource extends AdminApiResource {
     //TODO: prejmenovat role podle spravy uctu
     private static final String ROLE_READ_ITEMS = "kramerius_admin";
     private static final String ROLE_READ_FOXML = "kramerius_admin";
-    private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
     private static final String ROLE_EDIT_OBJECTS = "kramerius_admin";
+    private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
 
 
     @javax.inject.Inject
     Provider<User> userProvider;
+
+    //TODO: refactor, split general and collection related logic
+    @Inject
+    private FoxmlBuilder foxmlBuilder;
 
 
     /**
@@ -230,6 +236,67 @@ public class ItemsResource extends AdminApiResource {
             result.put("policy", policy);
             //result.put("contains_licenses", containsLicenseArray); //tady irelevantní až matoucí
             return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @PUT
+    @Path("{pid}/children_order")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response setChildrenOrder(@PathParam("pid") String pid, JSONObject newChildrenOrder) {
+        try {
+            checkSupportedObjectPid(pid);
+            //authentication
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
+            //authorization
+            String role = ROLE_EDIT_OBJECTS;
+            if (!roles.contains(role)) {
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
+            }
+            checkObjectExists(pid);
+
+            //extract childrens' pids from request
+            List<String> newChildrenOrderPids = new ArrayList<>();
+            for (int i = 0; i < newChildrenOrder.getJSONArray("childrenPids").length(); i++) {
+                newChildrenOrderPids.add(newChildrenOrder.getJSONArray("childrenPids").getString(i));
+            }
+            //extract childrens' pids an relations from rels-ext
+            Map<String, String> foxmlChildrenPidToRelationName = new HashMap<>();
+            Document relsExt = krameriusRepositoryApi.getRelsExt(pid, true);
+            List<Node> childrenEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/*[starts-with(@rdf:resource, 'info:fedora/uuid:')]").selectNodes(relsExt);
+            for (Node childrenEl : childrenEls) {
+                String relationName = childrenEl.getName();
+                String childPid = ((Element) childrenEl).attributeValue("resource").substring("info:fedora/".length());
+                foxmlChildrenPidToRelationName.put(childPid, relationName);
+            }
+            //check that all pids from request are in rels-ext
+            for (String childPid : newChildrenOrderPids) {
+                if (!foxmlChildrenPidToRelationName.containsKey(childPid)) {
+                    throw new BadRequestException("child %s from reorder-data not found in RELS-EXT ", childPid);
+                }
+            }
+            //check that all pids from rels-ext are in request
+            for (String childPid : foxmlChildrenPidToRelationName.keySet()) {
+                if (!newChildrenOrderPids.contains(childPid)) {
+                    throw new BadRequestException("child %s from RELS-EXT is missing in reorder-data", childPid);
+                }
+            }
+            //update & save rels-ext
+            for (Node node : childrenEls) {
+                node.detach();
+            }
+            for (String childPid : newChildrenOrderPids) {
+                foxmlBuilder.appendRelationToRelsExt(pid, relsExt, foxmlChildrenPidToRelationName.get(childPid), childPid);
+            }
+            krameriusRepositoryApi.updateRelsExt(pid, relsExt);
+
+            scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT_AND_CHILDREN", true, pid);
+            return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
