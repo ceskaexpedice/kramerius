@@ -1,9 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
-import cz.incad.kramerius.rest.apiNew.admin.v70.collections.FoxmlBuilder;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -49,7 +47,6 @@ public class ItemsResource extends AdminApiResource {
     @javax.inject.Inject
     Provider<User> userProvider;
 
-    //TODO: refactor, split general and collection related logic
     @Inject
     private FoxmlBuilder foxmlBuilder;
 

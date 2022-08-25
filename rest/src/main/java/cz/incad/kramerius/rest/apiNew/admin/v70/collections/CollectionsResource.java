@@ -45,7 +45,7 @@ public class CollectionsResource extends AdminApiResource {
     private static final String ROLE_DELETE_COLLECTION = "kramerius_admin";
 
     @Inject
-    private FoxmlBuilder foxmlBuilder;
+    private CollectionsFoxmlBuilder foxmlBuilder;
 
     @Inject
     Provider<User> userProvider;
