@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.inject.Named;
@@ -56,6 +58,7 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
+import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.security.impl.RoleImpl;
@@ -64,8 +67,8 @@ import cz.incad.kramerius.service.ResourceBundleService;
 /**
  * Rights end point
  * @author pavels
+ * Musi mit pravo pro editaci prav
  */
-//@Path("/v5.0/admin/rights")
 @Path("/admin/v7.0/rights")
 public class RightsResource {
 
@@ -240,8 +243,17 @@ public class RightsResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response rights(@QueryParam("pids")String pids,  @QueryParam("action")String action) {
-        if (permit(this.userProvider.get())) {
-
+        boolean permitted = permit(this.userProvider.get());
+        if (!permitted) {
+            String[] pPids = pids != null ? pids.split(",") : new String[0];
+            for (String pid : pPids) {
+                if (permit(this.userProvider.get(), pid)) {
+                    permitted = true;
+                    break;
+                }
+            }
+        }
+        if (permitted) {
             try {
                 List<String> roles = new ArrayList<String>();
                 Right[] rights = null;
@@ -417,6 +429,32 @@ public class RightsResource {
         } else throw new ActionNotAllowed("action is not allowed");
     }
 
+    // vraci vsechny dostupne akce
+    @GET
+    @Path("actions")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    public Response actions(@QueryParam("pid") String pid) {
+        if (permit(this.userProvider.get(), pid)) {
+            
+            SecuredActions[] values = SecuredActions.values();
+            if (pid != null && !SpecialObjects.REPOSITORY.getPid().equals(pid)) {
+                values = Arrays.stream(values).filter(it-> {
+                    return !it.isGlobalAction();
+                }).toArray(SecuredActions[]::new);
+            }
+
+            JSONObject retobject = new JSONObject();
+            JSONArray retArray = new JSONArray();
+            Arrays.stream(values).map(SecuredActions::getFormalName).filter(it-> {
+                return it.startsWith("a_");
+            }).forEach(retArray::put);
+        
+            retobject.put("actions", retArray);
+
+            return Response.ok().entity(retobject.toString()).build();
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
+
 
 
     @GET
@@ -438,6 +476,11 @@ public class RightsResource {
         } else throw new ActionNotAllowed("action is not allowed");
     }
 
+    // pravo delete 
+    // pravo index 
+    // pravo spravovat prava 
+    
+    
     private JSONObject userToJSON(AbstractUser au) throws JSONException {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("id", au.getId());
@@ -564,10 +607,32 @@ public class RightsResource {
 	}
 	
 	boolean permit(User user) {
-    	if (user != null)
-    		return  this.rightsResolver.isActionAllowed(user,SecuredActions.ADMINISTRATE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
-    	else 
-    		return false;
+	    if (user != null)
+	        return  this.rightsResolver.isActionAllowed(user,SecuredActions.A_RIGHTS_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
+	    else 
+	        return false;
+    }
+	
+	
+    private boolean permit( User user, String pid) {
+        try {
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
+            if (paths.length == 0) {
+                throw new InternalErrorException("illegal state: no paths for object %s found in search index", pid);
+                //or maybe build paths from resource/processing index
+                //but user should not access page before it is indexed anyway
+                //so eventual consistency vs. "API doesn't (at least seemingly) depend on search index"
+            }
+            for (int i = 0; i < paths.length; i++) {
+                ObjectPidsPath path = paths[i];
+                if (rightsResolver.isActionAllowed(user, SecuredActions.A_RIGHTS_EDIT .getFormalName(), pid, null, path.injectRepository()).flag()) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            Logger.getLogger(RightsResource.class.getName()).log(Level.SEVERE, e.getMessage(),e);
+        }
+        return false;
     }
 
 }

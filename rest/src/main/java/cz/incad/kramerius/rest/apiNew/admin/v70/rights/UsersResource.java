@@ -399,7 +399,7 @@ public class UsersResource {
     boolean permit(User user) {
         if (user != null)
             return this.rightsResolver.isActionAllowed(user,
-                    SecuredActions.USERSADMIN.getFormalName(),
+                    SecuredActions.A_RIGHTS_EDIT.getFormalName(),
                     SpecialObjects.REPOSITORY.getPid(), null,
                     ObjectPidsPath.REPOSITORY_PATH).flag();
         else

@@ -32,7 +32,7 @@ public class MockGuiceSecurityHTTPModule extends AbstractModule {
     protected void configure() {
         RightsReturnObject rightsReturnObject = new RightsReturnObject(null, EvaluatingResultState.FALSE);
         RightsResolver isAllowed = EasyMock.createMock(RightsResolver.class);
-        EasyMock.expect(isAllowed.isActionAllowed(SecuredActions.READ.getFormalName(), FedoraUtils.IMG_FULL_STREAM, SpecialObjects.REPOSITORY.getPid(), new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))).andReturn(rightsReturnObject);
+        EasyMock.expect(isAllowed.isActionAllowed(SecuredActions.A_READ.getFormalName(), FedoraUtils.IMG_FULL_STREAM, SpecialObjects.REPOSITORY.getPid(), new ObjectPidsPath(SpecialObjects.REPOSITORY.getPid()))).andReturn(rightsReturnObject);
         replay(isAllowed);
 
         bind(RightsResolver.class).toInstance(isAllowed);

@@ -61,7 +61,7 @@ public class PolicyFlag extends AbstractRELSExtCriterium {
 
     @Override
     public SecuredActions[] getApplicableActions() {
-        return  new SecuredActions[] {SecuredActions.READ};
+        return  new SecuredActions[] {SecuredActions.A_READ};
     }
     
     

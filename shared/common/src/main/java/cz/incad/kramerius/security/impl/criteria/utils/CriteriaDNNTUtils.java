@@ -84,7 +84,7 @@ public class CriteriaDNNTUtils {
 
     public static void checkContainsCriterium(RightCriteriumContext ctx, RightsManager manager, Class ... clzs) throws CriteriaPrecoditionException {
         String[] pids = new String[] {SpecialObjects.REPOSITORY.getPid()};
-        Right[] rights = manager.findRights(pids, SecuredActions.PDF_RESOURCE.getFormalName(), ctx.getUser());
+        Right[] rights = manager.findRights(pids, SecuredActions.A_PDF_READ.getFormalName(), ctx.getUser());
         for (Right r : rights) {
             if (r == null) continue;
             if (r.getCriteriumWrapper() == null) continue;

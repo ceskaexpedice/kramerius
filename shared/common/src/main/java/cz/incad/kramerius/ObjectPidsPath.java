@@ -89,6 +89,7 @@ public class ObjectPidsPath extends AbstractObjectPath {
     }
     
 
+    @Deprecated
     public ObjectPidsPath injectCollections(CollectionsManager col) throws CollectionException {
 
         try {

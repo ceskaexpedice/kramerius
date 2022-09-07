@@ -1,11 +1,19 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.security.EvaluatingResultState;
+import cz.incad.kramerius.security.RightsResolver;
+import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.Role;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.StringUtils;
@@ -18,11 +26,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Level;
@@ -38,11 +49,14 @@ public class ItemsResource extends AdminApiResource {
     private static final Integer DEFAULT_LIMIT = 10;
 
     //TODO: prejmenovat role podle spravy uctu
+    
+    /*
     private static final String ROLE_READ_ITEMS = "kramerius_admin";
     private static final String ROLE_READ_FOXML = "kramerius_admin";
     private static final String ROLE_EDIT_OBJECTS = "kramerius_admin";
     private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
-
+    */
+    
 
     @javax.inject.Inject
     Provider<User> userProvider;
@@ -50,6 +64,10 @@ public class ItemsResource extends AdminApiResource {
     @Inject
     private FoxmlBuilder foxmlBuilder;
 
+    @Inject
+    @Named("new-index")
+    private SolrAccess solrAccess;
+    
 
     /**
      * Returns array of pids (with titles) that have given model. Only partial array with offset & limit.
@@ -76,11 +94,13 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            String role = ROLE_READ_ITEMS;
-            if (!roles.contains(role)) {
+            
+            if (!userIsAllowedToRead(this.rightsResolver, user, SpecialObjects.REPOSITORY.getPid())) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", requestProvider.get().getUserPrincipal().getName(), role); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
+            
+            
             //model
             if (model == null || model.isEmpty()) {
                 throw new BadRequestException("missing mandatory query param 'model'");
@@ -154,9 +174,14 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            String role = ROLE_READ_ITEMS;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
+//            String role = ROLE_READ_ITEMS;
+//            if (!roles.contains(role)) {
+//                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
+//            }
+            
+            if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectExists(pid);
@@ -178,12 +203,10 @@ public class ItemsResource extends AdminApiResource {
             //authentication
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-            //authorization
-            String role = ROLE_READ_FOXML;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
+            if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
-
             checkObjectExists(pid);
             Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
             return Response.ok().entity(foxml.asXML()).build();
@@ -203,12 +226,13 @@ public class ItemsResource extends AdminApiResource {
             checkSupportedObjectPid(pid);
             //authentication
             User user = this.userProvider.get();
+
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-            //authorization
-            String role = ROLE_READ_FOXML;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
+            if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
+
             checkObjectExists(pid);
 
             Document relsExt = krameriusRepositoryApi.getRelsExt(pid, true);
@@ -251,9 +275,9 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            String role = ROLE_EDIT_OBJECTS;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
+            if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
             checkObjectExists(pid);
 
@@ -331,9 +355,9 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            String role = ROLE_DELETE_OBJECTS;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
+            if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectExists(pid);
@@ -362,9 +386,9 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            String role = ROLE_READ_FOXML;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
+            if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectAndDatastreamExist(pid, dsid);
@@ -393,9 +417,9 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            String role = ROLE_READ_FOXML;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
+            if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectAndDatastreamExist(pid, dsid);
@@ -471,9 +495,9 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            String role = ROLE_READ_FOXML;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getLoginname(), role); //403
+            if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectAndDatastreamExist(pid, dsId);
@@ -552,10 +576,12 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            String role = ROLE_EDIT_OBJECTS;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getLoginname(), role); //403
+            
+            if (!userIsAllowedToRead(this.rightsResolver, user, targetPid)) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
+            
             //check target object
             checkSupportedObjectPid(targetPid);
             checkObjectExists(targetPid);
@@ -597,10 +623,11 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            String role = ROLE_EDIT_OBJECTS;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user.getLoginname(), role); //403
+            if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
+            
             //check target object
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -613,6 +640,25 @@ public class ItemsResource extends AdminApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+
+    private boolean userIsAllowedToRead(RightsResolver rightsResolver, User user, String pid) throws IOException {
+        checkSupportedObjectPid(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
+        if (paths.length == 0) {
+            throw new InternalErrorException("illegal state: no paths for object %s found in search index", pid);
+            //or maybe build paths from resource/processing index
+            //but user should not access page before it is indexed anyway
+            //so eventual consistency vs. "API doesn't (at least seemingly) depend on search index"
+        }
+        for (int i = 0; i < paths.length; i++) {
+            ObjectPidsPath path = paths[i];
+            if (rightsResolver.isActionAllowed(user, SecuredActions.A_ADMIN_READ .getFormalName(), pid, null, path.injectRepository()).flag()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

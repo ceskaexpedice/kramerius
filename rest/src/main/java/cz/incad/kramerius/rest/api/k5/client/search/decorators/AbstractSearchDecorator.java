@@ -21,11 +21,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.rest.api.k5.client.AbstractDecorator;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.AbstractItemDecorator;
 
 public abstract class AbstractSearchDecorator extends AbstractDecorator {
 
-	public static final Logger LOGGER = Logger.getLogger(AbstractItemDecorator.class.getName());
+	public static final Logger LOGGER = Logger.getLogger(AbstractSearchDecorator.class.getName());
 	
 	public static final String SEARCH_KEY="SEARCH";
 

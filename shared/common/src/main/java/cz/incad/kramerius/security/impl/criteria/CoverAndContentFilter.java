@@ -126,6 +126,6 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
 
     @Override
     public SecuredActions[] getApplicableActions() {
-        return new SecuredActions[]{SecuredActions.READ};
+        return new SecuredActions[]{SecuredActions.A_READ};
     }
 }

@@ -81,7 +81,7 @@ public class IiifServlet extends AbstractImageServlet {
             ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
             boolean permited = false;
             for (ObjectPidsPath pth : paths) {
-                permited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(), pid, null, pth.injectRepository()).flag();
+                permited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.A_READ.getFormalName(), pid, null, pth.injectRepository()).flag();
                 if (permited) break;
             }
 

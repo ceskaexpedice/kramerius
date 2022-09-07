@@ -95,11 +95,6 @@ public class DatabaseRightsManager implements RightsManager {
     @Override
     public Right[] findAllRightByCriteriumNames(String actionName, String[] criteriumNames, User user) {
 
-        //Arrays.stream(user.getGroups()).map(Role::getName).toArray();
-
-
-        //int[] ids = Arrays.stream(user.getGroups()).mapToInt(Role::getId).toArray();
-
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findAllRightsWithGroupsAndCriteriums");
         template.setAttribute("userid", user.getId());
         template.setAttribute("groupids", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList()));
@@ -147,12 +142,6 @@ public class DatabaseRightsManager implements RightsManager {
                 int userId = rs.getInt("user_id");
                 int groupId = rs.getInt("group_id");
                 String role = rs.getString("role");
-//                AbstractUser dbUser = null;
-//                if (userId > 0) {
-//                    dbUser = userManager.findUser(userId);
-//                } else {
-//                    dbUser = userManager.findRole(groupId);
-//                }
                 returnsList.add(RightsDBUtils.createRight(rs, new RoleImpl(groupId, role, -1), criteriumWrapperFactory));
                 return true;
             }

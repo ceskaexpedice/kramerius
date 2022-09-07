@@ -205,6 +205,7 @@ public class PDFResource extends AbstractPDFResource {
         }
     }
 
+    
     /**
      * Generate pdf from selection
      *

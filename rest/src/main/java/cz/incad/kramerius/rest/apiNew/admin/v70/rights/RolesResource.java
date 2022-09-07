@@ -258,7 +258,7 @@ public class RolesResource {
 
     boolean permit(User user) {
     	if (user != null)
-    		return  this.rightsResolver.isActionAllowed(user,SecuredActions.USERSADMIN.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
+    		return  this.rightsResolver.isActionAllowed(user,SecuredActions.A_ROLES_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
     	else 
     		return false;
     }

@@ -107,7 +107,7 @@ public class StatisticsResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response cleanData(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo) {
         // mel by byt nekdo jiny nez ten kdo resi prohlizeni statistik
-        if (permit(SecuredActions.MANAGE_STATISTICS)) {
+        if (permit(SecuredActions.A_STATISTICS_EDIT)) {
             try {
                 // kontrola datumu / break /pokud je vetsi nez break, chybny dotaz
                 if (StringUtils.isAnyString(dateFrom) && StringUtils.isAnyString(dateTo)) {
@@ -137,7 +137,7 @@ public class StatisticsResource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response reports() {
-        if (permit(SecuredActions.SHOW_STATISTICS)) {
+        if (permit(SecuredActions.A_STATISTICS)) {
             StatisticReport[] allReports = this.statisticsAccessLog.getAllReports();
             List<String> ids = Arrays.asList(allReports).stream().map(StatisticReport::getReportId)
                     .collect(Collectors.toList());
@@ -166,8 +166,7 @@ public class StatisticsResource {
             @DefaultValue("ALL") @QueryParam("visibility") String visibility,
             @QueryParam("offset") String filterOffset,
             @QueryParam("pids") String pids) {
-        if (permit(SecuredActions.SHOW_STATISTICS)) {
-            if (permit(SecuredActions.SHOW_STATISTICS)) {
+        if (permit(SecuredActions.A_STATISTICS)) {
                 try {
                     StatisticsFiltersContainer container = container(dateFrom, dateTo, model, visibility,
                             pids, license, models, identifier);
@@ -194,10 +193,6 @@ public class StatisticsResource {
             } else {
                 throw new ActionNotAllowed("not allowed");
             }
-
-        } else {
-            throw new ActionNotAllowed("not allowed");
-        }
     }
 
     @GET
@@ -217,7 +212,7 @@ public class StatisticsResource {
             @QueryParam("pids") String pids,
             @QueryParam("resultSize") String filterResultSize) {
         
-        if (permit(SecuredActions.SHOW_STATISTICS)) {
+        if (permit(SecuredActions.A_STATISTICS)) {
             try {
                 StatisticsFiltersContainer container = container(dateFrom, dateTo, model, visibility,
                         pids, license, models, identifier);
@@ -453,7 +448,7 @@ public class StatisticsResource {
         VisibilityFilter visFilter = new VisibilityFilter();
 		visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
 
-        if (permit(SecuredActions.SHOW_STATISTICS)) {
+        if (permit(SecuredActions.A_STATISTICS)) {
             if (rip != null && (!rip.equals(""))) {
             	StatisticReport report = this.statisticsAccessLog.getReportById(rip);
             	Optional<StatisticsReportFormatter> opts = reportFormatters.stream().filter(formatter -> {

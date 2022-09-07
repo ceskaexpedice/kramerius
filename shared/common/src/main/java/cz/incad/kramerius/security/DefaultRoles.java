@@ -25,13 +25,18 @@ package cz.incad.kramerius.security;
  */
 public enum DefaultRoles {
 
+    
     /** role represents all logged and notlogged users */
     COMMON_USERS("common_users"),
     /** role represents all k4 admins */
     K4_ADMINS("k4_admins"), 
     /** role represents all public registred users */
-    PUBLIC_USERS("public_users");
+    PUBLIC_USERS("public_users"),
 
+    /** New roles */
+    KRAMERIUS_ADMINS("kramerius_admins");
+    
+    
     private String name;
 
     private DefaultRoles(String name) {

@@ -114,7 +114,7 @@ public class ItemResource {
                 paths = this.resourceIndex.getPaths(pid);
             }
             for (ObjectPidsPath path : paths) {
-                if (this.rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, null, path).flag()) {
+                if (this.rightsResolver.isActionAllowed(SecuredActions.A_READ.getFormalName(), pid, null, path).flag()) {
                     access = true;
                     break;
                 }

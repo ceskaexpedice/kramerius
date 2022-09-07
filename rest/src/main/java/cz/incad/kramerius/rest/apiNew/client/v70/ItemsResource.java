@@ -252,7 +252,7 @@ public class ItemsResource extends ClientApiResource {
                 pidsPathList.add(new ObjectPidsPath(pidPaths.getString(i)));
             }
             for (ObjectPidsPath p : pidsPathList) {
-                RightsReturnObject actionAllowed = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
+                RightsReturnObject actionAllowed = rightsResolver.isActionAllowed(SecuredActions.A_READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
                 if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
                     String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
                     if (/*qName.equals(ReadDNNTFlag.class.getName()) ||

@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.rest.apiNew.client.v70;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -24,16 +25,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.DatabaseRightsManager;
 import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,10 +50,8 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.PasswordDigest;
+import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.users.UserProfileManager;
 
 //@Path("/v5.0/user")
@@ -63,8 +68,6 @@ public class ClientUserResource {
     @Inject
     UserProfileManager userProfileManager;
 
-    @Inject
-    RightsResolver rightsResolver;
 
     @Inject
     Provider<User> userProvider;
@@ -83,6 +86,14 @@ public class ClientUserResource {
 
     @Inject
     Provider<HttpServletRequest> provider;
+
+    @Inject
+    @Named("new-index")
+    SolrAccess solrAccess;
+    
+    @Inject
+    RightsResolver rightsResolver;
+
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -111,7 +122,7 @@ public class ClientUserResource {
     private List<String> findLabels(User user) {
         // find all rights associated with current user and labels criteria
         Right[] rightsAsssignedWithLabels = this.databaseRightsManager.findAllRightByCriteriumNames(
-                SecuredActions.READ.getFormalName(),
+                SecuredActions.A_READ.getFormalName(),
                 LABELS_CRITERIA,
                 user
         );
@@ -133,7 +144,115 @@ public class ClientUserResource {
         return evaluatedObjects.stream().filter(label-> {
             return  (Character.isAlphabetic(label.charAt(0)));
         }).collect(Collectors.toList());
+    }
 
+    //TODO: Merge with actionsForPids
+    @GET
+    @Path("actions")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response allowedActions(@QueryParam("pid") String pid) {
+        User user;
+        try {
+            user = this.userProvider.get();
+            if (pid == null || !StringUtils.isAnyString(pid)) {
+                pid = SpecialObjects.REPOSITORY.getPid();
+            }
+            
+            
+            ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+            user = this.userProvider.get();
+            
+            SecuredActions[] values = SecuredActions.values();
+            if (!SpecialObjects.REPOSITORY.getPid().equals(pid)) {
+                values = Arrays.stream(values).filter(it-> {
+                    return !it.isGlobalAction();
+                }).toArray(SecuredActions[]::new);
+            }
+
+            values = Arrays.stream(values).filter(it-> {
+                String formalName = it.getFormalName();
+                return formalName.startsWith("a_");
+            }).toArray(SecuredActions[]::new);
+
+
+            JSONObject retobject = new JSONObject();
+
+            Set<String> set = new LinkedHashSet<>();
+            for (ObjectPidsPath pth : pidPaths) {
+                pth = pth.injectRepository();
+                for (SecuredActions sa : values) {
+                    RightsReturnObject actionAllowed = this.rightsResolver.isActionAllowed(userProvider.get(), sa.getFormalName(),pid,null,pth.injectRepository());
+                    if (actionAllowed.getState() == EvaluatingResultState.TRUE) {
+                        set.add(sa.getFormalName());
+                    }
+                }
+            }
+            
+            JSONArray jsonArray = new JSONArray();
+            set.forEach(jsonArray::put);
+            retobject.put("actions", jsonArray);
+
+            return Response.ok().entity(retobject.toString()).build();
+        } catch (UnsupportedEncodingException e) {
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
+        } catch (IOException e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
+    
+    @GET
+    @Path("pids_actions")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response pidsActions(@QueryParam("pids") String pids) {
+        User user;
+        try {
+            user = this.userProvider.get();
+            String[] pidsArray = pids.split(",");
+            
+            JSONObject retobject = new JSONObject();
+            for (String pid : pidsArray) {
+                
+                ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                user = this.userProvider.get();
+                
+                SecuredActions[] values = SecuredActions.values();
+                if (!SpecialObjects.REPOSITORY.getPid().equals(pid)) {
+                    values = Arrays.stream(values).filter(it-> {
+                        return !it.isGlobalAction();
+                    }).toArray(SecuredActions[]::new);
+                }
+
+                values = Arrays.stream(values).filter(it-> {
+                    String formalName = it.getFormalName();
+                    return formalName.startsWith("a_");
+                }).toArray(SecuredActions[]::new);
+
+
+                Set<String> set = new LinkedHashSet<>();
+                for (ObjectPidsPath pth : pidPaths) {
+                    for (SecuredActions sa : values) {
+                        RightsReturnObject actionAllowed = this.rightsResolver.isActionAllowed(userProvider.get(), sa.getFormalName(),pid,null,pth.injectRepository());
+                        if (actionAllowed.getState() == EvaluatingResultState.TRUE) {
+                            set.add(sa.getFormalName());
+                        }
+                    }
+                }
+                JSONArray retArray = new JSONArray();
+                set.forEach(retArray::put);
+                retobject.put(pid, retArray);
+            }
+            return Response.ok().entity(retobject.toString()).build();
+        } catch (UnsupportedEncodingException e) {
+            throw new GenericApplicationException(e.getMessage());
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
+        } catch (IOException e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
+        
     }
 
     @POST
@@ -168,6 +287,8 @@ public class ClientUserResource {
         }
     }
 
+    
+    
     @GET
     @Path("logout")
     public Response logout() {

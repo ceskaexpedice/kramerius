@@ -92,6 +92,7 @@ import cz.incad.kramerius.utils.database.Offset;
 import cz.incad.kramerius.utils.database.SQLFilter;
 import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
 
+import static cz.incad.kramerius.rest.api.processes.utils.SecurityProcessUtils.*;
 
 /**
  * Processes API endpoint
@@ -192,6 +193,7 @@ public class LRResource {
     }
 
     
+    // planovat plain process
     Response plainProcessStart(String def, JSONArray array) {
         LRProcessDefinition definition = processDefinition(def);
         if (definition == null) throw new NoProcessFound("definition not found");
@@ -204,18 +206,18 @@ public class LRResource {
             throw new ActionNotAllowed("action is not allowed");
         }
 
-        SecuredActions actionFromDef = securedAction(def, definition);
-        boolean permitted = permit(rightsResolver, actionFromDef, user);
-        if (permitted) {
-            try {
-                
-                if (definition != null) {
-                    if (!definition.isInputTemplateDefined()) {
-                        
-                        LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
+        try {
+            
+            if (definition != null) {
+                if (!definition.isInputTemplateDefined()) {
+                    LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
+
+                    boolean permitted = permitManager(rightsResolver, user) ||
+                            permitProcessByDefinedAction(rightsResolver, user,  definition);
+
+                    if (permitted) {
                         newProcess.setLoggedUserKey(loggedUserKey);
 
-                        
                         List<String> params = new ArrayList<String>();
                         for (int i = 0,ll=array.length(); i < ll; i++) {
                             params.add(array.getString(i));
@@ -227,20 +229,20 @@ public class LRResource {
                         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
                         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
                     } else {
-                        throw new CannotStartProcess("not plain process "+def);
+                        throw new ActionNotAllowed("action is not allowed");
                     }
-                } else throw new NoDefinitionFound("cannot find definition '"+def+"'");
-            } catch (IllegalArgumentException e) {
-                throw new CannotStartProcess(e.getMessage(),e);
-            } catch (UriBuilderException e) {
-                throw new CannotStartProcess("not plain process "+def);
-            } catch (SecurityException e) {
-                throw new ActionNotAllowed("action is not allowed");
-            } catch (JSONException e) {
-                throw new CannotStartProcess(e.getMessage(),e);
-            }
-        } else {
+                } else {
+                    throw new CannotStartProcess("not plain process "+def);
+                }
+            } else throw new NoDefinitionFound("cannot find definition '"+def+"'");
+        } catch (IllegalArgumentException e) {
+            throw new CannotStartProcess(e.getMessage(),e);
+        } catch (UriBuilderException e) {
+            throw new CannotStartProcess("not plain process "+def);
+        } catch (SecurityException e) {
             throw new ActionNotAllowed("action is not allowed");
+        } catch (JSONException e) {
+            throw new CannotStartProcess(e.getMessage(),e);
         }
     }
 
@@ -254,7 +256,9 @@ public class LRResource {
         String gtoken = request.getHeader(TOKEN_ATTRIBUTE_KEY);
         return gtoken;
     }
-
+    
+    
+    // planovat parametrizovany process
     Response parametrizedProcessStart(@PathParam("def")String def,  JSONObject mapping){
         LRProcessDefinition definition = processDefinition(def);
         if (definition == null) throw new NoProcessFound("definition not found");
@@ -267,13 +271,14 @@ public class LRResource {
             throw new ActionNotAllowed("action is not allowed");
         }
 
-        SecuredActions actionFromDef = securedAction(def, definition);
-        boolean permitted = permit(rightsResolver, actionFromDef, user);
+        try {
+            LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
+            newProcess.setLoggedUserKey(loggedUserKey);
 
-        if (permitted) {
-            try {
-                LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
-                newProcess.setLoggedUserKey(loggedUserKey);
+            boolean permitted = permitManager(rightsResolver, user) ||
+                    permitProcessByDefinedAction(rightsResolver, user,  definition);
+
+            if (permitted) {
 
                 Properties props = new Properties();
                 for (Iterator iterator = mapping.keys(); iterator.hasNext();) {
@@ -293,11 +298,11 @@ public class LRResource {
                 lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
                 URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
                 return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
-            } catch (JSONException e) {
-                throw new GenericApplicationException(e.getMessage());
+            } else {
+                throw new ActionNotAllowed("action is not allowed");
             }
-        } else {
-            throw new ActionNotAllowed("action is not allowed");
+        } catch (JSONException e) {
+            throw new GenericApplicationException(e.getMessage());
         }
     }
 
@@ -307,6 +312,7 @@ public class LRResource {
         LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
         return definition;
     }
+    
     
     /**
      * Stop current running process
@@ -328,8 +334,11 @@ public class LRResource {
             throw new ActionNotAllowed("action is not allowed");
         }
 
-        SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
-        boolean permitted = permit(rightsResolver, actionFromDef, user);
+        boolean permitted = permitManager(rightsResolver, user) || 
+                            permitProcessByDefinedAction(rightsResolver, user,  processDefinition(lrPRocess.getDefinitionId())) || 
+                            permitProcessOwner(rightsResolver, user, lrPRocess);
+                            
+
         if (permitted) {
             if (stop != null) {
                 this.definitionManager.load();
@@ -380,16 +389,19 @@ public class LRResource {
             throw new ActionNotAllowed("action is not allowed");
         }
 
-        SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
-        boolean permitted = permit(rightsResolver, actionFromDef, user);
+        LRProcess longRunningProcess = this.lrProcessManager.getLongRunningProcess(uuid);
 
-        
-        //TODO: security
+        boolean permitted = permitManager(rightsResolver, user) || 
+                permitProcessByDefinedAction(rightsResolver, user,  processDefinition(lrPRocess.getDefinitionId())) || 
+                permitProcessOwner(rightsResolver, user, lrPRocess);
+
         if (permitted) {
             Lock lock = this.lrProcessManager.getSynchronizingLock();
             lock.lock();
             try {
-                LRProcess longRunningProcess = this.lrProcessManager.getLongRunningProcess(uuid);
+
+                
+                
                 if (longRunningProcess != null) {
                     if (BatchStates.expect(longRunningProcess.getBatchState(), BatchStates.BATCH_FAILED, BatchStates.BATCH_FINISHED, BatchStates.BATCH_WARNING)) {
                         lrProcessManager.deleteBatchLongRunningProcess(longRunningProcess);
@@ -430,8 +442,11 @@ public class LRResource {
             throw new ActionNotAllowed("action is not allowed");
         }
 
-        SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
-        boolean permitted = permit(rightsResolver, actionFromDef, user);
+        boolean permitted = permitManager(rightsResolver, user) || 
+                permitReader(rightsResolver, user) || 
+                permitProcessByDefinedAction(rightsResolver, user,  processDefinition(lrPRocess.getDefinitionId())) || 
+                permitProcessOwner(rightsResolver, user, lrPRocess);
+
         if (permitted) {
             try {
                 JSONObject jsonObj = new JSONObject();
@@ -480,8 +495,10 @@ public class LRResource {
             throw new ActionNotAllowed("action is not allowed");
         }
 
-        SecuredActions actionFromDef = securedAction(lrPRocess.getDefinitionId(), processDefinition(lrPRocess.getDefinitionId()));
-        boolean permitted = permit(rightsResolver, actionFromDef, user);
+        boolean permitted = permitManager(rightsResolver, user) || 
+                permitReader(rightsResolver, user) || 
+                permitProcessByDefinedAction(rightsResolver, user,  processDefinition(lrPRocess.getDefinitionId())) || 
+                permitProcessOwner(rightsResolver, user, lrPRocess);
         if (permitted) {
             LRProcess lrProc = this.lrProcessManager.getLongRunningProcess(uuid);
             if (lrProc != null) {
@@ -556,8 +573,7 @@ public class LRResource {
             throw new ActionNotAllowed("action is not allowed");
         }
 
-        boolean permitted = permit(rightsResolver,  user);
-
+        boolean permitted = permitManager(rightsResolver, user) || permitReader(rightsResolver, user);
         if (permitted) {
 
                 try {
@@ -712,18 +728,17 @@ public class LRResource {
         }
     }
 
+    
 
-    boolean permit(RightsResolver rightsResolver, User user) {
-        boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() : false;
-        return permited;
-    }
 
-    boolean permit(RightsResolver rightsResolver, SecuredActions action, User user) {
-        boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() ||
-                            (action != null && rightsResolver.isActionAllowed(user, action.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag())) : false ;
-        return permited;
-    }
+//    @Deprecated
+//    boolean permit(RightsResolver rightsResolver, SecuredActions action, User user) {
+//        boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() ||
+//                            (action != null && rightsResolver.isActionAllowed(user, action.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag())) : false ;
+//        return permited;
+//    }
 
+    // muze naplanovat i ten, co ma definovanou akci v lp.xml. To asi tak muze byt.
     public SecuredActions securedAction(String def, LRProcessDefinition definition) {
         return definition.getSecuredAction() != null ? SecuredActions.findByFormalName(definition.getSecuredAction()) : SecuredActions.findByFormalName(def);
     }

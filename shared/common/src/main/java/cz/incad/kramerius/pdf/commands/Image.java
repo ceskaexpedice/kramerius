@@ -20,6 +20,10 @@ import java.util.logging.Level;
 
 import org.w3c.dom.Element;
 
+/**
+ * Represents big image, page
+ * @author happy
+ */
 public class Image extends AbstractITextCommand implements ITextCommand {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Image.class.getName());

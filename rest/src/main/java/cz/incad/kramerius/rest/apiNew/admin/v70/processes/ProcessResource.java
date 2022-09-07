@@ -5,6 +5,7 @@ import cz.incad.kramerius.processes.*;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
+import cz.incad.kramerius.rest.api.processes.utils.SecurityProcessUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v70.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
 import cz.incad.kramerius.security.*;
@@ -48,18 +49,18 @@ public class ProcessResource extends AdminApiResource {
     private static final Integer GET_LOGS_DEFAULT_LIMIT = 10;
 
 
-    //TODO: prejmenovat role podle spravy uctu
-    private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
-    private static final String ROLE_READ_PROCESSES = "kramerius_admin";
-    private static final String ROLE_READ_PROCESS_OWNERS = "kramerius_admin";
-    private static final String ROLE_DELETE_PROCESSES = "kramerius_admin";
-    private static final String ROLE_CANCEL_OR_KILL_PROCESSES = "kramerius_admin";
+    //TODO: prejmenovat role podle spravy uctu ??
+//    private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
+//    private static final String ROLE_READ_PROCESSES = "kramerius_admin";
+//    private static final String ROLE_READ_PROCESS_OWNERS = "kramerius_admin";
+//    private static final String ROLE_DELETE_PROCESSES = "kramerius_admin";
+//    private static final String ROLE_CANCEL_OR_KILL_PROCESSES = "kramerius_admin";
 
     @Inject
     LRProcessManager lrProcessManager;
 
-    /*@Inject
-    DefinitionManager definitionManager; //process definitions*/
+    @Inject
+    DefinitionManager definitionManager;
 
     /*@Inject
     Provider<HttpServletRequest> requestProvider;*/
@@ -73,7 +74,8 @@ public class ProcessResource extends AdminApiResource {
 
     @Inject
     RightsResolver rightsResolver;
-
+    
+    //TODO: Merge it in future
     @Inject
     ProcessManager processManager;
 
@@ -95,11 +97,11 @@ public class ProcessResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            //authorization
-            String role = ROLE_READ_PROCESS_OWNERS;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
+            boolean permitted = SecurityProcessUtils.permitManager(this.rightsResolver, user) || SecurityProcessUtils.permitReader(this.rightsResolver, user);
+            if (!permitted) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing action '%s' or '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
+            
             //get data from db
             List<ProcessOwner> owners = this.processManager.getProcessesOwners();
             //sort
@@ -142,11 +144,6 @@ public class ProcessResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            //authorization
-            String role = ROLE_READ_PROCESSES;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
-            }
             //id
             Integer processIdInt = null;
             if (StringUtils.isAnyString(processId)) {
@@ -158,9 +155,21 @@ public class ProcessResource extends AdminApiResource {
             }
             //get process (& it's batch) data from db
             ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
+
             if (processInBatch == null) {
                 throw new NotFoundException("there's no process with process_id=" + processId);
             }
+            
+            //authorization
+            LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
+            boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
+                                SecurityProcessUtils.permitReader(rightsResolver, user) ||
+                                SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
+            if (!permitted) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing action '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
+            }
+
+            
             JSONObject result = processInBatchToJson(processInBatch);
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
@@ -279,11 +288,17 @@ public class ProcessResource extends AdminApiResource {
         //authentication
         User user = this.userProvider.get();
         List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-        //authorization
-        String role = ROLE_READ_PROCESSES;
-        if (!roles.contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
+        
+
+        LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processUuid);
+        boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
+                            SecurityProcessUtils.permitReader(rightsResolver, user) ||
+                            SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user,  SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
+
+        if (!permitted) {
+            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
         }
+        
         //offset & limit
         long offset = GET_LOGS_DEFAULT_OFFSET;
         if (StringUtils.isAnyString(offsetStr)) {
@@ -363,11 +378,11 @@ public class ProcessResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            //authorization
-            String role = ROLE_DELETE_PROCESSES;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
-            }
+//            //authorization
+//            String role = ROLE_DELETE_PROCESSES;
+//            if (!roles.contains(role)) {
+//                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
+//            }
             //id
             Integer processIdInt = null;
             if (StringUtils.isAnyString(processId)) {
@@ -382,6 +397,23 @@ public class ProcessResource extends AdminApiResource {
             if (batch == null) {
                 throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
             }
+            
+            
+            
+            ProcessInBatch processInBatch = this.processManager.getProcessInBatchByProcessId(processIdInt);
+
+            LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
+            boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
+                                SecurityProcessUtils.permitReader(rightsResolver, user) ||
+                                SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user,  SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
+
+            //authorization
+            //String role = ROLE_DELETE_PROCESSES;
+            if (!permitted) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s','%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
+            }
+            
+            
             //check batch is deletable
             String batchState = toBatchStateName(batch.stateCode);
             if (!isDeletableState(batchState)) {
@@ -413,12 +445,6 @@ public class ProcessResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            //authorization
-            String role = ROLE_CANCEL_OR_KILL_PROCESSES;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
-            }
-            //id
             Integer processIdInt = null;
             if (StringUtils.isAnyString(processId)) {
                 try {
@@ -432,6 +458,17 @@ public class ProcessResource extends AdminApiResource {
             if (batch == null) {
                 throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
             }
+            
+            ProcessInBatch processInBatch = this.processManager.getProcessInBatchByProcessId(processIdInt);
+
+            LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
+            boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
+                                SecurityProcessUtils.permitReader(rightsResolver, user) ||
+                                SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user,  SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
+            if (!permitted) {
+                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s','%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
+            }
+
 
             //kill all processes in batch if possible
             String batchState = toBatchStateName(batch.stateCode);
@@ -439,9 +476,8 @@ public class ProcessResource extends AdminApiResource {
                 List<ProcessInBatch> processes = processManager.getProcessesInBatchByFirstProcessId(processIdInt);
                 for (ProcessInBatch process : processes) {
                     String uuid = process.processUuid;
-                    LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
+                    //LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
                     if (lrProcess != null && !States.notRunningState(lrProcess.getProcessState())) { //process in batch is running
-                        //System.out.println(lrProcess.getProcessState());
                         try {
                             lrProcess.stopMe();
                             lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
@@ -492,10 +528,10 @@ public class ProcessResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            //authorization
-            String role = ROLE_READ_PROCESSES;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
+            boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
+                                SecurityProcessUtils.permitReader(rightsResolver, user);
+            if (!permitted) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
 
             //offset & limit
@@ -562,19 +598,19 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    private void checkAccessControlByBasicAccessAuth() {
-        boolean disabled = true;
-        if (!disabled) {
-            User user = this.userProvider.get();
-            if (user == null) {
-                throw new UnauthorizedException("user==null"); //401
-            }
-            boolean allowed = rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag();
-            if (!allowed) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes", user.getLoginname()); //403
-            }
-        }
-    }
+//    private void checkAccessControlByBasicAccessAuth() {
+//        boolean disabled = true;
+//        if (!disabled) {
+//            User user = this.userProvider.get();
+//            if (user == null) {
+//                throw new UnauthorizedException("user==null"); //401
+//            }
+//            boolean allowed = rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag();
+//            if (!allowed) {
+//                throw new ForbiddenException("user '%s' is not allowed to manage processes", user.getLoginname()); //403
+//            }
+//        }
+//    }
 
     /**
      * Schedules new process
@@ -618,12 +654,14 @@ public class ProcessResource extends AdminApiResource {
                 paramsList.addAll(paramsToList(defid, params));
                 //authentication
                 User user = this.userProvider.get();
-                List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-                //authorization
-                String role = ROLE_SCHEDULE_PROCESSES;
-                if (!roles.contains(role)) {
-                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
+                LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition(defid);
+                
+                boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
+                        SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, definition);
+                if (!permitted) {
+                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
                 }
+
                 return scheduleProcess(defid, paramsList, user.getLoginname(), user.getLoginname(), batchToken, buildInitialProcessName(defid, paramsList));
             }
         } catch (WebApplicationException e) {
@@ -1012,10 +1050,6 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    //TODO: proverit fungovani
-    private SecuredActions securedAction(String processType, LRProcessDefinition definition) {
-        return definition.getSecuredAction() != null ? SecuredActions.findByFormalName(definition.getSecuredAction()) : SecuredActions.findByFormalName(processType);
-    }
 
     private LocalDateTime parseLocalDateTime(String string) {
         if (string == null) {

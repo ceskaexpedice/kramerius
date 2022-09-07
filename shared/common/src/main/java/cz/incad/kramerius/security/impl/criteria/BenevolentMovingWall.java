@@ -128,7 +128,7 @@ public class BenevolentMovingWall extends AbstractCriterium implements RightCrit
 
     @Override
     public SecuredActions[] getApplicableActions() {
-        return new SecuredActions[] { SecuredActions.READ };
+        return new SecuredActions[] { SecuredActions.A_READ };
     }
 
     @Override

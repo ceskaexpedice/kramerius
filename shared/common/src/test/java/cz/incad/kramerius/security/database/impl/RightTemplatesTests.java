@@ -264,7 +264,7 @@ public class RightTemplatesTests {
         Role mockUser = EasyMock.createMock(Role.class);
         EasyMock.expect(mockUser.getId()).andReturn(111);
 
-        RightImpl rightImpl = new RightImpl(1, mw, "0xABC", SecuredActions.READ.getFormalName(), mockUser);
+        RightImpl rightImpl = new RightImpl(1, mw, "0xABC", SecuredActions.A_READ.getFormalName(), mockUser);
         rightImpl.setCriteriumWrapper(mw);
 
         StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRight");

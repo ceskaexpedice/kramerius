@@ -38,6 +38,7 @@
         <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
         <!--<parameters>duration processesInBatch finalState</parameters>-->
         <checkErrorStream>false</checkErrorStream>
+        <securedaction>a_index</securedaction>
     </process>
 
     <!--deprecated - jen proto, aby bylo mozne zobrazit zaznamy starsich procesu-->
@@ -49,6 +50,7 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <checkErrorStream>false</checkErrorStream>
+        <securedaction>a_index</securedaction>
     </process>
 
     <process>
@@ -61,6 +63,7 @@
         <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
         <!--<parameters>duration processesInBatch finalState</parameters>-->
         <checkErrorStream>false</checkErrorStream>
+        <securedaction>a_index</securedaction>
     </process>
 
     <process>
@@ -74,48 +77,9 @@
         <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
         <!--<parameters>duration processesInBatch finalState</parameters>-->
         <checkErrorStream>false</checkErrorStream>
+        <securedaction>a_index</securedaction>
     </process>
 
-    <process>
-        <!-- wiz...  -->
-        <id>wmock</id>
-        <!-- jenom popis -->
-        <description>Mocked process</description>
-        <!-- spoustena trida -->
-        <mainClass>cz.incad.kramerius.processes.mock.wizard.WizardMockLPProcess</mainClass>
-        <!-- standardni vystup -->
-        <standardOs>lrOut</standardOs>
-        <!-- err vystup -->
-        <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
-        <parameters>/home/pavels/tmp two</parameters>
-
-        <templates>
-            <input class="cz.incad.kramerius.processes.mock.wizard.FolderTemplates"></input>
-            <output class="cz.incad.kramerius.processes.mock.logs.LogsOutputTemplate"></output>
-        </templates>
-
-        <securedaction>mock</securedaction>
-    </process>
-
-    <process>
-        <id>defaultmock</id>
-        <description>Mocked process</description>
-        <!-- spoustena trida -->
-        <mainClass>cz.incad.kramerius.processes.mock.wizard.DefaultWizardMockLPProcess</mainClass>
-        <!-- standardni vystup -->
-        <standardOs>lrOut</standardOs>
-        <!-- err vystup -->
-        <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
-        <parameters>lp-name lp-value</parameters>
-
-        <templates>
-            <input class="cz.incad.kramerius.processes.def.DefaultTemplate"></input>
-            <output class="cz.incad.kramerius.processes.mock.logs.LogsOutputTemplate"></output>
-        </templates>
-
-    </process>
 
 
     <process>
@@ -147,41 +111,7 @@
         <securedaction>export</securedaction>
     </process>
 
-    <process>
-        <!-- identifikator  -->
-        <id>static_export_DVD</id>
-        <!-- jenom popis -->
-        <description>Statický export do PDF na DVD</description>
-        <!-- spoustena trida -->
-        <mainClass>cz.incad.kramerius.lp.PDFExport</mainClass>
-        <standardOs>lrOut</standardOs>
-        <errOs>lrErr</errOs>
-        <parameters>pdfs_out DVD</parameters>
-        <!--
-        <parameters>
-            <parameter>pdfs_out</parameter>
-            <parameter>DVD</parameter>
-        </parameters>
-        -->
-        <securedaction>export</securedaction>
-    </process>
 
-    <process>
-        <id>reindex</id>
-        <description>Reindexace</description>
-        <mainClass>cz.incad.kramerius.indexer.Main</mainClass>
-        <standardOs>lrOut</standardOs>
-        <errOs>lrErr</errOs>
-        <!--
-        <parameters>$default_lp_work_dir$/reindexer/config.properties $default_lp_work_dir$/reindexer/log4j.properties</parameters>
-        <parameters>
-            <parameter>$default_lp_work_dir$/reindexer/config.properties</parameter>
-            <parameter>$default_lp_work_dir$/reindexer/log4j.properties</parameter>
-        </parameters>
-        -->
-        <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
-
-    </process>
 
     <!-- Index & Reindex process -->
     <process>
@@ -287,6 +217,7 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>public</parameters>
+        <securedaction>a_set_accessibility</securedaction>
         <!--
         <parameters>
             <parameter>public</parameter>
@@ -302,6 +233,7 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>private</parameters>
+        <securedaction>a_set_accessibility</securedaction>
         <!--
         <parameters>
             <parameter>private</parameter>
@@ -317,6 +249,7 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <checkErrorStream>false</checkErrorStream>
+        <securedaction>a_set_accessibility</securedaction>
     </process>
 
     <process>
@@ -328,6 +261,7 @@
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <!--<checkErrorStream>false</checkErrorStream>-->
         <parameters>ADD</parameters>
+        <securedaction>a_set_accessibility</securedaction>
     </process>
 
     <process>
@@ -339,6 +273,7 @@
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <!--<checkErrorStream>false</checkErrorStream>-->
         <parameters>REMOVE</parameters>
+        <securedaction>a_set_accessibility</securedaction>
     </process>
 
     <!--deprecated, was replaced with delete_tree-->
@@ -348,6 +283,7 @@
         <mainClass>cz.incad.kramerius.service.impl.DeleteServiceImpl</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <securedaction>a_delete</securedaction>
     </process>
 
     <!--delete object and own tree with this object as a root-->
@@ -359,6 +295,7 @@
         <mainClass>cz.incad.kramerius.DeleteTreeProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <securedaction>a_delete</securedaction>
     </process>
 
     <process>
@@ -427,7 +364,7 @@
         <templates>
             <input class="org.kramerius.imports.input.ParametrizedImportInputTemplate"></input>
         </templates>
-        <securedaction>import</securedaction>
+        <securedaction>a_import</securedaction>
     </process>
 
     <!-- Import FOXML process -->
@@ -437,6 +374,7 @@
         <mainClass>org.kramerius.Import</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <securedaction>a_import</securedaction>
     </process>
 
     <!-- Import NDK METS process -->
@@ -446,6 +384,7 @@
         <mainClass>org.kramerius.importmets.MetsConvertor</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <securedaction>a_import</securedaction>
     </process>
 
     <!-- Generating Deep Zoom tiles process -->
@@ -512,7 +451,7 @@
             <input class="org.kramerius.replications.input.InputTemplate"></input>
             <output class="org.kramerius.replications.outputs.OutputTemplate"></output>
         </templates>
-        <securedaction>import_k4_replications</securedaction>
+        <securedaction>a_import_replications</securedaction>
     </process>
 
     <!-- Deleting ald process -->
@@ -593,18 +532,9 @@
         <mainClass>cz.cas.lib.knav.indexer.BatchIndexerSupport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <securedaction>reindex</securedaction>
+        <securedaction>a_index</securedaction>
     </process>
 
-    <!-- migration search index -->
-    <process>
-        <id>migrationindex</id>
-        <description>Index migrations</description>
-        <mainClass>cz.incad.kramerius.services.ParallelMigrateSolrIndexImpl</mainClass>
-        <standardOs>lrOut</standardOs>
-        <errOs>lrErr</errOs>
-        <securedaction>reindex</securedaction>
-    </process>
 
     <!-- Set/unset dnnt label from csv file -->
     <process>
@@ -623,7 +553,7 @@
         <mainClass>cz.incad.kramerius.resourceindex.ProcessingIndexCheck</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <securedaction>reindex</securedaction>
+        <securedaction>a_rebuild_processing_index</securedaction>
     </process>
 
     <!-- walk through repository and rebuild processing index -->
@@ -667,7 +597,7 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>false</parameters>
-        <securedaction>dnnt_admin</securedaction>
+        <securedaction>a_set_accessibility</securedaction>
     </process>
 
 
@@ -678,7 +608,7 @@
         <mainClass>cz.incad.kramerius.plain.DNNTPidLabeledFlag</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <securedaction>dnnt_admin</securedaction>
+        <securedaction>a_set_accessibility</securedaction>
     </process>
 
 
@@ -690,7 +620,7 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <parameters>true</parameters>
-        <securedaction>dnnt_admin</securedaction>
+        <securedaction>a_set_accessibility</securedaction>
         <templates>
             <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
         </templates>
@@ -717,7 +647,7 @@
         <mainClass>cz.incad.kramerius.LicensesExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <securedaction>dnnt_admin</securedaction>
+        <securedaction>a_set_accessibility</securedaction>
     </process>
 
 
@@ -727,7 +657,7 @@
         <mainClass>cz.incad.kramerius.export.ParametrizedLicenseExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <securedaction>dnnt_admin</securedaction>
+        <securedaction>a_set_accessibility</securedaction>
         <templates>
             <input class="cz.incad.kramerius.template.DNNTExportTemplate"></input>
         </templates>
@@ -747,6 +677,7 @@
         <templates>
             <input class="cz.incad.kramerius.statistics.impl.nkp.ParametrizedNKPInputTemplate"></input>
         </templates>
+        <securedaction>a_generate_nkplogs</securedaction>
     </process>
 
 </processes>

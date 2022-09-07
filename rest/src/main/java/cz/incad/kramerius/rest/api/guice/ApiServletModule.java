@@ -25,7 +25,6 @@ import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RolesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.UsersResource;
-import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.debug.HTTPHeaders;
@@ -42,11 +41,6 @@ import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
 import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
 import cz.incad.kramerius.rest.api.k5.client.info.InfoResource;
-import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.*;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.details.*;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.PDFDecorate;
-import cz.incad.kramerius.rest.api.k5.client.item.decorators.display.ZoomDecorate;
 import cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
@@ -92,7 +86,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(RightsResource.class);
         bind(UsersResource.class);
         bind(RolesResource.class);
-        bind(VirtualCollectionsResource.class);
+
         bind(StatisticsResource.class);
         bind(LicensesResource.class);
 

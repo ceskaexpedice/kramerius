@@ -1,9 +1,12 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.Role;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONArray;
@@ -28,7 +31,7 @@ public class ServerFilesResource extends AdminApiResource {
     public static Logger LOGGER = Logger.getLogger(ServerFilesResource.class.getName());
 
     //TODO: prejmenovat role podle spravy uctu
-    private static final String ROLE_LIST_DIRS_ON_SERVER = "kramerius_admin";
+    //private static final String ROLE_LIST_DIRS_ON_SERVER = "kramerius_admin";
 
 
     @javax.inject.Inject
@@ -44,10 +47,8 @@ public class ServerFilesResource extends AdminApiResource {
         User user1 = this.userProvider.get();
         List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-
-        String role = ROLE_LIST_DIRS_ON_SERVER;
-        if (!roles.contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to list files on server (missing role '%s')", user1.getLoginname(), role); //403
+        if (!permit(user1)) {
+            throw new ForbiddenException("user '%s' is not allowed to list files on server (missing action '%s')", user1.getLoginname(), SecuredActions.A_IMPORT.getFormalName()); //403
         }
         //return data
         return listFilesInDir("import.directory", path);
@@ -60,9 +61,8 @@ public class ServerFilesResource extends AdminApiResource {
         //authentication
         User user1 = this.userProvider.get();
         List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-        String role = ROLE_LIST_DIRS_ON_SERVER;
-        if (!roles.contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to list files on server (missing role '%s')", user1.getLoginname(), role); //403
+        if (!permit(user1)) {
+            throw new ForbiddenException("user '%s' is not allowed to list files on server (missing action '%s')", user1.getLoginname(), SecuredActions.A_IMPORT.getFormalName()); //403
         }
         //return data
         return listFilesInDir("convert.directory", path);
@@ -75,9 +75,8 @@ public class ServerFilesResource extends AdminApiResource {
         //authentication
         User user1 = this.userProvider.get();
         List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-        String role = ROLE_LIST_DIRS_ON_SERVER;
-        if (!roles.contains(role)) {
-            throw new ForbiddenException("user '%s' is not allowed to list files on server (missing role '%s')", user1.getLoginname(), role); //403
+        if (!permit(user1)) {
+            throw new ForbiddenException("user '%s' is not allowed to list files on server (missing role '%s')", user1.getLoginname(), SecuredActions.A_IMPORT.getFormalName()); //403
         }
         //return data
         return listFilesInDir("pidlist.directory", path);
@@ -118,6 +117,16 @@ public class ServerFilesResource extends AdminApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    boolean permit(User user) {
+        if (user != null)
+            return this.rightsResolver.isActionAllowed(user,
+                    SecuredActions.A_IMPORT.getFormalName(),
+                    SpecialObjects.REPOSITORY.getPid(), null,
+                    ObjectPidsPath.REPOSITORY_PATH).flag();
+        else
+            return false;
     }
 
 }
