@@ -45,11 +45,10 @@ public class CollectionsResource extends AdminApiResource {
     public static final Logger LOGGER = Logger.getLogger(CollectionsResource.class.getName());
 
 
-    
     @Inject
     @Named("new-index")
     SolrAccess solrAccess;
-    
+
     @Inject
     private CollectionsFoxmlBuilder foxmlBuilder;
 
@@ -79,7 +78,7 @@ public class CollectionsResource extends AdminApiResource {
             if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
-            
+
             Collection collection = extractCollectionFromJson(collectionDefinition);
             if ((collection.nameCz == null || collection.nameCz.isEmpty()) && (collection.nameEn == null || collection.nameEn.isEmpty())) {
                 throw new BadRequestException("name can't be empty");
@@ -115,8 +114,8 @@ public class CollectionsResource extends AdminApiResource {
 
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-            
-            if (!permitCollectionRead(this.rightsResolver, user1, pid) && 
+
+            if (!permitCollectionRead(this.rightsResolver, user1, pid) &&
                     !permitCollectionEdit(this.rightsResolver, user1, pid)) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_READ); //403
             }
@@ -152,7 +151,7 @@ public class CollectionsResource extends AdminApiResource {
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
             // TODO: check if it is necessary
-            if (!permitCollectionRead(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid()) && 
+            if (!permitCollectionRead(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid()) &&
                     !permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_READ); //403
             }
@@ -168,8 +167,13 @@ public class CollectionsResource extends AdminApiResource {
                 }
                 JSONArray collections = new JSONArray();
                 for (String pid : pids) {
-                    Collection collection = fetchCollectionFromRepository(pid, false, false);
-                    collections.put(collection.toJson());
+                    try {
+                        Collection collection = fetchCollectionFromRepository(pid, false, false);
+                        collections.put(collection.toJson());
+                    } catch (RepositoryException e) {
+                        //ignoring broken collection and still returning other collections (instead of error response)
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
                 }
                 JSONObject result = new JSONObject();
                 result.put("total_size", pids.size());
@@ -201,8 +205,7 @@ public class CollectionsResource extends AdminApiResource {
             //authentication
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-            
-            
+
             // TODO: check if it is necessary
             if (!permitCollectionEdit(this.rightsResolver, user1, pid)) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
@@ -299,7 +302,6 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
 
-            
             synchronized (CollectionsResource.class) {
                 //LOGGER.info("addItemToCollection execute, Thread " + Thread.currentThread().getName());
                 checkObjectExists(collectionPid);
@@ -376,12 +378,10 @@ public class CollectionsResource extends AdminApiResource {
                 User user1 = this.userProvider.get();
                 List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-                
                 if (!permitCollectionEdit(this.rightsResolver, user1, collectionPid)) {
                     throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
                 }
 
-                
                 checkObjectExists(collectionPid);
                 checkObjectExists(itemPid);
                 checkCanRemoveItemFromCollection(itemPid, collectionPid);
@@ -432,7 +432,7 @@ public class CollectionsResource extends AdminApiResource {
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid()) && 
+            if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid()) &&
                     !permitDelete(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
@@ -519,30 +519,30 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    
-    public  boolean permitCollectionEdit(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
+
+    public boolean permitCollectionEdit(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
         // must be only repo and collectionPid
-        ObjectPidsPath objectPidsPath = ObjectPidsPath.REPOSITORY_PATH.injectObjectBetween(collectionPid, 
+        ObjectPidsPath objectPidsPath = ObjectPidsPath.REPOSITORY_PATH.injectObjectBetween(collectionPid,
                 new AbstractObjectPath.Between(null, SpecialObjects.REPOSITORY.getPid()));
-        boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+        boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null, objectPidsPath).flag() : false;
         if (permited) return permited;
         return false;
     }
 
-    public  boolean permitDelete(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
+    public boolean permitDelete(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
         // must be only repo and collectionPid
-        ObjectPidsPath objectPidsPath = 
-                ObjectPidsPath.REPOSITORY_PATH.injectObjectBetween(collectionPid, 
-                new AbstractObjectPath.Between(null, SpecialObjects.REPOSITORY.getPid()));
-        boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_DELETE.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+        ObjectPidsPath objectPidsPath =
+                ObjectPidsPath.REPOSITORY_PATH.injectObjectBetween(collectionPid,
+                        new AbstractObjectPath.Between(null, SpecialObjects.REPOSITORY.getPid()));
+        boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_DELETE.getFormalName(), collectionPid, null, objectPidsPath).flag() : false;
         if (permited) return permited;
         return false;
     }
 
-    public  boolean permitCollectionRead(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
+    public boolean permitCollectionRead(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
         ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
         for (ObjectPidsPath objectPidsPath : pidPaths) {
-            boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_COLLECTIONS_READ.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_COLLECTIONS_READ.getFormalName(), collectionPid, null, objectPidsPath).flag() : false;
             if (permited) return permited;
         }
         return false;
