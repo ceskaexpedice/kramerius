@@ -49,7 +49,7 @@ public enum SecuredActions {
     //A_INDEX_CHILDREN("a_index_children"),
 
     /** process rebuild indexu */
-    A_REBUILD_PROCESSING_INDEX("a_rebuild_processing_index"),
+    A_REBUILD_PROCESSING_INDEX("a_rebuild_processing_index", false),
     
     /** import */
     A_IMPORT("a_import"),
@@ -73,17 +73,23 @@ public enum SecuredActions {
     /** replikace - import */
     A_IMPORT_REPLICATIONS("a_import_replications"),
 
-    /** editace prav */
+    /** editace prav, pro vsechny objekty krome sbirek*/
     A_RIGHTS_EDIT("a_rights_edit",false),
     
     /** Pravo cist criteria */
     A_CRITERIA_READ("a_criteria_edit"),
     
-    /** Cteni kolekci   */
+    /** Cteni kolekci, pravo umoznujici cist informace z admin ponitu pro ceti    */
     A_COLLECTIONS_READ("a_collections_read"),
     
-    /** editace kolekci */
+    /** editace kolekci, pridavani do kolekci atd..   */
     A_COLLECTIONS_EDIT("a_collections_edit", false),
+    
+    /** pravo byti zaraditelny do kolekce */
+    A_ABLE_TOBE_PART_OF_COLLECTION("a_able_tobe_part_of_collections", false),
+    
+//    /** editace prav pokud se jedna o kolekce */
+//    A_COLLECTIONS_RIGHTS_EDIT("a_collections_rights_edit", false, TypeOfAssociatedPath.REPO_PID),
     
     /** spusteni nkp logu */
     A_GENERATE_NKPLOGS("a_generate_nkplogs"),
@@ -104,12 +110,13 @@ public enum SecuredActions {
     
     private String formalName;
     private boolean onlyGlobalAction;
-  
+    
+    
+    
     private SecuredActions(String formalName, boolean gA) {
         this.formalName = formalName;
         this.onlyGlobalAction = gA;
     }
-
     
     private SecuredActions(String formalName) {
         this.formalName = formalName;
@@ -123,7 +130,7 @@ public enum SecuredActions {
     public boolean isGlobalAction() {
         return onlyGlobalAction;
     }
-    
+
     
     public static SecuredActions findByFormalName(String fname) {
         SecuredActions[] vals = values();
@@ -135,6 +142,4 @@ public enum SecuredActions {
         return null;
     }
 
-    
-    
 }

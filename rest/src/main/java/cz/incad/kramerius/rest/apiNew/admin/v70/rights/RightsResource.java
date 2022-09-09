@@ -616,12 +616,12 @@ public class RightsResource {
 	
     private boolean permit( User user, String pid) {
         try {
+
+            
             ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
+            
             if (paths.length == 0) {
                 throw new InternalErrorException("illegal state: no paths for object %s found in search index", pid);
-                //or maybe build paths from resource/processing index
-                //but user should not access page before it is indexed anyway
-                //so eventual consistency vs. "API doesn't (at least seemingly) depend on search index"
             }
             for (int i = 0; i < paths.length; i++) {
                 ObjectPidsPath path = paths[i];

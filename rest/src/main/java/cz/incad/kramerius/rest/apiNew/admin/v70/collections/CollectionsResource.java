@@ -262,7 +262,15 @@ public class CollectionsResource extends AdminApiResource {
             if (!permitCollectionEdit(this.rightsResolver, user1, pid)) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
-
+            
+            
+            for (int i = 0; i < pidsOfItems.length(); i++) {
+                String p = pidsOfItems.getString(i);
+                if (!permitAbleToAdd(this.rightsResolver, user1, p)) {
+                    throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), p, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
+                }
+            }
+            
             checkSupportedObjectPid(pid);
             synchronized (CollectionsResource.class) {
                 //TODO: implement
@@ -296,9 +304,13 @@ public class CollectionsResource extends AdminApiResource {
 
             // jestli ma pravo edit a zda pid neni kolekce, pokud jo pak zda ma na kolekci pravo cist 
             if (!permitCollectionEdit(this.rightsResolver, user1, collectionPid)) {
-                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
+                throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
-
+            
+            
+            if (!permitAbleToAdd(this.rightsResolver, user1, itemPid)) {
+                throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
+            }
             
             synchronized (CollectionsResource.class) {
                 //LOGGER.info("addItemToCollection execute, Thread " + Thread.currentThread().getName());
@@ -381,7 +393,10 @@ public class CollectionsResource extends AdminApiResource {
                     throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
                 }
 
-                
+                if (!permitAbleToAdd(this.rightsResolver, user1, itemPid)) {
+                    throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
+                }
+
                 checkObjectExists(collectionPid);
                 checkObjectExists(itemPid);
                 checkCanRemoveItemFromCollection(itemPid, collectionPid);
@@ -519,23 +534,22 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    
     public  boolean permitCollectionEdit(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
         // must be only repo and collectionPid
-        ObjectPidsPath objectPidsPath = ObjectPidsPath.REPOSITORY_PATH.injectObjectBetween(collectionPid, 
-                new AbstractObjectPath.Between(null, SpecialObjects.REPOSITORY.getPid()));
-        boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
-        if (permited) return permited;
+        ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
+        for (ObjectPidsPath objectPidsPath : pidPaths) {
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+            if (permited) return permited;
+        }
         return false;
     }
 
     public  boolean permitDelete(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
-        // must be only repo and collectionPid
-        ObjectPidsPath objectPidsPath = 
-                ObjectPidsPath.REPOSITORY_PATH.injectObjectBetween(collectionPid, 
-                new AbstractObjectPath.Between(null, SpecialObjects.REPOSITORY.getPid()));
-        boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_DELETE.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
-        if (permited) return permited;
+        ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
+        for (ObjectPidsPath objectPidsPath : pidPaths) {
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_DELETE.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+            if (permited) return permited;
+        }
         return false;
     }
 
@@ -547,5 +561,14 @@ public class CollectionsResource extends AdminApiResource {
         }
         return false;
     }
+    
+    public boolean permitAbleToAdd(RightsResolver rightsResolver, User user, String pid) throws IOException {
+        ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+        for (ObjectPidsPath objectPidsPath : pidPaths) {
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION.getFormalName(), pid, null , objectPidsPath ).flag() : false;
+            if (permited) return permited;
+        }
+        return false;
 
+    }
 }

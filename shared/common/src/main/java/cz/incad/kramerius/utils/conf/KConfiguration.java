@@ -25,7 +25,7 @@ public class KConfiguration {
 
     private Configuration allConfigurations;
 
-    KConfiguration() {
+    protected KConfiguration() {
         try {
             allConfigurations = findAllConfigurations();
         } catch (Exception ex) {

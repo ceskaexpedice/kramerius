@@ -31,6 +31,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
@@ -176,18 +177,7 @@ public class ClientUserResource {
 
 
             JSONObject retobject = new JSONObject();
-
-            Set<String> set = new LinkedHashSet<>();
-            for (ObjectPidsPath pth : pidPaths) {
-                pth = pth.injectRepository();
-                for (SecuredActions sa : values) {
-                    RightsReturnObject actionAllowed = this.rightsResolver.isActionAllowed(userProvider.get(), sa.getFormalName(),pid,null,pth.injectRepository());
-                    if (actionAllowed.getState() == EvaluatingResultState.TRUE) {
-                        set.add(sa.getFormalName());
-                    }
-                }
-            }
-            
+            Set<String> set = actionsForPid(pid, pidPaths, values);
             JSONArray jsonArray = new JSONArray();
             set.forEach(jsonArray::put);
             retobject.put("actions", jsonArray);
@@ -200,6 +190,20 @@ public class ClientUserResource {
         } catch (IOException e) {
             throw new GenericApplicationException(e.getMessage());
         }
+    }
+
+    private Set<String> actionsForPid(String pid, ObjectPidsPath[] pidPaths, SecuredActions[] values) {
+        Set<String> set = new LinkedHashSet<>();
+        for (SecuredActions sa : values) {
+            for (ObjectPidsPath pth : pidPaths) {
+                pth = pth.injectRepository();
+                RightsReturnObject actionAllowed = this.rightsResolver.isActionAllowed(userProvider.get(), sa.getFormalName(),pid,null,pth.injectRepository());
+                if (actionAllowed.getState() == EvaluatingResultState.TRUE) {
+                    set.add(sa.getFormalName());
+                }
+            }
+        }         
+        return set;
     }
 
     
@@ -231,15 +235,7 @@ public class ClientUserResource {
                 }).toArray(SecuredActions[]::new);
 
 
-                Set<String> set = new LinkedHashSet<>();
-                for (ObjectPidsPath pth : pidPaths) {
-                    for (SecuredActions sa : values) {
-                        RightsReturnObject actionAllowed = this.rightsResolver.isActionAllowed(userProvider.get(), sa.getFormalName(),pid,null,pth.injectRepository());
-                        if (actionAllowed.getState() == EvaluatingResultState.TRUE) {
-                            set.add(sa.getFormalName());
-                        }
-                    }
-                }
+                Set<String> set = actionsForPid(pid, pidPaths, values);
                 JSONArray retArray = new JSONArray();
                 set.forEach(retArray::put);
                 retobject.put(pid, retArray);
