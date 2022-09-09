@@ -34,7 +34,7 @@ import java.util.zip.GZIPInputStream;
 
 public class AkubraUtils {
     private static final Logger LOGGER = Logger.getLogger(AkubraUtils.class.getName());
-    private static final SafeSimpleDateFormat DATE_FORMAT = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'");
+    public static final SafeSimpleDateFormat DATE_FORMAT = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'");
 
     private AkubraUtils() {
     }
@@ -155,7 +155,7 @@ public class AkubraUtils {
                 try {
                     return DATE_FORMAT.parse(propertyType.getVALUE());
                 } catch (ParseException e) {
-                    throw new IOException("Cannot parse LastModofiedDate: " + object.getPID() + ": " + propertyType.getVALUE());
+                    throw new IOException("Cannot parse lastModifiedDate: " + object.getPID() + ": " + propertyType.getVALUE());
                 }
             }
         }

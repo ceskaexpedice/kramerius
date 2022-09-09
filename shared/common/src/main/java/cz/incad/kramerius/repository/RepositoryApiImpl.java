@@ -79,7 +79,7 @@ public class RepositoryApiImpl implements RepositoryApi {
             try {
                 return LocalDateTime.parse(propertyValue, RepositoryApi.TIMESTAMP_FORMATTER);
             } catch (DateTimeParseException e) {
-                System.out.println(String.format("cannot parse createdeDate %s from object %s", propertyValue, pid));
+                System.out.println(String.format("cannot parse createdDate %s from object %s", propertyValue, pid));
             }
         }
         return null;

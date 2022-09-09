@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +26,15 @@ import java.util.Map;
 public interface RepositoryApi {
 
     public static final String NAMESPACE_FOXML = "info:fedora/fedora-system:def/foxml#";
-    public static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+    /**
+     * @se RepositoryApiTimestampFormatterTest
+     */
+    public static final DateTimeFormatter TIMESTAMP_FORMATTER = new DateTimeFormatterBuilder()
+            .appendPattern("yyyy-MM-dd'T'HH:mm:ss.")
+            .appendFraction(ChronoField.MILLI_OF_SECOND, 1, 3, false)
+            .appendPattern("'Z'")
+            .toFormatter();
 
     //TODO: methods for fetching other types of datastreams (redirect, external referenced, probably not managed)
     //TODO: methods for updating datastreams (new versions)
