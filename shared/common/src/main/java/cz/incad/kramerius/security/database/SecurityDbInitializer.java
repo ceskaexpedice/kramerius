@@ -521,6 +521,16 @@ public class SecurityDbInitializer {
         template.setUseReturningKeys(false);
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
+    
+//    // vytvareni 
+//    private static void createNewActions(Connection connection) throws SQLException, IOException {
+//        
+//        InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/initsecdb_newactions.sql");
+//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//        template.setUseReturningKeys(false);
+//        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//    }
+       
 
     private static void updateExistingActions(Connection connection) throws SQLException, IOException {
         InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/rename_oldactions.sql");
