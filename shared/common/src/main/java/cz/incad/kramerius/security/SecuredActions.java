@@ -75,9 +75,9 @@ public enum SecuredActions {
 
     /** editace prav, pro vsechny objekty krome sbirek*/
     A_RIGHTS_EDIT("a_rights_edit",false),
-    
+
     /** Pravo cist criteria */
-    A_CRITERIA_READ("a_criteria_edit"),
+    A_CRITERIA_READ("a_criteria_read"),
     
     /** Cteni kolekci, pravo umoznujici cist informace z admin ponitu pro ceti    */
     A_COLLECTIONS_READ("a_collections_read"),
@@ -88,8 +88,6 @@ public enum SecuredActions {
     /** pravo byti zaraditelny do kolekce */
     A_ABLE_TOBE_PART_OF_COLLECTION("a_able_tobe_part_of_collections", false),
     
-//    /** editace prav pokud se jedna o kolekce */
-//    A_COLLECTIONS_RIGHTS_EDIT("a_collections_rights_edit", false, TypeOfAssociatedPath.REPO_PID),
     
     /** spusteni nkp logu */
     A_GENERATE_NKPLOGS("a_generate_nkplogs"),
@@ -110,8 +108,6 @@ public enum SecuredActions {
     
     private String formalName;
     private boolean onlyGlobalAction;
-    
-    
     
     private SecuredActions(String formalName, boolean gA) {
         this.formalName = formalName;
