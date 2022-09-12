@@ -17,7 +17,6 @@
 package cz.incad.kramerius.fedora.om.impl;
 
 import com.qbizm.kramerius.imp.jaxb.*;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.om.NotFoundInRepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
@@ -42,7 +41,6 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;

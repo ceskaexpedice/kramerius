@@ -34,6 +34,8 @@ import org.w3c.dom.Node;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.*;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -1907,8 +1909,21 @@ public abstract class BaseConvertor {
 
     private XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
         Calendar now = Calendar.getInstance();
-        return XMLGregorianCalendarImpl.createDateTime(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY), now
-                .get(Calendar.MINUTE), now.get(Calendar.SECOND));
+        XMLGregorianCalendar calendar = null;
+        try {
+            calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar();
+
+            calendar.setYear(now.get(Calendar.YEAR));
+            calendar.setMonth(now.get(Calendar.MONTH) + 1);
+            calendar.setDay(now.get(Calendar.DAY_OF_MONTH));
+            calendar.setHour(now.get(Calendar.HOUR_OF_DAY));
+            calendar.setMinute(now.get(Calendar.MINUTE));
+            calendar.setSecond(now.get(Calendar.SECOND));
+
+            return calendar;
+        } catch (DatatypeConfigurationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     protected String trimNull(String s) {
