@@ -43,7 +43,8 @@ public abstract class ApiException extends WebApplicationException {
     private static String buildErrorJson(String errorMessage) {
         JSONObject json = new JSONObject();
         try {
-            json.put("error", errorMessage);
+            //json.put("error", errorMessage);
+            json.put("message", errorMessage);
         } catch (JSONException e) {
             //noting
         }
