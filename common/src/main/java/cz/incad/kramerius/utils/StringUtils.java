@@ -100,4 +100,19 @@ public class StringUtils {
     public static boolean isAnyString(String input) {
         return input != null && (!input.trim().equals(""));
     }
+    
+    
+    /**
+     * Gets string between two given strings
+     * @param text Given string
+     * @param start The first string (start)
+     * @param end The second string (end)
+     * @return String between the first and the second given strings
+     */
+    public static String getStringBetweenTwoStrings(String text, String start, String end) {
+        int startIndex = text.indexOf(start, 0) + start.length();
+        int endIndex = text.indexOf(end, startIndex);
+        
+        return text.substring(startIndex, endIndex);
+    }
 }
