@@ -54,7 +54,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
                     return EvaluatingResultState.NOT_APPLICABLE;
                 }
             } else {
-                return EvaluatingResultState.TRUE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             }
         } catch (IOException | SAXException | ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

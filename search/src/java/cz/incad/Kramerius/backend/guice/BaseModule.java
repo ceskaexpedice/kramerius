@@ -61,7 +61,6 @@ public class BaseModule extends AbstractModule {
 
 
 
-        //bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(DatabaseStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
         bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(SolrStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
         bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(DNNTStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
 

@@ -56,177 +56,35 @@ public class StatisticDbInitializer {
         try {
             String version = versionService.getVersion();
 
-            createStatisticTables(connection);
-            checkPublisherTables(connection);
 
             if (version == null) {
-                createStatisticTables(connection);
-                checkStatisticsTableStatAction(connection);
-
-                alterStatisticsTableSessionId(connection);
-                // Issue 619
-                alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
-                //createTmpAuthorView(connection);
-                //createAuthorsView(connection);
-                //createLangsView(connection);
-
-                checkAndAddDNNTFlag(connection);
-                checkAndAddProvidedByDNNTFlag(connection);
-                checkAndAddEvaluateMap(connection);
-                checkAndAddUserAttributesMap(connection);
-
-                checkPublisherTables(connection);
-                checkAndAddSolrDate(connection);
-
 
             } else if (versionCondition(version, "<", "6.0.0")) {
-                createStatisticTables(connection);
-                checkStatisticsTableStatAction(connection);
-
-                alterStatisticsTableSessionId(connection);
-
-                // Issue 619
-                alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
-
-                //createLangsView(connection);
-
-                checkAndAddDNNTFlag(connection);
-                checkAndAddProvidedByDNNTFlag(connection);
-                checkAndAddEvaluateMap(connection);
-                checkAndAddUserAttributesMap(connection);
-
-                checkPublisherTables(connection);
-                checkAndAddSolrDate(connection);
-
-            	changeStatisticsForeignKeys(connection);
 
             } else if (versionCondition(version, "=", "6.0.0")) {
-                checkStatisticsTableStatAction(connection);
-                createDatesDurationViews(connection);
-                alterStatisticsTableSessionId(connection);
-
-                // Issue 619
-                alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
-                createTmpAuthorView(connection);
-                createAuthorsView(connection);
-                //createLangsView(connection);
-
-                checkAndAddDNNTFlag(connection);
-                checkAndAddProvidedByDNNTFlag(connection);
-                checkAndAddEvaluateMap(connection);
-                checkAndAddUserAttributesMap(connection);
-
-                checkPublisherTables(connection);
-                checkAndAddSolrDate(connection);
-
-            	changeStatisticsForeignKeys(connection);
 
             } else if (versionCondition(version, "=", "6.1.0")) {
-                alterStatisticsTableSessionId(connection);
-
-                // Issue 619
-                alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
-                createTmpAuthorView(connection);
-                createAuthorsView(connection);
-                //createLangsView(connection);
-
-                checkAndAddDNNTFlag(connection);
-                checkAndAddProvidedByDNNTFlag(connection);
-                checkAndAddEvaluateMap(connection);
-                checkAndAddUserAttributesMap(connection);
-
-                checkPublisherTables(connection);
-                checkAndAddSolrDate(connection);
-
-            	changeStatisticsForeignKeys(connection);
 
             } else if ((versionCondition(version, ">", "6.1.0")) && (versionCondition(version, "<", "6.5.0"))) {
-                // Issue 619
-                alterStatisticsAuthorTablePrimaryKey(connection);
                 createFirstFunction(connection);
                 createLastFunction(connection);
-                createTmpAuthorView(connection);
-                createAuthorsView(connection);
-                //createLangsView(connection);
-
-                checkAndAddDNNTFlag(connection);
-                checkAndAddProvidedByDNNTFlag(connection);
-                checkAndAddEvaluateMap(connection);
-                checkAndAddUserAttributesMap(connection);
-
-                checkPublisherTables(connection);
-                checkAndAddSolrDate(connection);
-
-                changeStatisticsForeignKeys(connection);
 
             } else if (versionCondition(version, ">=", "6.5.0") && (versionCondition(version, "<", "6.6.4"))) {
-            	createStatisticTables(connection);
             	
             	createFirstFunction(connection);
                 createLastFunction(connection);
-                createTmpAuthorView(connection);
-                createAuthorsView(connection);
-                //createLangsView(connection);
-
-                checkAndAddDNNTFlag(connection);
-                checkAndAddProvidedByDNNTFlag(connection);
-                checkAndAddEvaluateMap(connection);
-                checkAndAddUserAttributesMap(connection);
-
-                checkPublisherTables(connection);
-                checkAndAddSolrDate(connection);
-
-            	changeStatisticsForeignKeys(connection);
-
-            } else if ((versionCondition(version, ">=", "6.6.4")) && (versionCondition(version, "<", "6.6.6"))) {
-            	createStatisticTables(connection);
-
-            	createTmpAuthorView(connection);
-                createAuthorsView(connection);
-                //createLangsView(connection);
-
-                checkAndAddDNNTFlag(connection);
-                checkAndAddProvidedByDNNTFlag(connection);
-                checkAndAddEvaluateMap(connection);
-                checkAndAddUserAttributesMap(connection);
-
-                checkPublisherTables(connection);
-                checkAndAddSolrDate(connection);
-
-            	changeStatisticsForeignKeys(connection);
-
-            } else if (versionCondition(version, ">=", "6.6.6") && (versionCondition(version, "<=", "6.8.3"))) {
-            	createStatisticTables(connection);
-            	
-            	checkAndAddDNNTFlag(connection);
-                checkAndAddProvidedByDNNTFlag(connection);
-                checkAndAddEvaluateMap(connection);
-                checkAndAddUserAttributesMap(connection);
-
-                checkPublisherTables(connection);
-                checkAndAddSolrDate(connection);
-                
             }
 
-            // check if date column contains index, if not, creates it
-            checkDateIndex(connection);
             // check if labels_entity table exists, if not creates it
-            checkLabelExists(connection);
-            // check if statistics table contains columns for issn, isbn, ccnb, if not, create them
-            checkIsbnIssnCcnb(connection);
-            // check if statistics table contains column for dbversion, if not crates it
-            checkLogVersionColumn(connection);
-
-            // check if labels exists
-            checkLabelsColumns(connection);
+            //checkLabelExists(connection);
             
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -235,12 +93,12 @@ public class StatisticDbInitializer {
         }
     }
 
-    private static void changeStatisticsForeignKeys(Connection connection) throws SQLException, IOException {
-        InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/rebuildconstraints.sql");
-        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-        template.setUseReturningKeys(false);
-        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-	}
+//    private static void changeStatisticsForeignKeys(Connection connection) throws SQLException, IOException {
+//        InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/rebuildconstraints.sql");
+//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//        template.setUseReturningKeys(false);
+//        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//	}
 
     
     
@@ -306,46 +164,47 @@ public class StatisticDbInitializer {
 //        }
 //    }
 
-    private static void checkLabelsColumns(Connection connection) {
-        try {
-            if (!DatabaseUtils.columnExists(connection, "statistics_access_log", "dnnt_labels")) {
-                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initlabelscolumn.sql");
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-            }
-        } catch (SQLException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
-
-    private static void checkLogVersionColumn(Connection connection) {
-        try {
-            if (!DatabaseUtils.columnExists(connection, "statistics_access_log", "dbversion")) {
-                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initdebversioncolumn.sql");
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-            }
-        } catch (SQLException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
-
-    private static void checkIsbnIssnCcnb(Connection connection) {
-        try {
-            if (!DatabaseUtils.columnExists(connection, "statistic_access_log_detail", "issn")) {
-                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initidentifierscolumn.sql");
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-            }
-        } catch (SQLException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
+//    private static void checkLabelsColumns(Connection connection) {
+//        try {
+//            if (!DatabaseUtils.columnExists(connection, "statistics_access_log", "dnnt_labels")) {
+//                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initlabelscolumn.sql");
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//            }
+//        } catch (SQLException | IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//        }
+//    }
+//
+//    private static void checkLogVersionColumn(Connection connection) {
+//        try {
+//            if (!DatabaseUtils.columnExists(connection, "statistics_access_log", "dbversion")) {
+//                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initdebversioncolumn.sql");
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//            }
+//        } catch (SQLException | IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//        }
+//    }
+//
+//    private static void checkIsbnIssnCcnb(Connection connection) {
+//        try {
+//            if (!DatabaseUtils.columnExists(connection, "statistic_access_log_detail", "issn")) {
+//                InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initidentifierscolumn.sql");
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//            }
+//        } catch (SQLException | IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//        }
+//    }
 
     private static void checkLabelExists(Connection connection) {
+
         EMBEDDED_LABELS.stream().forEach(label -> {
                     List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
                         @Override
@@ -372,196 +231,199 @@ public class StatisticDbInitializer {
         );
     }
 
-    /**
-     * @param con
-     * @throws SQLException
-     */
-    private static void createDatesDurationViews(Connection con) throws SQLException {
-        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
-        commands.add(new JDBCCommand() {
+//    /**
+//     * @param con
+//     * @throws SQLException
+//     */
+//    private static void createDatesDurationViews(Connection con) throws SQLException {
+//        List<JDBCCommand> commands = new ArrayList<JDBCCommand>();
+//        commands.add(new JDBCCommand() {
+//
+//            @Override
+//            public Object executeJDBCCommand(Connection con) throws SQLException {
+//                PreparedStatement prepareStatement = con.prepareStatement(
+//                        "create view flat_statistic_access_log_detail_map as  select record_id, min(detail_id) as detail_id from statistic_access_log_detail  group by record_id");
+//                int r = prepareStatement.executeUpdate();
+//                LOGGER.log(Level.FINEST, "CREATE VIEW: updated rows {0}", r);
+//                return null;
+//            }
+//        });
+//        commands.add(new JDBCCommand() {
+//
+//            @Override
+//            public Object executeJDBCCommand(Connection con) throws SQLException {
+//                PreparedStatement prepareStatement = con.prepareStatement(
+//                        "create view flat_statistic_access_log_detail as  select fa.detail_id, fa.record_id, sa.pid, sa.model, sa.issued_date, sa.rights, sa.lang,sa.title  from flat_statistic_access_log_detail_map fa join statistic_access_log_detail sa using(detail_id)");
+//                int r = prepareStatement.executeUpdate();
+//                LOGGER.log(Level.FINEST, "CREATE VIEW: updated rows {0}", r);
+//                return null;
+//            }
+//        });
+//
+//        new JDBCTransactionTemplate(con, false).updateWithTransaction(commands);
+//    }
 
-            @Override
-            public Object executeJDBCCommand(Connection con) throws SQLException {
-                PreparedStatement prepareStatement = con.prepareStatement(
-                        "create view flat_statistic_access_log_detail_map as  select record_id, min(detail_id) as detail_id from statistic_access_log_detail  group by record_id");
-                int r = prepareStatement.executeUpdate();
-                LOGGER.log(Level.FINEST, "CREATE VIEW: updated rows {0}", r);
-                return null;
-            }
-        });
-        commands.add(new JDBCCommand() {
+//    private static void checkStatisticsTableStatAction(Connection con) throws SQLException {
+//    	 if (!DatabaseUtils.columnExists(con, "statistics_access_log", "STAT_ACTION")) {
+//    	        PreparedStatement prepareStatement = con
+//    	                .prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN STAT_ACTION VARCHAR(255);");
+//    	        try {
+//    	            int r = prepareStatement.executeUpdate();
+//    	            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+//    	        } finally {
+//    	            DatabaseUtils.tryClose(prepareStatement);
+//    	        }
+//    	 }
+//    }
 
-            @Override
-            public Object executeJDBCCommand(Connection con) throws SQLException {
-                PreparedStatement prepareStatement = con.prepareStatement(
-                        "create view flat_statistic_access_log_detail as  select fa.detail_id, fa.record_id, sa.pid, sa.model, sa.issued_date, sa.rights, sa.lang,sa.title  from flat_statistic_access_log_detail_map fa join statistic_access_log_detail sa using(detail_id)");
-                int r = prepareStatement.executeUpdate();
-                LOGGER.log(Level.FINEST, "CREATE VIEW: updated rows {0}", r);
-                return null;
-            }
-        });
+//    private static void checkAndAddDNNTFlag(Connection con) throws SQLException {
+//        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "dnnt")) {
+//            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN dnnt BOOLEAN ;");
+//            try {
+//                int r = prepareStatement.executeUpdate();
+//                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+//            } finally {
+//                DatabaseUtils.tryClose(prepareStatement);
+//            }
+//        }
+//    }
 
-        new JDBCTransactionTemplate(con, false).updateWithTransaction(commands);
-    }
+//    private static void checkAndAddProvidedByDNNTFlag(Connection con) throws SQLException {
+//        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "providedByDNNT")) {
+//            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN providedByDNNT BOOLEAN ;");
+//            try {
+//                int r = prepareStatement.executeUpdate();
+//                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+//            } finally {
+//                DatabaseUtils.tryClose(prepareStatement);
+//            }
+//        }
+//    }
 
-    private static void checkStatisticsTableStatAction(Connection con) throws SQLException {
-    	 if (!DatabaseUtils.columnExists(con, "statistics_access_log", "STAT_ACTION")) {
-    	        PreparedStatement prepareStatement = con
-    	                .prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN STAT_ACTION VARCHAR(255);");
-    	        try {
-    	            int r = prepareStatement.executeUpdate();
-    	            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-    	        } finally {
-    	            DatabaseUtils.tryClose(prepareStatement);
-    	        }
-    	 }
-    }
+//    private static void checkAndAddEvaluateMap(Connection con) throws SQLException {
+//        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "evaluateMap")) {
+//            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN evaluateMap text;");
+//            try {
+//                int r = prepareStatement.executeUpdate();
+//                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+//            } finally {
+//                DatabaseUtils.tryClose(prepareStatement);
+//            }
+//        }
+//    }
 
-    private static void checkAndAddDNNTFlag(Connection con) throws SQLException {
-        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "dnnt")) {
-            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN dnnt BOOLEAN ;");
-            try {
-                int r = prepareStatement.executeUpdate();
-                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-            } finally {
-                DatabaseUtils.tryClose(prepareStatement);
-            }
-        }
-    }
+//    private static void checkAndAddUserAttributesMap(Connection con) throws SQLException {
+//        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "userSessionAttributes")) {
+//            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN userSessionAttributes text;");
+//            try {
+//                int r = prepareStatement.executeUpdate();
+//                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+//            } finally {
+//                DatabaseUtils.tryClose(prepareStatement);
+//            }
+//        }
+//    }
 
-    private static void checkAndAddProvidedByDNNTFlag(Connection con) throws SQLException {
-        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "providedByDNNT")) {
-            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN providedByDNNT BOOLEAN ;");
-            try {
-                int r = prepareStatement.executeUpdate();
-                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-            } finally {
-                DatabaseUtils.tryClose(prepareStatement);
-            }
-        }
-    }
+//    private static void checkAndAddSolrDate(Connection con) throws SQLException {
+//        if (!DatabaseUtils.columnExists(con, "statistic_access_log_detail", "solr_date")) {
+//            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistic_access_log_detail ADD COLUMN solr_date TEXT;");
+//            try {
+//                int r = prepareStatement.executeUpdate();
+//                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+//            } finally {
+//                DatabaseUtils.tryClose(prepareStatement);
+//            }
+//        }
+//    }
 
-    private static void checkAndAddEvaluateMap(Connection con) throws SQLException {
-        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "evaluateMap")) {
-            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN evaluateMap text;");
-            try {
-                int r = prepareStatement.executeUpdate();
-                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-            } finally {
-                DatabaseUtils.tryClose(prepareStatement);
-            }
-        }
-    }
+//    private static void checkDateIndex(Connection con) throws SQLException {
+//        if (!DatabaseUtils.indexExists(con, "statistics_access_log", "date")) {
+//            PreparedStatement prepareStatement = con.prepareStatement("CREATE INDEX date_index on statistics_access_log(date);");
+//            try {
+//                int r = prepareStatement.executeUpdate();
+//                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+//            } finally {
+//                DatabaseUtils.tryClose(prepareStatement);
+//            }
+//        }
+//    }
 
-    private static void checkAndAddUserAttributesMap(Connection con) throws SQLException {
-        if (!DatabaseUtils.columnExists(con, "statistics_access_log", "userSessionAttributes")) {
-            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN userSessionAttributes text;");
-            try {
-                int r = prepareStatement.executeUpdate();
-                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-            } finally {
-                DatabaseUtils.tryClose(prepareStatement);
-            }
-        }
-    }
 
-    private static void checkAndAddSolrDate(Connection con) throws SQLException {
-        if (!DatabaseUtils.columnExists(con, "statistic_access_log_detail", "solr_date")) {
-            PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE statistic_access_log_detail ADD COLUMN solr_date TEXT;");
-            try {
-                int r = prepareStatement.executeUpdate();
-                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-            } finally {
-                DatabaseUtils.tryClose(prepareStatement);
-            }
-        }
-    }
-
-    private static void checkDateIndex(Connection con) throws SQLException {
-        if (!DatabaseUtils.indexExists(con, "statistics_access_log", "date")) {
-            PreparedStatement prepareStatement = con.prepareStatement("CREATE INDEX date_index on statistics_access_log(date);");
-            try {
-                int r = prepareStatement.executeUpdate();
-                LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-            } finally {
-                DatabaseUtils.tryClose(prepareStatement);
-            }
-        }
-    }
-
-    private static void alterStatisticsTableSessionId(Connection con) throws SQLException {
-        PreparedStatement prepareStatement = con
-                .prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN SESSION_ID VARCHAR(255);");
-        try {
-            int r = prepareStatement.executeUpdate();
-            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
-        } finally {
-            DatabaseUtils.tryClose(prepareStatement);
-        }
-    }
+//    private static void alterStatisticsTableSessionId(Connection con) throws SQLException {
+//    
+//        
+//        PreparedStatement prepareStatement = con
+//                .prepareStatement("ALTER TABLE statistics_access_log ADD COLUMN SESSION_ID VARCHAR(255);");
+//        try {
+//            int r = prepareStatement.executeUpdate();
+//            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+//        } finally {
+//            DatabaseUtils.tryClose(prepareStatement);
+//        }
+//    }
 
     // change pk
     // Issue 619
-    private static void alterStatisticsAuthorTablePrimaryKey(final Connection con) throws SQLException {
+//    private static void alterStatisticsAuthorTablePrimaryKey(final Connection con) throws SQLException {
+//
+//        JDBCCommand deletePKCommand = new JDBCCommand() {
+//
+//            @Override
+//            public Object executeJDBCCommand(Connection con) throws SQLException {
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(
+//                        "ALTER TABLE statistic_access_log_detail_authors DROP CONSTRAINT statistic_access_log_detail_authors_pkey",
+//                        new Object[0]);
+//                return null;
+//            }
+//        };
+//
+//        JDBCCommand createPKCommand = new JDBCCommand() {
+//
+//            @Override
+//            public Object executeJDBCCommand(Connection con) throws SQLException {
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate("ALTER TABLE statistic_access_log_detail_authors ADD  PRIMARY KEY (author_id)",
+//                        new Object[0]);
+//                return null;
+//            }
+//        };
+//
+//        new JDBCTransactionTemplate(con, false).updateWithTransaction(deletePKCommand, createPKCommand);
+//
+//    }
 
-        JDBCCommand deletePKCommand = new JDBCCommand() {
+//    /**
+//     * @param connection
+//     * @throws IOException
+//     * @throws SQLException
+//     */
+//    private static void createStatisticTables(Connection connection) throws SQLException, IOException {
+//        if (!DatabaseUtils.tableExists(connection, "STATISTICS_ACCESS_LOG")) {
+//            InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initstatisticsdb.sql");
+//            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//            template.setUseReturningKeys(false);
+//            template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//        	
+//        }
+//    }
 
-            @Override
-            public Object executeJDBCCommand(Connection con) throws SQLException {
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(
-                        "ALTER TABLE statistic_access_log_detail_authors DROP CONSTRAINT statistic_access_log_detail_authors_pkey",
-                        new Object[0]);
-                return null;
-            }
-        };
-
-        JDBCCommand createPKCommand = new JDBCCommand() {
-
-            @Override
-            public Object executeJDBCCommand(Connection con) throws SQLException {
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate("ALTER TABLE statistic_access_log_detail_authors ADD  PRIMARY KEY (author_id)",
-                        new Object[0]);
-                return null;
-            }
-        };
-
-        new JDBCTransactionTemplate(con, false).updateWithTransaction(deletePKCommand, createPKCommand);
-
-    }
-
-    /**
-     * @param connection
-     * @throws IOException
-     * @throws SQLException
-     */
-    private static void createStatisticTables(Connection connection) throws SQLException, IOException {
-        if (!DatabaseUtils.tableExists(connection, "STATISTICS_ACCESS_LOG")) {
-            InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initstatisticsdb.sql");
-            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-            template.setUseReturningKeys(false);
-            template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-        	
-        }
-    }
-
-    /**
-     * Check if publisher table exists
-     * @param connection Connection
-     * @throws SQLException
-     * @throws IOException
-     */
-    private static void checkPublisherTables(Connection connection) throws SQLException, IOException {
-        if (!DatabaseUtils.tableExists(connection, "STATISTIC_ACCESS_LOG_DETAIL_PUBLISHERS")) {
-            InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initpublishersdb.sql");
-            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-            template.setUseReturningKeys(false);
-            template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-        }
-    }
+//    /**
+//     * Check if publisher table exists
+//     * @param connection Connection
+//     * @throws SQLException
+//     * @throws IOException
+//     */
+//    private static void checkPublisherTables(Connection connection) throws SQLException, IOException {
+//        if (!DatabaseUtils.tableExists(connection, "STATISTIC_ACCESS_LOG_DETAIL_PUBLISHERS")) {
+//            InputStream is = StatisticDbInitializer.class.getResourceAsStream("res/initpublishersdb.sql");
+//            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+//            template.setUseReturningKeys(false);
+//            template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+//        }
+//    }
 
     /**
      * Create first aggregation function first(col)
@@ -639,69 +501,69 @@ public class StatisticDbInitializer {
         new JDBCTransactionTemplate(connection, false).updateWithTransaction(lastAgg, last);
     }
 
-    private static void createTmpAuthorView(Connection connection) throws SQLException, IOException {
-        JDBCCommand tmpAuthorsView = new JDBCCommand() {
+//    private static void createTmpAuthorView(Connection connection) throws SQLException, IOException {
+//        JDBCCommand tmpAuthorsView = new JDBCCommand() {
+//
+//            @Override
+//            public Object executeJDBCCommand(Connection con) throws SQLException {
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
+//                template.setUseReturningKeys(false);
+//
+//                template.executeUpdate(
+//                        "CREATE OR REPLACE VIEW _tmp_authors_view AS "
+//                                + "SELECT first(record_id) as record_id, "
+//                                + "first(dta.pid) as pid, "
+//                                + "first(model) as model, "
+//                                + "first(session_id) as session_id "
+//                                + "FROM statistic_access_log_detail_authors auth "
+//                                + "JOIN statistics_access_log sta USING (record_id) "
+//                                + "JOIN statistic_access_log_detail dta USING(record_id) "
+//                                + "GROUP BY record_id;"
+//                        , new Object[0]);
+//                return null;
+//            }
+//        };
+//        new JDBCTransactionTemplate(connection, false).updateWithTransaction(tmpAuthorsView);
+//    }
 
-            @Override
-            public Object executeJDBCCommand(Connection con) throws SQLException {
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
-                template.setUseReturningKeys(false);
-
-                template.executeUpdate(
-                        "CREATE OR REPLACE VIEW _tmp_authors_view AS "
-                                + "SELECT first(record_id) as record_id, "
-                                + "first(dta.pid) as pid, "
-                                + "first(model) as model, "
-                                + "first(session_id) as session_id "
-                                + "FROM statistic_access_log_detail_authors auth "
-                                + "JOIN statistics_access_log sta USING (record_id) "
-                                + "JOIN statistic_access_log_detail dta USING(record_id) "
-                                + "GROUP BY record_id;"
-                        , new Object[0]);
-                return null;
-            }
-        };
-        new JDBCTransactionTemplate(connection, false).updateWithTransaction(tmpAuthorsView);
-    }
-
-    private static void createAuthorsView(Connection connection) throws SQLException, IOException {
-        JDBCCommand authorsView = new JDBCCommand() {
-
-            @Override
-            public Object executeJDBCCommand(Connection con) throws SQLException {
-                try {
-                    JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
-                    dropTemplate.setUseReturningKeys(false);
-                    dropTemplate.executeUpdate("DROP VIEW IF EXISTS _authors_view");
-                } catch (SQLException e) {
-                    LOGGER.info("Cannot DROP VIEW _authors_view:" + e);
-                }
-
-                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
-                template.setUseReturningKeys(false);
-                template.executeUpdate(
-                        "CREATE or REPLACE VIEW _authors_view AS " +
-                                "SELECT record_id, "
-                                + "author_id, "
-                                + "author_name, "
-                                + "dta.pid as pid, "
-                                + "model, "
-                                + "session_id, "
-                                + "date, "
-                                + "rights, "
-                                + "stat_action, "
-                                + "remote_ip_address "
-                                + "FROM statistic_access_log_detail_authors auth "
-                                + "JOIN statistics_access_log sta USING (record_id) "
-                                + "JOIN statistic_access_log_detail dta USING(record_id) "
-                                + "JOIN _tmp_authors_view USING (record_id, model, session_id);"
-                        , new Object[0]);
-                return null;
-            }
-        };
-
-        new JDBCTransactionTemplate(connection, false).updateWithTransaction(authorsView);
-    }
+//    private static void createAuthorsView(Connection connection) throws SQLException, IOException {
+//        JDBCCommand authorsView = new JDBCCommand() {
+//
+//            @Override
+//            public Object executeJDBCCommand(Connection con) throws SQLException {
+//                try {
+//                    JDBCUpdateTemplate dropTemplate = new JDBCUpdateTemplate(con, false);
+//                    dropTemplate.setUseReturningKeys(false);
+//                    dropTemplate.executeUpdate("DROP VIEW IF EXISTS _authors_view");
+//                } catch (SQLException e) {
+//                    LOGGER.info("Cannot DROP VIEW _authors_view:" + e);
+//                }
+//
+//                JDBCUpdateTemplate template = new JDBCUpdateTemplate(con, false);
+//                template.setUseReturningKeys(false);
+//                template.executeUpdate(
+//                        "CREATE or REPLACE VIEW _authors_view AS " +
+//                                "SELECT record_id, "
+//                                + "author_id, "
+//                                + "author_name, "
+//                                + "dta.pid as pid, "
+//                                + "model, "
+//                                + "session_id, "
+//                                + "date, "
+//                                + "rights, "
+//                                + "stat_action, "
+//                                + "remote_ip_address "
+//                                + "FROM statistic_access_log_detail_authors auth "
+//                                + "JOIN statistics_access_log sta USING (record_id) "
+//                                + "JOIN statistic_access_log_detail dta USING(record_id) "
+//                                + "JOIN _tmp_authors_view USING (record_id, model, session_id);"
+//                        , new Object[0]);
+//                return null;
+//            }
+//        };
+//
+//        new JDBCTransactionTemplate(connection, false).updateWithTransaction(authorsView);
+//    }
 
     // mno... bude se muset prepsat
 //    private static void createLangsView(Connection connection) throws SQLException, IOException {

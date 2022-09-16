@@ -76,7 +76,10 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 
 public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
-	static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
+	private static final String SOLR_POINT = "k7.log.solr.point";
+
+
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
 
 
     @Inject
@@ -279,7 +282,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             try {
-                String loggerPoint = KConfiguration.getInstance().getProperty("k7.log.solr.point","http://localhost:8983/solr/logs");
+                String loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/logs");
                 String updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
                 SolrUpdateUtils.sendToDest(this.client, logRecord.toSolrBatch(this.documentBuilderFactory), updateUrl);
             } catch (ParserConfigurationException e) {
@@ -323,7 +326,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     @Override
     public int cleanData(Date dateFrom, Date dateTo) throws IOException {
         // delete by query
-        String loggerPoint = KConfiguration.getInstance().getProperty("k7.log.solr.point","http://localhost:8983/solr/logs");
+        String loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/logs");
         String updateEndpoint = loggerPoint + (loggerPoint.endsWith("/") ? "" : "/" ) +"update";
 
         HttpPost httpPost = new HttpPost(updateEndpoint);

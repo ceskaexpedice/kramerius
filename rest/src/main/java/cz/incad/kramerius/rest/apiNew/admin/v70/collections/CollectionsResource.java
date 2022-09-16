@@ -535,10 +535,14 @@ public class CollectionsResource extends AdminApiResource {
     }
 
     public  boolean permitCollectionEdit(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
-        // must be only repo and collectionPid
         ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
-        for (ObjectPidsPath objectPidsPath : pidPaths) {
-            boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+        if (pidPaths.length > 0) {
+            for (ObjectPidsPath objectPidsPath : pidPaths) {
+                boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+                if (permited) return permited;
+            }
+        } else {
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null, ObjectPidsPath.REPOSITORY_PATH).flag() : false;
             if (permited) return permited;
         }
         return false;
@@ -554,9 +558,15 @@ public class CollectionsResource extends AdminApiResource {
     }
     
     public boolean permitCollectionRead(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
+        // jeste neni vytvorena - nema cestu nahoru
         ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
-        for (ObjectPidsPath objectPidsPath : pidPaths) {
-            boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_COLLECTIONS_READ.getFormalName(), collectionPid, null, objectPidsPath).flag() : false;
+        if (pidPaths.length > 0) {
+            for (ObjectPidsPath objectPidsPath : pidPaths) {
+                boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_COLLECTIONS_READ.getFormalName(), collectionPid, null, objectPidsPath).flag() : false;
+                if (permited) return permited;
+            }
+        } else {
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_COLLECTIONS_READ.getFormalName(), collectionPid, null, ObjectPidsPath.REPOSITORY_PATH).flag() : false;
             if (permited) return permited;
         }
         return false;

@@ -20,6 +20,7 @@ update right_entity set "action"='a_statistics' where "action"='show_statictics'
 
 update right_entity set "action"='a_statistics_edit' where "action"='manage_statistics';
 
+update right_entity set role='kramerius_admin' where role='k4_admins';
 
 
 -- delete unused

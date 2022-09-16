@@ -25,7 +25,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,10 +42,6 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 public class SecurityDbInitializer {
 
-    static List<String> EMBEDDED_LABELS = Arrays.asList(
-            "dnntt", "dnnto", "covid"
-    );
-
     static Logger LOGGER = Logger.getLogger(SecurityDbInitializer.class.getName());
 
     public static void initDatabase(Connection connection, VersionService versionService) {
@@ -56,7 +51,7 @@ public class SecurityDbInitializer {
                 if (!DatabaseUtils.tableExists(connection, "USER_ENTITY")) {
                     createSecurityTables(connection);
                     // new actions
-                    //createNewActions(connection);
+                    createNewActions(connection);
                 }
                 // column DEACTIVATED has been created
                 makeSureThatUserEntity_DEACTIVATED(connection);
@@ -70,14 +65,37 @@ public class SecurityDbInitializer {
                 // public role created
                 makeSurePublicRoleInserted(connection);
 
+                // create public role
+                insertRightForDisplayAdminMenu(connection);
 
+                // insert right for virtual collection manage
+                insertRightForVirtualCollection(connection);
+
+                // insert right for criteria params manage
+                insertRightForCriteriaParamsManage(connection);
+
+                // k4 replication rights
+                insertRightK4ReplicationExport(connection);
+                insertRightK4ReplicationImport(connection);
+
+                // mets ndk import
+                insertNDKMetsImport(connection);
+                // replikator k3
+                insertReplikatorK3(connection);
+
+                // insert aggregate process right
+                insertAggregateRight(connection);
+
+                insertShowStatiticsRight(connection);
+
+                //sort right
+                insertSortRight(connection);
+                insertPrintRight(connection);
                 updateUserEntityTable(connection);
                 updateShowItems(connection);
 
                 // labels table
                 makeSureThatLabelsTable(connection);
-                makeSureThatRoleColumnExists(connection);
-
                 createNewActions(connection);
 
             } else {
@@ -94,102 +112,186 @@ public class SecurityDbInitializer {
                     // create public role
                     makeSurePublicRoleInserted(connection);
 
+                    // create public role
+                    insertRightForDisplayAdminMenu(connection);
+                    // right for virtual collection
+                    insertRightForVirtualCollection(connection);
+
+                    // right for criteria params manage
+                    insertRightForCriteriaParamsManage(connection);
+
+                    // k4 replication rights
+                    insertRightK4ReplicationExport(connection);
+                    insertRightK4ReplicationImport(connection);
+
+                    // mets ndk import
+                    insertNDKMetsImport(connection);
+                    // replikator k3
+                    insertReplikatorK3(connection);
+
+                    // insert aggregate process right
+                    insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
+
+                    //sort right
+                    insertSortRight(connection);
+                    insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.3.0")) {
+                    // right for criteria params manage
+                    insertRightForCriteriaParamsManage(connection);
+                    // k4 replication rights
+                    insertRightK4ReplicationExport(connection);
+                    insertRightK4ReplicationImport(connection);
 
+                    // mets ndk import
+                    insertNDKMetsImport(connection);
+                    // replikator k3
+                    insertReplikatorK3(connection);
 
+                    // insert aggregate process right
+                    insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
+
+                    //sort right
+                    insertSortRight(connection);
+                    insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.4.0")) {
+                    // k4 replication rights
+                    insertRightK4ReplicationExport(connection);
+                    insertRightK4ReplicationImport(connection);
 
+                    // mets ndk import
+                    insertNDKMetsImport(connection);
+                    // replikator k3
+                    insertReplikatorK3(connection);
+                    // insert aggregate process right
+                    insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
+
+                    //sort right
+                    insertSortRight(connection);
+                    insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.5.0")) {
-
+                    // mets ndk import
+                    insertNDKMetsImport(connection);
+                    // replikator k3
+                    insertReplikatorK3(connection);
+                    // insert aggregate process right
+                    insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
+                    //sort right
+                    insertSortRight(connection);
+                    insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.6.0")) {
-
+                    // replikator k3
+                    insertReplikatorK3(connection);
+                    // insert aggregate process right
+                    insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
+                    //sort right
+                    insertSortRight(connection);
+                    insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.7.0")) {
-
+                    // insert aggregate process right
+                    insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
+                    //sort right
+                    insertSortRight(connection);
+                    insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.8.0")) {
-
+                    // insert aggregate process right
+                    insertAggregateRight(connection);
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
+                    //sort right
+                    insertSortRight(connection);
+                    insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.9.0")) {
-
+                    // insert statistics right
+                    insertShowStatiticsRight(connection);
+                    //sort right
+                    insertSortRight(connection);
+                    insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if ((versionCondition(v, ">", "5.9.0")) && (versionCondition(v, "<", "6.3.0"))) {
-
+                    //sort right
+                    insertSortRight(connection);
+                    insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "6.3.0")) {
+                    insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "6.6.0")) {
@@ -198,21 +300,18 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, ">", "6.6.0") && versionCondition(v, "<=", "6.6.2")) {
                     updateShowItems(connection);
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
                 } else if (versionCondition(v, ">", "6.6.2") && versionCondition(v, "<", "7.0.2")) {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                    makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
                 }
             }
@@ -223,7 +322,6 @@ public class SecurityDbInitializer {
             makeSureRolesInTable(connection);
             
             updateExistingActions(connection);
-            checkLabelExists(connection);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
@@ -231,71 +329,41 @@ public class SecurityDbInitializer {
         }
     }
 
-    
-    
-    private static void checkLabelExists(Connection connection) {
 
-        EMBEDDED_LABELS.stream().forEach(label -> {
-                    List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
-                        @Override
-                        public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-                            returnsList.add(rs.getString("label_name"));
-                            return super.handleRow(rs, returnsList);
-                        }
-                    }.executeQuery("select * from labels_entity where label_name = ?", label);
-                    if (labels.isEmpty()) {
-                        try {
-                            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                            template.setUseReturningKeys(false);
-                            template.executeUpdate(
-                                    "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
-                                            "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, '', (select coalesce(max(label_priority),0)+1 from labels_entity))",
-                                    label);
+    /**
+     * @param connection
+     * @return
+     * @throws SQLException
+     */
+    private static int insertAggregateRight(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_aggregate").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
 
-                        } catch (SQLException e) {
-                            LOGGER.log(Level.SEVERE, String.format("Cannot create embedded label %s", label));
-
-                        }
-                    }
-                }
-        );
+    /**
+     * @param connection
+     * @return
+     * @throws SQLException
+     */
+    private static int insertShowStatiticsRight(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_showstatistics").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
     }
 
 
-//    /**
-//     * @param connection
-//     * @return
-//     * @throws SQLException
-//     */
-//    private static int insertAggregateRight(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_aggregate").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
-//
-//    /**
-//     * @param connection
-//     * @return
-//     * @throws SQLException
-//     */
-//    private static int insertShowStatiticsRight(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_showstatistics").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
-//
+    private static int insertSortRight(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_sort").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
 
-//    private static int insertSortRight(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_sort").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
-
-//    private static int insertPrintRight(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_show_print_menu").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
+    private static int insertPrintRight(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_show_print_menu").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
 
     private static int updateUserEntityTable(Connection connection) throws SQLException {
         String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("updateUserEntities").toString();
@@ -311,40 +379,40 @@ public class SecurityDbInitializer {
         return template.executeUpdate(sql);
     }
 
-//    /**
-//     * @param connection
-//     * @return
-//     * @throws SQLException
-//     */
-//    private static int insertReplikatorK3(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_ReplikatorK3").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
+    /**
+     * @param connection
+     * @return
+     * @throws SQLException
+     */
+    private static int insertReplikatorK3(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_ReplikatorK3").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
 
-//    private static int insertRightK4ReplicationExport(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_K4ReplicationExport").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
-//
-//    private static int insertRightK4ReplicationImport(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_K4ReplicationImport").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
+    private static int insertRightK4ReplicationExport(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_K4ReplicationExport").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
 
-//    private static int insertRightForCriteriaParamsManage(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_DisplayAdminMenu").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
+    private static int insertRightK4ReplicationImport(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_K4ReplicationImport").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
 
-//    private static int insertNDKMetsImport(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_NDKMetsImport").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
+    private static int insertRightForCriteriaParamsManage(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_DisplayAdminMenu").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
+
+    private static int insertNDKMetsImport(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_NDKMetsImport").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
 
     private static void makeSureThatProfilesTable(Connection connection) throws SQLException, IOException {
         if (!DatabaseUtils.tableExists(connection, "PROFILES")) {
@@ -413,17 +481,17 @@ public class SecurityDbInitializer {
         return template.executeUpdate(stemplate.toString());
     }
 
-//    private static int insertRightForDisplayAdminMenu(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertDisplayAdminMenuRight").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
+    private static int insertRightForDisplayAdminMenu(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertDisplayAdminMenuRight").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
 
-//    public static int insertRightForVirtualCollection(Connection connection) throws SQLException {
-//        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_VirtualCollections").toString();
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        return template.executeUpdate(sql);
-//    }
+    public static int insertRightForVirtualCollection(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_VirtualCollections").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
 
 
     private static int insertCriterium(Connection connection, int paramid) throws SQLException {
@@ -453,16 +521,6 @@ public class SecurityDbInitializer {
         template.setUseReturningKeys(false);
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
-    
-//    // vytvareni 
-//    private static void createNewActions(Connection connection) throws SQLException, IOException {
-//        
-//        InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/initsecdb_newactions.sql");
-//        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-//        template.setUseReturningKeys(false);
-//        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
-//    }
-       
 
     private static void updateExistingActions(Connection connection) throws SQLException, IOException {
         InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/rename_oldactions.sql");

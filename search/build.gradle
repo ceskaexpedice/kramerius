@@ -97,10 +97,17 @@ task infofile(dependsOn: gitcall)  {
 
         props.store(buildInfoFile.newWriter(), null)
         println "Created build file ${buildInfoFile.absolutePath} with version ${project.version.toString()} and hash ${gitcall.hash} "
+		
+		parentFolder.listFiles().each{ f-> 
+			println "... ${f.absolutePath}"
+		}
 	}
 }
 
-processResources.dependsOn infofile
+
+//processResources.dependsOn infofile
+
+war.dependsOn infofile
 
 war {
     baseName='search'

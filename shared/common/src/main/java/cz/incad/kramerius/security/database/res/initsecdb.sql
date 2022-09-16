@@ -77,6 +77,7 @@ CREATE TABLE RIGHT_ENTITY (
    RIGHTS_CRIT INT,
    USER_ID INT,
    GROUP_ID INT,
+   ROLE TEXT,
    FIXED_PRIORITY INT, PRIMARY KEY (RIGHT_ID));
 
 CREATE INDEX UUID_IDX ON RIGHT_ENTITY (UUID);
@@ -129,21 +130,19 @@ values(nextval('group_id_sequence'),'common_users');
 insert into group_entity(group_id,gname) 
 values(nextval('group_id_sequence'),'k4_admins'); 
 
-
-
 -- administrace skupin
--- -- common administruje k4_admins
-update group_entity set personal_admin_id=2 where group_id=1;
+-- common administruje k4_admins
+-- update group_entity set personal_admin_id=2 where group_id=1;
 
 
 -- krameriusAdmin
-insert into user_entity (user_id,"name", surname,loginname,pswd)
-values(nextval('user_id_sequence'), 'kramerius','admin','krameriusAdmin','cqEk6m3f+bpT50XDAha1r5Wa7Q0=');
+-- insert into user_entity (user_id,"name", surname,loginname,pswd)
+-- values(nextval('user_id_sequence'), 'kramerius','admin','krameriusAdmin','cqEk6m3f+bpT50XDAha1r5Wa7Q0=');
 
 -- asociace (uzvivatel, skupina)
 -- -- krameriusAdmin = k4_admins
-insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
-values(nextval('group_user_assoc_id_sequence'),1,2);
+-- insert into group_user_assoc(group_user_assoc_id, user_id, group_id)
+-- values(nextval('group_user_assoc_id_sequence'),1,2);
 
 
 -- insert into params

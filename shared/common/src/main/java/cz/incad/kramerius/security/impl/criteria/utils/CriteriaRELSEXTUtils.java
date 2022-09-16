@@ -45,10 +45,10 @@ public class CriteriaRELSEXTUtils {
             if (!requestedPID.equals(SpecialObjects.REPOSITORY.getPid())) {
                 Document relsExt = fa.getRelsExt(requestedPID);
                 return checkValue(relsExt, path,expectedValue);
-            } else return EvaluatingResultState.TRUE;
+            } else return EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResultState.TRUE;
+            return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 }
