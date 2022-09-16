@@ -51,6 +51,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.users.UserProfileManager;
@@ -207,40 +208,50 @@ public class ClientUserResource {
     }
 
     
-    @GET
+    @POST
     @Path("pids_actions")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response pidsActions(@QueryParam("pids") String pids) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response pidsActionsGET(JSONObject rawdata) {
+        //@QueryParam("pids") String pids
         User user;
         try {
-            user = this.userProvider.get();
-            String[] pidsArray = pids.split(",");
-            
-            JSONObject retobject = new JSONObject();
-            for (String pid : pidsArray) {
-                
-                ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+            if (rawdata.has("pids") && (rawdata.get("pids") instanceof JSONArray)) {
+                JSONArray jsonArray = rawdata.getJSONArray("pids");
+
                 user = this.userProvider.get();
                 
-                SecuredActions[] values = SecuredActions.values();
-                if (!SpecialObjects.REPOSITORY.getPid().equals(pid)) {
+                JSONObject retobject = new JSONObject();
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    String pid = jsonArray.getString(i);
+                    
+                    ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                    user = this.userProvider.get();
+                    
+                    SecuredActions[] values = SecuredActions.values();
+                    if (!SpecialObjects.REPOSITORY.getPid().equals(pid)) {
+                        values = Arrays.stream(values).filter(it-> {
+                            return !it.isGlobalAction();
+                        }).toArray(SecuredActions[]::new);
+                    }
+
                     values = Arrays.stream(values).filter(it-> {
-                        return !it.isGlobalAction();
+                        String formalName = it.getFormalName();
+                        return formalName.startsWith("a_");
                     }).toArray(SecuredActions[]::new);
+
+
+                    Set<String> set = actionsForPid(pid, pidPaths, values);
+                    JSONArray retArray = new JSONArray();
+                    set.forEach(retArray::put);
+                    retobject.put(pid, retArray);
                 }
 
-                values = Arrays.stream(values).filter(it-> {
-                    String formalName = it.getFormalName();
-                    return formalName.startsWith("a_");
-                }).toArray(SecuredActions[]::new);
-
-
-                Set<String> set = actionsForPid(pid, pidPaths, values);
-                JSONArray retArray = new JSONArray();
-                set.forEach(retArray::put);
-                retobject.put(pid, retArray);
+                return Response.ok().entity(retobject.toString()).build();
+            } else {
+                throw new BadRequestException("expecting 'pids' array");
             }
-            return Response.ok().entity(retobject.toString()).build();
+            
         } catch (UnsupportedEncodingException e) {
             throw new GenericApplicationException(e.getMessage());
         } catch (JSONException e) {

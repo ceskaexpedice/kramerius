@@ -257,8 +257,13 @@ public class RolesResource {
     }
 
     boolean permit(User user) {
-    	if (user != null)
-    		return  this.rightsResolver.isActionAllowed(user,SecuredActions.A_ROLES_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
+    	if (user != null) {
+            boolean retval = this.rightsResolver.isActionAllowed(user,SecuredActions.A_ROLES_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
+            if (!retval) {
+                retval = this.rightsResolver.isActionAllowed(user,SecuredActions.A_RIGHTS_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
+            }
+            return retval;
+    	}
     	else 
     		return false;
     }
