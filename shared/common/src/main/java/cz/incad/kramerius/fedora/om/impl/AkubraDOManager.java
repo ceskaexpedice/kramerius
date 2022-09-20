@@ -446,7 +446,7 @@ public class AkubraDOManager {
         }
     }
 
-    private void addOrReplaceObject(String pid, InputStream content) throws LowlevelStorageException {
+    public void addOrReplaceObject(String pid, InputStream content) throws LowlevelStorageException {
         if (((ICheckable) storage).objectExists(pid)) {
             storage.replaceObject(pid, content, null);
         } else {
@@ -454,7 +454,7 @@ public class AkubraDOManager {
         }
     }
 
-    private void addOrReplaceDatastream(String pid, InputStream content) throws LowlevelStorageException {
+    public void addOrReplaceDatastream(String pid, InputStream content) throws LowlevelStorageException {
         if (storage instanceof AkubraLowlevelStorage) {
             if (((AkubraLowlevelStorage) storage).datastreamExists(pid)) {
                 storage.replaceDatastream(pid, content, null);
