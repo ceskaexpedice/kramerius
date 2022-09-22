@@ -6,10 +6,8 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
-import biz.sourcecode.base64Coder.Base64Coder;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

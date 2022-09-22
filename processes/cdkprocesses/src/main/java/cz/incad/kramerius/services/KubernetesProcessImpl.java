@@ -81,7 +81,7 @@ public class KubernetesProcessImpl {
                 }
 
             } else {
-                LOGGER.severe(String.format("Cannot find resource %s", args[0]));
+                LOGGER.severe(String.format("Cannot find resource %s", configSource));
             }
         } else {
             LOGGER.severe("No configuration");

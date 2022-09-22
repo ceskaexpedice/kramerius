@@ -45,6 +45,11 @@ configurations.all {
 }
 
 
+/*
+if(JavaVersion.current() != JavaVersion.VERSION_1_8){
+	println JavaVersion.current()
+	throw new GradleException("This build must be run with java 8")
+}*/
 
 dependencies {
     // editor dependency
@@ -70,16 +75,18 @@ allprojects {
  */
 allprojects {
 
+
     apply plugin:'java'
+    apply plugin:'java-library'
     apply plugin: 'eclipse'
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
 
     compileJava.options.encoding = 'UTF-8'
 
 
     ext.guiceversion ='4.2.2'
     ext.postgresversion = '42.1.4'
-    ext.slf4jversion='1.6.0'
+     ext.slf4jversion='1.7.35'
     //ext.jerseyversion = '1.17.1'
     ext.jerseyversion = '1.19.4'
 
@@ -96,31 +103,31 @@ allprojects {
     dependencies {
 
         // postgresql to all subprojects
-        compile "org.postgresql:postgresql:${postgresversion}"
+        api "org.postgresql:postgresql:${postgresversion}"
         database "org.postgresql:postgresql:${postgresversion}"
 
         // guice to all subprojects
-        compile "com.google.inject:guice:${guiceversion}"
-        compile "com.google.inject.extensions:guice-multibindings:${guiceversion}"
-        compile "com.google.inject.extensions:guice-multibindings:${guiceversion}"
-        compile "com.google.inject.extensions:guice-servlet:${guiceversion}"
-        compile "com.google.inject.extensions:guice-assistedinject:${guiceversion}"
-        compile "javax.inject:javax.inject:1"
+        api "com.google.inject:guice:${guiceversion}"
+        api "com.google.inject.extensions:guice-multibindings:${guiceversion}"
+        api "com.google.inject.extensions:guice-multibindings:${guiceversion}"
+        api "com.google.inject.extensions:guice-servlet:${guiceversion}"
+        api "com.google.inject.extensions:guice-assistedinject:${guiceversion}"
+        api "javax.inject:javax.inject:1"
 
         // logging
-        compile "org.slf4j:slf4j-api:${slf4jversion}"
-        compile "org.slf4j:log4j-over-slf4j:${slf4jversion}"
-        compile "org.slf4j:slf4j-jdk14:${slf4jversion}"
-        compile "org.slf4j:jcl-over-slf4j:${slf4jversion}"
+        api "org.slf4j:slf4j-api:${slf4jversion}"
+        api "org.slf4j:log4j-over-slf4j:${slf4jversion}"
+        api "org.slf4j:slf4j-jdk14:${slf4jversion}"
+        api "org.slf4j:jcl-over-slf4j:${slf4jversion}"
 
         //dom4j
         implementation 'jaxen:jaxen:1.2.0'
         implementation 'org.dom4j:dom4j:2.1.1'
 
         //junit to all subprojects
-        testCompile "junit:junit:4.4"
+        testImplementation "junit:junit:4.4"
         //testCompile "org.easymock:easymock:3.0"
-        testCompile "org.easymock:easymock:4.3"
+        testImplementation "org.easymock:easymock:4.3"
 
     }
 
@@ -133,14 +140,16 @@ allprojects {
             dirs "../../buildSrc/lib"
         }
 
-
+		/*	
         maven {
             url "http://kramerius.googlecode.com/svn/mvnrepo"
+			allowInsecureProtocol = true
         }
 
         maven {
             url "http://aplikator.googlecode.com/svn/mvnrepository"
-        }
+			allowInsecureProtocol = true
+        }*/
 
 
         mavenLocal()
@@ -149,7 +158,7 @@ allprojects {
 
 
         maven {
-            url "http://m2.duraspace.org/content/repositories/releases"
+            url "https://m2.duraspace.org/content/repositories/releases"
         }
 
         maven {
@@ -157,28 +166,30 @@ allprojects {
         }
 
         maven {
-            url "http://guiceyfruit.googlecode.com/svn/repo/releases/"
+            url "https://guiceyfruit.googlecode.com/svn/repo/releases/"
         }
 
 
         maven {
-            url "http://jsdoctk-plugin.googlecode.com/svn/repo"
+            url "https://jsdoctk-plugin.googlecode.com/svn/repo"
         }
 
         maven {
-            url "http://repository.springsource.com/maven/bundles/external"
+            url "https://repository.springsource.com/maven/bundles/external"
         }
 
         maven {
             url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases"
+			allowInsecureProtocol = true
         }
 
         maven {
-            url "http://download.osgeo.org/webdav/geotools/"
+            url "https://download.osgeo.org/webdav/geotools/"
+			allowInsecureProtocol = true
         }
 
         maven {
-            url "http://repo.jfrog.org/artifactory/libs-releases/"
+            url "https://repo.jfrog.org/artifactory/libs-releases/"
         }
 
         /*
@@ -187,7 +198,7 @@ allprojects {
         }*/
 
         maven {
-            url "http://jbig2-imageio.googlecode.com/svn/maven-repository"
+            url "https://jbig2-imageio.googlecode.com/svn/maven-repository"
         }
 
         maven {
@@ -228,10 +239,11 @@ allprojects {
     // ~ overwritten windows encoding
 
     // remove all dependencies without group id
-    install.repositories.mavenInstaller.pom.whenConfigured {pom ->
-        pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
-    }
+//    install.repositories.mavenInstaller.pom.whenConfigured {pom ->
+//        pom.dependencies.removeAll { it.groupId == null || it.groupId.equals("") }
+//    }
 
+	task printAllDependencies(type: DependencyReportTask) {}
 
 }
 
@@ -304,4 +316,5 @@ task zipAllJavadocs(type: Zip) {
 
     }
 }*/
+
 

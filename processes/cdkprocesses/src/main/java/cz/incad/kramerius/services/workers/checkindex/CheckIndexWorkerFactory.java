@@ -6,6 +6,8 @@ import cz.incad.kramerius.services.WorkerFinisher;
 import cz.incad.kramerius.services.WorkerFactory;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
+import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
+
 import org.w3c.dom.Element;
 
 import java.util.List;
@@ -14,9 +16,8 @@ public class CheckIndexWorkerFactory extends WorkerFactory {
 
     public CheckIndexWorkerFactory() {  }
 
-
     @Override
-    public WorkerFinisher createFinisher(Element worker, Client client) {
+    public WorkerFinisher createFinisher(TimestampStore store, Element worker, Client client) {
         return null;
     }
 

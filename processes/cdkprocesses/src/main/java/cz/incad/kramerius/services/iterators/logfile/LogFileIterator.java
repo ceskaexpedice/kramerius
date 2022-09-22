@@ -4,6 +4,7 @@ import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.iterators.ProcessIterationCallback;
 import cz.incad.kramerius.services.iterators.ProcessIterationEndCallback;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
+import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
 import cz.incad.kramerius.services.iterators.utils.IterationUtils;
 import org.json.JSONObject;
 
@@ -50,4 +51,9 @@ public class LogFileIterator implements ProcessIterator{
             throw new RuntimeException(e);
         }
     }
+
+	@Override
+	public TimestampStore getTimestampStore() {
+		return null;
+	}
 }

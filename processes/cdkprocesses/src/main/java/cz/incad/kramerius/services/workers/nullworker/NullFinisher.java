@@ -2,6 +2,8 @@ package cz.incad.kramerius.services.workers.nullworker;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.WorkerFinisher;
+import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
+
 import org.w3c.dom.Element;
 
 import java.util.logging.Logger;
@@ -12,8 +14,8 @@ public class NullFinisher extends WorkerFinisher {
 
     private long start = 0;
 
-    public NullFinisher(Element workerElm, Client client) {
-        super(workerElm, client);
+    public NullFinisher(TimestampStore store,  Element workerElm, Client client) {
+        super(store, workerElm, client);
         start = System.currentTimeMillis();
     }
 

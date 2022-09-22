@@ -1,9 +1,9 @@
 include	'shared:common'
-include	'shared:common-intest'
 include	'rest'
 include	'search'
 
 include 'bridge'
+
 
 
 include	'processes:import'
@@ -18,22 +18,25 @@ include	'processes:import-jaxb-dc'
 include	'processes:import-jaxb-mets'
 include	'processes:import-jaxb-srwdc'
 include	'processes:import-mets'
-include 'processes:mw-process'
-include	'processes:indexer'
-
-//include 'processes:solr-migration'
-include	'processes:static-export'
-include 'processes:data-migration'
-include 'processes:migration'
 include 'processes:cdkprocesses'
 
-include 'processes:solr-migration'
+include 'processes:solr-migration' //dependencies
+
+// not used in cdk
+//include	'processes:indexer'
+//include 'processes:solr-migration'
 //include	'processes:static-export'
-include 'processes:data-migration'
-include 'processes:migration'
-include 'processes:dnntflag'
+//include 'processes:data-migration'
+//include 'processes:migration'
+//include 'processes:mw-process'
+//include	'processes:static-export'
+//include 'processes:data-migration'
+//include 'processes:migration'
+//include 'processes:dnntflag'
+//include 'processes:nkp-logs'
+//include	'shared:common-intest'
+
 include	'search-index'
-include 'processes:nkp-logs'
 
 
 include 'security:security-core'

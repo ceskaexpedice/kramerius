@@ -10,120 +10,120 @@ sourceSets {
 }
 
 dependencies {
-    compile project(':security:security-core')
-    compile project(':processes:import-jaxb')
+    api project(':security:security-core')
+    api project(':processes:import-jaxb')
     // Nullable annotation
-    compile 'com.google.code.findbugs:jsr305:1.3.9'
-    compile 'javax.servlet:servlet-api:2.5'
-    compile 'org.json:json:20140107'
-    compile 'commons-codec:commons-codec:1.5'
-    compile 'org.apache.pdfbox:pdfbox:2.0.2'
-    compile 'com.levigo.jbig2:levigo-jbig2-imageio:1.6.5'
-    compile 'com.ibm.icu:icu4j:56.1'
-    compile 'com.google.guava:guava:27.1-jre'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.68'
-    compile 'org.bouncycastle:bcmail-jdk15on:1.68'
-    compile 'org.apache.solr:solr-solrj:6.2.1'
+    api 'com.google.code.findbugs:jsr305:1.3.9'
+    api 'javax.servlet:servlet-api:2.5'
+    api 'org.json:json:20140107'
+    api 'commons-codec:commons-codec:1.5'
+    api 'org.apache.pdfbox:pdfbox:2.0.2'
+    api 'com.levigo.jbig2:levigo-jbig2-imageio:1.6.5'
+    api 'com.ibm.icu:icu4j:56.1'
+    api 'com.google.guava:guava:27.1-jre'
+    api 'org.bouncycastle:bcprov-jdk15on:1.68'
+    api 'org.bouncycastle:bcmail-jdk15on:1.68'
+    api 'org.apache.solr:solr-solrj:6.2.1'
     
-    compile "javax.mail:mail:1.4.1"
-    compile "com.google.gwt:gwt-servlet:2.4.0"
-    compile "commons-io:commons-io:2.3"
-    compile "commons-codec:commons-codec:1.5"
-    compile ("com.lowagie:itext:2.1.7"){exclude group: 'bouncycastle'}
-    compile "org.antlr:stringtemplate:3.2.1"
+    api "javax.mail:mail:1.4.1"
+    api "com.google.gwt:gwt-servlet:2.4.0"
+    api "commons-io:commons-io:2.3"
+    api "commons-codec:commons-codec:1.5"
+    api ("com.lowagie:itext:2.1.7"){exclude group: 'bouncycastle'}
+    api "org.antlr:stringtemplate:3.2.1"
 
-    compile 'fast-md5:fast-md5:2.5'
+    api 'fast-md5:fast-md5:2.5'
 
-    compile name:"djvuframe-0.8.09"
-    compile name:"javadjvu-0.8.09"
+    api name:"djvuframe-0.8.09"
+    api name:"javadjvu-0.8.09"
 
-    compile "commons-configuration:commons-configuration:1.10"
-    compile "org.apache.commons:commons-lang3:3.5"
+    api "commons-configuration:commons-configuration:1.10"
+    api "org.apache.commons:commons-lang3:3.5"
 
     /*
-    compile ("com.yourmediashelf.fedora.client:fedora-client-core:0.7") {
+    api ("com.yourmediashelf.fedora.client:fedora-client-core:0.7") {
       exclude group:"com.hp.hpl.jena", module:"jena"
       exclude group:"ch.qos.logback", module:"logback-classic"
     }
     
-    compile ("com.yourmediashelf.fedora.client:fedora-client-messaging:0.7") {
+    api ("com.yourmediashelf.fedora.client:fedora-client-messaging:0.7") {
       exclude group:"com.hp.hpl.jena", module:"jena"
       exclude group:"ch.qos.logback", module:"logback-classic"
     }*/
 
-	compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.4.2'
+	api group: 'org.apache.commons', name: 'commons-pool2', version: '2.4.2'
 
     /*
-    compile "org.slf4j:slf4j-api:${ext.slf4jversion}"
-    compile "org.slf4j:log4j-over-slf4j:${ext.slf4jversion}"
-    compile "org.slf4j:slf4j-jdk14:${ext.slf4jversion}"
-    compile "org.slf4j:jcl-over-slf4j:${ext.slf4jversion}"
+    api "org.slf4j:slf4j-api:${ext.slf4jversion}"
+    api "org.slf4j:log4j-over-slf4j:${ext.slf4jversion}"
+    api "org.slf4j:slf4j-jdk14:${ext.slf4jversion}"
+    api "org.slf4j:jcl-over-slf4j:${ext.slf4jversion}"
     */
     
-    compile "javax.media.jai:com.springsource.javax.media.jai.core:1.1.3"
-    compile "javax.media.jai:com.springsource.javax.media.jai.codec:1.1.3"
+    api "javax.media.jai:com.springsource.javax.media.jai.core:1.1.3"
+    api "javax.media.jai:com.springsource.javax.media.jai.codec:1.1.3"
 
-    compile module(name:"jai_imageio-1.1") {
+    api module(name:"jai_imageio-1.1") {
     	dependencies name:"jai_core-1.1.3"
     }
 
-    compile "commons-dbcp:commons-dbcp:1.4"
-    compile "net.sf.json-lib:json-lib:2.3:jdk15"
+    api "commons-dbcp:commons-dbcp:1.4"
+    api "net.sf.json-lib:json-lib:2.3:jdk15"
     
-    compile 'javax.ws.rs:jsr311-api:1.1.1'
+    api 'javax.ws.rs:jsr311-api:1.1.1'
     
-    compile "com.sun.jersey:jersey-server:${jerseyversion}"
-    compile "com.sun.jersey:jersey-servlet:${jerseyversion}"
-    compile "com.sun.jersey:jersey-client:${jerseyversion}"
-    compile "com.sun.jersey:jersey-json:${jerseyversion}"
+    api "com.sun.jersey:jersey-server:${jerseyversion}"
+    api "com.sun.jersey:jersey-servlet:${jerseyversion}"
+    api "com.sun.jersey:jersey-client:${jerseyversion}"
+    api "com.sun.jersey:jersey-json:${jerseyversion}"
 
-    compile "com.sun.jersey.contribs:jersey-apache-client:${jerseyversion}"
-    compile "com.sun.jersey.contribs:jersey-guice:${jerseyversion}"
+    api "com.sun.jersey.contribs:jersey-apache-client:${jerseyversion}"
+    api "com.sun.jersey.contribs:jersey-guice:${jerseyversion}"
 
     /*
-    compile("org.fcrepo:fcrepo4-client:4.4.1-SNAPSHOT") {
+    api("org.fcrepo:fcrepo4-client:4.4.1-SNAPSHOT") {
        exclude group:"ch.qos.logback", module:"logback-classic"
     }
     
-    compile("org.fcrepo:fcrepo-client:4.4.1-SNAPSHOT") {
+    api("org.fcrepo:fcrepo-client:4.4.1-SNAPSHOT") {
        exclude group:"ch.qos.logback", module:"logback-classic"
     }
      
-    compile("org.fcrepo:fcrepo-client-impl:4.4.1-SNAPSHOT") {
+    api("org.fcrepo:fcrepo-client-impl:4.4.1-SNAPSHOT") {
        exclude group:"ch.qos.logback", module:"logback-classic"
     }*/
 
 
     // for audio support 
-    compile 'org.ehcache:ehcache:3.3.0'
-    compile 'org.apache.httpcomponents:httpclient:4.3.2'
+    api 'org.ehcache:ehcache:3.3.0'
+    api 'org.apache.httpcomponents:httpclient:4.3.2'
  
 
-    compile group: 'org.fcrepo.client', name: 'fcrepo-java-client', version: '0.3.0'
+    api group: 'org.fcrepo.client', name: 'fcrepo-java-client', version: '0.3.0'
 
     // dependencies in maven profile
-    testCompile "xmlunit:xmlunit:1.3"
+    api "xmlunit:xmlunit:1.3"
 
-    testCompile 'org.hamcrest:hamcrest-core:1.3'
-    testCompile 'org.apache.solr:solr-core:6.3.0'
+    testImplementation 'org.hamcrest:hamcrest-core:1.3'
+    testImplementation 'org.apache.solr:solr-core:6.3.0'
 
     //akubra storage
-    compile 'org.akubraproject:akubra-core:0.4.0'
-    compile ('org.akubraproject:akubra-fs:0.4.0') {
+    api 'org.akubraproject:akubra-core:0.4.0'
+    api ('org.akubraproject:akubra-fs:0.4.0') {
         exclude group: 'com.google.guava', module: 'guava-collections'
         exclude group: 'com.google.guava', module: 'guava-annotations'
         exclude group: 'com.google.guava', module: 'guava-primitives'
         exclude group: 'com.google.guava', module: 'guava-base'
     }
-    compile ('org.akubraproject:akubra-map:0.4.0'){
+    api ('org.akubraproject:akubra-map:0.4.0'){
         exclude group: 'com.google.guava', module: 'guava-collections'
         exclude group: 'com.google.guava', module: 'guava-annotations'
         exclude group: 'com.google.guava', module: 'guava-primitives'
         exclude group: 'com.google.guava', module: 'guava-base'
     }
-    compile 'com.hazelcast:hazelcast-all:3.11.2'
-    compile'net.jcip:jcip-annotations:1.0'
-//    compile ('com.github.ThoughtWire:hazelcast-locks:1.0.1'){
+    api 'com.hazelcast:hazelcast-all:3.11.2'
+    api'net.jcip:jcip-annotations:1.0'
+//    api ('com.github.ThoughtWire:hazelcast-locks:1.0.1'){
 //        exclude group:'com.hazelcast', module:'hazelcast'
 //    }
 
@@ -134,11 +134,4 @@ dependencies {
 }
 
 
-eclipse {
-
-  classpath {
-    plusConfigurations += [ configurations.runtime ]
-
-  }
-}
 

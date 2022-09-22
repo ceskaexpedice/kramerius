@@ -50,7 +50,11 @@ public class BatchUtils {
 
                 //srcTransform.
                 boolean b = enhanceByCompositeId(destBatch, destDocElement, root, child);
-                if (b) destBatch.getDocumentElement().appendChild(destDocElement);
+                if (b) {
+                	destBatch.getDocumentElement().appendChild(destDocElement);
+                } else {
+                	ReplicateFinisher.NOT_INDEXED_COMPOSITEID.addAndGet(1);
+                }
             } else {
                 destBatch.getDocumentElement().appendChild(destDocElement);
             }

@@ -1,5 +1,6 @@
 <!--  
-	Process 
+	
+	k7 inovatika dev
  -->
 <cdkprocess>
     <!-- Iteration part -->
@@ -9,11 +10,10 @@
         <endpoint>select</endpoint>
 
         <id>pid</id>
-        <rows>10000</rows>
         <type>CURSOR</type>
     </iteration>
 
-    <threads>2</threads>
+    <threads>1</threads>
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
     <worker>
@@ -53,8 +53,8 @@
                     <field name="cdk.collection">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
                     <field name="cdk.leader">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
                     -->
-                    <field name="cdk.collection">mzk</field>
-                    <field name="cdk.leader">mzk</field>
+                    <field name="cdk.collection">inovatika</field>
+                    <field name="cdk.leader">inovatika</field>
                 </update.dest.field>
             </onindex>
 
@@ -65,7 +65,8 @@
                     <field name="cdk.collection" update="add-distinct">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
                     <field name="cdk.leader" update="set">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
                      -->
-                    <field name="cdk.collection" update="add-distinct">mzk</field>
+                    <field name="cdk.collection" update="add-distinct">inovatika</field>
+                    <field name="cdk.leader" update="set">inovatika</field>
                 </update.dest.field>
             </onupdate>
 

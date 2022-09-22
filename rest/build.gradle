@@ -3,25 +3,25 @@ description "Remote API"
 
 dependencies {
 
-    compile project(':shared:common')
-    compile project(':security:security-core')
-    compile project(':security:oauth')
-    compile project(':search-index')
-    compile project(':processes:solr-migration')
+    api project(':shared:common')
+    api project(':security:security-core')
+    api project(':security:oauth')
+    api project(':search-index')
+    //api project(':processes:solr-migration')
 
-    compile name:"iiif-presentation-model-api-3.2.5"
-    compile name:"iiif-presentation-model-impl-3.2.5"
-    compile 'org.apache.httpcomponents:httpasyncclient:4.1.3'
+    api name:"iiif-presentation-model-api-3.2.5"
+    api name:"iiif-presentation-model-impl-3.2.5"
+    api 'org.apache.httpcomponents:httpasyncclient:4.1.3'
 
 	// jackson dependency
-	compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.1'
-	compile 'com.fasterxml.jackson.core:jackson-core:2.8.1'
-	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
+	api 'com.fasterxml.jackson.core:jackson-annotations:2.8.1'
+	api 'com.fasterxml.jackson.core:jackson-core:2.8.1'
+	api 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
 	
-	compile 'commons-codec:commons-codec:1.5'
+	api 'commons-codec:commons-codec:1.5'
 
-    compile 'org.keycloak:keycloak-servlet-filter-adapter:15.0.2'
-    compile 'org.keycloak:keycloak-authz-client:15.0.2'
+    api 'org.keycloak:keycloak-servlet-filter-adapter:15.0.2'
+    api 'org.keycloak:keycloak-authz-client:15.0.2'
 
     //dom4j
     implementation 'jaxen:jaxen:1.2.0'

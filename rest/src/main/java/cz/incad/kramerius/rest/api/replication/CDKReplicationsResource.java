@@ -402,7 +402,11 @@ public class CDKReplicationsResource {
     @Consumes({ MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
     public Response selectXML(@Context UriInfo uriInfo) throws IOException {
-        return solrResponse(uriInfo,"xml");
+        if (checkPermission()) {        
+            return solrResponse(uriInfo,"xml");
+        } else {
+            throw new ActionNotAllowed("action is not allowed");
+        }
     }
 
     @GET
@@ -410,7 +414,11 @@ public class CDKReplicationsResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response selectJSON(@Context UriInfo uriInfo) throws IOException {
-        return solrResponse(uriInfo,"json");
+        if (checkPermission()) {    
+            return solrResponse(uriInfo,"json");
+        } else {
+            throw new ActionNotAllowed("action is not allowed");
+        }
     }
 
     private Response solrResponse(@Context UriInfo uriInfo, String format) throws IOException {

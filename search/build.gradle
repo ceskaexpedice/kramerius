@@ -32,43 +32,44 @@ dependencies {
     providedCompile 'javax.servlet:jsp-api:2.0'
     providedCompile 'javax.portlet:portlet-api:2.0'
 
-    compile project(':bridge')
-    compile project(':shared:common')
-    compile project(':rest')
+    api project(':bridge')
+    api project(':shared:common')
+    api project(':rest')
 
-    compile project(':security:security-core')
-    compile project(':security:authfilters')
+    api project(':security:security-core')
+    api project(':security:authfilters')
 
-    compile project(':processes:mw-process')
-    compile project(':processes:indexer')
-    compile project(':processes:import')
-    compile project(':processes:import-mets')
-//    compile project(':processes:solr-migration')
-    compile project(':processes:data-migration')
-
-    compile project(':processes:dnntflag')
-    compile project(':processes:nkp-logs')
-
-
-    compile 'javax.servlet:jstl:1.1.2'   
-    compile 'taglibs:standard:1.1.2'   
-    compile 'xalan:xalan:2.7.1'   
+    api project(':processes:import')
+    api project(':processes:import-mets')
+	
+	// neni potreba 
+	//api project(':processes:solr-migration')
+    //api project(':processes:indexer')
+    //api project(':processes:mw-process')
+    //api project(':processes:data-migration')
+    //api project(':processes:dnntflag')
+    //api project(':processes:nkp-logs')
 
 
-    compile 'xerces:xercesImpl:2.9.1'
+    api 'javax.servlet:jstl:1.1.2'   
+    api 'taglibs:standard:1.1.2'   
+    api 'xalan:xalan:2.7.1'   
 
-    compile "org.slf4j:slf4j-api:${slf4jversion}"
-    compile "org.slf4j:log4j-over-slf4j:${slf4jversion}"
-    compile "org.slf4j:slf4j-jdk14:${slf4jversion}"
 
-    compile 'net.sf.json-lib:json-lib:2.4:jdk15'
+    api 'xerces:xercesImpl:2.9.1'
+
+    api "org.slf4j:slf4j-api:${slf4jversion}"
+    api "org.slf4j:log4j-over-slf4j:${slf4jversion}"
+    api "org.slf4j:slf4j-jdk14:${slf4jversion}"
+
+    api 'net.sf.json-lib:json-lib:2.4:jdk15'
     
-    compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.2'
+    api group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.2'
 
 
     // cdk external tools - must be built and installed in m2 repo first
-    //compile group: 'cz.incad.kramerius.tools', name: 'solrmigration', version: '1.3'
-    //compile group: 'org.cdk.tools', name: 'cdkHarvester', version: '5.4.2.1_cdk'
+    //api group: 'cz.incad.kramerius.tools', name: 'solrmigration', version: '1.3'
+    //api group: 'org.cdk.tools', name: 'cdkHarvester', version: '5.4.2.1_cdk'
 
     
 }

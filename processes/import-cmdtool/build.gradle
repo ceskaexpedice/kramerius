@@ -11,18 +11,18 @@ compileJava {
 
 
 dependencies {
-    compile project(':security:security-core')
-    compile project(':shared:common')
+    api project(':security:security-core')
+    api project(':shared:common')
     
-    compile project(':processes:import-jaxb')
-    compile project(':processes:import-jaxb-periodical')
-    compile project(':processes:import-jaxb-monograph')
+    api project(':processes:import-jaxb')
+    api project(':processes:import-jaxb-periodical')
+    api project(':processes:import-jaxb-monograph')
 
 
-    //compile 'com.sun.xml.bind:jaxb-impl:2.0.1'
+    //api 'com.sun.xml.bind:jaxb-impl:2.0.1'
 
-    compile 'commons-codec:commons-codec:1.5'
-    compile 'org.safehaus.jug:jug:2.0.0:lgpl@jar'
+    api 'commons-codec:commons-codec:1.5'
+    api 'org.safehaus.jug:jug:2.0.0:lgpl@jar'
 }
 
 

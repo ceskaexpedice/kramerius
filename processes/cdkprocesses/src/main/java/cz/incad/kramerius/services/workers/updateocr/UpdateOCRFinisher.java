@@ -2,6 +2,7 @@ package cz.incad.kramerius.services.workers.updateocr;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.WorkerFinisher;
+import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import org.w3c.dom.Element;
 
@@ -13,8 +14,8 @@ public class UpdateOCRFinisher extends WorkerFinisher {
 
     private long start = 0;
 
-    public UpdateOCRFinisher(Element workerElm, Client client) {
-        super(workerElm, client);
+    public UpdateOCRFinisher(TimestampStore store, Element workerElm, Client client) {
+        super(store, workerElm, client);
         start = System.currentTimeMillis();
     }
 

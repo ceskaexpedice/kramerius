@@ -88,6 +88,7 @@ public class SearchResource {
     private String buildSearchResponseJson(UriInfo uriInfo) {
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
+            // filter
             String solrResponseJson = this.solrAccess.requestWithSelectReturningString(solrQuery, "json");
             String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
             JSONObject jsonObject = buildJsonFromRawSolrResponse(solrResponseJson, uri, this.jsonDecoratorAggregates.getDecorators());

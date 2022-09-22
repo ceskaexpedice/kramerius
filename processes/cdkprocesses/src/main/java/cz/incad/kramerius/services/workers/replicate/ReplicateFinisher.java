@@ -2,6 +2,7 @@ package cz.incad.kramerius.services.workers.replicate;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.WorkerFinisher;
+import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import org.w3c.dom.Element;
 
@@ -23,16 +24,19 @@ public class ReplicateFinisher   extends WorkerFinisher {
     // updatovano
     public static AtomicInteger UPDATED = new AtomicInteger(0);
 
+    // not indexed - composite id
+    public static AtomicInteger NOT_INDEXED_COMPOSITEID = new AtomicInteger(0);
+    
     long start = System.currentTimeMillis();
 
-    public ReplicateFinisher(Element workerElm, Client client) {
-        super(workerElm, client);
+    public ReplicateFinisher(TimestampStore store, Element workerElm, Client client) {
+        super(store, workerElm, client);
     }
 
     @Override
     public void finish() {
         SolrUtils.commit(this.client, this.destinationUrl);
-        LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d", (System.currentTimeMillis() - this.start), WORKERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get()));
-
+        LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d", (System.currentTimeMillis() - this.start), WORKERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get(), NOT_INDEXED_COMPOSITEID.get()));
+        // store timpestamp; allows filter by timestamp
     }
 }

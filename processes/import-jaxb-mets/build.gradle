@@ -13,7 +13,9 @@ configurations {
 }
 
 dependencies {
-	xjc 'com.sun.xml.bind:jaxb-xjc:2.2.7'
+	//xjc 'com.sun.xml.bind:jaxb-xjc:2.2.7'
+	xjc 'com.sun.xml.bind:jaxb-xjc:2.3.6'
+
 }
 
 clean {

@@ -1,5 +1,11 @@
 <cdkprocess>
-    <!-- velka zmena -->
+
+	<!--  timestamp  -->
+	<timestamp>
+		<url>http://localhost:8984/solr/search</url>
+        <endpoint>select</endpoint>
+	</timestamp>
+	
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>

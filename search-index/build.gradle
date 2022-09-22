@@ -26,8 +26,8 @@ test {
 
 
 dependencies {
-    //compile project(':security:security-core')
-    compile project(':shared:common')
+    //api project(':security:security-core')
+    api project(':shared:common')
 
     //  testCompile group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
@@ -80,25 +80,25 @@ jar {
 }
 
 //for manifest in fat jar (without shadow plugin)
-task fatJar(type: Jar) {
-    manifest.from jar.manifest
+//task fatJar(type: Jar) {
+//    manifest.from jar.manifest
 //    classifier = 'all'
-    from {
-        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
-    } {
-        exclude "META-INF/*.SF"
-        exclude "META-INF/*.DSA"
-        exclude "META-INF/*.RSA"
-        exclude "*.wav"
-        exclude "*.mp3"
-        exclude "*.ogg"
-    }
-    with jar
-}
+//    from {
+//        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+//    } {
+//        exclude "META-INF/*.SF"
+//        exclude "META-INF/*.DSA"
+//        exclude "META-INF/*.RSA"
+//        exclude "*.wav"
+//        exclude "*.mp3"
+//        exclude "*.ogg"
+//    }
+//    with jar
+//}
 
-artifacts {
-    archives fatJar
-}
+//artifacts {
+//    archives fatJar
+//}
 
 
 //pro shadow plugin (vyzaduje gradle 5+)

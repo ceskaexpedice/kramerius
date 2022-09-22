@@ -120,6 +120,8 @@ public class StartupServlet extends GuiceServlet {
 
             this.pdfService.init();
 
+            //System.getenv("");
+
             if (acc != null) {
                 // insert objektu do akubry
                 // je to nutne ?, staci info v indexu

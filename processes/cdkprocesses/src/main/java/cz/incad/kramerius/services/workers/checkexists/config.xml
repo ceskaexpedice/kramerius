@@ -8,6 +8,12 @@
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
 
+		<!--  named timestamp  -->		
+		<timestamp>
+			<name>KNAV</name>
+			<checkurl>http://192.168.10.109:18984/solr-test/kramerius-cdk-test</checkurl>
+		</timestamp>
+
         <!--
         <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test</url>
         -->

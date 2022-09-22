@@ -2,10 +2,10 @@ description "Import library"
 
 
 dependencies {
-    compile project(':shared:common')
-    compile project(':security:security-core')
-    compile project(':processes:import-jaxb')
-    compile project(':processes:import-cmdtool')
-    compile 'commons-codec:commons-codec:1.5'
+    api project(':shared:common')
+    api project(':security:security-core')
+    api project(':processes:import-jaxb')
+    api project(':processes:import-cmdtool')
+    api 'commons-codec:commons-codec:1.5'
 }
 

@@ -7,17 +7,21 @@ repositories {
 }
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
-    compile 'com.sun.xml.bind:jaxb-xjc:2.2.7'
-    //compile 'com.sun.xml.bind:jaxb-xjc:2.2.1'
-    compile 'com.sun.xml.ws:jaxws-tools:2.2.1'
-    //compile 'org.gradle.api.plugins:gradle-cargo-plugin:1.5'
-	compile 'org.apache.httpcomponents:httpclient:4.5.3'
+    api gradleApi()
+    api localGroovy()
+    api 'com.sun.xml.bind:jaxb-xjc:2.3.6'
+	//api 'com.sun.xml.bind:jaxb-xjc:2.2.7'
+    //api 'com.sun.xml.bind:jaxb-xjc:2.2.1'
+    //api 'com.sun.xml.ws:jaxws-tools:2.2.1'
+	//api 'com.sun.xml.ws:jaxws-tools:2.3.5'
+	api 'com.sun.xml.ws:jaxws-tools:2.3.5'
 
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.littleshoot:littleproxy:1.1.0-beta2'
-    testCompile 'org.mortbay.jetty:jetty:6.1.26'
+    //compile 'org.gradle.api.plugins:gradle-cargo-plugin:1.5'
+    api 'org.apache.httpcomponents:httpclient:4.5.3'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.littleshoot:littleproxy:1.1.0-beta2'
+    testImplementation 'org.mortbay.jetty:jetty:6.1.26'
 
 }
 

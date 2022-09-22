@@ -3,6 +3,7 @@ package cz.incad.kramerius.services.iterators.solr;
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.iterators.ProcessIterationCallback;
 import cz.incad.kramerius.services.iterators.ProcessIterationEndCallback;
+import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -22,12 +23,12 @@ import static cz.incad.kramerius.services.iterators.utils.IterationUtils.*;
  */
 public class SolrPageIterator extends AbstractSolrIterator{
 
-    public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows);
+    public SolrPageIterator(TimestampStore store,String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
+        super(store,address, masterQuery, filterQuery, endpoint, id, sorting, rows);
     }
 
-    public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
+    public SolrPageIterator(TimestampStore store,String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
+        super(store,address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
     }
 
     public static Element paginationQuery(Client client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String user, String pass) throws IOException, SAXException, ParserConfigurationException {

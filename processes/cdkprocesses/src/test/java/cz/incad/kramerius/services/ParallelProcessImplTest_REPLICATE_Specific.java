@@ -110,7 +110,7 @@ public class ParallelProcessImplTest_REPLICATE_Specific {
         // start whole process
         process.migrate(configurationFile);
 
-        System.out.println(firstArg.getValue());
+        //System.out.println(firstArg.getValue());
 
         Document document = XMLUtils.parseDocument(new StringReader(firstArg.getValue().toString()));
         List<Element> docs = XMLUtils.getElements(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
@@ -136,17 +136,5 @@ public class ParallelProcessImplTest_REPLICATE_Specific {
         });
 
 
-//        assertThat(Input.fromReader(new StringReader((String) firstArg.getValue())))
-//                .and(Input.fromStream(this.getClass().getResourceAsStream("k7notexists/k7batches/1_batch.xml")))
-//                .ignoreComments()
-//                .ignoreWhitespace()
-//                .areSimilar();
-//
-//        assertThat(Input.fromReader(new StringReader((String) secondArg.getValue())))
-//                .and(Input.fromStream(this.getClass().getResourceAsStream("k7notexists/k7batches/2_batch.xml")))
-//                .ignoreComments()
-//                .ignoreWhitespace()
-//                .areSimilar();
-//
     }
 }

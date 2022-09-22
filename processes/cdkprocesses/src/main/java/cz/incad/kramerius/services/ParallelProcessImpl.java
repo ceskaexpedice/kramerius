@@ -1,10 +1,15 @@
 package cz.incad.kramerius.services;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.config.*;
+import com.sun.jersey.api.json.*;
+import com.sun.jersey.api.json.JSONConfiguration;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
 import cz.incad.kramerius.services.iterators.ProcessIteratorFactory;
+import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
+import cz.incad.kramerius.services.iterators.timestamps.solr.SolrTimestampChecks;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -52,8 +57,13 @@ public class ParallelProcessImpl {
     }
 
     protected Client buildClient() {
-        return Client.create();
-    }
+    	//Client client = Client.create();
+    	ClientConfig cc = new DefaultClientConfig();
+    	cc.getProperties().put(
+    	        ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);
+    	cc.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
+    	return Client.create(cc);
+    }	
 
     private void startWorkers(List<Worker> worksWhasHasToBeDone) throws BrokenBarrierException, InterruptedException {
         CyclicBarrier barrier = new CyclicBarrier(worksWhasHasToBeDone.size()+1);
@@ -70,22 +80,30 @@ public class ParallelProcessImpl {
         // initialize whole process properties
         this.initialize(document.getDocumentElement());
 
+        Element timestamps = XMLUtils.findElement(document.getDocumentElement(),"timestamp");
+        TimestampStore timestampStore  = null;
+        if (timestamps != null) {
+        	timestampStore = null; //new SolrTimestampChecks(client, null, null)
+        }
+
+        
         // Iterator factory
         Element iteratorFactory = XMLUtils.findElement(document.getDocumentElement(),"iteratorFactory");
         String iteratorClass = iteratorFactory.getAttribute("class");
         ProcessIteratorFactory processIteratorFactory = ProcessIteratorFactory.create(iteratorClass);
 
+        
+        
         // Iterator instance
         Element iterationElm = XMLUtils.findElement(document.getDocumentElement(), "iteration");
-        this.iterator =processIteratorFactory.createProcessIterator(iterationElm, this.client);
+    	this.iterator =processIteratorFactory.createProcessIterator(iterationElm, this.client);
 
         Element workerFactory = XMLUtils.findElement(document.getDocumentElement(),"workerFactory");
         String workerClass = workerFactory.getAttribute("class");
         this.workerFactory = WorkerFactory.create(workerClass);
 
-
         this.workerElem = XMLUtils.findElement(document.getDocumentElement(), "worker");
-        this.finisher = this.workerFactory.createFinisher(workerElem,this.client);
+        this.finisher = this.workerFactory.createFinisher( this.iterator.getTimestampStore(),  workerElem,this.client);
 
 
         final List<Worker>  worksWhatHasToBeDone = new ArrayList<>();

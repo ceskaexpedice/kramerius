@@ -179,7 +179,7 @@ public class IterationUtils {
     public static Element pidsCursorQuery(SolrAccess solrAccess,  String mq,  String cursor, IterationContext context)  throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
         int rows =context.getRows();
         String query = "q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(String.format(DEFAULT_SORT_FIELD, context.getIdent()), "UTF-8")+"&fl="+ URLEncoder.encode(context.getFieldsList().stream().collect(Collectors.joining(" ")), "UTF-8");
-        LOGGER.info(String.format("Iteration query %s",query));
+        //LOGGER.info(String.format("Iteration query %s",query));
         return solrAccess.requestWithSelectReturningXml(query).getDocumentElement();
     }
 
