@@ -98,9 +98,11 @@ public class SolrAccessImplNewIndex implements SolrAccess {
             List<ObjectPidsPath> paths = new ArrayList<>();
             JSONObject solrData = utils.getSolrDataJson(pid);
             if (solrData != null) {
-                JSONArray pidPathsJsonArray = solrData.getJSONArray("pid_paths");
-                for (int i = 0; i < pidPathsJsonArray.length(); i++) {
-                    paths.add(toObjectPidPath(pidPathsJsonArray.getString(i)));
+                if (solrData.has("pid_paths")) {
+                    JSONArray pidPathsJsonArray = solrData.getJSONArray("pid_paths");
+                    for (int i = 0; i < pidPathsJsonArray.length(); i++) {
+                        paths.add(toObjectPidPath(pidPathsJsonArray.getString(i)));
+                    }
                 }
             }
             return paths.toArray(new ObjectPidsPath[0]);

@@ -129,7 +129,6 @@ findAllUsers(prefix) ::=<<
     where loginname ilike ?
     $endif$
     order by loginname 
-    limit 20
 >>
 
 /** vylistovani vsech skupin dle prefixu */
@@ -140,7 +139,6 @@ findAllGroups(prefix) ::=<<
     where gname ilike ?
     $endif$
     order by gname 
-    limit 20
 >>
 
 

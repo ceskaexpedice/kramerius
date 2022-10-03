@@ -486,6 +486,10 @@ public class CollectionsResource extends AdminApiResource {
         Collection collection = new Collection();
         collection.pid = pid;
         //timestamps from Foxml properties
+        if (!krameriusRepositoryApi.getLowLevelApi().objectExists(pid)) {
+            // index + akubra synchronization problem
+        }
+        
         collection.created = krameriusRepositoryApi.getLowLevelApi().getPropertyCreated(pid);
         collection.modified = krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(pid);
         //data from MODS

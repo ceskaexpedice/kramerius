@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.*;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
 import cz.incad.kramerius.processes.new_api.*;
@@ -16,6 +17,8 @@ import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.inject.name.Named;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -33,6 +36,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -71,7 +77,10 @@ public class ProcessResource extends AdminApiResource {
     @javax.inject.Inject
     Provider<User> userProvider;
 
-
+    @Inject
+    @Named("new-index") 
+    SolrAccess solrAccess;
+    
     @Inject
     RightsResolver rightsResolver;
     
@@ -81,6 +90,8 @@ public class ProcessResource extends AdminApiResource {
 
     @Inject
     ProcessSchedulingHelper processSchedulingHelper;
+    
+    
 
     /**
      * Returns list of users who have scheduled some process
@@ -404,7 +415,7 @@ public class ProcessResource extends AdminApiResource {
 
             LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
             boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
-                                SecurityProcessUtils.permitReader(rightsResolver, user) ||
+                                //SecurityProcessUtils.permitReader(rightsResolver, user) ||
                                 SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user,  SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
 
             //authorization
@@ -635,7 +646,7 @@ public class ProcessResource extends AdminApiResource {
             if (processDefinition.has("params")) {
                 params = processDefinition.getJSONObject("params");
             }
-
+            
             if (parentProcessAuthToken != null) { //run by "parent" process (more precisely it's "older sibling" process - the new process will be its sibling within same batch)
                 ProcessManager.ProcessAboutToScheduleSibling parentProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(parentProcessAuthToken);
                 if (parentProcess == null) {
@@ -645,19 +656,27 @@ public class ProcessResource extends AdminApiResource {
                 String userName = parentProcess.getOwnerName();
                 String batchToken = parentProcess.getBatchToken();
                 List<String> paramsList = new ArrayList<>();
-                paramsList.addAll(paramsToList(defid, params));
+                paramsList.addAll(paramsToList(defid, params, (permitted) -> {
+                    
+                }));
                 return scheduleProcess(defid, paramsList, userId, userName, batchToken, buildInitialProcessName(defid, paramsList));
+            
             } else { //run by user (through web client)
+                AtomicBoolean pidPermitted = new AtomicBoolean(false);
                 //System.out.println("process auth token NOT found");
                 String batchToken = UUID.randomUUID().toString();
                 List<String> paramsList = new ArrayList<>();
-                paramsList.addAll(paramsToList(defid, params));
+                paramsList.addAll(paramsToList(defid, params, flag-> {
+                    if (flag) pidPermitted.getAndSet(true);
+                }));
+
                 //authentication
                 User user = this.userProvider.get();
                 LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition(defid);
                 
                 boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
-                        SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, definition);
+                        SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, definition) || pidPermitted.get();
+
                 if (!permitted) {
                     throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
                 }
@@ -755,7 +774,7 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    private List<String> paramsToList(String id, JSONObject params) {
+    private List<String> paramsToList(String id, JSONObject params, Consumer<Boolean> consumer) {
         switch (id) {
             case "new_process_api_test": {
                 //duration (of every process in the batch) in seconds
@@ -769,6 +788,7 @@ public class ProcessResource extends AdminApiResource {
                 result.add(duration.toString());
                 result.add(processesInBatch.toString());
                 result.add(finalState);
+                consumer.accept(false);
                 return result;
             }
             case "new_indexer_index_object": {
@@ -782,6 +802,7 @@ public class ProcessResource extends AdminApiResource {
                 result.add(pid);//indexation's root pid
                 result.add(ignoreInconsistentObjects.toString());
                 result.add(title);//indexation's root title
+                consumer.accept(false);
                 return result;
             }
             case "new_indexer_index_model": {
@@ -801,6 +822,7 @@ public class ProcessResource extends AdminApiResource {
                 result.add(indexRunningOrError.toString());//if running-or-error objects should be indexed
                 result.add(indexIndexedOutdated.toString());//if indexed-outdated objects should be indexed
                 result.add(indexIndexed.toString());//if indexed objects should be indexed
+                consumer.accept(false);
                 return result;
             }
             case "set_policy": {
@@ -808,7 +830,18 @@ public class ProcessResource extends AdminApiResource {
                 String policy = extractMandatoryParamWithValueFromEnum(params, "policy", SetPolicyProcess.Policy.class);
                 String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
                 String title = extractOptionalParamString(params, "title", null);
-
+                
+                try {
+                    ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                    User user = this.userProvider.get();
+                    LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("set_policy");
+                    boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
+                    consumer.accept(permit);
+                } catch (IOException e) {
+                    consumer.accept(false);
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
+                
                 List<String> result = new ArrayList<>();
                 result.add(scope);
                 result.add(policy);
@@ -817,6 +850,7 @@ public class ProcessResource extends AdminApiResource {
                 return result;
             }
             case "processing_rebuild": {
+                consumer.accept(false);
                 return Collections.emptyList();
             }
             case "processing_rebuild_for_object": {
@@ -824,6 +858,7 @@ public class ProcessResource extends AdminApiResource {
 
                 List<String> result = new ArrayList<>();
                 result.add(pid);
+                consumer.accept(false);
                 return result;
             }
             case "import": {
@@ -833,6 +868,7 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 result.add(inputDataDir.getPath());
                 result.add(startIndexer.toString());
+                consumer.accept(false);
                 return result;
             }
             case "convert_and_import": {
@@ -847,6 +883,7 @@ public class ProcessResource extends AdminApiResource {
                 result.add(inputDataDir.getPath());
                 result.add(convertedDataDir.getPath());
                 result.add(startIndexer.toString());
+                consumer.accept(false);
                 return result;
             }
             case "add_license":
@@ -864,6 +901,17 @@ public class ProcessResource extends AdminApiResource {
                     target = "pidlist_file:" + pidlistFile.getAbsolutePath();
                 } else {
                     throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist, pidlist_file");
+                }
+
+                try {
+                    ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                    User user = this.userProvider.get();
+                    LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
+                    boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
+                    consumer.accept(permit);
+                } catch (IOException e) {
+                    consumer.accept(false);
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
 
                 List<String> result = new ArrayList<>();
@@ -892,6 +940,7 @@ public class ProcessResource extends AdminApiResource {
                 result.add(dateFrom);
                 result.add(dateTo);
 
+                consumer.accept(false);
                 return result;
             }
             case "delete_tree": {
@@ -901,6 +950,19 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 result.add(pid);
                 result.add(title);
+                
+
+                try {
+                    ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                    User user = this.userProvider.get();
+                    LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("delete_tree");
+                    boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
+                    consumer.accept(permit);
+                } catch (IOException e) {
+                    consumer.accept(false);
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
+
                 return result;
             }
             // TODO: Support annotation @Process and @ProcessParam - mapping in old API
@@ -993,11 +1055,24 @@ public class ProcessResource extends AdminApiResource {
             }
         }
         try {//sanitize against values that would leave the root dir, for example "../../something"
-            File paramFile = new File(rootDir, paramValue).getCanonicalFile();
-            String paramFileCanPath = paramFile.getPath();
-            String rootDirCanPath = rootDir.getCanonicalPath();
-            if (!paramFileCanPath.startsWith(rootDirCanPath)) {
-                throw new BadRequestException("invalid value of %s (not within root dir '%s'): '%s'", paramName, rootDirCanPath, paramValue);
+            // Problems with symlinks  -> property allows use or not use cannonicalpath
+            File paramFile = null;
+            boolean canonical = KConfiguration.getInstance().getConfiguration().getBoolean("io.canonical.file",true);
+            if (canonical) {
+                paramFile = new File(rootDir, paramValue).getCanonicalFile();
+            } else {
+                paramFile = new File(rootDir, paramValue);
+            }
+            String paramFilePath = paramFile.getPath();
+            
+            String rootDirPath = null;
+            if (canonical) {
+                rootDirPath =  rootDir.getCanonicalPath();
+            } else {
+                rootDirPath = rootDir.getPath();
+            }
+            if (!paramFilePath.startsWith(rootDirPath)) {
+                throw new BadRequestException("invalid value of %s (not within root dir '%s'): '%s'", paramName, rootDirPath, paramValue);
             }
             return paramFile;
         } catch (IOException e) { //protoze getCanonicalPath saha na filesystem

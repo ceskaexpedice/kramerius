@@ -1,574 +1,470 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app>
-    <!--filter>
-        <filter-name>Keycloak Filter</filter-name>
-        <filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>Keycloak Filter</filter-name>
-        <url-pattern>/keycloak/*</url-pattern>
-        <url-pattern>/api/*</url-pattern>
-    </filter-mapping-->
-    <!--init-param>
-        <param-name>keycloak.config.skipPattern</param-name>
-        <param-value>^/(path1|path2|path3).*</param-value>
-    </init-param-->
+	<!--filter> <filter-name>Keycloak Filter</filter-name> <filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter</filter-class> 
+		</filter> <filter-mapping> <filter-name>Keycloak Filter</filter-name> <url-pattern>/keycloak/*</url-pattern> 
+		<url-pattern>/api/*</url-pattern> </filter-mapping -->
+	<!--init-param> <param-name>keycloak.config.skipPattern</param-name> <param-value>^/(path1|path2|path3).*</param-value> 
+		</init-param -->
 
-    <!-- Disabled
-    <filter>
-        <filter-name>mockshibb</filter-name>
-        <filter-class>cz.incad.kramerius.auth.mochshib.MockShibFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>mockshibb</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    -->
+	<!-- Disabled <filter> <filter-name>mockshibb</filter-name> <filter-class>cz.incad.kramerius.auth.mochshib.MockShibFilter</filter-class> 
+		</filter> <filter-mapping> <filter-name>mockshibb</filter-name> <url-pattern>/*</url-pattern> 
+		</filter-mapping> -->
 
-    <init-param>
-        <param-name>com.sun.jersey.config.feature.DisableWADL</param-name>
-        <param-value>true</param-value>
-    </init-param>
+	<init-param>
+		<param-name>com.sun.jersey.config.feature.DisableWADL</param-name>
+		<param-value>true</param-value>
+	</init-param>
 
-    <filter>
-        <filter-name>clientClosedRequest</filter-name>
-        <filter-class>cz.incad.Kramerius.ClientClosedRequestFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>clientClosedRequest</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+	<filter>
+		<filter-name>clientClosedRequest</filter-name>
+		<filter-class>cz.incad.Kramerius.ClientClosedRequestFilter
+		</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>clientClosedRequest</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
-    <filter>
-        <filter-name>xss</filter-name>
-        <filter-class>cz.incad.Kramerius.XSSFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>xss</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+	<filter>
+		<filter-name>xss</filter-name>
+		<filter-class>cz.incad.Kramerius.XSSFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>xss</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
 
-    <!-- basicauthentication filter -->
-    <filter>
-        <filter-name>basic</filter-name>
-        <filter-class>cz.incad.kramerius.auth.basic.AuthFilter</filter-class>
-        <init-param>
-            <param-name>realm</param-name>
-            <param-value>Protected</param-value>
-        </init-param>
-    </filter>
-    <filter-mapping>
-        <filter-name>basic</filter-name>
-        <url-pattern>/api/*</url-pattern>
-        <url-pattern>/lr</url-pattern>
-        <url-pattern>/stats</url-pattern>
-    </filter-mapping>
+	<!-- basicauthentication filter -->
+	<filter>
+		<filter-name>basic</filter-name>
+		<filter-class>cz.incad.kramerius.auth.basic.AuthFilter</filter-class>
+		<init-param>
+			<param-name>realm</param-name>
+			<param-value>Protected</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>basic</filter-name>
+		<url-pattern>/api/*</url-pattern>
+		<url-pattern>/lr</url-pattern>
+		<url-pattern>/stats</url-pattern>
+	</filter-mapping>
 
-    <filter>
-        <filter-name>cors</filter-name>
-        <filter-class>cz.incad.Kramerius.CORSFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>cors</filter-name>
-        <url-pattern>/api/*</url-pattern>
-        <url-pattern>/zoomify/*</url-pattern>
-        <url-pattern>/iiif/*</url-pattern>
-        <url-pattern>/iiif-presentation/*</url-pattern>
-    </filter-mapping>
+	<filter>
+		<filter-name>cors</filter-name>
+		<filter-class>cz.incad.Kramerius.CORSFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>cors</filter-name>
+		<url-pattern>/api/*</url-pattern>
+		<url-pattern>/zoomify/*</url-pattern>
+		<url-pattern>/iiif/*</url-pattern>
+		<url-pattern>/iiif-presentation/*</url-pattern>
+	</filter-mapping>
 
-    <!-- mod_proxy filter; doesnt work in krameriusdemo don't know why (logout doesn't work)
-    <filter>
-        <filter-name>mod_proxy</filter-name>
-        <filter-class>cz.incad.Kramerius.apache.modproxy.ModProxyEnabledFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>mod_proxy</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    -->
+	<!-- mod_proxy filter; doesnt work in krameriusdemo don't know why (logout 
+		doesn't work) <filter> <filter-name>mod_proxy</filter-name> <filter-class>cz.incad.Kramerius.apache.modproxy.ModProxyEnabledFilter</filter-class> 
+		</filter> <filter-mapping> <filter-name>mod_proxy</filter-name> <url-pattern>/*</url-pattern> 
+		</filter-mapping> -->
 
 
-    <!--  thrid party authentication -->
-    <filter>
-        <filter-name>keyclocaksupport</filter-name>
-        <filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>keyclocaksupport</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+	<!-- thrid party authentication -->
+	<filter>
+		<filter-name>keyclocaksupport</filter-name>
+		<filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter
+		</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>keyclocaksupport</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
-    <!--  third party authentication, shibboleth and keyclocak - interal users -->
-    <filter>
-        <filter-name>shibfilter</filter-name>
-        <filter-class>cz.incad.kramerius.auth.thirdparty.shibb.internal.InternalShibbolethAuthFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>shibfilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+	<!-- third party authentication, shibboleth and keyclocak - interal users -->
+	<filter>
+		<filter-name>shibfilter</filter-name>
+		<filter-class>cz.incad.kramerius.auth.thirdparty.shibb.internal.InternalShibbolethAuthFilter
+		</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>shibfilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
-    <filter>
-        <filter-name>keycloack</filter-name>
-        <filter-class>cz.incad.kramerius.auth.thirdparty.keycloack.KeycloackFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>keycloack</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    <!-- -->
+	<filter>
+		<filter-name>keycloack</filter-name>
+		<filter-class>cz.incad.kramerius.auth.thirdparty.keycloack.KeycloackFilter
+		</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>keycloack</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<!-- -->
 
-    <!-- Guice, must be last -->
-    <filter>
-        <filter-name>guiceFilter</filter-name>
-        <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>guiceFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+	<!-- Guice, must be last -->
+	<filter>
+		<filter-name>guiceFilter</filter-name>
+		<filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>guiceFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
 
 
-    <!-- img -->
-    <filter>
-        <filter-name>imgFilter</filter-name>
-        <filter-class>cz.incad.Kramerius.imaging.ImageFilter</filter-class>
-    </filter>
+	<!-- img -->
+	<filter>
+		<filter-name>imgFilter</filter-name>
+		<filter-class>cz.incad.Kramerius.imaging.ImageFilter</filter-class>
+	</filter>
 
-    <filter-mapping>
-        <filter-name>imgFilter</filter-name>
-        <url-pattern>/nimg/*</url-pattern>
-    </filter-mapping>
-
-
-
-    <listener>
-        <listener-class>cz.incad.Kramerius.backend.guice.GuiceConfigBean</listener-class>
-        <listener-class>cz.incad.kramerius.users.impl.http.LoggedUserSessionListener</listener-class>
-        <listener-class>cz.incad.kramerius.fedora.om.impl.HazelcastServerNode</listener-class>
-    </listener>
+	<filter-mapping>
+		<filter-name>imgFilter</filter-name>
+		<url-pattern>/nimg/*</url-pattern>
+	</filter-mapping>
 
 
-    <!-- Servlets -->
-    <servlet>
-        <servlet-name>i18n</servlet-name>
-        <servlet-class>cz.incad.Kramerius.I18NServlet</servlet-class>
-    </servlet>
-	
-    <!-- Servlet pro pristup do streamu IMG_FULL -->
-    <servlet>
-        <servlet-name>fullImageServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.FullImageServlet</servlet-class>
-    </servlet>
-        
-    <!-- Servelt pro manipulaci virtualnich sbirek -->
-    <servlet>
-        <servlet-name>vc</servlet-name>
-        <servlet-class>cz.incad.Kramerius.views.virtualcollection.VirtualCollectionServlet</servlet-class>
-    </servlet>
+
+	<listener>
+		<listener-class>cz.incad.Kramerius.backend.guice.GuiceConfigBean
+		</listener-class>
+		<listener-class>cz.incad.kramerius.users.impl.http.LoggedUserSessionListener
+		</listener-class>
+		<listener-class>cz.incad.kramerius.fedora.om.impl.HazelcastServerNode
+		</listener-class>
+	</listener>
 
 
-    <!--  
-       Servlet for image manipulation.  Can manipulate with image streams in fedora 
-       and produce scaled images, transcoded images (into different formats) 
-       and also can give raw image stream.
-    -->
-    <servlet>
-        <servlet-name>imageServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.imaging.ImageStreamsServlet</servlet-class>
-    </servlet>
-	
-	
-    <!-- Servlet pro ziskavani malych nahledu -->
-    <servlet>
-        <servlet-name>thumb</servlet-name>
-        <servlet-class>cz.incad.Kramerius.SmallThumbnailImageServlet</servlet-class>
-    </servlet>
+	<!-- Servlets -->
+	<servlet>
+		<servlet-name>i18n</servlet-name>
+		<servlet-class>cz.incad.Kramerius.I18NServlet</servlet-class>
+	</servlet>
 
-    <!-- Servlet pro ziskavani velkych nahledu -->
-    <servlet>
-        <servlet-name>fullThumb</servlet-name>
-        <servlet-class>cz.incad.Kramerius.FullThumbnailImageServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>pdf</servlet-name>
-        <servlet-class>cz.incad.Kramerius.GeneratePDFServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>print</servlet-name>
-        <servlet-class>cz.incad.Kramerius.PrintQueue</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>imgcut</servlet-name>
-        <servlet-class>cz.incad.Kramerius.imaging.ImageCutServlet</servlet-class>
-    </servlet>
-    
-    <!-- lr processes -->
-    <servlet>
-        <servlet-name>lr</servlet-name>
-        <servlet-class>cz.incad.Kramerius.LongRunningProcessServlet</servlet-class>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
-
-     
-    <!-- METS export -->
-    <servlet>
-        <servlet-name>mets</servlet-name>
-        <servlet-class>cz.incad.Kramerius.METSServlet</servlet-class>
-    </servlet>
-
-    <!-- mimetype servlet -->
-    <servlet>
-        <servlet-name>mimetype</servlet-name>
-        <servlet-class>cz.incad.Kramerius.MimeTypeServlet</servlet-class>
-    </servlet>
-
-    <!-- handle servlet -->
-    <servlet>
-        <servlet-name>handle</servlet-name>
-        <servlet-class>cz.incad.Kramerius.HandleServlet</servlet-class>
-    </servlet>
+	<!-- Servlet pro pristup do streamu IMG_FULL -->
+	<servlet>
+		<servlet-name>fullImageServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.FullImageServlet</servlet-class>
+	</servlet>
 
 
-    <!-- title page servlet -->
-    <servlet>
-        <servlet-name>dsProxyServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.ProxyDatastreamsServlet</servlet-class>
-    </servlet>
+	<!-- Servlet for image manipulation. Can manipulate with image streams in 
+		fedora and produce scaled images, transcoded images (into different formats) 
+		and also can give raw image stream. -->
+	<servlet>
+		<servlet-name>imageServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.imaging.ImageStreamsServlet
+		</servlet-class>
+	</servlet>
 
-    <!-- iip servlet -->
-    <servlet>
-        <servlet-name>iipServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.imaging.IIPServlet</servlet-class>
-    </servlet>
 
-    <!-- DeepZoom servlet -->
-    <servlet>
-        <servlet-name>deepZoomServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.imaging.DeepZoomServlet</servlet-class>
-    </servlet>
+	<!-- Servlet pro ziskavani malych nahledu -->
+	<servlet>
+		<servlet-name>thumb</servlet-name>
+		<servlet-class>cz.incad.Kramerius.SmallThumbnailImageServlet
+		</servlet-class>
+	</servlet>
 
-    <!-- zoomify servlet -->
-    <servlet>
-        <servlet-name>zoomifyServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.imaging.ZoomifyServlet</servlet-class>
-    </servlet>
+	<!-- Servlet pro ziskavani velkych nahledu -->
+	<servlet>
+		<servlet-name>fullThumb</servlet-name>
+		<servlet-class>cz.incad.Kramerius.FullThumbnailImageServlet
+		</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>pdf</servlet-name>
+		<servlet-class>cz.incad.Kramerius.GeneratePDFServlet</servlet-class>
+	</servlet>
 
-    <servlet>
-        <servlet-name>iiifServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.imaging.IiifServlet</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>print</servlet-name>
+		<servlet-class>cz.incad.Kramerius.PrintQueue</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>imgcut</servlet-name>
+		<servlet-class>cz.incad.Kramerius.imaging.ImageCutServlet
+		</servlet-class>
+	</servlet>
+
+	<!-- lr processes -->
+	<servlet>
+		<servlet-name>lr</servlet-name>
+		<servlet-class>cz.incad.Kramerius.LongRunningProcessServlet
+		</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+
+	<!-- METS export -->
+	<servlet>
+		<servlet-name>mets</servlet-name>
+		<servlet-class>cz.incad.Kramerius.METSServlet</servlet-class>
+	</servlet>
+
+	<!-- mimetype servlet -->
+	<servlet>
+		<servlet-name>mimetype</servlet-name>
+		<servlet-class>cz.incad.Kramerius.MimeTypeServlet</servlet-class>
+	</servlet>
+
+	<!-- handle servlet -->
+	<servlet>
+		<servlet-name>handle</servlet-name>
+		<servlet-class>cz.incad.Kramerius.HandleServlet</servlet-class>
+	</servlet>
+
+
+	<!-- title page servlet -->
+	<servlet>
+		<servlet-name>dsProxyServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.ProxyDatastreamsServlet
+		</servlet-class>
+	</servlet>
+
+
+	<!-- DeepZoom servlet -->
+	<servlet>
+		<servlet-name>deepZoomServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.imaging.DeepZoomServlet
+		</servlet-class>
+	</servlet>
+
+	<!-- zoomify servlet -->
+	<servlet>
+		<servlet-name>zoomifyServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.imaging.ZoomifyServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>iiifServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.imaging.IiifServlet</servlet-class>
+	</servlet>
 
 	<!-- private content servlet -->
 	<servlet>
 		<servlet-name>privateContentServlet</servlet-name>
-		<servlet-class>cz.incad.Kramerius.PrivateContentsServlet</servlet-class>
+		<servlet-class>cz.incad.Kramerius.PrivateContentsServlet
+		</servlet-class>
 	</servlet>
 
-    <!-- viewInfoServlet -->
-    <servlet>
-        <servlet-name>viewInfoServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.ViewInfoServlet</servlet-class>
-    </servlet>
+	<!-- viewInfoServlet -->
+	<!-- <servlet> <servlet-name>viewInfoServlet</servlet-name> <servlet-class>cz.incad.Kramerius.ViewInfoServlet</servlet-class> 
+		</servlet> -->
 
-    <!-- isActionAllowedServlet -->
-    <servlet>
-        <servlet-name>isActionAllowedServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.ActionAllowedServlet</servlet-class>
-    </servlet>
+	<!-- isActionAllowedServlet -->
+	<servlet>
+		<servlet-name>isActionAllowedServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.ActionAllowedServlet</servlet-class>
+	</servlet>
+
     
-    <!-- rightsServlet -->
-    <servlet>
-        <servlet-name>rightsServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.security.RightsServlet</servlet-class>
-    </servlet>
 
-    <!-- usersServlet -->
-    <servlet>
-        <servlet-name>usersServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.security.UsersServlet</servlet-class>
-    </servlet>
+	<!-- oaiServlet -->
+	<servlet>
+		<servlet-name>oaiServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.oai.OaiServlet</servlet-class>
+	</servlet>
 
-    <!-- adminActions -->
-    <servlet>
-        <servlet-name>adminActionsServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.admins.AdministratorsActions</servlet-class>
-    </servlet>
+	<!-- startup servlet -->
+	<servlet>
+		<servlet-name>startupServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.StartupServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
 
-    <!-- oaiServlet -->
-    <servlet>
-        <servlet-name>oaiServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.oai.OaiServlet</servlet-class>
-    </servlet>
+	<!-- <servlet> <servlet-name>profileServlet</servlet-name> <servlet-class>cz.incad.Kramerius.ProfilesServlet</servlet-class> 
+		</servlet> <servlet> <servlet-name>virtualcollectionhandle</servlet-name> 
+		<servlet-class>cz.incad.Kramerius.VirtualCollectionHandleServlet</servlet-class> 
+		</servlet> <servlet> <servlet-name>feedback</servlet-name> <servlet-class>cz.incad.Kramerius.FeedbackServlet</servlet-class> 
+		</servlet> <servlet> <servlet-name>statisticExport</servlet-name> <servlet-class>cz.incad.Kramerius.statistics.StatisticsExportServlet</servlet-class> 
+		</servlet> user's profile servlet -->
 
-    <!-- startup servlet -->
-    <servlet>
-        <servlet-name>startupServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.StartupServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
+	<!-- captcha servlet -->
+	<!-- <servlet> <servlet-name>simplecaptcha</servlet-name> <servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class> 
+		<init-param> <param-name>captcha-width</param-name> <param-value>300</param-value> 
+		</init-param> <init-param> <param-name>captcha-height</param-name> <param-value>100</param-value> 
+		</init-param> </servlet> -->
 
-    <!-- user's profile servlet -->
-    <servlet>
-        <servlet-name>profileServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.ProfilesServlet</servlet-class>
-    </servlet>
+	<!-- Audio proxy servlet -->
+	<servlet>
+		<servlet-name>audioProxyServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.audio.servlet.AudioProxyServlet
+		</servlet-class>
+	</servlet>
 
-    <!-- virtual collection handle servlet -->
-    <servlet>
-        <servlet-name>virtualcollectionhandle</servlet-name>
-        <servlet-class>cz.incad.Kramerius.VirtualCollectionHandleServlet</servlet-class>
-    </servlet>
+	<!-- Audio tracks servlet -->
+	<servlet>
+		<servlet-name>audioTracksServlet</servlet-name>
+		<servlet-class>cz.incad.Kramerius.audio.servlet.AudioTracksServlet
+		</servlet-class>
+	</servlet>
 
-    <!-- feedback servlet -->
-    <servlet>
-        <servlet-name>feedback</servlet-name>
-        <servlet-class>cz.incad.Kramerius.FeedbackServlet</servlet-class>
-    </servlet>
-
-    <!-- feedback servlet -->
-    <servlet>
-        <servlet-name>statisticExport</servlet-name>
-        <servlet-class>cz.incad.Kramerius.statistics.StatisticsExportServlet</servlet-class>
-    </servlet>
+	<!-- Local PDF print -->
+	<servlet>
+		<servlet-name>localPrintPDF</servlet-name>
+		<servlet-class> cz.incad.Kramerius.imaging.PrintPDFServlet
+		</servlet-class>
+	</servlet>
 
 
-    <!-- captcha servlet -->
-    <servlet>
-        <servlet-name>simplecaptcha</servlet-name>
-        <servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class>
-        <init-param>
-            <param-name>captcha-width</param-name>
-            <param-value>300</param-value>
-        </init-param>
-        <init-param>
-            <param-name>captcha-height</param-name>
-            <param-value>100</param-value>
-        </init-param>
-    </servlet>
-    
-    
-    <!-- Audio proxy servlet -->
-    <servlet>
-        <servlet-name>audioProxyServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.audio.servlet.AudioProxyServlet</servlet-class>
-    </servlet>
-    
-    <!-- Audio tracks servlet --> 
-    <servlet>
-        <servlet-name>audioTracksServlet</servlet-name>
-        <servlet-class>cz.incad.Kramerius.audio.servlet.AudioTracksServlet</servlet-class>
-    </servlet>
-      
-    <!-- Local PDF print --> 
-    <servlet>
-        <servlet-name>localPrintPDF</servlet-name>
-        <servlet-class> cz.incad.Kramerius.imaging.PrintPDFServlet</servlet-class>
-    </servlet>
+	<!-- Mapovani servletů -->
+
+	<servlet-mapping>
+		<servlet-name>imageServlet</servlet-name>
+		<url-pattern>/img</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>thumb</servlet-name>
+		<url-pattern>/thumb</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>fullThumb</servlet-name>
+		<url-pattern>/fullThumb</url-pattern>
+	</servlet-mapping>
 
 
-    <!--  Mapovani servletů -->
-    
-    <servlet-mapping>
-        <servlet-name>imageServlet</servlet-name>
-        <url-pattern>/img</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>vc</servlet-name>
-        <url-pattern>/vc</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>thumb</servlet-name>
-        <url-pattern>/thumb</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>fullThumb</servlet-name>
-        <url-pattern>/fullThumb</url-pattern>
-    </servlet-mapping>
-	
-
-    <servlet-mapping>
-        <servlet-name>fullImageServlet</servlet-name>
-        <url-pattern>/djvu</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>fullImageServlet</servlet-name>
+		<url-pattern>/djvu</url-pattern>
+	</servlet-mapping>
 
 
-    <servlet-mapping>
-        <servlet-name>pdf</servlet-name>
-        <url-pattern>/pdf</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>pdf</servlet-name>
+		<url-pattern>/pdf</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>print</servlet-name>
-        <url-pattern>/print</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>print</servlet-name>
+		<url-pattern>/print</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>imgcut</servlet-name>
-        <url-pattern>/imgcut</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>imgcut</servlet-name>
+		<url-pattern>/imgcut</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>mets</servlet-name>
-        <url-pattern>/mets</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>mets</servlet-name>
+		<url-pattern>/mets</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>lr</servlet-name>
-        <url-pattern>/lr</url-pattern>
-    </servlet-mapping>
-	
-    <servlet-mapping>
-        <servlet-name>i18n</servlet-name>
-        <url-pattern>/i18n</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>lr</servlet-name>
+		<url-pattern>/lr</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>mimetype</servlet-name>
-        <url-pattern>/mimetype</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>i18n</servlet-name>
+		<url-pattern>/i18n</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>handle</servlet-name>
-        <url-pattern>/handle/*</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>mimetype</servlet-name>
+		<url-pattern>/mimetype</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>virtualcollectionhandle</servlet-name>
-        <url-pattern>/vc/*</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>virtualcollectionhandle</servlet-name>
-        <url-pattern>/collection/*</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>virtualcollectionhandle</servlet-name>
-        <url-pattern>/sbirka/*</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>handle</servlet-name>
+		<url-pattern>/handle/*</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>dsProxyServlet</servlet-name>
-        <url-pattern>/proxy</url-pattern>
-    </servlet-mapping>
+	<!-- <servlet-mapping> <servlet-name>virtualcollectionhandle</servlet-name> 
+		<url-pattern>/vc/*</url-pattern> </servlet-mapping> <servlet-mapping> <servlet-name>virtualcollectionhandle</servlet-name> 
+		<url-pattern>/collection/*</url-pattern> </servlet-mapping> <servlet-mapping> 
+		<servlet-name>virtualcollectionhandle</servlet-name> <url-pattern>/sbirka/*</url-pattern> 
+		</servlet-mapping> -->
 
-    <servlet-mapping>
-        <servlet-name>iipServlet</servlet-name>
-        <url-pattern>/iip</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>dsProxyServlet</servlet-name>
+		<url-pattern>/proxy</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>deepZoomServlet</servlet-name>
-        <url-pattern>/deepZoom/*</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>deepZoomServlet</servlet-name>
+		<url-pattern>/deepZoom/*</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>zoomifyServlet</servlet-name>
-        <url-pattern>/zoomify/*</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>zoomifyServlet</servlet-name>
+		<url-pattern>/zoomify/*</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>iiifServlet</servlet-name>
-        <url-pattern>/iiif/*</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>iiifServlet</servlet-name>
+		<url-pattern>/iiif/*</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>privateContentServlet</servlet-name>
 		<url-pattern>/private</url-pattern>
 	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>viewInfoServlet</servlet-name>
-        <url-pattern>/viewInfo</url-pattern>
-    </servlet-mapping>
+	<!-- <servlet-mapping> <servlet-name>viewInfoServlet</servlet-name> <url-pattern>/viewInfo</url-pattern> 
+		</servlet-mapping> -->
+
+	<servlet-mapping>
+		<servlet-name>isActionAllowedServlet</servlet-name>
+		<url-pattern>/isActionAllowed</url-pattern>
+	</servlet-mapping>
 
 
-    <servlet-mapping>
-        <servlet-name>isActionAllowedServlet</servlet-name>
-        <url-pattern>/isActionAllowed</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>rightsServlet</servlet-name>
-        <url-pattern>/rights</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>usersServlet</servlet-name>
-        <url-pattern>/users</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>adminActionsServlet</servlet-name>
-        <url-pattern>/adminActions</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>oaiServlet</servlet-name>
-        <url-pattern>/oaiExport</url-pattern>
-    </servlet-mapping>
+	<!-- <servlet-mapping> <servlet-name>adminActionsServlet</servlet-name> 
+		<url-pattern>/adminActions</url-pattern> </servlet-mapping> -->
+	<servlet-mapping>
+		<servlet-name>oaiServlet</servlet-name>
+		<url-pattern>/oaiExport</url-pattern>
+	</servlet-mapping>
 
 
-    <servlet-mapping>
-        <servlet-name>startupServlet</servlet-name>
-        <url-pattern>/startupServlet</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>startupServlet</servlet-name>
+		<url-pattern>/startupServlet</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>profileServlet</servlet-name>
-        <url-pattern>/profile</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>feedback</servlet-name>
-        <url-pattern>/feedback</url-pattern>
-    </servlet-mapping>
+	<!-- <servlet-mapping> <servlet-name>profileServlet</servlet-name> <url-pattern>/profile</url-pattern> 
+		</servlet-mapping> -->
+	<!-- <servlet-mapping> <servlet-name>feedback</servlet-name> <url-pattern>/feedback</url-pattern> 
+		</servlet-mapping> -->
 
-    <servlet-mapping>
-        <servlet-name>simplecaptcha</servlet-name>
-        <url-pattern>/simpleCaptcha.png</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>audioProxyServlet</servlet-name>
-        <url-pattern>/audioProxy/*</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>audioTracksServlet</servlet-name>
-        <url-pattern>/audioTracks/*</url-pattern>
-    </servlet-mapping>
+	<!-- <servlet-mapping> <servlet-name>simplecaptcha</servlet-name> <url-pattern>/simpleCaptcha.png</url-pattern> 
+		</servlet-mapping> -->
 
-    <servlet-mapping>
-        <servlet-name>statisticExport</servlet-name>
-        <url-pattern>/stats</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>audioProxyServlet</servlet-name>
+		<url-pattern>/audioProxy/*</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>localPrintPDF</servlet-name>
-        <url-pattern>/localPrintPDF</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>audioTracksServlet</servlet-name>
+		<url-pattern>/audioTracks/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- <servlet-mapping> <servlet-name>statisticExport</servlet-name> <url-pattern>/stats</url-pattern> 
+		</servlet-mapping> -->
+	<servlet-mapping>
+		<servlet-name>localPrintPDF</servlet-name>
+		<url-pattern>/localPrintPDF</url-pattern>
+	</servlet-mapping>
 
 	<session-config>
-        <tracking-mode>URL</tracking-mode>
-    </session-config>
+		<tracking-mode>URL</tracking-mode>
+	</session-config>
 
-    <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
-    </welcome-file-list>
-	
-    <resource-ref>
-        <description>postgreSQL Datasource example</description>
-        <res-ref-name>jdbc/kramerius4</res-ref-name>
-        <res-type>javax.sql.DataSource</res-type>
-        <res-auth>Container</res-auth>
-    </resource-ref>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+
+	<resource-ref>
+		<description>postgreSQL Datasource example</description>
+		<res-ref-name>jdbc/kramerius4</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+	</resource-ref>
 </web-app>

@@ -108,7 +108,7 @@ public class ClientUserResource {
         	}
         	
             User user = this.userProvider.get();
-            // DNNT extension
+            LOGGER.fine(String.format("Returning principal %s (%s)", user.getLoginname(), Arrays.asList(user.getGroups()).stream().map(Role::getName).collect(Collectors.joining(","))));
             List<String> labels = findLabels(user);
             if (user != null) {
                 return Response.ok().entity(UsersUtils.userToJSON(user,labels,flag).toString())

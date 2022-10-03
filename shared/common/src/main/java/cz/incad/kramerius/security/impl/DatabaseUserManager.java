@@ -510,6 +510,7 @@ public class DatabaseUserManager implements UserManager {
         template.setAttribute("prefix", prefix.trim().equals("") ? null
                 : prefix);
         String sql = template.toString();
+        LOGGER.fine(String.format("All roles from db %s", sql));
         List<Role> grps = null;
         if (prefix.trim().equals("")) {
             grps = new JDBCQueryTemplate<Role>(this.provider.get()) {

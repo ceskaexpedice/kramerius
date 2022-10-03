@@ -713,7 +713,6 @@ public class LRResource {
                 }
 
                 LRProcess process = processes.get(0);
-                //process.setProcessState(States.calculateBatchState(childStates));
                 process.setBatchState(BatchStates.calculateBatchState(childStates));
                 
                 lrProcessManager.updateLongRunningProcessState(process);

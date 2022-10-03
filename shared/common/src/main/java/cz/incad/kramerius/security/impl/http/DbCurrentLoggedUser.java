@@ -25,6 +25,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -73,6 +75,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
     public User getSessionUser(HttpSession session) {
         User loggedUser = (User) session.getAttribute(UserUtils.LOGGED_USER_PARAM);
         if (loggedUser != null) {
+            LOGGER.fine(String.format("User provider principal %s (%s)", loggedUser.getLoginname(), Arrays.stream(loggedUser.getGroups()).map(Role::getName).collect(Collectors.joining(","))));
             return loggedUser;
         } else return null;
     }
@@ -103,7 +106,9 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
                 // TODO:Zmenit
                 ((UserImpl) user).setGroups((Role[]) groupsList.toArray(new Role[groupsList.size()]));
-
+                LOGGER.fine(String.format("User provider principal %s (%s)", user.getLoginname(), Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(","))));
+                
+                
                 // User user = k4principal.getUser();
                 UserUtils.associateCommonGroup(user, userManager);
 

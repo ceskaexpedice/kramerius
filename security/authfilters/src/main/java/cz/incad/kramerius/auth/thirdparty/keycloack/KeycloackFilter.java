@@ -32,9 +32,12 @@ public class KeycloackFilter extends ExtAuthFilter {
     protected boolean userStoreIsNeeded(HttpServletRequest httpReq) {
         try {
             KeycloakAccount keycloakAccount = (KeycloakAccount) httpReq.getAttribute(KeycloakAccount.class.getName());
+            if (keycloakAccount != null && keycloakAccount.getRoles() != null) {
+                LOGGER.log(Level.FINE, String.format("Keycloak principal %s (%s)",keycloakAccount.getPrincipal().getName(), keycloakAccount.getRoles().toString()));
+            }
             return keycloakAccount != null ;
         }catch (Throwable th){
-            LOGGER.log(Level.INFO,"Error retrieving KeycloakAccount", th);
+            LOGGER.log(Level.SEVERE,"Error retrieving KeycloakAccount", th);
         }
 
         return false;

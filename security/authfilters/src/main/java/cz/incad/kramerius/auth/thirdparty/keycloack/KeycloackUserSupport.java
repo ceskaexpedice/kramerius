@@ -51,13 +51,14 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
         List<String> fromDb = Arrays.stream(groups).map(Role::getName).collect(Collectors.toList());
         List<String> fromKeycloack = checkRolesExists(kUser).stream().map(Role::getName).collect(Collectors.toList());
 
-        // check if change is neeeded
-        int max = Math.min(fromDb.size(), fromKeycloack.size());
-        for(int i=0;i<max;i++) {
-            fromDb.remove(fromKeycloack.remove(0));
-        }
+// check if change is neeeded
+//        int max = Math.min(fromDb.size(), fromKeycloack.size());
+//        for(int i=0;i<max;i++) {
+//            fromDb.remove(fromKeycloack.remove(0));
+//        }
 
-        if (!fromDb.isEmpty() || !fromKeycloack.isEmpty()) {
+        
+        if (!fromKeycloack.isEmpty()) {
             this.usersManager.changeRoles(u, kUser.getRoles());
         }
         return password;

@@ -42,31 +42,27 @@ public class LicensesResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response licenses() {
-        if (permit(this.userProvider.get())) {
-            try {
-                return labelsAsResponse();
-            } catch (JSONException | LicensesManagerException e) {
-                throw new GenericApplicationException(e.getMessage(), e);
-            }
-        } else throw new ActionNotAllowed("action is not allowed");
+        try {
+            return labelsAsResponse();
+        } catch (JSONException | LicensesManagerException e) {
+            throw new GenericApplicationException(e.getMessage(), e);
+        }
     }
 
     @GET
     @Path("{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response oneLicense(@PathParam("id")String id ) {
-        if (permit(this.userProvider.get())) {
-            try {
-                License licenseById = this.licensesManager.getLabelById(Integer.parseInt(id));
-                if (licenseById != null) {
-                    return Response.ok().entity(LicenseUtils.licenseToJSON(licenseById).toString()).build();
-                } else {
-                    throw new ObjectNotFound(String.format("cannot find licenses %s", id));
-                }
-            } catch (JSONException | LicensesManagerException e) {
-                throw new GenericApplicationException(e.getMessage(), e);
+        try {
+            License licenseById = this.licensesManager.getLabelById(Integer.parseInt(id));
+            if (licenseById != null) {
+                return Response.ok().entity(LicenseUtils.licenseToJSON(licenseById).toString()).build();
+            } else {
+                throw new ObjectNotFound(String.format("cannot find licenses %s", id));
             }
-        } else throw new ActionNotAllowed("action is not allowed");
+        } catch (JSONException | LicensesManagerException e) {
+            throw new GenericApplicationException(e.getMessage(), e);
+        }
     }
 
 
