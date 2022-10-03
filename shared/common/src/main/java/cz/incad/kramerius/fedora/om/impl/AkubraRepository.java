@@ -134,17 +134,33 @@ public class AkubraRepository extends Repository {
             try {
                 AkubraObject obj = new AkubraObject(this.manager, contents.getPID(), contents, this.feeder);
                 manager.commit(obj.digitalObject, null);
+                // rebuild processing index
                 obj.rebuildProcessingIndex();
                 return obj;
             } catch (IOException e) {
                 throw new RepositoryException(e);
             }
         }
-
     }
 
 
     @Override
+	public RepositoryObject ingestObject(DigitalObject contents, String source) throws RepositoryException {
+        if (objectExists(contents.getPID())) {
+            throw new RepositoryException("Ingested object exists:" + contents.getPID());
+        } else {
+            try {
+                AkubraObject obj = new AkubraObject(this.manager, contents.getPID(), contents, this.feeder);
+                manager.commit(obj.digitalObject, null);
+                obj.rebuildProcessingIndex(source);
+                return obj;
+            } catch (IOException e) {
+                throw new RepositoryException(e);
+            }
+        }
+	}
+
+	@Override
     public void iterateObjects(Consumer<String> consumer) throws RepositoryException, FcrepoOperationFailedException, IOException {
         /*
         Stack<String> stack = new Stack<>();

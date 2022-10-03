@@ -32,6 +32,8 @@ public class ProcessingIndexFeeder {
     private static final String TYPE_RELATION = "relation";
     private static final String TYPE_DESC = "description";
 
+    private static final String LEADER = "cdk_leader";
+    
     public static final Logger LOGGER = Logger.getLogger(ProcessingIndexFeeder.class.getName());
 
     private SolrClient solrClient;
@@ -44,7 +46,7 @@ public class ProcessingIndexFeeder {
     }
 
 
-    public UpdateResponse feedDescriptionDocument(String sourcePid, String model, String title, String ref, Date date) throws IOException, SolrServerException {
+    public UpdateResponse feedDescriptionDocument(String sourcePid, String model, String title, String ref, Date date, String source) throws IOException, SolrServerException {
         SolrInputDocument sdoc = new SolrInputDocument();
         sdoc.addField("source", sourcePid);
         sdoc.addField("type", TYPE_DESC);
@@ -53,6 +55,9 @@ public class ProcessingIndexFeeder {
         sdoc.addField("ref", ref);
         sdoc.addField("date", date);
         sdoc.addField("pid", TYPE_DESC + "|" + sourcePid);
+        if (source != null) {
+        	sdoc.addField(LEADER, source);
+        }
         return feedDescriptionDocument(sdoc);
     }
 

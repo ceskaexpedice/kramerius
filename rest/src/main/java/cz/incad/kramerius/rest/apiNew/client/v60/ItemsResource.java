@@ -12,7 +12,7 @@ import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.rest.apiNew.client.v60.redirection.RedirectHandler;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandler;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.V5RedirectHandler;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.V7RedirectHandler;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
@@ -191,19 +191,19 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+
     @GET
     @Path("{pid}/info/providedByLicenses")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProvidingLicenses(@PathParam("pid") String pid) {
         // must be redirected
         try {
-
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
 
-            RedirectHandler redirectHandler = findRedirectHandler(pid);
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
-                return sendRedirect(redirectHandler.providedByLicenses());
+                return redirectHandler.buildResponse(redirectHandler.providedByLicenses());
             } else {
                 return Response.ok().build();
             }
@@ -214,6 +214,30 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+
+//    @GET
+//    @Path("{source}/{pid}/info/providedByLicenses")
+//    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+//    public Response getProvidingLicenses(@PathParam("pid") String pid,@PathParam("source") String source) {
+//        // must be redirected
+//        try {
+//            checkSupportedObjectPid(pid);
+//            checkObjectExists(pid);
+//
+//            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+//            if (redirectHandler != null) {
+//                return redirectHandler.buildResponse(redirectHandler.providedByLicenses());
+//            } else {
+//                return Response.ok().build();
+//            }
+//        } catch (WebApplicationException e) {
+//            throw e;
+//        } catch (Throwable e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            throw new InternalErrorException(e.getMessage());
+//        }
+//    }
+
 
     /**
      * Vrací jen přímou strukturu získanou okamžitě z resource-indexu. Tedy rodiče (vlastního, nevlastní), děti (vlastní, nevlastní).
@@ -245,9 +269,30 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
+        	checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             return Response.ok(extractImageSourceInfo(pid)).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{source}/{pid}/info/image")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getInfoImage(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null && redirectHandler.infoImageEndpointSupported()) {
+                return redirectHandler.buildResponse(redirectHandler.infoImage());
+            } else {
+            	checkSupportedObjectPid(pid);
+                checkObjectExists(pid);
+                return Response.ok(extractImageSourceInfo(pid)).build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -456,12 +501,38 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid) {
-        try {
+    	try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
-            checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            return Response.ok().build();
+            checkObjectExists(pid);
+        	
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.textOCR());
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @HEAD
+    @Path("{source}/{pid}/ocr/text")
+    public Response isOcrTextAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
+    	try {
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+        	// forward ?? 
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.textOCR());
+            } else {
+                return Response.ok().build();
+            }
+            
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -474,24 +545,40 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/ocr/text")
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
     public Response getOcrText(@PathParam("pid") String pid) {
-        //TODO: pořádně otestovat:
-        //managed from URL:
-        //http://localhost:8080/search/api/admin/v7.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/foxml
-        //http://localhost:8080/search/api/client/v7.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/ocr/text
-
-        //managed form file://
-        //http://localhost:8080/search/api/admin/v7.0/items/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/foxml
-        //http://localhost:8080/search/api/client/v7.0/items/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/ocr/text
-
-        //redirect, externally referenced
-
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            String ocrText = krameriusRepositoryApi.getOcrText(pid);
-            return Response.ok().entity(ocrText).build();
+
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.textOCR());
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{source}/{pid}/ocr/text")
+    @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
+    public Response getOcrText(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            checkSupportedObjectPid(pid);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
+            checkObjectAndDatastreamExist(pid, dsId);
+
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.textOCR());
+            } else {
+                return Response.ok().build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -505,10 +592,39 @@ public class ItemsResource extends ClientApiResource {
     public Response isOcrAltoAvailable(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
+ 
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            return Response.ok().build();
+
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.altoOCR());
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @HEAD
+    @Path("{source}/{pid}/ocr/alto")
+    public Response isOcrAltoAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            checkSupportedObjectPid(pid);
+ 
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
+            checkObjectAndDatastreamExist(pid, dsId);
+
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.altoOCR());
+            } else {
+                return Response.ok().build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -521,14 +637,42 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/ocr/alto")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getDatastreamOcrAlto(@PathParam("pid") String pid) {
-        //TODO: pořádně otestovat datastreamy s různými controlgroups (M,E,R) a s odkazy typu URL, path
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            Document ocrAlto = krameriusRepositoryApi.getOcrAlto(pid, true);
-            return Response.ok().entity(ocrAlto.asXML()).build();
+
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.altoOCR());
+            } else {
+                return Response.ok().build();
+            }
+
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{source}/{pid}/ocr/alto")
+    @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
+    public Response getDatastreamOcrAlto(@PathParam("pid") String pid, @PathParam("source") String source) {
+        try {
+            checkSupportedObjectPid(pid);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
+            checkObjectAndDatastreamExist(pid, dsId);
+
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.altoOCR());
+            } else {
+                return Response.ok().build();
+            }
+
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -549,9 +693,9 @@ public class ItemsResource extends ClientApiResource {
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
 
-            RedirectHandler redirectHandler = findRedirectHandler(pid);
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
-                return sendRedirect(redirectHandler.image());
+            	return redirectHandler.buildResponse(redirectHandler.image());
             } else {
                 return Response.ok().build();
             }
@@ -563,66 +707,52 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    public RedirectHandler findRedirectHandler(String pid) throws LexerException, IOException {
-        String source = documentSource(pid);
+    @HEAD
+    @Path("{source}/{pid}/image")
+    public Response isImgFullAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            checkSupportedObjectPid(pid);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+            	return redirectHandler.buildResponse(redirectHandler.image());
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    
+    
+    
+
+    public ProxyHandler findRedirectHandler(String pid, String source) throws LexerException, IOException {
+        if (source == null) {
+        	source = defaultDocumentSource(pid);
+        }
         if (source != null) {
-            PIDParser parser = new PIDParser(source);
-            parser.objectPid();
-            String objectId = parser.getObjectId();
-            String apiVersion = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".api", API_V7);
+        	String apiVersion = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + source + ".api", API_V7);
             if (apiVersion !=null && apiVersion.equals(API_V7)) {
                 return new V7RedirectHandler(source, pid);
             } else {
                 return new V5RedirectHandler(source, pid);
             }
-            //return _RedirectHandler.valueOf(apiVersion);
         } else return null;
     }
 
-    private String documentSource(String pid) throws IOException {
+    private String defaultDocumentSource(String pid) throws IOException {
         org.w3c.dom.Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
         String leader = CDKUtils.findCDKLeader(solrDataByPid.getDocumentElement());
         List<String> sources = CDKUtils.findSources(solrDataByPid.getDocumentElement());
         return leader != null ? leader : (!sources.isEmpty() ? sources.get(0) : null);
     }
-
-    private Response sendRedirect(String url) throws URISyntaxException, MalformedURLException {
-        LOGGER.info(String.format("Redirecting to %s", url));
-        return Response.temporaryRedirect(new URL(url).toURI()).build();
-    }
-
-
-//    public Response sendImageRedirect(String pid, Consumer<_RedirectHandler> consumer) throws IOException, LexerException, URISyntaxException {
-//
-//        String source = documentSource(pid);
-//
-//        if (source != null) {
-//
-//
-//
-//            PIDParser parser = new PIDParser(source);
-//            parser.objectPid();
-//            String objectId = parser.getObjectId();
-//
-//            String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".baseurl");
-//            String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".username");
-//            String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".pswd");
-//            if (StringUtils.isAnyString(username) && StringUtils.isAnyString(password)) {
-//
-//
-//
-//                //search/api/v5.0/item/uuid:03862b65-d26f-4099-b484-20c494c16040/streams/IMG_FULL
-//                String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + pid + "/" + endpoint;
-//
-//                return sendRedirect(url);
-//
-//            } else {
-//                LOGGER.warning(String.format("No source or leader for pid %s", pid));
-//            }
-//        }
-//        return Response.ok().build();
-//    }
-
 
 
     /***
@@ -638,9 +768,9 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId);
 
-            RedirectHandler redirectHandler = findRedirectHandler(pid);
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return sendRedirect(redirectHandler.image());
+            	return redirectHandler.buildResponse(redirectHandler.image());
             } else {
                 return Response.ok().build();
             }
@@ -652,6 +782,28 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    @GET
+    @Path("{source}/{pid}/image")
+    public Response getImgFull(@PathParam("pid") String pid, @PathParam("source") String source) {
+        try {
+            checkSupportedObjectPid(pid);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId);
+
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+            	return redirectHandler.buildResponse(redirectHandler.image());
+                //return sendRedirect(redirectHandler.image());
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
     /***
      * Vrací zoomify ImageProperties.xml tohoto objektu
      * @see cz.incad.Kramerius.imaging.ZoomifyServlet
@@ -665,9 +817,33 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId);
 
-            RedirectHandler redirectHandler = findRedirectHandler(pid);
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return sendRedirect(redirectHandler.zoomifyImageProperties());
+                //return sendRedirect(redirectHandler.zoomifyImageProperties());
+                return redirectHandler.buildResponse(redirectHandler.zoomifyImageProperties());
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @Path("{source}/{pid}/image/zoomify/ImageProperties.xml")
+    public Response getZoomifyImageProperties(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            checkSupportedObjectPid(pid);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId);
+
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+                //return sendRedirect(redirectHandler.zoomifyImageProperties());
+                return redirectHandler.buildResponse(redirectHandler.zoomifyImageProperties());
             } else {
                 return Response.ok().build();
             }
@@ -703,9 +879,9 @@ public class ItemsResource extends ClientApiResource {
             //checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             //checkUserByJsessionidIsAllowedToReadIIPTile(pid);
 
-            RedirectHandler redirectHandler = findRedirectHandler(pid);
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return sendRedirect(redirectHandler.zoomifyTile(tileGroupStr, tileStr));
+                return redirectHandler.buildResponse(redirectHandler.zoomifyTile(tileGroupStr, tileStr));
             } else {
                 return Response.ok().build();
             }
@@ -718,10 +894,43 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    @GET
+    @Path("{source}/{pid}/image/zoomify/{tileGroup}/{tile}")
+    public Response getZoomifyTile(@PathParam("pid") String pid,@PathParam("source") String source, @PathParam("tileGroup") String tileGroupStr, @PathParam("tile") String tileStr) {
+        try {
+            checkSupportedObjectPid(pid);
+            if (!tileGroupStr.matches("TileGroup[0-9]+")) {
+                throw new BadRequestException("invalid TileGroup: " + tileGroupStr);
+            }
+            int tileGroup = Integer.valueOf(tileGroupStr.substring("TileGroup".length()));
+            if (!tileStr.matches("[0-9]+-[0-9]+-[0-9]+\\.jpg")) {
+                throw new BadRequestException("invalid tile: " + tileStr);
+            }
+            String[] tileTokens = tileStr.split("\\.")[0].split("-");
+            //KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            //checkObjectAndDatastreamExist(pid, dsId);
+            //checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            //checkUserByJsessionidIsAllowedToReadIIPTile(pid);
+
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.zoomifyTile(tileGroupStr, tileStr));
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
 
     /***
      * Vrací thumbnail buď tohoto objektu, nebo prvního potomka, který má IMG_THUMB
      */
+    // TODO : 
     @GET
     @Path("{pid}/image/thumb")
     public Response getImgThumb(@PathParam("pid") String pid) {
@@ -750,21 +959,21 @@ public class ItemsResource extends ClientApiResource {
      * Vrací preview buď tohoto objektu, nebo prvního potomka, který má IMG_PREVIEW
      */
     @GET
-    @Path("{pid}/image/preview")
-    public Response getImgPreview(@PathParam("pid") String pid) {
+    @Path("{source}/{pid}/image/preview")
+    public Response getImgPreview(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            Pair<InputStream, String> imgPreview = getFirstAvailableImgPreview(pid);
-            if (imgPreview == null) {
-                throw new NotFoundException("no image/preview available for object %s (and it's descendants)", pid);
+            
+            Pair<String, String> imgPreview = getFirstAvailableImgPreviewPid(pid);
+            
+            ProxyHandler redirectHandler = findRedirectHandler(imgPreview.getFirst(),source);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.imagePreview());
             } else {
-                StreamingOutput stream = output -> {
-                    IOUtils.copy(imgPreview.getFirst(), output);
-                    IOUtils.closeQuietly(imgPreview.getFirst());
-                };
-                return Response.ok().entity(stream).type(imgPreview.getSecond()).build();
+                return Response.ok().build();
             }
+            
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -773,6 +982,31 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    @GET
+    @Path("{pid}/image/preview")
+    public Response getImgPreview(@PathParam("pid") String pid) {
+        try {
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            
+            Pair<String, String> imgPreview = getFirstAvailableImgPreviewPid(pid);
+            
+            ProxyHandler redirectHandler = findRedirectHandler(imgPreview.getFirst(),null);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.imagePreview());
+            } else {
+                return Response.ok().build();
+            }
+            
+            
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    
     @HEAD
     @Path("{pid}/audio/mp3")
     public Response isAudioMp3Available(@PathParam("pid") String pid) {
@@ -1042,6 +1276,23 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    Pair<String, String> getFirstAvailableImgPreviewPid(String pid) throws IOException, RepositoryException {
+        KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_THUMB;
+    	boolean flag = krameriusRepositoryApi.isStreamAvailable(pid, dsId.name());
+        if (flag) {
+            String mimeType = krameriusRepositoryApi.getImgPreviewMimetype(pid);
+            return new Pair<>(pid, mimeType);
+        } else {
+            String pidOfFirstChild = getPidOfFirstChild(pid);
+            if (pidOfFirstChild != null) {
+                return getFirstAvailableImgPreviewPid(pidOfFirstChild);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    
     private String getPidOfFirstChild(String pid) throws IOException, RepositoryException {
         Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
         String xpathExpr = "//hasPage|//hasUnit|//hasVolume|//hasItem|//hasSoundUnit|//hasTrack|//containsTrack|//hasIntCompPart|//isOnPage|//contains";

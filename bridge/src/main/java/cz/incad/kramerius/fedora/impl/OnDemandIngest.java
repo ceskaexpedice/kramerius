@@ -58,17 +58,12 @@ public class OnDemandIngest {
             String source = leader != null ? leader : (!sources.isEmpty() ? sources.get(0) : null);
             LOGGER.info(String.format("Leader for pid %s is %s", pid, leader));
             if (source != null) {
-                //Collection collection = this.collectionsManager.getCollection(sources.get(0));
-                PIDParser parser = new PIDParser(source);
-                parser.objectPid();
-                String objectId = parser.getObjectId();
 
-                String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".baseurl");
-                String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".username");
-                String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + objectId + ".pswd");
+            	String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + source + ".baseurl");
+                String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + source + ".username");
+                String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + source + ".pswd");
                 if (StringUtils.isAnyString(username) && StringUtils.isAnyString(password)) {
-                    String url = baseurl  +(baseurl.endsWith("/") ? "" : "/")+ "api/v4.6/cdk/" + pid + "/foxml?collection=" + parser.getObjectPid();
-
+                    String url = baseurl  +(baseurl.endsWith("/") ? "" : "/")+ "api/v4.6/cdk/" + pid + "/foxml?collection=" + source;
                     if (internalAPI.objectExists(pid)) {
                         LOGGER.info("Object exists");
                         return;
@@ -79,10 +74,11 @@ public class OnDemandIngest {
                     synchronized (INGESTING_LOCK) {
                         if (internalAPI.objectExists(pid)) return;
                         // tady by to melo byt synchronizovane
+                        // import source
                         Import.ingest(internalAPI, foxml, pid, null, null, true);
                         FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Whole ingest of %s took %d ms (download foxml %d ms)",pid, (System.currentTimeMillis() - start), (System.currentTimeMillis() - foxmlTime) ));
                     }
-                } else throw new IOException("Cannot read data from "+ baseurl +".  Missing property "+"cdk.collections.sources." + objectId + ".username or "+"cdk.collections.sources." + objectId + ".pswd  for pid  "+pid);
+                } else throw new IOException("Cannot read data from "+ baseurl +".  Missing property "+"cdk.collections.sources." + source + ".username or "+"cdk.collections.sources." + source + ".pswd  for pid  "+pid);
 
             } else {
                 LOGGER.warning(String.format("No source or leader for pid %s", pid));

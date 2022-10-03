@@ -71,6 +71,14 @@ public abstract class Repository {
      */
     public abstract RepositoryObject ingestObject(DigitalObject contents) throws RepositoryException;
 
+    /**
+     * Ingest new digital object from the provided object representation
+     * @param contents
+     * @return
+     * @throws RepositoryException
+     */
+    public abstract RepositoryObject ingestObject(DigitalObject contents, String source) throws RepositoryException;
+
 
     /**
      * Returns object

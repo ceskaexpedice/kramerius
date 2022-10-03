@@ -45,7 +45,13 @@ public class SynchronizedRepository extends Repository {
         return this.repository.ingestObject(contents);
     }
 
+    
     @Override
+	public RepositoryObject ingestObject(DigitalObject contents, String source) throws RepositoryException {
+        return this.repository.ingestObject(contents, source);
+	}
+
+	@Override
     public synchronized RepositoryObject getObject(String ident) throws RepositoryException {
         return this.repository.getObject(ident);
     }

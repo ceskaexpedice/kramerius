@@ -199,7 +199,7 @@ public class AkubraObject implements RepositoryObject {
                 // process rels-ext and create all children and relations
                 this.feeder.deleteByRelationsForPid(pid);
                 input.reset();
-                rebuildProcessingIndexImpl(input);
+                rebuildProcessingIndexImpl(input, null);
             }
             return ds;
         }  catch (Exception ex) {
@@ -254,29 +254,28 @@ public class AkubraObject implements RepositoryObject {
     /**
      * Process one relation and feed processing index
      */
-    public void processRELSEXTRelationAndFeedProcessingIndex(String object, String localName) throws RepositoryException {
+    public void processRELSEXTRelationAndFeedProcessingIndex(String object, String localName, String source) throws RepositoryException {
         if (localName.equals("hasModel")) {
             try {
-
+            	// rels ext source; replicated from
                 if (this.streamExists(FedoraUtils.DC_STREAM)) {
-
                     try {
                         InputStream stream = this.getStream(FedoraUtils.DC_STREAM).getContent();
                         Element title = XMLUtils.findElement(XMLUtils.parseDocument(stream, true).getDocumentElement(), "title", FedoraNamespaces.DC_NAMESPACE_URI);
                         if (title != null) {
-                            this.indexDescription(object, title.getTextContent());
+                            this.indexDescription(object, title.getTextContent(), source);
                         } else {
-                            this.indexDescription(object, "");
+                            this.indexDescription(object, "", source);
                         }
                     } catch (ParserConfigurationException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                        this.indexDescription(object, "");
+                        this.indexDescription(object, "", source);
                     } catch (SAXException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                        this.indexDescription(object, "");
+                        this.indexDescription(object, "", source);
                     }
                 } else {
-                    this.indexDescription(object, "");
+                    this.indexDescription(object, "", source);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -298,8 +297,14 @@ public class AkubraObject implements RepositoryObject {
         this.feeder.feedRelationDocument(this.getPid(), localName, object);
     }
 
-    private void indexDescription(String model, String dctitle) throws IOException, SolrServerException {
-        this.feeder.feedDescriptionDocument(this.getPid(), model, dctitle.trim(), AkubraUtils.getAkubraInternalId(this.getPid()), new Date());
+    private void indexDescription(String model, String dctitle, String source) throws IOException, SolrServerException {
+        this.feeder.feedDescriptionDocument(
+        		this.getPid(), 
+        		model, 
+        		dctitle.trim(), 
+        		AkubraUtils.getAkubraInternalId(this.getPid()), 
+        		new Date(),
+        		source);
     }
 
     public void deleteProcessingIndex() throws IOException, SolrServerException {
@@ -697,15 +702,25 @@ public class AkubraObject implements RepositoryObject {
     public void rebuildProcessingIndex() throws RepositoryException {
         RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
         InputStream content = stream.getContent();
-        rebuildProcessingIndexImpl(content);
+        rebuildProcessingIndexImpl(content, null);
     }
 
-    private void rebuildProcessingIndexImpl(InputStream content) throws RepositoryException {
+    
+    
+    @Override
+	public void rebuildProcessingIndex(String source) throws RepositoryException {
+        RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
+        InputStream content = stream.getContent();
+        rebuildProcessingIndexImpl(content, source);
+	}
+
+
+	private void rebuildProcessingIndexImpl(InputStream content, String source) throws RepositoryException {
         try {
             String s = IOUtils.toString(content, "UTF-8");
             RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
             sparqlBuilder.sparqlProps(s.trim(), (object, localName) -> {
-                processRELSEXTRelationAndFeedProcessingIndex(object, localName);
+                processRELSEXTRelationAndFeedProcessingIndex(object, localName, source);
                 return object;
             });
         } catch (IOException e) {

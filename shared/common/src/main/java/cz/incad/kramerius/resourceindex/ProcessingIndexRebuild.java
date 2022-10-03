@@ -122,7 +122,7 @@ public class ProcessingIndexRebuild {
             String s = IOUtils.toString(content, "UTF-8");
             RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
             sparqlBuilder.sparqlProps(s.trim(), (object, localName) -> {
-                akubraObject.processRELSEXTRelationAndFeedProcessingIndex(object, localName);
+                akubraObject.processRELSEXTRelationAndFeedProcessingIndex(object, localName, null);
                 return object;
             });
             LOGGER.info("Processed PID:" + akubraObject.getPid() + ",  count:" + (++counter));

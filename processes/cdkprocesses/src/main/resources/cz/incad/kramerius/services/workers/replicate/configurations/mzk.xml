@@ -7,9 +7,8 @@
     <iteration>
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
-
         <id>pid</id>
-        <rows>10000</rows>
+        <rows>4000</rows>
         <type>CURSOR</type>
     </iteration>
 

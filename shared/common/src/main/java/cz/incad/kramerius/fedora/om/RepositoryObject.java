@@ -245,4 +245,11 @@ public interface RepositoryObject {
      * @throws RepositoryException
      */
     public void rebuildProcessingIndex() throws RepositoryException;
+
+    /**
+     * Method is able to rebuild processing index for current object
+     * @throws RepositoryException
+     */
+    public void rebuildProcessingIndex(String source) throws RepositoryException;
+
 }

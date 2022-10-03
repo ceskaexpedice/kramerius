@@ -414,8 +414,69 @@ public class Import {
         }
     }
 
+    // proxy 
+    public static void ingestProxy(String source, Repository repo, InputStream is, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, RepositoryException, JAXBException, LexerException, TransformerException {
+        long start = System.currentTimeMillis();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        IOUtils.copyStreams(is, bos);
+        byte[] bytes = bos.toByteArray();
+        DigitalObject obj = null;
+        try {
+            synchronized (marshallingLock) {
+                obj = (DigitalObject) unmarshaller.unmarshal(new ByteArrayInputStream(bytes));
+            }
+            pid = ((DigitalObject) obj).getPID();
+            ingestProxy(source, repo, obj, pid, updateExisting);
+        } catch (cz.incad.kramerius.fedora.om.RepositoryException sfex) {
+            if (objectExists(repo, pid)) {
+                if (updateExisting) {
+                    log.info("Replacing existing object " + pid);
+                    try {
+                        repo.deleteObject(pid);
+                        log.info("purged old object " + pid);
+                    } catch (Exception ex) {
+                        log.severe("Cannot purge object " + pid + ", skipping: " + ex);
+                        throw new RuntimeException(ex);
+                    }
+                    try {
+                        if (obj != null) {
+                        	ingestProxy(source, repo, obj, pid, updateExisting);
+                        }
+                        log.info("Ingested new object " + pid);
+                    } catch (cz.incad.kramerius.fedora.om.RepositoryException rsfex) {
+                        log.severe("Replace ingest SOAP fault:" + rsfex);
+                        throw new RuntimeException(rsfex);
+                    }
+                    if (roots != null) {
+                        TitlePidTuple npt = new TitlePidTuple("", pid);
+                        roots.add(npt);
+                        log.info("Added replaced object for indexing:" + pid);
+                    }
+                } else {
+                    log.info("Merging with existing object " + pid);
+                    if (merge(repo, bytes)) {
+                        if (sortRelations != null) {
+                            sortRelations.add(pid);
+                            log.info("Added merged object for sorting relations:" + pid);
+                        }
+                        if (roots != null) {
+                            TitlePidTuple npt = new TitlePidTuple("", pid);
+                            roots.add(npt);
+                            log.info("Added merged object for indexing:" + pid);
+                        }
+                    }
+                }
+            } else {
+                log.severe("Ingest SOAP fault:" + sfex);
+                throw new RuntimeException(sfex);
+            }
+        }
+        counter++;
+        log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
+    	
+    }
+    
     public static void ingest(Repository repo, InputStream is, String pid, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, RepositoryException, JAXBException, LexerException, TransformerException {
-
         long start = System.currentTimeMillis();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copyStreams(is, bos);
@@ -469,13 +530,10 @@ public class Import {
                     }
                 }
             } else {
-
                 log.severe("Ingest SOAP fault:" + sfex);
                 throw new RuntimeException(sfex);
             }
-
         }
-
         counter++;
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
@@ -595,8 +653,20 @@ public class Import {
         return retval;
     }
 
+    private static void ingestProxy(String source, Repository repo, DigitalObject dob, String pid, boolean updateExisting) throws RepositoryException {
+        try {
+            repo.ingestObject(dob,source);
+        } catch (RepositoryException e) {
+            if (updateExisting && repo.objectExists(dob.getPID())) {
+                repo.deleteObject(dob.getPID());
+                repo.ingestObject(dob);
+            } else {
+                throw e;
+            }
+        }
+    }
+
     private static void ingest(Repository repo, DigitalObject dob, String pid, boolean updateExisting) throws RepositoryException {
-        //long start = System.currentTimeMillis();
         try {
             repo.ingestObject(dob);
         } catch (RepositoryException e) {
@@ -607,8 +677,6 @@ public class Import {
                 throw e;
             }
         }
-        //counter++;
-        //log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
 

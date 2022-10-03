@@ -279,7 +279,6 @@ public class CopyReplicateWorker extends Worker {
             } catch (BrokenBarrierException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(),e);
             }
-
             LOGGER.info(String.format("Worker finished; All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d" ,  ReplicateFinisher.WORKERS.get(), ReplicateFinisher.BATCHES.get(), ReplicateFinisher.NEWINDEXED.get(), ReplicateFinisher.UPDATED.get(),ReplicateFinisher.NOT_INDEXED_COMPOSITEID.get()));
         }
 
