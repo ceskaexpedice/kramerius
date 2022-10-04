@@ -833,6 +833,7 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    @GET
     @Path("{source}/{pid}/image/zoomify/ImageProperties.xml")
     public Response getZoomifyImageProperties(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
