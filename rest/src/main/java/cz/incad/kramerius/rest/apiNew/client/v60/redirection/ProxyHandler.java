@@ -15,15 +15,15 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 public abstract class ProxyHandler {
 	// source library
     protected String source;
-    
     protected String pid;
 
     public ProxyHandler(String source, String pid) {
         this.source = source;
         this.pid = pid;
     }
-
+    // vraci image
     public abstract String image() throws LexerException;
+    //vraci preview
     public abstract String imagePreview() throws LexerException;
 
     public abstract String zoomifyImageProperties() throws LexerException;
@@ -36,15 +36,19 @@ public abstract class ProxyHandler {
     public abstract boolean infoImageEndpointSupported();
     public abstract String infoImage() throws LexerException;
     
+    public abstract String imageThumb() throws LexerException;
+    
+    
     public abstract Response buildResponse(String url) throws URISyntaxException, MalformedURLException;
     
-    /* thumb and preview 
-    public abstract String thumb();
-    public abstract String preview();
-	*/
     
     protected String baseUrl() throws LexerException {
         String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + this.source + ".baseurl");
         return baseurl;
     }
+
+    public boolean imageThumbForceRedirection() {
+	    boolean redirection = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + this.source + ".thumb", false);
+		return redirection;
+	}
 }

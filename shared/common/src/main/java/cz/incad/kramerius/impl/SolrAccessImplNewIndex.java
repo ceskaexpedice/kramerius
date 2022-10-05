@@ -38,21 +38,77 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.apache.http.HttpStatus.SC_OK;
 
 public class SolrAccessImplNewIndex implements SolrAccess {
 
+	public static final Logger LOGGER = Logger.getLogger(SolrAccessImplNewIndex.class.getName());
+	
     private SolrUtils utils = new SolrUtils(KConfiguration.getInstance().getSolrSearchHost());
-
-
+    
+    
+    
     @Override
+	public List<String> getExistingPids(List<String> pids) throws IOException {
+    	List<String> pp = pids.stream().map(p->{
+			String rp = "pid:\"" + p+"\"";
+			return rp;
+    	}).filter(Objects::nonNull).collect(Collectors.toList());
+    	if (!pp.isEmpty()) {
+    		String collect = pp.stream().collect(Collectors.joining(" OR "));
+    		String query = "q=(" + URLEncoder.encode(collect,"UTF-8")+")&fl=pid";
+        	Document document = utils.requestWithSelectReturningXml(query);
+        	List<Element> docs = XMLUtils.getElementsRecursive(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
+				@Override
+				public boolean acceptElement(Element element) {
+					if (element.getNodeName().equals("doc")) {
+            			return true;
+            		}
+					return false;
+				}
+			});
+
+            
+            List<String> existingPids = docs.stream().map(e-> {
+            	Element strElm = XMLUtils.findElement(e, "str");
+            	return strElm != null ? strElm.getTextContent() : null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            
+            return existingPids;
+    	}
+    	return null;
+	}
+
+
+	@Override
+	public boolean documentExist(String pid) throws IOException {
+    	String query = "q=" + URLEncoder.encode("pid:" + pid.replace(":", "\\:"), "UTF-8")+"&fl=pid";
+        Document document = utils.requestWithSelectReturningXml(query);
+        Element foundElement = XMLUtils.findElement(document.getDocumentElement(), "result");
+        if (foundElement != null) {
+        	String numFound = foundElement.getAttribute("numFound");
+        	int parsed = Integer.parseInt(numFound);
+        	return parsed > 0;
+        }
+		return false;
+	}
+
+
+
+	@Override
     public Document getSolrDataByPid(String pid) throws IOException {
         //TODO: allow special object pids?
         //TODO: allow datastreams pids?
@@ -330,4 +386,11 @@ public class SolrAccessImplNewIndex implements SolrAccess {
             }
         }
     }
+    
+    
+//    public static void main(String[] args) throws IOException {
+//		SolrAccessImplNewIndex sac = new SolrAccessImplNewIndex();
+//		List<String> ePids = sac.getExistingPids(Arrays.asList("uuid:00213e1d-4f7d-422b-83e9-9f06fa4af6d9","uuid:00213e1d-4f7d-422b-83e9-9f06fa4af6d9", "uuid:005a6735-e2d1-4e52-9093-02b19c4d2557"));
+//		System.out.println(ePids);
+//    }
 }

@@ -12,6 +12,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,18 @@ public class Dom4jUtils {
             }
         }
         return null;
+    }
+
+    public static List<Element> elementsByXpath(Element root, String xpathExpr) {
+        XPath xPath = buildXpath(xpathExpr);
+        List<Element> retvals = new ArrayList<>();
+        List<Node> result = xPath.selectNodes(root);
+        for (Node node : result) {
+            if (node instanceof Element) {
+            	retvals.add((Element)node);
+            }
+		}
+        return retvals;
     }
 
     public static String stringOrNullFromFirstElementByXpath(Element root, String xpathExpr) {

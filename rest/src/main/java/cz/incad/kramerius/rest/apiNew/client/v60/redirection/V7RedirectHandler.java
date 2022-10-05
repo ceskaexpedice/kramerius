@@ -89,7 +89,12 @@ public class V7RedirectHandler extends ProxyHandler{
         return url;
 	}
 
-
+	@Override
+	public String imageThumb() throws LexerException {
+        String baseurl = baseUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/image/thumb";
+        return url;
+	}
 
 	@Override
 	public Response buildResponse(String url) throws URISyntaxException, MalformedURLException {

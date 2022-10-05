@@ -45,7 +45,19 @@ import java.util.Map;
 @Deprecated
 public class SolrAccessImpl implements SolrAccess {
 
+	
+	
     @Override
+	public List<String> getExistingPids(List<String> pids) throws IOException {
+    	throw new UnsupportedOperationException("unsupported");
+    }
+
+	@Override
+	public boolean documentExist(String pid) throws IOException {
+    	throw new UnsupportedOperationException("unsupported");
+	}
+
+	@Override
     public Document getSolrDataByPid(String pid) throws IOException {
         if (SpecialObjects.isSpecialObject(pid))
             return null;

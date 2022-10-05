@@ -71,8 +71,15 @@ public class V5RedirectHandler extends ProxyHandler{
 
 	@Override
 	public String infoImage() {
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	
+	@Override
+	public String imageThumb() throws LexerException {
+        String baseurl = baseUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/thumb";
+        return url;
 	}
 
 	@Override

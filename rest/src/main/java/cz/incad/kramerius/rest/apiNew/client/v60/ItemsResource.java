@@ -56,9 +56,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.item.ItemResource
@@ -936,18 +938,26 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/image/thumb")
     public Response getImgThumb(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
+        	checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            Pair<InputStream, String> imgThumb = getFirstAvailableImgThumb(pid);
-            if (imgThumb == null) {
-                throw new NotFoundException("no image/thumb available for object %s (and it's descendants)", pid);
+            
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler.imageThumbForceRedirection()) {
+                return redirectHandler.buildResponse(redirectHandler.imageThumb());
             } else {
-                StreamingOutput stream = output -> {
-                    IOUtils.copy(imgThumb.getFirst(), output);
-                    IOUtils.closeQuietly(imgThumb.getFirst());
-                };
-                return Response.ok().entity(stream).type(imgThumb.getSecond()).build();
+            	Pair<InputStream, String> imgThumb = getFirstAvailableImgThumb(pid);
+                if (imgThumb == null) {
+                    throw new NotFoundException("no image/thumb available for object %s (and it's descendants)", pid);
+                } else {
+                    StreamingOutput stream = output -> {
+                        IOUtils.copy(imgThumb.getFirst(), output);
+                        IOUtils.closeQuietly(imgThumb.getFirst());
+                    };
+                    return Response.ok().entity(stream).type(imgThumb.getSecond()).build();
+                }
+
             }
+            
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1297,13 +1307,24 @@ public class ItemsResource extends ClientApiResource {
     private String getPidOfFirstChild(String pid) throws IOException, RepositoryException {
         Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
         String xpathExpr = "//hasPage|//hasUnit|//hasVolume|//hasItem|//hasSoundUnit|//hasTrack|//containsTrack|//hasIntCompPart|//isOnPage|//contains";
-        Element element = Dom4jUtils.firstElementByXpath(relsExt.getRootElement(), xpathExpr);
-        if (element != null) {
+        List<Element> elms = Dom4jUtils.elementsByXpath(relsExt.getRootElement(), xpathExpr);
+        
+        List<String> collect = elms.stream().map(element-> {
             String resource = Dom4jUtils.stringOrNullFromAttributeByName(element, "resource");
             if (resource != null) {
                 return resource.substring("info:fedora/".length());
-            }
+            } else return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        
+        if (!collect.isEmpty()) {
+        	// 20 is maximum
+        	int min = Math.min(collect.size(), 20);
+        	List<String> testingList = collect.subList(0, min);
+        	List<String> existingPids = this.solrAccess.getExistingPids(testingList);
+        	if (!existingPids.isEmpty()) return existingPids.get(0);
+        	else return null;
         }
+        
         return null;
     }
 
@@ -1313,4 +1334,8 @@ public class ItemsResource extends ClientApiResource {
         return appUrl + "/api";
     }
 
+    
+    public static void main(String[] args) {
+		
+	}
 }
