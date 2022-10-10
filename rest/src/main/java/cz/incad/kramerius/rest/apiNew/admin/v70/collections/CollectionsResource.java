@@ -133,6 +133,46 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
+    @GET
+    @Path("/prefix")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCollectionsByPrefix(@QueryParam("rows") String rows,@QueryParam("page") String page, @QueryParam("prefix") String prefix) {
+        try {
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
+            // TODO: check if it is necessary
+            if (!permitCollectionRead(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid()) &&
+                    !permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_READ); //403
+            }
+
+            synchronized (CollectionsResource.class) {
+                Pair<Long,List<String>> pidsOfObjectsByModel = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection", prefix, Integer.parseInt(rows), Integer.parseInt(page));
+                JSONArray collections = new JSONArray();
+                for (String pid : pidsOfObjectsByModel.getSecond()) {
+                    try {
+                        Collection collection = fetchCollectionFromRepository(pid, false, false);
+                        collections.put(collection.toJson());
+                    } catch (RepositoryException e) {
+                        //ignoring broken collection and still returning other collections (instead of error response)
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+                JSONObject result = new JSONObject();
+                result.put("total_size", pidsOfObjectsByModel.getFirst());
+                result.put("collections", collections);
+                return Response.ok(result.toString()).build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+
+    }
+    
     /**
      * Returns all collections or collections that directly contain given item.
      *
@@ -144,9 +184,6 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCollections(@QueryParam("withItem") String itemPid) {
         try {
-            //authentication & authorization by external provider of identities & rights
-            //AuthenticatedUser user = getAuthenticatedUserByOauth();
-
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
@@ -161,6 +198,7 @@ public class CollectionsResource extends AdminApiResource {
                 if (itemPid != null) {
                     checkSupportedObjectPid(itemPid);
                     checkObjectExists(itemPid);
+                    //  not support rows and page
                     pids = krameriusRepositoryApi.getPidsOfCollectionsContainingItem(itemPid);
                 } else {
                     pids = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection");

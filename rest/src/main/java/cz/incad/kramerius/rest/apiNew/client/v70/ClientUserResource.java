@@ -218,28 +218,15 @@ public class ClientUserResource {
         try {
             if (rawdata.has("pids") && (rawdata.get("pids") instanceof JSONArray)) {
                 JSONArray jsonArray = rawdata.getJSONArray("pids");
-
                 user = this.userProvider.get();
-                
                 JSONObject retobject = new JSONObject();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     String pid = jsonArray.getString(i);
+
+                    SecuredActions[] values = actions(rawdata, pid);
                     
                     ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
                     user = this.userProvider.get();
-                    
-                    SecuredActions[] values = SecuredActions.values();
-                    if (!SpecialObjects.REPOSITORY.getPid().equals(pid)) {
-                        values = Arrays.stream(values).filter(it-> {
-                            return !it.isGlobalAction();
-                        }).toArray(SecuredActions[]::new);
-                    }
-
-                    values = Arrays.stream(values).filter(it-> {
-                        String formalName = it.getFormalName();
-                        return formalName.startsWith("a_");
-                    }).toArray(SecuredActions[]::new);
-
 
                     Set<String> set = actionsForPid(pid, pidPaths, values);
                     JSONArray retArray = new JSONArray();
@@ -260,6 +247,35 @@ public class ClientUserResource {
             throw new GenericApplicationException(e.getMessage());
         }
         
+    }
+
+    private SecuredActions[] actions(JSONObject rawdata, String pid) {
+        SecuredActions[] values = SecuredActions.values();
+        if (!SpecialObjects.REPOSITORY.getPid().equals(pid)) {
+            values = Arrays.stream(values).filter(it-> {
+                return !it.isGlobalAction();
+            }).toArray(SecuredActions[]::new);
+        }
+
+        values = Arrays.stream(values).filter(it-> {
+            String formalName = it.getFormalName();
+            return formalName.startsWith("a_");
+        }).toArray(SecuredActions[]::new);
+
+        
+        if (rawdata.has("actions")) {
+
+            JSONArray actionsArray = rawdata.getJSONArray("actions");
+            List<String> splitted = new ArrayList<>();
+            for (int i = 0; i < actionsArray.length(); i++) { splitted.add(actionsArray.getString(i)); }
+            
+            values = Arrays.stream(values).filter(it-> {
+                String formalName = it.getFormalName();
+                return splitted.contains(formalName);
+            }).toArray(SecuredActions[]::new);
+
+        }
+        return values;
     }
 
     @POST

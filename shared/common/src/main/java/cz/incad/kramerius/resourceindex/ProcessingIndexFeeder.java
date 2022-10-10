@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -131,6 +132,32 @@ public class ProcessingIndexFeeder {
         iterateProcessingWithSort(query, "dc.title", SolrQuery.ORDER.asc, action);
     }
 
+
+    public Pair<Long, List<SolrDocument>> getPageSortedByTitle(String query, int rows, int pageIndex, List<String> fieldList) throws IOException, SolrServerException {
+        List<SolrDocument> docs = new ArrayList<>();
+        SolrQuery solrQuery = new SolrQuery(query);
+
+        int offset = pageIndex*rows;
+        solrQuery.setStart(offset).setRows(rows);
+        solrQuery.setSort("dc.title", SolrQuery.ORDER.asc);
+        
+        if (fieldList != null &&  !fieldList.isEmpty()) {
+            String[] fl = fieldList.toArray(new String[fieldList.size()]);
+            solrQuery.setFields(fl);
+        }
+        QueryResponse response = this.solrClient.query(solrQuery);
+        long numFound = response.getResults().getNumFound();
+        response.getResults().forEach((doc) -> {
+            docs.add(doc);
+        });
+        return Pair.of(numFound, docs);
+    }
+
+    public Pair<Long, List<SolrDocument>> getPageSortedByTitle(String query, int rows, int offset) throws IOException, SolrServerException {
+        return getPageSortedByTitle(query, rows, offset, new ArrayList<>());
+    }
+
+    
     private void iterateProcessingWithSort(String query, String sortField, SolrQuery.ORDER order, Consumer<SolrDocument> action) throws IOException, SolrServerException {
         ///String query = "*:*";
         SolrQuery solrQuery = new SolrQuery(query);

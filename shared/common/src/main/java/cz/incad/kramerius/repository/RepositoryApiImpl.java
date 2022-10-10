@@ -11,9 +11,11 @@ import cz.incad.kramerius.fedora.om.impl.AkubraRepository;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocument;
 import org.dom4j.*;
 import org.ehcache.CacheManager;
 
@@ -26,9 +28,11 @@ import java.io.StringReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RepositoryApiImpl implements RepositoryApi {
 
@@ -188,6 +192,40 @@ public class RepositoryApiImpl implements RepositoryApi {
             }
         });
         return pids;
+    }
+
+    
+
+    
+
+    @Override
+    public Pair<Long, List<String>> getPidsOfObjectsByModel(String model, int rows, int pageIndex) throws RepositoryException, IOException, SolrServerException {
+        String query = String.format("type:description AND model:%s", "model\\:" + model); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze  uprime zbytecne
+        org.apache.commons.lang3.tuple.Pair<Long, List<SolrDocument>> cp = akubraRepository.getProcessingIndexFeeder().getPageSortedByTitle(query, rows, pageIndex, Arrays.asList("source"));
+        Long numberOfRecords = cp.getLeft();
+        List<String> pids = cp.getRight().stream().map(sd-> {
+            Object fieldValue = sd.getFieldValue("source");
+            return fieldValue.toString();
+        }).collect(Collectors.toList());
+        return new Pair<>(numberOfRecords, pids);
+    }
+    
+    
+
+    //TODO : Should be replaced by pairs
+    @Override
+    public Pair<Long, List<String>> getPidsOfObjectsByModel(String model, String titlePrefix, int rows, int pageIndex) throws RepositoryException, IOException, SolrServerException {
+        String query = String.format("type:description AND model:%s", "model\\:" + model);
+        if (StringUtils.isAnyString(titlePrefix)) {
+            query = String.format("type:description AND model:%s AND dc.title_edge:%s", "model\\:" + model, titlePrefix); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze  uprime zbytecne
+        }
+        org.apache.commons.lang3.tuple.Pair<Long, List<SolrDocument>> cp = akubraRepository.getProcessingIndexFeeder().getPageSortedByTitle(query, rows, pageIndex, Arrays.asList("source"));
+        Long numberOfRecords = cp.getLeft();
+        List<String> pids = cp.getRight().stream().map(sd-> {
+            Object fieldValue = sd.getFieldValue("source");
+            return fieldValue.toString();
+        }).collect(Collectors.toList());
+        return new Pair<>(numberOfRecords, pids);
     }
 
     @Override

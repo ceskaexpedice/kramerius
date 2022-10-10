@@ -27,6 +27,7 @@ import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -253,14 +254,19 @@ public class AkubraObject implements RepositoryObject {
     public void processRELSEXTRelationAndFeedProcessingIndex(String object, String localName) throws RepositoryException {
         if (localName.equals("hasModel")) {
             try {
-
-                if (this.streamExists(FedoraUtils.DC_STREAM)) {
-
+                boolean dcStreamExists = this.streamExists(FedoraUtils.DC_STREAM);
+                // TODO: Biblio mods ukladat jinam ?? 
+                boolean modsStreamExists = this.streamExists(FedoraUtils.BIBLIO_MODS_STREAM);
+                if (dcStreamExists || modsStreamExists ) {
                     try {
-                        InputStream stream = this.getStream(FedoraUtils.DC_STREAM).getContent();
-                        Element title = XMLUtils.findElement(XMLUtils.parseDocument(stream, true).getDocumentElement(), "title", FedoraNamespaces.DC_NAMESPACE_URI);
-                        if (title != null) {
-                            this.indexDescription(object, title.getTextContent());
+                        List<String> titles = new ArrayList<>();
+                        if (dcStreamExists) {
+                            titles = dcTitle();
+                        } else {
+                            titles = modsTitle();
+                        }
+                        if (titles != null && !titles.isEmpty()) {
+                            this.indexDescription(object, titles.stream().collect(Collectors.joining(" ")));
                         } else {
                             this.indexDescription(object, "");
                         }
@@ -290,6 +296,36 @@ public class AkubraObject implements RepositoryObject {
         }
     }
 
+
+    private List<String> dcTitle() throws RepositoryException, ParserConfigurationException, SAXException, IOException {
+        InputStream stream = this.getStream(FedoraUtils.DC_STREAM).getContent();
+        Element title = XMLUtils.findElement(XMLUtils.parseDocument(stream, true).getDocumentElement(), "title", FedoraNamespaces.DC_NAMESPACE_URI);
+        return Arrays.asList(title.getTextContent());
+    }
+
+    private List<String> modsTitle() throws RepositoryException, ParserConfigurationException, SAXException, IOException {
+        InputStream stream = this.getStream(FedoraUtils.BIBLIO_MODS_STREAM).getContent();
+        Element docElement = XMLUtils.parseDocument(stream, true).getDocumentElement();
+
+        List<Element> elements = XMLUtils.getElementsRecursive(docElement, new XMLUtils.ElementsFilter() {
+            
+            @Override
+            public boolean acceptElement(Element element) {
+                if (element.getNamespaceURI().equals(FedoraNamespaces.BIBILO_MODS_URI)) {
+                    if (element.getLocalName().equals("title")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+        
+        
+        return  elements.stream().map(Element::getTextContent).collect(Collectors.toList());
+        
+    }
+
+    
     private void indexRelation(String localName, String object) throws IOException, SolrServerException {
         this.feeder.feedRelationDocument(this.getPid(), localName, object);
     }
