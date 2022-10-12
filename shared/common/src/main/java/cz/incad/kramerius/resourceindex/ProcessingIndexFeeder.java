@@ -27,6 +27,10 @@ import java.util.logging.Logger;
  * @author pstastny
  */
 public class ProcessingIndexFeeder {
+    
+    public static enum TitleType {
+        dc,mods;
+    }
 
     public static final String DEFAULT_ITERATE_QUERY = "*:*";
 
@@ -44,7 +48,22 @@ public class ProcessingIndexFeeder {
 
     }
 
-
+    public UpdateResponse feedDescriptionDocument(String sourcePid, String model, String title, String ref, Date date, TitleType ttype) throws IOException, SolrServerException {
+        SolrInputDocument sdoc = new SolrInputDocument();
+        sdoc.addField("source", sourcePid);
+        sdoc.addField("type", TYPE_DESC);
+        sdoc.addField("model", model);
+        if (ttype.equals(TitleType.mods)) {
+            sdoc.addField("mods.title", title);
+        } else {
+            sdoc.addField("dc.title", title);
+        }
+        sdoc.addField("ref", ref);
+        sdoc.addField("date", date);
+        sdoc.addField("pid", TYPE_DESC + "|" + sourcePid);
+        return feedDescriptionDocument(sdoc);
+    }
+    
     public UpdateResponse feedDescriptionDocument(String sourcePid, String model, String title, String ref, Date date) throws IOException, SolrServerException {
         SolrInputDocument sdoc = new SolrInputDocument();
         sdoc.addField("source", sourcePid);
@@ -129,6 +148,7 @@ public class ProcessingIndexFeeder {
      * This iteration is convenient, if you want to show data at least somehow sorted
      */
     public void iterateProcessingSortedByTitle(String query, Consumer<SolrDocument> action) throws IOException, SolrServerException {
+        // TODO: Change sorting
         iterateProcessingWithSort(query, "dc.title", SolrQuery.ORDER.asc, action);
     }
 
@@ -139,7 +159,7 @@ public class ProcessingIndexFeeder {
 
         int offset = pageIndex*rows;
         solrQuery.setStart(offset).setRows(rows);
-        solrQuery.setSort("dc.title", SolrQuery.ORDER.asc);
+        solrQuery.setSort("title", SolrQuery.ORDER.asc);
         
         if (fieldList != null &&  !fieldList.isEmpty()) {
             String[] fl = fieldList.toArray(new String[fieldList.size()]);

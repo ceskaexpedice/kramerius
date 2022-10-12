@@ -34,11 +34,18 @@
 
   <fieldType name="text_general_edge_ngram" class="solr.TextField" positionIncrementGap="100">
    <analyzer type="index">
-      <tokenizer class="solr.LowerCaseTokenizerFactory"/>
-      <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="7"/>
+	  <tokenizer class="solr.WhitespaceTokenizerFactory" rule="java" />
+	  <filter class="solr.LowerCaseFilterFactory"/>
+          <filter class="solr.ASCIIFoldingFilterFactory" preserveOriginal="false" />
+
+      <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="17"/>
    </analyzer>
    <analyzer type="query">
-      <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+     <tokenizer class="solr.WhitespaceTokenizerFactory"  />
+     <filter class="solr.LowerCaseFilterFactory"/>
+     <filter class="solr.ASCIIFoldingFilterFactory" preserveOriginal="false" />
+
+
    </analyzer>
   </fieldType>
 
@@ -93,11 +100,18 @@
   <fieldType name="tlongs" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"/>
   <field name="_root_" type="string" docValues="false" indexed="true" stored="false"/>
   <field name="_version_" type="long" indexed="true" stored="true"/>
-  
-  <field name="dc.title" type="string" indexed="true" stored="true"/>
-  <field name="dc.title_edge" type="text_general_edge_ngram" indexed="true" stored="false"/>
-  <field name="dc.title_czech" type="text_cz" indexed="true" stored="false"/>
 
+  <!-- TODO: Nahradit mods --> 	
+  <field name="dc.title" type="string" indexed="true" stored="true" />
+  <field name="dc.title_edge" type="text_general_edge_ngram" indexed="true" stored="false" />
+  <field name="dc.title_czech" type="text_cz" indexed="true" stored="false" />
+
+  <!-- TODO: Jazykove varianty --> 	
+  <field name="mods.title" type="string" indexed="true" stored="true" />
+  <field name="mods.title_edge" type="text_general_edge_ngram" indexed="true" stored="false" />
+
+  <field name="title" type="string" indexed="true" stored="true" />
+  <field name="title_edge" type="text_general_edge_ngram" indexed="true" stored="false" />
 
 
   <field name="model" type="string" indexed="true" stored="true"/>
@@ -117,9 +131,19 @@
   <field name="ref" type="string" indexed="true" stored="true"/>
   <field name="date" type="date" indexed="true" stored="true" />
   
-
+  <!-- Prijde vyhodit --> 	
+  <!-- Deprecated --> 
   <copyField source="dc.title" dest="dc.title_edge" />
   <copyField source="dc.title" dest="dc.title_czech" />
+ 
+
+  <copyField source="dc.title" dest="title" />
+  <copyField source="dc.title" dest="title_edge" />
+
+  <copyField source="mods.title" dest="title" />
+  <copyField source="mods.title" dest="title_edge" />
+
+
 
   <copyField source="source" dest="source_edge" />
   <copyField source="ref" dest="ref_path" />

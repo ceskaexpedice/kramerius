@@ -217,7 +217,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     public Pair<Long, List<String>> getPidsOfObjectsByModel(String model, String titlePrefix, int rows, int pageIndex) throws RepositoryException, IOException, SolrServerException {
         String query = String.format("type:description AND model:%s", "model\\:" + model);
         if (StringUtils.isAnyString(titlePrefix)) {
-            query = String.format("type:description AND model:%s AND dc.title_edge:%s", "model\\:" + model, titlePrefix); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze  uprime zbytecne
+            query = String.format("type:description AND model:%s AND title_edge:%s", "model\\:" + model, titlePrefix); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze  uprime zbytecne
         }
         org.apache.commons.lang3.tuple.Pair<Long, List<SolrDocument>> cp = akubraRepository.getProcessingIndexFeeder().getPageSortedByTitle(query, rows, pageIndex, Arrays.asList("source"));
         Long numberOfRecords = cp.getLeft();

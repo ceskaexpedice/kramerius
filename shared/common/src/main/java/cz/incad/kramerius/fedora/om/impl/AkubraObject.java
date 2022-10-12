@@ -259,16 +259,21 @@ public class AkubraObject implements RepositoryObject {
                 boolean modsStreamExists = this.streamExists(FedoraUtils.BIBLIO_MODS_STREAM);
                 if (dcStreamExists || modsStreamExists ) {
                     try {
-                        List<String> titles = new ArrayList<>();
                         if (dcStreamExists) {
-                            titles = dcTitle();
-                        } else {
-                            titles = modsTitle();
-                        }
-                        if (titles != null && !titles.isEmpty()) {
-                            this.indexDescription(object, titles.stream().collect(Collectors.joining(" ")));
-                        } else {
-                            this.indexDescription(object, "");
+                            List<String> dcTList = dcTitle();
+                            if (dcTList != null && !dcTList.isEmpty()) {
+                                this.indexDescription(object, dcTList.stream().collect(Collectors.joining(" ")));
+                            } else {
+                                this.indexDescription(object, "");
+                            }
+                        } else if (modsStreamExists) {
+                            // czech title or default
+                            List<String> modsTList = modsTitle("cze");
+                            if (modsTList != null && !modsTList.isEmpty()) {
+                                this.indexDescription(object, modsTList.stream().collect(Collectors.joining(" ")), ProcessingIndexFeeder.TitleType.mods);
+                            } else {
+                                this.indexDescription(object, "");
+                            }
                         }
                     } catch (ParserConfigurationException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -300,19 +305,18 @@ public class AkubraObject implements RepositoryObject {
     private List<String> dcTitle() throws RepositoryException, ParserConfigurationException, SAXException, IOException {
         InputStream stream = this.getStream(FedoraUtils.DC_STREAM).getContent();
         Element title = XMLUtils.findElement(XMLUtils.parseDocument(stream, true).getDocumentElement(), "title", FedoraNamespaces.DC_NAMESPACE_URI);
-        return Arrays.asList(title.getTextContent());
+        return title != null ? Arrays.asList(title.getTextContent()) : new ArrayList<>();
     }
 
-    private List<String> modsTitle() throws RepositoryException, ParserConfigurationException, SAXException, IOException {
+    private List<String> modsTitle(String lang) throws RepositoryException, ParserConfigurationException, SAXException, IOException {
         InputStream stream = this.getStream(FedoraUtils.BIBLIO_MODS_STREAM).getContent();
         Element docElement = XMLUtils.parseDocument(stream, true).getDocumentElement();
 
         List<Element> elements = XMLUtils.getElementsRecursive(docElement, new XMLUtils.ElementsFilter() {
-            
             @Override
             public boolean acceptElement(Element element) {
                 if (element.getNamespaceURI().equals(FedoraNamespaces.BIBILO_MODS_URI)) {
-                    if (element.getLocalName().equals("title")) {
+                    if (element.getLocalName().equals("title") && element.hasAttribute("lang") && element.getAttribute("lang").equals("cze")) {
                         return true;
                     }
                 }
@@ -320,6 +324,22 @@ public class AkubraObject implements RepositoryObject {
             }
         });
         
+        
+        if (elements.isEmpty()) {
+            elements = XMLUtils.getElementsRecursive(docElement, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    if (element.getNamespaceURI().equals(FedoraNamespaces.BIBILO_MODS_URI)) {
+                        // TODO: Change it  
+                        if (element.getLocalName().equals("title")) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+            
+        }
         
         return  elements.stream().map(Element::getTextContent).collect(Collectors.toList());
         
@@ -330,8 +350,12 @@ public class AkubraObject implements RepositoryObject {
         this.feeder.feedRelationDocument(this.getPid(), localName, object);
     }
 
-    private void indexDescription(String model, String dctitle) throws IOException, SolrServerException {
-        this.feeder.feedDescriptionDocument(this.getPid(), model, dctitle.trim(), AkubraUtils.getAkubraInternalId(this.getPid()), new Date());
+    private void indexDescription(String model, String title, ProcessingIndexFeeder.TitleType ttype) throws IOException, SolrServerException {
+        this.feeder.feedDescriptionDocument(this.getPid(), model, title.trim(), AkubraUtils.getAkubraInternalId(this.getPid()), new Date(), ttype);
+    }
+
+    private void indexDescription(String model, String title) throws IOException, SolrServerException {
+        this.feeder.feedDescriptionDocument(this.getPid(), model, title.trim(), AkubraUtils.getAkubraInternalId(this.getPid()), new Date());
     }
 
     public void deleteProcessingIndex() throws IOException, SolrServerException {

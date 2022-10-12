@@ -146,25 +146,23 @@ public class CollectionsResource extends AdminApiResource {
                     !permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_READ); //403
             }
-
-            synchronized (CollectionsResource.class) {
-                Pair<Long,List<String>> pidsOfObjectsByModel = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection", prefix, Integer.parseInt(rows), Integer.parseInt(page));
-                JSONArray collections = new JSONArray();
-                for (String pid : pidsOfObjectsByModel.getSecond()) {
-                    try {
-                        Collection collection = fetchCollectionFromRepository(pid, false, false);
-                        collections.put(collection.toJson());
-                    } catch (RepositoryException e) {
-                        //ignoring broken collection and still returning other collections (instead of error response)
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    }
+            
+            Pair<Long,List<String>> pidsOfObjectsByModel = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection", prefix, Integer.parseInt(rows), Integer.parseInt(page));
+            JSONArray collections = new JSONArray();
+            for (String pid : pidsOfObjectsByModel.getSecond()) {
+                try {
+                    Collection collection = fetchCollectionFromRepository(pid, false, false);
+                    collections.put(collection.toJson());
+                } catch (RepositoryException e) {
+                    //ignoring broken collection and still returning other collections (instead of error response)
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
-                JSONObject result = new JSONObject();
-                result.put("total_size", pidsOfObjectsByModel.getFirst());
-                result.put("collections", collections);
-                return Response.ok(result.toString()).build();
             }
-        } catch (WebApplicationException e) {
+            JSONObject result = new JSONObject();
+            result.put("total_size", pidsOfObjectsByModel.getFirst());
+            result.put("collections", collections);
+            return Response.ok(result.toString()).build();
+    } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

@@ -122,13 +122,17 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
         keycloack3rdUser.setRoles(new ArrayList<>(roleSet));
 
         AccessToken token = ((KeycloakPrincipal<KeycloakSecurityContext>) req.getUserPrincipal()).getKeycloakSecurityContext().getToken();
-
+        
+        
         keycloack3rdUser.setProperty(UserUtils.FIRST_NAME_KEY, token.getGivenName());
         keycloack3rdUser.setProperty(UserUtils.LAST_NAME_KEY, token.getFamilyName());
         keycloack3rdUser.setProperty(UserUtils.EMAIL_KEY, token.getEmail());
-        
+        keycloack3rdUser.setProperty("expiration_time", ""+token.getExp());
+        keycloack3rdUser.setProperty("authentication_time", ""+token.getAuth_time());
         keycloack3rdUser.setProperty("preffered_user_name", token.getPreferredUsername());
-
+        keycloack3rdUser.setProperty("expires_in", ""+(token.getExp()-token.getAuth_time()));
+        
+        
         return keycloack3rdUser;
     }
 

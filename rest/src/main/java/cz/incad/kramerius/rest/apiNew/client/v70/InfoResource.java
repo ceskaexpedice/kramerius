@@ -45,6 +45,7 @@ public class InfoResource extends ClientApiResource {
             JSONObject json = new JSONObject();
             json.put("pdfMaxRange", getPdfMaxRange());
             json.put("version", getVersion());
+            json.put("hash", getHash());
             //TODO: tohle asi vyhodit, uz resime v ConfigResource
             if (langCode != null && LOCALES.containsKey(langCode)) {
                 json.put("rightMsg", getRightMsg(LOCALES.get(langCode)));
@@ -83,6 +84,17 @@ public class InfoResource extends ClientApiResource {
         }
     }
 
+    private String getHash() throws IOException {
+        Properties buildProperties = new Properties();
+        InputStream revisions = this.getClass().getClassLoader().getResourceAsStream("build.properties");
+        if (revisions != null) {
+            buildProperties.load(revisions);
+            return buildProperties.getProperty("hash");
+        } else {
+            LOGGER.warning("build.properties is not present");
+            return "";
+        }
+    }
     @Deprecated //TODO: replace with database (table CONFIG with columns KEY and VALUE)
     private String getRightMsg(Locale locale) throws IOException {
         String key = "rightMsg";
