@@ -3,6 +3,8 @@ package cz.incad.kramerius;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.name.Names;
+
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
@@ -14,6 +16,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.adapters.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -28,11 +31,15 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.xpath.XPathExpressionException;
 
 /**
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (delete_tree)
@@ -75,6 +82,9 @@ public class DeleteTreeProcess {
         );
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
         IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
@@ -85,13 +95,13 @@ public class DeleteTreeProcess {
             throw new RuntimeException(String.format("object %s not found in repository", pid));
         }
 
-        boolean noErrors = deleteTree(pid, true, repository, resourceIndex, indexerAccess, searchIndex);
+        boolean noErrors = deleteTree(pid, true, repository, resourceIndex, indexerAccess, searchIndex, fa);
         if (!noErrors) {
             throw new WarningException("failed to delete some objects");
         }
     }
 
-    private static boolean deleteTree(String pid, boolean deletionRoot, KrameriusRepositoryApi repository, IResourceIndex resourceIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex) throws ResourceIndexException, RepositoryException, IOException, SolrServerException {
+    public static boolean deleteTree(String pid, boolean deletionRoot, KrameriusRepositoryApi repository, IResourceIndex resourceIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex, FedoraAccess fa) throws ResourceIndexException, RepositoryException, IOException, SolrServerException {
         LOGGER.info(String.format("deleting own tree of %s", pid));
         boolean someProblem = false;
 
@@ -99,7 +109,7 @@ public class DeleteTreeProcess {
         Pair<List<String>, List<String>> pidsOfChildren = resourceIndex.getPidsOfChildren(pid);
         //1.a. smaz vlastni potomky
         for (String ownChild : pidsOfChildren.getFirst()) {
-            someProblem &= deleteTree(ownChild, false, repository, resourceIndex, indexerAccess, searchIndex);
+            someProblem &= deleteTree(ownChild, false, repository, resourceIndex, indexerAccess, searchIndex,fa);
         }
         //1.b. pokud jsem sbirka a mam nevlastni potomky, odeber celym jejich stromum nalezitost do sbirky (mne) ve vyhledavacim indexu
         String myModel = resourceIndex.getModel(pid);
@@ -125,7 +135,7 @@ public class DeleteTreeProcess {
         updateLicenseFlagsForAncestors(pid, repository, resourceIndex, indexerAccess);
 
         //4. smaz me z repozitare i vyhledavaciho indexu
-        deleteObject(pid, "collection".equals(myModel), repository, indexerAccess);
+        deleteObject(pid, "collection".equals(myModel), repository, indexerAccess, fa);
 
         return !someProblem;
     }
@@ -178,17 +188,47 @@ public class DeleteTreeProcess {
         }
     }
 
-    private static void deleteObject(String pid, boolean isCollection, KrameriusRepositoryApi repository, SolrIndexAccess indexerAccess) throws RepositoryException, IOException, SolrServerException {
+    private static void deleteObject(String pid, boolean isCollection, KrameriusRepositoryApi repository, SolrIndexAccess indexerAccess, FedoraAccess fa) throws RepositoryException, IOException, SolrServerException {
         LOGGER.info(String.format("deleting object %s", pid));
         LOGGER.info(String.format("deleting %s from repository", pid));
         if (!DRY_RUN) {
+
+            String tilesUrl = null;
+            try {
+                tilesUrl =  RelsExtHelper.getRelsExtTilesUrl(pid, fa);
+            } catch (XPathExpressionException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            }
+            
             repository.getLowLevelApi().deleteObject(pid, !isCollection); //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
+            if (tilesUrl != null) {
+                int indexOf = tilesUrl.indexOf("iipsrv.fcgi?Zoomify=");
+                if (indexOf > 0 && KConfiguration.getInstance().getConfiguration().getBoolean("delete.fromImageServer", false)) {
+                    String path = tilesUrl.substring(indexOf+"iipsrv.fcgi?Zoomify=".length());
+                    LOGGER.info(String.format("Deleting file %s",path)); 
+                    File f = new File(path);
+                    if (f.exists() && f.isFile()) {
+                        f.delete();
+                    }
+                    File parent = f.getParentFile();
+                    if (parent != null && parent.exists() && parent.isDirectory()) {
+                        if (parent.listFiles() == null && parent.listFiles().length == 0) {
+                            LOGGER.info(String.format("Deleting empty folder %s",parent.getAbsolutePath())); 
+                            parent.delete();
+                        }
+                    }
+                    
+                }
+            }
         }
         LOGGER.info(String.format("deleting %s from search index", pid));
         if (!DRY_RUN) {
             indexerAccess.deleteById(pid);
         }
     }
+
 
     private static void deleteRelationFromForsterParent(String pid, String fosterParentPid, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
         LOGGER.info(String.format("removing foster-parent relation %s -> %s", fosterParentPid, pid));
