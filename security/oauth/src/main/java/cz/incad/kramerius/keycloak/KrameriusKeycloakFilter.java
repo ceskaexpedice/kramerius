@@ -217,5 +217,6 @@ public class KrameriusKeycloakFilter implements Filter {
     public void destroy() {
 
     }
+    
 }
 

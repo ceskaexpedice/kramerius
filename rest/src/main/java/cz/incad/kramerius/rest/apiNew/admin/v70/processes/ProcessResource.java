@@ -877,12 +877,14 @@ public class ProcessResource extends AdminApiResource {
                 String convertedDataDirSuffix = new SimpleDateFormat("yyMMdd_HHmmss_SSS").format(System.currentTimeMillis());
                 File convertedDataDir = new File(new File(KConfiguration.getInstance().getProperty("convert.target.directory")), inputDataDir.getName() + "_" + convertedDataDirSuffix);
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
+                Boolean useIIPServer = extractMandatoryParamBoolean(params, "useIIPServer");
 
                 List<String> result = new ArrayList<>();
                 result.add(policy);
                 result.add(inputDataDir.getPath());
                 result.add(convertedDataDir.getPath());
                 result.add(startIndexer.toString());
+                result.add(useIIPServer.toString());
                 consumer.accept(false);
                 return result;
             }

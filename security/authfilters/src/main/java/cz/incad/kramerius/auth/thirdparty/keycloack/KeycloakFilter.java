@@ -13,7 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.logging.Level;
 
-public class KeycloackFilter extends ExtAuthFilter {
+public class KeycloakFilter extends ExtAuthFilter {
 
     @Inject
     UserManager userManager;
@@ -21,7 +21,7 @@ public class KeycloackFilter extends ExtAuthFilter {
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;
 
-    private KeycloackUserSupport keycloackUserSupport;
+    private KeycloakUserSupport keycloackUserSupport;
 
     @Override
     protected ThirdPartyUsersSupport getThirdPartyUsersSupport() {
@@ -47,7 +47,7 @@ public class KeycloackFilter extends ExtAuthFilter {
     public void init(FilterConfig filterConfig) throws ServletException {
         Injector injector = getInjector(filterConfig);
         injector.injectMembers(this);
-        this.keycloackUserSupport = new KeycloackUserSupport();
+        this.keycloackUserSupport = new KeycloakUserSupport();
         this.keycloackUserSupport.setUserManager(this.userManager);
         this.keycloackUserSupport.setLoggedUsersSingleton(this.loggedUsersSingleton);
 

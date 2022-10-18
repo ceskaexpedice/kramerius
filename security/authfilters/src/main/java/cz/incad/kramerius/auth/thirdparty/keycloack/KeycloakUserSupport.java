@@ -29,16 +29,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloack3rdUser> {
+public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak3rdUser> {
 
-    public static final Logger LOGGER = Logger.getLogger(KeycloackUserSupport.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(KeycloakUserSupport.class.getName());
 
 
 
 
 
     @Override
-    protected String updateExistingUser(String userName, Keycloack3rdUser kUser) throws Exception {
+    protected String updateExistingUser(String userName, Keycloak3rdUser kUser) throws Exception {
         User u = this.usersManager.findUserByLoginName(userName);
 
         UserUtils.associateGroups(u, this.usersManager);
@@ -51,13 +51,6 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
         List<String> fromDb = Arrays.stream(groups).map(Role::getName).collect(Collectors.toList());
         List<String> fromKeycloack = checkRolesExists(kUser).stream().map(Role::getName).collect(Collectors.toList());
 
-// check if change is neeeded
-//        int max = Math.min(fromDb.size(), fromKeycloack.size());
-//        for(int i=0;i<max;i++) {
-//            fromDb.remove(fromKeycloack.remove(0));
-//        }
-
-        
         if (!fromKeycloack.isEmpty()) {
             this.usersManager.changeRoles(u, kUser.getRoles());
         }
@@ -72,7 +65,7 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
     }
 
     @Override
-    protected String createNewUser(String user, Keycloack3rdUser w) throws Exception {
+    protected String createNewUser(String user, Keycloak3rdUser w) throws Exception {
         User u = new UserImpl(-1,
                 w.getProperty(UserUtils.FIRST_NAME_KEY) !=  null ? w.getProperty(UserUtils.FIRST_NAME_KEY) : "" ,
                 w.getProperty(UserUtils.LAST_NAME_KEY) != null ? w.getProperty(UserUtils.FIRST_NAME_KEY) : "",
@@ -91,7 +84,7 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
         return password;
     }
 
-    private List<Role> checkRolesExists(Keycloack3rdUser w) {
+    private List<Role> checkRolesExists(Keycloak3rdUser w) {
         List<String> roleString = w.getRoles();
         List<Role> roles = new ArrayList<>();
         roleString.stream().forEach(r-> {
@@ -112,17 +105,16 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
     }
 
     @Override
-    protected Keycloack3rdUser createUserWrapper(HttpServletRequest req, String userName) throws Exception {
+    protected Keycloak3rdUser createUserWrapper(HttpServletRequest req, String userName) throws Exception {
         String name = req.getUserPrincipal().getName();
         // keyclocak introspection
         KeycloakAccount kAcc = (KeycloakAccount) req.getAttribute(KeycloakAccount.class.getName());
         Set<String> roleSet = kAcc.getRoles();
 
-        Keycloack3rdUser keycloack3rdUser = new Keycloack3rdUser(calculateUserName(req));
+        Keycloak3rdUser keycloack3rdUser = new Keycloak3rdUser(calculateUserName(req));
         keycloack3rdUser.setRoles(new ArrayList<>(roleSet));
 
         AccessToken token = ((KeycloakPrincipal<KeycloakSecurityContext>) req.getUserPrincipal()).getKeycloakSecurityContext().getToken();
-        
         
         keycloack3rdUser.setProperty(UserUtils.FIRST_NAME_KEY, token.getGivenName());
         keycloack3rdUser.setProperty(UserUtils.LAST_NAME_KEY, token.getFamilyName());

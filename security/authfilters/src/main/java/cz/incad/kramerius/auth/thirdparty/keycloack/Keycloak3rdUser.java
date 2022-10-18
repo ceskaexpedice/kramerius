@@ -11,16 +11,16 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class Keycloack3rdUser extends AbstractThirdPartyUser {
+public class Keycloak3rdUser extends AbstractThirdPartyUser {
     
-    public static final Logger LOGGER = Logger.getLogger(Keycloack3rdUser.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(Keycloak3rdUser.class.getName());
     
     private String hash;
 
     private Map<String,String> sessionAttributes = new HashMap<>();
     private List<String> roles = new ArrayList<>();
 
-    public Keycloack3rdUser(String h) {
+    public Keycloak3rdUser(String h) {
         this.hash = h;
     }
 

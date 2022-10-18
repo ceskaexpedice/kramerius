@@ -59,6 +59,8 @@ public class MetsConvertor {
      * args[2] - import dir, optional
      * args[3] - export dir, optional
      * args[4] - start indexer, optional
+     * args[5] - use image server, optional
+     * 
      */
     public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, RepositoryException, SolrServerException {
         /*for (int i = 0; i < args.length; i++) {
@@ -88,6 +90,15 @@ public class MetsConvertor {
             String importRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.directory");
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
             boolean startIndexer = Boolean.valueOf(args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
+
+            
+            if (args.length > argsIndex) {
+                String arg = args[argsIndex++] ;
+
+                System.setProperty("convert.useImageServer", arg );
+                log.info(String.format("convert.useImageServer %s", arg));
+            }
+            
             ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
             new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken);
         }

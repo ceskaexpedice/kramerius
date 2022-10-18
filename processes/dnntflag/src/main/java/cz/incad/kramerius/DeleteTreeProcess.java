@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import com.qbizm.kramerius.imptool.poc.valueobj.RelsExt;
 
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
@@ -16,7 +17,9 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import cz.incad.kramerius.utils.PathEncoder;
 import cz.incad.kramerius.utils.RelsExtHelper;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.adapters.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -32,12 +35,19 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -204,28 +214,55 @@ public class DeleteTreeProcess {
             
             repository.getLowLevelApi().deleteObject(pid, !isCollection); //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
             if (tilesUrl != null) {
-                int indexOf = tilesUrl.indexOf("iipsrv.fcgi?Zoomify=");
-                if (indexOf > 0 && KConfiguration.getInstance().getConfiguration().getBoolean("delete.fromImageServer", false)) {
-                    String path = tilesUrl.substring(indexOf+"iipsrv.fcgi?Zoomify=".length());
-                    LOGGER.info(String.format("Deleting file %s",path)); 
-                    File f = new File(path);
-                    if (f.exists() && f.isFile()) {
-                        f.delete();
-                    }
-                    File parent = f.getParentFile();
-                    if (parent != null && parent.exists() && parent.isDirectory()) {
-                        if (parent.listFiles() == null && parent.listFiles().length == 0) {
-                            LOGGER.info(String.format("Deleting empty folder %s",parent.getAbsolutePath())); 
-                            parent.delete();
-                        }
-                    }
-                    
+                boolean deleteFromImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("delete.fromImageServer", false);
+                String imageDir = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory");
+                String serverTilesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerTilesURLPrefix");
+                if (deleteFromImageServer) {
+                    deleteFileFromIIP(tilesUrl, serverTilesPrefix, imageDir);
                 }
             }
         }
         LOGGER.info(String.format("deleting %s from search index", pid));
         if (!DRY_RUN) {
             indexerAccess.deleteById(pid);
+        }
+    }
+
+    public static void deleteFileFromIIP(String tilesUrl, String imageTilesUrlPrefix, String imageDir) throws MalformedURLException {
+        int indexOf = tilesUrl.indexOf(imageTilesUrlPrefix);
+        if (indexOf >= 0) {
+            String endPath = tilesUrl.substring(indexOf+imageTilesUrlPrefix.length());
+            
+            List<File> filesToDelete = new ArrayList<>();
+            File realPath = new File(new File(imageDir), endPath);
+            String compareName = realPath.getName().contains(".") ? realPath.getName().substring(0,realPath.getName().indexOf(".")) : realPath.getName();
+            File parentFile = realPath.getParentFile();
+            File[] listFiles = parentFile.listFiles(new FileFilter() {
+              @Override
+              public boolean accept(File pathname) {
+                  String name = pathname.getName();
+                  return (name.contains(compareName));
+              }
+            });
+  
+            if (listFiles != null) {
+                Arrays.asList(listFiles).forEach(filesToDelete::add);
+            }
+  
+            File[] filesArray = filesToDelete.toArray(new File[filesToDelete.size()]);
+            for (int i = 0,ll=filesArray.length; i < ll; i++) {
+                File deletingFile = filesArray[i];
+                if (deletingFile.exists() && deletingFile.isFile()) {
+                    File parentFolder = deletingFile.getParentFile();
+                    if (parentFile.listFiles() != null && parentFile.listFiles().length == 1) {
+                        filesToDelete.add(parentFolder);
+                    }
+                }
+            }
+            LOGGER.info("Deleting files: "+filesToDelete.stream().map(File::getAbsolutePath).collect(Collectors.joining(", ")));
+            if (!filesToDelete.isEmpty()) {
+                filesToDelete.forEach(File::delete);
+            }
         }
     }
 

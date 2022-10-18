@@ -3,6 +3,7 @@ package com.qbizm.kramerius.imptool.poc;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.monograph.Monograph;
 import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
+import com.qbizm.kramerius.imptool.poc.convertor.BaseConvertor;
 import com.qbizm.kramerius.imptool.poc.convertor.MonographConvertor;
 import com.qbizm.kramerius.imptool.poc.convertor.PeriodicalConvertor;
 import com.qbizm.kramerius.imptool.poc.valueobj.ConvertorConfig;
@@ -77,7 +78,7 @@ public class Main {
         if (useDB){
             initDB();
         }
-        boolean useImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
+        boolean useImageServer =  BaseConvertor.useImageServer();
         if (useImageServer){
             IOUtils.checkDirectory(KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory"));
         }
