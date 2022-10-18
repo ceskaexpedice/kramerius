@@ -357,6 +357,8 @@ public class ProcessManagerImplDb implements ProcessManager {
             throw new NotReadyException("connection not ready");
         }
         try {
+            
+            
             PreparedStatement prepareStatement = connection.prepareStatement("DELETE FROM processes WHERE token = ?");
             prepareStatement.setString(1, batchToken);
             int deleted = prepareStatement.executeUpdate();

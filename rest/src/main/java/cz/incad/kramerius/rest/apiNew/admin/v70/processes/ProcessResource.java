@@ -11,9 +11,12 @@ import cz.incad.kramerius.rest.apiNew.admin.v70.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
+
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -430,13 +433,29 @@ public class ProcessResource extends AdminApiResource {
             if (!isDeletableState(batchState)) {
                 throw new BadRequestException("batch in state %s cannot be deleted", batchState);
             }
+
+            // delete folders
+            List<LRProcess> lrs = this.lrProcessManager.getLongRunningProcessesByGroupToken(batch.token);
+            
+
             //delete processes in batch
             int deleted = this.processManager.deleteBatchByBatchToken(batch.token);
-            //return
+                
+            if (deleted == lrs.size()) {
+                List<File> folders = lrs.stream().map(LRProcess::processWorkingDirectory).collect(Collectors.toList());
+                folders.stream().forEach(f-> {
+                    IOUtils.cleanDirectory(f);
+                    f.delete();
+                });
+            } else {
+                LOGGER.log(Level.INFO, "Cannot delete directory for processes "+batch.token);
+            }
+
             JSONObject result = new JSONObject();
             result.put("batch_id", batch.firstProcessId);
             result.put("batch_token", batch.token);
             result.put("processes_deleted", deleted);
+
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
