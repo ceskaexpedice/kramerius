@@ -8,11 +8,9 @@
 name: Java CI with Gradle
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
+  schedule:
+   - cron: '00 16 * * 1,2,3,4'
+    
 permissions:
   contents: read
 
@@ -32,3 +30,7 @@ jobs:
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
         arguments: build
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Package
+        path: search/build/libs
