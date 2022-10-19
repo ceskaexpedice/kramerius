@@ -164,9 +164,10 @@ allprojects {
             url "https://download.osgeo.org/webdav/geotools/"
         }
 
+		/*
         maven {
             url "https://repo.jfrog.org/artifactory/libs-releases/"
-        }
+        }*/
 
         /*
         maven {
