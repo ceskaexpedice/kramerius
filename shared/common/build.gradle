@@ -73,7 +73,7 @@ dependencies {
     api "xmlunit:xmlunit:1.3"
 
     testImplementation 'org.hamcrest:hamcrest-core:1.3'
-    testImplementation 'org.apache.solr:solr-core:6.3.0'
+    //testImplementation 'org.apache.solr:solr-core:6.3.0'
     
     //akubra storage
     api 'org.akubraproject:akubra-core:0.4.0'
