@@ -6,12 +6,19 @@ dependencies {
     api project(':shared:common')
     api project(':security:security-core')
 
-    testImplementation('org.apache.solr:solr-core:6.6.6')
+    testImplementation('org.apache.solr:solr-core:6.6.6') {
+		exclude group: 'org.restlet.jee'
+	}
+
+    testImplementation group:'internal', name:"org.restlet-2.3.0"
+
+
 }
 
 
 configurations {
     all*.exclude group: 'org.ow2.asm'
+	
 }
 
 
