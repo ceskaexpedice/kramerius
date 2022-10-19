@@ -923,16 +923,31 @@ public class ProcessResource extends AdminApiResource {
                 } else {
                     throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist, pidlist_file");
                 }
-
-                try {
-                    ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
-                    User user = this.userProvider.get();
-                    LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
-                    boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
-                    consumer.accept(permit);
-                } catch (IOException e) {
-                    consumer.accept(false);
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                
+                if (pid != null) {
+                    try {
+                        ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                        User user = this.userProvider.get();
+                        LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
+                        boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
+                        consumer.accept(permit);
+                    } catch (IOException e) {
+                        consumer.accept(false);
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+                } else {
+                    pidlist.forEach(p-> {
+                        try {
+                            ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                            User user = this.userProvider.get();
+                            LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
+                            boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
+                            consumer.accept(permit);
+                        } catch (IOException e) {
+                            consumer.accept(false);
+                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        }
+                    });
                 }
 
                 List<String> result = new ArrayList<>();
