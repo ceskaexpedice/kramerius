@@ -12,11 +12,14 @@ import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightsReturnObject;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.utils.ApplicationURL;
@@ -45,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.item.ItemResource
@@ -435,7 +439,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
@@ -449,22 +453,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/ocr/text")
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
     public Response getOcrText(@PathParam("pid") String pid) {
-        //TODO: pořádně otestovat:
-        //managed from URL:
-        //http://localhost:8080/search/api/admin/v7.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/foxml
-        //http://localhost:8080/search/api/client/v7.0/items/uuid:d41a05bb-7ec7-474c-adeb-da4cdfeaab3a/ocr/text
-
-        //managed form file://
-        //http://localhost:8080/search/api/admin/v7.0/items/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/foxml
-        //http://localhost:8080/search/api/client/v7.0/items/uuid:fc09d4ee-9937-4d46-8f09-d710e72b6425/ocr/text
-
-        //redirect, externally referenced
-
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String ocrText = krameriusRepositoryApi.getOcrText(pid);
             return Response.ok().entity(ocrText).build();
         } catch (WebApplicationException e) {
@@ -482,7 +475,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
@@ -501,7 +494,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             Document ocrAlto = krameriusRepositoryApi.getOcrAlto(pid, true);
             return Response.ok().entity(ocrAlto.asXML()).build();
         } catch (WebApplicationException e) {
@@ -522,7 +515,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
@@ -544,7 +537,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
             InputStream is = krameriusRepositoryApi.getImgFull(pid);
             StreamingOutput stream = output -> {
@@ -559,6 +552,26 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+    
+    @GET
+    @Path("{pid}/foxml")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getFoxml(@PathParam("pid") String pid) {
+        try {
+            checkSupportedObjectPid(pid);
+            //authentication
+            checkUserIsAllowedToReadObject(pid); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkObjectExists(pid);
+            Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
+            return Response.ok().entity(foxml.asXML()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
 
     /***
      * Vrací zoomify ImageProperties.xml tohoto objektu
@@ -572,7 +585,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             return zoomifyHelper.buildImagePropertiesResponse(pid, requestProvider.get());
         } catch (WebApplicationException e) {
             throw e;
@@ -678,7 +691,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (AUDIO_SERVE_WITH_FORWARDING) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.MP3);
@@ -711,7 +724,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (AUDIO_SERVE_WITH_FORWARDING) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.MP3);
@@ -782,7 +795,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (AUDIO_SERVE_WITH_FORWARDING) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.OGG);
@@ -815,7 +828,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (AUDIO_SERVE_WITH_FORWARDING) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.OGG);
@@ -842,7 +855,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (AUDIO_SERVE_WITH_FORWARDING) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.WAV);
@@ -875,7 +888,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
             checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
+            checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (AUDIO_SERVE_WITH_FORWARDING) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.WAV);
