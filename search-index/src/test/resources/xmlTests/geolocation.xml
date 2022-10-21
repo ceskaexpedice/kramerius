@@ -349,7 +349,7 @@
         <in>
             <subject>
                 <cartographics>
-                    <coordinates>(012°19´36" v.d.--014°46´42" v.d./045°26´19" s.š.--046°36´37" s.š.)</coordinates>
+                    <coordinates>(016°00´00" v.d.--017°00´00" v.d./045°00´00" s.š.--046°00´00" s.š.)</coordinates>
                 </cartographics>
             </subject>
         </in>
@@ -363,22 +363,20 @@
         </out>
     </test>
 
-    <test name="Neplatné souřadnice: západní okraj > východní okraj">
-        <desc></desc>
+    <test name="PLATNÉ souřadnice: západní okraj > východní okraj (Čukotský autonomní okruh)">
+        <desc>Čukotský autonomní okruh (část Ruské federace)</desc>
         <in>
             <subject>
                 <cartographics>
-                    <coordinates>(012°19´36" v.d.--014°46´42" v.d./045°26´19" s.š.--046°36´37" s.š.)</coordinates>
+                    <coordinates>(157°00´00" v.d.--169°00´00" z.d./071°00´00" s.š.--061°00´00" s.š.)</coordinates>
                 </cartographics>
             </subject>
         </in>
         <out>
-            <!--
-            <field name="coords.bbox">ENVELOPE(12.326667,14.778333,45.438611,46.610278)</field>
-            <field name="coords.bbox.center">46.024444,13.552500</field>
-            <field name="coords.bbox.corner_ne">45.438611,14.778333</field>
-            <field name="coords.bbox.corner_sw">46.610278,12.326667</field>
-            -->
+            <field name="coords.bbox">ENVELOPE(157.000000,-169.000000,71.000000,61.000000)</field>
+            <field name="coords.bbox.center">66.000000,-6.000000</field>
+            <field name="coords.bbox.corner_ne">71.000000,-169.000000</field>
+            <field name="coords.bbox.corner_sw">61.000000,157.000000</field>
         </out>
     </test>
 

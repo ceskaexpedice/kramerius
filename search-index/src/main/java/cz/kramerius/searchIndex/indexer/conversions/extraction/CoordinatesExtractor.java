@@ -26,10 +26,11 @@ public class CoordinatesExtractor {
                 else if (bb.s > bb.n) {//neplatná zeměpisná šířka: jižní ohraničení je větší než severní ohraničení
                     System.err.println(String.format("Chyba v datech objektu %s: neplatná zeměpisná šířka: jižní ohraničení je větší než severní ohraničení: %s", pid, coordinatesStr));
                     bb = null;
-                } else if (bb.w > bb.e) {//neplatná zeměpisná délka: západní ohraničení je větší než východní ohraničení
+                } /*else if (bb.w > bb.e) {//neplatná zeměpisná délka: západní ohraničení je větší než východní ohraničení
+                    //tohle je platné, např. Čukotský autonomní okruh (157° - -169° , nebo Nový Zéland včetně východních ostrovů (166° - -172°)
                     System.err.println(String.format("Chyba v datech objektu %s: neplatná zeměpisná šířka: západní ohraničení je větší než východní ohraničení: %s", pid, coordinatesStr));
                     bb = null;
-                }
+                }*/
             }
             if (bb != null) {
                 Locale locale = new Locale("en", "US");
