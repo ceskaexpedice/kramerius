@@ -116,8 +116,16 @@ public class SolrAccessImplNewIndex implements SolrAccess {
         return utils.requestWithSelectReturningXml(query);
     }
 
+	
 
-    public SolrUtils getUtils() {
+    @Override
+	public Document getSolrDataByPid(String pid, String fl) throws IOException {
+        String query = "q=" + URLEncoder.encode("pid:" + pid.replace(":", "\\:"), "UTF-8")+"&fl="+fl;
+        return utils.requestWithSelectReturningXml(query);
+	}
+
+
+	public SolrUtils getUtils() {
         return utils;
     }
 

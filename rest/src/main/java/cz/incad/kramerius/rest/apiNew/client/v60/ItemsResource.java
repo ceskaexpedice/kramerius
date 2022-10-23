@@ -2,6 +2,8 @@ package cz.incad.kramerius.rest.apiNew.client.v60;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.sun.jersey.api.client.Client;
+
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioFormat;
@@ -131,6 +133,11 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     AudioStreamForwardingHelper audioHelper;
 
+    @Inject
+    @Named("forward-client")
+    Provider<Client> clientProvider;
+
+    
     /**
      * Because of rights and licenses
      */
@@ -146,7 +153,6 @@ public class ItemsResource extends ClientApiResource {
     public Response checkItemExists(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
@@ -161,51 +167,9 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfo(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            JSONObject json = new JSONObject();
-            json.put("data", extractAvailableDataInfo(pid));
-            json.put("structure", extractStructureInfo(pid));
-            json.put("image", extractImageSourceInfo(pid));
-            json.put("providedByLicenses", extractLicensesProvidingAccess(pid));
-            return Response.ok(json).build();
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
-
-    @GET
-    @Path("{pid}/info/data")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getInfoData(@PathParam("pid") String pid) {
-        try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            return Response.ok(extractAvailableDataInfo(pid)).build();
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
-
-
-    @GET
-    @Path("{pid}/info/providedByLicenses")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getProvidingLicenses(@PathParam("pid") String pid) {
-        // must be redirected
-        try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-
             ProxyHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.providedByLicenses());
+                return redirectHandler.info();
             } else {
                 return Response.ok().build();
             }
@@ -217,28 +181,104 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-//    @GET
-//    @Path("{source}/{pid}/info/providedByLicenses")
-//    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-//    public Response getProvidingLicenses(@PathParam("pid") String pid,@PathParam("source") String source) {
-//        // must be redirected
-//        try {
-//            checkSupportedObjectPid(pid);
-//            checkObjectExists(pid);
-//
-//            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
-//            if (redirectHandler != null) {
-//                return redirectHandler.buildResponse(redirectHandler.providedByLicenses());
-//            } else {
-//                return Response.ok().build();
-//            }
-//        } catch (WebApplicationException e) {
-//            throw e;
-//        } catch (Throwable e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//            throw new InternalErrorException(e.getMessage());
-//        }
-//    }
+    @GET
+    @Path("{source}/{pid}/info")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getInfo(@PathParam("pid") String pid, @PathParam("source") String source) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+                return redirectHandler.info();
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    @GET
+    @Path("{pid}/info/data")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getInfoData(@PathParam("pid") String pid) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.infoData();
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+    @GET
+    @Path("{source}/{pid}/info/data")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getInfoData(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+                return redirectHandler.infoData();
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+    
+    // musime resit pres forward
+    @GET
+    @Path("{pid}/info/providedByLicenses")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getProvidingLicenses(@PathParam("pid") String pid) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.providedByLicenses();
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{source}/{pid}/info/providedByLicenses")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getProvidingLicenses(@PathParam("pid") String pid,@PathParam("source") String source) {
+        // must be redirected
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+                return redirectHandler.providedByLicenses();
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
 
 
     /**
@@ -251,9 +291,31 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoStructure(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            return Response.ok(extractStructureInfo(pid)).build();
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.infoStructure();
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{source}/{pid}/info/structure")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getInfoStructure(@PathParam("pid") String pid, @PathParam("source") String source) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.infoStructure();
+            } else {
+                return Response.ok().build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -271,9 +333,12 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid) {
         try {
-        	checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            return Response.ok(extractImageSourceInfo(pid)).build();
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.infoImage();
+            } else {
+                return Response.ok().build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -288,12 +353,10 @@ public class ItemsResource extends ClientApiResource {
     public Response getInfoImage(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
             ProxyHandler redirectHandler = findRedirectHandler(pid, source);
-            if (redirectHandler != null && redirectHandler.infoImageEndpointSupported()) {
-                return redirectHandler.buildResponse(redirectHandler.infoImage());
+            if (redirectHandler != null) {
+                return redirectHandler.infoImage();
             } else {
-            	checkSupportedObjectPid(pid);
-                checkObjectExists(pid);
-                return Response.ok(extractImageSourceInfo(pid)).build();
+                return Response.ok().build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -303,163 +366,20 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    /**
-     * extract information about licenses provided for current user and current pid;
-     */
-    //TODO: update javadoc
-    private JSONArray extractLicensesProvidingAccess(String pid) throws IOException, RepositoryException {
-        JSONArray licenseArray = new JSONArray();
-        String encoded = URLEncoder.encode("pid:\"" + pid + "\"", "UTF-8");
-        JSONObject solrResponseJson = this.solrAccess.requestWithSelectReturningJson("q=" + encoded + "&fl=pid_paths");
 
-        JSONArray docs = solrResponseJson.getJSONObject("response").getJSONArray("docs");
-        if (docs.length() > 0) {
-            JSONArray pidPaths = docs.getJSONObject(0).getJSONArray("pid_paths");
-            List<ObjectPidsPath> pidsPathList = new ArrayList<>();
-            for (int i = 0; i < pidPaths.length(); i++) {
-                pidsPathList.add(new ObjectPidsPath(pidPaths.getString(i)));
-            }
-            for (ObjectPidsPath p : pidsPathList) {
-                RightsReturnObject actionAllowed = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
-                if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
-                    String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
-                    if (qName.equals(ReadDNNTFlag.class.getName()) ||
-                            qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||
-                            qName.equals(ReadDNNTLabels.class.getName()) ||
-                            qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
-                    ) {
-                        Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
-                        if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
-                            licenseArray.put(evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL));
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        return licenseArray;
-    }
-
-    private JSONObject extractAvailableDataInfo(String pid) throws IOException, RepositoryException {
-        JSONObject dataAvailable = new JSONObject();
-        //metadata
-        JSONObject metadata = new JSONObject();
-        metadata.put("mods", krameriusRepositoryApi.isModsAvailable(pid));
-        metadata.put("dc", krameriusRepositoryApi.isDublinCoreAvailable(pid));
-        dataAvailable.put("metadata", metadata);
-        JSONObject ocr = new JSONObject();
-        //ocr
-        ocr.put("text", krameriusRepositoryApi.isOcrTextAvailable(pid));
-        ocr.put("alto", krameriusRepositoryApi.isOcrAltoAvailable(pid));
-        dataAvailable.put("ocr", ocr);
-        //images
-        JSONObject image = new JSONObject();
-        image.put("full", krameriusRepositoryApi.isImgFullAvailable(pid));
-        image.put("thumb", krameriusRepositoryApi.isImgThumbAvailable(pid));
-        image.put("preview", krameriusRepositoryApi.isImgPreviewAvailable(pid));
-        dataAvailable.put("image", image);
-        //audio
-        JSONObject audio = new JSONObject();
-        audio.put("mp3", krameriusRepositoryApi.isAudioMp3Available(pid));
-        audio.put("ogg", krameriusRepositoryApi.isAudioOggAvailable(pid));
-        audio.put("wav", krameriusRepositoryApi.isAudioWavAvailable(pid));
-        dataAvailable.put("audio", audio);
-        return dataAvailable;
-    }
-
-    private JSONObject extractStructureInfo(String pid) throws RepositoryException, SolrServerException, IOException {
-        JSONObject structure = new JSONObject();
-        //parents
-        JSONObject parents = new JSONObject();
-
-        // TODO: replace by information from solr
-        Pair<RepositoryApi.Triplet, List<RepositoryApi.Triplet>> parentsTpls = krameriusRepositoryApi.getParents(pid);
-        if (parentsTpls.getFirst() != null) {
-            parents.put("own", pidAndRelationToJson(parentsTpls.getFirst().source, parentsTpls.getFirst().relation));
-        }
-        JSONArray fosterParents = new JSONArray();
-        for (RepositoryApi.Triplet fosterParentTpl : parentsTpls.getSecond()) {
-            fosterParents.put(pidAndRelationToJson(fosterParentTpl.source, fosterParentTpl.relation));
-        }
-        parents.put("foster", fosterParents);
-        structure.put("parents", parents);
-
-        // TODO: replace by information from search index
-        //children
-        JSONObject children = new JSONObject();
-        Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
-        JSONArray ownChildren = new JSONArray();
-        for (RepositoryApi.Triplet ownChildTpl : childrenTpls.getFirst()) {
-            ownChildren.put(pidAndRelationToJson(ownChildTpl.target, ownChildTpl.relation));
-        }
-        children.put("own", ownChildren);
-        JSONArray fosterChildren = new JSONArray();
-        for (RepositoryApi.Triplet fosterChildTpl : childrenTpls.getSecond()) {
-            fosterChildren.put(pidAndRelationToJson(fosterChildTpl.target, fosterChildTpl.relation));
-        }
-        children.put("foster", fosterChildren);
-        structure.put("children", children);
-        //model
-        String model = krameriusRepositoryApi.getModel(pid);
-        structure.put("model", model);
-
-        return structure;
-    }
-
-    private Object extractImageSourceInfo(String pid) throws IOException, RepositoryException {
-        JSONObject json = new JSONObject();
-        Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
-        String tilesUrl = Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//tiles-url");
-        if (tilesUrl != null) {
-            json.put("type", "tiles");
-        } else if (!krameriusRepositoryApi.isImgFullAvailable(pid)) {
-            json.put("type", "none");
-        } else {
-            String imgFullMimetype = krameriusRepositoryApi.getImgFullMimetype(pid);
-            if (imgFullMimetype == null) {
-                json.put("type", "none");
-            } else {
-                //jpeg, pdf, etc.
-                json.put("type", imgFullMimetype);
-            }
-        }
-        return json;
-    }
-
-    private JSONObject pidAndRelationToJson(String pid, String relation) {
-        JSONObject json = new JSONObject();
-        json.put("pid", pid);
-        json.put("relation", relation);
-        return json;
-    }
 
     @HEAD
     @Path("{pid}/metadata/mods")
     public Response isMetadataModsAvailable(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
-            return Response.ok().build();
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.mods());
+            } else {
+                return Response.ok().build();
+            }
 
-    @GET
-    @Path("{pid}/metadata/mods")
-    @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
-    public Response getMetadataMods(@PathParam("pid") String pid) {
-        try {
-            checkSupportedObjectPid(pid);
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
-            Document mods = krameriusRepositoryApi.getMods(pid, true);
-            return Response.ok()
-                    .entity(mods.asXML())
-                    .build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -469,12 +389,103 @@ public class ItemsResource extends ClientApiResource {
     }
 
     @HEAD
+    @Path("{source}/{pid}/metadata/mods")
+    public Response isMetadataModsAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            checkSupportedObjectPid(pid);
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.mods());
+            } else {
+                return Response.ok().build();
+            }
+
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    
+    @GET
+    @Path("{pid}/metadata/mods")
+    @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
+    public Response getMetadataMods(@PathParam("pid") String pid) {
+        try {
+        	// redirect
+        	checkSupportedObjectPid(pid);
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.mods());
+            } else {
+                return Response.ok().build();
+            }
+
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+    @GET
+    @Path("{source}/{pid}/metadata/mods")
+    @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
+    public Response getMetadataMods(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+        	// redirect
+        	checkSupportedObjectPid(pid);
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.mods());
+            } else {
+                return Response.ok().build();
+            }
+
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+    @HEAD
     @Path("{pid}/metadata/dc")
     public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid) {
         try {
+        	// redirect
             checkSupportedObjectPid(pid);
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
-            return Response.ok().build();
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.dc());
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    
+    @HEAD
+    @Path("{source}/{pid}/metadata/dc")
+    public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
+        try {
+        	// redirect
+            checkSupportedObjectPid(pid);
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.dc());
+            } else {
+                return Response.ok().build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -489,9 +500,32 @@ public class ItemsResource extends ClientApiResource {
     public Response getMetadataDublinCore(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
-            Document dc = krameriusRepositoryApi.getDublinCore(pid, true);
-            return Response.ok().entity(dc.asXML()).build();
+            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.mods());
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{source}/{pid}/metadata/dc")
+    @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
+    public Response getMetadataDublinCore(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            checkSupportedObjectPid(pid);
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+                return redirectHandler.buildResponse(redirectHandler.dc());
+            } else {
+                return Response.ok().build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -504,9 +538,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid) {
     	try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-        	
             ProxyHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 return redirectHandler.buildResponse(redirectHandler.textOCR());
@@ -521,14 +552,12 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    
     @HEAD
     @Path("{source}/{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
     	try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-        	// forward ?? 
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 return redirectHandler.buildResponse(redirectHandler.textOCR());
             } else {
@@ -548,10 +577,6 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
     public Response getOcrText(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
-            checkObjectAndDatastreamExist(pid, dsId);
-
             ProxyHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 return redirectHandler.buildResponse(redirectHandler.textOCR());
@@ -571,10 +596,6 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
     public Response getOcrText(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
-            checkObjectAndDatastreamExist(pid, dsId);
-
             ProxyHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 return redirectHandler.buildResponse(redirectHandler.textOCR());
@@ -593,11 +614,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/ocr/alto")
     public Response isOcrAltoAvailable(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
- 
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
-            checkObjectAndDatastreamExist(pid, dsId);
-
             ProxyHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 return redirectHandler.buildResponse(redirectHandler.altoOCR());
@@ -616,11 +632,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/ocr/alto")
     public Response isOcrAltoAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            checkSupportedObjectPid(pid);
- 
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
-            checkObjectAndDatastreamExist(pid, dsId);
-
             ProxyHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 return redirectHandler.buildResponse(redirectHandler.altoOCR());
@@ -640,10 +651,6 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getDatastreamOcrAlto(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
-            checkObjectAndDatastreamExist(pid, dsId);
-
             ProxyHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 return redirectHandler.buildResponse(redirectHandler.altoOCR());
@@ -664,10 +671,6 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getDatastreamOcrAlto(@PathParam("pid") String pid, @PathParam("source") String source) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
-            checkObjectAndDatastreamExist(pid, dsId);
-
             ProxyHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 return redirectHandler.buildResponse(redirectHandler.altoOCR());
@@ -690,11 +693,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/image")
     public Response isImgFullAvailable(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-
             ProxyHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
             	return redirectHandler.buildResponse(redirectHandler.image());
@@ -713,10 +711,6 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/image")
     public Response isImgFullAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
 
             ProxyHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
@@ -742,9 +736,9 @@ public class ItemsResource extends ClientApiResource {
         if (source != null) {
         	String apiVersion = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + source + ".api", API_V7);
             if (apiVersion !=null && apiVersion.equals(API_V7)) {
-                return new V7RedirectHandler(source, pid);
+                return new V7RedirectHandler(this.clientProvider.get(), this.solrAccess, source, pid);
             } else {
-                return new V5RedirectHandler(source, pid);
+                return new V5RedirectHandler(this.clientProvider.get(), this.solrAccess,source, pid);
             }
         } else return null;
     }
@@ -768,7 +762,7 @@ public class ItemsResource extends ClientApiResource {
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
+            //checkObjectAndDatastreamExist(pid, dsId);
 
             ProxyHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
@@ -789,8 +783,6 @@ public class ItemsResource extends ClientApiResource {
     public Response getImgFull(@PathParam("pid") String pid, @PathParam("source") String source) {
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
 
             ProxyHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
@@ -816,8 +808,8 @@ public class ItemsResource extends ClientApiResource {
     public Response getZoomifyImageProperties(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
+//            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+//            checkObjectAndDatastreamExist(pid, dsId);
 
             ProxyHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
@@ -841,7 +833,7 @@ public class ItemsResource extends ClientApiResource {
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
+            //checkObjectAndDatastreamExist(pid, dsId);
 
             ProxyHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
@@ -939,24 +931,28 @@ public class ItemsResource extends ClientApiResource {
     public Response getImgThumb(@PathParam("pid") String pid) {
         try {
         	checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
+            //checkObjectExists(pid);
             
             ProxyHandler redirectHandler = findRedirectHandler(pid,null);
-            if (redirectHandler.imageThumbForceRedirection()) {
-                return redirectHandler.buildResponse(redirectHandler.imageThumb());
-            } else {
-            	Pair<InputStream, String> imgThumb = getFirstAvailableImgThumb(pid);
-                if (imgThumb == null) {
-                    throw new NotFoundException("no image/thumb available for object %s (and it's descendants)", pid);
-                } else {
-                    StreamingOutput stream = output -> {
-                        IOUtils.copy(imgThumb.getFirst(), output);
-                        IOUtils.closeQuietly(imgThumb.getFirst());
-                    };
-                    return Response.ok().entity(stream).type(imgThumb.getSecond()).build();
-                }
-
-            }
+            return redirectHandler.buildResponse(redirectHandler.imageThumb());
+            
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    
+    @GET
+    @Path("{source}/{pid}/image/thumb")
+    public Response getImgThumb(@PathParam("pid") String pid, @PathParam("source") String source) {
+        try {
+        	checkSupportedObjectPid(pid);
+            //checkObjectExists(pid);
+            
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            return redirectHandler.buildResponse(redirectHandler.imageThumb());
             
         } catch (WebApplicationException e) {
             throw e;
@@ -966,6 +962,7 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+
     /***
      * Vrací preview buď tohoto objektu, nebo prvního potomka, který má IMG_PREVIEW
      */
@@ -973,18 +970,12 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/image/preview")
     public Response getImgPreview(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            
-            Pair<String, String> imgPreview = getFirstAvailableImgPreviewPid(pid);
-            
-            ProxyHandler redirectHandler = findRedirectHandler(imgPreview.getFirst(),source);
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 return redirectHandler.buildResponse(redirectHandler.imagePreview());
             } else {
                 return Response.ok().build();
             }
-            
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -997,19 +988,12 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/image/preview")
     public Response getImgPreview(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            
-            Pair<String, String> imgPreview = getFirstAvailableImgPreviewPid(pid);
-            
-            ProxyHandler redirectHandler = findRedirectHandler(imgPreview.getFirst(),null);
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.buildResponse(redirectHandler.imagePreview());
             } else {
                 return Response.ok().build();
             }
-            
-            
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1022,22 +1006,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/mp3")
     public Response isAudioMp3Available(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
-            checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
-                HttpServletRequest request = this.requestProvider.get();
-                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.MP3);
-                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
-                audioHelper.forwardHttpHEAD(audioStreamId, request, builder);
-                return builder.build();
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.audioMP3();
             } else {
-                if (AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE) {
-                    return Response.ok().build();
-                } else {
-                    return Response.ok().header("Accept-Ranges", "bytes").build();
-                }
+                return Response.ok().build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -1047,6 +1020,23 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    @HEAD
+    @Path("{source}/{pid}/audio/mp3")
+    public Response isAudioMp3Available(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+                return redirectHandler.audioMP3();
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
     /***
      * Vrací obsah datastreamu MP3 tohoto objektu
      */
@@ -1055,20 +1045,30 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/mp3")
     public Response getAudioMp3(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
-            checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
-                HttpServletRequest request = this.requestProvider.get();
-                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.MP3);
-                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
-                audioHelper.forwardHttpGET(audioStreamId, request, builder);
-                return builder.build();
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.audioMP3();
             } else {
-                String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
-                InputStream is = krameriusRepositoryApi.getAudioWav(pid);
-                return getAudioDataFromAkubra(mimeType, is, pid);
+                return Response.ok().build();
+            }
+
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{source}/{pid}/audio/mp3")
+    public Response getAudioMp3(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.audioMP3();
+            } else {
+                return Response.ok().build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -1078,70 +1078,33 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    private Response getAudioDataFromAkubra(String mimeType, InputStream is, String pid) throws IOException {
-        String headerRange = requestProvider.get().getHeader("Range");
-        boolean useRange = !AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE && //not disabled
-                headerRange != null && !headerRange.isEmpty() && //Range present
-                !"bytes=0-".equals(headerRange) && //Chrome uses this and expects 200 instead of 206
-                headerRange.matches("bytes=\\d*-\\d*"); //ignoring different units or <unit>=<range-start>-<range-end>, <range-start>-<range-end>, <range-start>-<range-end>
-        if (!useRange) { //request without header Range or header Range ignored
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            int totalSize = IOUtils.copy(is, buffer);
-            IOUtils.closeQuietly(is);
-            byte[] dataComplete = buffer.toByteArray();
-            Response.ResponseBuilder resp = Response.ok().entity(dataComplete).type(mimeType)
-                    .header("Content-Length", totalSize);
-            if (!AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE) {
-                resp.header("Accept-Ranges", "bytes");
-            }
-            return resp.build();
-        } else { //using header Range
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            int totalSize = IOUtils.copy(is, buffer);
-            IOUtils.closeQuietly(is);
-            //this should be cached (in Akubra?), next requests with Range for this resource will very probably follow
-            byte[] dataComplete = buffer.toByteArray();
-            Integer start = 0;
-            Integer end = dataComplete.length;
-            String[] rangeItems = headerRange.substring(("bytes=".length())).split("-");
-            if (!rangeItems[0].equals("")) {
-                start = Integer.valueOf(rangeItems[0]);
-            }
-            if (rangeItems.length == 2 && !rangeItems[1].equals("")) {
-                start = Integer.valueOf(rangeItems[1]);
-            }
-            byte[] dataInRange = Arrays.copyOfRange(dataComplete, start, end);
-
-            Response.ResponseBuilder resp = Response.status(206).entity(dataInRange).type(mimeType)
-                    .header("Accept-Ranges", "bytes")
-                    .header("Content-Length", totalSize);
-            if (!(start == 0 && end == totalSize)) {
-                resp.header("Content-Range", String.format("bytes %d-%d/%d", start, end - 1, totalSize));
-            }
-            return resp.build();
-        }
-    }
-
     @HEAD
     @Path("{pid}/audio/ogg")
     public Response isAudioOggAvailable(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
-            checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
-                HttpServletRequest request = this.requestProvider.get();
-                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.OGG);
-                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
-                audioHelper.forwardHttpHEAD(audioStreamId, request, builder);
-                return builder.build();
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.audioOGG();
             } else {
-                if (AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE) {
-                    return Response.ok().build();
-                } else {
-                    return Response.ok().header("Accept-Ranges", "bytes").build();
-                }
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @HEAD
+    @Path("{source}/{pid}/audio/ogg")
+    public Response isAudioOggAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+                return redirectHandler.audioOGG();
+            } else {
+                return Response.ok().build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -1159,20 +1122,29 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/ogg")
     public Response getAudioOgg(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
-            checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
-                HttpServletRequest request = this.requestProvider.get();
-                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.OGG);
-                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
-                audioHelper.forwardHttpGET(audioStreamId, request, builder);
-                return builder.build();
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.audioOGG();
             } else {
-                String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
-                InputStream is = krameriusRepositoryApi.getAudioWav(pid);
-                return getAudioDataFromAkubra(mimeType, is, pid);
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{source}/{pid}/audio/ogg")
+    public Response getAudioOgg(@PathParam("pid") String pid, @PathParam("source") String source) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+                return redirectHandler.audioOGG();
+            } else {
+                return Response.ok().build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -1186,22 +1158,29 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/wav")
     public Response isAudioWavAvailable(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
-            checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
-                HttpServletRequest request = this.requestProvider.get();
-                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.WAV);
-                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
-                audioHelper.forwardHttpHEAD(audioStreamId, request, builder);
-                return builder.build();
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.audioOGG();
             } else {
-                if (AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE) {
-                    return Response.ok().build();
-                } else {
-                    return Response.ok().header("Accept-Ranges", "bytes").build();
-                }
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @HEAD
+    @Path("{source}/{pid}/audio/wav")
+    public Response isAudioWavAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+                return redirectHandler.audioOGG();
+            } else {
+                return Response.ok().build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -1219,20 +1198,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/wav")
     public Response getAudioWav(@PathParam("pid") String pid) {
         try {
-            checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
-            checkObjectAndDatastreamExist(pid, dsId);
-            checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
-                HttpServletRequest request = this.requestProvider.get();
-                AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.WAV);
-                Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
-                audioHelper.forwardHttpGET(audioStreamId, request, builder);
-                return builder.build();
+            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.audioOGG();
             } else {
-                String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
-                InputStream is = krameriusRepositoryApi.getAudioWav(pid);
-                return getAudioDataFromAkubra(mimeType, is, pid);
+                return Response.ok().build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -1242,100 +1212,23 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    Pair<InputStream, String> getFirstAvailableImgFull(String pid) throws IOException, RepositoryException {
-        InputStream is = krameriusRepositoryApi.getImgFull(pid);
-        if (is != null) {
-            String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
-            return new Pair<>(is, mimeType);
-        } else {
-            String pidOfFirstChild = getPidOfFirstChild(pid);
-            if (pidOfFirstChild != null) {
-                return getFirstAvailableImgFull(pidOfFirstChild);
+    @SuppressWarnings("JavadocReference")
+    @GET
+    @Path("{source}/{pid}/audio/wav")
+    public Response getAudioWav(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+                return redirectHandler.audioOGG();
             } else {
-                return null;
+                return Response.ok().build();
             }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
     }
 
-    Pair<InputStream, String> getFirstAvailableImgThumb(String pid) throws IOException, RepositoryException {
-        InputStream is = krameriusRepositoryApi.getImgThumb(pid);
-        if (is != null) {
-            String mimeType = krameriusRepositoryApi.getImgThumbMimetype(pid);
-            return new Pair<>(is, mimeType);
-        } else {
-            String pidOfFirstChild = getPidOfFirstChild(pid);
-            if (pidOfFirstChild != null) {
-                return getFirstAvailableImgThumb(pidOfFirstChild);
-            } else {
-                return null;
-            }
-        }
-    }
-
-    Pair<InputStream, String> getFirstAvailableImgPreview(String pid) throws IOException, RepositoryException {
-        InputStream is = krameriusRepositoryApi.getImgPreview(pid);
-        if (is != null) {
-            String mimeType = krameriusRepositoryApi.getImgPreviewMimetype(pid);
-            return new Pair<>(is, mimeType);
-        } else {
-            String pidOfFirstChild = getPidOfFirstChild(pid);
-            if (pidOfFirstChild != null) {
-                return getFirstAvailableImgPreview(pidOfFirstChild);
-            } else {
-                return null;
-            }
-        }
-    }
-
-    Pair<String, String> getFirstAvailableImgPreviewPid(String pid) throws IOException, RepositoryException {
-        KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_THUMB;
-    	boolean flag = krameriusRepositoryApi.isStreamAvailable(pid, dsId.name());
-        if (flag) {
-            String mimeType = krameriusRepositoryApi.getImgPreviewMimetype(pid);
-            return new Pair<>(pid, mimeType);
-        } else {
-            String pidOfFirstChild = getPidOfFirstChild(pid);
-            if (pidOfFirstChild != null) {
-                return getFirstAvailableImgPreviewPid(pidOfFirstChild);
-            } else {
-                return null;
-            }
-        }
-    }
-
-    
-    private String getPidOfFirstChild(String pid) throws IOException, RepositoryException {
-        Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
-        String xpathExpr = "//hasPage|//hasUnit|//hasVolume|//hasItem|//hasSoundUnit|//hasTrack|//containsTrack|//hasIntCompPart|//isOnPage|//contains";
-        List<Element> elms = Dom4jUtils.elementsByXpath(relsExt.getRootElement(), xpathExpr);
-        
-        List<String> collect = elms.stream().map(element-> {
-            String resource = Dom4jUtils.stringOrNullFromAttributeByName(element, "resource");
-            if (resource != null) {
-                return resource.substring("info:fedora/".length());
-            } else return null;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
-        
-        if (!collect.isEmpty()) {
-        	// 20 is maximum
-        	int min = Math.min(collect.size(), 20);
-        	List<String> testingList = collect.subList(0, min);
-        	List<String> existingPids = this.solrAccess.getExistingPids(testingList);
-        	if (!existingPids.isEmpty()) return existingPids.get(0);
-        	else return null;
-        }
-        
-        return null;
-    }
-
-    private String getApiBaseUrl() {
-        //return "http://localhost:8080/search/api";
-        String appUrl = ApplicationURL.applicationURL(this.requestProvider.get());
-        return appUrl + "/api";
-    }
-
-    
-    public static void main(String[] args) {
-		
-	}
 }

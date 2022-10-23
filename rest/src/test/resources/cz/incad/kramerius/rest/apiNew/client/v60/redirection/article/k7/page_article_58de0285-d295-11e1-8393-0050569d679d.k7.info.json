@@ -1,0 +1,45 @@
+{
+	"image": {
+		"type": "tiles"
+	},
+	"providedByLicenses": [],
+	"data": {
+		"image": {
+			"preview": false,
+			"thumb": true,
+			"full": true
+		},
+		"metadata": {
+			"mods": true,
+			"dc": true
+		},
+		"audio": {
+			"mp3": false,
+			"wav": false,
+			"ogg": false
+		},
+		"ocr": {
+			"text": true,
+			"alto": true
+		}
+	},
+	"structure": {
+		"children": {
+			"own": [],
+			"foster": []
+		},
+		"model": "page",
+		"parents": {
+			"own": {
+				"pid": "uuid:a1c53cdc-0031-467f-bfdc-76b824735862",
+				"relation": "hasPage"
+			},
+			"foster": [
+				{
+					"pid": "uuid:fe1191ba-98a7-4f21-b201-3c147fedc88e",
+					"relation": "isOnPage"
+				}
+			]
+		}
+	}
+}

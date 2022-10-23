@@ -7,7 +7,7 @@ dependencies {
     api project(':security:security-core')
     api project(':security:oauth')
     api project(':search-index')
-    //api project(':processes:solr-migration')
+    api project(':processes:solr-migration')
 
     api name:"iiif-presentation-model-api-3.2.5"
     api name:"iiif-presentation-model-impl-3.2.5"
@@ -26,6 +26,8 @@ dependencies {
     //dom4j
     implementation 'jaxen:jaxen:1.2.0'
     implementation 'org.dom4j:dom4j:2.1.1'
+    
+	//testCompile 'junit:junit-dep:4.11+'
 }
 
 configurations.findAll {!it.name.endsWith('json-lib')}.each { conf ->

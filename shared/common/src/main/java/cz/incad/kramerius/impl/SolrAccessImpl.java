@@ -47,7 +47,14 @@ public class SolrAccessImpl implements SolrAccess {
 
 	
 	
+	
     @Override
+	public Document getSolrDataByPid(String pid, String fl) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public List<String> getExistingPids(List<String> pids) throws IOException {
     	throw new UnsupportedOperationException("unsupported");
     }

@@ -17,6 +17,8 @@
 package cz.incad.kramerius.rest.api.guice;
 
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
+import com.sun.jersey.api.client.Client;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
@@ -61,6 +63,7 @@ import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 //import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientResources;
+import cz.incad.kramerius.rest.apiNew.client.v60.ClientProvider;
 import cz.incad.kramerius.rest.apiNew.client.v60.ClientUserResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
@@ -114,10 +117,13 @@ public class ApiServletModule extends JerseyServletModule {
 
         // API Client 6.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.client.v60.InfoResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v60.ItemsResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v60.SearchResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v60.ConfigResource.class);
-
+        
+        bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
+        bind(cz.incad.kramerius.rest.apiNew.client.v60.ItemsResource.class);
+        
+        
 
         // API Admin 1.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.processes.ProcessResource.class);

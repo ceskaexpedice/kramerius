@@ -1,0 +1,35 @@
+{
+	"datanode": true,
+	"pdf": {
+		"url": "http://kramerius.lib.cas.cz/search/img?pid=uuid:25e45efc-0d66-41c8-adef-7b835ae72e32&stream=IMG_FULL&action=GETRAW"
+	},
+	"context": [
+		[
+			{
+				"pid": "uuid:440337bd-5625-11e1-9505-005056a60003",
+				"model": "periodical"
+			},
+			{
+				"pid": "uuid:014d9bc6-f65b-4aca-9d69-daf842e20f0f",
+				"model": "periodicalvolume"
+			},
+			{
+				"pid": "uuid:1a5a3fb5-e86b-43c1-b22c-91f31b4c9637",
+				"model": "periodicalitem"
+			},
+			{
+				"pid": "uuid:25e45efc-0d66-41c8-adef-7b835ae72e32",
+				"model": "article"
+			}
+		]
+	],
+	"pid": "uuid:25e45efc-0d66-41c8-adef-7b835ae72e32",
+	"model": "article",
+	"handle": {
+		"href": "http://kramerius.lib.cas.cz/search/handle/uuid:25e45efc-0d66-41c8-adef-7b835ae72e32"
+	},
+	"title": "Akademie věd ČR v roce 2007 a dalších letech",
+	"root_title": "Vesmír: časopis pro šíření vědy přírodní, země- a národopisné",
+	"root_pid": "uuid:440337bd-5625-11e1-9505-005056a60003",
+	"policy": "public"
+}

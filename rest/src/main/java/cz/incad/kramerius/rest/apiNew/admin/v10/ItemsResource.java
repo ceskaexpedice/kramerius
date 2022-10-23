@@ -154,7 +154,7 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user1.getLoginname(), role); //403
             }
 
-            checkObjectExists(pid);
+            //checkObjectExists(pid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
@@ -179,7 +179,7 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user1.getLoginname(), role); //403
             }
 
-            checkObjectExists(pid);
+            //checkObjectExists(pid);
             Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
             return Response.ok().entity(foxml.asXML()).build();
         } catch (WebApplicationException e) {
@@ -204,7 +204,7 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user1.getLoginname(), role); //403
             }
 
-            checkObjectExists(pid);
+            //checkObjectExists(pid);
             String model = krameriusRepositoryApi.getModel(pid);
             //other objects can reference images belonging to other objects (pages),
             //some of the reference are managed, so deleting for example collection should not include deleting file with thumbnail
@@ -234,7 +234,8 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user1.getLoginname(), role); //403
             }
 
-            checkObjectAndDatastreamExist(pid, dsid);
+            //	"image": {
+            //checkObjectAndDatastreamExist(pid, dsid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
@@ -265,7 +266,7 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user1.getLoginname(), role); //403
             }
 
-            checkObjectAndDatastreamExist(pid, dsid);
+            //checkObjectAndDatastreamExist(pid, dsid);
             switch (dsid) {
                 case "IMG_FULL": {
                     String mime = krameriusRepositoryApi.getImgFullMimetype(pid);
@@ -343,7 +344,7 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to to do this (missing role '%s')", user1.getLoginname(), role); //403
             }
 
-            checkObjectAndDatastreamExist(pid, dsId);
+            //checkObjectAndDatastreamExist(pid, dsId);
             switch (dsId) {
                 case "BIBLIO_MODS":
                     return Response.ok()
@@ -425,7 +426,7 @@ public class ItemsResource extends AdminApiResource {
             }
             //check target object
             checkSupportedObjectPid(targetPid);
-            checkObjectExists(targetPid);
+            //checkObjectExists(targetPid);
             String targetModel = krameriusRepositoryApi.getModel(targetPid);
             if ("page".equals(targetModel)) {
                 throw new BadRequestException("target's model cannot be page (target is %s)", targetPid);
@@ -435,7 +436,7 @@ public class ItemsResource extends AdminApiResource {
                 throw new BadRequestException("missing mandatory query param 'srcPid'");
             }
             checkSupportedObjectPid(sourcePid);
-            checkObjectExists(sourcePid);
+            //checkObjectExists(sourcePid);
             String sourceModel = krameriusRepositoryApi.getModel(sourcePid);
             if (!"page".equals(sourceModel)) {
                 throw new BadRequestException("source's model must be page (source is %s with model:%s)", targetPid, sourceModel);
@@ -470,7 +471,7 @@ public class ItemsResource extends AdminApiResource {
             }
             //check target object
             checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
+            //checkObjectExists(pid);
             Document mods = Utils.inputstreamToDocument(xml, true);
             krameriusRepositoryApi.updateMods(pid, mods);
             return Response.ok().build();

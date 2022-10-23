@@ -8,16 +8,13 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApiImpl;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.services.IterationUtils;
+import cz.incad.kramerius.services.cdk.K7SearchIndexChildrenSupport;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
@@ -27,10 +24,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
-import java.util.stream.Collectors;
 
 public class KrameriusRepositoryApiProxyImpl extends KrameriusRepositoryApiImpl {
 
@@ -358,86 +353,19 @@ public class KrameriusRepositoryApiProxyImpl extends KrameriusRepositoryApiImpl 
             // problematic part - all children in repo
             onDemandIngest.ingestIfNecessary(this.akubra, objectPid);
 
-            // prime prime - model
+            // prime - model
             List<RepositoryApi.Triplet> ownChildrenTriplets = new ArrayList<>();
             List<RepositoryApi.Triplet> fosterChildrenTriplets = new ArrayList<>();
 
-            ownChildrenAndFosterChildren(this.solrAccess, objectPid, ownChildrenTriplets, fosterChildrenTriplets);
+			K7SearchIndexChildrenSupport.ownChildrenAndFosterChildren(this.solrAccess, objectPid, null, ownChildrenTriplets, fosterChildrenTriplets);
 
-            //return super.getChildren(objectPid);
             return new Pair<>(ownChildrenTriplets,fosterChildrenTriplets);
-        } catch (CollectionException | LexerException | MigrateSolrIndexException | SAXException | BrokenBarrierException | ParserConfigurationException |  InterruptedException | JAXBException | TransformerException | XPathExpressionException e) {
+
+        } catch (CollectionException | LexerException | JAXBException | TransformerException | MigrateSolrIndexException | SAXException
+				| InterruptedException | BrokenBarrierException | XPathExpressionException |ParserConfigurationException e) {
             throw new RepositoryException(e);
-        }
+		}
     }
-
-    static void ownChildrenAndFosterChildren(SolrAccess solrAccess, String objectPid, List<RepositoryApi.Triplet> ownChildrenTriplets, List<RepositoryApi.Triplet> fosterChildrenTriplets) throws IOException, ParserConfigurationException, MigrateSolrIndexException, SAXException, InterruptedException, BrokenBarrierException {
-        org.w3c.dom.Document solrDataByPid = solrAccess.getSolrDataByPid(objectPid);
-        List<Element> parentModel = XMLUtils.getElementsRecursive(solrDataByPid.getDocumentElement(), (elm) -> {
-            String name = elm.getAttribute("name");
-            return (elm.getNodeName().equals("str") && name.equals("model"));
-        });
-
-        // use composite id in solr cloud
-        String id = KConfiguration.getInstance().getConfiguration().getString("kramerius.api.id", "compositeId");
-        IterationUtils.IterationContext ownParentContext = new IterationUtils.IterationContext(id, 100, Arrays.asList("pid","own_parent","model", "foster_parents.pids"));
-
-        String ownparentQuery =  "own_parent.pid:" +URLEncoder.encode("\""+objectPid+"\"", "UTF-8");
-        IterationUtils.cursorIteration(solrAccess, ownparentQuery, (results,iterationToken)-> {
-            List<Map<String, Object>> collectedDocuments = resultsToMap(results);
-            collectedDocuments.stream().filter(hmap -> {
-                return (hmap.containsKey("pid") && !hmap.get("pid").equals(objectPid) && hmap.containsKey("model"));
-            }).forEach(hmap -> {
-                Object model = hmap.get("model");
-                OwnRelationsMapping mapping = OwnRelationsMapping.find(model.toString());
-                String relationName = mapping.relation().toString();
-                ownChildrenTriplets.add(new RepositoryApi.Triplet(objectPid, relationName, hmap.get("pid").toString()));
-            });
-        }, ()->{}, ownParentContext);
-
-        if (parentModel != null) {
-            IterationUtils.IterationContext fosterContext = new IterationUtils.IterationContext(id, 100, Arrays.asList("pid","own_parent","model", "foster_parents.pids"));
-
-            String fosterQuery = "foster_parents.pids:"+ URLEncoder.encode("\""+objectPid+"\"", "UTF-8");;
-            IterationUtils.cursorIteration(solrAccess, fosterQuery, (results,iterationToken)-> {
-                List<Map<String, Object>> collectedDocuments = resultsToMap(results);
-                collectedDocuments.stream().filter(hmap -> {
-                    return (hmap.containsKey("pid") && !hmap.get("pid").equals(objectPid) && hmap.containsKey("model"));
-                }).forEach(hmap -> {
-                    Object model = hmap.get("model");
-                    // pokud je parent article nebo internal part, pak
-                    FosterRelationsMapping mapping = FosterRelationsMapping.find(model.toString());
-                    fosterChildrenTriplets.add(new RepositoryApi.Triplet(objectPid, mapping.relation(parentModel.get(0).getTextContent()).toString(), hmap.get("pid").toString()));
-                });
-
-            }, ()->{}, fosterContext);
-        }
-    }
-
-
-    static List<Map<String, Object>> resultsToMap(Element results) {
-
-
-        return XMLUtils.getElementsRecursive(results, (elm) -> {
-                return elm.getNodeName().equals("doc");
-            }).stream().map(doc -> {
-                Map<String, Object> hashMapDocument = new HashMap<>();
-                XMLUtils.getElements(doc, (field) -> {
-                    String name = field.getAttribute("name");
-                    if (name.equals("foster_parents.pids")) {
-                        List<String> values = XMLUtils.getElements(field).stream().map(arrayElm -> {
-                            return arrayElm.getTextContent();
-                        }).collect(Collectors.toList());
-                        hashMapDocument.put("foster_parents.pids", values);
-                    } else {
-                        hashMapDocument.put(name, field.getTextContent());
-                    }
-                    return false;
-                });
-                return hashMapDocument;
-        }).collect(Collectors.toList());
-    }
-
 
     // used in admin
     @Override

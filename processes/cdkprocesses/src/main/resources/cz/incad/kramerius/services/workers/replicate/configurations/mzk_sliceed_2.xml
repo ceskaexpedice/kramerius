@@ -1,0 +1,76 @@
+<!--  
+	Process 
+ -->
+<cdkprocess>
+    <!-- Iteration part -->
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    <iteration>
+        <!--  Sliced collection  -->
+    	<fquery>created:[2013-01-01T00:00:00.000Z TO 2014-01-01T00:00:00.000Z]</fquery>
+    
+        <url>$iteration.url$</url>
+        <endpoint>select</endpoint>
+        <id>pid</id>
+        <rows>4000</rows>
+        <type>CURSOR</type>
+    </iteration>
+
+    <threads>2</threads>
+
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <url>$iteration.url$</url>
+            <endpoint>select</endpoint>
+            <batchsize>20</batchsize>
+
+            <id>pid</id>
+
+            <composite.id>true</composite.id>
+            <composite.root>root.pid</composite.root>
+            <composite.child>pid</composite.child>
+
+            <checkUrl>$destination.url$</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+
+            <!-- cdk source field -->
+            <collection>cdk.collection</collection>
+
+            <fieldlist>indexer_version pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr</fieldlist>
+
+        </request>
+
+        <destination>
+            <url>$destination.url$/update</url>
+
+            <!-- on index -->
+            <onindex>
+                <!-- remove from batch document -->
+                <remove.dest.field>
+                    <field name="collection"></field>
+                </remove.dest.field>
+                <!-- append to batch document -->
+                <update.dest.field>
+					<!--  
+                    <field name="cdk.collection">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
+                    <field name="cdk.leader">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
+                    -->
+                    <field name="cdk.collection">mzk</field>
+                    <field name="cdk.leader">mzk</field>
+                </update.dest.field>
+            </onindex>
+
+            <!-- on update; disabled for now -->
+            <onupdate>
+                <update.dest.field>
+                	<!-- 
+                    <field name="cdk.collection" update="add-distinct">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
+                    <field name="cdk.leader" update="set">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
+                     -->
+                    <field name="cdk.collection" update="add-distinct">mzk</field>
+                </update.dest.field>
+            </onupdate>
+
+        </destination>
+    </worker>
+</cdkprocess>

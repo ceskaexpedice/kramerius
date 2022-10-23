@@ -97,6 +97,12 @@ public interface KrameriusRepositoryApi {
                 return KnownRelations.HAS_UNIT;
             }
         },
+        periodicalvolume {
+            @Override
+            public KnownRelations relation() {
+                return KnownRelations.HAS_VOLUME;
+            }
+        },
         volume {
             @Override
             public KnownRelations relation() {
@@ -118,7 +124,8 @@ public interface KrameriusRepositoryApi {
         soundunit {
             @Override
             public KnownRelations relation() {
-                return KnownRelations.HAS_SOUND_UNIT;
+            	return KnownRelations.HAS_SOUND_UNIT;
+            	//return KnownRelations.CONTAINS_TRACK;
             }
         },
         soundrecording {
@@ -133,7 +140,23 @@ public interface KrameriusRepositoryApi {
             public KnownRelations relation() {
                 return KnownRelations.HAS_INT_COMP_PART;
             }
+        },
+        track {
+
+			@Override
+			public KnownRelations relation() {
+            	return KnownRelations.CONTAINS_TRACK;
+			}
+        	
+        },
+        article {
+            @Override
+            public KnownRelations relation() {
+                return KnownRelations.HAS_INT_COMP_PART;
+            }
         };
+        
+        ;
 
         public static OwnRelationsMapping find(String name) {
             OwnRelationsMapping[] values = values();

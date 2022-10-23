@@ -124,11 +124,24 @@ public class IterationUtils {
         endCallback.end();
     }
 
+    public static void queryFilterIteration(SolrAccess solrAccess, String masterQuery,IterationCallback callback, IterationEndCallback endCallback, IterationContext context) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException, BrokenBarrierException, InterruptedException {
+        String lastPid = null;
+        String previousPid = null;
+        do {
+            Element element = pidsFilterQuery(solrAccess,masterQuery,  lastPid);
+            previousPid = lastPid;
+            lastPid = findLastPid(element);
+            callback.call(element, lastPid);
+        }while(lastPid != null  && !lastPid.equals(previousPid));
+        // callback after iteration
+        endCallback.end();
+    }
+
     public static void queryPaginationIteration(Client client, String address, String masterQuery,IterationCallback callback, IterationEndCallback endCallback, IterationContext context) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException, BrokenBarrierException, InterruptedException {
         int offset = 0;
         int numberOfResult = Integer.MAX_VALUE;
         do {
-            Element element =  paginationQuery(client, address,masterQuery,  ""+offset);
+            Element element =  paginationQuery(client, address,masterQuery,  ""+offset, null);
             int rows = MigrationUtils.configuredRowsSize();
             if (numberOfResult == Integer.MAX_VALUE) {
                 numberOfResult = findNumberOfResults(element);
@@ -140,6 +153,36 @@ public class IterationUtils {
         endCallback.end();
     }
 
+    public static void queryPaginationIteration(Client client, String address, String masterQuery,IterationCallback callback, IterationEndCallback endCallback, IterationContext context, String sort) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException, BrokenBarrierException, InterruptedException {
+        int offset = 0;
+        int numberOfResult = Integer.MAX_VALUE;
+        do {
+            Element element =  paginationQuery(client, address,masterQuery,  ""+offset, sort);
+            int rows = MigrationUtils.configuredRowsSize();
+            if (numberOfResult == Integer.MAX_VALUE) {
+                numberOfResult = findNumberOfResults(element);
+            }
+            callback.call(element, ""+offset);
+            offset += rows;
+        }while(offset < numberOfResult);
+        // callback after iteration
+        endCallback.end();
+    }
+    public static void queryPaginationIteration(SolrAccess solrAccess, String masterQuery,IterationCallback callback, IterationEndCallback endCallback, IterationContext context, String sort) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException, BrokenBarrierException, InterruptedException {
+        int offset = 0;
+        int numberOfResult = Integer.MAX_VALUE;
+        do {
+            Element element =  paginationQuery(solrAccess,masterQuery,  ""+offset, sort);
+            int rows = MigrationUtils.configuredRowsSize();
+            if (numberOfResult == Integer.MAX_VALUE) {
+                numberOfResult = findNumberOfResults(element);
+            }
+            callback.call(element, ""+offset);
+            offset += rows;
+        }while(offset < numberOfResult);
+        // callback after iteration
+        endCallback.end();
+    }
 
     private static Element pidsFilterQuery(Client client, String url, String mq, String lastPid)
             throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
@@ -156,7 +199,22 @@ public class IterationUtils {
         return executeQuery(client, url, query);
     }
 
-    private static Element paginationQuery(Client client, String url, String mq, String offset) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException {
+    private static Element pidsFilterQuery(SolrAccess solrAccess, String mq, String lastPid)
+            throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
+        int rows = MigrationUtils.configuredRowsSize();
+        String fq = MigrationUtils.filterQuery();
+        String fullQuery = null;
+        if (StringUtils.isAnyString(fq)) {
+            fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *] AND "+fq, "UTF-8")) : String.format("&rows=%d&fq=%s", rows, URLEncoder.encode(fq,"UTF-8")));
+        } else {
+            fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *]", "UTF-8")) : String.format("&rows=%d", rows));
+        }
+
+        String query = SELECT_ENDPOINT + "?q="+mq + fullQuery +"&sort=" + URLEncoder.encode(String.format(DEFAULT_SORT_FIELD, SolrFieldsMapping.getInstance().getPidField()), "UTF-8")+"&fl=PID";
+        return solrAccess.requestWithSelectReturningXml(query).getDocumentElement();
+    }
+
+    private static Element paginationQuery(Client client, String url, String mq, String offset, String sort) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException {
         int rows = MigrationUtils.configuredRowsSize();
         String fq = MigrationUtils.filterQuery();
         String fullQuery = null;
@@ -165,8 +223,27 @@ public class IterationUtils {
         } else {
             fullQuery = String.format("?q=%s&start=%s&rows=%d&fl=PID",mq,offset, rows);
         }
+        if (StringUtils.isAnyString(fq)) {
+        	fullQuery = fullQuery +String.format("&sort=%s",sort);
+        }
         String query = SELECT_ENDPOINT + fullQuery;
         return executeQuery(client, url, query);
+    }
+    
+    private static Element paginationQuery(SolrAccess solrAccess, String mq, String offset, String sort) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException {
+        int rows = MigrationUtils.configuredRowsSize();
+        String fq = MigrationUtils.filterQuery();
+        String fullQuery = null;
+        if (StringUtils.isAnyString(fq)) {
+            fullQuery = String.format("?q=%s&start=%s&rows=%d&fq=%s&fl=PID",mq,offset, rows,URLEncoder.encode(fq,"UTF-8"));
+        } else {
+            fullQuery = String.format("?q=%s&start=%s&rows=%d&fl=PID",mq,offset, rows);
+        }
+        if (StringUtils.isAnyString(fq)) {
+        	fullQuery = fullQuery +String.format("&sort=%s",sort);
+        }
+        String query = SELECT_ENDPOINT + fullQuery;
+        return solrAccess.requestWithSelectReturningXml(query).getDocumentElement();
     }
 
 
@@ -179,7 +256,6 @@ public class IterationUtils {
     public static Element pidsCursorQuery(SolrAccess solrAccess,  String mq,  String cursor, IterationContext context)  throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
         int rows =context.getRows();
         String query = "q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(String.format(DEFAULT_SORT_FIELD, context.getIdent()), "UTF-8")+"&fl="+ URLEncoder.encode(context.getFieldsList().stream().collect(Collectors.joining(" ")), "UTF-8");
-        //LOGGER.info(String.format("Iteration query %s",query));
         return solrAccess.requestWithSelectReturningXml(query).getDocumentElement();
     }
 

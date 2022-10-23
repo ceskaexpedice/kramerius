@@ -47,6 +47,8 @@ public interface SolrAccess {
      */
     public Document getSolrDataByPid(String pid) throws IOException;
 
+    public Document getSolrDataByPid(String pid, String fl) throws IOException;
+
     /**
      * Returns SOLR data containing document with given handle
      * Examples of handle: handle/ABA001/12b34a, handle/uuid:8b0b25e0-49b7-11de-a45e-000d606f5dc6

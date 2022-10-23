@@ -1,0 +1,35 @@
+{
+	"datanode": false,
+	"collections": [
+		"vc:bfbfcb6c-149c-482a-bf77-ebcb923128ba"
+	],
+	"context": [
+		[
+			{
+				"pid": "uuid:f73d5ec6-e89f-425b-9fe2-eb2b826ea05d",
+				"model": "periodical"
+			},
+			{
+				"pid": "uuid:4da8778b-0056-4fb3-a8b7-a00634a5f816",
+				"model": "periodicalvolume"
+			},
+			{
+				"pid": "uuid:a1c53cdc-0031-467f-bfdc-76b824735862",
+				"model": "periodicalitem"
+			},
+			{
+				"pid": "uuid:fe1191ba-98a7-4f21-b201-3c147fedc88e",
+				"model": "article"
+			}
+		]
+	],
+	"pid": "uuid:fe1191ba-98a7-4f21-b201-3c147fedc88e",
+	"model": "article",
+	"handle": {
+		"href": "https://dnnt.mzk.cz/search/handle/uuid:fe1191ba-98a7-4f21-b201-3c147fedc88e"
+	},
+	"title": "Spiders (Araneida) from the slopes of Macošská stráň and Vilémovická stráň (Moravský kras Protected Landscape Area, Czech Republic)",
+	"root_title": "Acta Musei Moraviae. Scientiae Biologicae",
+	"root_pid": "uuid:f73d5ec6-e89f-425b-9fe2-eb2b826ea05d",
+	"policy": "private"
+}

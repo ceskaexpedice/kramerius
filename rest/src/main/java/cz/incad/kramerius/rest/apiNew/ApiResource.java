@@ -1,14 +1,19 @@
 package cz.incad.kramerius.rest.apiNew;
 
+import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.repository.KrameriusRepositoryAccessAdapter;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
+import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+
 import java.io.IOException;
 import java.util.regex.Pattern;
 
@@ -29,7 +34,7 @@ public abstract class ApiResource {
     //TODO should be interface, but then guice would need bind(KrameriusRepository.class).to(KrameriusRepositoryApiImpl) somewhere
     //public KrameriusRepositoryApiImpl krameriusRepositoryApi;
 
-    /*
+    
     @Inject
     @Named("securedFedoraAccess")
     private FedoraAccess repository;
@@ -55,35 +60,35 @@ public abstract class ApiResource {
         } catch (IOException e) {
             throw new InternalErrorException(e.getMessage());
         }
-    }*/
-
-    protected final void checkObjectExists(String pid) throws ApiException {
-        try {
-            boolean exists = krameriusRepositoryApi.isPidAvailable(pid);
-            if (!exists) {
-                throw new NotFoundException("object %s not found in repository", pid);
-            }
-        } catch (IOException| RepositoryException e) {
-            throw new InternalErrorException(e.getMessage());
-        }
     }
 
-    protected final void checkObjectAndDatastreamExist(String pid, String dsId) throws ApiException {
-        checkObjectExists(pid);
-        try {
-            boolean exists = krameriusRepositoryApi.isStreamAvailable(pid, dsId);
-            if (!exists) {
-                throw new NotFoundException("datastream %s of object %s not found in repository", dsId, pid);
-            }
-        } catch (RepositoryException | IOException e) {
-            e.printStackTrace();
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
+//    protected final void checkObjectExists(String pid) throws ApiException {
+//        try {
+//            boolean exists = krameriusRepositoryApi.isPidAvailable(pid);
+//            if (!exists) {
+//                throw new NotFoundException("object %s not found in repository", pid);
+//            }
+//        } catch (IOException| RepositoryException e) {
+//            throw new InternalErrorException(e.getMessage());
+//        }
+//    }
 
-    protected final void checkObjectAndDatastreamExist(String pid, KrameriusRepositoryApi.KnownDatastreams ds) throws ApiException {
-        checkObjectAndDatastreamExist(pid, ds.toString());
-    }
+//    protected final void checkObjectAndDatastreamExist(String pid, String dsId) throws ApiException {
+//        checkObjectExists(pid);
+//        try {
+//            boolean exists = krameriusRepositoryApi.isStreamAvailable(pid, dsId);
+//            if (!exists) {
+//                throw new NotFoundException("datastream %s of object %s not found in repository", dsId, pid);
+//            }
+//        } catch (RepositoryException | IOException e) {
+//            e.printStackTrace();
+//            throw new InternalErrorException(e.getMessage());
+//        }
+//    }
+//
+//    protected final void checkObjectAndDatastreamExist(String pid, KrameriusRepositoryApi.KnownDatastreams ds) throws ApiException {
+//        checkObjectAndDatastreamExist(pid, ds.toString());
+//    }
 
 
     protected final void checkSupportedObjectPid(String pid) {
