@@ -27,7 +27,7 @@ import static cz.incad.kramerius.Constants.WORKING_DIR;
  */
 public class KrameriusKeycloakFilter implements Filter {
 
-    private final static Logger log = Logger.getLogger("" + KrameriusKeycloakFilter.class);
+    private final static Logger log = Logger.getLogger(KrameriusKeycloakFilter.class.getName());
 
     public static final String SKIP_PATTERN_PARAM = "keycloak.config.skipPattern";
 
@@ -79,29 +79,26 @@ public class KrameriusKeycloakFilter implements Filter {
                     deploymentContext = new AdapterDeploymentContext(configResolver);
                     log.log(Level.INFO, "Using {0} to resolve Keycloak configuration on a per-request basis.", configResolverClass);
                 } catch (Exception ex) {
-                    log.log(Level.FINE, "The specified resolver {0} could NOT be loaded. Keycloak is unconfigured and will deny all requests. Reason: {1}", new Object[]{configResolverClass, ex.getMessage()});
+                    log.log(Level.SEVERE, "The specified resolver {0} could NOT be loaded. Keycloak is unconfigured and will deny all requests. Reason: {1}", new Object[]{configResolverClass, ex.getMessage()});
                     deploymentContext = new AdapterDeploymentContext(new KeycloakDeployment());
                 }
             } else {
                 String fp = filterConfig.getInitParameter(CONFIG_FILE_PARAM);
                 InputStream is = null;
-                if (fp != null) {
-                    try {
+                try {
+                    if (fp != null) {
                         is = new FileInputStream(fp);
-                    } catch (FileNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else {
-                    String path = WORKING_DIR+"/keycloak.json";
-                    try {
+                    } else {
+                        String path = WORKING_DIR + "/keycloak.json";
                         is = new FileInputStream(path);
-                    } catch (FileNotFoundException e) {
-                        throw new RuntimeException(e);
                     }
+                    KeycloakDeployment kd = createKeycloakDeploymentFrom(is);
+                    deploymentContext = new AdapterDeploymentContext(kd);
+                    log.fine("Keycloak is using a per-deployment configuration.");
+                } catch (FileNotFoundException e) {
+                    log.log(Level.SEVERE,"Keycloak is unconfigured and will deny all requests." , e);
+                    deploymentContext = new AdapterDeploymentContext(new KeycloakDeployment());
                 }
-                KeycloakDeployment kd = createKeycloakDeploymentFrom(is);
-                deploymentContext = new AdapterDeploymentContext(kd);
-                log.fine("Keycloak is using a per-deployment configuration.");
             }
         }
         filterConfig.getServletContext().setAttribute(AdapterDeploymentContext.class.getName(), deploymentContext);
@@ -178,9 +175,9 @@ public class KrameriusKeycloakFilter implements Filter {
 //            if (actions.handledRequest()) {
 //                return;
 //            } else {
-                HttpServletRequestWrapper wrapper = tokenStore.buildWrapper();
-                chain.doFilter(wrapper, res);
-                return;
+            HttpServletRequestWrapper wrapper = tokenStore.buildWrapper();
+            chain.doFilter(wrapper, res);
+            return;
 //            }
         }
 //        AuthChallenge challenge = authenticator.getChallenge();
@@ -190,7 +187,7 @@ public class KrameriusKeycloakFilter implements Filter {
 //            return;
 //        }
 //        response.sendError(403);
-        chain.doFilter(req,res);
+        chain.doFilter(req, res);
     }
 
     /**

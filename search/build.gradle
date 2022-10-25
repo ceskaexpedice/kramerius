@@ -1,8 +1,8 @@
-
+plugins {
+    id 'com.google.cloud.tools.jib'
+}
 apply plugin: 'war'
-
 description "Admin web application"
-
 
 
 sourceSets {
@@ -17,12 +17,12 @@ sourceSets {
     }
 
     test {
-    java {
+        java {
             srcDir 'src/test'
-    }
-    resources {
-        srcDir 'src/test'
-    }
+        }
+        resources {
+            srcDir 'src/test'
+        }
     }
 }
 
@@ -54,7 +54,6 @@ dependencies {
     api 'javax.servlet:jstl:1.2'
     api 'taglibs:standard:1.1.2'
     api 'xalan:xalan:2.7.2'
-	
 
 
     api 'xerces:xercesImpl:2.12.2'
@@ -71,21 +70,21 @@ dependencies {
 
     api 'org.keycloak:keycloak-servlet-filter-adapter:15.0.2'
     api 'org.keycloak:keycloak-authz-client:15.0.2'
-    
+
 }
 
 
-task gitcall(type:Exec) {
-   commandLine "git","rev-parse","HEAD"
-   standardOutput = new ByteArrayOutputStream()
-   doLast{
+task gitcall(type: Exec) {
+    commandLine "git", "rev-parse", "HEAD"
+    standardOutput = new ByteArrayOutputStream()
+    doLast {
         byte[] bytes = standardOutput.toByteArray()
-        ext.hash =new String(bytes).trim(); 
-   }     
+        ext.hash = new String(bytes).trim();
+    }
 }
 
 
-task infofile(dependsOn: gitcall)  {
+task infofile(dependsOn: gitcall) {
     doLast {
         def parentFolder = new File("$buildDir/resources/main")
         parentFolder.mkdirs()
@@ -97,22 +96,27 @@ task infofile(dependsOn: gitcall)  {
 
         props.store(buildInfoFile.newWriter(), null)
         println "Created build file ${buildInfoFile.absolutePath} with version ${project.version.toString()} and hash ${gitcall.hash} "
-		
-		parentFolder.listFiles().each{ f-> 
-			println "... ${f.absolutePath}"
-		}
-	}
+
+        parentFolder.listFiles().each { f ->
+            println "... ${f.absolutePath}"
+        }
+    }
 }
 
 
 //processResources.dependsOn infofile
 
-war.dependsOn infofile
+//war.dependsOn infofile
 
 war {
-    baseName='search'
-    archiveName ='search.war'
+    baseName = 'search'
+    archiveName = 'search.war'
+
+
     from 'web'
+
+    //expand(project.properties)
+
     dependsOn 'infofile'
 }
 
@@ -121,5 +125,23 @@ repositories {
 }
 
 
-
+jib {
+    from {
+        image = 'tomcat:9.0.67-jre11-temurin-jammy'
+        platforms {
+            platform {
+                architecture = 'amd64'
+                os = 'linux'
+            }
+            platform {
+                architecture = 'arm64'
+                os = 'linux'
+            }
+        }
+    }
+    to {
+        image = "ceskaexpedice/kramerius:${version}"
+    }
+    container.appRoot = '/usr/local/tomcat/webapps/search'
+}
 

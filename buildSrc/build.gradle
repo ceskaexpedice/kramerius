@@ -17,7 +17,7 @@ dependencies {
 	api 'com.sun.xml.ws:jaxws-tools:2.3.5'
 
     //compile 'org.gradle.api.plugins:gradle-cargo-plugin:1.5'
-    api 'org.apache.httpcomponents:httpclient:4.5.3'
+    api 'org.apache.httpcomponents:httpclient:4.5.13'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.littleshoot:littleproxy:1.1.0-beta2'

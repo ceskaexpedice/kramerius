@@ -9,7 +9,7 @@ dependencies {
     api project(':shared:common')
     api project(':security:security-core')
 
-    api (group: 'org.keycloak', name: 'keycloak-servlet-filter-adapter', version: '15.0.2')
+    api (group: 'org.keycloak', name: 'keycloak-servlet-filter-adapter', version: '19.0.3')
     api 'com.squareup.okhttp3:okhttp:4.9.1'
 
     provided "javax.servlet.jsp:jsp-api:2.2",

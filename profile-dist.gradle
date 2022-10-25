@@ -1,0 +1,4 @@
+ext.kramerius_connectionURL="jdbc:postgresql://localhost:5432/kramerius"
+ext.kramerius_connectionUser="fedoraAdmin"
+ext.kramerius_connectionPass="fedoraAdmin"
+ext.solrHost="http://localhost:8983/solr/kramerius"

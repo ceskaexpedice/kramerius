@@ -20,12 +20,17 @@ public class KConfiguration {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(KConfiguration.class.getName());
     public static final String CONFIGURATION = WORKING_DIR + File.separator + "configuration.properties";
+    private String configDir = WORKING_DIR;
 
     private static KConfiguration _sharedInstance = null;
 
     private Configuration allConfigurations;
 
-    protected KConfiguration() {
+    private KConfiguration(){
+        this(WORKING_DIR);
+    }
+
+    protected KConfiguration(String configDir) {
         try {
             allConfigurations = findAllConfigurations();
         } catch (Exception ex) {
@@ -50,7 +55,7 @@ public class KConfiguration {
                         LOGGER.info("Replacing configuration file name from '" + name + "' to '" + bundled.getString("_ext_configuration_file_name") + "'");
                         name = bundled.getString("_ext_configuration_file_name");
                     }
-                    String path = WORKING_DIR + File.separator + (name.toLowerCase().endsWith("properties") ? name : name + ".properties");
+                    String path = configDir + File.separator + (name.toLowerCase().endsWith("properties") ? name : name + ".properties");
                     File confFile = new File(path);
                     if (!confFile.exists()) {
                         boolean createdFile = confFile.createNewFile();
@@ -341,7 +346,7 @@ public class KConfiguration {
         }
         File retval = new File(fileName);
         if (!retval.exists()) {
-            retval = new File(WORKING_DIR + File.separator + fileName);
+            retval = new File(configDir + File.separator + fileName);
             if (!retval.exists()) {
                 LOGGER.warning("Could not find configuration file: " + fileName);
                 return null;
