@@ -31,6 +31,7 @@ public class KConfiguration {
     }
 
     protected KConfiguration(String configDir) {
+        this.configDir = configDir;
         try {
             allConfigurations = findAllConfigurations();
         } catch (Exception ex) {
