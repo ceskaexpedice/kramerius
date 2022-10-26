@@ -20,15 +20,31 @@ public class KConfiguration {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(KConfiguration.class.getName());
     public static final String CONFIGURATION = WORKING_DIR + File.separator + "configuration.properties";
-    private String configDir = WORKING_DIR;
 
+    private static String workingDir  = null;
     private static KConfiguration _sharedInstance = null;
 
-    private Configuration allConfigurations;
 
-    private KConfiguration(){
-        this(WORKING_DIR);
+    public synchronized static void setWorkingDir(String newWorkingDir){
+        if (workingDir != null){
+            throw new IllegalStateException("Working dir can be set only once");
+        }
+        workingDir = newWorkingDir;
     }
+
+    public synchronized static KConfiguration getInstance() {
+        if (_sharedInstance == null) {
+            if (workingDir == null){
+                workingDir = WORKING_DIR;
+            }
+            _sharedInstance = new KConfiguration(workingDir);
+        }
+        return _sharedInstance;
+    }
+
+
+    private Configuration allConfigurations;
+    private String configDir = null;
 
     protected KConfiguration(String configDir) {
         this.configDir = configDir;
@@ -196,12 +212,7 @@ public class KConfiguration {
         return this.allConfigurations;
     }
 
-    public synchronized static KConfiguration getInstance() {
-        if (_sharedInstance == null) {
-            _sharedInstance = new KConfiguration();
-        }
-        return _sharedInstance;
-    }
+
 
     public String getLongRunningProcessDefiniton() {
         return getProperty("longRunningProcessDefinition");
