@@ -27,6 +27,7 @@ import java.util.Arrays;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.inject.AbstractModule;
@@ -47,6 +48,7 @@ import cz.incad.kramerius.imaging.paths.DirPath;
  * @author pavels
  *
  */
+@Ignore
 public class TileSupportImplTest extends AbstractGuiceTestCase {
 
     @Override

@@ -99,7 +99,11 @@ public class MetsConvertor {
                 log.info(String.format("convert.useImageServer %s", arg));
             }
             
-            ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
+            try {
+                ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
             new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken);
         }
     }

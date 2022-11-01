@@ -92,6 +92,10 @@ dependencies {
     api 'com.hazelcast:hazelcast-all:3.11.2'
     api'net.jcip:jcip-annotations:1.0'
 
+	api('nl.siegmann.epublib:epublib-core:3.1') {
+            exclude group: 'org.slf4j'
+            exclude group: 'xmlpull'
+    }
 
     //dom4j
     api 'jaxen:jaxen:1.2.0'

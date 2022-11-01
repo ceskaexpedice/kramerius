@@ -49,6 +49,7 @@ import junit.framework.Assert;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.inject.AbstractModule;
@@ -71,10 +72,7 @@ import cz.incad.kramerius.imaging.paths.PathFilter;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
-/**
- * @author pavels
- *
- */
+@Ignore
 public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {
     
     public static Map<List<String>, Path> PATHS = new HashMap<List<String>, Path>(); 

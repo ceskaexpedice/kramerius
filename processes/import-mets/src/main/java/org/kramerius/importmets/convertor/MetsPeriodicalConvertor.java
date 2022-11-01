@@ -3,6 +3,8 @@ package org.kramerius.importmets.convertor;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
+
 import org.apache.log4j.Logger;
 import org.kramerius.alto.Alto;
 import org.kramerius.alto.Alto.Layout.Page;
@@ -151,6 +153,10 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             StreamFileType groupType = getFileType(grpId);
             for (FileType file : fGrp.getFile()) {
                 String id = file.getID();
+                String declaredMimetype = file.getMIMETYPE();
+                
+                groupType = makeSureOCRGRP(grpId, declaredMimetype, groupType);
+
                 FLocat fl = firstItem(file.getFLocat());
                 String name = fl.getHref().replace("\\", "/");
                 fileMap.put(id, new FileDescriptor(name, groupType));

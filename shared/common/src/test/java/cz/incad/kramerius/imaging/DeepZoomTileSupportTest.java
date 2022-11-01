@@ -6,6 +6,7 @@ import java.io.IOException;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.inject.AbstractModule;
@@ -17,6 +18,7 @@ import cz.incad.kramerius.AbstractGuiceTestCase;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
 
+@Ignore
 public class DeepZoomTileSupportTest extends AbstractGuiceTestCase {
 
 

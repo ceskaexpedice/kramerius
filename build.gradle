@@ -173,6 +173,11 @@ allprojects {
         maven {
             url "https://download.osgeo.org/webdav/geotools/"
         }
+		
+		maven {
+            url 'https://github.com/psiegman/mvn-repo/raw/master/releases'
+        }
+
 
 		/*
         maven {

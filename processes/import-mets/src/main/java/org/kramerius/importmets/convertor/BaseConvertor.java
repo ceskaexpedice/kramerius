@@ -11,6 +11,10 @@ import cz.incad.kramerius.utils.PathEncoder;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.Resource;
+import nl.siegmann.epublib.epub.EpubReader;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +56,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -232,6 +237,7 @@ public abstract class BaseConvertor {
         mimeMap.put("jp2", "image/jp2");
         mimeMap.put("jpx", "image/jpx");
         mimeMap.put("pdf", "application/pdf");
+        mimeMap.put("epub", "application/epub+zip");
     }
 
     private void initMODSJAXB() {
@@ -664,7 +670,6 @@ public abstract class BaseConvertor {
         boolean useImageServer = useImageServer();
                     
         boolean usePdfServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.usePdfServer", false);
-
         if (files != null) {
             for (FileDescriptor f : files) {
                 if (f != null) {
@@ -699,7 +704,33 @@ public abstract class BaseConvertor {
                                     }
                                 }
                                 break;
+                            case EPUB: 
+                                
+                                try {
+                                    URL fileUrl = new URL(FILE_SCHEME_PREFIX + fixWindowsFileURL(f.getFilename()));
+                                    
+                                    DatastreamType fullStreamEPUB = this.createFullStreamEPUB(f.getFilename(),"application/epub+zip");
+                                    if (fullStreamEPUB != null) {
+                                        addCheckedDataStream(foxmlObject, fullStreamEPUB);
+                                    }
+                                    EpubReader epubReader = new EpubReader();
+                                    Book book = epubReader.readEpub(fileUrl.openStream());
+                                    Resource coverImage = book.getCoverImage();
+                                    InputStream inputStream = coverImage.getInputStream();
+    
+                                    BufferedImage ebookImage = ImageIO.read(inputStream);
+                                    
+                                    DatastreamType thumbnailEBook = this.createThumbnailStreamEBook(ebookImage, ImageMimeType.JPEG.getValue());
+                                    if (thumbnailEBook != null) {
+                                        addCheckedDataStream(foxmlObject, thumbnailEBook);
+                                    }
+                                } catch (IOException e1) {
+                                    log.error(e1.getMessage());
+                                }
+                                break;
+                                
                             case PDF:
+
                                 BufferedImage imgPdf = null;
                                 try {
                                     if (!usePdfServer) {
@@ -709,7 +740,6 @@ public abstract class BaseConvertor {
                                     throw new ServiceException("Problem with file: " + f.getFilename(), e);
                                 }
                                 DatastreamType fullStreamPDF = this.createFullStreamPDF(f.getFilename());
-
                                 if (fullStreamPDF != null) {
                                     addCheckedDataStream(foxmlObject, fullStreamPDF);
                                 }
@@ -885,6 +915,17 @@ public abstract class BaseConvertor {
     protected static final String MC_AUDIOGRP = "MC_AUDIOGRP";
 
 
+    protected StreamFileType makeSureOCRGRP(String filegrp, String mimeType, StreamFileType sft) {
+        if (OC_GRP.equalsIgnoreCase(filegrp)) {
+            if (mimeType.equals(ImageMimeType.EPUB.getValue())) {
+                return  StreamFileType.EPUB;
+            } else {
+                return  StreamFileType.PDF;
+            }
+        }        
+        return sft;
+    }
+    
     protected StreamFileType getFileType(String filegrp) {
         if (MC_GRP.equalsIgnoreCase(filegrp)) {
             return StreamFileType.MASTER_IMAGE;
@@ -1358,6 +1399,43 @@ public abstract class BaseConvertor {
         }
     }
 
+    
+    /**
+     * Vytvori datastream obsahujici base64 zakodovana binarni data pro full - PDF
+     *
+     * @param filename
+     * @return stream
+     */
+    private DatastreamType createFullStreamEPUB(String filename, String mimeType) throws ServiceException {
+        try {
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.files", "encoded");
+            DatastreamType stream = new DatastreamType();
+            stream.setID(FedoraUtils.IMG_FULL_STREAM);
+            stream.setCONTROLGROUP("M");
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+
+            DatastreamVersionType version = new DatastreamVersionType();
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setID(FedoraUtils.IMG_FULL_STREAM + STREAM_VERSION_SUFFIX);
+
+            String mime = getImageMime(filename);
+            version.setMIMETYPE(mimeType);
+
+
+            File pageFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + filename);
+
+            if ("encoded".equalsIgnoreCase(streamType)) {
+                byte[] binaryContent = FileUtils.readFileToByteArray(pageFile);
+                version.setBinaryContent(binaryContent);
+            }
+            stream.getDatastreamVersion().add(version);
+            return stream;
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
 
     /**
      * Vytvori datastream obsahujici base64 zakodovana binarni data pro full - PDF
@@ -1441,6 +1519,57 @@ public abstract class BaseConvertor {
             throw new ServiceException(e);
         }
     }
+
+    /**
+     * Vytvori datastream obsahujici base64 zakodovana binarni data pro thumbnail - PDF
+     *
+     * @param img
+     * @param filename
+     * @return stream
+     */
+    private DatastreamType createThumbnailStreamEBook(BufferedImage img, String filename) throws ServiceException {
+        try {
+            
+            String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.thumbnails", "encoded");
+            boolean usePdfServer = KConfiguration.getInstance().getConfiguration().getBoolean("convert.usePdfServer", false);
+
+            if (usePdfServer) {
+                streamType = "external";
+            }
+            
+            DatastreamType stream = new DatastreamType();
+            stream.setID(FedoraUtils.IMG_THUMB_STREAM);
+            if ("external".equalsIgnoreCase(streamType)) {
+                stream.setCONTROLGROUP("E");
+            } else {
+                stream.setCONTROLGROUP("M");
+            }
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+
+            DatastreamVersionType version = new DatastreamVersionType();
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setID(FedoraUtils.IMG_THUMB_STREAM + STREAM_VERSION_SUFFIX);
+
+            version.setMIMETYPE("image/jpeg");
+
+            byte[] binaryContent = null;
+            if (!usePdfServer) {
+                binaryContent = scaleImage(img, 0, FedoraUtils.THUMBNAIL_HEIGHT);
+                if (binaryContent == null || binaryContent.length == 0) {
+                    return null;
+                }
+            }
+
+            //if ("encoded".equalsIgnoreCase(streamType)) {
+            version.setBinaryContent(binaryContent);
+            stream.getDatastreamVersion().add(version);
+
+            return stream;
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }        
 
     /**
      * Vytvori datastream obsahujici base64 zakodovana binarni data pro thumbnail - PDF
