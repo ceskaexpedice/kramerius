@@ -1,5 +1,6 @@
 include	'shared:common'
-include	'shared:common-intest'
+// disabled IT tests 
+//include	'shared:common-intest'
 include	'rest'
 include	'search'
 
