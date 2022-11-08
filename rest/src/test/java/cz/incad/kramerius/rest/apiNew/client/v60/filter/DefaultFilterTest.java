@@ -37,7 +37,7 @@ public class DefaultFilterTest {
 		ProxyFilter pf = new DefaultFilter(insts);
 		String newFilter = pf.newFilter();
 		System.out.println(newFilter);
-		Assert.assertEquals("cdk.collection:(svkhk OR kkp OR svkul OR knav OR uzei OR inovatika OR -mzk)",newFilter);
+		Assert.assertEquals("cdk.collection:(svkhk OR kkp OR svkul OR knav OR uzei OR inovatika)",newFilter);
 	}
 	
 	@Test
@@ -46,7 +46,7 @@ public class DefaultFilterTest {
 		insts.setStatus("mzk", false);
 		ProxyFilter pf = new DefaultFilter(insts);
 		String eFilter = pf.enhancedFilter("model:monograph AND titles.search:*");
-		Assert.assertEquals("model:monograph AND titles.search:* AND cdk.collection:(svkhk OR kkp OR svkul OR knav OR uzei OR inovatika OR -mzk)",eFilter);
+		Assert.assertEquals("model:monograph AND titles.search:* AND cdk.collection:(svkhk OR kkp OR svkul OR knav OR uzei OR inovatika)",eFilter);
 	}
 
 	@Test

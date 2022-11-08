@@ -33,21 +33,13 @@ public class DefaultFilter implements ProxyFilter{
 
 	
 	private String filter() {
-		List<String> eInsts = libraries.enabledInstances();
-		List<String> dInsts = libraries.disabledInstances();
-		
-		String enabled = eInsts.stream().collect(Collectors.joining(" OR "));
-		String disabled = dInsts.stream().map(it-> {
-			return "-"+it;
-		}).collect(Collectors.joining(" OR "));
-		
-		if (!eInsts.isEmpty() && !dInsts.isEmpty()) {
-			return "cdk.collection:("+enabled+" OR "+disabled+")";
-		} else if (!eInsts.isEmpty() && dInsts.isEmpty()) {
+		if (this.libraries.isAnyDisabled()) {
+			List<String> eInsts = libraries.enabledInstances();
+			String enabled = eInsts.stream().collect(Collectors.joining(" OR "));
 			return "cdk.collection:("+enabled+")";
-		} else if (eInsts.isEmpty() && !dInsts.isEmpty()) {
-			return "cdk.collection:("+disabled+")";
-		} else return null;
+		} else {
+			return null;
+		}
 	}
 
 	@Override
