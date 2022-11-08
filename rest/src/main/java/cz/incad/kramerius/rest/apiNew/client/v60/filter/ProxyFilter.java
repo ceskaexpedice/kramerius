@@ -11,7 +11,14 @@ public interface ProxyFilter {
 	
 	public String enhancedFilter(String f);
 	
+	public String enhanceFacetsTerms();
+	
 	public void filterValue(Element rawDoc);
 	
 	public void filterValue(JSONObject rawDoc);
+	
+//	public void filterFacets(Element rawFacets);
+//
+//	public void filterFacets(JSONObject rawFacets);
+
 }

@@ -93,15 +93,16 @@ public class DefaultFilter implements ProxyFilter{
 			rawDoc.put("cdk.collection", nCol);
 		}
 	}
-	
-	
 
-	public static void main(String[] args) {
-		Instances insts = new DefaultInstances();
-		insts.setStatus("mzk", false);
-		ProxyFilter pf = new DefaultFilter(insts);
-		String newFilter = pf.newFilter();
-		System.out.println(newFilter);
+	@Override
+	public String enhanceFacetsTerms() {
+		List<String> dInsts = libraries.disabledInstances();
+		if (!dInsts.isEmpty()) {
+			String excludedTerms = dInsts.stream().collect(Collectors.joining(","));
+			return excludedTerms;
+		} else return null;
 	}
 
+	
+	
 }

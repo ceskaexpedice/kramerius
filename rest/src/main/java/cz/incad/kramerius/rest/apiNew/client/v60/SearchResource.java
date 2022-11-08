@@ -177,6 +177,12 @@ public class SearchResource {
             builder.append("fq=");
             builder.append(URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
         }
+        
+        String eFT = this.proxyFilter.enhanceFacetsTerms();
+        if (eFT != null) {
+            builder.append("&facet.excludeTerms="+eFT);
+        }
+
         return builder.toString();
     }
 
@@ -217,6 +223,8 @@ public class SearchResource {
         });
         for (Element docE : elms) {
             filterOutFieldsFromDOM(docE);
+            
+            this.proxyFilter.filterValue(docE);
         }
         return doc;
     }
@@ -286,6 +294,8 @@ public class SearchResource {
                 filterOutFieldsFromJSON(docJSON);
                 // decorators
                 applyDecorators(context, decs, docJSON);
+                
+                this.proxyFilter.filterValue(docJSON);
             }
         }
         return resultJSONObject;
