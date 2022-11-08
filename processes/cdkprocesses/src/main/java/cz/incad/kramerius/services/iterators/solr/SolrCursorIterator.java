@@ -28,20 +28,18 @@ public class SolrCursorIterator extends AbstractSolrIterator{
         super(tStore,address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
     }
 
-    static Element pidsCursorQuery(Client client, String url, String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting, String user, String pass)  throws ParserConfigurationException, SAXException, IOException {
+    static Element pidsCursorQuery(TimestampStore store, Client client, String url, String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting, String user, String pass)  throws ParserConfigurationException, SAXException, IOException {
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
             fullQuery = "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(sorting, "UTF-8")+"&fl="+identifierField+"&fq=" + URLEncoder.encode(fq,"UTF-8");
         } else {
             fullQuery = "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(sorting, "UTF-8")+"&fl="+identifierField;
         }
-        String query = endpoint + fullQuery+"&wt=xml";
         
+        String query = endpoint + fullQuery+"&wt=xml";
         return SolrUtils.executeQuery(client, url, query, user, pass);
     }
 
-
-    
     
     static String findCursorMark(Element elm) {
         Element element = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
@@ -85,7 +83,7 @@ public class SolrCursorIterator extends AbstractSolrIterator{
             String cursorMark = null;
             String queryCursorMark = null;
             do {
-                Element element = pidsCursorQuery(client, address, masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting, this.user, this.pass);
+                Element element = pidsCursorQuery(this.timestampStore, client, address, masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting, this.user, this.pass);
                 cursorMark = findCursorMark(element);
                 queryCursorMark = findQueryCursorMark(element);
                 iterationCallback.call( pidsToIterationItem(this.address, findAllPids(element)));

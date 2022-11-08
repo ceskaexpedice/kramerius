@@ -1,5 +1,6 @@
-package cz.incad.kramerius.services.workers.replicate;
+package cz.incad.kramerius.services.transform;
 
+import cz.incad.kramerius.services.workers.replicate.BatchUtils;
 import cz.incad.kramerius.utils.UTFSort;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;

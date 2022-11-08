@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
+import cz.incad.kramerius.rest.apiNew.client.v60.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -59,7 +60,7 @@ public class SearchResource {
     private static final String[] FILTERED_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
     private static final int DEFAULT_FRAG_SIZE = 20; //see api.search.highlight.defaultfragsize for old index
     private static final int MAX_FRAG_SIZE = 120; //see api.search.highlight.maxfragsize for old index
-
+    
     @Inject
     @Named("new-index")
     private SolrAccess solrAccess;
@@ -67,6 +68,9 @@ public class SearchResource {
     @Inject
     private JSONDecoratorsAggregate jsonDecoratorAggregates; //TODO: do we need the decorators, and which are injected?
 
+    @Inject
+    ProxyFilter proxyFilter;
+    
     @GET
     public Response get(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
         try {
@@ -142,7 +146,9 @@ public class SearchResource {
     }
 
     private String buildSearchSolrQueryString(UriInfo uriInfo) throws UnsupportedEncodingException {
-        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+    	boolean fqFound = false;
+    	
+    	MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         StringBuilder builder = new StringBuilder();
         Set<String> keys = queryParameters.keySet();
         boolean hlFragsizeFound = false;
@@ -151,6 +157,9 @@ public class SearchResource {
                 String value = v;
                 if (k.equals("fl")) {
                     checkFlValueDoesNotContainFilteredField(value);
+                }
+                if (k.equals("fq")) {
+                	value = this.proxyFilter.enhancedFilter(value);
                 }
                 if (k.equals("hl.fragsize")) {
                     value = normalizeHighlightFragsize(value).toString();
@@ -161,6 +170,12 @@ public class SearchResource {
         }
         if (!hlFragsizeFound) {
             builder.append("hl.fragsize").append("=").append(DEFAULT_FRAG_SIZE);
+        }
+        
+        if (!fqFound) {
+            builder.append("&");
+            builder.append("fq=");
+            builder.append(URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
         }
         return builder.toString();
     }
@@ -233,7 +248,6 @@ public class SearchResource {
      * @param rawString SOLR response
      */
     private JSONObject buildJsonFromRawSolrResponse(String rawString, String context, List<JSONDecorator> decs) throws UnsupportedEncodingException, JSONException {
-        //List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
         List<JSONArray> docsArrays = new ArrayList<JSONArray>();
 
         JSONObject resultJSONObject = new JSONObject(rawString);
@@ -300,6 +314,7 @@ public class SearchResource {
                 jsonObj.remove(filteredFieldName);
             }
         }
+        
     }
 
     @GET

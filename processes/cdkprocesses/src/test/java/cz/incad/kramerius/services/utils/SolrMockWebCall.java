@@ -10,9 +10,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class SolrMockWebCall {
-
+	
+	public static final Logger LOGGER = Logger.getLogger(SolrMockWebCall.class.getName());
+	
     private SolrMockWebCall() {}
 
     public static List<Object> webCallExpect(Client client, String firstReq, String firstResp) throws MalformedURLException, URISyntaxException {
@@ -20,6 +23,7 @@ public class SolrMockWebCall {
         WebResource.Builder firstResourceBuilder = EasyMock.createMock(WebResource.Builder.class);
 
         EasyMock.expect(client.resource(EasyMock.eq(firstReq))).andReturn(firstResource).anyTimes();
+        LOGGER.info("Mocking request "+firstReq);
         EasyMock.expect(firstResource.getURI()).andReturn(new URL(firstReq).toURI()).anyTimes();
         EasyMock.expect(firstResource.accept(MediaType.APPLICATION_XML)).andReturn(firstResourceBuilder).anyTimes();
         EasyMock.expect(firstResourceBuilder.get(String.class)).andReturn(firstResp).anyTimes();

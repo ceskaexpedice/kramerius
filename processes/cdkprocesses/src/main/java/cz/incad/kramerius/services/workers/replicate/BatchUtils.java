@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.services.transform.SourceToDestTransform;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class BatchUtils {

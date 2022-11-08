@@ -1,4 +1,4 @@
-package cz.incad.kramerius.services.workers.replicate;
+package cz.incad.kramerius.services.transform;
 
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.services.workers.replicate.k7date.DateExtractor;
@@ -41,7 +41,10 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
         plainValueFields.put("geographic_names",  Arrays.asList("geographic_names.search","geographic_names.facet"));
         plainValueFields.put("search_autor",  Arrays.asList("authors","authors.search"));
         plainValueFields.put("facet_autor",  Arrays.asList("authors.facet"));
-        plainValueFields.put("dc.title",  Arrays.asList("title.search"));
+        
+        plainValueFields.put("dc.title",  Arrays.asList("title.search","titles.search"));
+        //plainValueFields.put("dc.title",  Arrays.asList("titles.search"));
+
         plainValueFields.put("keywords",  Arrays.asList("keywords.search", "keywords.facet"));
         plainValueFields.put("root_pid",  Arrays.asList("root.pid"));
         plainValueFields.put("root_model",  Arrays.asList("root.model"));
@@ -62,12 +65,13 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
         plainValueFields.put("dnnt-labels",  Arrays.asList("licenses"));
         plainValueFields.put("contains-dnnt-labels",  Arrays.asList("contains-licenses"));
         plainValueFields.put("text_ocr",  Arrays.asList("text_ocr"));
-
+        
         // all values but first
         restValueFields.put("parent_pid","foster_parents.pids");
 
         // sort values
         sortValueFields.put("dc.title","title.sort");
+        //sortValueFields.put("dc.title","title.search");
         sortValueFields.put("root_title","root.title.sort");
 
         // first values
@@ -200,7 +204,6 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                             }
                             document.get(this.restValueFields.get(name)).add(val);
                             field(destDocument, destDocElem, val, this.restValueFields.get(name));
-
                         });
                     }
                 } else {

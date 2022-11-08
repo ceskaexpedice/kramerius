@@ -1,4 +1,4 @@
-package cz.incad.kramerius.services.workers.replicate.copy;
+package cz.incad.kramerius.services.workers.replicate.update;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.Worker;
@@ -15,12 +15,12 @@ import org.w3c.dom.Element;
 
 import java.util.List;
 
-public class CopyReplicateSolrWorkerFactory extends WorkerFactory {
+public class UpdateFieldWorkerFactory extends WorkerFactory {
 
 
     @Override
     public Worker createWorker(ProcessIterator iteratorInstance, Element base, Client client, List<IterationItem> items) {
-        return new CopyReplicateWorker(base, client, items);
+        return new UpdateFieldWorker(base, client, items);
     }
 
     @Override

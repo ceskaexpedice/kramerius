@@ -1,4 +1,4 @@
-package cz.incad.kramerius.services.workers.replicate;
+package cz.incad.kramerius.services.transform;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

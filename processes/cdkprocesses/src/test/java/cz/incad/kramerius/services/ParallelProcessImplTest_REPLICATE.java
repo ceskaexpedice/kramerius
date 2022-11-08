@@ -6,6 +6,7 @@ import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Test;
@@ -1026,11 +1027,15 @@ public class ParallelProcessImplTest_REPLICATE {
         process.migrate(configurationFile);
 
 
+        
+
         assertThat(Input.fromReader(new StringReader((String) firstArg.getValue())))
                 .and(Input.fromStream(this.getClass().getResourceAsStream("k7notexists/k7batches/1_batch.xml")))
                 .ignoreComments()
                 .ignoreWhitespace()
                 .areSimilar();
+
+        writeDebFile((String) secondArg.getValue());
 
         assertThat(Input.fromReader(new StringReader((String) secondArg.getValue())))
                 .and(Input.fromStream(this.getClass().getResourceAsStream("k7notexists/k7batches/2_batch.xml")))
@@ -1039,6 +1044,18 @@ public class ParallelProcessImplTest_REPLICATE {
                 .areSimilar();
 
     }
+
+	private void writeDebFile(String str)  {
+		try {
+			File f = new File("test.batch");
+			f.createNewFile();
+			IOUtils.write(str, new FileOutputStream(f));
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
     @Test
     public void testFullProcess_NOT_EXISTS_K7_TRANSFORM_SOLR_CLOUD() throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException, SAXException, ParserConfigurationException, NoSuchMethodException, MigrateSolrIndexException, URISyntaxException {
@@ -1149,14 +1166,17 @@ public class ParallelProcessImplTest_REPLICATE {
         // start whole process
         process.migrate(configurationFile);
 
-        System.out.println(firstArg.getValue());
-
+        
         assertThat(Input.fromReader(new StringReader((String) firstArg.getValue())))
                 .and(Input.fromStream(this.getClass().getResourceAsStream("k7notexists/k7batches/1_batch_solrcloud.xml")))
                 .ignoreComments()
                 .ignoreWhitespace()
                 .areSimilar();
-
+        
+        
+        writeDebFile((String) secondArg.getValue());
+        
+        
         assertThat(Input.fromReader(new StringReader((String) secondArg.getValue())))
                 .and(Input.fromStream(this.getClass().getResourceAsStream("k7notexists/k7batches/2_batch_solrcloud.xml")))
                 .ignoreComments()

@@ -15,6 +15,7 @@ public class ReplicateFinisher   extends WorkerFinisher {
 
     // celkova prace predena workerum
     public static AtomicInteger WORKERS = new AtomicInteger(0);
+
     // rozdeleno do davek
     public static AtomicInteger BATCHES = new AtomicInteger(0);
 
@@ -26,6 +27,8 @@ public class ReplicateFinisher   extends WorkerFinisher {
 
     // not indexed - composite id
     public static AtomicInteger NOT_INDEXED_COMPOSITEID = new AtomicInteger(0);
+
+    public static AtomicInteger NOT_INDEXED_SKIPPED = new AtomicInteger(0);
     
     long start = System.currentTimeMillis();
 
@@ -36,7 +39,6 @@ public class ReplicateFinisher   extends WorkerFinisher {
     @Override
     public void finish() {
         SolrUtils.commit(this.client, this.destinationUrl);
-        LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d", (System.currentTimeMillis() - this.start), WORKERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get(), NOT_INDEXED_COMPOSITEID.get()));
-        // store timpestamp; allows filter by timestamp
+        LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d, skipped %d", (System.currentTimeMillis() - this.start), WORKERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get(), NOT_INDEXED_COMPOSITEID.get(), NOT_INDEXED_SKIPPED.get()));
     }
 }

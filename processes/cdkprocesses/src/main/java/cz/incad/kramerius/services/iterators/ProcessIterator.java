@@ -9,8 +9,7 @@ import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
  */
 public interface ProcessIterator {
 
-    public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback);
+	public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback);
 
-    // assigned timestamp
     public TimestampStore getTimestampStore();
 }

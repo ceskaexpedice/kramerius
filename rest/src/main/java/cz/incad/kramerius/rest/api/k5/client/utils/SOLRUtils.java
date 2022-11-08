@@ -31,7 +31,7 @@ import org.w3c.dom.NodeList;
 import cz.incad.kramerius.utils.XMLUtils;
 
 
-
+//TODO: Delete
 public class SOLRUtils {
 
     public static final Logger LOGGER = Logger.getLogger(SOLRUtils.class.getName());

@@ -26,20 +26,12 @@ public class SolrUtils {
 
     public static final Logger LOGGER = Logger.getLogger(SolrUtils.class.getName());
 
-    private SolrUtils() {
-    }
-
-
+    private SolrUtils() {}
 
     public static String sendToDest(String destSolr, Client client, Document batchDoc) {
         try {
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
-
-//            File f = new File(System.getProperty("user.home")+File.separator+".kramerius4"+File.separator+"batch.xml");
-//            if(!f.exists()) f.createNewFile();
-//            System.out.println(f.getAbsolutePath());
-//            FileUtils.write(f, writer.toString(), "UTF-8");
 
             WebResource r = client.resource(destSolr);
             ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
@@ -127,9 +119,11 @@ public class SolrUtils {
 
 
     public static Element executeQuery(Client client, String url, String query, String user, String pass) throws ParserConfigurationException, SAXException, IOException {
-        WebResource r = client.resource(url+(url.endsWith("/") ? "" : "/")+ query);
+    	String u = url+(url.endsWith("/") ? "" : "/")+ query;
+        LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] url %s", u));
+    	WebResource r = client.resource(u);
 
-        if (user != null && pass != null) {
+    	if (user != null && pass != null) {
             r.addFilter(new BasicAuthenticationClientFilter(user, pass));
         }
 

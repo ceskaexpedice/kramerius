@@ -31,7 +31,7 @@ public class SolrPageIterator extends AbstractSolrIterator{
         super(store,address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
     }
 
-    public static Element paginationQuery(Client client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String user, String pass) throws IOException, SAXException, ParserConfigurationException {
+    public static Element paginationQuery(TimestampStore store,Client client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String user, String pass) throws IOException, SAXException, ParserConfigurationException {
         String fullQuery = null;
         if (StringUtils.isAnyString(filterQuery)) {
             fullQuery = String.format("?q=%s&start=%s&rows=%d&fq=%s&fl=PID",mq,offset, rows, URLEncoder.encode(filterQuery,"UTF-8"));
@@ -64,7 +64,7 @@ public class SolrPageIterator extends AbstractSolrIterator{
             int offset = 0;
             int numberOfResult = Integer.MAX_VALUE;
             do {
-                Element element =  paginationQuery( client, address,masterQuery,  ""+offset, rows, filterQuery, endpoint, this.user, this.pass);
+                Element element =  paginationQuery(this.timestampStore, client, address,masterQuery,  ""+offset, rows, filterQuery, endpoint, this.user, this.pass);
                 if (numberOfResult == Integer.MAX_VALUE) {
                     numberOfResult = findNumberOfResults(element);
                 }

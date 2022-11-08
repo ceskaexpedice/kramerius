@@ -1,0 +1,1254 @@
+{
+	"grouped": {
+		"root.pid": {
+			"ngroups": 236829,
+			"groups": [{
+				"doclist": {
+					"docs": [{
+						"score": 557.15314,
+						"root.pid": "uuid:0f1ff7c0-4429-11e6-a5c5-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden z vás",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:0f1ff7c0-4429-11e6-a5c5-005056827e51",
+						"date.str": "2008",
+						"title.search": "Jeden z vás",
+						"authors": ["Soldán, Ladislav, 1938-", "Konečný, Robert, 1906-1981"]
+					}],
+					"numFound": 192,
+					"start": 0,
+					"maxScore": 557.15314,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:0f1ff7c0-4429-11e6-a5c5-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 557.15314,
+						"root.pid": "uuid:28cc86a0-c21e-11e8-bbaa-005056827e52",
+						"cdk.collection": ["mzk","svkhk"],
+						"root.title": "Jeden z nás",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:28cc86a0-c21e-11e8-bbaa-005056827e52",
+						"date.str": "1999",
+						"title.search": "Jeden z nás",
+						"authors": ["Poskočilová, Eva", "Smith, Michael Marshall, 1965-"]
+					}],
+					"numFound": 259,
+					"start": 0,
+					"maxScore": 557.15314,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:28cc86a0-c21e-11e8-bbaa-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 547.7556,
+						"root.pid": "uuid:ec196de0-a525-11e4-94a8-005056827e51",
+						"cdk.collection": ["mzk","uzei"],
+						"root.title": "Jeden z nás: román",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:ec196de0-a525-11e4-94a8-005056827e51",
+						"date.str": "1951",
+						"title.search": "Jeden z nás: román",
+						"authors": ["Hamera, Bogdan"]
+					}],
+					"numFound": 214,
+					"start": 0,
+					"maxScore": 547.7556,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:ec196de0-a525-11e4-94a8-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 546.0641,
+						"root.pid": "uuid:30227c00-d7f2-11e2-bcca-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden stříbrný",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:30227c00-d7f2-11e2-bcca-005056827e51",
+						"date.str": "1974",
+						"title.search": "Jeden stříbrný",
+						"authors": ["Pluhař, Zdeněk, 1913-1991"]
+					}],
+					"numFound": 225,
+					"start": 0,
+					"maxScore": 546.0641,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:30227c00-d7f2-11e2-bcca-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 545.3314,
+						"root.pid": "uuid:5ae91480-4223-11e3-ad8c-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden stříbrný",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:5ae91480-4223-11e3-ad8c-005056827e52",
+						"date.str": "1977",
+						"title.search": "Jeden stříbrný",
+						"authors": ["Pluhař, Zdeněk, 1913-1991"]
+					}],
+					"numFound": 185,
+					"start": 0,
+					"maxScore": 545.3314,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:5ae91480-4223-11e3-ad8c-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 545.3314,
+						"root.pid": "uuid:3a4137f0-8411-11e3-a70e-005056822549",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden úsměv",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:3a4137f0-8411-11e3-a70e-005056822549",
+						"date.str": "1957",
+						"title.search": "Jeden úsměv",
+						"authors": ["Ruxová, Eva, 1923-", "Sagan, Françoise, 1935-2004"]
+					}],
+					"numFound": 71,
+					"start": 0,
+					"maxScore": 545.3314,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:3a4137f0-8411-11e3-a70e-005056822549"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 543.0922,
+						"root.pid": "uuid:fbcfea20-131b-11e5-ac88-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden život",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:fbcfea20-131b-11e5-ac88-005056827e51",
+						"date.str": "1975",
+						"title.search": "Jeden život",
+						"authors": ["Podešvová, Marie, 1901-1994"]
+					}],
+					"numFound": 120,
+					"start": 0,
+					"maxScore": 543.0922,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:fbcfea20-131b-11e5-ac88-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 543.0922,
+						"root.pid": "uuid:6c0283a0-829c-11e3-a6e0-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden svět",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:6c0283a0-829c-11e3-a6e0-005056827e52",
+						"date.str": "1999",
+						"title.search": "Jeden svět",
+						"authors": ["Cihlář, Michal, 1960-", "Velíšek, Martin, 1963 říj. 21.-", "Attila, Jozef", "Reisenauer, Pavel, 1961-"]
+					}],
+					"numFound": 87,
+					"start": 0,
+					"maxScore": 543.0922,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:6c0283a0-829c-11e3-a6e0-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 542.95026,
+						"root.pid": "uuid:962bcaa0-49a5-11e2-a0bc-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden život",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:962bcaa0-49a5-11e2-a0bc-005056827e52",
+						"date.str": "1962",
+						"title.search": "Jeden život",
+						"authors": ["Závada, Vilém, 1905-1982"]
+					}],
+					"numFound": 53,
+					"start": 0,
+					"maxScore": 542.95026,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:962bcaa0-49a5-11e2-a0bc-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 542.95026,
+						"root.pid": "uuid:41297640-3493-11e3-8d9d-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden život",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:41297640-3493-11e3-8d9d-005056827e51",
+						"date.str": "1963",
+						"title.search": "Jeden život",
+						"authors": ["Závada, Vilém, 1905-1982"]
+					}],
+					"numFound": 69,
+					"start": 0,
+					"maxScore": 542.95026,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:41297640-3493-11e3-8d9d-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 541.4129,
+						"root.pid": "uuid:288f9cb0-0aa9-11e6-a7a2-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Mosty - jeden z divů světa",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:288f9cb0-0aa9-11e6-a7a2-005056827e52",
+						"date.str": "1967",
+						"title.search": "Mosty - jeden z divů světa",
+						"authors": ["Urban, Eduard"]
+					}],
+					"numFound": 118,
+					"start": 0,
+					"maxScore": 541.4129,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:288f9cb0-0aa9-11e6-a7a2-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 538.69226,
+						"root.pid": "uuid:3a38ee20-7dbc-11e3-9be6-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden musí z kola ven",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:3a38ee20-7dbc-11e3-9be6-005056827e52",
+						"date.str": "2012",
+						"title.search": "Jeden musí z kola ven",
+						"authors": ["Le Carré, John, 1931-"]
+					}],
+					"numFound": 333,
+					"start": 0,
+					"maxScore": 538.69226,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:3a38ee20-7dbc-11e3-9be6-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 538.1664,
+						"root.pid": "uuid:2c4fd940-5e72-11e3-ac69-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Paul Verlaine - jeden z absolutních",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:2c4fd940-5e72-11e3-ac69-005056827e51",
+						"date.str": "[1994]",
+						"title.search": "Paul Verlaine - jeden z absolutních",
+						"authors": ["Vladislav, Jan, 1923-2009", "Verlaine, Paul, 1844-1896"]
+					}],
+					"numFound": 112,
+					"start": 0,
+					"maxScore": 538.1664,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:2c4fd940-5e72-11e3-ac69-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.8788,
+						"root.pid": "uuid:ebe7c2e0-1222-11e4-8e0d-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jenom jeden život",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:ebe7c2e0-1222-11e4-8e0d-005056827e51",
+						"date.str": "1980",
+						"title.search": "Jenom jeden život",
+						"authors": ["Hořejší, Zdeněk", "Stano, Jiří, 1926-"]
+					}],
+					"numFound": 167,
+					"start": 0,
+					"maxScore": 536.8788,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:ebe7c2e0-1222-11e4-8e0d-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.8788,
+						"root.pid": "uuid:8fcbc8c0-28cd-11e2-9f39-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Deset a jeden",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:8fcbc8c0-28cd-11e2-9f39-005056827e51",
+						"date.str": "1972",
+						"title.search": "Deset a jeden",
+						"authors": ["Jungwirth, František, 1920-1997", "McBain, Ed, 1926-2005"]
+					}],
+					"numFound": 149,
+					"start": 0,
+					"maxScore": 536.8788,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:8fcbc8c0-28cd-11e2-9f39-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.8788,
+						"root.pid": "uuid:b02a6e50-a2e8-11e3-b833-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Sen jeden svítí",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:b02a6e50-a2e8-11e3-b833-005056827e52",
+						"date.str": "1991",
+						"title.search": "Sen jeden svítí",
+						"authors": ["Deml, Jakub, 1878-1961", "Med, Jaroslav, 1932-", "Chalupecký, Jindřich, 1910-1990"]
+					}],
+					"numFound": 216,
+					"start": 0,
+					"maxScore": 536.8788,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:b02a6e50-a2e8-11e3-b833-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.8788,
+						"root.pid": "uuid:371c47f0-f83d-11e2-9923-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden a druhý",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:371c47f0-f83d-11e2-9923-005056827e52",
+						"date.str": "1962",
+						"title.search": "Jeden a druhý",
+						"authors": ["Řezáčová, Ema, 1903-1997"]
+					}],
+					"numFound": 314,
+					"start": 0,
+					"maxScore": 536.8788,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:371c47f0-f83d-11e2-9923-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.4697,
+						"root.pid": "uuid:4d770660-c38c-11e2-b6da-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden pro druhého",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:4d770660-c38c-11e2-b6da-005056827e52",
+						"date.str": "1993",
+						"title.search": "Jeden pro druhého",
+						"authors": ["Vorlíčková, Irena", "Cooper, M. E.", "Procházková, Hana"]
+					}],
+					"numFound": 117,
+					"start": 0,
+					"maxScore": 536.4697,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:4d770660-c38c-11e2-b6da-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.4697,
+						"root.pid": "uuid:3454fcd0-9fa6-11e4-a808-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden muž navíc",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:3454fcd0-9fa6-11e4-a808-005056827e52",
+						"date.str": "1963",
+						"title.search": "Jeden muž navíc",
+						"authors": ["Chabrol, Jean-Pierre, 1925-2001"]
+					}],
+					"numFound": 130,
+					"start": 0,
+					"maxScore": 536.4697,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:3454fcd0-9fa6-11e4-a808-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.4697,
+						"root.pid": "uuid:03b70a80-a43b-11e3-9d7d-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden se zmýlil",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:03b70a80-a43b-11e3-9d7d-005056827e51",
+						"date.str": "1999",
+						"title.search": "Jeden se zmýlil",
+						"authors": ["Wallace, Edgar, 1875-1932"]
+					}],
+					"numFound": 78,
+					"start": 0,
+					"maxScore": 536.4697,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:03b70a80-a43b-11e3-9d7d-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.4697,
+						"root.pid": "uuid:69de9330-e16f-11e2-9923-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Fin jeden zatracená",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:69de9330-e16f-11e2-9923-005056827e52",
+						"date.str": "1978",
+						"title.search": "Fin jeden zatracená",
+						"authors": ["Velkoborský, Jan Petr, 1934-2012", "Ylitalo, Hannu, 1934-"]
+					}],
+					"numFound": 129,
+					"start": 0,
+					"maxScore": 536.4697,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:69de9330-e16f-11e2-9923-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.4697,
+						"root.pid": "uuid:471dc7f0-c39e-11e3-aec3-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden život nestačí",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:471dc7f0-c39e-11e3-aec3-005056827e52",
+						"date.str": "2008",
+						"title.search": "Jeden život nestačí",
+						"authors": ["Černá, Jaroslava, 1959-"]
+					}],
+					"numFound": 209,
+					"start": 0,
+					"maxScore": 536.4697,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:471dc7f0-c39e-11e3-aec3-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.4697,
+						"root.pid": "uuid:495dae00-1c01-11e6-8884-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Byl jeden dům",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:495dae00-1c01-11e6-8884-005056827e52",
+						"date.str": "c2004",
+						"title.search": "Byl jeden dům",
+						"authors": ["Urbánková, Dagmar, 1972-"]
+					}],
+					"numFound": 4,
+					"start": 0,
+					"maxScore": 536.4697,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:495dae00-1c01-11e6-8884-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 536.3064,
+						"root.pid": "uuid:ec1d1680-4953-11e4-8113-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden z tisíců: Zajatcův zápisník",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:ec1d1680-4953-11e4-8113-005056827e52",
+						"date.str": "1945",
+						"title.search": "Jeden z tisíců: Zajatcův zápisník",
+						"authors": ["Ratolístka, F. Z."]
+					}],
+					"numFound": 141,
+					"start": 0,
+					"maxScore": 536.3064,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:ec1d1680-4953-11e4-8113-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 534.43054,
+						"root.pid": "uuid:752c0800-4a82-11e2-b8fd-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden večer denně",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:752c0800-4a82-11e2-b8fd-005056827e52",
+						"date.str": "1984",
+						"title.search": "Jeden večer denně",
+						"authors": ["Romportlová, Ludmila, 1924-"]
+					}],
+					"numFound": 198,
+					"start": 0,
+					"maxScore": 534.43054,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:752c0800-4a82-11e2-b8fd-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 534.43054,
+						"root.pid": "uuid:6c015730-ffef-11e2-beb8-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden krásný rok",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:6c015730-ffef-11e2-beb8-005056827e51",
+						"date.str": "1982",
+						"title.search": "Jeden krásný rok",
+						"authors": ["Pecháčková, Františka, 1904-1991"]
+					}],
+					"numFound": 179,
+					"start": 0,
+					"maxScore": 534.43054,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:6c015730-ffef-11e2-beb8-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 534.43054,
+						"root.pid": "uuid:51842600-1ac3-11e8-bdb0-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden za všechny",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:51842600-1ac3-11e8-bdb0-005056827e51",
+						"date.str": "1960",
+						"title.search": "Jeden za všechny",
+						"authors": ["Fuchs, Otakar, 1900-1980", "Peřina, Evžen J., 1916-"]
+					}],
+					"numFound": 279,
+					"start": 0,
+					"maxScore": 534.43054,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:51842600-1ac3-11e8-bdb0-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 534.01434,
+						"root.pid": "uuid:1847e3f0-f127-11e3-b72e-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Ani jeden čtyřlístek",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:1847e3f0-f127-11e3-b72e-005056827e52",
+						"date.str": "1981",
+						"title.search": "Ani jeden čtyřlístek",
+						"authors": ["Pelcová, Ludmila, 1922-"]
+					}],
+					"numFound": 68,
+					"start": 0,
+					"maxScore": 534.01434,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:1847e3f0-f127-11e3-b72e-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 534.01434,
+						"root.pid": "uuid:b085a530-8732-11e3-bd09-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Byl jednou jeden --",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:b085a530-8732-11e3-bd09-005056827e51",
+						"date.str": "1959",
+						"title.search": "Byl jednou jeden --",
+						"authors": ["Capuana, Luigi, 1839-1915"]
+					}],
+					"numFound": 80,
+					"start": 0,
+					"maxScore": 534.01434,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:b085a530-8732-11e3-bd09-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 534.01434,
+						"root.pid": "uuid:59177ad0-8719-11e3-bd09-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden modrý den",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:59177ad0-8719-11e3-bd09-005056827e51",
+						"date.str": "1965",
+						"title.search": "Jeden modrý den",
+						"authors": ["Nováková, Zuzana, 1943-"]
+					}],
+					"numFound": 40,
+					"start": 0,
+					"maxScore": 534.01434,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:59177ad0-8719-11e3-bd09-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 534.01434,
+						"root.pid": "uuid:421cf690-f851-11e2-9923-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden večer denně",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:421cf690-f851-11e2-9923-005056827e52",
+						"date.str": "1978",
+						"title.search": "Jeden večer denně",
+						"authors": ["Solpera, Jan, 1939-", "Romportlová, Ludmila, 1924-"]
+					}],
+					"numFound": 185,
+					"start": 0,
+					"maxScore": 534.01434,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:421cf690-f851-11e2-9923-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 534.01434,
+						"root.pid": "uuid:67177b00-0d57-11eb-9e0f-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Třicet jeden den",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:67177b00-0d57-11eb-9e0f-005056827e51",
+						"date.str": "1951",
+						"title.search": "Třicet jeden den",
+						"authors": ["Aleksin, Anatolij, 1924-", "Vávrová-Hoberlandtová, Jarmila, 1926-"]
+					}],
+					"numFound": 122,
+					"start": 0,
+					"maxScore": 534.01434,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:67177b00-0d57-11eb-9e0f-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 533.3704,
+						"root.pid": "uuid:5a25db80-60e3-11e3-ae59-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z hlubin",
+						"accessibility": "public",
+						"own_model_path": "monograph",
+						"pid": "uuid:5a25db80-60e3-11e3-ae59-005056827e52",
+						"date.str": "1948",
+						"title.search": "Z hlubin",
+						"authors": ["Vrchlický, Jaroslav, 1853-1912"]
+					}],
+					"numFound": 287,
+					"start": 0,
+					"maxScore": 533.3704,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:5a25db80-60e3-11e3-ae59-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 532.793,
+						"root.pid": "uuid:f43a0a50-d10b-11e8-bbaa-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Petr Zenkl: jeden z tvůrců československé demokracie",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:f43a0a50-d10b-11e8-bbaa-005056827e52",
+						"date.str": "2010",
+						"title.search": "Petr Zenkl: jeden z tvůrců československé demokracie",
+						"authors": ["Čečrdlová, Jaroslava, 1981-"]
+					}],
+					"numFound": 128,
+					"start": 0,
+					"maxScore": 532.793,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:f43a0a50-d10b-11e8-bbaa-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:fae72150-b5bb-11e3-9d7d-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z korespondence",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:fae72150-b5bb-11e3-9d7d-005056827e51",
+						"date.str": "1990",
+						"title.search": "Z korespondence",
+						"authors": ["Pavel, Ota, 1930-1973", "Ždímal, Milan", "Vilgus, Karel, 1944-", "Kovanic, Jiří, 1952-"]
+					}],
+					"numFound": 101,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:fae72150-b5bb-11e3-9d7d-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:5b5f3860-70fd-11e2-b9fa-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z nedávna",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:5b5f3860-70fd-11e2-b9fa-005056827e52",
+						"date.str": "1958",
+						"title.search": "Z nedávna",
+						"authors": ["Jirásek, Alois, 1851-1930"]
+					}],
+					"numFound": 212,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:5b5f3860-70fd-11e2-b9fa-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:2cc80ca0-bce8-11e4-b2e2-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "S/Z",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:2cc80ca0-bce8-11e4-b2e2-005056827e52",
+						"date.str": "2007",
+						"title.search": "S/Z",
+						"authors": ["Barthes, Roland, 1915-1980", "Fulka, Josef, 1976-"]
+					}],
+					"numFound": 258,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:2cc80ca0-bce8-11e4-b2e2-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:66325830-9622-11e8-93e3-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Záznamy Z",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:66325830-9622-11e8-93e3-005056827e51",
+						"date.str": "2010",
+						"title.search": "Záznamy Z",
+						"authors": ["Koubová, Míla, 1960-", "Hutňanová, Zuzana, 1959-"]
+					}],
+					"numFound": 30,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:66325830-9622-11e8-93e3-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:7ad6ffd0-28bd-11e7-9efd-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z cest",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:7ad6ffd0-28bd-11e7-9efd-005056827e52",
+						"date.str": "1958",
+						"title.search": "Z cest",
+						"authors": ["Kubka, František, 1894-1969"]
+					}],
+					"numFound": 289,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:7ad6ffd0-28bd-11e7-9efd-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:8f322910-a1e8-11e2-9a08-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z díla",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:8f322910-a1e8-11e2-9a08-005056827e52",
+						"date.str": "1957",
+						"title.search": "Z díla",
+						"authors": ["Křička, Petr, 1884-1949"]
+					}],
+					"numFound": 131,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:8f322910-a1e8-11e2-9a08-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:55db88c0-9eca-11e3-a744-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z korespondence",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:55db88c0-9eca-11e3-a744-005056827e52",
+						"date.str": "1997",
+						"title.search": "Z korespondence",
+						"authors": ["Jakobson, Roman, 1896-1982", "Morávková, Alena, 1935-"]
+					}],
+					"numFound": 105,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:55db88c0-9eca-11e3-a744-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:88a1faf0-8976-11e3-997d-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z prós",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:88a1faf0-8976-11e3-997d-005056827e52",
+						"date.str": "[1922]",
+						"title.search": "Z prós",
+						"authors": ["Lagerlöf, Selma, 1858-1940"]
+					}],
+					"numFound": 54,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:88a1faf0-8976-11e3-997d-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:912b7cb0-a215-11e9-9209-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z Javoriny",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:912b7cb0-a215-11e9-9209-005056827e51",
+						"date.str": "2007",
+						"title.search": "Z Javoriny",
+						"authors": ["Petr, Pavel, 1969-"]
+					}],
+					"numFound": 118,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:912b7cb0-a215-11e9-9209-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:80656530-2d7e-11eb-979b-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z popela",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:80656530-2d7e-11eb-979b-005056827e52",
+						"date.str": "2012",
+						"title.search": "Z popela",
+						"authors": ["Huřťák, Otto, 1963-"]
+					}],
+					"numFound": 94,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:80656530-2d7e-11eb-979b-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.7956,
+						"root.pid": "uuid:3829e1c0-616b-11e2-bc24-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z díla",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:3829e1c0-616b-11e2-bc24-005056827e51",
+						"date.str": "1950",
+						"title.search": "Z díla",
+						"authors": ["Majakovskij, Vladimir Vladimirovič, 1893-1930", "Taufer, Jiří, 1911-1986"]
+					}],
+					"numFound": 433,
+					"start": 0,
+					"maxScore": 531.7956,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:3829e1c0-616b-11e2-bc24-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.23724,
+						"root.pid": "uuid:dd829680-4ea9-11e4-a830-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z rozhovorů",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:dd829680-4ea9-11e4-a830-005056827e51",
+						"date.str": "1977",
+						"title.search": "Z rozhovorů",
+						"authors": ["Lhoták, Kamil, 1912-1990"]
+					}],
+					"numFound": 11,
+					"start": 0,
+					"maxScore": 531.23724,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:dd829680-4ea9-11e4-a830-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.23724,
+						"root.pid": "uuid:0444a870-6341-11e4-b42a-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z palce",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:0444a870-6341-11e4-b42a-005056827e52",
+						"date.str": "1946",
+						"title.search": "Z palce",
+						"authors": ["Žák, Jaroslav, 1906-1960"]
+					}],
+					"numFound": 91,
+					"start": 0,
+					"maxScore": 531.23724,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:0444a870-6341-11e4-b42a-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.23724,
+						"root.pid": "uuid:dfa342e0-4ec5-11e4-8344-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z dokumentů",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:dfa342e0-4ec5-11e4-8344-005056827e52",
+						"date.str": "1960",
+						"title.search": "Z dokumentů",
+						"authors": ["Holan, Vladimír, 1905-1980", "Justl, Vladimír, 1928-2010"]
+					}],
+					"numFound": 39,
+					"start": 0,
+					"maxScore": 531.23724,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:dfa342e0-4ec5-11e4-8344-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.23724,
+						"root.pid": "uuid:535ed210-6404-11e8-be96-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z dívánu",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:535ed210-6404-11e8-be96-005056827e52",
+						"date.str": "1987",
+						"title.search": "Z dívánu",
+						"authors": ["Háfíz, Šamsuddín Muhammad, ca 1320-1390", "Kubíčková, Věra, 1918-2009", "Viener, Vladimír, 1935-2005", "Istler, Josef, 1919-2000", "Faltus, Jiří, 1911-1993", "Beneš, Vladimír"]
+					}],
+					"numFound": 36,
+					"start": 0,
+					"maxScore": 531.23724,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:535ed210-6404-11e8-be96-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.23724,
+						"root.pid": "uuid:5959a1c0-1e66-11e2-a61d-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z nedávna",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:5959a1c0-1e66-11e2-a61d-005056827e52",
+						"date.str": "1975",
+						"title.search": "Z nedávna",
+						"authors": ["Jirásek, Alois, 1851-1930"]
+					}],
+					"numFound": 215,
+					"start": 0,
+					"maxScore": 531.23724,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:5959a1c0-1e66-11e2-a61d-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.23724,
+						"root.pid": "uuid:a697f420-0b12-11e3-9923-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z hlubin",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:a697f420-0b12-11e3-9923-005056827e52",
+						"date.str": "1998",
+						"title.search": "Z hlubin",
+						"authors": ["Atwood, Margaret Eleanor, 1939-", "Matoušek, Petr, 1968-", "Mayerová, Zuzana, 1953-"]
+					}],
+					"numFound": 155,
+					"start": 0,
+					"maxScore": 531.23724,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:a697f420-0b12-11e3-9923-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.23724,
+						"root.pid": "uuid:dcc2fef0-275f-11e3-a5bb-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z hlubin",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:dcc2fef0-275f-11e3-a5bb-005056827e52",
+						"date.str": "1949",
+						"title.search": "Z hlubin",
+						"authors": ["Vrchlický, Jaroslav, 1853-1912"]
+					}],
+					"numFound": 283,
+					"start": 0,
+					"maxScore": 531.23724,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:dcc2fef0-275f-11e3-a5bb-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.23724,
+						"root.pid": "uuid:bc7f1da0-5458-11e4-8b11-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Z díla",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:bc7f1da0-5458-11e4-8b11-005056827e51",
+						"date.str": "1956",
+						"title.search": "Z díla",
+						"authors": ["Neumann, Stanislav Kostka, 1875-1947", "Špačková-Ehrlichová, Lída, 1905-1985", "Janouch, Gustav, 1903-1968"]
+					}],
+					"numFound": 362,
+					"start": 0,
+					"maxScore": 531.23724,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:bc7f1da0-5458-11e4-8b11-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.0169,
+						"root.pid": "uuid:c01796e0-c2a5-11e2-8b87-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Tisíc a jeden život",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:c01796e0-c2a5-11e2-8b87-005056827e51",
+						"date.str": "1987",
+						"title.search": "Tisíc a jeden život",
+						"authors": ["Boháč, Ladislav, 1907-1978", "Benšová, Věra"]
+					}],
+					"numFound": 275,
+					"start": 0,
+					"maxScore": 531.0169,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:c01796e0-c2a5-11e2-8b87-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.0169,
+						"root.pid": "uuid:71883990-fbef-11ea-9c2e-005056827e51",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden rok konzervativní publicistiky",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:71883990-fbef-11ea-9c2e-005056827e51",
+						"date.str": "2017",
+						"title.search": "Jeden rok konzervativní publicistiky",
+						"authors": ["Valenta, Aleš, 1964-"]
+					}],
+					"numFound": 141,
+					"start": 0,
+					"maxScore": 531.0169,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:71883990-fbef-11ea-9c2e-005056827e51"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.0169,
+						"root.pid": "uuid:035bb450-b61b-11e2-b6da-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden a čtvrt tygra",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:035bb450-b61b-11e2-b6da-005056827e52",
+						"date.str": "1984",
+						"title.search": "Jeden a čtvrt tygra",
+						"authors": ["Grabacký, Jindřich, 1950-"]
+					}],
+					"numFound": 136,
+					"start": 0,
+					"maxScore": 531.0169,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:035bb450-b61b-11e2-b6da-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.0169,
+						"root.pid": "uuid:24880950-6afe-11e4-b202-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Za jeden provaz: román",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:24880950-6afe-11e4-b202-005056827e52",
+						"date.str": "1940",
+						"title.search": "Za jeden provaz: román",
+						"authors": ["Rosůlek, Jan Václav, 1894-1958"]
+					}],
+					"numFound": 240,
+					"start": 0,
+					"maxScore": 531.0169,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:24880950-6afe-11e4-b202-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.0169,
+						"root.pid": "uuid:d36803e0-1a18-11ed-bb16-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden život: Na prahu",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:d36803e0-1a18-11ed-bb16-005056827e52",
+						"date.str": "1972",
+						"title.search": "Jeden život: Na prahu",
+						"authors": ["Závada, Vilém, 1905-1982"]
+					}],
+					"numFound": 103,
+					"start": 0,
+					"maxScore": 531.0169,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:d36803e0-1a18-11ed-bb16-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 531.0169,
+						"root.pid": "uuid:3ded42f0-ee06-11e2-9923-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden, nikdo, stotisíc: [román]",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:3ded42f0-ee06-11e2-9923-005056827e52",
+						"date.str": "1929",
+						"title.search": "Jeden, nikdo, stotisíc: [román]",
+						"authors": ["Kovárna, František, 1905-1952", "Pirandello, Luigi, 1867-1936"]
+					}],
+					"numFound": 116,
+					"start": 0,
+					"maxScore": 531.0169,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:3ded42f0-ee06-11e2-9923-005056827e52"
+			}, {
+				"doclist": {
+					"docs": [{
+						"score": 530.8166,
+						"root.pid": "uuid:88d4ab60-b88b-11e2-b6da-005056827e52",
+						"cdk.collection": ["mzk","knav"],
+						"root.title": "Jeden život s filmem",
+						"accessibility": "private",
+						"own_model_path": "monograph",
+						"pid": "uuid:88d4ab60-b88b-11e2-b6da-005056827e52",
+						"date.str": "1980",
+						"title.search": "Jeden život s filmem",
+						"authors": ["Šmída, Bohumil, 1914-1989"]
+					}],
+					"numFound": 244,
+					"start": 0,
+					"maxScore": 530.8166,
+					"numFoundExact": true
+				},
+				"groupValue": "uuid:88d4ab60-b88b-11e2-b6da-005056827e52"
+			}],
+			"matches": 45550602
+		}
+	},
+	"responseHeader": {
+		"zkConnected": true,
+		"QTime": 16267,
+		"params": {
+			"q1": "Bazanovec kytkokvětý jeden z mokřadních bioindikátorů",
+			"facet.field": ["keywords.facet", "languages.facet", "cdk.collection", "licenses", "contains_licenses", "licenses_of_ancestors", "physical_locations.facet", "geographic_names.facet", "authors.facet", "publishers.facet", "publication_places.facet", "own_model_path", "genres.facet", "accessibility"],
+			"fl": "pid,accessibility,own_model_path,authors,root.title,root.pid,title.search,date.str,score,cdk.collection,collection.desc,licenses,contains_licenses,licenses_of_ancestors",
+			"start": "0",
+			"hl.fragsize": "20",
+			"fq": "(model:periodical OR model:monograph OR model:map OR model:graphic OR model:archive OR model:manuscript OR model:soundrecording OR model:sheetmusic OR model:convolute OR model:monographunit OR model:collection OR model:page OR model:article)",
+			"group.ngroups": "true",
+			"rows": "60",
+			"q": "_query_:\"{!edismax qf='title.search^10 authors.search^2 keywords.search text_ocr^0.1 shelf_locators' bq='(level:0)^200' bq='(accessibility:public)^2' bq='(model:page)^0.1' v=$q1}\"",
+			"group.sort": "score desc",
+			"group.truncate": "true",
+			"facet.mincount": "1",
+			"facet": "true",
+			"wt": "json",
+			"group.field": "root.pid",
+			"group": "true"
+		},
+		"status": 0
+	},
+	"facet_counts": {
+		"facet_intervals": {},
+		"facet_queries": {},
+		"facet_fields": {
+			"cdk.collection": ["mzk", 222823, "knav", 5073, "svkhk", 4764, "uzei", 3322, "svkul", 856, "kkp", 56],
+			"authors.facet": ["Zaorálek, Jaroslav", 19413, "Nenadál, Radoslav", 14482, "Eisner, Pavel", 14445, "Sienkiewicz, Henryk", 14444, "Stachová, Helena", 13287, "Šalda, F. X. (František Xaver)", 12810, "Dickens, Charles", 12618, "David, Petr", 12180, "Hilský, Martin", 11752, "Pohorský, Miloš", 10739, "Novotný, František", 10586, "Jezuité", 10253, "Vondruška, Vlastimil", 10227, "Herrmann, Ignát", 9759, "Marek, Jiří", 8858, "Československá akademie věd", 8660, "Beneš Třebízský, Václav", 8201, "Beneš, Edvard", 7780, "Baar, Jindřich Šimon", 7284, "Řezáč, Václav", 6980, "Šmahelová, Helena", 6854, "Blahynka, Milan", 6548, "Novotný, Miloslav", 6381, "Klaus, Václav", 6364, "Johns, William Earl", 6209, "Glazarová, Jarmila", 5995, "Platón", 5993, "Dvořák, Jan", 5802, "Fučík, Julius", 5388, "Houba, Michal", 5256, "Sládek, Josef Václav", 5198, "Havlíček Borovský, Karel", 5154, "Kolář, Jiří", 5144, "Engels, Friedrich", 4835, "Akademie múzických umění v Praze", 4766, "Černý, Václav", 4744, "Vrbová, Hana", 4633, "Dostojevskij, Fedor Michajlovič", 4624, "Dobrovolný, Bohumil", 4439, "Dyk, Viktor", 4297, "Pujmanová, Marie", 4152, "Pilař, Jan", 4115, "Zábrana, Jan", 3873, "Bouda, Cyril", 3843, "Bezruč, Petr", 3805, "Rolland, Romain", 3756, "Bednář, Kamil", 3748, "Poláček, Karel", 3548, "Šrámek, Fráňa", 3405, "Petiška, Eduard", 3315, "Lustig, Arnošt", 3231, "Novotný, Vladimír", 3156, "Československá společnost pro šíření politických a vědeckých znalostí", 3114, "Slezská univerzita", 3110, "Christie, Agatha", 3088, "Zeyer, Julius", 2978, "Hrabal, Bohumil", 2952, "Gor&apos;kij, Maksim", 2762, "Deml, Jakub", 2442, "Holan, Vladimír", 2388, "Kotalík, Jiří", 2119, "Mácha, Karel Hynek", 2109, "Svolinský, Karel", 2026, "Univerzita Karlova", 1962, "Schelle, Karel", 1874, "Cílek, Roman", 1844, "Puškin, Aleksandr Sergejevič", 1744, "Vladislav, Jan", 1741, "Brezina, Thomas", 1618, "Národní divadlo v Praze", 1417, "Aleš, Mikoláš", 1271, "Česko", 1138, "Šrut, Pavel", 1125, "Walt Disney Enterprises", 1116, "Masarykova univerzita", 1018, "Univerzita Palackého", 912, "Vandenberg, Patricia", 826, "Unknown", 802, "Vysoká škola ekonomická v Praze", 767, "Vysoké učení technické v Brně", 763, "Československo. Armáda. Generální štáb", 727, "Vysoká škola báňská - Technická univerzita Ostrava", 668, "České vysoké učení technické v Praze", 583, "Ústřední ústav geologický", 456, "Československo", 455, "Komenský, Jan Amos", 453, "Čapek, Karel", 452, "Jirásek, Alois", 428, "Němcová, Božena", 383, "Univerzita Hradec Králové", 374, "Univerzita Pardubice", 371, "Univerzita Tomáše Bati ve Zlíně", 358, "Česká zemědělská univerzita v Praze", 338, "Český úřad geodetický a kartografický", 330, "Technická univerzita v Liberci", 311, "Česko. Armáda. Generální štáb", 290, "Německo", 279, "Český statistický úřad", 279, "Neruda, Jan", 266, "Ostravská univerzita", 254],
+			"accessibility": ["private", 205676, "public", 29368],
+			"own_model_path": ["monograph/page", 207218, "monograph", 17135, "periodical/periodicalvolume/periodicalitem/page", 4049, "monograph/monographunit/page", 3275, "map/page", 2306, "sheetmusic/page", 788, "page", 508, "monograph/internalpart/page", 457, "graphic", 307, "periodical", 169, "periodical/periodicalvolume/periodicalitem/article", 155, "monograph/monographunit", 59, "soundrecording", 53, "periodical/periodicalvolume/supplement/page", 50, "map", 46, "archive/page", 38, "sheetmusic", 35, "periodicalvolume/periodicalitem/page", 29, "archive", 23, "manuscript", 19, "periodical/periodicalvolume/periodicalitem/supplement/page", 18, "periodical/periodicalvolume/page", 13, "collection", 11, "sheetmusic/sheetmusic/page", 11, "graphic/page", 10, "monographunit/page", 10, "monograph/monographunit/internalpart/page", 6, "periodical/periodicalvolume/periodicalitem/article/page", 6, "monograph/supplement/page", 4, "monograph/monograph/page", 3, "periodicalitem/page", 3, "periodical/monographunit/page", 2, "periodical/monographunit/periodicalitem/page", 2, "periodical/page", 2, "periodical/periodicalvolume/supplement/article", 2, "article", 1, "article/page", 1, "manuscript/page", 1, "map/map/page", 1, "monographunit", 1, "periodical/periodicalvolume/article", 1, "periodical/periodicalvolume/periodical/periodicalvolume/periodicalitem/page", 1],
+			"geographic_names.facet": ["Česko", 2434, "Czechia", 1461, "Československo", 314, "Czechoslovakia", 159, "Evropa", 112, "Brno (Česko)", 98, "Slovensko", 98, "země Evropské unie", 97, "Praha (Česko)", 93, "Německo", 92, "Europe", 77, "European Union countries", 72, "Spojené státy americké", 72, "Morava (Česko)", 71, "Rusko", 64, "Ukrajina", 64, "Germany", 63, "Itálie", 57, "Polsko", 54, "Francie", 52, "Slovakia", 52, "Prague (Czechia)", 51, "Rakousko", 46, "United States", 41, "Čechy (Česko)", 41, "Velká Británie", 39, "Evropa střední", 38, "France", 36, "Russia", 35, "Poland", 33, "Brno (Czechia)", 32, "Sovětský svaz", 31, "Bohemia", 30, "země světa", 30, "Bohemia (Czechia)", 29, "Moravia (Czechia)", 29, "Italy", 28, "Great Britain", 25, "Austria", 24, "Europe, Central", 24, "Španělsko", 24, "Anglie", 23, "Rajhrad (Česko)", 23, "Čechy jižní (Česko)", 23, "Egypt", 18, "England", 18, "Japonsko", 18, "Rakousko-Uhersko", 18, "countries of the world", 18, "Olomouc (Česko)", 16, "Soviet Union", 16, "Hradec Králové (Česko)", 15, "Čína", 15, "Podkarpatská Rus (Ukrajina)", 14, "Ukraine", 14, "Evropa západní", 13, "Hradec Králové (Czechia)", 13, "Indie", 13, "Nizozemsko", 13, "Sudety (Česko)", 13, "China", 12, "Evropa střední a východní", 12, "Japan", 12, "Spain", 12, "starověké Řecko", 12, "Blízký východ", 11, "Bohemia, Southern (Czechia)", 11, "Valašsko (Česko)", 11, "starověký Řím", 11, "Asie", 10, "Maďarsko", 10, "Morava jižní (Česko)", 10, "Slezsko (Česko)", 10, "Sudetenland (Czechia)", 10, "starověký Egypt", 10, "Bohemia and Moravia (Protectorate, 1939-1945)", 9, "Děčín (Česko : oblast)", 9, "India", 9, "Palestina", 9, "Slovinsko", 9, "Vídeň (Rakousko)", 9, "Znojmo (Česko)", 9, "zahraničí", 9, "Afrika", 8, "Jugoslávie", 8, "Olomouc (Czechia)", 8, "Ostrava (Česko)", 8, "Slovenia", 8, "Asia", 7, "Austro-Hungarian Monarchy", 7, "Bělorusko", 7, "Europe, Central and Eastern", 7, "Irák", 7, "Moravská Třebová (Česko)", 7, "Ostrava (Czechia)", 7, "Palestine", 7, "Plzeň (Česko)", 7, "Protektorát Čechy a Morava (1939-1945)", 7, "Čechy severní (Česko)", 7, "Amerika", 6],
+			"languages.facet": ["cze", 214078, "eng", 37889, "ger", 21292, "rus", 9733, "fre", 7451, "slo", 4752, "pol", 2319, "lat", 1917, "ita", 1578, "spa", 1088, "und", 819, "mul", 652, "hun", 647, "ukr", 645, "swe", 483, "dut", 445, "grc", 395, "zxx", 349, "nor", 290, "dan", 267, "bul", 263, "sla", 242, "scr", 232, "por", 194, "chi", 193, "jpn", 162, "slv", 159, "rum", 155, "gre", 147, "heb", 138, "fin", 130, "ara", 104, "hrv", 62, "est", 58, "wen", 56, "san", 49, "epo", 47, "lit", 46, "rom", 46, "srp", 44, "lav", 42, "ice", 41, "bel", 37, "kor", 36, "per", 35, "ben", 33, "tur", 31, "geo", 30, "scc", 28, "arm", 26, "tib", 24, "mac", 19, "cat", 16, "hin", 16, "yid", 16, "arc", 15, "egy", 12, "esp", 12, "mon", 12, "alb", 9, "frm", 9, "vie", 9, "sux", 8, "cop", 7, "pli", 7, "akk", 6, "bos", 6, "chu", 5, "fro", 5, "inc", 5, "ind", 5, "syr", 5, "urd", 5, "---", 4, "aze", 4, "gle", 4, "kaz", 4, "tam", 4, "tgk", 4, "ang", 3, "ine", 3, "kir", 3, "mal", 3, "non", 3, "tat", 3, "wel", 3, "amh", 2, "csb", 2, "cue", 2, "enm", 2, "gmh", 2, "hit", 2, "mar", 2, "mis", 2, "nah", 2, "roa", 2, "sco", 2, "tuk", 2, "abk", 1, "art", 1],
+			"publication_places.facet": ["Praha", 9007, "Xr", 7358, "V Praze", 1649, "Brno", 1456, "Ostrava", 416, "Olomouc", 352, "V Brně", 186, "Plzeň", 132, "Hradec Králové", 129, "České Budějovice", 124, "S.l", 122, "Liberec", 109, "Pardubice", 104, "Praha]", 102, "Ústí nad Labem", 84, "Třebíč", 60, "V Olomouci", 57, "Kostelní Vydří", 52, "Opava", 51, "Havlíčkův Brod", 48, "Zlín", 45, "Frýdek-Místek", 43, "Litomyšl", 42, "Bratislava", 41, "Čestlice", 33, "V Plzni", 32, "W Praze", 32, "Český Těšín", 32, "Xo", 31, "Česko", 31, "Humpolec", 28, "Praha?]", 26, "Praha :", 22, "Brünn", 21, "Brno :", 20, "Prag", 20, "Přerov", 19, "V Českých Budějovicích", 19, "Jihlava", 18, "Karlovy Vary", 18, "Kroměříž", 18, "Wien", 18, "Užhorod", 17, "Cheb", 15, "Tišnov", 15, "V Hradci Králové", 15, "Ústí nad Orlicí", 15, "Dresden", 14, "Ostrava :", 14, "Prostějov", 14, "Uherské Hradiště", 14, "V Ústí nad Labem", 14, "Velehrad", 14, "Vizovice", 14, "Hodonín", 13, "Jindřichův Hradec", 13, "Jinočany", 13, "Kolín", 13, "Pragae", 13, "Příbram", 13, "Boskovice", 12, "Jihlava :", 12, "Líbeznice", 12, "Pelhřimov", 12, "V Ostravě", 12, "Velké Meziříčí", 12, "Wien]", 12, "Beroun", 11, "Kladno", 11, "Písek", 11, "V Pacově", 11, "V Přerově", 11, "Znojmo", 11, "Líbeznice]", 10, "Martin", 10, "Prague", 10, "Rosice u Brna", 10, "V Prostějově", 10, "České Budějovice :", 10, "Brno?", 9, "Brno]", 9, "Brumovice", 9, "Karviná", 9, "Kunovice", 9, "Mladá Boleslav", 9, "Vyškov", 9, "Šumperk", 9, "Berlin", 8, "Dvůr Králové nad Labem", 8, "Hranice", 8, "München", 8, "Mělník", 8, "Podjebrady", 8, "Ve Vídni", 8, "Vimperk", 8, "Červený Kostelec", 8, "Břeclav", 7, "Mikulov", 7, "Pacov", 7, "Podivín", 7],
+			"physical_locations.facet": ["BOA001", 8971, "ABA001", 7160, "ABA007", 487, "HKA001", 330, "BOE950", 164, "ABA004", 161, "ABA009", 104, "ULG001", 59, "BOE801", 52, "KME450", 12, "HOE802", 9, "NAG001", 6, "BVE301", 5, "HKE302", 5, "TUE801", 4, "BOA002", 3, "HKG001", 2, "ABB060", 1, "ABE459", 1, "ABG001", 1, "BOA003", 1, "OLA001", 1, "PAG001", 1],
+			"genres.facet": ["Graphic", 219, "CD-ROM", 202, "Grafické listy", 190, "Sborníky konferencí", 162, "Conference publication", 138, "Text", 132, "Staré tisky", 94, "Fotografie", 79, "Portréty", 55, "Proceedings of conferences", 45, "Map", 35, "Veduty", 29, "Biography", 26, "Učebnice vysokých škol", 25, "Novel", 15, "Kolektivní monografie", 14, "Art original", 13, "Rukopisy", 13, "Handbook", 11, "Historické mapy", 11, "Učební texty", 10, "Eseje", 9, "Abstrakta", 8, "Art reproduction", 7, "Monografie", 7, "Programmed text", 7, "Příručky", 7, "Sborníky", 7, "Short story", 7, "České romány", 7, "DVD", 6, "Metodické příručky", 6, "Studie", 6, "Technical drawing", 6, "Výbory", 6, "České povídky", 6, "Autobiografické vzpomínky", 5, "Diplomy", 5, "Kartografický obraz", 5, "Kramářské tisky", 5, "Německé prózy", 5, "Periodical", 5, "Plány", 5, "Plány měst", 5, "Poezie", 5, "Politické a správní mapy", 5, "Reprodukce starých map", 5, "Studentské práce", 5, "Česká poezie", 5, "Biografie", 4, "Catalog", 4, "Cestopisy", 4, "Documents", 4, "Dokumenty", 4, "German prose", 4, "Letecké mapy", 4, "Náboženské prózy", 4, "Pamětní listy", 4, "Praktická cvičení", 4, "Religious prose", 4, "Staré mapy", 4, "Student papers", 4, "Tisky 19. století", 4, "Abstracts", 3, "Antologie", 3, "Atlasy", 3, "Bibliofilie", 3, "Collective monographs", 3, "Elektronické knihy", 3, "Essays", 3, "Index", 3, "Journal articles", 3, "Mapy obyvatelstva", 3, "Medailony", 3, "Miscellanea", 3, "Monographs", 3, "Národnostní mapy", 3, "Pojednání", 3, "Prameny", 3, "Zápis hudby", 3, "Články", 3, "Annotated editions", 2, "Anthology", 2, "Bibliography", 2, "Biographical portraits", 2, "Books of travels", 2, "Czech poetry", 2, "Czech short stories", 2, "Exhibition catalogs", 2, "Gramofonové desky", 2, "Handbooks and manuals", 2, "Historické romány", 2, "Jubilejní publikace", 2, "Katalogy výstav", 2, "Komentovaná vydání", 2, "Mapy", 2, "Popular works", 2, "Populárně-naučné publikace", 2, "Právní předpisy", 2, "Publikace pro děti", 2],
+			"licenses_of_ancestors": [],
+			"publishers.facet": ["Československý spisovatel", 566, "Mladá fronta", 380, "Albatros", 347, "Odeon", 262, "Svoboda", 226, "SPN", 196, "Melantrich", 194, "Naše vojsko", 186, "Práce", 181, "Státní pedagogické nakladatelství", 179, "S.n.", 177, "Masarykova univerzita", 160, "Orbis", 147, "J. Otto", 138, "Knižní klub", 118, "Karolinum", 111, "Státní nakladatelství dětské knihy", 109, "Olympia", 108, "Vyšehrad", 107, "Ikar", 101, "SNTL", 101, "Blok", 100, "F. Topič", 100, "Academia", 94, "Grada", 80, "Univerzita Palackého", 77, "MOBA", 74, "SNDK", 74, "Státní nakladatelství technické literatury", 69, "Argo", 64, "Jos. R. Vilímek", 61, "BB art", 60, "SNKLHU", 58, "Národní galerie", 54, "Fr. Borový", 53, "Profil", 51, "Univerzita Palackého v Olomouci", 51, "Univerzita Pardubice", 51, "Karmelitánské nakladatelství", 50, "[s.n.]", 49, "Baronet", 48, "Computer Press", 48, "Lidové nakladatelství", 48, "Univerzita J.E. Purkyně", 48, "B. Kočí", 46, "Paseka", 46, "Státní nakladatelství krásné literatury, hudby a umění", 46, "Host", 44, "Oeconomica", 44, "Portál", 44, "Gaudeamus", 42, "Družstevní práce", 41, "Krajské nakladatelství", 41, "Torst", 41, "XYZ", 40, "Linde", 39, "Sagit", 39, "Technická univerzita v Liberci", 38, "Toužimský a Moravec", 38, "Akcent", 37, "Alpress", 36, "Anagram", 36, "Státní nakladatelství politické literatury", 36, "BB/art", 35, "Supraphon", 35, "ANAG", 34, "ASPI", 34, "Univerzita Karlova", 34, "Kruh", 33, "Panorama", 33, "S.n.]", 33, "SNPL", 33, "Česká grafická Unie", 33, "Didaktis", 32, "ČVUT", 31, "Brána", 30, "Bursík &amp; Kohout distributor", 30, "Fragment", 30, "Jan Laichter", 30, "Jota", 30, "Státní vědecká knihovna", 30, "Univerzita obrany", 30, "F. Šimáček", 29, "Nákladem vlastním", 29, "Svobodné slovo", 29, "Svět sovětů", 29, "Tribun EU", 29, "Akademické nakladatelství CERM", 28, "Unie", 28, "Ivo Železný", 27, "Kvasnička a Hampl", 27, "L. Mazáč", 27, "NLN, Nakladatelství Lidové noviny", 27, "Radioservis", 27, "Rebo", 27, "Státní nakladatelství", 27, "Domestikální fond království Českého", 26, "Polygon", 26, "Svojtka &amp; Co.", 26, "Votobia", 26],
+			"licenses": ["dnnto", 2897, "dnntt", 374],
+			"contains_licenses": [],
+			"keywords.facet": ["Dějiny", 555, "History", 334, "Úlohy", 243, "Česká próza", 202, "Problems, exercises, etc", 138, "Česká literatura", 137, "dějiny", 133, "Čeština", 121, "Tisk z plochy", 114, "Vlastivěda", 108, "Učivo středních škol", 103, "Kultura a společnost", 101, "Matematika", 101, "Společnost a politika", 95, "Czech literature", 81, "Archivní fondy", 80, "Druhá světová válka (1939-1945)", 75, "Daň z přidané hodnoty", 73, "Česká poezie", 73, "Daně z příjmů", 71, "Politika a vláda", 71, "Biografie", 69, "Účetnictví", 69, "Čeští spisovatelé", 69, "Culture and society", 65, "Právo", 63, "Czech language", 62, "World War, 1939-1945", 61, "Přijímací zkoušky", 60, "Society and politics", 58, "Křesťanský život", 55, "Mathematics", 55, "Oborová terminologie", 55, "Accounting", 54, "České malířství", 54, "Vysoké školy", 53, "Description and travel", 50, "Výtvarné práce z papíru", 49, "Maturitní otázky", 48, "Politici", 48, "Secondary school curriculum", 48, "Židé", 47, "Fyzika", 46, "Křesťanští světci", 46, "Politics and government", 46, "Reálie", 46, "Value-added tax", 45, "Duchovní život", 42, "Listiny", 42, "Panovníci", 42, "Angličtina", 40, "Literatura pro děti a mládež (beletrie)", 40, "Politická perzekuce", 40, "Archeologické nálezy", 39, "History and geography", 39, "Každodenní život", 39, "Osobnosti", 38, "Ozbrojené síly", 38, "Studium a výuka", 38, "Cesty a pobyt", 37, "Češi", 36, "Evropská integrace", 35, "Jídla", 35, "Biblické citáty", 34, "Němčina", 34, "Výchova a vzdělávání", 34, "Daně", 33, "Daň z příjmů fyzických osob", 33, "Income tax", 33, "Kings and rulers", 33, "Literárněvědné rozbory", 33, "Náboženské poměry", 33, "Christian life", 32, "Czech authors", 32, "Education", 32, "Jews", 32, "Křesťanství a společnost", 32, "První světová válka, 1914-1918", 32, "Psychologie", 32, "Předmětová didaktika", 32, "Voyages and travels", 32, "Šlechtici", 32, "Šlechtické rody", 32, "Druhá světová válka, 1939-1945", 31, "Historická věda. Pomocné vědy historické. Archivnictví", 31, "česká literatura", 31, "Everyday life", 30, "Holocaust, 1939-1945", 30, "Koncentrační tábory", 30, "Entrance examinations", 29, "Literární výchova", 29, "Political persecution", 29, "Reprodukce uměleckých děl", 29, "Česká literatura (o ní)", 29, "čeština", 29, "Czech painting", 28, "Církevní dějiny", 28, "Humor", 28, "Moderní malířství", 28, "Náboženské a kulturní poměry", 28]
+		},
+		"facet_heatmaps": {},
+		"facet_ranges": {}
+	}
+}

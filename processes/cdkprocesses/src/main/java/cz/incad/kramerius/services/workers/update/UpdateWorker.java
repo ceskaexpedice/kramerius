@@ -16,8 +16,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
-
+//TODO: Delete
 public class UpdateWorker extends Worker {
 
     static Logger LOGGER = Logger.getLogger(UpdateWorker.class.getName());
@@ -26,7 +25,6 @@ public class UpdateWorker extends Worker {
 
     public UpdateWorker(Element workerElm, Client client, List<IterationItem> pids) {
         super(workerElm, client, pids);
-
         Element destinationElm = XMLUtils.findElement(workerElm, "destination");
         if (destinationElm != null) {
             Element updateFieldElement = XMLUtils.findElement(destinationElm, "update.dest.field");
@@ -75,9 +73,7 @@ public class UpdateWorker extends Worker {
                         });
 
                     }
-
                     batchDocuments.add(addDocument);
-
                     for (Document  batch : batchDocuments) {
                         String s = SolrUtils.sendToDest(this.destinationUrl, this.client, batch);
                         LOGGER.info("Response "+s);

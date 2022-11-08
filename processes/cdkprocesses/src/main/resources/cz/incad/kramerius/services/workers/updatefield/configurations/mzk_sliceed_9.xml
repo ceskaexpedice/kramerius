@@ -1,0 +1,54 @@
+<!--  
+	Process 
+ -->
+<cdkprocess>
+    <!-- Iteration part -->
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    <iteration>
+        <!--  Sliced collection  -->
+    	<fquery>created:[2020-01-01T00:00:00.000Z TO 2021-01-01T00:00:00.000Z]</fquery>
+    
+        <url>$iteration.url$</url>
+        <endpoint>select</endpoint>
+        <id>pid</id>
+        <rows>4000</rows>
+        <type>CURSOR</type>
+    </iteration>
+
+    <threads>2</threads>
+
+
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.update.UpdateFieldWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <url>$iteration.url$</url>
+            <endpoint>select</endpoint>
+            <batchsize>$iteration.batchsize$</batchsize>
+
+            <id>pid</id>
+
+            <composite.id>true</composite.id>
+            <composite.root>root.pid</composite.root>
+            <composite.child>pid</composite.child>
+
+            <checkUrl>$destination.url$</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+
+            <collection>cdk.collection</collection>
+			<!--  ziskavane pole  -->
+            <fieldlist>$iteration.fieldlist$</fieldlist>
+
+        </request>
+
+        <destination>
+            <url>$destination.url$/update</url>
+
+            <url>$destination.url$/update</url>
+			<!--  ziskavane pole -->
+			<updateField>$destination.updatefield$</updateField>
+			<!--  operace set | add | add-distinct -->
+			<updateFieldOperation>$destination.update$</updateFieldOperation>
+
+        </destination>
+    </worker>
+</cdkprocess>

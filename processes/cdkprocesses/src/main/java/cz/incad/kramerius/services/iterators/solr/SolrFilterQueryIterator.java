@@ -38,7 +38,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
         super(tStore,address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
     }
 
-    public static Element pidsFilterQuery(Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint, String user, String pass)
+    public static Element pidsFilterQuery(TimestampStore tStore, Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint, String user, String pass)
             throws ParserConfigurationException, SAXException, IOException {
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
@@ -47,6 +47,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
             fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *]", "UTF-8")) : String.format("&rows=%d", rows));
         }
         String query = endpoint + "?q="+mq + fullQuery +"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID&wt=xml";
+        
         return SolrUtils.executeQuery(client, url, query, user, pass);
     }
 
@@ -94,7 +95,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
             String previousPid = null;
             do {
                 //    private static Element pidsFilterQuery(ConfigurationBase configuration, Client client, String url, String mq, String lastPid, int rows, String fq)
-                Element element = pidsFilterQuery(client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.user, this.pass);
+                Element element = pidsFilterQuery(this.timestampStore, client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.user, this.pass);
                 previousPid = lastPid;
                 lastPid = findLastPid(element);
                 iterationCallback.call(pidsToIterationItem(this.address,findAllPids(element)));

@@ -31,6 +31,7 @@ import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 
 //import cz.incad.kramerius.keycloak.KeycloakProxy;
 import cz.incad.kramerius.rest.apiNew.admin.v10.license.LicensesResource;
+import cz.incad.kramerius.rest.apiNew.admin.v10.proxy.ConnectedInfoResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.rights.RolesResource;
@@ -65,6 +66,10 @@ import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientResources;
 import cz.incad.kramerius.rest.apiNew.client.v60.ClientProvider;
 import cz.incad.kramerius.rest.apiNew.client.v60.ClientUserResource;
+import cz.incad.kramerius.rest.apiNew.client.v60.filter.DefaultFilter;
+import cz.incad.kramerius.rest.apiNew.client.v60.filter.ProxyFilter;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.DefaultInstances;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
@@ -148,7 +153,12 @@ public class ApiServletModule extends JerseyServletModule {
         decorators();
 
 
-
+        // cdk
+        bind(Instances.class).to(DefaultInstances.class).asEagerSingleton();
+        bind(ProxyFilter.class).to(DefaultFilter.class);
+        bind(ConnectedInfoResource.class);
+        
+        
         // api
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
