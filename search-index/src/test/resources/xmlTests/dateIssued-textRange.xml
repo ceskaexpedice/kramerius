@@ -212,5 +212,101 @@
         </out>
     </test>
 
+    <test name="[1895 nebo 1896]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1895 nebo 1896]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1896-12-31T23:59:59.999Z</field>
+            <field name="date.min">1895-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1895 nebo 1896]</field>
+            <field name="date_range_end.year">1896</field>
+            <field name="date_range_start.year">1895</field>
+        </out>
+    </test>
+
+    <test name="[1895? nebo 1896]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1895? nebo 1896]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1896-12-31T23:59:59.999Z</field>
+            <field name="date.min">1895-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1895? nebo 1896]</field>
+            <field name="date_range_end.year">1896</field>
+            <field name="date_range_start.year">1895</field>
+        </out>
+    </test>
+
+    <test name="[1895 nebo 1896?]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1895 nebo 1896?]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1896-12-31T23:59:59.999Z</field>
+            <field name="date.min">1895-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1895 nebo 1896?]</field>
+            <field name="date_range_end.year">1896</field>
+            <field name="date_range_start.year">1895</field>
+        </out>
+    </test>
+
+    <test name="1895 nebo 1896]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1895 nebo 1896]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1896-12-31T23:59:59.999Z</field>
+            <field name="date.min">1895-01-01T00:00:00.001Z</field>
+            <field name="date.str">1895 nebo 1896]</field>
+            <field name="date_range_end.year">1896</field>
+            <field name="date_range_start.year">1895</field>
+        </out>
+    </test>
+
+    <test name="[1895 nebo 1896">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1895 nebo 1896</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1896-12-31T23:59:59.999Z</field>
+            <field name="date.min">1895-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1895 nebo 1896</field>
+            <field name="date_range_end.year">1896</field>
+            <field name="date_range_start.year">1895</field>
+        </out>
+    </test>
+
+    <test name="1895 nebo 1896">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1895 nebo 1896</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1896-12-31T23:59:59.999Z</field>
+            <field name="date.min">1895-01-01T00:00:00.001Z</field>
+            <field name="date.str">1895 nebo 1896</field>
+            <field name="date_range_end.year">1896</field>
+            <field name="date_range_start.year">1895</field>
+        </out>
+    </test>
+
 
 </testSuite>

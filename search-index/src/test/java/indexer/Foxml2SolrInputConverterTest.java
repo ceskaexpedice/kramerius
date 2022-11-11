@@ -204,6 +204,11 @@ public class Foxml2SolrInputConverterTest {
     }
 
     @TestFactory
+    public Collection<DynamicTest> dateIssuedCorrectIncorrectYear() throws DocumentException {
+        return testBuilder.buildTests("src/test/resources/xmlTests/dateIssued-correctIncorrectYear.xml");
+    }
+
+    @TestFactory
     public Collection<DynamicTest> dateIssuedGranularityDay() throws DocumentException {
         return testBuilder.buildTests("src/test/resources/xmlTests/dateIssued-granularityDay.xml");
     }
