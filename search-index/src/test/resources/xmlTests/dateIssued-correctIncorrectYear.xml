@@ -1,0 +1,276 @@
+<testSuite testType="mods" model="monograph">
+
+    <test name="1951, [i.e. 1952]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1951, [i.e. 1952]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1951-01-01T00:00:00.001Z</field>
+            <field name="date.str">1951, [i.e. 1952]</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1951</field>
+        </out>
+    </test>
+
+    <test name="1951 [i.e. 1952]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1951 [i.e. 1952]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1951-01-01T00:00:00.001Z</field>
+            <field name="date.str">1951 [i.e. 1952]</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1951</field>
+        </out>
+    </test>
+
+    <test name="1951, [v tir.] 1952">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1951, [v tir.] 1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1951-01-01T00:00:00.001Z</field>
+            <field name="date.str">1951, [v tir.] 1952</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1951</field>
+        </out>
+    </test>
+
+    <test name="1947, [v tiráži] 1948">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947, [v tiráži] 1948</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1948-12-31T23:59:59.999Z</field>
+            <field name="date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="date.str">1947, [v tiráži] 1948</field>
+            <field name="date_range_end.year">1948</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="1952, [v tir. spr. 1953]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1952, [v tir. spr. 1953]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1953-12-31T23:59:59.999Z</field>
+            <field name="date.min">1952-01-01T00:00:00.001Z</field>
+            <field name="date.str">1952, [v tir. spr. 1953]</field>
+            <field name="date_range_end.year">1953</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+    <test name="1952, [v tir. správně 1953]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1952, [v tir. správně 1953]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1953-12-31T23:59:59.999Z</field>
+            <field name="date.min">1952-01-01T00:00:00.001Z</field>
+            <field name="date.str">1952, [v tir. správně 1953]</field>
+            <field name="date_range_end.year">1953</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+    <test name="1952, [v tir. nesprávně 1953]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1952, [v tir. nesprávně 1953]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1953-12-31T23:59:59.999Z</field>
+            <field name="date.min">1952-01-01T00:00:00.001Z</field>
+            <field name="date.str">1952, [v tir. nesprávně 1953]</field>
+            <field name="date_range_end.year">1953</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+    <test name="1952 v tir. nespr. 1953">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1952 v tir. nespr. 1953</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1953-12-31T23:59:59.999Z</field>
+            <field name="date.min">1952-01-01T00:00:00.001Z</field>
+            <field name="date.str">1952 v tir. nespr. 1953</field>
+            <field name="date_range_end.year">1953</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+    <test name="1952 v tir. 1953">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1952 v tir. 1953</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1953-12-31T23:59:59.999Z</field>
+            <field name="date.min">1952-01-01T00:00:00.001Z</field>
+            <field name="date.str">1952 v tir. 1953</field>
+            <field name="date_range_end.year">1953</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+    <test name="1952 [v tir.] 1953">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1952 [v tir.] 1953</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1953-12-31T23:59:59.999Z</field>
+            <field name="date.min">1952-01-01T00:00:00.001Z</field>
+            <field name="date.str">1952 [v tir.] 1953</field>
+            <field name="date_range_end.year">1953</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+    <test name="1952, [spr. 1953]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1952, [spr. 1953]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1953-12-31T23:59:59.999Z</field>
+            <field name="date.min">1952-01-01T00:00:00.001Z</field>
+            <field name="date.str">1952, [spr. 1953]</field>
+            <field name="date_range_end.year">1953</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+    <test name="1915, [na obálce 1916]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1915, [na obálce 1916]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1916-12-31T23:59:59.999Z</field>
+            <field name="date.min">1915-01-01T00:00:00.001Z</field>
+            <field name="date.str">1915, [na obálce 1916]</field>
+            <field name="date_range_end.year">1916</field>
+            <field name="date_range_start.year">1915</field>
+        </out>
+    </test>
+
+    <test name="1874, [na ob.] 1876">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1874, [na ob.] 1876</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1876-12-31T23:59:59.999Z</field>
+            <field name="date.min">1874-01-01T00:00:00.001Z</field>
+            <field name="date.str">1874, [na ob.] 1876</field>
+            <field name="date_range_end.year">1876</field>
+            <field name="date_range_start.year">1874</field>
+        </out>
+    </test>
+
+    <test name="1874, [na ob. 1876]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1874, [na ob. 1876]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1876-12-31T23:59:59.999Z</field>
+            <field name="date.min">1874-01-01T00:00:00.001Z</field>
+            <field name="date.str">1874, [na ob. 1876]</field>
+            <field name="date_range_end.year">1876</field>
+            <field name="date_range_start.year">1874</field>
+        </out>
+    </test>
+
+    <test name="1968, [na tit. l. chybně] 1967">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1968, [na tit. l. chybně] 1967</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1968-12-31T23:59:59.999Z</field>
+            <field name="date.min">1967-01-01T00:00:00.001Z</field>
+            <field name="date.str">1968, [na tit. l. chybně] 1967</field>
+            <field name="date_range_end.year">1968</field>
+            <field name="date_range_start.year">1967</field>
+        </out>
+    </test>
+
+    <test name="1968, [na tit. listu chybně] 1967">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1968, [na tit. listu chybně] 1967</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1968-12-31T23:59:59.999Z</field>
+            <field name="date.min">1967-01-01T00:00:00.001Z</field>
+            <field name="date.str">1968, [na tit. listu chybně] 1967</field>
+            <field name="date_range_end.year">1968</field>
+            <field name="date_range_start.year">1967</field>
+        </out>
+    </test>
+
+    <test name="1968, [na tit. listu nespr.] 1967">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1968, [na tit. listu nespr.] 1967</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1968-12-31T23:59:59.999Z</field>
+            <field name="date.min">1967-01-01T00:00:00.001Z</field>
+            <field name="date.str">1968, [na tit. listu nespr.] 1967</field>
+            <field name="date_range_end.year">1968</field>
+            <field name="date_range_start.year">1967</field>
+        </out>
+    </test>
+
+
+</testSuite>
