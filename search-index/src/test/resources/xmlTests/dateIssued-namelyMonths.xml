@@ -1,0 +1,98 @@
+<testSuite testType="mods" model="monograph">
+
+    <test name="říjen 2000">
+        <desc>parsing month name and year - depends on installed locales</desc>
+        <in>
+            <originInfo>
+                <dateIssued>říjen 2000</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">2000-10-31T23:59:59.999Z</field>
+            <field name="date.min">2000-10-01T00:00:00.001Z</field>
+            <field name="date.str">říjen 2000</field>
+            <field name="date_range_end.month">10</field>
+            <field name="date_range_end.year">2000</field>
+            <field name="date_range_start.month">10</field>
+            <field name="date_range_start.year">2000</field>
+        </out>
+    </test>
+
+    <test name="říjen, 2000">
+        <desc>parsing month name and year - depends on installed locales</desc>
+        <in>
+            <originInfo>
+                <dateIssued>říjen, 2000</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">2000-10-31T23:59:59.999Z</field>
+            <field name="date.min">2000-10-01T00:00:00.001Z</field>
+            <field name="date.str">říjen, 2000</field>
+            <field name="date_range_end.month">10</field>
+            <field name="date_range_end.year">2000</field>
+            <field name="date_range_start.month">10</field>
+            <field name="date_range_start.year">2000</field>
+        </out>
+    </test>
+
+    <test name="November 2000">
+        <desc>parsing month name and year - depends on installed locales</desc>
+        <in>
+            <originInfo>
+                <dateIssued>November 2000</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">2000-11-30T23:59:59.999Z</field>
+            <field name="date.min">2000-11-01T00:00:00.001Z</field>
+            <field name="date.str">November 2000</field>
+            <field name="date_range_end.month">11</field>
+            <field name="date_range_end.year">2000</field>
+            <field name="date_range_start.month">11</field>
+            <field name="date_range_start.year">2000</field>
+        </out>
+    </test>
+
+    <test name="1. června 1888">
+        <desc>Day, month name, year</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1. června 1888</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1888-06-01T23:59:59.999Z</field>
+            <field name="date.min">1888-06-01T00:00:00.001Z</field>
+            <field name="date.str">1. června 1888</field>
+            <field name="date_range_end.day">1</field>
+            <field name="date_range_end.month">6</field>
+            <field name="date_range_end.year">1888</field>
+            <field name="date_range_start.day">1</field>
+            <field name="date_range_start.month">6</field>
+            <field name="date_range_start.year">1888</field>
+        </out>
+    </test>
+
+    <test name="1. April 1888">
+        <desc>Day, month name, year</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1. April 1888</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1888-04-01T23:59:59.999Z</field>
+            <field name="date.min">1888-04-01T00:00:00.001Z</field>
+            <field name="date.str">1. April 1888</field>
+            <field name="date_range_end.day">1</field>
+            <field name="date_range_end.month">4</field>
+            <field name="date_range_end.year">1888</field>
+            <field name="date_range_start.day">1</field>
+            <field name="date_range_start.month">4</field>
+            <field name="date_range_start.year">1888</field>
+        </out>
+    </test>
+
+
+</testSuite>

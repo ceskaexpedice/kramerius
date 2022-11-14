@@ -272,5 +272,37 @@
         </out>
     </test>
 
+    <test name="1933, [přetisk 1936]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>1933, [přetisk 1936]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1933-12-31T23:59:59.999Z</field>
+            <field name="date.min">1933-01-01T00:00:00.001Z</field>
+            <field name="date.str">1933, [přetisk 1936]</field>
+            <field name="date_range_end.year">1933</field>
+            <field name="date_range_start.year">1933</field>
+        </out>
+    </test>
+
+    <test name="2009 [soubor distribuován 2011]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>2009 [soubor distribuován 2011]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">2009-12-31T23:59:59.999Z</field>
+            <field name="date.min">2009-01-01T00:00:00.001Z</field>
+            <field name="date.str">2009 [soubor distribuován 2011]</field>
+            <field name="date_range_end.year">2009</field>
+            <field name="date_range_start.year">2009</field>
+        </out>
+    </test>
+
 
 </testSuite>

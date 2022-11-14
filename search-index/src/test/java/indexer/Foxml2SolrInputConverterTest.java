@@ -229,6 +229,16 @@ public class Foxml2SolrInputConverterTest {
     }
 
     @TestFactory
+    public Collection<DynamicTest> dateIssuedSeasonsOfTheYear() throws DocumentException {
+        return testBuilder.buildTests("src/test/resources/xmlTests/dateIssued-seasonsOfTheYear.xml");
+    }
+
+    @TestFactory
+    public Collection<DynamicTest> dateIssuedNamelyMonths() throws DocumentException {
+        return testBuilder.buildTests("src/test/resources/xmlTests/dateIssued-namelyMonths.xml");
+    }
+
+    @TestFactory
     public Collection<DynamicTest> periodicalitemIssueDatePart() throws DocumentException {
         return testBuilder.buildTests("src/test/resources/xmlTests/periodicalitem-issue.type.xml");
     }
