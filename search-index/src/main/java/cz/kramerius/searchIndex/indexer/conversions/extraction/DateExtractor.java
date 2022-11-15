@@ -43,6 +43,7 @@ public class DateExtractor {
     private static final String REGEXP_CORRECT_INCORRECT_YEAR1 = "(\\d{4}),?\\s\\[i\\.e\\.\\sc?(\\d{4})\\]"; //'1997 [i.e. 1998]', '1997, [i.e. 1998]', '1997, [i.e. c1998]'
     private static final String REGEXP_CORRECT_INCORRECT_YEAR2 = "(\\d{4}),?\\s\\[?(?:v\\stir(?:\\.|áži))?(?:\\s?(?:ne)?(?:spr\\.|správně))?\\]?\\s(\\d{4})\\]?"; //'1948, [spr. 1947]', '1952, [v tir. spr. 1953]'
     private static final String REGEXP_CORRECT_INCORRECT_YEAR3 = "(\\d{4}),?\\s\\[?na\\s(?:tit\\.\\s(?:listě|listu|l\\.)|(?:ob\\.|obálce))\\s?(?:\\s?(?:ne)?(?:spr\\.|správně)|chybně)?\\]?\\s?(\\d{4})\\]?"; // '1922 [na ob. 1923]', '1976, [na tit. listu nesprávně] 1975'
+    // meaning of second year is unknown, therefore indexing only first year
     private static final String REGEXP_CORRECT_INCORRECT_YEAR4 = "\\[?(\\d{4}),?\\s\\[?[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-z\\.\\s]*\\]?(?:\\d{4})\\]?"; // '1933, [přetisk 1936]', '2009 [soubor distribuován 2011]'
 
     private static final String REGEXP_SPRING_OF_YEAR = "(?:Jaro|jaro)\\s(\\d{4})"; // 'Jaro 1920', 'jaro 1920'
