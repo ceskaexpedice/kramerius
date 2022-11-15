@@ -314,8 +314,8 @@ public class DateExtractor {
         } else if (matchesRegexp(result.value, REGEXP_CORRECT_INCORRECT_YEAR4)) {
             List<Integer> numbers = extractNumbers(result.value, REGEXP_CORRECT_INCORRECT_YEAR4);
             if (numbers != null) {
-                result.rangeStartYear = numbers.get(0) < numbers.get(1) ? numbers.get(0) : numbers.get(1);
-                result.rangeEndYear = numbers.get(1) > numbers.get(0) ? numbers.get(1) : numbers.get(0);
+                result.rangeStartYear = numbers.get(0);
+                result.rangeEndYear = numbers.get(0);
                 result.valueStart = result.rangeStartYear.toString();
                 result.valueEnd = result.rangeEndYear.toString();
                 result.dateMin = MyDateTimeUtils.toYearStart(result.rangeStartYear);
