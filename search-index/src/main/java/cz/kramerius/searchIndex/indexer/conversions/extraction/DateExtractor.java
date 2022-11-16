@@ -52,6 +52,7 @@ public class DateExtractor {
     private static final String REGEXP_WINTER_OF_YEAR = "(?:Zima|zima)\\s(\\d{4})"; // 'Zima 1920', 'zima 1920'
 
     private static final String REGEXP_MONTH_NAME_YEAR = "[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-Z]*,?\\s(\\d{4})"; // 'červenec, 1999', 'prosinec 2000', 'März 1932'
+    // parsing of month name depends on avaiable locales
     private static final String DATE_FORMAT_MONTH_NAME_YEAR1 = "LLLL yyyy";
     private static final String DATE_FORMAT_MONTH_NAME_YEAR2 = "LLLL, yyyy";
     private static final String REGEXP_DAY_MONTH_NAME_YEAR = "(\\d{1,2})\\.\\s[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-Z]*,?\\s(\\d{4})"; // '1. února 1886'
