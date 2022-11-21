@@ -165,7 +165,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
             jxb:version="2.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
-	<xsd:import namespace="http://www.w3.org/1999/xlink" schemaLocation="https://www.loc.gov/standards/xlink/xlink.xsd"/>
+	<xsd:import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlink.xsd"/>
 	
 	<xsd:element name="mets">
 		<xsd:annotation>
