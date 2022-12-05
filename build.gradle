@@ -19,12 +19,14 @@
 plugins {
     id 'com.gradle.build-scan' version '1.0'
 }
-*/
+
 
 buildScan {
     licenseAgreementUrl = 'https://gradle.com/terms-of-service'
     licenseAgree = 'yes'
 }
+*/
+
 println "Building K4-K5; please read BUILD-README.txt"
 
 apply plugin: 'java' // -> generate javadoc
