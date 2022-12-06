@@ -42,7 +42,7 @@ public class FedoraAccess4xImplTest {
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
+                .withConstructor( feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
                 .createMock();
@@ -69,7 +69,7 @@ public class FedoraAccess4xImplTest {
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
+                .withConstructor(feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
                 .createMock();
@@ -95,7 +95,7 @@ public class FedoraAccess4xImplTest {
         cacheManager.init();
         HazelcastServerNode.ensureHazelcastNode();
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog, cacheManager)
+                .withConstructor( feeder, aclog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
                 .createMock();
@@ -148,7 +148,7 @@ public class FedoraAccess4xImplTest {
         final List<Integer> order = new ArrayList<Integer>();
 
         FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, aclog,cacheManager)
+                .withConstructor( feeder, aclog,cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
                 .createMock();

@@ -11,8 +11,6 @@ import com.google.inject.Injector;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.commons.configuration.Configuration;
 
 /**
  *

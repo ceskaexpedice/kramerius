@@ -51,7 +51,7 @@ public class SortingServiceImpl implements SortingService {
 
     FedoraAccess fedoraAccess;
 
-    KConfiguration configuration;
+    KConfiguration configuration = KConfiguration.getInstance();
 
 
     RelationService relationService;
@@ -59,9 +59,8 @@ public class SortingServiceImpl implements SortingService {
     private Map<String, String> sortingConfigMap = new HashMap<String, String>();
 
     @Inject
-    public SortingServiceImpl(@Named("rawFedoraAccess") FedoraAccess fedoraAccess, KConfiguration configuration, RelationService relationService) {
+    public SortingServiceImpl(@Named("rawFedoraAccess") FedoraAccess fedoraAccess, RelationService relationService) {
         this.fedoraAccess = fedoraAccess;
-        this.configuration = configuration;
         this.relationService = relationService;
         initSortingConfigMap();
     }

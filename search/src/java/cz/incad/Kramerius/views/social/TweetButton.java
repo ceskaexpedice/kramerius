@@ -25,8 +25,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class TweetButton extends AbstractSocialButton {
 
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
 
     @Inject
     Provider<Locale> localeProvider;

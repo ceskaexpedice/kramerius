@@ -34,8 +34,8 @@ public class MenuButtonsViewObject {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    @Inject
-    KConfiguration kConfiguration;
+
+    KConfiguration kConfiguration = KConfiguration.getInstance();
 
     String[] getConfigredItems() {
         String[] langs = kConfiguration.getPropertyList("interface.languages");

@@ -61,8 +61,8 @@ public class PolicyServiceImpl implements PolicyService {
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
 
     @Override
     public void setPolicy(String pid, String policyName) throws IOException {
@@ -189,13 +189,6 @@ public class PolicyServiceImpl implements PolicyService {
         this.fedoraAccess = fedoraAccess;
     }
 
-    public KConfiguration getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(KConfiguration configuration) {
-        this.configuration = configuration;
-    }
 
 
     private static final String POLICY_PREDICATE = "http://www.nsdl.org/ontologies/relationships#policy";

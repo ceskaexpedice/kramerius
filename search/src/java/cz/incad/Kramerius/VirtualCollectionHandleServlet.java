@@ -23,8 +23,8 @@ public class VirtualCollectionHandleServlet extends GuiceServlet {
 
     private static final long serialVersionUID = 1L;
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(VirtualCollectionHandleServlet.class.getName());
-    @Inject
-    transient KConfiguration kConfiguration;
+
+    transient KConfiguration kConfiguration = KConfiguration.getInstance();
 
     @Override
     public void init() throws ServletException {

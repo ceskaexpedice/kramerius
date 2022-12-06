@@ -49,8 +49,8 @@ public class ProfilesServlet extends GuiceServlet {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
     
     @Inject
     UserProfileManager userProfileManager;

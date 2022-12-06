@@ -35,18 +35,18 @@ public class FedoraUtilsTest {
     @Test
     public void fedoraUtilsExternalStream() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document extDoc = XMLUtils.parseDocument(this.getClass().getResourceAsStream("dsProfileExternal.xml"));
-        boolean extDocBool = FedoraUtils.isFedoraExternalStream(KConfiguration.getInstance(), extDoc);
+        boolean extDocBool = FedoraUtils.isFedoraExternalStream(extDoc);
         TestCase.assertTrue("expect external stream", extDocBool);
         
         Document intDoc = XMLUtils.parseDocument(this.getClass().getResourceAsStream("dsProfileInternal.xml"));
-        boolean intDocBool = FedoraUtils.isFedoraExternalStream(KConfiguration.getInstance(), intDoc);
+        boolean intDocBool = FedoraUtils.isFedoraExternalStream( intDoc);
         TestCase.assertFalse("expect internal stream", intDocBool);
     }
     
     @Test
     public void fedoraUtilsURL() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         Document extDoc = XMLUtils.parseDocument(this.getClass().getResourceAsStream("dsProfileExternal.xml"));
-        String location = FedoraUtils.getLocation(KConfiguration.getInstance(), extDoc);
+        String location = FedoraUtils.getLocation( extDoc);
         TestCase.assertNotNull(location);
         URL url = new URL(location);
         TestCase.assertEquals("/img.jp2",url.getFile());

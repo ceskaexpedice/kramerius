@@ -102,7 +102,7 @@ public class ProcessSchedulingHelper {
 
     //TODO: proverit
     public String getRemoteAddress() {
-        return IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
+        return IPAddressUtils.getRemoteAddress(this.requestProvider.get());
     }
 
     @Deprecated

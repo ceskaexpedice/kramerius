@@ -74,7 +74,7 @@ public class CoverAndContentFilterTest {
 		  
 		  
 		  FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-		        .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
+		        .withConstructor( feeder, acLog, cacheManager)
 		        .addMockedMethod("getDataStream")
 		        .addMockedMethod("getKrameriusModelName", String.class)
 		        .createMock();
@@ -109,9 +109,9 @@ public class CoverAndContentFilterTest {
 
 
 
-		public TestFA(KConfiguration configuration, ProcessingIndexFeeder feeder, AggregatedAccessLogs accessLog,
+		public TestFA( ProcessingIndexFeeder feeder, AggregatedAccessLogs accessLog,
 				CacheManager cacheManager) throws IOException {
-			super(configuration, feeder, accessLog, cacheManager);
+			super(  feeder, accessLog, cacheManager);
 			// TODO Auto-generated constructor stub
 		}
 

@@ -35,8 +35,8 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
     
-    @Inject
-    KConfiguration kConfiguration;
+
+    KConfiguration kConfiguration = KConfiguration.getInstance();
     
     @Override
     public int getTileSize() {

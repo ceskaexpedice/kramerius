@@ -43,7 +43,7 @@ public class DNNTStatisticSupport {
 
         // store json object
         JSONObject jObject = toJSON(pid, rootTitle, dcTitle,
-                IPAddressUtils.getRemoteAddress(requestProvider.get(), KConfiguration.getInstance().getConfiguration()),
+                IPAddressUtils.getRemoteAddress(requestProvider.get()),
                 user != null ? user.getLoginname() : null,
                 user != null ? user.getEmail() : null,
                 solrDate,

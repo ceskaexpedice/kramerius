@@ -68,8 +68,7 @@ public class RightsResolverFromRequestCached extends RightsResolverFromRequest {
     @Inject
     public RightsResolverFromRequestCached(Logger logger, Provider<HttpServletRequest> provider,
                                            RightsManager rightsManager, RightCriteriumContextFactory contextFactory,
-                                           Provider<User> currentUserProvider, CacheManager cacheManager,
-                                           KConfiguration configuration) {
+                                           Provider<User> currentUserProvider, CacheManager cacheManager) {
         super(logger, provider, rightsManager, contextFactory, currentUserProvider);
 
         this.provider = provider;
@@ -80,7 +79,7 @@ public class RightsResolverFromRequestCached extends RightsResolverFromRequest {
                     CacheConfigurationBuilder.newCacheConfigurationBuilder(CacheKey.class, RightsReturnObject.class,
                             ResourcePoolsBuilder.heap(1000).offheap(32, MemoryUnit.MB))
                             .withExpiry(Expirations.timeToLiveExpiration(
-                                    org.ehcache.expiry.Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
+                                    org.ehcache.expiry.Duration.of(  KConfiguration.getInstance().getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }
     }
 
@@ -88,7 +87,7 @@ public class RightsResolverFromRequestCached extends RightsResolverFromRequest {
     public RightsReturnObject isAllowedInternalForFedoraDocuments(String actionName, String pid, String stream, ObjectPidsPath path, User user) throws RightCriteriumException {
         if (SecuredActions.A_READ.getFormalName().equals(actionName)) {
         //if ("read".equals(actionName)) {
-            String ip = IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration());
+            String ip = IPAddressUtils.getRemoteAddress(this.provider.get());
             RightsReturnObject allowed = cache.get(new CacheKey(pid, user, ip));
 
             if (allowed != null) { //cache hit

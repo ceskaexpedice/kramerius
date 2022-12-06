@@ -54,7 +54,6 @@ import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 
 public class SimplePDFServiceImpl implements SimplePDFService {
@@ -71,7 +70,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
     @Inject
     public SimplePDFServiceImpl(
             @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
-            @Named("new-index") SolrAccess solrAccess, KConfiguration configuration,
+            @Named("new-index") SolrAccess solrAccess,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService) {
         super();

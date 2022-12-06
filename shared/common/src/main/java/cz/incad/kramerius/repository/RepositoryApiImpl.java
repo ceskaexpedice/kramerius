@@ -12,7 +12,6 @@ import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
@@ -41,9 +40,9 @@ public class RepositoryApiImpl implements RepositoryApi {
     private final Unmarshaller digitalObjectUnmarshaller;
 
     @Inject
-    public RepositoryApiImpl(KConfiguration configuration, ProcessingIndexFeeder processingIndexFeeder, @Named("akubraCacheManager") CacheManager cacheManager) throws RepositoryException {
+    public RepositoryApiImpl(ProcessingIndexFeeder processingIndexFeeder, @Named("akubraCacheManager") CacheManager cacheManager) throws RepositoryException {
         try {
-            AkubraDOManager akubraDOManager = new AkubraDOManager(configuration, cacheManager);
+            AkubraDOManager akubraDOManager = new AkubraDOManager( cacheManager);
             this.akubraRepository = (AkubraRepository) AkubraRepository.build(processingIndexFeeder, akubraDOManager);
             this.digitalObjectUnmarshaller = JAXBContext.newInstance(DigitalObject.class).createUnmarshaller();
         } catch (IOException e) {

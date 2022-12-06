@@ -54,8 +54,8 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     FedoraAccess fedoraAccess;
     @Inject
     DeepZoomTileSupport tileSupport;
-    @Inject
-    KConfiguration kConfiguration;
+
+    KConfiguration kConfiguration = KConfiguration.getInstance();
     // CachingSupport cachingSupport= new CachingSupport();
     @Inject
     DiscStrucutreForStore discStructureStore;

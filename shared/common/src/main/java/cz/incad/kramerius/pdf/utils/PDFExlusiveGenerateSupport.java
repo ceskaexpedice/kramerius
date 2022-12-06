@@ -25,9 +25,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class PDFExlusiveGenerateSupport {
 
     // controls genrating PDF
-    public static final Semaphore PDF_SEMAPHORE = new Semaphore(KConfiguration
-            .getInstance().getConfiguration()
-            .getInt("pdfQueue.activeProcess", 5));
+    public static final Semaphore PDF_SEMAPHORE = new Semaphore(KConfiguration.getInstance().getConfiguration().getInt("pdfQueue.activeProcess", 5));
 
     // stores handle for pdf
     public static HashMap<String, File> PREPARED_FILES = new HashMap<String, File>();

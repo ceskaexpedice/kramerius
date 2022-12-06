@@ -1,6 +1,5 @@
 package cz.incad.Kramerius.tags;
 
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.taglibs.standard.resources.Resources;
 import org.apache.taglibs.standard.tag.common.core.*;

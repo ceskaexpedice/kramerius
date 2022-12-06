@@ -33,7 +33,6 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
 //        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
 //        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
 
-        bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         bind(DeepZoomTileSupport.class).to(TileSupportImpl.class);
 
         bind(DeepZoomCacheService.class).annotatedWith(Names.named("fileSystemCache"))

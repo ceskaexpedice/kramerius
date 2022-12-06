@@ -54,8 +54,8 @@ public class ParametrizedConvertInputTemplate implements ProcessInputTemplate {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedConvertInputTemplate.class.getName());
     
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
     
     @Inject
     Provider<Locale> localesProvider;

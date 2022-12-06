@@ -84,7 +84,6 @@ public class BaseModule extends AbstractModule {
         bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);
 
         bind(METSService.class).to(METSServiceImpl.class);
-        bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
 
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
 

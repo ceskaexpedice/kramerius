@@ -79,8 +79,8 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     public static final String SCALED_WIDTH_PARAMETER = "scaledWidth";
     public static final String OUTPUT_FORMAT_PARAMETER = "outputFormat";
 
-    @Inject
-    protected transient KConfiguration configuration;
+
+    protected transient KConfiguration configuration = KConfiguration.getInstance();
 
     @Inject
     @Named("securedFedoraAccess")

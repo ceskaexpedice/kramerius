@@ -54,8 +54,7 @@ import cz.incad.kramerius.utils.stemplates.ResourceBundleUtils;
 @Deprecated
 public class MetsImportInputTemplate implements ProcessInputTemplate {
 
-    @Inject
-    KConfiguration configuration;
+    KConfiguration configuration = KConfiguration.getInstance();
     
     @Inject
     Provider<Locale> localesProvider;

@@ -21,8 +21,8 @@ public class VirtualCollectionProvider implements Provider<Collection> {
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
-    @Inject
-    KConfiguration kConfiguration;
+
+    KConfiguration kConfiguration = KConfiguration.getInstance();
 
     @Inject
     @Named("fedora")

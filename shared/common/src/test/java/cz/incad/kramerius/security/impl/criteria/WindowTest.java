@@ -63,7 +63,7 @@ public class WindowTest {
 
         HazelcastServerNode.ensureHazelcastNode();
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
+                .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getDC")

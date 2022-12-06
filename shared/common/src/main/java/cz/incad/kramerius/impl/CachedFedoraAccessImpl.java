@@ -46,7 +46,7 @@ public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwarene
     private FedoraAccess fedoraAccess;
 
     @Inject
-    public CachedFedoraAccessImpl(KConfiguration configuration, @Named("rawFedoraAccess") FedoraAccess fedoraAccess,
+    public CachedFedoraAccessImpl( @Named("rawFedoraAccess") FedoraAccess fedoraAccess,
                                   CacheManager cacheManager) throws IOException {
 
         this.fedoraAccess = fedoraAccess;
@@ -57,7 +57,7 @@ public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwarene
                     CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, Document.class,
                             ResourcePoolsBuilder.heap(3000).offheap(32, MemoryUnit.MB))
                             .withExpiry(Expirations.timeToLiveExpiration(
-                                    Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
+                                    Duration.of(  KConfiguration.getInstance().getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }
 
         existsCache = cacheManager.getCache(EXISTS_CACHE_ALIAS, String.class, Boolean.class);
@@ -66,7 +66,7 @@ public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwarene
                     CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, Boolean.class,
                             ResourcePoolsBuilder.heap(3000).offheap(1, MemoryUnit.MB))
                             .withExpiry(Expirations.timeToLiveExpiration(
-                                    Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
+                                    Duration.of(  KConfiguration.getInstance().getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }
 
         lastModifiedCache = cacheManager.getCache(LAST_MODIFIED_CACHE_ALIAS, String.class, Date.class);
@@ -75,7 +75,7 @@ public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwarene
                     CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, Date.class,
                             ResourcePoolsBuilder.heap(3000).offheap(1, MemoryUnit.MB))
                             .withExpiry(Expirations.timeToLiveExpiration(
-                                    Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
+                                    Duration.of(KConfiguration.getInstance().getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }
 
     }

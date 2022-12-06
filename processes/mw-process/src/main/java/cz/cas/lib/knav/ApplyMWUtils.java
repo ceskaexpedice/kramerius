@@ -250,7 +250,6 @@ public class ApplyMWUtils {
         if (ApplyMWUtils.detectChange(b, previousState)) {
             PolicyServiceImpl policy = new PolicyServiceImpl();
             policy.setFedoraAccess(fa);
-            policy.setConfiguration(KConfiguration.getInstance());
             policy.setPolicyForNode(pid, b ? "public" : "private");
             coll.enqueuePid(pid);
         } else {

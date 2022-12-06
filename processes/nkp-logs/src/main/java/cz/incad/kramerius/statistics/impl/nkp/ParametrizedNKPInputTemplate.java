@@ -25,8 +25,8 @@ public class ParametrizedNKPInputTemplate implements ProcessInputTemplate {
 
     static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy.MM.dd");
 
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
 
     @Inject
     Provider<Locale> localesProvider;

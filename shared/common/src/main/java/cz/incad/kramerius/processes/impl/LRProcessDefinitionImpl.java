@@ -32,7 +32,6 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
     private List<String> outputTemplateClzs = new ArrayList<String>();
 
     private LRProcessManager pm;
-    private KConfiguration configuration;
     private String securedAction;
 
     private List<LRDefinitionAction> actions = new ArrayList<LRDefinitionAction>();
@@ -40,10 +39,10 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
     private boolean shouldCheckErrorStream = true;
 
 
-    public LRProcessDefinitionImpl(LRProcessManager pm, KConfiguration configuration) {
+    public LRProcessDefinitionImpl(LRProcessManager pm ) {
         super();
         this.pm = pm;
-        this.configuration = configuration;
+
     }
 
     @Override
@@ -222,9 +221,9 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 
     private AbstractLRProcessImpl createProcessInternal() {
         if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_UNIX) {
-            return new cz.incad.kramerius.processes.os.impl.unix.UnixLRProcessImpl(this, this.pm, this.configuration);
+            return new cz.incad.kramerius.processes.os.impl.unix.UnixLRProcessImpl(this, this.pm);
         } else if (SystemUtils.IS_OS_WINDOWS) {
-            return new WindowsLRProcessImpl(this, this.pm, configuration);
+            return new WindowsLRProcessImpl(this, this.pm);
         } else throw new UnsupportedOperationException("unsupported OS");
     }
 

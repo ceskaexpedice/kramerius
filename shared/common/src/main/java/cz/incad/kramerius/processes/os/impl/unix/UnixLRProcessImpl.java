@@ -14,7 +14,6 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.impl.AbstractLRProcessImpl;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 public class UnixLRProcessImpl extends AbstractLRProcessImpl {
@@ -23,8 +22,8 @@ public class UnixLRProcessImpl extends AbstractLRProcessImpl {
 			.getLogger(UnixLRProcessImpl.class.getName());
 	
 	public UnixLRProcessImpl(LRProcessDefinition definition,
-			LRProcessManager manager, KConfiguration configuration) {
-		super(definition, manager, configuration);
+			LRProcessManager manager) {
+		super(definition, manager);
 		//this.setStartTime(System.currentTimeMillis());
 	}
 

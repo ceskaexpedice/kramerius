@@ -40,9 +40,8 @@ public class FeedbackServlet extends GuiceServlet {
     @Inject
     @Named("rawFedoraAccess")
     FedoraAccess fedoraAccess;
-	
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
 
     @Inject
     protected ResourceBundleService resourceBundleService;
