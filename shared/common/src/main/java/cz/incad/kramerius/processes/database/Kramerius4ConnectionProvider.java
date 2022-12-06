@@ -16,23 +16,23 @@ import java.util.logging.Level;
  */
 public class Kramerius4ConnectionProvider implements Provider<Connection> {
 
-    private DataSource dataSource = null;
+    private static DataSource dataSource = createDataSource();
 
-    @Inject
-    public Kramerius4ConnectionProvider() {
-        super();
-        if (dataSource == null) {// lazy setup of datasource
+    private static DataSource createDataSource(){
             HikariDataSource ds = new HikariDataSource();
             ds.setDriverClassName("org.postgresql.Driver");
             ds.setJdbcUrl(KConfiguration.getInstance().getJdbcUrl());
             ds.setUsername(KConfiguration.getInstance().getJdbcUserName());
             ds.setPassword(KConfiguration.getInstance().getJdbcUserPass());
-            ds.setLeakDetectionThreshold(0);
-            ds.setMaximumPoolSize(10);
-            ds.setConnectionTimeout(30000);
-            dataSource = ds;
-        }
+            ds.setLeakDetectionThreshold(KConfiguration.getInstance().getConfiguration().getInt("jdbcLeakDetectionThreshold"));
+            ds.setMaximumPoolSize(KConfiguration.getInstance().getConfiguration().getInt("jdbcMaximumPoolSize"));
+            ds.setConnectionTimeout(KConfiguration.getInstance().getConfiguration().getInt("jdbcConnectionTimeout"));
+            return ds;
+    }
 
+    @Inject
+    public Kramerius4ConnectionProvider() {
+        super();
     }
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Kramerius4ConnectionProvider.class.getName());
