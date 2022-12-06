@@ -22,7 +22,6 @@ import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ParametrizedApplyMovingWall {
 

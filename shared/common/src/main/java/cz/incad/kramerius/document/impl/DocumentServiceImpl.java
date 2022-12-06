@@ -71,7 +71,6 @@ public class DocumentServiceImpl implements DocumentService {
     private Provider<Locale> localeProvider;
     private ResourceBundleService resourceBundleService;
     private SolrAccess solrAccess;
-    private KConfiguration kConfiguration = KConfiguration.getInstance();
 
     @Inject
     public DocumentServiceImpl(
@@ -452,7 +451,7 @@ public class DocumentServiceImpl implements DocumentService {
                     .mapDCConent(pid, DCUtils.contentFromDC(dcDocument));
         }
 
-        buildRenderingDocumentAsFlat(renderedDocument, pidFrom, ConfigurationUtils.checkNumber(howMany, this.kConfiguration.getConfiguration()));
+        buildRenderingDocumentAsFlat(renderedDocument, pidFrom, ConfigurationUtils.checkNumber(howMany, KConfiguration.getInstance().getConfiguration()));
         return renderedDocument;
     }
 

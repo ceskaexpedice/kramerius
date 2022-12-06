@@ -20,7 +20,6 @@ import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.def.DefaultTemplate;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ParametrizedIterateRepoApplyMWTemplate implements ProcessInputTemplate {
 
@@ -35,7 +34,7 @@ public class ParametrizedIterateRepoApplyMWTemplate implements ProcessInputTempl
             Properties paramsMapping) throws IOException {
         InputStream iStream = this.getClass().getResourceAsStream("_template.st");
 
-        int mw = ApplyMWUtils.defaultConfiguredWall(KConfiguration.getInstance().getConfiguration());
+        int mw = ApplyMWUtils.defaultConfiguredWall();
 
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localeProvider.get());
 

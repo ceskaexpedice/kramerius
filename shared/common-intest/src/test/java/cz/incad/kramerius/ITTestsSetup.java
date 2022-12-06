@@ -109,7 +109,7 @@ public class ITTestsSetup {
     public static Repository getRepository(ProcessingIndexFeeder feeder) throws IOException, RepositoryException {
         HazelcastServerNode.ensureHazelcastNode();
         CacheManager cacheManager = injector.getInstance(Key.get(CacheManager.class, Names.named("akubraCacheManager")));
-        AkubraDOManager akubraDOManager = new AkubraDOManager(KConfiguration.getInstance(), cacheManager);
+        AkubraDOManager akubraDOManager = new AkubraDOManager( cacheManager);
         return build(feeder, akubraDOManager);
     }
 }

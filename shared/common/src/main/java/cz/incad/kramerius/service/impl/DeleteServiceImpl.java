@@ -47,8 +47,6 @@ public class DeleteServiceImpl implements DeleteService {
     FedoraAccess fedoraAccess;
 
 
-    KConfiguration configuration = KConfiguration.getInstance();
-
     @Inject
     IResourceIndex resourceIndex;
 

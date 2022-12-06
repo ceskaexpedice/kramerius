@@ -58,7 +58,6 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
 /**
@@ -76,7 +75,7 @@ public class ConsistencyTest {
 
         HazelcastServerNode.ensureHazelcastNode();
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
+                .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("isObjectAvailable")
@@ -118,7 +117,7 @@ public class ConsistencyTest {
         HazelcastServerNode.ensureHazelcastNode();
 
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
+                .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("isObjectAvailable")
@@ -177,7 +176,6 @@ public class ConsistencyTest {
 
         @Override
         protected void configure() {
-            bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
         }
     }
 

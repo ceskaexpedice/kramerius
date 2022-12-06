@@ -11,11 +11,11 @@ public class ConfigurationUtils {
 
 
     public static int checkNumber(String number) throws NumberFormatException, OutOfRangeException {
-        Configuration config = KConfiguration.getInstance().getConfiguration();
+       Configuration conf = KConfiguration.getInstance().getConfiguration();
         if (StringUtils.isAnyString(number)) {
-            return checkNumber(Integer.parseInt(number), config);
+            return checkNumber(Integer.parseInt(number), conf);
         } else {
-            return checkNumber(Integer.MAX_VALUE, config);
+            return checkNumber(Integer.MAX_VALUE, conf);
         }
     }
 

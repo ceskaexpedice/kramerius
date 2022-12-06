@@ -74,7 +74,6 @@ import cz.incad.kramerius.service.impl.TextsServiceImpl;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
@@ -203,7 +202,7 @@ public class FirstPagePDFServiceImplTest {
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
+                .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
@@ -272,7 +271,7 @@ public class FirstPagePDFServiceImplTest {
 
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
+                .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
@@ -352,7 +351,7 @@ public class FirstPagePDFServiceImplTest {
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
+                .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
@@ -462,7 +461,7 @@ public class FirstPagePDFServiceImplTest {
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
+                .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
@@ -580,7 +579,7 @@ public class FirstPagePDFServiceImplTest {
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor(KConfiguration.getInstance(), feeder, acLog, cacheManager)
+                .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")

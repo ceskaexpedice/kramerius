@@ -204,8 +204,7 @@ public class ApplyMWUtils {
                 return;
             }
         } else {
-            wall = ApplyMWUtils.configuredWall(sa, onePid, KConfiguration.getInstance()
-                    .getConfiguration());
+            wall = ApplyMWUtils.configuredWall(sa, onePid, KConfiguration.getInstance().getConfiguration());
         }
         ApplyMovingWall.LOGGER.info("Used value is: " + wall);
         mw.setCriteriumParamValues(new Object[] { "" + wall, mode, firstModel, firstPid });
@@ -293,7 +292,7 @@ public class ApplyMWUtils {
         ObjectModelsPath[] pathOfModels = sa.getModelPaths(onePid);
         ObjectModelsPath path = pathOfModels[0];
         String[] models = path.getPathFromLeafToRoot();
-        int wall = defaultConfiguredWall( conf);
+        int wall = defaultConfiguredWall( );
         for (String model : models) {
             if (conf.containsKey("mwprocess.model." + model + ".wall")) {
                 wall = conf.getInt("mwprocess.model." + model + ".wall");
@@ -302,9 +301,9 @@ public class ApplyMWUtils {
         return wall;
     }
 
-    public static int defaultConfiguredWall( Configuration conf)
+    public static int defaultConfiguredWall( )
             throws IOException {
-        int wall = conf.getInt("mwprocess.wall", 70);
+        int wall = KConfiguration.getInstance().getConfiguration().getInt("mwprocess.wall", 70);
         return wall;
 
     }

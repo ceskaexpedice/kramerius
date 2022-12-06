@@ -18,16 +18,15 @@ class _DocumentServiceModule extends AbstractModule {
     private FedoraAccess fedoraAccess;
     private ResourceBundleService resourceBundleService;
     private SolrAccess solrAccess;
-    private KConfiguration kConfig;
+
     
-    
-    public _DocumentServiceModule(Locale locale, FedoraAccess fedoraAccess, ResourceBundleService resourceBundleService, SolrAccess solrAccess, KConfiguration kConf) {
+    public _DocumentServiceModule(Locale locale, FedoraAccess fedoraAccess, ResourceBundleService resourceBundleService, SolrAccess solrAccess) {
         super();
         this.locale = locale;
         this.fedoraAccess = fedoraAccess;
         this.resourceBundleService = resourceBundleService;
         this.solrAccess = solrAccess;
-        this.kConfig = kConf;
+
     }
 
     @Override
@@ -37,7 +36,6 @@ class _DocumentServiceModule extends AbstractModule {
         bind(ResourceBundleService.class).toInstance(this.resourceBundleService);
         
         bind(DocumentService.class).to(DocumentServiceImpl.class);
-        bind(KConfiguration.class).toInstance(this.kConfig);
     }
     
     @Provides
