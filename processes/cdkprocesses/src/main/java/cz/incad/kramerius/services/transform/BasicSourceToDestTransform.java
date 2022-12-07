@@ -12,6 +12,7 @@ import org.w3c.dom.NodeList;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public class BasicSourceToDestTransform extends SourceToDestTransform{
@@ -56,20 +57,25 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
 
 
 
-    public static void simpleValue(String pid, Document feedDoc, Element feedDocElm, Node node, String derivedName, boolean dontCareAboutNonCopiingFields) {
+    public static void simpleValue(String pid, Document feedDoc, Element feedDocElm, Node node, String derivedName, boolean dontCareAboutNonCopiingFields, Consumer<Element> consumer) {
         //String attributeName = ((Element)node).getAttribute("name");
         String attributeName = derivedName != null ? derivedName : ((Element)node).getAttribute("name");
         if (dontCareAboutNonCopiingFields || !nonCopiingField(attributeName)) {
-            Element strElm = feedDoc.createElement("field");
+
+        	Element strElm = feedDoc.createElement("field");
             strElm.setAttribute("name", attributeName);
             feedDocElm.appendChild(strElm);
             String content = StringEscapeUtils.escapeXml(node.getTextContent());
             // add to context to process
             strElm.setTextContent(content);
+            
+            if (consumer != null) {
+            	consumer.accept(strElm);
+            }
         }
     }
 
-    public static void arrayValue(String pid, Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node) {
+    public static void arrayValue(String pid, Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node, Consumer<Element> consumer) {
         String attributeName = ((Element) node).getAttribute("name");
         if (!nonCopiingField(attributeName)) {
             if (exceptionField(attributeName) && pid.contains("/@")) {
@@ -84,10 +90,10 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
                         Element textOcr = findByAttribute(sourceDocElement, "text_ocr");
                         if (textOcr == null) {
 
-                            simpleValue(pid, feedDoc,feedDocElement, n, attributeName, false);
-                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized", true);
-                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized_ascii", true);
-                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized_nostopwords", true);
+                            simpleValue(pid, feedDoc,feedDocElement, n, attributeName, false, consumer);
+                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized", true, consumer);
+                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized_ascii", true, consumer);
+                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized_nostopwords", true, consumer);
 
                         }
                     }
@@ -98,7 +104,7 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
                     Node n = childNodes.item(i);
                     if (n.getNodeType() == Node.ELEMENT_NODE) {
                         //simpleValue(feedDoc,feedDocElement, n, false);
-                        simpleValue(pid, feedDoc,feedDocElement, n, attributeName, false);
+                        simpleValue(pid, feedDoc,feedDocElement, n, attributeName, false, consumer);
 
                     }
                 }
@@ -124,7 +130,7 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
     }
 
     /** transforming fields in k5 index; it doesn't apply if an index is K7 */
-    public void transform(Element sourceDocElm, Document destDocument, Element destDocElem)  {
+    public void transform(Element sourceDocElm, Document destDocument, Element destDocElem, Consumer<Element> consumer)  {
         String pid = pid(sourceDocElm);
         if (sourceDocElm.getNodeName().equals("doc")) {
             NodeList childNodes = sourceDocElm.getChildNodes();
@@ -133,12 +139,13 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     List<String> primitiveVals = Arrays.asList("str","int","bool", "date");
                     if (primitiveVals.contains(node.getNodeName())) {
-                        simpleValue(pid, destDocument,destDocElem, node,null, false);
+                        simpleValue(pid, destDocument,destDocElem, node,null, false, consumer);
                     } else {
-                        arrayValue(pid,sourceDocElm, destDocument,destDocElem,node);
+                        arrayValue(pid,sourceDocElm, destDocument,destDocElem,node, consumer);
                     }
                 }
             }
+            
             browseAuthorsAndTitles(sourceDocElm, destDocument, destDocElem);
         }
     }

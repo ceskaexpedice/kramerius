@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,6 +31,7 @@ import static org.easymock.EasyMock.*;
 import static org.easymock.EasyMock.anyObject;
 import static org.xmlunit.assertj.XmlAssert.assertThat;
 
+@Ignore
 public class ParallelProcessImplTest_REPLICATE_Specific {
 
     /** K7 transform - KNAV error - duplicate values rels-exts.sort */

@@ -13,7 +13,7 @@ import org.w3c.dom.Element;
 public class LogFileIteratorFactory extends ProcessIteratorFactory {
 
     @Override
-    public ProcessIterator createProcessIterator(Element iteration, Client client) {
+    public ProcessIterator createProcessIterator(String timestamp, Element iteration, Client client) {
         Element urlElm = XMLUtils.findElement(iteration, "url");
         String url = urlElm != null ? urlElm.getTextContent() : "";
 

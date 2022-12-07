@@ -2,7 +2,7 @@ package cz.incad.kramerius.services.workers.checkexists;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.WorkerFinisher;
-import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
+import cz.incad.kramerius.timestamps.TimestampStore;
 
 import org.w3c.dom.Element;
 
@@ -17,8 +17,8 @@ public class ExistsFinisher extends WorkerFinisher {
 
     private long timestamp = System.currentTimeMillis();
 
-    public ExistsFinisher(TimestampStore store,Element workerElm, Client client) {
-        super(store, workerElm, client);
+    public ExistsFinisher(String timestampUrl, Element workerElm, Client client) {
+        super( timestampUrl, workerElm, client);
     }
 
     @Override

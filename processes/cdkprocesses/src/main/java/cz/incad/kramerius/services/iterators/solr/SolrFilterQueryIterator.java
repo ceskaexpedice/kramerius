@@ -3,8 +3,8 @@ package cz.incad.kramerius.services.iterators.solr;
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.iterators.ProcessIterationCallback;
 import cz.incad.kramerius.services.iterators.ProcessIterationEndCallback;
-import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
 import cz.incad.kramerius.services.utils.SolrUtils;
+import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Element;
@@ -29,16 +29,16 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
     public static final String DEFAULT_SORT_FIELD = "PID asc";
 
 
-    public SolrFilterQueryIterator(TimestampStore tStore,  String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
-        super(tStore, address, masterQuery, filterQuery, endpoint, id, sorting, rows);
+    public SolrFilterQueryIterator(  String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
+        super( address, masterQuery, filterQuery, endpoint, id, sorting, rows);
     }
 
 
-    public SolrFilterQueryIterator(TimestampStore tStore, String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
-        super(tStore,address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
+    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
     }
 
-    public static Element pidsFilterQuery(TimestampStore tStore, Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint, String user, String pass)
+    public static Element pidsFilterQuery(Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint, String user, String pass)
             throws ParserConfigurationException, SAXException, IOException {
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
@@ -95,7 +95,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
             String previousPid = null;
             do {
                 //    private static Element pidsFilterQuery(ConfigurationBase configuration, Client client, String url, String mq, String lastPid, int rows, String fq)
-                Element element = pidsFilterQuery(this.timestampStore, client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.user, this.pass);
+                Element element = pidsFilterQuery( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.user, this.pass);
                 previousPid = lastPid;
                 lastPid = findLastPid(element);
                 iterationCallback.call(pidsToIterationItem(this.address,findAllPids(element)));

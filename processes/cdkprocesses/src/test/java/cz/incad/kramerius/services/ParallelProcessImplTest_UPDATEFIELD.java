@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xmlunit.builder.Input;
@@ -23,6 +24,7 @@ import static org.easymock.EasyMock.*;
 
 import static org.xmlunit.assertj.XmlAssert.assertThat;
 
+@Ignore
 public class ParallelProcessImplTest_UPDATEFIELD {
 
 	/** Simple copy index - data are updated */

@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xmlunit.builder.Input;
@@ -24,6 +25,7 @@ import static org.easymock.EasyMock.*;
 
 import static org.xmlunit.assertj.XmlAssert.assertThat;
 
+@Ignore
 public class ParallelProcessImplTest_REPLICATE {
 
     /** Simple copy index - data are updated */

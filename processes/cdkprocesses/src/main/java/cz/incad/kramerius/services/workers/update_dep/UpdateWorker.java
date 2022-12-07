@@ -1,4 +1,4 @@
-package cz.incad.kramerius.services.workers.update;
+package cz.incad.kramerius.services.workers.update_dep;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.Worker;

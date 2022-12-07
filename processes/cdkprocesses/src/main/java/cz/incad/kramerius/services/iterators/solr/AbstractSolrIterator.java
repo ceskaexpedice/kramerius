@@ -1,11 +1,10 @@
 package cz.incad.kramerius.services.iterators.solr;
 
 import cz.incad.kramerius.services.iterators.ProcessIterator;
-import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
+import cz.incad.kramerius.timestamps.TimestampStore;
 
 public abstract class AbstractSolrIterator implements ProcessIterator {
 	
-	protected TimestampStore timestampStore;
 
     protected String address;
     protected String masterQuery;
@@ -19,7 +18,7 @@ public abstract class AbstractSolrIterator implements ProcessIterator {
     protected String pass;
 
 
-    public AbstractSolrIterator(TimestampStore store, String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
+    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
         this.id = id;
         this.rows = rows;
 
@@ -32,15 +31,10 @@ public abstract class AbstractSolrIterator implements ProcessIterator {
         this.user = user;
         this.pass = pass;
         
-        this.timestampStore = store;
     }
 
-    public AbstractSolrIterator(TimestampStore timestampCheck,String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows) {
-        this(timestampCheck, address,masterQuery, filterQuery, endpoint, id, sorting, rows, null, null);
+    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows) {
+        this( address,masterQuery, filterQuery, endpoint, id, sorting, rows, null, null);
     }
 
-	@Override
-	public TimestampStore getTimestampStore() {
-		return this.timestampStore;
-	}
 }

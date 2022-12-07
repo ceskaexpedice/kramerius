@@ -3,6 +3,9 @@
 	k7 inovatika dev
  -->
 <cdkprocess>
+	
+	
+
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>

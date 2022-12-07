@@ -33,7 +33,13 @@ public abstract class AbstractReplicateWorker extends Worker {
 	public static final String DEFAULT_PID_FIELD = "PID";
 	public static final String COLLECTION_FIELD = "collection";
 
+	// default field list
 	protected String fieldList = DEFAULT_FIELDLIST;
+	
+	protected String onIndexedFieldList = null;
+	protected String onUpdateFieldList = null;
+	
+	
 	protected String idIdentifier = DEFAULT_PID_FIELD;
 	protected String collectionField = COLLECTION_FIELD;
 	protected boolean compositeId = false;
@@ -49,10 +55,13 @@ public abstract class AbstractReplicateWorker extends Worker {
 
 	protected ReplicateContext findPidsAlreadyIndexed(List<String> subpids, SourceToDestTransform transform)
 			throws ParserConfigurationException, SAXException, IOException {
+
+		// vsechny pidy 
 		String reduce = subpids.stream().map(it -> {
 			return '"' + it + '"';
 		}).collect(Collectors.joining(" OR "));
-		// zde musim ziskat root.pid a zaroven
+
+		// field list je pid + collection + rootpid
 		String fieldlist = this.transform.getField(idIdentifier) + " " + collectionField;
 		if (compositeId) {
 			fieldlist = fieldlist + " " + this.transform.getField(this.rootOfComposite);
@@ -66,9 +75,9 @@ public abstract class AbstractReplicateWorker extends Worker {
 
 		String checkUrl = this.checkUrl + (this.checkUrl.endsWith("/") ? "" : "/") + this.checkEndpoint;
 		Element resultElem = XMLUtils.findElement(SolrUtils.executeQuery(client, checkUrl, query, this.user, this.pass),
-				(elm) -> {
-					return elm.getNodeName().equals("result");
-				});
+			(elm) -> {
+				return elm.getNodeName().equals("result");
+		});
 
 		List<Element> docs = XMLUtils.getElements(resultElem);
 		List<Map<String, String>> list = new ArrayList<>();
@@ -110,8 +119,6 @@ public abstract class AbstractReplicateWorker extends Worker {
 			return m.get(this.transform.getField(idIdentifier));
 		}).collect(Collectors.toList());
 
-		// List<String> pidsFromLocalSolr =
-		// pidsAndCollections.stream().map(Pair::getLeft).collect(Collectors.toList());
 
 		List<String> notindexed = new ArrayList<>();
 		subpids.forEach(pid -> {
@@ -126,18 +133,39 @@ public abstract class AbstractReplicateWorker extends Worker {
 	protected void config(Element workerElm) {
 		Element requestElm = XMLUtils.findElement(workerElm, "request");
 	    if (requestElm != null) {
-	        // Field list to retrieve
+
+	    	// on index 
+	        Element onIndexFieldList = XMLUtils.findElement(requestElm, "onindex");
+	        if (onIndexFieldList != null) {
+	        	Element oIfieldlist = XMLUtils.findElement(onIndexFieldList, "fieldlist");
+	        	if (oIfieldlist != null) {
+	        		this.onIndexedFieldList = oIfieldlist.getTextContent();
+	        	}
+	        }
+	        
+	        //on update
+	        Element onUpdateFieldList = XMLUtils.findElement(requestElm, "onupdate");
+	        if (onUpdateFieldList != null) {
+	        	Element oIfieldlist = XMLUtils.findElement(onUpdateFieldList, "fieldlist");
+	        	if (oIfieldlist != null) {
+	        		this.onUpdateFieldList = oIfieldlist.getTextContent();
+	        	}
+	        }
+	        
+	        
+	    	// default field list
 	        Element fieldlistElm = XMLUtils.findElement(requestElm, "fieldlist");
 	        if (fieldlistElm != null) {
 	            fieldList = fieldlistElm.getTextContent();
 	        }
+	        
 	        // Id
 	        Element idElm = XMLUtils.findElement(requestElm, "id");
 	        if (idElm != null) {
 	            idIdentifier = idElm.getTextContent();
 	        }
 	
-	        // Id
+	        // transform
 	        Element transformFormat = XMLUtils.findElement(requestElm, "trasfrom");
 	        if (transformFormat != null) {
 	            this.transform = SourceToDestTransform.Format.findTransform(transformFormat.getTextContent());
@@ -179,16 +207,16 @@ public abstract class AbstractReplicateWorker extends Worker {
 	    }
 	}
 
-	public Element fetchDocumentFromRemoteSOLR(Client client, List<String> pids)
+	public Element fetchDocumentFromRemoteSOLR(Client client, List<String> pids, String fieldlist)
 			throws IOException, SAXException, ParserConfigurationException {
-			    String reduce = pids.stream().reduce("", (i, v) -> {
-			        if (!i.equals("")) {
-			            return i + " OR \"" + v+"\"";
-			        } else {
-			            return '"'+v+'"';
-			        }
-			    });
-			    String query =  "?q="+idIdentifier+":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(this.fieldList, "UTF-8")+"&wt=xml&rows="+pids.size();
-			    return SolrUtils.executeQuery(client, this.requestUrl , query, this.user, this.pass);
-			}
+	    String reduce = pids.stream().reduce("", (i, v) -> {
+	        if (!i.equals("")) {
+	            return i + " OR \"" + v+"\"";
+	        } else {
+	            return '"'+v+'"';
+	        }
+	    });
+	    String query =  "?q="+idIdentifier+":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8")+"&wt=xml&rows="+pids.size();
+	    return SolrUtils.executeQuery(client, this.requestUrl , query, this.user, this.pass);
+	}
 }

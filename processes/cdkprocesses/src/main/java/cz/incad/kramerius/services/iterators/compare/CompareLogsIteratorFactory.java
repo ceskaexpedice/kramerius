@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 public class CompareLogsIteratorFactory extends ProcessIteratorFactory {
 
     @Override
-    public ProcessIterator createProcessIterator(Element iteration, Client client) {
+    public ProcessIterator createProcessIterator(String timestamp, Element iteration, Client client) {
         try {
             Element urlElm = XMLUtils.findElement(iteration, "url");
             String url = urlElm != null ? urlElm.getTextContent() : "";

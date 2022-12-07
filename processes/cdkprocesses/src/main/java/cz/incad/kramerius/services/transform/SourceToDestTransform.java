@@ -1,5 +1,7 @@
 package cz.incad.kramerius.services.transform;
 
+import java.util.function.Consumer;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -33,9 +35,8 @@ public abstract class SourceToDestTransform {
         public abstract  SourceToDestTransform create();
     }
 
-    public abstract void  transform(Element sourceDocElm, Document destDocument, Element destDocElem);
+    public abstract void  transform(Element sourceDocElm, Document destDocument, Element destDocElem, Consumer<Element> consumer);
 
     public abstract String getField(String fieldId);
-
 
 }

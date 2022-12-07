@@ -19,10 +19,13 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Replicate index; 1-1 copy + enhancing compositeID if there is solr cloud
@@ -41,7 +44,6 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
     public void run() {
         try {
             ReplicateFinisher.WORKERS.addAndGet(this.itemsToBeProcessed.size());
-
             LOGGER.info("["+Thread.currentThread().getName()+"] processing list of pids "+this.pidsToBeProcessed.size());
             int batches = this.pidsToBeProcessed.size() / batchSize + (this.pidsToBeProcessed.size() % batchSize == 0 ? 0 :1);
             LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" batch ");
@@ -49,21 +51,16 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                 int from = i*batchSize;
                 int to = from + batchSize;
                 try {
-                    List<String> subpids = pidsToBeProcessed.subList(from, Math.min(to,pidsToBeProcessed.size() ));
+                	List<String> subpids = pidsToBeProcessed.subList(from, Math.min(to,pidsToBeProcessed.size() ));
                     ReplicateFinisher.BATCHES.addAndGet(subpids.size());
                     ReplicateContext pidsToReplicate = findPidsAlreadyIndexed(subpids, this.transform);
                     if (!pidsToReplicate.getNotIndexed().isEmpty()) {
 
-                        // fetch document
-                        Element response = fetchDocumentFromRemoteSOLR( this.client,  pidsToReplicate.getNotIndexed());
-                        Element resultElem = XMLUtils.findElement(response, (elm) -> {
-                            return elm.getNodeName().equals("result");
-                        });
+                    	String fl = this.onIndexedFieldList != null ? this.onIndexedFieldList : this.fieldList;
+                    	Document batch = retrieveAndCretebatch(pidsToReplicate.getNotIndexed(), fl, (field)->{
+                    	});
 
-                        // create batch
-                        Document batch = BatchUtils.batch(resultElem, this.compositeId, this.rootOfComposite, this.childOfComposite, this.transform);
-
-                        Element addDocument = batch.getDocumentElement();
+                    	Element addDocument = batch.getDocumentElement();
                         // on index - remove element
                         this.onIndexEventRemoveElms.stream().forEach(f->{
                             synchronized (f.getOwnerDocument()) {
@@ -82,18 +79,10 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                 }
                             }
                         });
+                        
                         // on index update element
-                        this.onIndexEventUpdateElms.stream().forEach(f->{
-                            synchronized (f.getOwnerDocument()) {
-                                List<Element> docs = XMLUtils.getElements(addDocument);
-                                for (int j = 0,ll=docs.size(); j < ll; j++) {
-                                    Element doc = docs.get(j);
-                                    Node node = f.cloneNode(true);
-                                    doc.getOwnerDocument().adoptNode(node);
-                                    doc.appendChild(node);
-                                }
-                            }
-                        });
+                        onIndexEvent(addDocument);
+
                         ReplicateFinisher.NEWINDEXED.addAndGet(XMLUtils.getElements(addDocument).size());
                         String s = SolrUtils.sendToDest(this.destinationUrl, this.client, batch);
                         LOGGER.info(s);
@@ -105,59 +94,48 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                         // un update
                         if (!this.onUpdateUpdateElements.isEmpty()) {
 
-                            Document destBatch = XMLUtils.crateDocument("add");
-                            pidsToReplicate.getAlreadyIndexed().stream().forEach(pair->{
+                        	String fl = this.onUpdateFieldList != null ? this.onUpdateFieldList : null;
+                        	Document destBatch = null;
+                        	if (fl != null) {
+                                List<String> pids = pidsToReplicate.getAlreadyIndexed().stream().map(pair->{
+                                	String string = pair.get(transform.getField(childOfComposite));
+                                	return string;
+                                }).collect(Collectors.toList());
+                        		
+                        		destBatch =  retrieveAndCretebatch(pids, fl, (Element field)->{
+                            		field.setAttribute("update", "set");
+                        		});
+                        	} else {
+                        		Document db = XMLUtils.crateDocument("add");
+                                pidsToReplicate.getAlreadyIndexed().stream().forEach(pair->{
+                                    Element doc = db.createElement("doc");
+                                    Element field = db.createElement("field");
+                                    if (compositeId) {
+                                        String compositeId = pair.get("compositeId");
 
-                                Element doc = destBatch.createElement("doc");
-                                Element field = destBatch.createElement("field");
+                                        String root = pair.get(transform.getField(rootOfComposite));
+                                        String child = pair.get(transform.getField(childOfComposite));
 
-                                if (compositeId) {
-                                    String compositeId = pair.get("compositeId");
+                                        field.setAttribute("name", "compositeId");
+                                        field.setTextContent(root +"!"+child);
 
-                                    String root = pair.get(transform.getField(rootOfComposite));
-                                    String child = pair.get(transform.getField(childOfComposite));
-
-                                    field.setAttribute("name", "compositeId");
-                                    field.setTextContent(root +"!"+child);
-
-                                } else {
-                                    String idname = transform.getField(idIdentifier);
-                                    String identifier = pair.get(idname);
-                                    // if compositeid
-                                    field.setAttribute("name", idname);
-                                    // formal name from hashmap
-                                    field.setTextContent(identifier);
-                                }
-                                doc.appendChild(field);
-                                destBatch.getDocumentElement().appendChild(doc);
-
-                            });
+                                    } else {
+                                        String idname = transform.getField(idIdentifier);
+                                        String identifier = pair.get(idname);
+                                        // if compositeid
+                                        field.setAttribute("name", idname);
+                                        // formal name from hashmap
+                                        field.setTextContent(identifier);
+                                    }
+                                    doc.appendChild(field);
+                                    db.getDocumentElement().appendChild(doc);
+                                });
+                                destBatch = db;
+                        	}
+                        	
 
                             Element addDocument = destBatch.getDocumentElement();
-                            this.onUpdateUpdateElements.stream().forEach(f->{
-                                synchronized (f.getOwnerDocument()) {
-                                    String name = f.getAttribute("name");
-                                    // collection ?? not do it for everything... how to do that
-                                    // iterating over doc
-                                    List<Element> docs = XMLUtils.getElements(addDocument);
-                                    for (int j = 0,ll=docs.size(); j < ll; j++) {
-                                        Element doc = docs.get(j);
-                                        Node node = f.cloneNode(true);
-                                        doc.getOwnerDocument().adoptNode(node);
-                                        doc.appendChild(node);
-
-                                    }
-                                }
-                            });
-
-                            List<Element> docs = XMLUtils.getElements(destBatch.getDocumentElement());
-                            docs.stream().forEach(doc->{
-                                List<Element> fields = XMLUtils.getElements(doc);
-                                int size = fields.size();
-
-                            });
-
-
+                            onUpdateEvent(addDocument);
                             ReplicateFinisher.UPDATED.addAndGet(XMLUtils.getElements(addDocument).size());
                             String s = SolrUtils.sendToDest(this.destinationUrl, this.client, destBatch);
                             LOGGER.info(s);
@@ -189,5 +167,56 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
 
 
     }
+	
+	
+	private Document retrieveAndCretebatch(List<String> pids, String fl, Consumer<Element> consumer)
+			throws IOException, SAXException, ParserConfigurationException, MigrateSolrIndexException {
+		// fetch document 
+		//List<String> notIndexed = pidsToReplicate.getNotIndexed();
+		
+		Element response = fetchDocumentFromRemoteSOLR( this.client,  pids, fl);
+		Element resultElem = XMLUtils.findElement(response, (elm) -> {
+		    return elm.getNodeName().equals("result");
+		});
+
+		// create batch
+		Document batch = BatchUtils.batch(resultElem, this.compositeId, this.rootOfComposite, this.childOfComposite, this.transform, consumer);
+		return batch;
+	}
+
+	// on update event
+	private void onUpdateEvent(Element addDocument) {
+		this.onUpdateUpdateElements.stream().forEach(f->{
+		    synchronized (f.getOwnerDocument()) {
+		        String name = f.getAttribute("name");
+		        // collection ?? not do it for everything... how to do that
+		        // iterating over doc
+		        List<Element> docs = XMLUtils.getElements(addDocument);
+		        for (int j = 0,ll=docs.size(); j < ll; j++) {
+		            Element doc = docs.get(j);
+		            Node node = f.cloneNode(true);
+		            doc.getOwnerDocument().adoptNode(node);
+		            doc.appendChild(node);
+		        }
+		    }
+		});
+	}
+
+	
+	// on index event
+	private void onIndexEvent(Element addDocument) {
+		this.onIndexEventUpdateElms.stream().forEach(f->{
+		    synchronized (f.getOwnerDocument()) {
+		        List<Element> docs = XMLUtils.getElements(addDocument);
+		        for (int j = 0,ll=docs.size(); j < ll; j++) {
+		            Element doc = docs.get(j);
+		            Node node = f.cloneNode(true);
+
+		            doc.getOwnerDocument().adoptNode(node);
+		            doc.appendChild(node);
+		        }
+		    }
+		});
+	}
 
 }

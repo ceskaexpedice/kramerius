@@ -15,6 +15,7 @@ import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -83,7 +84,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
 
 
     @Override
-    public void transform(Element sourceDocElm, Document destDocument, Element destDocElem) {
+    public void transform(Element sourceDocElm, Document destDocument, Element destDocElem, Consumer<Element> consumer) {
         if (sourceDocElm.getNodeName().equals("doc")) {
 
             Map<String, List<String>> document = new HashMap<>();
@@ -103,11 +104,11 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                                     document.put(v, new ArrayList<String>());
                                 }
                                 document.get(v).add(node.getTextContent());
-                                field(destDocument, destDocElem, node.getTextContent(), v);
+                                field(destDocument, destDocElem, node.getTextContent(), v,consumer);
                             });
                         }
                     } else {
-                        arrayValue(null, sourceDocElm, destDocument, destDocElem, node);
+                        arrayValue(null, sourceDocElm, destDocument, destDocElem, node,consumer);
                     }
                 }
             }
@@ -137,8 +138,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                         }
                         document.get(targetName).add(value);
 
-                        field(destDocument, destDocElem, value, targetName);
-
+                        field(destDocument, destDocElem, value, targetName,consumer);
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     }
@@ -171,7 +171,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                         document.get(this.firstValue.get(name)).add(firstVal);
 
 
-                        field(destDocument, destDocElem, firstVal, this.firstValue.get(name));
+                        field(destDocument, destDocElem, firstVal, this.firstValue.get(name), consumer);
                     }
                 } else {
                     throw new IllegalStateException("only src fields are supported for sorting");
@@ -203,7 +203,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                                 document.put(this.restValueFields.get(name), new ArrayList<String>());
                             }
                             document.get(this.restValueFields.get(name)).add(val);
-                            field(destDocument, destDocElem, val, this.restValueFields.get(name));
+                            field(destDocument, destDocElem, val, this.restValueFields.get(name), consumer);
                         });
                     }
                 } else {
@@ -248,7 +248,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                             document.get("id_isbn").add(textContent);
 
 
-                            field(destDocument, destDocElem, textContent, "id_isbn");
+                            field(destDocument, destDocElem, textContent, "id_isbn", consumer);
                         } else if(first.get().getTextContent().contains(KrameriusModels.PERIODICAL.getValue())) {
 
                             if (!document.containsKey("id_issn")) {
@@ -256,7 +256,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                             }
                             document.get("id_issn").add(textContent);
 
-                            field(destDocument, destDocElem, textContent, "id_issn");
+                            field(destDocument, destDocElem, textContent, "id_issn",consumer);
                         }
                     }
                 }
@@ -284,7 +284,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                         }
                         document.get("id_ccnb").add(id.substring("ccnb:".length()));
 
-                        field(destDocument, destDocElem, id.substring("ccnb:".length()), "id_ccnb");
+                        field(destDocument, destDocElem, id.substring("ccnb:".length()), "id_ccnb", consumer);
                     } else if (id != null && id.toLowerCase().startsWith("urnnbn:")) {
 
                         if (!document.containsKey("id_urnnbn")) {
@@ -293,7 +293,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                         document.get("id_urnnbn").add(id.substring("urnnbn:".length()));
 
 
-                        field(destDocument, destDocElem, id.substring("urnnbn:".length()), "id_urnnbn");
+                        field(destDocument, destDocElem, id.substring("urnnbn:".length()), "id_urnnbn", consumer);
                     } else if (id != null && id.toLowerCase().startsWith("issn:")&& !document.keySet().contains("id_issn")) {
 
                         if (!document.containsKey("id_issn")) {
@@ -301,7 +301,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                         }
                         document.get("id_issn").add(id.substring("issn:".length()));
 
-                        field(destDocument, destDocElem, id.substring("issn:".length()), "id_issn");
+                        field(destDocument, destDocElem, id.substring("issn:".length()), "id_issn", consumer);
                     } else if (id != null && id.toLowerCase().startsWith("isbn:")&& !document.keySet().contains("id_isbn")) {
 
                         if (!document.containsKey("id_isbn")) {
@@ -309,7 +309,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                         }
                         document.get("id_isbn").add(id.substring("isbn:".length()));
 
-                        field(destDocument, destDocElem, id.substring("isbn:".length()), "id_isbn");
+                        field(destDocument, destDocElem, id.substring("isbn:".length()), "id_isbn", consumer);
                     } else if (id != null && id.toLowerCase().startsWith("barcode:")&& !document.keySet().contains("barcode")) {
 
                         if (!document.containsKey("id_barcode")) {
@@ -317,7 +317,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                         }
                         document.get("id_barcode").add(id.substring("barcode:".length()));
 
-                        field(destDocument, destDocElem, id.substring("barcode:".length()), "id_barcode");
+                        field(destDocument, destDocElem, id.substring("barcode:".length()), "id_barcode", consumer);
                     } else if (id != null && id.toLowerCase().startsWith("oclc:")&& !document.keySet().contains("oclc")) {
 
                         if (!document.containsKey("id_oclc")) {
@@ -325,7 +325,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                         }
                         document.get("id_oclc").add(id.substring("oclc:".length()));
 
-                        field(destDocument, destDocElem, id.substring("oclc:".length()), "id_oclc");
+                        field(destDocument, destDocElem, id.substring("oclc:".length()), "id_oclc", consumer);
                     } else if (id != null && id.toLowerCase().startsWith("ismn:")&& !document.keySet().contains("ismn")) {
 
                         if (!document.containsKey("id_ismn")) {
@@ -333,7 +333,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                         }
                         document.get("id_ismn").add(id.substring("ismn:".length()));
 
-                        field(destDocument, destDocElem, id.substring("ismn:".length()), "id_ismn");
+                        field(destDocument, destDocElem, id.substring("ismn:".length()), "id_ismn", consumer);
                     }
                 });
             }
@@ -357,22 +357,25 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                 String textContent = dateStr.getTextContent();
                 DateExtractor dateExtractor = new DateExtractor();
                 DateInfo dateInfo = dateExtractor.extractFromString(textContent.toString(), pid);
-                appendDateFields(destDocument, destDocElem, dateInfo );
+                appendDateFields(destDocument, destDocElem, dateInfo, consumer );
             }
         }
     }
 
-    private void field(Document destDocument, Element destDocElem, String value, String targetName) {
+    private void field(Document destDocument, Element destDocElem, String value, String targetName, Consumer<Element> consumer) {
         Element strElm = destDocument.createElement("field");
         strElm.setAttribute("name", targetName);
         destDocElem.appendChild(strElm);
         String content = StringEscapeUtils.escapeXml(value);
         // add to context to process
         strElm.setTextContent(content);
+        if (consumer != null) {
+        	consumer.accept(strElm);
+        }
     }
 
 
-    public void arrayValue(String pid, Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node) {
+    public void arrayValue(String pid, Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node, Consumer<Element> consumer) {
         String attributeName = ((Element) node).getAttribute("name");
         NodeList childNodes = node.getChildNodes();
         for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
@@ -382,7 +385,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                 if (this.plainValueFields.containsKey(attributeName)) {
                     List<String> values = this.plainValueFields.get(attributeName);
                     values.stream().forEach(v-> {
-                        field(feedDoc, feedDocElement, n.getTextContent(),v);
+                        field(feedDoc, feedDocElement, n.getTextContent(),v, consumer);
                     });
                 }
             }
@@ -390,53 +393,53 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
     }
 
 
-    private void appendDateFields(Document feedDoc, Element feedDocElement, DateInfo dateInfo) {
+    private void appendDateFields(Document feedDoc, Element feedDocElement, DateInfo dateInfo, Consumer<Element> consumer) {
         //min-max dates
         if (dateInfo.dateMin != null) {
-            field(feedDoc, feedDocElement,MyDateTimeUtils.formatForSolr(dateInfo.dateMin),"date.min");
+            field(feedDoc, feedDocElement,MyDateTimeUtils.formatForSolr(dateInfo.dateMin),"date.min", consumer);
         }
         if (dateInfo.dateMax != null) {
-            field(feedDoc, feedDocElement,MyDateTimeUtils.formatForSolr(dateInfo.dateMin),"date.max");
+            field(feedDoc, feedDocElement,MyDateTimeUtils.formatForSolr(dateInfo.dateMin),"date.max", consumer);
         }
         if (dateInfo.isInstant()) { //instant
             if (dateInfo.instantYear != null) {
-                field(feedDoc, feedDocElement, dateInfo.instantYear.toString(),"date_range_start.year");
-                field(feedDoc, feedDocElement, dateInfo.instantYear.toString(), "date_range_end.year");
+                field(feedDoc, feedDocElement, dateInfo.instantYear.toString(),"date_range_start.year", consumer);
+                field(feedDoc, feedDocElement, dateInfo.instantYear.toString(), "date_range_end.year", consumer);
             }
             if (dateInfo.instantMonth != null) {
 
-                field(feedDoc, feedDocElement,  dateInfo.instantMonth.toString(),"date_range_start.month");
-                field(feedDoc, feedDocElement,  dateInfo.instantMonth.toString(), "date_range_end.month");
+                field(feedDoc, feedDocElement,  dateInfo.instantMonth.toString(),"date_range_start.month", consumer);
+                field(feedDoc, feedDocElement,  dateInfo.instantMonth.toString(), "date_range_end.month", consumer);
             }
             if (dateInfo.instantDay != null) {
 
-                field(feedDoc, feedDocElement,  dateInfo.instantDay.toString(), "date_range_start.day");
-                field(feedDoc, feedDocElement,  dateInfo.instantDay.toString(), "date_range_end.day");
+                field(feedDoc, feedDocElement,  dateInfo.instantDay.toString(), "date_range_start.day", consumer);
+                field(feedDoc, feedDocElement,  dateInfo.instantDay.toString(), "date_range_end.day", consumer);
             }
         } else { //range
             //range start
             if (dateInfo.rangeStartYear != null) {
-                field(feedDoc, feedDocElement,  dateInfo.rangeStartYear.toString(), "date_range_start.year");
+                field(feedDoc, feedDocElement,  dateInfo.rangeStartYear.toString(), "date_range_start.year", consumer);
             }
             if (dateInfo.rangeStartMonth != null) {
-                field(feedDoc, feedDocElement,  dateInfo.rangeStartMonth.toString(), "date_range_start.month");
+                field(feedDoc, feedDocElement,  dateInfo.rangeStartMonth.toString(), "date_range_start.month", consumer);
 
             }
             if (dateInfo.rangeStartDay != null) {
-                field(feedDoc, feedDocElement,  dateInfo.rangeStartMonth.toString(), "date_range_start.day");
+                field(feedDoc, feedDocElement,  dateInfo.rangeStartMonth.toString(), "date_range_start.day", consumer);
 
             }
             //range end
             if (dateInfo.rangeEndYear != null) {
-                field(feedDoc, feedDocElement,  dateInfo.rangeEndYear.toString(), "date_range_end.year");
+                field(feedDoc, feedDocElement,  dateInfo.rangeEndYear.toString(), "date_range_end.year", consumer);
                 //addSolrField(solrInput, "date_range_end.year", dateInfo.rangeEndYear.toString());
             }
             if (dateInfo.rangeEndMonth != null) {
-                field(feedDoc, feedDocElement,  dateInfo.rangeEndMonth.toString(), "date_range_end.month");
+                field(feedDoc, feedDocElement,  dateInfo.rangeEndMonth.toString(), "date_range_end.month", consumer);
                 //addSolrField(solrInput, "date_range_end.month", dateInfo.rangeEndMonth.toString());
             }
             if (dateInfo.rangeEndDay != null) {
-                field(feedDoc, feedDocElement,  dateInfo.rangeEndDay.toString(), "date_range_end.day");
+                field(feedDoc, feedDocElement,  dateInfo.rangeEndDay.toString(), "date_range_end.day", consumer);
                 //addSolrField(solrInput, "date_range_end.day", dateInfo.rangeEndDay.toString());
             }
         }

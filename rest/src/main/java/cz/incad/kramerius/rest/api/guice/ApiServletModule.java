@@ -70,6 +70,8 @@ import cz.incad.kramerius.rest.apiNew.client.v60.filter.DefaultFilter;
 import cz.incad.kramerius.rest.apiNew.client.v60.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.DefaultInstances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
+import cz.incad.kramerius.timestamps.TimestampStore;
+import cz.incad.kramerius.timestamps.impl.SolrTimestampStore;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
@@ -154,6 +156,7 @@ public class ApiServletModule extends JerseyServletModule {
 
 
         // cdk
+        bind(TimestampStore.class).to(SolrTimestampStore.class).asEagerSingleton();
         bind(Instances.class).to(DefaultInstances.class).asEagerSingleton();
         bind(ProxyFilter.class).to(DefaultFilter.class);
         bind(ConnectedInfoResource.class);

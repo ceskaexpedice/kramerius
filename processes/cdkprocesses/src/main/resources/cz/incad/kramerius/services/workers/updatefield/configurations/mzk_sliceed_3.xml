@@ -18,7 +18,7 @@
     <threads>2</threads>
 
 
-    <workerFactory class="cz.incad.kramerius.services.workers.replicate.update.UpdateFieldWorkerFactory"></workerFactory>
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.updatefield.UpdateFieldWorkerFactory"></workerFactory>
     <worker>
         <request>
             <url>$iteration.url$</url>

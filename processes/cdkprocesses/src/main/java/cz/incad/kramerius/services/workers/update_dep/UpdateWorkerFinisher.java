@@ -1,9 +1,10 @@
-package cz.incad.kramerius.services.workers.update;
+package cz.incad.kramerius.services.workers.update_dep;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.WorkerFinisher;
-import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
 import cz.incad.kramerius.services.utils.SolrUtils;
+import cz.incad.kramerius.timestamps.TimestampStore;
+
 import org.w3c.dom.Element;
 
 import java.util.logging.Logger;
@@ -15,8 +16,8 @@ public class UpdateWorkerFinisher extends WorkerFinisher {
     private long start = 0;
 
 
-    public UpdateWorkerFinisher(TimestampStore store,Element workerElm, Client client) {
-        super(store, workerElm, client);
+    public UpdateWorkerFinisher(String timestampUrl, Element workerElm, Client client) {
+        super(timestampUrl, workerElm, client);
         this.start = System.currentTimeMillis();
     }
 

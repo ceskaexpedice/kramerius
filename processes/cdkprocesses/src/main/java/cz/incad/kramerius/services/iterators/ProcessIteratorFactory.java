@@ -13,7 +13,7 @@ public abstract class ProcessIteratorFactory {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessIteratorFactory.class.getName());
 
-    public abstract ProcessIterator createProcessIterator(Element iterator, Client client);
+    public abstract ProcessIterator createProcessIterator(String timestamp,Element iterator, Client client);
 
     public static ProcessIteratorFactory create(String instanceName) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         LOGGER.info(String.format("Creating factory %s", instanceName));

@@ -6,10 +6,10 @@
    <iteration>
 	<url>%s</url>
     </iteration>
-    <threads>2</threads>
+    <threads>1</threads>
 
 
-    <workerFactory class="cz.incad.kramerius.services.workers.replicate.update.UpdateFieldWorkerFactory"></workerFactory>
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.updatefield.UpdateFieldWorkerFactory"></workerFactory>
     <worker>
         <request>
             <url>http://kramerius4.mlp.cz/search/api/v5.0</url>

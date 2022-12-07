@@ -4,7 +4,7 @@ import com.sun.jersey.api.client.*;
 import cz.incad.kramerius.services.iterators.ProcessIterationCallback;
 import cz.incad.kramerius.services.iterators.ProcessIterationEndCallback;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
-import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
+import cz.incad.kramerius.timestamps.TimestampStore;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
@@ -121,9 +121,5 @@ public class CompareLogsIterator implements ProcessIterator {
     }
 
 
-	@Override
-	public TimestampStore getTimestampStore() {
-		return null;
-	}
 
 }

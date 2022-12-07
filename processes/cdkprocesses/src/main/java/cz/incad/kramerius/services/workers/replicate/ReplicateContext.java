@@ -11,6 +11,7 @@ import java.util.Map;
 public class ReplicateContext {
 
     private List<Map<String,String>> alreadyIndexed;
+
     private List<String> notIndexed;
 
     public ReplicateContext(List<Map<String,String>> alreadyIndexed, List<String> notIndexed) {

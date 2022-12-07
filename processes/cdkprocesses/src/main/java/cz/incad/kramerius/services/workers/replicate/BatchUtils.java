@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -25,7 +26,7 @@ public class BatchUtils {
     public static final Logger LOGGER = Logger.getLogger(BatchUtils.class.getName());
 
 
-    public static Document batch(Element resultElem, boolean compositeId, String root, String child, SourceToDestTransform srcTransform) throws ParserConfigurationException, MigrateSolrIndexException  {
+    public static Document batch(Element resultElem, boolean compositeId, String root, String child, SourceToDestTransform srcTransform, Consumer<Element> consumer ) throws ParserConfigurationException, MigrateSolrIndexException  {
         //List<String> removalSourceElements = itemsToRemove();
         Document destBatch = XMLUtils.crateDocument("add");
         List<Element> docs = XMLUtils.getElements(resultElem, new XMLUtils.ElementsFilter() {
@@ -40,11 +41,10 @@ public class BatchUtils {
             Element sourceDocElm = docs.get(i);
 
             // basic transform
-            srcTransform.transform(sourceDocElm, destBatch, destDocElement);
+            srcTransform.transform(sourceDocElm, destBatch, destDocElement,consumer);
 
             // composite id is not supported
             if (compositeId && root != null && child != null) {
-
 
                 root = srcTransform.getField(root) != null ?  srcTransform.getField(root) : root;
                 child = srcTransform.getField(child) != null ?  srcTransform.getField(child) : child;
@@ -60,7 +60,6 @@ public class BatchUtils {
                 destBatch.getDocumentElement().appendChild(destDocElement);
             }
         }
-
         return destBatch;
     }
 

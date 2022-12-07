@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO: Merge with indexer
 public class DateExtractor {
 
     private static final String REGEXP_DAY_MONTH_YEAR = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //7.4.1920, 07. 04. 1920

@@ -68,7 +68,7 @@ public class SolrPageIteratorTest  {
 
         // Iterator instance
         Element iterationElm = XMLUtils.findElement(document.getDocumentElement(), "iteration");
-        ProcessIterator processIterator = processIteratorFactory.createProcessIterator(iterationElm, client);
+        ProcessIterator processIterator = processIteratorFactory.createProcessIterator(null,iterationElm, client);
 
         Assert.assertTrue(processIterator != null);
         Assert.assertTrue(processIterator instanceof  SolrPageIterator);
@@ -124,7 +124,7 @@ public class SolrPageIteratorTest  {
 
         // Iterator instance
         Element iterationElm = XMLUtils.findElement(document.getDocumentElement(), "iteration");
-        ProcessIterator processIterator = processIteratorFactory.createProcessIterator(iterationElm, client);
+        ProcessIterator processIterator = processIteratorFactory.createProcessIterator(null,iterationElm, client);
 
         Assert.assertTrue(processIterator != null);
         Assert.assertTrue(processIterator instanceof  SolrPageIterator);

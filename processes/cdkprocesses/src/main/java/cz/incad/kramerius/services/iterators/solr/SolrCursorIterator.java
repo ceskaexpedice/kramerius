@@ -3,8 +3,8 @@ package cz.incad.kramerius.services.iterators.solr;
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.iterators.ProcessIterationCallback;
 import cz.incad.kramerius.services.iterators.ProcessIterationEndCallback;
-import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
 import cz.incad.kramerius.services.utils.SolrUtils;
+import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Element;
@@ -20,15 +20,15 @@ import static cz.incad.kramerius.services.iterators.utils.IterationUtils.*;
 public class SolrCursorIterator extends AbstractSolrIterator{
 
 
-    public SolrCursorIterator(TimestampStore tStore,String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
-        super(tStore,address, masterQuery, filterQuery, endpoint, id, sorting, rows);
+    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows);
     }
 
-    public SolrCursorIterator(TimestampStore tStore,String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
-        super(tStore,address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
+    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
     }
 
-    static Element pidsCursorQuery(TimestampStore store, Client client, String url, String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting, String user, String pass)  throws ParserConfigurationException, SAXException, IOException {
+    static Element pidsCursorQuery( Client client, String url, String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting, String user, String pass)  throws ParserConfigurationException, SAXException, IOException {
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
             fullQuery = "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(sorting, "UTF-8")+"&fl="+identifierField+"&fq=" + URLEncoder.encode(fq,"UTF-8");
@@ -83,7 +83,7 @@ public class SolrCursorIterator extends AbstractSolrIterator{
             String cursorMark = null;
             String queryCursorMark = null;
             do {
-                Element element = pidsCursorQuery(this.timestampStore, client, address, masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting, this.user, this.pass);
+                Element element = pidsCursorQuery(client, address, masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting, this.user, this.pass);
                 cursorMark = findCursorMark(element);
                 queryCursorMark = findQueryCursorMark(element);
                 iterationCallback.call( pidsToIterationItem(this.address, findAllPids(element)));

@@ -2,7 +2,7 @@ package cz.incad.kramerius.services;
 
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
+import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Element;
 
@@ -14,15 +14,14 @@ public abstract class WorkerFinisher {
     protected CyclicBarrier barrier;
     protected Element workerElm;
     protected String destinationUrl;
+    protected String timestampUrl;
 
-    protected TimestampStore timestampStore;
     
-    public WorkerFinisher(TimestampStore store, Element workerElm, Client client) {
+    public WorkerFinisher(String timestampUrl, Element workerElm, Client client) {
         super();
         this.client = client;
         this.workerElm = workerElm;
-
-        this.timestampStore = store;
+        this.timestampUrl = timestampUrl;
         
         Element destElm = XMLUtils.findElement(workerElm, "destination");
         if (destElm != null) {

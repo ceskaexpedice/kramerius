@@ -8,8 +8,7 @@ import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
 import cz.incad.kramerius.services.iterators.ProcessIteratorFactory;
-import cz.incad.kramerius.services.iterators.timestamps.TimestampStore;
-import cz.incad.kramerius.services.iterators.timestamps.solr.SolrTimestampChecks;
+import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -80,30 +79,28 @@ public class ParallelProcessImpl {
         // initialize whole process properties
         this.initialize(document.getDocumentElement());
 
-        Element timestamps = XMLUtils.findElement(document.getDocumentElement(),"timestamp");
-        TimestampStore timestampStore  = null;
-        if (timestamps != null) {
-        	timestampStore = null; //new SolrTimestampChecks(client, null, null)
+
+        Element timestampElm = XMLUtils.findElement(document.getDocumentElement(),"timestamp");
+        String timestamp = null;
+        if (timestampElm != null) {
+        	timestamp = timestampElm.getTextContent();
         }
 
-        
         // Iterator factory
         Element iteratorFactory = XMLUtils.findElement(document.getDocumentElement(),"iteratorFactory");
         String iteratorClass = iteratorFactory.getAttribute("class");
         ProcessIteratorFactory processIteratorFactory = ProcessIteratorFactory.create(iteratorClass);
 
-        
-        
         // Iterator instance
         Element iterationElm = XMLUtils.findElement(document.getDocumentElement(), "iteration");
-    	this.iterator =processIteratorFactory.createProcessIterator(iterationElm, this.client);
+    	this.iterator =processIteratorFactory.createProcessIterator(timestamp, iterationElm, this.client);
 
         Element workerFactory = XMLUtils.findElement(document.getDocumentElement(),"workerFactory");
         String workerClass = workerFactory.getAttribute("class");
         this.workerFactory = WorkerFactory.create(workerClass);
 
         this.workerElem = XMLUtils.findElement(document.getDocumentElement(), "worker");
-        this.finisher = this.workerFactory.createFinisher( this.iterator.getTimestampStore(),  workerElem,this.client);
+        this.finisher = this.workerFactory.createFinisher(timestamp,  workerElem,this.client);
 
 
         final List<Worker>  worksWhatHasToBeDone = new ArrayList<>();

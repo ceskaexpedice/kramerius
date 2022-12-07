@@ -1,4 +1,4 @@
-package cz.incad.kramerius.services.workers.replicate.update;
+package cz.incad.kramerius.services.workers.replicate.updatefield;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -68,7 +68,7 @@ public class UpdateFieldWorker extends AbstractReplicateWorker {
     
     @Override
     public void run() {
-        try {
+    	try {
             LOGGER.info("["+Thread.currentThread().getName()+"] processing list of pids "+this.pidsToBeProcessed.size());
             int batches = this.pidsToBeProcessed.size() / batchSize + (this.pidsToBeProcessed.size() % batchSize == 0 ? 0 :1);
             LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" update ocr batches ");

@@ -1,9 +1,9 @@
-package cz.incad.kramerius.services.workers.updateocrcdk;
+package cz.incad.kramerius.services.workers.updateocrcdk_dep;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.services.iterators.IterationItem;
-import cz.incad.kramerius.services.workers.updateocr.UpdateOCRWorker;
+import cz.incad.kramerius.services.workers.updateocr_dep.UpdateOCRWorker;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.lang3.tuple.Pair;

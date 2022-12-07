@@ -130,6 +130,10 @@ public class KConfiguration {
         return getProperty("solrProcessingHost");
     }
 
+    public String getSolrUpdatesHost() {
+        return getProperty("solrUpdatesHost");
+    }
+
     public String getSolrSearchHost() {
         return getProperty("solrSearchHost");
     }
