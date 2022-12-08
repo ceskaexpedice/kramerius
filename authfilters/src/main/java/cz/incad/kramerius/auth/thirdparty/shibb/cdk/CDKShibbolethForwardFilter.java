@@ -35,7 +35,11 @@ public class CDKShibbolethForwardFilter  implements Filter {
         if( channel && CDKShibbolethForwardUtils.isTokenFromCDK((HttpServletRequest) request)) {
         	String tokenVal = ((HttpServletRequest)request).getHeader(CDKShibbolethForwardUtils.CDK_HEADER_KEY);
         	Map<String, String> headers = CDKShibbolethForwardUtils.tokenHeaders(tokenVal);
-            HttpServletRequest authenticated = CDKSecuredChannelHTTPProxy.newInstance((HttpServletRequest)request, null,headers);
+        	String ipAddress = request.getRemoteAddr();
+        	if (headers.containsKey("ip_address")) {
+        		ipAddress = headers.get("ip_address");
+        	}
+        	HttpServletRequest authenticated = CDKSecuredChannelHTTPProxy.newInstance((HttpServletRequest)request, null,headers, ipAddress);
             chain.doFilter(authenticated, response);
         } else {
             chain.doFilter(request, response);

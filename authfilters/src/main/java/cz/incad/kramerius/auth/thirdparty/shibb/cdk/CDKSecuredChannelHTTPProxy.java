@@ -14,12 +14,15 @@ public class CDKSecuredChannelHTTPProxy implements InvocationHandler {
     private HttpServletRequest reqest;
     private Principal principal;
     private Map<String, String> headers;
+    private String ipAddress;
     
-    CDKSecuredChannelHTTPProxy(HttpServletRequest request, Principal principal, Map<String, String> headers) {
+    
+    CDKSecuredChannelHTTPProxy(HttpServletRequest request, Principal principal, Map<String, String> headers, String ipAddress) {
         super();
         this.reqest = request;
         this.principal = principal;
         this.headers = headers;
+        this.ipAddress = ipAddress;
     }
     
     @Override
@@ -36,6 +39,8 @@ public class CDKSecuredChannelHTTPProxy implements InvocationHandler {
         } else if (method.getName().equals("getHeaderNames")) {
         	ListEnumeration enumeration = new ListEnumeration(new ArrayList<>(headers.keySet()));
         	return enumeration;
+        } else if (method.getName().equals("getRemoteAddr")) {
+        	return this.ipAddress;
         } else {
             return method.invoke(this.reqest, args);
         }
@@ -44,8 +49,8 @@ public class CDKSecuredChannelHTTPProxy implements InvocationHandler {
     
     
     
-    public static HttpServletRequest newInstance(HttpServletRequest reqest, Principal principal,Map<String, String> headers) {
+    public static HttpServletRequest newInstance(HttpServletRequest reqest, Principal principal,Map<String, String> headers, String ipAddress) {
         return (HttpServletRequest) java.lang.reflect.Proxy.newProxyInstance(CDKSecuredChannelHTTPProxy.class.getClassLoader(), 
-                new Class[] {ServletRequest.class, HttpServletRequest.class},new CDKSecuredChannelHTTPProxy(reqest, principal, headers));  
+                new Class[] {ServletRequest.class, HttpServletRequest.class},new CDKSecuredChannelHTTPProxy(reqest, principal, headers, ipAddress));  
     }
 }

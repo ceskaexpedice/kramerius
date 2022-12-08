@@ -44,7 +44,7 @@ public class CDKShibbolethForwardUtils {
 			if (nameValue.length > 1) {
 				if (nameValue[0].startsWith("header_")) {
 					map.put(nameValue[0].substring("header_".length()), nameValue[1]);
-				}
+				}  
 			}
     	}
     	return map;
@@ -73,7 +73,6 @@ public class CDKShibbolethForwardUtils {
     	String token = "header_shib-session-id=_dd68cbd66641c9b647b05509ac0241fa|header_shib-session-expires=1592847906|header_shib-identity-provider=https://shibboleth.mzk.cz/simplesaml/metadata.xml|header_shib-authentication-method=urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport|header_shib-handler=https://dnnt.mzk.cz/Shibboleth.sso|header_remote_user=all_users@mzk.cz|header_affilation=all_access@mzk.cz;member@mzk.cz|header_edupersonuniqueid=user@mzk.cz";	
     	Map<String, String> tokenHeaders = tokenHeaders(token);
     	System.out.println(tokenHeaders);
-    	
     }
     
 }

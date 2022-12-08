@@ -2,6 +2,8 @@ package cz.incad.kramerius.rest.api.replication;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.logging.Level;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -15,11 +17,19 @@ import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.Inject;
 
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.replication.resources.CDKIIIFResource;
 import cz.incad.kramerius.rest.api.replication.resources.CDKItemResource;
 import cz.incad.kramerius.rest.api.replication.resources.CDKUsersResource;
 import cz.incad.kramerius.rest.api.replication.resources.CDKZoomifyResource;
+import cz.incad.kramerius.security.RightsReturnObject;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
+import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 
 @Path("/v5.0/cdk/forward")
 public class CDKForwardResource {
@@ -93,4 +103,13 @@ public class CDKForwardResource {
 			throw new GenericApplicationException(e.getMessage());
 		}
     }
+
+    @GET
+    @Path("providedBy/{pid}")
+    @Produces("appliction/json")
+    public Response providedBy(@PathParam("pid") String pid) {
+    	return this.itemResource.providedBy(pid);
+    }
+
+    
 }
