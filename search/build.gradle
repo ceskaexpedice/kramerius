@@ -35,7 +35,6 @@ dependencies {
     api project(':shared:common')
     api project(':rest')
 
-    api project(':security:security-core')
     api project(':security:authfilters')
     api project(':security:oauth')
 

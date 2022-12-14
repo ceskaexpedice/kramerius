@@ -2,7 +2,6 @@ description "Import jackrabbit and fedora 4 repository"
 
 
 dependencies {
-    api project(':security:security-core')
     api project(':fedora-api')
     api project(':shared:common')
     api project(':processes:import')

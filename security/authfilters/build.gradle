@@ -3,7 +3,6 @@ description "Authentication filters"
 
 dependencies {
     api project(':shared:common')
-    api project(':security:security-core')
     api "org.brickred:socialauth:4.12"
     api 'commons-codec:commons-codec:1.5'
 

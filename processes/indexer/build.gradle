@@ -21,7 +21,6 @@ sourceSets {
 }
 
 dependencies {
-    api project(':security:security-core')
     api project(':shared:common')
 
     api group: 'org.jsoup', name: 'jsoup', version: '1.10.1'

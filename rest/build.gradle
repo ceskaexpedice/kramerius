@@ -4,7 +4,6 @@ description "Remote API"
 dependencies {
 
     api project(':shared:common')
-    api project(':security:security-core')
     api project(':security:oauth')
     api project(':search-index')
 

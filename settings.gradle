@@ -28,7 +28,6 @@ include	'search-index'
 include 'processes:nkp-logs'
 include 'processes:statistics'
 
-include 'security:security-core'
 include 'security:authfilters'
 include 'security:oauth'
 

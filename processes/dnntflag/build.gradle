@@ -1,5 +1,4 @@
 dependencies {
-    implementation project(':security:security-core')
     implementation project(':shared:common')
     implementation project(':processes:indexer')
     implementation project(':processes:import')

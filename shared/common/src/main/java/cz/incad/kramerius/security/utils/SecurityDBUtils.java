@@ -25,6 +25,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import com.google.inject.Provider;
+import cz.incad.kramerius.processes.database.Kramerius4ConnectionProvider;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RoleImpl;
@@ -66,23 +68,14 @@ public class SecurityDBUtils {
         User user = new UserImpl(id, firstName, surName, loginName, personalAdminId);
         return user;
     }
-    
-    /**
-     * JNDI key
-     */
-    public static String JNDI_NAME="java:comp/env/jdbc/kramerius4";
 
     // without guice because of classloaders
     public static Connection getConnection() {
         try {
-            InitialContext ctx = new InitialContext();
-            DataSource ds = (DataSource) ctx.lookup(JNDI_NAME);   
-            return ds.getConnection();
-        } catch (NamingException e) {
+            Provider<Connection> ds = new Kramerius4ConnectionProvider();
+            return ds.get();
+        } catch (Exception e) {
             K4LoginModule.LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return null;
-        } catch (SQLException e) {
-            K4LoginModule.LOGGER.log(Level.SEVERE, e.getMessage(), e);;
             return null;
         }
     }
