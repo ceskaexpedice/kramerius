@@ -35,7 +35,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>6.2.1</luceneMatchVersion>
+  <luceneMatchVersion>6.3.0</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load any Jars
        identified and use them to resolve any "plugins" specified in
@@ -310,8 +310,7 @@
          have some sort of hard autoCommit to limit the log size.
       -->
     <autoCommit>
-      <maxDocs>${solr.autoCommit.maxDocs:20000}</maxDocs>
-      <maxTime>${solr.autoCommit.maxTime:-1}</maxTime>
+      <maxTime>${solr.autoCommit.maxTime:120000}</maxTime>
       <openSearcher>false</openSearcher>
     </autoCommit>
 
@@ -322,7 +321,7 @@
       -->
 
     <autoSoftCommit>
-      <maxTime>${solr.autoSoftCommit.maxTime:30000}</maxTime>
+      <maxTime>${solr.autoSoftCommit.maxTime:1000}</maxTime>
     </autoSoftCommit>
 
     <!-- Update Related Event Listeners
@@ -516,7 +515,7 @@
          especially if the skipped fields are large compressed text
          fields.
     -->
-    <enableLazyFieldLoading>false</enableLazyFieldLoading>
+    <enableLazyFieldLoading>true</enableLazyFieldLoading>
 
     <!-- Use Filter For Sorted Query
  
@@ -757,9 +756,6 @@
       <str name="echoParams">explicit</str>
       <int name="rows">10</int>
       <!-- <str name="df">text</str> -->
-
-      <str name="q.op">AND</str>
-
     </lst>
     <!-- In addition to defaults, "appends" params can be specified
          to identify values which should be appended to the list of
@@ -840,19 +836,17 @@
     </lst>
   </requestHandler>
 
-  <initParams path="/update/**,/query,/select,/tvrh,/elevate,/spell,/browse">
+  <initParams path="/update/**,/query,/select,/tvrh,/spell,/browse">
     <lst name="defaults">
-      <str name="df">text</str>
+      <str name="df">_text_</str>
     </lst>
   </initParams>
 
-  <!-- This enabled schemaless mode 
   <initParams path="/update/**">
     <lst name="defaults">
       <str name="update.chain">add-unknown-fields-to-the-schema</str>
     </lst>
   </initParams>
-  -->
 
   <!-- Solr Cell Update Request Handler
 
@@ -865,72 +859,7 @@
     <lst name="defaults">
       <str name="lowernames">true</str>
       <str name="fmap.meta">ignored_</str>
-      <str name="fmap.content">text</str>
-    </lst>
-  </requestHandler>
-
-  <!-- Field Analysis Request Handler
-
-       RequestHandler that provides much the same functionality as
-       analysis.jsp. Provides the ability to specify multiple field
-       types and field names in the same request and outputs
-       index-time and query-time analysis for each of them.
-
-       Request parameters are:
-       analysis.fieldname - field name whose analyzers are to be used
-
-       analysis.fieldtype - field type whose analyzers are to be used
-       analysis.fieldvalue - text for index-time analysis
-       q (or analysis.q) - text for query time analysis
-       analysis.showmatch (true|false) - When set to true and when
-           query analysis is performed, the produced tokens of the
-           field value analysis will be marked as "matched" for every
-           token that is produces by the query analysis
-   -->
-  <requestHandler name="/analysis/field"
-                  startup="lazy"
-                  class="solr.FieldAnalysisRequestHandler" />
-
-
-  <!-- Document Analysis Handler
-
-       http://wiki.apache.org/solr/AnalysisRequestHandler
-
-       An analysis handler that provides a breakdown of the analysis
-       process of provided documents. This handler expects a (single)
-       content stream with the following format:
-
-       <docs>
-         <doc>
-           <field name="id">1</field>
-           <field name="name">The Name</field>
-           <field name="text">The Text Value</field>
-         </doc>
-         <doc>...</doc>
-         <doc>...</doc>
-         ...
-       </docs>
-
-    Note: Each document must contain a field which serves as the
-    unique key. This key is used in the returned response to associate
-    an analysis breakdown to the analyzed document.
-
-    Like the FieldAnalysisRequestHandler, this handler also supports
-    query analysis by sending either an "analysis.query" or "q"
-    request parameter that holds the query text to be analyzed. It
-    also supports the "analysis.showmatch" parameter which when set to
-    true, all field tokens that match the query tokens will be marked
-    as a "match". 
-  -->
-  <requestHandler name="/analysis/document"
-                  class="solr.DocumentAnalysisRequestHandler"
-                  startup="lazy" />
-
-  <!-- Echo the request contents back to the client -->
-  <requestHandler name="/debug/dump" class="solr.DumpRequestHandler" >
-    <lst name="defaults">
-      <str name="echoParams">explicit</str>
-      <str name="echoHandler">true</str>
+      <str name="fmap.content">_text_</str>
     </lst>
   </requestHandler>
 
@@ -995,7 +924,7 @@
     <!-- a spellchecker built from a field of the main index -->
     <lst name="spellchecker">
       <str name="name">default</str>
-      <str name="field">text</str>
+      <str name="field">_text_</str>
       <str name="classname">solr.DirectSolrSpellChecker</str>
       <!-- the spellcheck distance measure used, the default is the internal levenshtein -->
       <str name="distanceMeasure">internal</str>
@@ -1117,11 +1046,12 @@
        results for a given query regardless of the normal lucene
        scoring.
     -->
+<!--
   <searchComponent name="elevator" class="solr.QueryElevationComponent" >
-    <!-- pick a fieldType to analyze queries -->
     <str name="queryFieldType">string</str>
     <str name="config-file">elevate.xml</str>
   </searchComponent>
+-->
 
   <!-- A request handler for demonstrating the elevator component -->
   <requestHandler name="/elevate" class="solr.SearchHandler" startup="lazy">
@@ -1431,9 +1361,9 @@
        in Solr's conf/xslt directory.  Changes to xslt files are checked for
        every xsltCacheLifetimeSeconds.  
     -->
-  <queryResponseWriter name="xslt" class="solr.XSLTResponseWriter">
+  <!--queryResponseWriter name="xslt" class="solr.XSLTResponseWriter">
     <int name="xsltCacheLifetimeSeconds">5</int>
-  </queryResponseWriter>
+  </queryResponseWriter-->
 
   <!-- Query Parsers
 
