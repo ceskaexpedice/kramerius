@@ -1,5 +1,6 @@
 package cz.kramerius.searchIndex.indexer.conversions;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.searchIndex.indexer.utils.NamespaceRemovingVisitor;
@@ -165,6 +166,12 @@ public class SolrInputBuilder {
             solrInput.addField("pid", pid);
         } else {
             //System.err.println("missing PID");
+        }
+
+        //optional support for compositeId in SOLR Cloud
+        if (KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false)){
+            String rootPid =  (repositoryNode != null) ?repositoryNode.getRootPid():"null";
+            solrInput.addField("compositeId", rootPid+"!"+pid);
         }
 
         //model
