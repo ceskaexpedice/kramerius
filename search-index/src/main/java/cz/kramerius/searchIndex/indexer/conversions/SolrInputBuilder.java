@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static cz.kramerius.searchIndex.indexerProcess.Indexer.*;
+
 /*
 @see https://github.com/ceskaexpedice/kramerius/blob/akubra/processes/indexer/src/cz/incad/kramerius/indexer/res/K4.xslt
  */
@@ -169,10 +171,8 @@ public class SolrInputBuilder {
         }
 
         //optional support for compositeId in SOLR Cloud
-        if (KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false)){
-            String rootPid =  (repositoryNode != null) ?repositoryNode.getRootPid():"null";
-            solrInput.addField("compositeId", rootPid+"!"+pid);
-        }
+        ensureCompositeId(solrInput, repositoryNode, pid);
+
 
         //model
         String model = null;

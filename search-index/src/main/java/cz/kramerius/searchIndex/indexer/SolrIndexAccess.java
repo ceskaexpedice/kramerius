@@ -1,5 +1,6 @@
 package cz.kramerius.searchIndex.indexer;
 
+import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.shared.Dom4jUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -26,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static cz.kramerius.searchIndex.indexerProcess.Indexer.*;
 
 public class SolrIndexAccess {
 
@@ -134,7 +137,11 @@ public class SolrIndexAccess {
 
     public UpdateResponse deleteById(String id) throws IOException, SolrServerException {
         //System.out.println("deleting " + id);
-        UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
+        if (useCompositeId()){
+            UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id);
+        }else {
+            UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
+        }
         //System.out.println("delete response: " + deleteResponse);
         UpdateResponse commitResponse = solrClient.commit(collection);
         //System.out.println("commit response: " + commitResponse);
@@ -144,7 +151,11 @@ public class SolrIndexAccess {
     public UpdateResponse deleteByIds(List<String> ids) throws IOException, SolrServerException {
         //System.out.println("deleting " + id);
         for (String id : ids) {
-            UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
+            if (useCompositeId()){
+                UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id);
+            }else {
+                UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
+            }
             //System.out.println("delete response: " + deleteResponse);
         }
         UpdateResponse commitResponse = solrClient.commit(collection);
@@ -192,10 +203,12 @@ public class SolrIndexAccess {
         solrClient.commit(collection);
     }
 
-    public void setSingleFieldValue(String pid, String fieldName, Object value, boolean explicitCommit) {
+    public void setSingleFieldValue(String pid, RepositoryNode repositoryNode, String fieldName, Object value, boolean explicitCommit) {
         try {
             SolrInputDocument updateDoc = new SolrInputDocument();
+            ensureCompositeId(updateDoc,repositoryNode, pid);
             updateDoc.addField("pid", pid);
+
             Map<String, Object> updateData = new HashMap<>();
             updateData.put("set", value == null ? null : value.toString());
             updateDoc.addField(fieldName, updateData);
