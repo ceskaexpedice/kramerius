@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app>
 
-    <!--
-    <filter>
-        <filter-name>mockshibb</filter-name>
-        <filter-class>cz.incad.kramerius.auth.mochshib.MockShibFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>mockshibb</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    -->
-
     <filter>
         <filter-name>clientClosedRequest</filter-name>
         <filter-class>cz.incad.Kramerius.ClientClosedRequestFilter</filter-class>
@@ -59,18 +48,8 @@
         <url-pattern>/iiif-presentation/*</url-pattern>
     </filter-mapping>
 
-    <!-- mod_proxy filter; doesnt work in krameriusdemo don't know why (logout doesn't work)
-    <filter>
-        <filter-name>mod_proxy</filter-name>
-        <filter-class>cz.incad.Kramerius.apache.modproxy.ModProxyEnabledFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>mod_proxy</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    -->
 
-	<!--  musi byt na konkretni ip adresu  -->
+	<!--  CDK kanal, povolit pouze pro konkrenti IP adresu pripadne klientsky certifikat  -->
     <!-- 
     <filter>
         <filter-name>thirdpartyauthfilter_cdk</filter-name>
