@@ -113,7 +113,6 @@ public class ItemResource {
     @Inject
     Provider<User> userProvider;
 
-    // only for audio streams
     @Inject
     RepositoryUrlManager urlManager;
 
@@ -123,6 +122,7 @@ public class ItemResource {
     @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
     public Response foxml(@PathParam("pid") String pid) {
         boolean access = false;
+    	this.solrMemoization.clearMemo();
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPath(pid);
             for (ObjectPidsPath path : paths) {
@@ -160,6 +160,7 @@ public class ItemResource {
     public Response streamHead(@PathParam("pid") String pid,
             @PathParam("dsid") String dsid) {
         checkPid(pid);
+    	this.solrMemoization.clearMemo();
         try {
             checkPid(pid);
             if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
@@ -167,18 +168,61 @@ public class ItemResource {
 
                     // audio streams - bacause of support rage in headers
                     if (FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
-                        String mimeTypeForStream = this.fedoraAccess
-                                .getMimeTypeForStream(pid, dsid);
+                    	boolean internalStream = internalStream(pid, dsid); 
+                    	
+                    	if (!internalStream) {
+                        
+                    		String mimeTypeForStream = this.fedoraAccess
+                                    .getMimeTypeForStream(pid, dsid);
 
-                        ResponseBuilder responseBuilder = Response.ok();
-                        responseBuilder = responseBuilder.type(mimeTypeForStream);
+                            ResponseBuilder responseBuilder = Response.ok();
+                            responseBuilder = responseBuilder.type(mimeTypeForStream);
 
-                        HttpServletRequest request = this.requestProvider.get();
-                        User user = this.userProvider.get();
+                            HttpServletRequest request = this.requestProvider.get();
+                            User user = this.userProvider.get();
 
-                        AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
-                        ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
-                        return builder.build();
+                            AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+                            ResponseBuilder builder = AudioStreamForwardUtils.HEAD(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+                            return builder.build();
+
+                    	} else {
+
+                    		String mimeTypeForStream = this.fedoraAccess
+                                    .getMimeTypeForStream(pid, dsid);
+
+                            class _StreamHeadersObserver implements StreamHeadersObserver {
+                                ResponseBuilder respBuilder = null;
+                                @Override
+                                public void observeHeaderFields(int statusCode,
+                                        Map<String, List<String>> headerFields) {
+                                    respBuilder = Response.status(statusCode);
+                                    Set<String> keys = headerFields.keySet();
+                                    for (String k : keys) {
+                                        List<String> vals = headerFields.get(k);
+                                        for (String val : vals) {
+                                            respBuilder.header(k, val);
+                                        }
+                                    }
+                                }
+
+                                public ResponseBuilder getBuider() {
+                                    return this.respBuilder;
+                                }
+                            }
+                            
+                            _StreamHeadersObserver observer = new _StreamHeadersObserver();
+                            this.fedoraAccess.observeStreamHeaders(pid, dsid,observer);
+
+                            if (observer.getBuider() != null) {
+                                return observer.getBuider().type(mimeTypeForStream).build();
+                            } else {
+                                return Response.ok().type(mimeTypeForStream)
+                                        .build();
+                            }
+                    		
+                    	}
+                    	
+                    	
                         
                     } else {
                         String mimeTypeForStream = this.fedoraAccess
@@ -226,31 +270,68 @@ public class ItemResource {
         }
         
         
-    }    
+    }
+
+
+	private boolean internalStream(String pid, String dsid) throws IOException {
+		boolean internalStream = false;
+		Document streamProfile = this.fedoraAccess.getStreamProfile(pid, dsid);
+		Element dsControlGroup = XMLUtils.findElement(streamProfile.getDocumentElement(),"dsControlGroup");
+		if (dsControlGroup != null) {
+			String textContent = dsControlGroup.getTextContent();
+			if (StringUtils.isAnyString(textContent) && textContent.trim().toUpperCase().equals("M")) {
+				internalStream = true;
+			}
+		}
+		return internalStream;
+	}    
     
     @GET
     @Path("{pid}/streams/{dsid}")
     public Response stream(@PathParam("pid") String pid,
             @PathParam("dsid") String dsid) {
         try {
-            checkPid(pid);
+        	this.solrMemoization.clearMemo();
+        	checkPid(pid); 
             if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
                 if (!PIDSupport.isComposedPID(pid)) {
 
                     // audio streams - bacause of support rage in headers
                     if (FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
-                        String mimeTypeForStream = this.fedoraAccess
-                                .getMimeTypeForStream(pid, dsid);
 
-                        ResponseBuilder responseBuilder = Response.ok();
-                        responseBuilder = responseBuilder.type(mimeTypeForStream);
+                    	boolean internalStream = internalStream(pid, dsid); 
+                    	if (!internalStream) {
+                        	String mimeTypeForStream = this.fedoraAccess
+                                    .getMimeTypeForStream(pid, dsid);
 
-                        HttpServletRequest request = this.requestProvider.get();
-                        User user = this.userProvider.get();
-                        AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
-                        ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
-                        return builder.build();
-                        
+                        	
+                            ResponseBuilder responseBuilder = Response.ok();
+                            responseBuilder = responseBuilder.type(mimeTypeForStream);
+
+                            HttpServletRequest request = this.requestProvider.get();
+                            User user = this.userProvider.get();
+                            AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.valueOf(dsid));
+                            ResponseBuilder builder = AudioStreamForwardUtils.GET(audioStreamId, request, responseBuilder, solrAccess, user, this.isActionAllowed, urlManager);
+                            return builder.build();
+                            
+                    	} else {
+                            final InputStream is = this.fedoraAccess.getDataStream(pid,
+                                    dsid);
+                            String mimeTypeForStream = this.fedoraAccess
+                                    .getMimeTypeForStream(pid, dsid);
+                            StreamingOutput stream = new StreamingOutput() {
+                                public void write(OutputStream output)
+                                        throws IOException, WebApplicationException {
+                                    try {
+                                        IOUtils.copyStreams(is, output);
+                                    } catch (Exception e) {
+                                        throw new WebApplicationException(e);
+                                    }
+                                }
+                            };
+                            return Response.ok().entity(stream).type(mimeTypeForStream)
+                                    .build();
+                    	}
                     } else {
                         final InputStream is = this.fedoraAccess.getDataStream(pid,
                                 dsid);
@@ -286,6 +367,7 @@ public class ItemResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response streams(@PathParam("pid") String pid) {
         try {
+        	this.solrMemoization.clearMemo();
             checkPid(pid);
             JSONObject jsonObject = new JSONObject();
             if (!PIDSupport.isComposedPID(pid)) {
@@ -322,6 +404,7 @@ public class ItemResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response children(@PathParam("pid") String pid) {
         try {
+        	this.solrMemoization.clearMemo();
             checkPid(pid);
             if (!PIDSupport.isComposedPID(pid)) {
                 JSONArray jsonArray = ItemResourceUtils.decoratedJSONChildren(pid, this.solrAccess, this.solrMemoization, this.decoratorsAggregate);
@@ -342,6 +425,8 @@ public class ItemResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response siblings(@PathParam("pid") String pid) {
         try {
+        	this.solrMemoization.clearMemo();
+        	
             checkPid(pid);
             ObjectPidsPath[] paths = null;
             if (PIDSupport.isComposedPID(pid)) {
@@ -415,6 +500,7 @@ public class ItemResource {
     @Path("{pid}/full")
     public Response full(@PathParam("pid") String pid, @QueryParam("asFile")String asFile) {
         try {
+        	this.solrMemoization.clearMemo();
             checkPid(pid);
             if (PIDSupport.isComposedPID(pid)) {
                 String fpid = PIDSupport.first(pid);
@@ -458,6 +544,7 @@ public class ItemResource {
     @Path("{pid}/preview")
     public Response preview(@PathParam("pid") String pid) {
         try {
+        	this.solrMemoization.clearMemo();
             checkPid(pid);
             if (PIDSupport.isComposedPID(pid)) {
                 String fpid = PIDSupport.first(pid);
@@ -492,6 +579,7 @@ public class ItemResource {
     @Path("{pid}/thumb")
     public Response thumb(@PathParam("pid") String pid) {
         try {
+        	this.solrMemoization.clearMemo();
             checkPid(pid);
             if (PIDSupport.isComposedPID(pid)) {
                 String fpid = PIDSupport.first(pid);
@@ -544,7 +632,8 @@ public class ItemResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response basic(@PathParam("pid") String pid) {
         try {
-            if (pid != null) {
+        	this.solrMemoization.clearMemo();
+        	if (pid != null) {
                 checkPid(pid);
                 if (PIDSupport.isComposedPID(pid)) {
 
@@ -552,7 +641,6 @@ public class ItemResource {
                     String uriString = basicURL(pid);
                     JSONUtils.pidAndModelDesc(pid, jsonObject,uriString, this.solrMemoization,
                             this.decoratorsAggregate, null);
-
                     return Response.ok().entity(jsonObject.toString()).build();
                 } else {
                     try {

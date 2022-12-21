@@ -96,7 +96,8 @@ public class SolrMemoizationImpl implements SolrMemoization{
 
     @Override
     public void clearMemo() {
-        this.elms.clear();
+    	LOGGER.fine("Clearing solr memo; Stored keys "+this.elms.keySet());
+    	this.elms.clear();
     }
 
     public SolrAccess getSolrAccess() {
