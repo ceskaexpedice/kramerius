@@ -74,6 +74,7 @@ dependencies {
 
 }
 
+
 task gitcall(type: Exec) {
     println('Executing git rev-parse kramerius5')
     println('Project dir ' +project.projectDir+', Build dir '+project.buildDir)
@@ -106,7 +107,7 @@ task infofile(dependsOn: gitcall) {
 	}
 }
 
-processResources.dependsOn infofile
+//processResources.dependsOn infofile
 
 war {
     baseName = 'search'
