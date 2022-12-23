@@ -75,9 +75,15 @@ dependencies {
 }
 
 task gitcall(type: Exec) {
-	println "Executing git rev-parse HEAD"
-	println "Project dir {{projectDir}}; build dir {{buildDir}}"
-    commandLine "git", "rev-parse", "HEAD"
+    /*
+    project.logger.info('Executing git rev-parse kramerius5')
+    project.logger.info('Project dir ' +projectDir+', Build dir '+buildDir)
+    */
+    println('Executing git rev-parse kramerius5')
+	println('Current directory '+System.getProperty('user.dir')
+    println('Project dir ' +projectDir+', Build dir '+buildDir)
+
+    commandLine "git", "rev-parse", "kramerius5"
     standardOutput = new ByteArrayOutputStream()
     doLast {
         byte[] bytes = standardOutput.toByteArray()
