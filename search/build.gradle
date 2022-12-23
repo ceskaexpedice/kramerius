@@ -79,17 +79,16 @@ task gitcall(type: Exec) {
     println('Executing git rev-parse kramerius5')
     println('Project dir ' +project.projectDir+', Build dir '+project.buildDir)
     println('User dir ' + System.getProperty('user.dir'))
-
-	File file = new File(System.getProperty('user.home')+File.separator+"docker-debug.txt")
-	file.write "Executing git rev-parse kramerius5\n"
-    file.write 'Project dir ' +project.projectDir+', Build dir '+project.buildDir
-    file.write 'User dir ' + System.getProperty('user.dir')
+    ignoreExitValue true
 
     commandLine "git", "rev-parse", "kramerius5"
     standardOutput = new ByteArrayOutputStream()
     doLast {
         byte[] bytes = standardOutput.toByteArray()
         ext.hash = new String(bytes).trim();
+		if (execResult.getExitValue() != 0) {
+	       println('Exit value is ' + execResult.getExitValue())
+       }
     }
 }
 
