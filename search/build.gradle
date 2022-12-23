@@ -75,14 +75,9 @@ dependencies {
 }
 
 task gitcall(type: Exec) {
-    /*
-    project.logger.info('Executing git rev-parse kramerius5')
-    project.logger.info('Project dir ' +projectDir+', Build dir '+buildDir)
-    */
     println('Executing git rev-parse kramerius5')
-	println('Current directory '+System.getProperty('user.dir')
-    println('Project dir ' +projectDir+', Build dir '+buildDir)
-
+    println('Project dir ' +project.projectDir+', Build dir '+project.buildDir)
+    println('User dir ' + System.getProperty('user.dir'))
     commandLine "git", "rev-parse", "kramerius5"
     standardOutput = new ByteArrayOutputStream()
     doLast {
