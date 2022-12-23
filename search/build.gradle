@@ -76,13 +76,13 @@ dependencies {
 
 
 task gitcall(type: Exec) {
-    println('Executing git rev-parse kramerius5 --git-dir ' + project.projectDir)
+    println('Executing git rev-parse kramerius5 --git-dir ' + project.rootProject.projectDir)
     println('Project dir ' +project.projectDir+', Build dir '+project.buildDir)
     println('User dir ' + System.getProperty('user.dir'))
 	File userDir = new File(System.getProperty('user.dir'))
 	// --git-dir
     ignoreExitValue true
-    commandLine "git", "rev-parse", "kramerius5", "--git-dir", project.projectDir
+    commandLine "git", "rev-parse", "kramerius5", "--git-dir", project.rootProject.projectDir
     standardOutput = new ByteArrayOutputStream()
     doLast {
         byte[] bytes = standardOutput.toByteArray()
