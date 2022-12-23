@@ -74,8 +74,9 @@ dependencies {
 
 }
 
-
 task gitcall(type: Exec) {
+	println "Executing git rev-parse HEAD"
+	println "Project dir {{projectDir}}; build dir {{buildDir}}"
     commandLine "git", "rev-parse", "HEAD"
     standardOutput = new ByteArrayOutputStream()
     doLast {
