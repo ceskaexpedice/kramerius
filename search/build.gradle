@@ -79,6 +79,12 @@ task gitcall(type: Exec) {
     println('Executing git rev-parse kramerius5')
     println('Project dir ' +project.projectDir+', Build dir '+project.buildDir)
     println('User dir ' + System.getProperty('user.dir'))
+
+	File file = new File(System.getProperty('user.home')+File.separator+"docker-debug.txt")
+	file.write "Executing git rev-parse kramerius5\n"
+    file.write 'Project dir ' +project.projectDir+', Build dir '+project.buildDir
+    file.write 'User dir ' + System.getProperty('user.dir')
+
     commandLine "git", "rev-parse", "kramerius5"
     standardOutput = new ByteArrayOutputStream()
     doLast {
@@ -107,7 +113,7 @@ task infofile(dependsOn: gitcall) {
 	}
 }
 
-//processResources.dependsOn infofile
+processResources.dependsOn infofile
 
 war {
     baseName = 'search'
