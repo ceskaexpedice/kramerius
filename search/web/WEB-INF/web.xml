@@ -91,6 +91,7 @@
 
 
     <!--  thrid party authentication, disabled here.  -->
+	<!-- 
     <filter>
         <filter-name>keyclocaksupport</filter-name>
         <filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter</filter-class>
@@ -99,7 +100,8 @@
         <filter-name>keyclocaksupport</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-
+	 -->
+	 
     <!--  third party authentication, shibboleth and keyclocak - interal users -->
 	<!--  
     <filter>
