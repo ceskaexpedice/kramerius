@@ -5,11 +5,12 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
+import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
+import cz.incad.kramerius.auth.thirdparty.keycloack.utils.BaseUsersFunctions;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
 import org.keycloak.KeycloakPrincipal;
@@ -20,22 +21,17 @@ import org.keycloak.representations.AccessToken;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import java.sql.SQLException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak3rdUser> {
 
     public static final Logger LOGGER = Logger.getLogger(KeycloakUserSupport.class.getName());
-
-
-
-
 
     @Override
     protected String updateExistingUser(String userName, Keycloak3rdUser kUser) throws Exception {
@@ -49,7 +45,7 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
         Role[] groups = userByLoginName.getGroups();
 
         List<String> fromDb = Arrays.stream(groups).map(Role::getName).collect(Collectors.toList());
-        List<String> fromKeycloack = checkRolesExists(kUser).stream().map(Role::getName).collect(Collectors.toList());
+        List<String> fromKeycloack = BaseUsersFunctions.checkRolesExists(this.usersManager, kUser).stream().map(Role::getName).collect(Collectors.toList());
 
         if (!fromKeycloack.isEmpty()) {
             this.usersManager.changeRoles(u, kUser.getRoles());
@@ -66,48 +62,13 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
 
     @Override
     protected String createNewUser(String user, Keycloak3rdUser w) throws Exception {
-        User u = new UserImpl(-1,
-                w.getProperty(UserUtils.FIRST_NAME_KEY) !=  null ? w.getProperty(UserUtils.FIRST_NAME_KEY) : "" ,
-                w.getProperty(UserUtils.LAST_NAME_KEY) != null ? w.getProperty(UserUtils.FIRST_NAME_KEY) : "",
-                w.getCalculatedName(), -1);
-
-        String password = GeneratePasswordUtils.generatePswd();
-        List<Role> roles = checkRolesExists(w);
-        ((UserImpl) u).setGroups(roles.toArray(new Role[roles.size()]));
-
-        this.usersManager.insertUser(u, password);
-        this.usersManager.activateUser(u);
-        u = this.usersManager.findUserByLoginName(w.getCalculatedName());
-        if (roles.size() > 0) {
-            this.usersManager.changeRoles(u, roles.stream().map(Role::getName).collect(Collectors.toList()));
-        }
-        return password;
-    }
-
-    private List<Role> checkRolesExists(Keycloak3rdUser w) {
-        List<String> roleString = w.getRoles();
-        List<Role> roles = new ArrayList<>();
-        roleString.stream().forEach(r-> {
-            Role roleByName = this.usersManager.findRoleByName(r);
-            if (roleByName != null) {  roles.add(roleByName);  }
-            else {
-                try {
-                    Role nr = new RoleImpl(-1, r,-1);
-                    this.usersManager.insertRole(nr);
-                    Role nCreated = this.usersManager.findRoleByName(r);
-                    if (nCreated != null) { roles.add(nCreated); }
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
-                }
-            }
-        });
-        return roles;
+        return BaseUsersFunctions.createNewUser(usersManager, w);
     }
 
     @Override
     protected Keycloak3rdUser createUserWrapper(HttpServletRequest req, String userName) throws Exception {
         String name = req.getUserPrincipal().getName();
-        // keyclocak introspection
+        // keycloak introspection
         KeycloakAccount kAcc = (KeycloakAccount) req.getAttribute(KeycloakAccount.class.getName());
         Set<String> roleSet = kAcc.getRoles();
 
@@ -124,24 +85,24 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
         keycloack3rdUser.setProperty("preffered_user_name", token.getPreferredUsername());
         keycloack3rdUser.setProperty("expires_in", ""+(token.getExp()-token.getAuth_time()));
         
-        
         return keycloack3rdUser;
     }
 
     @Override
     public String calculateUserName(HttpServletRequest request) {
-        if (request.getUserPrincipal()!= null){
-            if (request.getUserPrincipal() instanceof KeycloakPrincipal){
-            	AccessToken token =  ((KeycloakPrincipal)request.getUserPrincipal()).getKeycloakSecurityContext().getToken();
-            	if (token.getEmail() != null) {
-            		return token.getEmail();
-            	} else {
-            		return token.getPreferredUsername();
-            	}
+        if (request.getUserPrincipal() != null) {
+            if (request.getUserPrincipal() instanceof KeycloakPrincipal) {
+                AccessToken token = ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext()
+                        .getToken();
+                if (token.getEmail() != null) {
+                    return token.getEmail();
+                } else {
+                    return token.getPreferredUsername();
+                }
             } else {
-                return  request.getUserPrincipal().getName();
+                return request.getUserPrincipal().getName();
             }
-        }else{
+        } else {
             return "null";
         }
     }

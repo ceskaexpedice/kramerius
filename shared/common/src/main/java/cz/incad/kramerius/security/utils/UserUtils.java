@@ -24,7 +24,6 @@ import cz.incad.kramerius.security.impl.UserImpl;
 public class UserUtils {
 
     public static Role commonUsersGroup = null;
-    //    static Group globalAdminGroup = null;
 
     public  static User getNotLoggedUser(UserManager userManager) {
         UserImpl user = new UserImpl(-1, "not_logged", "not_logged", "not_logged", -1);

@@ -1,25 +1,32 @@
-package cz.incad.kramerius.auth.thirdparty.keycloack;
+package cz.incad.kramerius.auth.thirdparty.keycloack.cdk;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
+import cz.incad.kramerius.auth.thirdparty.keycloack.Keycloak3rdUser;
 import cz.incad.kramerius.security.DefaultRoles;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
 
-import java.util.*;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+public class CDK3rdUser extends AbstractThirdPartyUser {
 
-public class Keycloak3rdUser extends AbstractThirdPartyUser {
-    
     public static final Logger LOGGER = Logger.getLogger(Keycloak3rdUser.class.getName());
     
     private String hash;
 
     private Map<String,String> sessionAttributes = new HashMap<>();
+    private List<String> roles = new ArrayList<>();
 
-    public Keycloak3rdUser(String h) {
+    public CDK3rdUser(String h) {
         this.hash = h;
     }
 
@@ -42,6 +49,13 @@ public class Keycloak3rdUser extends AbstractThirdPartyUser {
         return this.sessionAttributes.keySet();
     }
 
+    public void setRoles(List<String> rls) {
+        this.roles = rls;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
 
     @Override
     public User toUser(UserManager userManager) {
@@ -68,4 +82,5 @@ public class Keycloak3rdUser extends AbstractThirdPartyUser {
         
         return user;
     }
+
 }

@@ -42,6 +42,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.utils.StringUtils;

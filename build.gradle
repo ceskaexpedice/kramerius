@@ -91,6 +91,7 @@ allprojects {
     ext.slf4jversion='1.7.35'
     //ext.jerseyversion = '1.17.1'
     ext.jerseyversion = '1.19.4'
+    ext.keycloakversion = '20.0.2' 
 
     ext.generatedSources = "generated-sources"
 

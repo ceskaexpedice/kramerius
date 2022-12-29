@@ -2,26 +2,22 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import cz.incad.kramerius.ObjectPidsPath;
+
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
+import cz.incad.kramerius.rest.apiNew.client.v70.utils.ProvidedLicensesUtils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
@@ -41,11 +37,8 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -154,7 +147,7 @@ public class ItemsResource extends ClientApiResource {
             json.put("data", extractAvailableDataInfo(pid));
             json.put("structure", extractStructureInfo(pid));
             json.put("image", extractImageSourceInfo(pid));
-            json.put("providedByLicenses", extractLicensesProvidingAccess(pid));
+            json.put(ProvidedLicensesUtils.PROVIDED_BY_LICENSES, ProvidedLicensesUtils.extractLicensesProvidingAccess(this.rightsResolver, this.solrAccess, pid));
             return Response.ok(json).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -188,7 +181,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             JSONObject responseJson = new JSONObject();
-            responseJson.put("licenses", extractLicensesProvidingAccess(pid));
+            responseJson.put("licenses", ProvidedLicensesUtils.extractLicensesProvidingAccess(this.rightsResolver,this.solrAccess,pid));
             return Response.ok(responseJson).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -237,44 +230,6 @@ public class ItemsResource extends ClientApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
-    }
-
-    /**
-     * extract information about licenses provided for current user and current pid;
-     */
-    //TODO: update javadoc
-    private JSONArray extractLicensesProvidingAccess(String pid) throws IOException, RepositoryException {
-        JSONArray licenseArray = new JSONArray();
-        String encoded = URLEncoder.encode("pid:\"" + pid + "\"", "UTF-8");
-        JSONObject solrResponseJson = this.solrAccess.requestWithSelectReturningJson("q=" + encoded + "&fl=pid_paths");
-
-        JSONArray docs = solrResponseJson.getJSONObject("response").getJSONArray("docs");
-        if (docs.length() > 0) {
-            JSONArray pidPaths = docs.getJSONObject(0).getJSONArray("pid_paths");
-            List<ObjectPidsPath> pidsPathList = new ArrayList<>();
-            for (int i = 0; i < pidPaths.length(); i++) {
-                pidsPathList.add(new ObjectPidsPath(pidPaths.getString(i)));
-            }
-            for (ObjectPidsPath p : pidsPathList) {
-                RightsReturnObject actionAllowed = rightsResolver.isActionAllowed(SecuredActions.A_READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
-                if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
-                    String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
-                    if (/*qName.equals(ReadDNNTFlag.class.getName()) ||
-                            qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||*/
-                            qName.equals(ReadDNNTLabels.class.getName()) ||
-                            qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
-                    ) {
-                        Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
-                        if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
-                            licenseArray.put(evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL));
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        return licenseArray;
     }
 
     private JSONObject extractAvailableDataInfo(String pid) throws IOException, RepositoryException {

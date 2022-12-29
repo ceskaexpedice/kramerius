@@ -25,6 +25,10 @@ import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RolesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.UsersResource;
+import cz.incad.kramerius.rest.apiNew.cdk.v70.CDKForwardResource;
+import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
+import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
+import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKUsersResource;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.debug.HTTPHeaders;
@@ -46,6 +50,7 @@ import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
@@ -90,6 +95,16 @@ public class ApiServletModule extends JerseyServletModule {
         bind(StatisticsResource.class);
         bind(LicensesResource.class);
 
+        // CDK Client 7.0 Resources
+        boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
+        if (channel) {
+            bind(CDKForwardResource.class);
+            bind(CDKIIIFResource.class);
+            bind(CDKItemResource.class);
+            bind(CDKUsersResource.class);
+        }
+
+        
         // API Client 7.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.client.v70.InfoResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);

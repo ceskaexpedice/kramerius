@@ -8,7 +8,7 @@ configurations {
 dependencies {
     api project(':shared:common')
 
-    api (group: 'org.keycloak', name: 'keycloak-servlet-filter-adapter', version: '19.0.3')
+    api "org.keycloak:keycloak-servlet-filter-adapter:${keycloakversion}"
     api 'com.squareup.okhttp3:okhttp:4.9.1'
 
     provided "javax.servlet.jsp:jsp-api:2.2",

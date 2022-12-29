@@ -63,6 +63,15 @@
 		<url-pattern>/iiif-presentation/*</url-pattern>
 	</filter-mapping>
 
+    <filter>
+        <filter-name>thirdpartyauthfilter_cdk</filter-name>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.shibb.cdk.CDKShibbolethForwardFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>thirdpartyauthfilter_cdk</filter-name>
+        <url-pattern>/api/cdk/v7.0/forward/*</url-pattern>
+    </filter-mapping>
+
 	<!-- mod_proxy filter; doesnt work in krameriusdemo don't know why (logout 
 		doesn't work) <filter> <filter-name>mod_proxy</filter-name> <filter-class>cz.incad.Kramerius.apache.modproxy.ModProxyEnabledFilter</filter-class> 
 		</filter> <filter-mapping> <filter-name>mod_proxy</filter-name> <url-pattern>/*</url-pattern> 
@@ -81,6 +90,7 @@
 	</filter-mapping>
 
 	<!-- third party authentication, shibboleth and keyclocak - interal users -->
+    <!-- 
 	<filter>
 		<filter-name>shibfilter</filter-name>
 		<filter-class>cz.incad.kramerius.auth.thirdparty.shibb.internal.InternalShibbolethAuthFilter
@@ -90,7 +100,8 @@
 		<filter-name>shibfilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-
+     -->
+	
 	<filter>
 		<filter-name>keycloak</filter-name>
 		<filter-class>cz.incad.kramerius.auth.thirdparty.keycloack.KeycloakFilter
@@ -100,7 +111,17 @@
 		<filter-name>keycloak</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	<!-- -->
+
+    <!--  handle attributes from headers -->
+    <filter>
+        <filter-name>cdk_user</filter-name>
+        <filter-class>cz.incad.kramerius.auth.thirdparty.keycloack.cdk.CDKKeycloakFilter
+        </filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>cdk_user</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
 	<!-- Guice, must be last -->
 	<filter>

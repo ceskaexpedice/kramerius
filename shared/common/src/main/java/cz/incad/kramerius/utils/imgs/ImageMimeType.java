@@ -2,8 +2,9 @@ package cz.incad.kramerius.utils.imgs;
 
 public enum ImageMimeType {
 
+    
 	JPEG("image/jpeg","jpg", true, false),
-	    //image/tiff
+
 	TIFF("image/tiff","tiff", true, false),
 	PNG("image/png","png", true, false),
 	JPEG2000("image/jp2","jp2",true,false),

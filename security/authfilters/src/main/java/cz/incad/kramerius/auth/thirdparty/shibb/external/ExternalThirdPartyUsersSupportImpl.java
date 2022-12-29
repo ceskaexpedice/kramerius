@@ -2,11 +2,12 @@ package cz.incad.kramerius.auth.thirdparty.shibb.external;
 
 import java.util.logging.Logger;
 
-import cz.incad.kramerius.auth.thirdparty.shibb.utils.Shibboleth3rdUser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.auth.thirdparty.shibb.impl.ShibThirdPartyUsersSupport;
+import cz.incad.kramerius.auth.thirdparty.shibb.utils.Shibboleth3rdUser;
 import cz.incad.kramerius.auth.thirdparty.utils.RemoteUsersUtils;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 

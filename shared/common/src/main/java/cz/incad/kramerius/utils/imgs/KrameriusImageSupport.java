@@ -41,10 +41,11 @@ public class KrameriusImageSupport {
             }
         });
     }
-
+    
+    
+    
     public static BufferedImage readImage(String pid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
         String mimetype = fedoraAccess.getMimeTypeForStream(pid, stream);
-        //TODO: change logging
         LOGGER.fine("mimetype for pid '"+pid+"' is '"+mimetype+"'");
         ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
         URL url = new URL("fedora", "", 0, pid + "/" + stream, new Handler(fedoraAccess));

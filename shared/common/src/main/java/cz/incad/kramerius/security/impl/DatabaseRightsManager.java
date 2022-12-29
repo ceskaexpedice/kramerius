@@ -63,9 +63,6 @@ public class DatabaseRightsManager implements RightsManager {
     @Inject
     RightCriteriumWrapperFactory criteriumWrapperFactory;
     
-    @Inject
-    @Named("fedora")
-    CollectionsManager colGet;
     
     @Override
     @InitSecurityDatabase
