@@ -26,7 +26,7 @@ public class PDFDNNTLabels extends AbstractCriterium implements RightCriteriumLa
                 RightsResolver rightsResolver = this.getEvaluateContext().getRightsResolver();
                 ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccessNewIndex().getPidPaths(requestedPid);
                 for (ObjectPidsPath path : paths) {
-                    RightsReturnObject obj = rightsResolver.isActionAllowed(SecuredActions.READ.getFormalName(), requestedPid, null, path);
+                    RightsReturnObject obj = rightsResolver.isActionAllowed(SecuredActions.A_READ.getFormalName(), requestedPid, null, path);
                     if (CriteriaDNNTUtils.allowedByReadDNNTLabelsRight(obj, getLicense())) return EvaluatingResultState.FALSE;
                 }
             }
@@ -65,7 +65,7 @@ public class PDFDNNTLabels extends AbstractCriterium implements RightCriteriumLa
 
     @Override
     public SecuredActions[] getApplicableActions() {
-        return  new SecuredActions[] {SecuredActions.PDF_RESOURCE};
+        return  new SecuredActions[] {SecuredActions.A_PDF_READ};
     }
 
     @Override

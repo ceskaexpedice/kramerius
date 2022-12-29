@@ -34,7 +34,7 @@ public class AudioStreamForwardUtils {
     public static boolean canBeRead(String pid, SolrAccess sa, User user, RightsResolver rightsResolver) throws IOException {
         ObjectPidsPath[] paths = sa.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
-            if (rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, null, pth.injectRepository()).flag()) {
+            if (rightsResolver.isActionAllowed(user, SecuredActions.A_READ.getFormalName(), pid, null, pth.injectRepository()).flag()) {
                 return true;
             }
         }
@@ -61,7 +61,7 @@ public class AudioStreamForwardUtils {
                 throw new IllegalArgumentException(ex);
             }
         } else {
-            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, id.getPid()));
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, id.getPid()));
         }
 
     }
@@ -84,7 +84,7 @@ public class AudioStreamForwardUtils {
                 throw new ServletException(ex);
             }
         } else {
-            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, id.getPid()));
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, id.getPid()));
         }
     }
 
@@ -106,7 +106,7 @@ public class AudioStreamForwardUtils {
                 throw new ServletException(ex);
             }
         } else {
-            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, id.getPid()));
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, id.getPid()));
         }
     }
 
@@ -128,7 +128,7 @@ public class AudioStreamForwardUtils {
                 throw new IllegalArgumentException(ex);
             }
         } else {
-            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.READ, id.getPid()));
+            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, id.getPid()));
         }
     }
 

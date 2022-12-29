@@ -42,8 +42,6 @@ public class SecuredStreams extends AbstractCriterium implements RightCriterium 
 
     @Override
     public SecuredActions[] getApplicableActions() {
-        return new SecuredActions[] {SecuredActions.READ};
+        return new SecuredActions[] {SecuredActions.A_READ};
     }
-
-
 }

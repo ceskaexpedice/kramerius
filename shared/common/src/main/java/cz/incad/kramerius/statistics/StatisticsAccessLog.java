@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
  * @author pavels
  */
 public interface StatisticsAccessLog {
-
     /**
      * Report one access 
      * @param pid accessing pid 
@@ -64,6 +63,7 @@ public interface StatisticsAccessLog {
      * @return
      */
     public StatisticReport[] getAllReports();
+
     
     /**
      * Find report by given id
@@ -72,7 +72,20 @@ public interface StatisticsAccessLog {
      */
     public StatisticReport getReportById(String reportId);
 
+    
+    /**
+     * TODO: Presunout jinam
+     * Cleaning statistics tables 
+     * @param dateFrom From date
+     * @param dateTo To date
+     */
+    public int cleanData(Date dateFrom, Date dateTo) throws IOException;
 
+    /**
+     * TODO: Presunout jinam
+     * @throws IOException
+     */
+    public void refresh() throws IOException;
 
 
 }

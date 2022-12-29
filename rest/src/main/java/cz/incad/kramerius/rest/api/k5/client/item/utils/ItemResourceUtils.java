@@ -22,7 +22,6 @@ import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.SolrResultsAware;
-import cz.incad.kramerius.rest.api.k5.client.item.ItemResource;
 import cz.incad.kramerius.rest.api.k5.client.utils.JSONUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -31,11 +30,7 @@ public class ItemResourceUtils {
 
     public static final Logger LOGGER = Logger.getLogger(ItemResourceUtils.class.getName());
 
-
-    public static List<String> solrChildrenPids(String parentPid, List<String> fList, SolrAccess sa) throws IOException {
-        return solrChildrenPids(parentPid, fList, sa, null);
-    }
-
+ 
     public static List<String> solrChildrenPids(String parentPid, List<String> fList, SolrAccess sa, SolrMemoization memo) throws IOException {
         // TODO: Change it
         List<Document> docs = new  ArrayList<Document>();
@@ -77,8 +72,8 @@ public class ItemResourceUtils {
                 if (docpid.equals(parentPid)) continue;
                 Map<String, String> m = new HashMap<String, String>();
                 m.put("pid", docpid);
-                m.put("index", SOLRUtils.relsExtIndex(parentPid, docelm));
-                if (memo != null)  memo.rememberIndexedDoc(docpid, docelm);
+                m.put("index", ItemResourceUtils.relsExtIndex(parentPid, docelm));
+                memo.rememberIndexedDoc(docpid, docelm);
     
                 ll.add(m);
             }
@@ -104,34 +99,60 @@ public class ItemResourceUtils {
         return values;
     }
 
-    public static  JSONArray decoratedJSONChildren(String pid, SolrAccess solrAccess, SolrMemoization solrMemoization,JSONDecoratorsAggregate decoratorsAggregate) throws IOException, JSONException {
-        JSONArray jsonArray = new JSONArray();
-        solrMemoization.clearMemo();
-        List<String> fieldList = new ArrayList<String>();
-        List<JSONDecorator> decs = decoratorsAggregate.getDecorators();
-        for (JSONDecorator jsonDec : decs) {
-            if (jsonDec instanceof SolrResultsAware) {
-                SolrResultsAware saware = (SolrResultsAware) jsonDec;
-                List<String> fList = saware.getFieldList();
-                fieldList.addAll(fList);
+    /**
+     * Finds correct rels ext position
+     * @param parentPid 
+     * @param docelm
+     * @return
+     */
+    public static String relsExtIndex(String parentPid, Element docelm) {
+        List<Integer> docindexes =  SOLRUtils.narray(docelm, "rels_ext_index", Integer.class);
+        
+        if (docindexes.isEmpty()) return "0";
+        List<String> parentPids = SOLRUtils.narray(docelm, "parent_pid", String.class);
+        int index = 0;
+        for (int i = 0, length = parentPids.size(); i < length; i++) {
+            if (parentPids.get(i).endsWith(parentPid)) {
+                index =  i;
+                break;
             }
         }
-    
-        List<String> children = solrChildrenPids(pid, fieldList, solrAccess, solrMemoization);
-        for (String p : children) {
-            String repPid = p.replace("/", "");
-            // vrchni ma odkaz sam na sebe
-            if (repPid.equals(pid))
-                continue;
-            String uri = UriBuilder.fromResource(ItemResource.class)
-                    .path("{pid}/children").build(pid).toString();
-            JSONObject jsonObject = JSONUtils.pidAndModelDesc(repPid,
-                    uri.toString(),solrMemoization,
-                    decoratorsAggregate, uri);
-            jsonArray.put(jsonObject);
+        if (docindexes.size() > index) {
+            return ""+docindexes.get(index);
+        } else {
+            LOGGER.warning("bad solr document for parent_pid:"+parentPid);
+            return "0";
         }
-        return jsonArray;
     }
+
+//    public static  JSONArray decoratedJSONChildren(String pid, SolrAccess solrAccess, SolrMemoization solrMemoization,JSONDecoratorsAggregate decoratorsAggregate) throws IOException, JSONException {
+//        JSONArray jsonArray = new JSONArray();
+//        solrMemoization.clearMemo();
+//        List<String> fieldList = new ArrayList<String>();
+//        List<JSONDecorator> decs = decoratorsAggregate.getDecorators();
+//        for (JSONDecorator jsonDec : decs) {
+//            if (jsonDec instanceof SolrResultsAware) {
+//                SolrResultsAware saware = (SolrResultsAware) jsonDec;
+//                List<String> fList = saware.getFieldList();
+//                fieldList.addAll(fList);
+//            }
+//        }
+//    
+//        List<String> children = solrChildrenPids(pid, fieldList, solrAccess, solrMemoization);
+//        for (String p : children) {
+//            String repPid = p.replace("/", "");
+//            // vrchni ma odkaz sam na sebe
+//            if (repPid.equals(pid))
+//                continue;
+//            String uri = UriBuilder.fromResource(ItemResource.class)
+//                    .path("{pid}/children").build(pid).toString();
+//            JSONObject jsonObject = JSONUtils.pidAndModelDesc(repPid,
+//                    uri.toString(),solrMemoization,
+//                    decoratorsAggregate, uri);
+//            jsonArray.put(jsonObject);
+//        }
+//        return jsonArray;
+//    }
 
 
     

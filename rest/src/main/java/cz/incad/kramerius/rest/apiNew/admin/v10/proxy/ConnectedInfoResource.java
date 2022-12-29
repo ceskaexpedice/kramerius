@@ -27,6 +27,8 @@ import org.json.JSONObject;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.TypeOfChangedStatus;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.Role;
@@ -45,37 +47,49 @@ public class ConnectedInfoResource {
 
 	@Inject
 	private TimestampStore timestampStore;
-	
 		
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllConnected() {
     	JSONObject retval = new JSONObject();
     	this.libraries.allInstances().forEach(library-> {
-    		retval.put(library, libraryJSON(library));
+    		JSONObject json = libraryJSON(library);
+    		retval.put(library.getName(), json);
     	});
         return Response.ok(retval).build();
     }
 
-    private JSONObject libraryJSON(String library) {
+    private JSONObject libraryJSON(OneInstance found) {
     	JSONObject retval = new JSONObject();
-    	retval.put("status", this.libraries.getStatus(library));
+    	retval.put("status", found.isConnected());
+    	retval.put("type", found.getType().name());
     	return retval;
     }
 
+    
 	@GET
     @Path("{library}/status")
     @Produces(MediaType.APPLICATION_JSON)
     public Response library(@PathParam("library") String library) {
-        return Response.ok(libraryJSON(library)).build();
+		OneInstance find = this.libraries.find(library);
+		if (find != null) {
+			return Response.ok(libraryJSON(find)).build();
+		} else {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
     }
 
 	@PUT
     @Path("{library}/status")
     @Produces(MediaType.APPLICATION_JSON)
     public Response library(@PathParam("library") String library,@QueryParam("status") String status) {
-		this.libraries.setStatus(library, Boolean.parseBoolean(status));
-		return Response.ok(libraryJSON(library)).build();
+		OneInstance find = this.libraries.find(library);
+		if (find != null) {
+			find.setConnected(Boolean.parseBoolean(status), TypeOfChangedStatus.user);
+			return Response.ok(libraryJSON(find)).build();
+		} else {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
     }
 	
 	

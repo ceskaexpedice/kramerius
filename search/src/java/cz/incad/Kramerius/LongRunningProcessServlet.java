@@ -202,7 +202,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                     User user = loggedUserSingleton.getUser(loggedUserKey);
                     if (user == null) {
                         // no user
-                        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
+                        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_PROCESS_EDIT));
                     }
                     
                     boolean permited = permitStart(rightsResolver, actionFromDef, user);
@@ -237,7 +237,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                         }
                         
                     } else {
-                        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
+                        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_PROCESS_EDIT));
                     }
                 } catch (IOException | TokenStreamException | RecognitionException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -252,7 +252,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         stop {
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager lrProcessManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
-                if (rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
+                if (rightsResolver.isActionAllowed(SecuredActions.A_PROCESS_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
                     try {
                         String uuid = req.getParameter("uuid");
                         String realPath = context.getRealPath("WEB-INF/lib");
@@ -300,7 +300,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 User user = loggedUserSingleton.getUser(loggedUserKey);
                 if (user == null) {
                     // no user
-                    throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
+                    throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_PROCESS_EDIT));
                 }
 
                 boolean permitted = permitStart(rightsResolver, actionFromDef, user);
@@ -342,7 +342,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
                 User user = loggedUserSingleton.getUser(loggedUserKey);
                 if (user == null) {
                     // no user
-                    throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
+                    throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_PROCESS_EDIT));
                 }
 
                 boolean permitted = permitStart(rightsResolver, actionFromDef, user);
@@ -377,7 +377,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
             @Override
             void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton,
                     InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
-                if (rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
+                if (rightsResolver.isActionAllowed(SecuredActions.A_PROCESS_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
                     try {
                         String uuid = req.getParameter("uuid");
                         String templateId = req.getParameter("templateId");
@@ -521,7 +521,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         delete {
             @Override
             public void doAction(ServletContext context, HttpServletRequest req, HttpServletResponse resp, DefinitionManager defManager, LRProcessManager processManager, UserManager userManager, Provider<User> userProvider, RightsResolver rightsResolver, LoggedUsersSingleton loggedUserSingleton, InputTemplateFactory iTemplateFactory, OutputTemplateFactory oTemplateFactory) {
-                if (rightsResolver.isActionAllowed(SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
+                if (rightsResolver.isActionAllowed(SecuredActions.A_PROCESS_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
                     Lock lock = processManager.getSynchronizingLock();
                     lock.lock();
                     try {
@@ -616,7 +616,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         public String findLoggedUserKey(HttpServletRequest req, LRProcessManager lrProcessManager, String grpToken, String authToken,Provider<User> userProvider) {
             if (grpToken != null) {
                 if (lrProcessManager.isAuthTokenClosed(authToken)) {
-                    throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.MANAGE_LR_PROCESS));
+                    throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_PROCESS_EDIT));
                 }
                 List<LRProcess> processes = lrProcessManager.getLongRunningProcessesByGroupToken(grpToken);
                 if (!processes.isEmpty()) {
@@ -646,7 +646,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         
         public boolean permitStart(RightsResolver rightsResolver, SecuredActions actionFromDef, User user) {
             //TODO: where are actions ?
-            boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() ||
+            boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.A_PROCESS_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() ||
                                 (actionFromDef != null && rightsResolver.isActionAllowed(user, actionFromDef.getFormalName(), SpecialObjects.REPOSITORY.getPid(),null, ObjectPidsPath.REPOSITORY_PATH).flag())) : false ;
             return permited;
         }

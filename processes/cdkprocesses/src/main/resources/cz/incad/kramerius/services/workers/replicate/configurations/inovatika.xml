@@ -11,7 +11,6 @@
     <iteration>
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
-
         <id>pid</id>
         <type>CURSOR</type>
     </iteration>

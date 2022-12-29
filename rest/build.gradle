@@ -20,12 +20,14 @@ dependencies {
 	
 	api 'commons-codec:commons-codec:1.5'
 
-    api 'org.keycloak:keycloak-servlet-filter-adapter:15.0.2'
-    api 'org.keycloak:keycloak-authz-client:15.0.2'
+	api 'org.keycloak:keycloak-servlet-filter-adapter:20.0.2'
+	api 'org.keycloak:keycloak-authz-client:20.0.2'
 
     //dom4j
     implementation 'jaxen:jaxen:1.2.0'
     implementation 'org.dom4j:dom4j:2.1.1'
+    
+    implementation group: 'org.keycloak', name: 'keycloak-admin-client', version: '20.0.2'
     
 	//testCompile 'junit:junit-dep:4.11+'
 }

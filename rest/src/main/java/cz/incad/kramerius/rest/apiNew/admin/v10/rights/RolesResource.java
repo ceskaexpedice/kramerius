@@ -26,13 +26,20 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
-import cz.incad.kramerius.rest.api.exceptions.*;
-import cz.incad.kramerius.security.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,8 +47,20 @@ import org.json.JSONObject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.exceptions.CreateException;
+import cz.incad.kramerius.rest.api.exceptions.DeleteException;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.rest.api.utils.dbfilter.DbFilterUtils.FormalNamesMapping;
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+import cz.incad.kramerius.security.RightsManager;
+import cz.incad.kramerius.security.RightsResolver;
+import cz.incad.kramerius.security.Role;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.utils.StringUtils;
@@ -57,7 +76,6 @@ import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
  */
 @Path("/admin/v7.0/roles")
 public class RolesResource {
-
     @Inject
     UserManager userManager;
 
@@ -257,10 +275,14 @@ public class RolesResource {
     }
 
     boolean permit(User user) {
-    	if (user != null)
-    		return  this.rightsResolver.isActionAllowed(user,SecuredActions.USERSADMIN.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
+    	if (user != null) {
+            boolean retval = this.rightsResolver.isActionAllowed(user,SecuredActions.A_ROLES_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
+            if (!retval) {
+                retval = this.rightsResolver.isActionAllowed(user,SecuredActions.A_RIGHTS_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
+            }
+            return retval;
+    	}
     	else 
     		return false;
     }
-
 }

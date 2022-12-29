@@ -47,6 +47,7 @@ public class UpdateFieldWorker extends AbstractReplicateWorker {
 	private String updateOperation = null;
 	
 	
+	
     public UpdateFieldWorker(Element worker, Client client, List<IterationItem> items) {
         super(worker, client, items);
 

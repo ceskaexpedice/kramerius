@@ -2,17 +2,19 @@ package cz.incad.kramerius.rest.apiNew.client.v60.libs;
 
 import java.util.List;
 
+
 public interface Instances {
 	
-	public List<String> allInstances();
+	public List<OneInstance> allInstances();
 	
-	public List<String> enabledInstances();
+	public List<OneInstance> enabledInstances();
 	
-	public List<String> disabledInstances();
+	public List<OneInstance> disabledInstances();
 	
-	public void setStatus(String inst, boolean status);
-	
-	public boolean getStatus(String inst);
+	public OneInstance find(String acronym);
 	
 	public boolean isAnyDisabled();
+	
+	public void cronRefresh();
+	
 }

@@ -63,8 +63,7 @@ import org.xml.sax.SAXException;
  * (konkretni monografii, konkretni periodikum, atd..)
  */
 public class MovingWall extends AbstractCriterium implements RightCriterium {
-
-    //encoding="marc"
+	//encoding="marc"
     public static String[] MODS_XPATHS = {
             "//mods:originInfo/mods:dateIssued[@encoding='marc']/text()",
             "//mods:originInfo/mods:dateIssued/text()",
@@ -233,7 +232,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     }
 
     private Document solrDocument(String pid) throws IOException, ParserConfigurationException, SAXException {
-        SolrAccess solrAccess = this.getEvaluateContext().getSolrAccess();
+        SolrAccess solrAccess = this.getEvaluateContext().getSolrAccessNewIndex();
         return solrAccess.getSolrDataByPid(pid);
         //return SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
     }
@@ -489,7 +488,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
 
     @Override
     public SecuredActions[] getApplicableActions() {
-        return new SecuredActions[]{SecuredActions.READ};
+        return new SecuredActions[]{SecuredActions.A_READ};
     }
 
     @Override

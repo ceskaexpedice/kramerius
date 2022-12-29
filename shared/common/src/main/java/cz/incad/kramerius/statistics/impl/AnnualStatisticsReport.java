@@ -14,7 +14,8 @@ import java.sql.Connection;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class AnnualStatisticsReport implements StatisticReport {
+//TODO: Vyhodit
+public class AnnualStatisticsReport extends AbstractStatisticsReport implements StatisticReport {
 
 
 
@@ -35,7 +36,7 @@ public class AnnualStatisticsReport implements StatisticReport {
     }
 
     @Override
-    public List<String> getOptionalValues() {
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
         return new ArrayList<>();
     }
 
@@ -45,44 +46,23 @@ public class AnnualStatisticsReport implements StatisticReport {
     }
 
     @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) throws StatisticsReportException {
-        MultimodelFilter multimodel = container.getFilter(MultimodelFilter.class);
-        List<String> models = multimodel.getModels();
-        for (String model : models) {
-            ModelFilter modelFilter = new ModelFilter();
-            modelFilter.setModel(model);
-            StatisticsFilter[] filters = new StatisticsFilter[] {
-                    modelFilter,
-                    getDateFilter(container.getFilter(AnnualYearFilter.class)),
-                    container.getFilter(IPAddressFilter.class),
-                    new VisibilityFilter()
-            };
-            StatisticsFiltersContainer subcontainer = new StatisticsFiltersContainer(filters);
-            ModelStatisticReport report = new ModelStatisticReport();
-            report.connectionProvider = connectionProvider;
-            report.prepareViews(action, subcontainer);
-        }
-    }
-
-    @Override
     public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer container) throws StatisticsReportException {
-        MultimodelFilter multimodel = container.getFilter(MultimodelFilter.class);
-        List<String> models = multimodel.getModels();
-        for (String model : models) {
-            ModelFilter modelFilter = new ModelFilter();
-            modelFilter.setModel(model);
-            StatisticsFilter[] filters = new StatisticsFilter[]{
-                    modelFilter,
-                    getDateFilter(container.getFilter(AnnualYearFilter.class)),
-                    container.getFilter(IPAddressFilter.class),
-                    container.getFilter(VisibilityFilter.class),
-                    container.getFilter(UniqueIPAddressesFilter.class)
-            };
-            ModelStatisticReport report = new ModelStatisticReport();
-            report.connectionProvider = connectionProvider;
-            report.processAccessLog(action, sup, new StatisticsFiltersContainer(filters));
-
-        }
+//        MultimodelFilter multimodel = container.getFilter(MultimodelFilter.class);
+//        List<String> models = multimodel.getModels();
+//        for (String model : models) {
+//            ModelFilter modelFilter = new ModelFilter();
+//            modelFilter.setModel(model);
+//            StatisticsFilter[] filters = new StatisticsFilter[]{
+//                    modelFilter,
+//                    getDateFilter(container.getFilter(AnnualYearFilter.class)),
+//                    container.getFilter(IPAddressFilter.class),
+//                    container.getFilter(VisibilityFilter.class),
+//                    container.getFilter(UniqueIPAddressesFilter.class)
+//            };
+//            ModelStatisticReport report = new ModelStatisticReport();
+//            report.connectionProvider = connectionProvider;
+//            report.processAccessLog(action, sup, new StatisticsFiltersContainer(filters));
+//        }
     }
 
     public static StatisticsFilter getDateFilter(AnnualYearFilter afilter) {
@@ -114,8 +94,13 @@ public class AnnualStatisticsReport implements StatisticReport {
         return filter;
     }
 
-    @Override
-    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
-        return true;
-    }
+	@Override
+	public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+    	List<String> list = new ArrayList<>();
+    	AnnualYearFilter modelFilter = container.getFilter(AnnualYearFilter.class);
+        if (modelFilter.getAnnualYear() == null)  {
+        	list.add("annualYeer is mandatory");
+        }
+		return list;
+	}
 }

@@ -32,6 +32,9 @@ public interface StatisticReport {
 
     /** Simple date format */
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy.MM.dd");
+
+    public static final SimpleDateFormat SOLR_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
     //"2017-11-19 22:52:42.738"
     public static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -42,10 +45,13 @@ public interface StatisticReport {
     public static final String ACTION_KEY = "action";
     public static final String LANG_KEY = "lang";
     public static final String AUTHOR_NAME_KEY = "author_name";
-
+    
+    public static final String PROVIDED_LICENSE_KEY="provided_by_license";
+    
     public static final String DATE_FROM = "from";
     public static final String DATE_TO = "to";
-
+    
+    
 
 
     /**
@@ -66,7 +72,7 @@ public interface StatisticReport {
      * 
      * @return
      */
-    public List<String> getOptionalValues();
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters);
 
     /**
      * Return report identifier
@@ -75,11 +81,7 @@ public interface StatisticReport {
      */
     public String getReportId();
 
-    /**
-     * Prepares view necessary for rendering plot
-     * @param action
-     */
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) throws StatisticsReportException ;
+    public boolean convertToObject();
     
     
     /**
@@ -94,8 +96,5 @@ public interface StatisticReport {
      * @param action Reporting action
      * @param container Filters container
      */
-    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container);
-
-
-
+    public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container);
 }

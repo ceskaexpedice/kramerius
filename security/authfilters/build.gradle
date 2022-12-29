@@ -7,8 +7,12 @@ dependencies {
     api "org.brickred:socialauth:4.12"
     api 'commons-codec:commons-codec:1.5'
 
-    api 'org.keycloak:keycloak-servlet-filter-adapter:15.0.2'
-    api 'org.keycloak:keycloak-authz-client:15.0.2'
+	//ext.keycloakversion = '20.0.2'
+    //api 'org.keycloak:keycloak-servlet-filter-adapter:15.0.2'
+    //api 'org.keycloak:keycloak-authz-client:15.0.2'
+
+    api 'org.keycloak:keycloak-servlet-filter-adapter:20.0.2'
+    api 'org.keycloak:keycloak-authz-client:20.0.2'
 }
 
 

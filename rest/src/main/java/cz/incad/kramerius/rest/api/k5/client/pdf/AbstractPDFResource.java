@@ -121,7 +121,7 @@ public class AbstractPDFResource {
     @Inject
     AggregatedAccessLogs statisticsAccessLog;
     
-@GET
+    @GET
     @Path("conf")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response info() {
@@ -228,7 +228,7 @@ public class AbstractPDFResource {
         List<AbstractPage> pages = rdoc.getPages();
         for (AbstractPage apage : pages) {
             if (!this.canBeRenderedAsPDF(apage.getUuid())) {
-                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.PDF_RESOURCE, apage.getUuid()));
+                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_PDF_READ, apage.getUuid()));
             }
         }
     }
@@ -262,7 +262,7 @@ public class AbstractPDFResource {
     private boolean canBeRenderedAsPDF(String pid) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
         for (ObjectPidsPath pth : paths) {
-            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.PDF_RESOURCE.getFormalName(), pid, null, pth.injectRepository()).flag()) {
+            if (this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.A_PDF_READ.getFormalName(), pid, null, pth.injectRepository()).flag()) {
                 return true;
             }
         }

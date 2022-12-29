@@ -18,7 +18,6 @@ import javax.inject.Provider;
 import java.io.IOException;
 
 public abstract class ClientApiResource extends ApiResource {
-
     @Inject
     Provider<User> userProvider;
 
@@ -46,7 +45,7 @@ public abstract class ClientApiResource extends ApiResource {
         }
     }
 
-    public void checkUserByJsessionidIsAllowedToReadDatastream(String pid, KrameriusRepositoryApi.KnownDatastreams datastreamId) {
+    public void checkUserIsAllowedToReadDatastream(String pid, KrameriusRepositoryApi.KnownDatastreams datastreamId) {
         try {
             checkSupportedObjectPid(pid);
             String dsId = datastreamId.toString();
@@ -54,6 +53,20 @@ public abstract class ClientApiResource extends ApiResource {
             boolean allowed = userIsAllowedToRead(user, pid);
             if (!allowed) {
                 throw new ForbiddenException("user '%s' is not allowed to read datastream '%s' of object '%s'", user.getLoginname(), dsId, pid); //403
+            }
+        } catch (IOException e) {
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+    public void checkUserIsAllowedToReadObject(String pid) {
+        try {
+            checkSupportedObjectPid(pid);
+            User user = this.userProvider.get();
+            boolean allowed = userIsAllowedToRead(user, pid);
+            if (!allowed) {
+                throw new ForbiddenException("user '%s' is not allowed to read  object '%s'", user.getLoginname(), pid); //403
             }
         } catch (IOException e) {
             throw new InternalErrorException(e.getMessage());
@@ -94,7 +107,7 @@ public abstract class ClientApiResource extends ApiResource {
         }
         for (int i = 0; i < paths.length; i++) {
             ObjectPidsPath path = paths[i];
-            if (rightsResolver.isActionAllowed(user, SecuredActions.READ.getFormalName(), pid, null, path.injectRepository()).flag()) {
+            if (rightsResolver.isActionAllowed(user, SecuredActions.A_READ.getFormalName(), pid, null, path.injectRepository()).flag()) {
                 return true;
             }
         }

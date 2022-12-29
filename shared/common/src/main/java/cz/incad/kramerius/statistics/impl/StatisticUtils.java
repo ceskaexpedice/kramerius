@@ -7,12 +7,13 @@ import java.util.List;
 
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.LicenseFilter;
 import cz.incad.kramerius.utils.database.Offset;
 
 public class StatisticUtils {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static List jdbcParams(DateFilter filter, Offset rOffset) throws ParseException {
+    public static List jdbcParams(DateFilter filter, LicenseFilter licenseFilter, Offset rOffset) throws ParseException {
         List params = new ArrayList();
         if (filter.getFromDate() != null && (!filter.getFromDate().trim().equals(""))) {
             try {
@@ -29,8 +30,15 @@ public class StatisticUtils {
                 params.add(new Timestamp(StatisticReport.DATE_FORMAT.parse(filter.getToDate()).getTime()));
             }
         }
-        params.add(Integer.parseInt(rOffset.getOffset()));
-        params.add(Integer.parseInt(rOffset.getSize()));
+        if (licenseFilter != null && licenseFilter.getLicence() != null) {
+        	params.add(licenseFilter.getLicence());
+        }
+        
+        if (rOffset != null) {
+            params.add(Integer.parseInt(rOffset.getOffset()));
+            params.add(Integer.parseInt(rOffset.getSize()));
+        }
+
         return params;
     }
 

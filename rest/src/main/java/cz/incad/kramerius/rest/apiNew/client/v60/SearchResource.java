@@ -175,7 +175,8 @@ public class SearchResource {
         if (!fqFound) {
             builder.append("&");
             builder.append("fq=");
-            builder.append(URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
+            String newFilter = proxyFilter.newFilter();
+            if (newFilter != null) builder.append(URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
         }
         
         String eFT = this.proxyFilter.enhanceFacetsTerms();

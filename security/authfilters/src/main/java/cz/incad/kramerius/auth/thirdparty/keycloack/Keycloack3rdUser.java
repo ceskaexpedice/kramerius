@@ -8,8 +8,12 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
 
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Keycloack3rdUser extends AbstractThirdPartyUser {
+
+	public static final Logger LOGGER = Logger.getLogger(Keycloack3rdUser.class.getName());
 
     private String hash;
 
@@ -53,7 +57,10 @@ public class Keycloack3rdUser extends AbstractThirdPartyUser {
         if (!associatedRoles.contains(DefaultRoles.COMMON_USERS.getName())) {
             associatedRoles.add(DefaultRoles.COMMON_USERS.getName());
         }
-
+        
+        LOGGER.fine(String.format("Associted roles %s",associatedRoles.toString()));
+        
+        
         User user = super.toUser(userManager);
         // TODO: Change it
         if (user instanceof UserImpl) {
@@ -65,6 +72,8 @@ public class Keycloack3rdUser extends AbstractThirdPartyUser {
 
             ((UserImpl) user).setGroups(roles);
         }
+        LOGGER.fine(String.format("Returning wrapped user %s (%s)",user.getLoginname(), Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(","))));
+        
         return user;
 
     }

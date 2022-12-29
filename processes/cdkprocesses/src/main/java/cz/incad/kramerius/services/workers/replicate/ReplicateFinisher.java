@@ -59,7 +59,7 @@ public class ReplicateFinisher   extends WorkerFinisher {
 
     @Override
     public void finish() {
-    	if (StringUtils.isAnyString(destinationUrl)) {
+    	if (StringUtils.isAnyString(timestampUrl)) {
     		storeTimestamp();
     	}
     	SolrUtils.commit(this.client, this.destinationUrl);

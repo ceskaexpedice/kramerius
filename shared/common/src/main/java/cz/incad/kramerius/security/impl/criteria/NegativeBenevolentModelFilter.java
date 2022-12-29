@@ -48,9 +48,7 @@ public class NegativeBenevolentModelFilter  extends AbstractCriterium implements
     @Override
     public SecuredActions[] getApplicableActions() {
         return new SecuredActions[] { 
-                SecuredActions.READ, 
-                SecuredActions.SHOW_CLIENT_PRINT_MENU,
-                SecuredActions.SHOW_CLIENT_PDF_MENU
+                SecuredActions.A_READ
         };
     }
 

@@ -1,68 +1,41 @@
 package cz.incad.kramerius.rest.apiNew.client.v60;
 
+import static cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler.RequestMethodName.get;
+import static cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler.RequestMethodName.head;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
-import cz.incad.kramerius.audio.AudioStreamId;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
-import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandler;
-import cz.incad.kramerius.rest.apiNew.client.v60.redirection.V5RedirectHandler;
-import cz.incad.kramerius.rest.apiNew.client.v60.redirection.V7RedirectHandler;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.RightsReturnObject;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlagIPFiltered;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
-import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.Dom4jUtils;
-import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.java.Pair;
 import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
-import org.apache.commons.io.IOUtils;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.item.ItemResource
@@ -122,8 +95,10 @@ public class ItemsResource extends ClientApiResource {
      * It would be inefficient to use byte-serving this way. Since Kramerius Repository (Akubra) has to fetch whole audio file again for every byte-serving request
      */
     private static final boolean AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE = true;
-    public static final String API_V7 = "v7";
 
+    //public static final String API_V7 = "v7";
+
+    
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
@@ -148,6 +123,9 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     RightsResolver rightsResolver;
 
+    @Inject
+    Instances instances;
+    
     @HEAD
     @Path("{pid}")
     public Response checkItemExists(@PathParam("pid") String pid) {
@@ -167,7 +145,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfo(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.info();
             } else {
@@ -186,7 +164,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfo(@PathParam("pid") String pid, @PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 return redirectHandler.info();
             } else {
@@ -204,7 +182,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoData(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.infoData();
             } else {
@@ -224,7 +202,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoData(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 return redirectHandler.infoData();
             } else {
@@ -246,7 +224,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProvidingLicenses(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.providedByLicenses();
             } else {
@@ -266,7 +244,7 @@ public class ItemsResource extends ClientApiResource {
     public Response getProvidingLicenses(@PathParam("pid") String pid,@PathParam("source") String source) {
         // must be redirected
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 return redirectHandler.providedByLicenses();
             } else {
@@ -291,7 +269,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoStructure(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.infoStructure();
             } else {
@@ -310,7 +288,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoStructure(@PathParam("pid") String pid, @PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.infoStructure();
             } else {
@@ -333,7 +311,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.infoImage();
             } else {
@@ -352,7 +330,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 return redirectHandler.infoImage();
             } else {
@@ -373,9 +351,9 @@ public class ItemsResource extends ClientApiResource {
     public Response isMetadataModsAvailable(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.mods());
+                return redirectHandler.mods(head);
             } else {
                 return Response.ok().build();
             }
@@ -393,9 +371,9 @@ public class ItemsResource extends ClientApiResource {
     public Response isMetadataModsAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
             checkSupportedObjectPid(pid);
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.mods());
+                return redirectHandler.mods(head);
             } else {
                 return Response.ok().build();
             }
@@ -415,9 +393,9 @@ public class ItemsResource extends ClientApiResource {
         try {
         	// redirect
         	checkSupportedObjectPid(pid);
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.mods());
+                return redirectHandler.mods(get);
             } else {
                 return Response.ok().build();
             }
@@ -438,9 +416,9 @@ public class ItemsResource extends ClientApiResource {
         try {
         	// redirect
         	checkSupportedObjectPid(pid);
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.mods());
+                return redirectHandler.mods(get);
             } else {
                 return Response.ok().build();
             }
@@ -460,9 +438,9 @@ public class ItemsResource extends ClientApiResource {
         try {
         	// redirect
             checkSupportedObjectPid(pid);
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.dc());
+                return redirectHandler.dc(head);
             } else {
                 return Response.ok().build();
             }
@@ -480,9 +458,9 @@ public class ItemsResource extends ClientApiResource {
         try {
         	// redirect
             checkSupportedObjectPid(pid);
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.dc());
+                return redirectHandler.dc(head);
             } else {
                 return Response.ok().build();
             }
@@ -500,9 +478,9 @@ public class ItemsResource extends ClientApiResource {
     public Response getMetadataDublinCore(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.mods());
+                return redirectHandler.mods(get);
             } else {
                 return Response.ok().build();
             }
@@ -520,9 +498,9 @@ public class ItemsResource extends ClientApiResource {
     public Response getMetadataDublinCore(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
             checkSupportedObjectPid(pid);
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.dc());
+                return redirectHandler.dc(get);
             } else {
                 return Response.ok().build();
             }
@@ -538,9 +516,9 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid) {
     	try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.textOCR());
+                return redirectHandler.textOCR(head);
             } else {
                 return Response.ok().build();
             }
@@ -557,9 +535,9 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
     	try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.textOCR());
+                return redirectHandler.textOCR(head);
             } else {
                 return Response.ok().build();
             }
@@ -577,9 +555,9 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
     public Response getOcrText(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.textOCR());
+                return redirectHandler.textOCR(get);
             } else {
                 return Response.ok().build();
             }
@@ -596,9 +574,9 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
     public Response getOcrText(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.textOCR());
+                return redirectHandler.textOCR(get);
             } else {
                 return Response.ok().build();
             }
@@ -614,9 +592,9 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/ocr/alto")
     public Response isOcrAltoAvailable(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.altoOCR());
+                return redirectHandler.altoOCR(head);
             } else {
                 return Response.ok().build();
             }
@@ -632,9 +610,9 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/ocr/alto")
     public Response isOcrAltoAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.altoOCR());
+                return redirectHandler.altoOCR(head);
             } else {
                 return Response.ok().build();
             }
@@ -651,9 +629,9 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getDatastreamOcrAlto(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.altoOCR());
+                return redirectHandler.altoOCR(get);
             } else {
                 return Response.ok().build();
             }
@@ -671,9 +649,9 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getDatastreamOcrAlto(@PathParam("pid") String pid, @PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.altoOCR());
+                return redirectHandler.altoOCR(get);
             } else {
                 return Response.ok().build();
             }
@@ -693,9 +671,9 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/image")
     public Response isImgFullAvailable(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
-            	return redirectHandler.buildResponse(redirectHandler.image());
+            	return redirectHandler.image(head);
             } else {
                 return Response.ok().build();
             }
@@ -712,9 +690,9 @@ public class ItemsResource extends ClientApiResource {
     public Response isImgFullAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
 
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
-            	return redirectHandler.buildResponse(redirectHandler.image());
+            	return redirectHandler.image(head);
             } else {
                 return Response.ok().build();
             }
@@ -729,18 +707,18 @@ public class ItemsResource extends ClientApiResource {
     
     
 
-    public ProxyHandler findRedirectHandler(String pid, String source) throws LexerException, IOException {
+    public ProxyItemHandler findRedirectHandler(String pid, String source) throws LexerException, IOException {
         if (source == null) {
         	source = defaultDocumentSource(pid);
         }
-        if (source != null) {
-        	String apiVersion = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + source + ".api", API_V7);
-            if (apiVersion !=null && apiVersion.equals(API_V7)) {
-                return new V7RedirectHandler(this.clientProvider.get(), this.solrAccess, source, pid);
-            } else {
-                return new V5RedirectHandler(this.clientProvider.get(), this.solrAccess,source, pid);
-            }
-        } else return null;
+        OneInstance found = instances.find(source);
+        if (found!= null) {
+        	String remoteAddress = IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
+        	ProxyItemHandler proxyHandler = found.createProxyItemHandler(this.userProvider.get(), this.clientProvider.get(), this.solrAccess, source, pid, remoteAddress);
+        	return proxyHandler;
+        } else {
+        	return null;
+        }
     }
 
     private String defaultDocumentSource(String pid) throws IOException {
@@ -764,9 +742,9 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             //checkObjectAndDatastreamExist(pid, dsId);
 
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-            	return redirectHandler.buildResponse(redirectHandler.image());
+            	return redirectHandler.image(get);
             } else {
                 return Response.ok().build();
             }
@@ -784,10 +762,9 @@ public class ItemsResource extends ClientApiResource {
         try {
             checkSupportedObjectPid(pid);
 
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-            	return redirectHandler.buildResponse(redirectHandler.image());
-                //return sendRedirect(redirectHandler.image());
+            	return redirectHandler.image(get);
             } else {
                 return Response.ok().build();
             }
@@ -811,10 +788,10 @@ public class ItemsResource extends ClientApiResource {
 //            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
 //            checkObjectAndDatastreamExist(pid, dsId);
 
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 //return sendRedirect(redirectHandler.zoomifyImageProperties());
-                return redirectHandler.buildResponse(redirectHandler.zoomifyImageProperties());
+                return redirectHandler.zoomifyImageProperties(get);
             } else {
                 return Response.ok().build();
             }
@@ -835,10 +812,10 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             //checkObjectAndDatastreamExist(pid, dsId);
 
-            ProxyHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 //return sendRedirect(redirectHandler.zoomifyImageProperties());
-                return redirectHandler.buildResponse(redirectHandler.zoomifyImageProperties());
+                return redirectHandler.zoomifyImageProperties(get);
             } else {
                 return Response.ok().build();
             }
@@ -874,9 +851,9 @@ public class ItemsResource extends ClientApiResource {
             //checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             //checkUserByJsessionidIsAllowedToReadIIPTile(pid);
 
-            ProxyHandler redirectHandler = findRedirectHandler(pid, null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.zoomifyTile(tileGroupStr, tileStr));
+                return redirectHandler.zoomifyTile(tileGroupStr, tileStr);
             } else {
                 return Response.ok().build();
             }
@@ -907,9 +884,9 @@ public class ItemsResource extends ClientApiResource {
             //checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             //checkUserByJsessionidIsAllowedToReadIIPTile(pid);
 
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.zoomifyTile(tileGroupStr, tileStr));
+                return redirectHandler.zoomifyTile(tileGroupStr, tileStr);
             } else {
                 return Response.ok().build();
             }
@@ -933,8 +910,8 @@ public class ItemsResource extends ClientApiResource {
         	checkSupportedObjectPid(pid);
             //checkObjectExists(pid);
             
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
-            return redirectHandler.buildResponse(redirectHandler.imageThumb());
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
+            return redirectHandler.imageThumb(get);
             
         } catch (WebApplicationException e) {
             throw e;
@@ -951,8 +928,8 @@ public class ItemsResource extends ClientApiResource {
         	checkSupportedObjectPid(pid);
             //checkObjectExists(pid);
             
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
-            return redirectHandler.buildResponse(redirectHandler.imageThumb());
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
+            return redirectHandler.imageThumb(get);
             
         } catch (WebApplicationException e) {
             throw e;
@@ -970,9 +947,9 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/image/preview")
     public Response getImgPreview(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.imagePreview());
+                return redirectHandler.imagePreview(get);
             } else {
                 return Response.ok().build();
             }
@@ -988,9 +965,9 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/image/preview")
     public Response getImgPreview(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
-                return redirectHandler.buildResponse(redirectHandler.imagePreview());
+                return redirectHandler.imagePreview(get);
             } else {
                 return Response.ok().build();
             }
@@ -1006,7 +983,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/mp3")
     public Response isAudioMp3Available(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.audioMP3();
             } else {
@@ -1024,7 +1001,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/audio/mp3")
     public Response isAudioMp3Available(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 return redirectHandler.audioMP3();
             } else {
@@ -1045,7 +1022,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/mp3")
     public Response getAudioMp3(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.audioMP3();
             } else {
@@ -1064,7 +1041,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/audio/mp3")
     public Response getAudioMp3(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.audioMP3();
             } else {
@@ -1082,7 +1059,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/ogg")
     public Response isAudioOggAvailable(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.audioOGG();
             } else {
@@ -1100,7 +1077,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/audio/ogg")
     public Response isAudioOggAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 return redirectHandler.audioOGG();
             } else {
@@ -1122,7 +1099,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/ogg")
     public Response getAudioOgg(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.audioOGG();
             } else {
@@ -1140,7 +1117,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/audio/ogg")
     public Response getAudioOgg(@PathParam("pid") String pid, @PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 return redirectHandler.audioOGG();
             } else {
@@ -1158,7 +1135,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/wav")
     public Response isAudioWavAvailable(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.audioOGG();
             } else {
@@ -1176,7 +1153,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/audio/wav")
     public Response isAudioWavAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 return redirectHandler.audioOGG();
             } else {
@@ -1198,7 +1175,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/audio/wav")
     public Response getAudioWav(@PathParam("pid") String pid) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.audioOGG();
             } else {
@@ -1217,7 +1194,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/audio/wav")
     public Response getAudioWav(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
-            ProxyHandler redirectHandler = findRedirectHandler(pid,source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 return redirectHandler.audioOGG();
             } else {

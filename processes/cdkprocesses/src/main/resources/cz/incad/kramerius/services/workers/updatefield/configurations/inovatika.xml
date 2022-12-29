@@ -8,6 +8,7 @@
     <iteration>
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
+		<fquery>$iteration.fq$</fquery>
 
         <id>pid</id>
         <type>CURSOR</type>

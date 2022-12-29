@@ -126,7 +126,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
                 ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 boolean permitted = false;
                 for (ObjectPidsPath pth : paths) {
-                    permitted = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.READ.getFormalName(),pid,null,pth.injectRepository()).flag();
+                    permitted = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.A_READ.getFormalName(),pid,null,pth.injectRepository()).flag();
                     if (permitted) break;
                 }
                 

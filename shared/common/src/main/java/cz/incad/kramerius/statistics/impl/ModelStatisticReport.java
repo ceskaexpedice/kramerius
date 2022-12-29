@@ -19,6 +19,9 @@
  */
 package cz.incad.kramerius.statistics.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,115 +35,113 @@ import java.util.logging.Logger;
 
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import antlr.StringUtils;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.IdentifiersFilter;
+import cz.incad.kramerius.statistics.filters.LicenseFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter;
+import cz.incad.kramerius.statistics.utils.ReportUtils;
 import cz.incad.kramerius.utils.DatabaseUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
 /**
+ * Report pro konkretni model
+ * 
  * @author pavels
  */
-public class ModelStatisticReport implements StatisticReport {
+public class ModelStatisticReport extends AbstractStatisticsReport implements StatisticReport {
 
 
     public static final Logger LOGGER = Logger.getLogger(ModelStatisticReport.class.getName());
 
     public static final String REPORT_ID = "model";
 
-
-
+    
     @Inject
-    @Named("kramerius4")
-    Provider<Connection> connectionProvider;
+    @Named("new-index")
+    SolrAccess solrAccess;
+
 
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticsFiltersContainer filters, Offset rOffset) {
         try {
-            DateFilter dateFilter = filters.getFilter(DateFilter.class);
             ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
-            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
-            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
-            
-            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate statRecord;
-            
-            if (isUniqueSelected == false) {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectModelReport");
-            }
-            else {
-               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectModelReportUnique"); 
-            }
-            statRecord.setAttribute("model", modelFilter.getModel());
-            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-            statRecord.setAttribute("paging", true);
-            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("visibility", visFilter.asMap());
 
+            String selectEndpoint = super.logsEndpoint();
+            List<Map<String,Object>> models = new ArrayList<>();
+            
+            StringBuilder builder = new StringBuilder("q=*");
+            super.applyFilters(filters, builder);
 
-            @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
-            String sql = statRecord.toString();
-            Connection conn = connectionProvider.get();
-            List<Map<String, Object>> models = new JDBCQueryTemplate<Map<String, Object>>(conn) {
-                @Override
-                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
-                    Map<String, Object> val = new HashMap<>();
-                    val.put(COUNT_KEY, rs.getInt("count"));
-                    val.put(PID_KEY, rs.getString("pid"));
-                    val.put(TITLE_KEY, rs.getString("title"));
-                    val.put(MODEL_KEY, rs.getString("model"));
-                    returnsList.add(val);
-                    return super.handleRow(rs, returnsList);
+            String facetValue = "pids_"+modelFilter.getModel();
+            builder.append("&rows=0&facet=true&facet.mincount=1&facet.field="+facetValue);
+            
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpoint, builder.toString(), "json");
+            String string = IOUtils.toString(iStream, "UTF-8");
+            
+            ReportUtils.facetIterate(facetValue, string, p-> {
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put(COUNT_KEY, p.getValue());
+                map.put(PID_KEY, p.getKey().toString());
+                map.put(MODEL_KEY, modelFilter.getModel());
+                try {
+                    map.put(TITLE_KEY, titleFromSolr(p.getKey().toString()));
+                } catch(IOException ex) {
+                    LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
                 }
-            }.executeQuery(sql, params.toArray());
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
+                models.add(map);
+            });
+            
+
+            JSONObject response = new JSONObject(string).getJSONObject("response");
+            Map<String, Object> val = new HashMap<>();
+            val.put("sum", response.optInt("numFound", 0));
+            models.add(val);
+            
             return models;
-        } catch (ParseException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return new ArrayList<Map<String, Object>>();
-        } catch (SQLException ex) {
-            Logger.getLogger(ModelStatisticReport.class.getName()).log(Level.SEVERE, null, ex);
-            return new ArrayList<Map<String, Object>>();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return new ArrayList<Map<String,Object>>();
         }
+
+    }
+
+    private String titleFromSolr(Object key) throws IOException {
+        JSONObject result = solrAccess.requestWithSelectReturningJson(String.format("q=%s", URLEncoder.encode("pid:\""+key.toString()+"\"", "UTF-8")) );
+        if (result.has("response")) {
+            JSONObject response = result.getJSONObject("response");
+            JSONArray docs = response.getJSONArray("docs");
+            if (docs.length() > 0) {
+                JSONObject foundDoc = docs.getJSONObject(0);
+                return foundDoc.optString("title.search", "");
+            }
+        }
+        return "";
     }
 
     @Override
-    public List<String> getOptionalValues() {
-        final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("selectModels");
-        String sql = statRecord.toString();
-        Connection conn = connectionProvider.get();
-        List<String> returns = new JDBCQueryTemplate<String>(conn) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-                String model = rs.getString("model");
-                returnsList.add(model);
-                return super.handleRow(rs, returnsList);
-            }
-        }.executeQuery(sql);
-        try {
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return returns;
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
+        return new ArrayList<>();
     }
 
     @Override
@@ -148,110 +149,59 @@ public class ModelStatisticReport implements StatisticReport {
         return REPORT_ID;
     }
 
-    
-    
-    @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer filters) throws StatisticsReportException {
-        try {
-            ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
-            DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-            
-            
-            final StringTemplate statRecord = DatabaseStatisticsAccessLogImpl.stGroup.getInstanceOf("prepareModelView");
-            statRecord.setAttribute("model", modelFilter.getModel());
-            statRecord.setAttribute("action", action != null ? action.name() : null);
-            statRecord.setAttribute("paging", false);
-            
-            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
-            
-            String sql = statRecord.toString();
-            Connection conn = connectionProvider.get();
-            
-            String viewName =  "statistics_grouped_by_sessionandpid_"+modelFilter.getModel();
-            boolean tableExists = DatabaseUtils.viewExists(conn,viewName.toUpperCase());
-            if (!tableExists) {
-                JDBCUpdateTemplate updateTemplate = new JDBCUpdateTemplate(connectionProvider.get(), true);
-                updateTemplate.setUseReturningKeys(false);
-                updateTemplate
-                    .executeUpdate(sql);
-            }
-            // if viewExists; we have to close connection manually
-            if (!conn.isClosed()) {
-                conn.close();
-            }
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new StatisticsReportException(e);
-        }
-    }
 
     @Override
     public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,
             final StatisticsFiltersContainer filters) throws StatisticsReportException {
+        DateFilter dateFilter = filters.getFilter(DateFilter.class);
+        ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
+        LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
+        IdentifiersFilter idFilter = filters.getFilter(IdentifiersFilter.class);
+
         try {
-            ModelFilter modelFilter = filters.getFilter(ModelFilter.class);
-            DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            VisibilityFilter visFilter = filters.getFilter(VisibilityFilter.class);
-            //IPAddressFilter ipAddrFilter = filters.getFilter(IPAddressFilter.class);
-            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
+            String selectEndpoint = super.logsEndpoint();
             
-            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate statRecord;
-            
-            if (isUniqueSelected == false) {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectModelReport");
-            }
-            else {
-               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectModelReportUnique"); 
-            }
-            
-            statRecord.setAttribute("model", modelFilter.getModel());
-            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-            statRecord.setAttribute("paging", false);
-            
-            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("visibility", visFilter.asMap());
-            
-            @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(dateFilter);
-            String sql = statRecord.toString();
-            Connection conn = connectionProvider.get();
-            
-            new JDBCQueryTemplate<Map<String, Object>>(conn) {
-                @Override
-                public boolean handleRow(ResultSet rs, List<Map<String, Object>> returnsList) throws SQLException {
-                    Map<String, Object> val = new HashMap<String, Object>();
-                    val.put(COUNT_KEY, rs.getInt("count"));
-                    val.put(PID_KEY, rs.getString("pid"));
-                    val.put(TITLE_KEY, rs.getString("title"));
-                    val.put(MODEL_KEY, rs.getString("model"));
+            StringBuilder builder = new StringBuilder("q=*");
+            ReportUtils.enhanceLicense(builder, licFilter);
+            ReportUtils.enhanceDateFilter(builder, dateFilter);
+            ReportUtils.enhanceModelFilter(builder, modelFilter);
+            ReportUtils.enhanceIdentifiers(builder, idFilter);
 
-
-                    sup.processReportRecord(val);
-                    returnsList.add(val);
-
-                    return super.handleRow(rs, returnsList);
+            String facetValue = "pids_"+modelFilter.getModel();
+            builder.append("&rows=0&facet=true&facet.mincount=1&facet.field="+facetValue);
+            
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpoint, builder.toString(), "json");
+            String string = IOUtils.toString(iStream, "UTF-8");
+            
+            ReportUtils.facetIterate(facetValue, string, p-> {
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put(COUNT_KEY, p.getValue());
+                map.put(PID_KEY, p.getKey().toString());
+                map.put(MODEL_KEY, modelFilter.getModel());
+                try {
+                    map.put(TITLE_KEY, titleFromSolr(p.getKey().toString()));
+                } catch(IOException ex) {
+                    LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
                 }
-            }.executeQuery(sql,params.toArray());
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
-        } catch (ParseException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new StatisticsReportException(e);
-        } catch (SQLException ex) {
-            Logger.getLogger(ModelStatisticReport.class.getName()).log(Level.SEVERE, null, ex);
+                sup.processReportRecord(map);
+            });
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
     }
 
     @Override
-    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
-        ModelFilter modelFilter = container.getFilter(ModelFilter.class);
-        return modelFilter.getModel() != null;
-    }
+    public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+    	List<String> list = new ArrayList<>();
+    	ModelFilter modelFilter = container.getFilter(ModelFilter.class);
+        if (modelFilter.getModel() == null)  {
+        	list.add("model is mandatory");
+        }
+		DateFilter dateFilter = container.getFilter(DateFilter.class);
+		VerificationUtils.dateVerification(list, dateFilter.getRawFromDate());
+		VerificationUtils.dateVerification(list, dateFilter.getRawToDate());
+        
+        return list;
+
+	}
 }

@@ -13,7 +13,10 @@ import java.util.logging.Logger;
 //TODO: Rename to ReadLicense
 public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumLabelAware{
 
+    // backward compatibility
     public static final String PROVIDED_BY_DNNT_LABEL = "providedByLabel";
+
+    public static final String PROVIDED_BY_DNNT_LICENSE = "providedByLicense";
 
     public transient static final Logger LOGGER = Logger.getLogger(ReadDNNTLabels.class.getName());
 
@@ -35,6 +38,7 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
                     if (applied) {
                         // select label
                         getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, getLicense().getName());
+                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LICENSE, getLicense().getName());
                         return EvaluatingResultState.TRUE;
                     }
                 }
@@ -67,7 +71,7 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
 
     @Override
     public SecuredActions[] getApplicableActions() {
-        return  new SecuredActions[] {SecuredActions.READ};
+        return  new SecuredActions[] {SecuredActions.A_READ};
     }
 
     @Override

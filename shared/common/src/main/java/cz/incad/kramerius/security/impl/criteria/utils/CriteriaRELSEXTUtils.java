@@ -5,14 +5,16 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTFlag;
 import org.w3c.dom.Document;
 
 import javax.xml.xpath.*;
 import java.io.IOException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CriteriaRELSEXTUtils {
+	
+	public static final Logger LOGGER = Logger.getLogger(CriteriaRELSEXTUtils.class.getName());
 
     protected static Object valueFromRELSEXT(Document relsExt, String path) throws XPathExpressionException {
         XPathFactory xpfactory = XPathFactory.newInstance();
@@ -43,10 +45,10 @@ public class CriteriaRELSEXTUtils {
             if (!requestedPID.equals(SpecialObjects.REPOSITORY.getPid())) {
                 Document relsExt = fa.getRelsExt(requestedPID);
                 return checkValue(relsExt, path,expectedValue);
-            } else return EvaluatingResultState.TRUE;
+            } else return EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {
-            ReadDNNTFlag.LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return EvaluatingResultState.TRUE;
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 }

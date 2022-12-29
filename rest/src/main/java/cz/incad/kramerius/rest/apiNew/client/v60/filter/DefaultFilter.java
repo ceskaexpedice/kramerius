@@ -10,8 +10,9 @@ import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
-import cz.incad.kramerius.rest.apiNew.client.v60.libs.DefaultInstances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.properties.DefaultPropertiesInstances;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class DefaultFilter implements ProxyFilter{
@@ -34,7 +35,8 @@ public class DefaultFilter implements ProxyFilter{
 	
 	private String filter() {
 		if (this.libraries.isAnyDisabled()) {
-			List<String> eInsts = libraries.enabledInstances();
+			List<String> eInsts = libraries.enabledInstances().stream().map(OneInstance::getName).collect(Collectors.toList());
+			//List<String> eInsts = libraries.enabledInstances().stream().map(OneInstance::getName)::getName).;
 			String enabled = eInsts.stream().collect(Collectors.joining(" OR "));
 			return "cdk.collection:("+enabled+")";
 		} else {
@@ -54,7 +56,7 @@ public class DefaultFilter implements ProxyFilter{
 	@Override
 	public void filterValue(Element rawDoc) {
 	
-		List<String> dInsts = libraries.disabledInstances();
+		List<String> dInsts = libraries.disabledInstances().stream().map(OneInstance::getName).collect(Collectors.toList());
 		Element cdkElement = XMLUtils.findElement(rawDoc, new XMLUtils.ElementsFilter() {
 			@Override
 			public boolean acceptElement(Element element) {
@@ -82,7 +84,7 @@ public class DefaultFilter implements ProxyFilter{
 
 	@Override
 	public void filterValue(JSONObject rawDoc) {
-		List<String> dInsts = libraries.disabledInstances();
+		List<String> dInsts = libraries.disabledInstances().stream().map(OneInstance::getName).collect(Collectors.toList());
 		if (rawDoc.has("cdk.collection")) {
 			JSONArray col = rawDoc.getJSONArray("cdk.collection");
 			JSONArray nCol = new JSONArray();
@@ -96,7 +98,7 @@ public class DefaultFilter implements ProxyFilter{
 
 	@Override
 	public String enhanceFacetsTerms() {
-		List<String> dInsts = libraries.disabledInstances();
+		List<String> dInsts = libraries.disabledInstances().stream().map(OneInstance::getName).collect(Collectors.toList());
 		if (!dInsts.isEmpty()) {
 			String excludedTerms = dInsts.stream().collect(Collectors.joining(","));
 			return excludedTerms;

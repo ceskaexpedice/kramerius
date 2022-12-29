@@ -20,11 +20,16 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +39,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import com.google.inject.name.Named;
+
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.*;
 
@@ -69,9 +75,8 @@ import cz.incad.kramerius.utils.database.Offset;
 @Path("/v5.0/admin/statistics")
 public class StatisticsResource {
 
+
     public static final Semaphore STATISTIC_SEMAPHORE = new Semaphore(1);
-
-
 
 
     @Inject
@@ -96,53 +101,162 @@ public class StatisticsResource {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-
-
-    @GET
-    @Path("{report}")
+    
+    @DELETE
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response getReportPage(@PathParam("report") String rip,
+    public Response cleanData(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo) {
+        // mel by byt nekdo jiny nez ten kdo resi prohlizeni statistik
+        if (permit(SecuredActions.A_STATISTICS_EDIT)) {
+            try {
+                // kontrola datumu / break /pokud je vetsi nez break, chybny dotaz
+                if (StringUtils.isAnyString(dateFrom) && StringUtils.isAnyString(dateTo)) {
+                    try {
+                        Date dateFromd = StatisticReport.DATE_FORMAT.parse(dateFrom);
+                        Date dateTod = StatisticReport.DATE_FORMAT.parse(dateTo);
+                        int deletedResult = this.statisticsAccessLog.cleanData(dateFromd, dateTod);
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("deleted", deletedResult);
+                        return Response.ok().entity(jsonObject.toString()).build();
+                    } catch (ParseException e) {
+                        throw new BadRequestException("parsing exception dateFrom, dateTo");
+                    }
+                } else {
+                    throw new BadRequestException("expecting parameters dateFrom, dateTo");
+                }
+            } catch (IOException e) {
+                throw new GenericApplicationException(e.getMessage());
+            }
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
+    }
+
+    
+    
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response reports() {
+        if (permit(SecuredActions.A_STATISTICS)) {
+            StatisticReport[] allReports = this.statisticsAccessLog.getAllReports();
+            List<String> ids = Arrays.asList(allReports).stream().map(StatisticReport::getReportId)
+                    .collect(Collectors.toList());
+            JSONObject jsonObject = new JSONObject();
+            JSONArray jsonArray = new JSONArray();
+            ids.stream().forEach(jsonArray::put);
+            jsonObject.put("reports", jsonArray);
+            return Response.ok().entity(jsonObject.toString()).build();
+        } else {
+            throw new ActionNotAllowed("not allowed");
+        }
+    }
+    
+    @GET
+    @Path("{report}/options")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response filters(
+            @PathParam("report") String rip,
             @QueryParam("action") String raction,
             @QueryParam("dateFrom") String dateFrom,
             @QueryParam("dateTo") String dateTo,
             @QueryParam("model") String model,
+            @QueryParam("models") String models,
+            @QueryParam("identifier") String identifier,
+            @QueryParam("license") String license,
             @DefaultValue("ALL") @QueryParam("visibility") String visibility,
             @QueryParam("offset") String filterOffset,
+            @QueryParam("pids") String pids) {
+        if (permit(SecuredActions.A_STATISTICS)) {
+                try {
+                    StatisticsFiltersContainer container = container(dateFrom, dateTo, model, visibility,
+                            pids, license, models, identifier);
+                    StatisticReport report = statisticsAccessLog.getReportById(rip);
+                    if (report != null) {
+                        List<String> results = report.verifyFilters(raction != null ? ReportedAction.valueOf(raction) : null, container);
+                        if (results.isEmpty()) {
+                            List<String> optionalValues = report.getOptionalValues(container);
+                            JSONArray jsonArray = new JSONArray();
+                            optionalValues.stream().forEach(jsonArray::put);
+                            JSONObject object = new JSONObject();
+                            object.put(report.getReportId(), jsonArray);
+                            return Response.ok().entity(object).build();
+                        } else {
+                            String body = results.stream().collect(Collectors.joining("\n"));
+                            return Response.status(Response.Status.BAD_REQUEST).entity(body).build();
+                        }
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
+                } catch (JSONException e) {
+                    throw new GenericApplicationException(e.getMessage());
+                }
+            } else {
+                throw new ActionNotAllowed("not allowed");
+            }
+    }
+
+    @GET
+    @Path("{report}")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response getReportPage(
+            @PathParam("report") String rip,
+            @QueryParam("action") String raction,
+            @QueryParam("dateFrom") String dateFrom,
+            @QueryParam("dateTo") String dateTo,
+            @QueryParam("model") String model,
+            @QueryParam("models") String models,
+            @QueryParam("identifier") String identifier,
+            @QueryParam("license") String license,
+            @DefaultValue("ALL") @QueryParam("visibility") String visibility,
+            @QueryParam("offset") String filterOffset,
+            @QueryParam("pids") String pids,
             @QueryParam("resultSize") String filterResultSize) {
         
-        //TODO: syncrhonization
-        if (permit()) {
+        if (permit(SecuredActions.A_STATISTICS)) {
             try {
-                DateFilter dateFilter = new DateFilter();
-                dateFilter.setFromDate(dateFrom);
-                dateFilter.setToDate(dateTo);
-                
-                ModelFilter modelFilter = new ModelFilter();
-                modelFilter.setModel(model);
-                
-                VisibilityFilter visFilter = new VisibilityFilter();
-                visFilter.setSelected(VisbilityType.valueOf(visibility));
-                
-                IPAddressFilter ipAddr = new IPAddressFilter();
-                
+                StatisticsFiltersContainer container = container(dateFrom, dateTo, model, visibility,
+                        pids, license, models, identifier);
                 StatisticReport report = statisticsAccessLog.getReportById(rip);
-                Offset offset = new Offset("0", "25");
-                if (StringUtils.isAnyString(filterOffset)
-                        && StringUtils.isAnyString(filterResultSize)) {
-                    offset = new Offset(filterOffset, filterResultSize);
+                if (report != null) {
+                    Offset offset = new Offset("0", "10");
+                    if (StringUtils.isAnyString(filterOffset)
+                            && StringUtils.isAnyString(filterResultSize)) {
+                        offset = new Offset(filterOffset, filterResultSize);
+                    }
+                    
+                    List<String> results = report.verifyFilters(raction != null ? ReportedAction.valueOf(raction) : null, container);
+                    if (results.isEmpty()) {
+                        List<Map<String, Object>> repPage = report.getReportPage(
+                                raction != null ? ReportedAction.valueOf(raction)
+                                        : null,container, offset);
+                        if (report.convertToObject()) {
+                            if (repPage.size() > 1) {
+                                JSONArray jsonArr = new JSONArray();
+                                for (Map<String, Object> map : repPage) {
+                                    JSONObject json = new JSONObject(map);
+                                    jsonArr.put(json);
+                                }
+                                return Response.ok().entity(jsonArr.toString()).build();
+                            } else if (repPage.size() == 1){
+                                JSONObject json = new JSONObject(repPage.get(0));
+                                return Response.ok().entity(json.toString()).build();
+                            } else {
+                                return Response.ok().entity(new JSONArray().toString()).build();
+                            }
+                        } else {
+                            JSONArray jsonArr = new JSONArray();
+                            for (Map<String, Object> map : repPage) {
+                                JSONObject json = new JSONObject(map);
+                                jsonArr.put(json);
+                            }
+                            return Response.ok().entity(jsonArr.toString()).build();
+                        }
+                    } else {
+                    	String body = results.stream().collect(Collectors.joining("\n"));
+                        return Response.status(Response.Status.BAD_REQUEST).entity(body).build();
+                    }
+                } else {
+                    return Response.status(Response.Status.NOT_FOUND).build();
                 }
-                
-                report.prepareViews(raction != null ? ReportedAction.valueOf(raction) : null, new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter,visFilter, ipAddr}));
-                List<Map<String, Object>> repPage = report.getReportPage(
-                        raction != null ? ReportedAction.valueOf(raction)
-                                : null,new StatisticsFiltersContainer(new StatisticsFilter[] {dateFilter, modelFilter, ipAddr}), offset);
-
-                JSONArray jsonArr = new JSONArray();
-                for (Map<String, Object> map : repPage) {
-                    JSONObject json = new JSONObject(map);
-                    jsonArr.put(json);
-                }
-                return Response.ok().entity(jsonArr.toString()).build();
             } catch (StatisticsReportException e) {
                 throw new GenericApplicationException(e.getMessage());
             } catch (JSONException e) {
@@ -155,24 +269,149 @@ public class StatisticsResource {
 
 
 
+    private StatisticsFiltersContainer container(String dateFrom, String dateTo, String model, String visibility,
+            String pids, String license, String models, String identifier) {
+        DateFilter dateFilter = new DateFilter();
+        dateFilter.setFromDate(dateFrom);
+        dateFilter.setToDate(dateTo);
+
+        ModelFilter modelFilter = new ModelFilter();
+        modelFilter.setModel(model);
+
+        VisibilityFilter visFilter = new VisibilityFilter();
+        visFilter.setSelected(VisbilityType.valueOf(visibility));
+
+        PidsFilter pidsFilter = new PidsFilter();
+        pidsFilter.setPids(pids);
+        LicenseFilter licenseFilter = new LicenseFilter(license);
+
+        MultimodelFilter multiModel = new MultimodelFilter();
+        if (models != null) {
+            multiModel.setModels(Arrays.asList(models.split(",")));
+        }
+        
+        IdentifiersFilter identFilter= new IdentifiersFilter();
+        identFilter.setIdentifier(identifier);
+        
+        StatisticsFiltersContainer container = new StatisticsFiltersContainer(new StatisticsFilter[] { dateFilter,
+                modelFilter, /* ipAddr,uniqueIPFilter, */ visFilter, licenseFilter, multiModel, identFilter });
+
+        return container;
+    }
+
+
     @GET
     @Path("{report}/export")
     @Consumes({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response export(@PathParam("report") String rip,
+    public Response exportJSON(@PathParam("report") String rip,
                                   @QueryParam("action") String action,
                                   @QueryParam("dateFrom") String dateFrom,
                                   @QueryParam("dateTo") String dateTo,
                                   @QueryParam("model") String model,
-                                  @QueryParam("visibility") String visibilityValue,
-                                  @QueryParam("ipaddresses") String ipAddresses,
-                                  @QueryParam("uniqueipaddresses") String uniqueIpAddresses,
+                                  @QueryParam("identifier") String identifier,
+
+                                  @DefaultValue("ALL") @QueryParam("visibility") String visibilityValue,
                                   @QueryParam("annualyear") String annual,
                                   @QueryParam("pids") String pids,
+                                  @QueryParam("license") String license,
                                   @DefaultValue("export.data") @QueryParam("file") String file) {
 
+        return export(rip, action, dateFrom, dateTo, model, visibilityValue,  annual,
+				pids, file, license, identifier,  MediaType.APPLICATION_JSON);
+    }
 
-        AnnualYearFilter annualYearFilter = new AnnualYearFilter();
+    @GET
+    @Path("{report}/export/json")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response exportJSONPath(@PathParam("report") String rip,
+                                  @QueryParam("action") String action,
+                                  @QueryParam("dateFrom") String dateFrom,
+                                  @QueryParam("dateTo") String dateTo,
+                                  @QueryParam("model") String model,
+                                  @QueryParam("identifier") String identifier,
+
+                                  @DefaultValue("ALL") @QueryParam("visibility") String visibilityValue,
+                                  @QueryParam("annualyear") String annual,
+                                  @QueryParam("pids") String pids,
+                                  @QueryParam("license") String license,
+                                  @DefaultValue("export.data") @QueryParam("file") String file) {
+
+        return export(rip, action, dateFrom, dateTo, model, visibilityValue,  annual,
+				pids, file, license, identifier,  MediaType.APPLICATION_JSON);
+    }
+
+    @GET
+    @Path("{report}/export")
+    @Consumes({ "text/csv" })
+    @Produces({ "text/csv" })
+    public Response exportCSV(@PathParam("report") String rip,
+                                  @QueryParam("action") String action,
+                                  @QueryParam("dateFrom") String dateFrom,
+                                  @QueryParam("dateTo") String dateTo,
+                                  @QueryParam("model") String model,
+                                  @QueryParam("identifier") String identifier,
+
+                                  @DefaultValue("ALL") @QueryParam("visibility") String visibilityValue,
+                                  @QueryParam("annualyear") String annual,
+                                  @QueryParam("pids") String pids,
+                                  @QueryParam("license") String license,
+                                  @DefaultValue("export.data") @QueryParam("file") String file) {
+
+        return export(rip, action, dateFrom, dateTo, model, visibilityValue, annual,pids, file, license,
+                identifier, "text/csv");
+    }
+
+    @GET
+    @Path("{report}/export/csv")
+    @Produces({ "text/csv" })
+    public Response exportCSVPath(@PathParam("report") String rip,
+                                  @QueryParam("action") String action,
+                                  @QueryParam("dateFrom") String dateFrom,
+                                  @QueryParam("dateTo") String dateTo,
+                                  @QueryParam("model") String model,
+                                  @QueryParam("identifier") String identifier,
+
+                                  @DefaultValue("ALL") @QueryParam("visibility") String visibilityValue,
+                                  @QueryParam("annualyear") String annual,
+                                  @QueryParam("license") String license,
+                                  @QueryParam("pids") String pids,
+                                 
+                                  @DefaultValue("export.data") @QueryParam("file") String file) {
+
+        return export(rip, action, dateFrom, dateTo, model, visibilityValue, annual,
+				pids, file, license, identifier, "text/csv");
+    }
+
+    //public Response delete
+    
+    
+    @GET
+    @Path("{report}/export")
+    @Consumes({ MediaType.APPLICATION_XML + ";charset=utf-8"})
+    @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
+    public Response exportXML(@PathParam("report") String rip,
+                                  @QueryParam("action") String action,
+                                  @QueryParam("dateFrom") String dateFrom,
+                                  @QueryParam("dateTo") String dateTo,
+                                  @QueryParam("model") String model,
+                                  @QueryParam("identifier") String identifier,
+
+                                  @DefaultValue("ALL")  @QueryParam("visibility") String visibilityValue,
+                                  @QueryParam("annualyear") String annual,
+                                  @QueryParam("pids") String pids,
+                                  @QueryParam("license") String license,
+                                  @DefaultValue("export.data") @QueryParam("file") String file) {
+
+        return export(rip, action, dateFrom, dateTo, model, visibilityValue,  annual,
+				pids, file,license, identifier, MediaType.APPLICATION_XML);
+    }
+
+
+	private Response export(String rip, String action, String dateFrom, String dateTo, String model,
+			String visibilityValue,  String annual, String pids,
+			String file, String license, String identifier, String format ) {
+		AnnualYearFilter annualYearFilter = new AnnualYearFilter();
         annualYearFilter.setAnnualYear(annual);
 
         DateFilter dateFilter = new DateFilter();
@@ -182,26 +421,12 @@ public class StatisticsResource {
         ModelFilter modelFilter = new ModelFilter();
         modelFilter.setModel(model);
 
-        UniqueIPAddressesFilter uniqueIPFilter = new UniqueIPAddressesFilter();
-        uniqueIPFilter.setUniqueIPAddressesl(Boolean.valueOf(uniqueIpAddresses));
-
         PidsFilter pidsFilter = new PidsFilter();
         pidsFilter.setPids(pids);
+        
+        IdentifiersFilter idFilter = new IdentifiersFilter();
+        idFilter.setIdentifier(identifier);
 
-        IPAddressFilter ipAddr = new IPAddressFilter();
-        if (ipAddresses != null && !ipAddresses.isEmpty()) {
-            ipAddresses = ipAddresses.replace(",", "|");
-            ipAddresses = ipAddresses.replace("*", "%");
-            ipAddresses = ipAddresses.replace(" ", "");
-            ipAddr.setIpAddress(ipAddresses);
-        }
-        else {
-            String ipConfigVal = ipAddr.getValue();
-            if (ipConfigVal != null) {
-                ipConfigVal = ipConfigVal.replace("*", "%");
-            }
-            ipAddr.setIpAddress(ipConfigVal);
-        }
 
         if (action != null && action.equals("null")) {
             action = null;
@@ -217,53 +442,55 @@ public class StatisticsResource {
 
         MultimodelFilter multimodelFilter = new MultimodelFilter();
 
-        VisibilityFilter visFilter = null;
-        if (visibilityValue != null && StringUtils.isAnyString(visibilityValue))  {
-            visibilityValue = visibilityValue.toUpperCase();
-            visFilter = new VisibilityFilter();
-            visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
-        }
+		LicenseFilter licenseFilter = new LicenseFilter(license);
 
-        if (permit()) {
+        VisibilityFilter visFilter = new VisibilityFilter();
+		visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
+
+        if (permit(SecuredActions.A_STATISTICS)) {
             if (rip != null && (!rip.equals(""))) {
-                // report
-                StatisticReport report = this.statisticsAccessLog.getReportById(rip);
-                StatisticsReportFormatter selectedFormatter = reportFormatters.stream().filter(formatter -> {
-                    return formatter.getMimeType().contains(MediaType.APPLICATION_JSON) && formatter.getReportId().equals(report.getReportId());
-                }).findAny().get();
-                if (selectedFormatter != null) {
-                    String info = null;
-                    info = ((annual == null) ? "" : annual + ", ") + ((model == null) ? "" : model + ", ") + ((dateFrom.equals("")) ? "" : "od: " + dateFrom + ", ") + ((dateTo.equals("")) ? "" : "do: " + dateTo + ", ")
-                            + "akce: " + ((action == null) ? "ALL" : action) + ", viditelnosti: " + visibilityValue + ", "
-                            + ((ipAddr.getIpAddress().equals("")) ? "" : "zakázané IP adresy: " + ipAddr.getIpAddress() + ", ")
-                            + "unikátní IP adresy: " + uniqueIpAddresses + ".";
+            	StatisticReport report = this.statisticsAccessLog.getReportById(rip);
+            	Optional<StatisticsReportFormatter> opts = reportFormatters.stream().filter(formatter -> {
+                    return formatter.getMimeType().contains(format) && formatter.getReportId().equals(report.getReportId());
+                }).findAny();
+            	
+                if (opts.isPresent()) {
 
-                    final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    List<String> results = report.verifyFilters(null, new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter, multimodelFilter, annualYearFilter,  pidsFilter, idFilter}));
+                    if (results.isEmpty()) {
+                    	StatisticsReportFormatter selectedFormatter =  opts.get();
+                        String info = "";
 
-                    try {
-                        STATISTIC_SEMAPHORE.acquire();
-                        selectedFormatter.addInfo(bos, info);
-                        selectedFormatter.beforeProcess(bos);
+                        final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-                        // Must be synchronized - only one report at the time
-                        report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter, ipAddr, multimodelFilter, annualYearFilter, pidsFilter}));
-                        report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter,ipAddr, multimodelFilter, annualYearFilter, uniqueIPFilter, pidsFilter}));
-                        selectedFormatter.afterProcess(bos);
+                        try {
+                            STATISTIC_SEMAPHORE.acquire();
+                            selectedFormatter.addInfo(bos, info);
+                            selectedFormatter.beforeProcess(bos);
 
-                        return Response.ok(new StreamingOutput() {
-                            @Override
-                            public void write(OutputStream output) throws IOException, WebApplicationException {
-                                IOUtils.copyStreams(new ByteArrayInputStream(bos.toByteArray()), output);
-                            }
-                        }).header("Content-disposition",  "attachment; filename="+file).build();
-                    } catch (IOException e) {
-                        throw new GenericApplicationException(e.getMessage());
-                    } catch (StatisticsReportException e) {
-                        throw new GenericApplicationException(e.getMessage());
-                    } catch (InterruptedException e) {
-                        throw new GenericApplicationException(e.getMessage());
-                    } finally {
-                        STATISTIC_SEMAPHORE.release();
+                            // Must be synchronized - only one report at the time
+                            //report.prepareViews(action != null ? ReportedAction.valueOf(action) : null,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,  multimodelFilter, annualYearFilter, pidsFilter}));
+                            report.processAccessLog(action != null ? ReportedAction.valueOf(action) : null, selectedFormatter,new StatisticsFiltersContainer(new StatisticsFilter []{dateFilter,modelFilter,visFilter, multimodelFilter, annualYearFilter,  pidsFilter, licenseFilter, idFilter}));
+                            selectedFormatter.afterProcess(bos);
+
+                            return Response.ok(new StreamingOutput() {
+                                @Override
+                                public void write(OutputStream output) throws IOException, WebApplicationException {
+                                    IOUtils.copyStreams(new ByteArrayInputStream(bos.toByteArray()), output);
+                                }
+                            }).header("Content-disposition",  "attachment; filename="+file).build();
+                        } catch (IOException e) {
+                            throw new GenericApplicationException(e.getMessage());
+                        } catch (StatisticsReportException e) {
+                            throw new GenericApplicationException(e.getMessage());
+                        } catch (InterruptedException e) {
+                            throw new GenericApplicationException(e.getMessage());
+                        } finally {
+                            STATISTIC_SEMAPHORE.release();
+                        }
+                    } else {
+                    	String body = results.stream().collect(Collectors.joining("\n"));
+                        return Response.status(Response.Status.BAD_REQUEST).entity(body).build();
                     }
                 } else {
                     throw new BadRequestException("For selected report and selected mimtype I cannot find the formatter");
@@ -274,29 +501,37 @@ public class StatisticsResource {
         } else {
             throw new ActionNotAllowed("not allowed");
        }
-    }
+	}
 
+	
+	
+	
 
-    boolean permit() {
+    boolean permit(SecuredActions action) {
         User user = null;
         String authToken = this.requestProvider.get().getHeader(LRResource.AUTH_TOKEN_HEADER_KEY);
         if (authToken != null && !lrProcessManager.isAuthTokenClosed(authToken)) {
             String sessionKey = lrProcessManager.getSessionKey(authToken);
-            user =  this.loggedUsersSingleton.getUser(sessionKey);
+            if (sessionKey != null) {
+                user =  this.loggedUsersSingleton.getUser(sessionKey);
+            } else {
+                user = this.userProvider.get();
+            }
         } else {
             user = this.userProvider.get();
         }
-        return permit(user);
+        return permit(user,action);
     }
 
 
-    boolean permit(User user) {
+    boolean permit(User user, SecuredActions action) {
         if (user != null)
             return this.rightsResolver.isActionAllowed(user,
-                    SecuredActions.SHOW_STATISTICS.getFormalName(),
+                    action.getFormalName(),
                     SpecialObjects.REPOSITORY.getPid(), null,
                     ObjectPidsPath.REPOSITORY_PATH).flag();
         else
             return false;
     }
+    
 }

@@ -258,5 +258,4 @@ public class IiifAPI {
             throw new PIDNotFound("error while parsing pid (" + pid + ")");
         }
     }
-
 }

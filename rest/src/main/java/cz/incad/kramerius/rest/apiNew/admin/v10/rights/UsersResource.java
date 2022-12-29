@@ -80,7 +80,6 @@ import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
  */
 @Path("/admin/v7.0/users")
 public class UsersResource {
-
     @Inject
     UserManager userManager;
 
@@ -399,11 +398,10 @@ public class UsersResource {
     boolean permit(User user) {
         if (user != null)
             return this.rightsResolver.isActionAllowed(user,
-                    SecuredActions.USERSADMIN.getFormalName(),
+                    SecuredActions.A_RIGHTS_EDIT.getFormalName(),
                     SpecialObjects.REPOSITORY.getPid(), null,
                     ObjectPidsPath.REPOSITORY_PATH).flag();
         else
             return false;
     }
-
 }

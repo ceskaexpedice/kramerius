@@ -50,9 +50,9 @@ public class AkubraRepository extends Repository {
         this.manager = manager;
     }
 
+    
     /**
      * Create new repository object
-     *
      * @param feeder  Feeder instance
      * @param manager
      * @return

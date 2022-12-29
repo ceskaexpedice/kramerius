@@ -19,6 +19,8 @@
  */
 package cz.incad.kramerius.statistics.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,6 +34,7 @@ import java.util.logging.Logger;
 
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.io.IOUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -43,16 +46,21 @@ import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IPAddressFilter;
+import cz.incad.kramerius.statistics.filters.IdentifiersFilter;
+import cz.incad.kramerius.statistics.filters.LicenseFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
+import cz.incad.kramerius.statistics.utils.ReportUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
 
 /**
+ * Poskytnuti autori
  * @author pavels
- *
  */
-public class AuthorReport implements StatisticReport{
+public class AuthorReport extends AbstractStatisticsReport implements StatisticReport{
     
     public static final Logger LOGGER = Logger.getLogger(AuthorReport.class.getName());
     
@@ -67,54 +75,33 @@ public class AuthorReport implements StatisticReport{
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticsFiltersContainer filters, Offset rOffset) {
         try {
-            DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
+            String selectEndpoint = super.logsEndpoint();
             
-            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();
-            final StringTemplate statRecord;
+            StringBuilder builder = new StringBuilder("q=*");
+            super.applyFilters(filters, builder);
             
-            if (isUniqueSelected == false) {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectAuthorReport");
-            }
-            else {
-               statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                    .getInstanceOf("selectAuthorReportUnique"); 
-            }
-            
-            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-            statRecord.setAttribute("paging", true);
-            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
-           
-            @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(dateFilter, rOffset);
-            String sql = statRecord.toString();  
-            Connection conn = connectionProvider.get();
-            List<Map<String,Object>> auths = new JDBCQueryTemplate<Map<String,Object>>(conn) {
+            String facetField = "authors";
+            builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpoint, builder.toString(), "json");
+            String string = IOUtils.toString(iStream, "UTF-8");
 
-                @Override
-                public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
-                    Map<String, Object> map = new HashMap<String, Object>();
-                    map.put(COUNT_KEY, rs.getInt("count"));
-                    map.put(AUTHOR_NAME_KEY, rs.getString("author_name"));
-                    returnsList.add(map);
-                    return super.handleRow(rs, returnsList);
-                }
-            }.executeQuery(sql.toString(), params.toArray());
-
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
-            return auths;
-        } catch (ParseException | SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return new ArrayList<Map<String, Object>>();
+            List<Map<String,Object>> authors = new ArrayList<>();
+            ReportUtils.facetIterate(facetField, string, p-> {
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put(COUNT_KEY, p.getValue());
+                map.put(AUTHOR_NAME_KEY, p.getKey());
+                authors.add(map);
+            });
+            
+            return authors;
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return new ArrayList<Map<String,Object>>();
         }
     }
 
     @Override
-    public List<String> getOptionalValues() {
+    public List<String> getOptionalValues(StatisticsFiltersContainer filters) {
         return new ArrayList<String>();
     }
 
@@ -124,65 +111,47 @@ public class AuthorReport implements StatisticReport{
     }
 
 
-    @Override
-    public void prepareViews(ReportedAction action, StatisticsFiltersContainer container) {
-        // TODO Auto-generated method prepareViews
-    }
 
     @Override
     public void processAccessLog(final ReportedAction repAction, final StatisticsReportSupport sup,
             StatisticsFiltersContainer filters) throws StatisticsReportException {
         try {
-            final DateFilter dateFilter = filters.getFilter(DateFilter.class);
-            IPAddressFilter ipFilter = filters.getFilter(IPAddressFilter.class);
-            UniqueIPAddressesFilter uniqueIPFilter = filters.getFilter(UniqueIPAddressesFilter.class);
+            String selectEndpoint = super.logsEndpoint();
             
-            Boolean isUniqueSelected = uniqueIPFilter.getUniqueIPAddresses();         
-            final StringTemplate statRecord;
+            DateFilter dateFilter = filters.getFilter(DateFilter.class);
+            LicenseFilter licFilter = filters.getFilter(LicenseFilter.class);
+            IdentifiersFilter idFilter = filters.getFilter(IdentifiersFilter.class);
+
+            StringBuilder builder = new StringBuilder("q=*");
+
+            ReportUtils.enhanceLicense(builder, licFilter);
+            ReportUtils.enhanceDateFilter(builder, dateFilter);
+            ReportUtils.enhanceIdentifiers(builder, idFilter);
             
-            if (isUniqueSelected) {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                        .getInstanceOf("selectAuthorReportUnique");
-            }
-            else {
-                statRecord = DatabaseStatisticsAccessLogImpl.stGroup
-                        .getInstanceOf("selectAuthorReport");
-            }
-            
-            statRecord.setAttribute("action", repAction != null ? repAction.name() : null);
-            statRecord.setAttribute("paging", false);
-            statRecord.setAttribute("fromDefined", dateFilter.getFromDate() != null);
-            statRecord.setAttribute("toDefined", dateFilter.getToDate() != null);
-            statRecord.setAttribute("ipaddr", ipFilter.getIpAddress());
+            String facetField = "authors";
+            builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpoint, builder.toString(), "json");
+            String string = IOUtils.toString(iStream, "UTF-8");
 
-            @SuppressWarnings("rawtypes")
-            List params = StatisticUtils.jdbcParams(dateFilter);
+            ReportUtils.facetIterate(facetField, string, p-> {
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put(COUNT_KEY, p.getValue());
+                map.put(AUTHOR_NAME_KEY, p.getKey());
+                sup.processReportRecord(map);
+            });
 
-            String sql = statRecord.toString();
-            Connection conn = connectionProvider.get();
-            new JDBCQueryTemplate<Map<String,Object>>(conn) {
-
-                @Override
-                public boolean handleRow(ResultSet rs, List<Map<String,Object>> returnsList) throws SQLException {
-                    Map<String, Object> map = new HashMap<String, Object>();
-                    map.put(COUNT_KEY, rs.getInt("count"));
-                    map.put(AUTHOR_NAME_KEY, rs.getString("author_name"));
-                    returnsList.add(map);
-                    sup.processReportRecord(map);
-                    return super.handleRow(rs, returnsList);
-                }
-            }.executeQuery(sql.toString(),params.toArray());
-            LOGGER.fine(String.format("Test statistics connection.isClosed() : %b", conn.isClosed()));
-        } catch (ParseException e) {
+        } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new StatisticsReportException(e);
-       } catch (SQLException ex) {
-            Logger.getLogger(AuthorReport.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    @Override
-    public boolean verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
-        return true;
-    }
+	@Override
+	public List<String> verifyFilters(ReportedAction action, StatisticsFiltersContainer container) {
+    	List<String> list = new ArrayList<>();
+		DateFilter dateFilter = container.getFilter(DateFilter.class);
+		VerificationUtils.dateVerification(list, dateFilter.getRawFromDate());
+		VerificationUtils.dateVerification(list, dateFilter.getRawToDate());
+		return list;
+	}
 }

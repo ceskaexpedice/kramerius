@@ -17,123 +17,116 @@
 package cz.incad.kramerius.security;
 
 /**
- * Vyctovy typ chranenych akci systemu K4 
+ * Vyctovy typ chranenych akci systemu K7 
+ * 
  */
 public enum SecuredActions {
 
-    /** Akce cist */
-    READ("read"),
+    /** Definice novych akci**/
+    /** READ; ma pravo cist konkretni objekt */
+    A_READ("a_read", false),
     
-    /** Akce pro proces import */
-    IMPORT( "import"),
+    /** READ; ma pravo vyuzit pdf resource */
+    A_PDF_READ("a_pdf_read", false),
     
-    /** Akce pro proces konvert */
-    CONVERT( "convert"),
+    /** smazani  zaznamu */
+    A_DELETE("a_delete",false),
     
-    /** Akce pro proces replicationrights */
-    REPLICATIONRIGHTS("replicationrights"),
+    /** spravovat vsechny procesy; smazat, prohlizet logy */
+    A_PROCESS_EDIT("a_process_edit"),
     
-    /** Akce pro proces enumerator */
-    ENUMERATOR( "enumerator"),
+    /** Pravo pro cteni procesu */
+    A_PROCESS_READ("a_process_read"),
+    
+    
+    /** Spravovat pouze vlastni procesy */
+    A_OWNER_PROCESS_EDIT("a_owner_process_edit"),
 
-    /** Akce pro proces indexace */
-    REINDEX( "reindex"),
+    /** spusteni indexeru; cely repozitar*/
+    A_INDEX("a_index", false),
     
-    /** Akce pro proces replikace - periodika */
-    REPLIKATOR_PERIODICALS( "replikator_periodicals"),
-    
-    /** Akce pro proces replikace - monografie */
-    REPLIKATOR_MONOGRAPHS( "replikator_monographs"),
-    
-    REPLIKATOR_K3("replikator_k3"),
-    
-    /** Akce pro proces delete */
-    DELETE( "delete"),
-    
-    /** Akce pro proces export FOXML*/
-    EXPORT( "export"),
-    
-    /** Akce pro nastave priznaku PRIVATE, PUBLIC */
-    SETPRIVATE( "setprivate"), SETPUBLIC( "setpublic"),
- 
-    ADMINISTRATE( "administrate"),
+    /** indexace ve stronu */
+    //A_INDEX_CHILDREN("a_index_children"),
 
-    /** Akce pro spusteni metadata editoru */
-    EDITOR("editor"),
+    /** process rebuild indexu */
+    A_REBUILD_PROCESSING_INDEX("a_rebuild_processing_index", false),
     
-    /** Akce umozni spravu procesu */
-    MANAGE_LR_PROCESS("manage_lr_process"),
+    /** import */
+    A_IMPORT("a_import"),
+
+    /** pravo nastavovat priznak viditlnosti a licence */
+    A_SET_ACCESSIBILITY("a_set_accessibility", false),
+
     
-    /** Akce pro exportovani replikacnich souboru (deskriptor, foxml, atd..) */
-    EXPORT_K4_REPLICATIONS("export_k4_replications"),
+    /** export pro cdk */
+    A_EXPORT_CDK("a_export_cdk"),
     
-    IMPORT_K4_REPLICATIONS("import_k4_replications"),
+    /** zobrazeni statistik */
+    A_STATISTICS("a_statistics"),
+    
+    /** moznost mazat statistiky */
+    A_STATISTICS_EDIT("a_statistics_edit"),
+    
+    /** replikace - export  */
+    A_EXPORT_REPLICATIONS("a_export_replications"),
+    
+    /** replikace - import */
+    A_IMPORT_REPLICATIONS("a_import_replications"),
+
+    /** editace prav, pro vsechny objekty krome sbirek*/
+    A_RIGHTS_EDIT("a_rights_edit",false),
+
+    /** Pravo cist criteria */
+    A_CRITERIA_READ("a_criteria_read"),
+    
+    /** Cteni kolekci, pravo umoznujici cist informace z admin ponitu pro ceti    */
+    A_COLLECTIONS_READ("a_collections_read"),
+    
+    /** editace kolekci, pridavani do kolekci atd..   */
+    A_COLLECTIONS_EDIT("a_collections_edit", false),
+    
+    /** pravo byti zaraditelny do kolekce */
+    A_ABLE_TOBE_PART_OF_COLLECTION("a_able_tobe_part_of_collections", false),
     
     
-    /** Akce pro poskytovani dat pro CDK */
-    EXPORT_CDK_REPLICATIONS("export_cdk_replications"),
+    /** spusteni nkp logu */
+    A_GENERATE_NKPLOGS("a_generate_nkplogs"),
     
-    //K4_REPLICATIONS("k4_replications"),
+    /** editace roli */
+    A_ROLES_EDIT("a_roles_edit"),
     
-    // Issue 159
-    @Deprecated 
-    EDIT_INFO_TEXT("edit_info_text"),
+    A_ROLES_READ("a_roles_read"),
+
+    /* Will be enabled in the future
+    A_USERS_EDIT("a_users_edit"),
+    A_USERS_READ("a_users_read"),
+    */
     
-    /** Akce umozni spoustet editor uzivatelu superadmin modu */
-    USERSADMIN("rightsadmin"),
+    /** Pravo pro admin cteni admina */
+    A_ADMIN_READ("a_admin_read");
     
-    /** Akce umoznu spoustet editor v subadmin modu */
-    USERSSUBADMIN("rightssubadmin"),
-
-    /** Akce umoznuje spravu virtualnich sbirek */
-    VIRTUALCOLLECTION_MANAGE("virtualcollection_manage"),
     
-    /** Akce umoznuje sprav u kriterii */
-    CRITERIA_RIGHTS_MANAGE("criteria_rights_manage"),
-
-    /** Akce NDK Mets import */
-    NDK_METS_IMPORT("ndk_mets_import"),
-
-    /** aggregate process */
-    AGGREGATE_PROCESSES("aggregate"),
-
-    /** sorting  */
-    SORT("sort"),
-
-
-    /** page info */
-    SHOW_ALTERNATIVE_INFO_TEXT("show_alternative_info_text"),
-
-    /** Akce umozni zobrazit administratorskou cast menu */
-    DISPLAY_ADMIN_MENU("display_admin_menu"),
-
-    /** show statistics item */
-    SHOW_STATISTICS("show_statictics"),
-
-    /** show print admin menu item  */
-    SHOW_PRINT_MENU("show_print_menu"),
-
-    SHOW_CLIENT_PRINT_MENU("show_client_print_menu"),
-
-    /** show pdf menu item  */
-    SHOW_CLIENT_PDF_MENU("show_client_pdf_menu"),
-    
-    /** pdf resource */
-    PDF_RESOURCE("pdf_resource"),
-
-    /** DNNT administrate */
-    DNNT_ADMIN("dnnt_admin");
-
     private String formalName;
-  
+    private boolean onlyGlobalAction;
+    
+    private SecuredActions(String formalName, boolean gA) {
+        this.formalName = formalName;
+        this.onlyGlobalAction = gA;
+    }
+    
     private SecuredActions(String formalName) {
         this.formalName = formalName;
+        this.onlyGlobalAction = true;
     }
-
+    
     public String getFormalName() {
         return formalName;
     }
     
+    public boolean isGlobalAction() {
+        return onlyGlobalAction;
+    }
+
     
     public static SecuredActions findByFormalName(String fname) {
         SecuredActions[] vals = values();
@@ -144,4 +137,5 @@ public enum SecuredActions {
         }
         return null;
     }
+
 }

@@ -3,5 +3,4 @@
 dependencies {
     api project(':security:security-core')
     api project(':shared:common')
-    //api project(':processes:indexer')
 }

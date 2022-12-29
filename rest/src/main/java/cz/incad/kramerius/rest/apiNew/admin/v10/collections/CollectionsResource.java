@@ -1,5 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.collections;
 
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
@@ -8,7 +10,10 @@ import cz.incad.kramerius.rest.apiNew.admin.v10.ProcessSchedulingHelper;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Role;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
@@ -20,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -36,23 +42,23 @@ import java.util.stream.Collectors;
 @Path("/admin/v7.0/collections")
 public class CollectionsResource extends AdminApiResource {
 
+
+
     public static final Logger LOGGER = Logger.getLogger(CollectionsResource.class.getName());
 
-    //TODO: prejmenovat role podle spravy uctu
-    private static final String ROLE_CREATE_COLLECTION = "kramerius_admin";
-    private static final String ROLE_LIST_COLLECTIONS = "kramerius_admin";
-    private static final String ROLE_READ_COLLECTION = "kramerius_admin";
-    private static final String ROLE_EDIT_COLLECTION = "kramerius_admin";
-    private static final String ROLE_DELETE_COLLECTION = "kramerius_admin";
 
     @Inject
-    private FoxmlBuilder foxmlBuilder;
+    @Named("new-index")
+    SolrAccess solrAccess;
 
     @Inject
-    ProcessSchedulingHelper processSchedulingHelper;
+    private CollectionsFoxmlBuilder foxmlBuilder;
 
-    @javax.inject.Inject
+    @Inject
     Provider<User> userProvider;
+
+    @Inject
+    RightsResolver rightsResolver;
 
     /**
      * Creates new collection and assigns a pid to it.
@@ -71,10 +77,10 @@ public class CollectionsResource extends AdminApiResource {
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
 
-            String role = ROLE_CREATE_COLLECTION;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to create collections (missing role '%s')", user1.getLoginname(), role); //403
+            if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
+
             Collection collection = extractCollectionFromJson(collectionDefinition);
             if ((collection.nameCz == null || collection.nameCz.isEmpty()) && (collection.nameEn == null || collection.nameEn.isEmpty())) {
                 throw new BadRequestException("name can't be empty");
@@ -83,7 +89,7 @@ public class CollectionsResource extends AdminApiResource {
             Document foxml = foxmlBuilder.buildFoxml(collection, null);
             krameriusRepositoryApi.getLowLevelApi().ingestObject(foxml);
             //schedule reindexation - new collection (only object)
-            scheduleReindexation(collection.pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", UUID.randomUUID().toString(), false, "sbírka " + collection.pid);
+            scheduleReindexation(collection.pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
             return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -110,13 +116,17 @@ public class CollectionsResource extends AdminApiResource {
 
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-            String role = ROLE_READ_COLLECTION;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to read collections (missing role '%s')", user1.getLoginname(), role); //403
+
+            if (!permitCollectionRead(this.rightsResolver, user1, pid) &&
+                    !permitCollectionEdit(this.rightsResolver, user1, pid)) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_READ); //403
             }
-            checkObjectExists(pid);
-            Collection collection = fetchCollectionFromRepository(pid, true, true);
-            return Response.ok(collection.toJson()).build();
+
+            synchronized (CollectionsResource.class) {
+                checkObjectExists(pid);
+                Collection collection = fetchCollectionFromRepository(pid, true, true);
+                return Response.ok(collection.toJson()).build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -125,6 +135,44 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
+    @GET
+    @Path("/prefix")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCollectionsByPrefix(@QueryParam("rows") String rows,@QueryParam("page") String page, @QueryParam("prefix") String prefix) {
+        try {
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+
+            // TODO: check if it is necessary
+            if (!permitCollectionRead(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid()) &&
+                    !permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_READ); //403
+            }
+            
+            Pair<Long,List<String>> pidsOfObjectsByModel = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection", prefix, Integer.parseInt(rows), Integer.parseInt(page));
+            JSONArray collections = new JSONArray();
+            for (String pid : pidsOfObjectsByModel.getSecond()) {
+                try {
+                    Collection collection = fetchCollectionFromRepository(pid, false, false);
+                    collections.put(collection.toJson());
+                } catch (RepositoryException e) {
+                    //ignoring broken collection and still returning other collections (instead of error response)
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+            JSONObject result = new JSONObject();
+            result.put("total_size", pidsOfObjectsByModel.getFirst());
+            result.put("collections", collections);
+            return Response.ok(result.toString()).build();
+    } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+
+    }
+    
     /**
      * Returns all collections or collections that directly contain given item.
      *
@@ -136,37 +184,40 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCollections(@QueryParam("withItem") String itemPid) {
         try {
-            //authentication & authorization by external provider of identities & rights
-            //AuthenticatedUser user = getAuthenticatedUserByOauth();
-
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
+            // TODO: check if it is necessary
+            if (!permitCollectionRead(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid()) &&
+                    !permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_READ); //403
+            }
 
-            String role = ROLE_LIST_COLLECTIONS;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to list collections (missing role '%s')", user1.getLoginname(), role); //403
+            synchronized (CollectionsResource.class) {
+                List<String> pids = null;
+                if (itemPid != null) {
+                    checkSupportedObjectPid(itemPid);
+                    checkObjectExists(itemPid);
+                    //  not support rows and page
+                    pids = krameriusRepositoryApi.getPidsOfCollectionsContainingItem(itemPid);
+                } else {
+                    pids = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection");
+                }
+                JSONArray collections = new JSONArray();
+                for (String pid : pids) {
+                    try {
+                        Collection collection = fetchCollectionFromRepository(pid, false, false);
+                        collections.put(collection.toJson());
+                    } catch (RepositoryException e) {
+                        //ignoring broken collection and still returning other collections (instead of error response)
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+                JSONObject result = new JSONObject();
+                result.put("total_size", pids.size());
+                result.put("collections", collections);
+                return Response.ok(result.toString()).build();
             }
-            //authentication with JSESSIONID cookie and authorization against (global) SecuredAction - i.e. schema used Kramerius legacy APIs and servlets
-            //checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions.VIRTUALCOLLECTION_MANAGE);
-
-            List<String> pids = null;
-            if (itemPid != null) {
-                checkSupportedObjectPid(itemPid);
-                checkObjectExists(itemPid);
-                pids = krameriusRepositoryApi.getPidsOfCollectionsContainingItem(itemPid);
-            } else {
-                pids = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection");
-            }
-            JSONArray collections = new JSONArray();
-            for (String pid : pids) {
-                Collection collection = fetchCollectionFromRepository(pid, false, false);
-                collections.put(collection.toJson());
-            }
-            JSONObject result = new JSONObject();
-            result.put("total_size", pids.size());
-            result.put("collections", collections);
-            return Response.ok(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -193,28 +244,31 @@ public class CollectionsResource extends AdminApiResource {
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            String role = ROLE_EDIT_COLLECTION;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
+            // TODO: check if it is necessary
+            if (!permitCollectionEdit(this.rightsResolver, user1, pid)) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
-            checkObjectExists(pid);
-            Collection current = fetchCollectionFromRepository(pid, true, false);
 
-            Collection updated = current.withUpdatedDataModifiableByClient(extractCollectionFromJson(collectionDefinition));
-            if ((updated.nameCz == null || updated.nameCz.isEmpty()) && (updated.nameEn == null || updated.nameEn.isEmpty())) {
-                throw new BadRequestException("name can't be empty");
+
+            synchronized (CollectionsResource.class) {
+                checkObjectExists(pid);
+                Collection current = fetchCollectionFromRepository(pid, true, false);
+                Collection updated = current.withUpdatedDataModifiableByClient(extractCollectionFromJson(collectionDefinition));
+                if ((updated.nameCz == null || updated.nameCz.isEmpty()) && (updated.nameEn == null || updated.nameEn.isEmpty())) {
+                    throw new BadRequestException("name can't be empty");
+                }
+                if (!current.equalsInDataModifiableByClient(updated)) {
+                    //fetch items in collection first (otherwise eventual consistency of processing index would cause no items in new version of rels-ext)
+                    List<String> itemsInCollection = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
+                    //rebuild and update mods
+                    krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
+                    //rebuild and update rels-ext (because of "standalone")
+                    krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
+                    //schedule reindexation - (only collection object)
+                    scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
+                }
+                return Response.ok().build();
             }
-            if (!current.equalsInDataModifiableByClient(updated)) {
-                //fetch items in collection first (otherwise eventual consistency of processing index would cause no items in new version of rels-ext)
-                List<String> itemsInCollection = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
-                //rebuild and update mods
-                krameriusRepositoryApi.updateMods(pid, foxmlBuilder.buildMods(updated));
-                //rebuild and update rels-ext (because of "standalone")
-                krameriusRepositoryApi.updateRelsExt(pid, foxmlBuilder.buildRelsExt(updated, itemsInCollection));
-                //schedule reindexation - l (only object)
-                scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", UUID.randomUUID().toString(), false, "sbírka " + pid);
-            }
-            return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -223,14 +277,14 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    private void scheduleReindexation(String objectPid, String userid, String username, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
+   /* private void scheduleReindexation(String objectPid, String userid, String username, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
         List<String> paramsList = new ArrayList<>();
         paramsList.add(indexationType);
         paramsList.add(objectPid);
         paramsList.add(Boolean.toString(ignoreInconsistentObjects));
         paramsList.add(title);
         processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, userid, username, batchToken);
-    }
+    }*/
 
     /**
      * Sets items that the collection directly contains. I.e. removes all existing items and adds all items from method's data.
@@ -245,9 +299,24 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response setItemsInCollection(@PathParam("pid") String pid, JSONArray pidsOfItems) {
         try {
+            User user1 = this.userProvider.get();
+            if (!permitCollectionEdit(this.rightsResolver, user1, pid)) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
+            }
+            
+            
+            for (int i = 0; i < pidsOfItems.length(); i++) {
+                String p = pidsOfItems.getString(i);
+                if (!permitAbleToAdd(this.rightsResolver, user1, p)) {
+                    throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), p, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
+                }
+            }
+            
             checkSupportedObjectPid(pid);
-            //TODO: implement
-            throw new RuntimeException("not implemented yet");
+            synchronized (CollectionsResource.class) {
+                //TODO: implement
+                throw new RuntimeException("not implemented yet");
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -267,36 +336,41 @@ public class CollectionsResource extends AdminApiResource {
     @Path("{pid}/items")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response addItemToCollection(@PathParam("pid") String collectionPid, String itemPid) {
-        //TODO: maybe JSONArray insted of single String, to be able to add multiple items at once.
+        //TODO: maybe JSONArray insted of single String, to be able to add multiple items at once. But with limited size of batch
         try {
             checkSupportedObjectPid(collectionPid);
             checkSupportedObjectPid(itemPid);
-            //authentication
-            //AuthenticatedUser user = getAuthenticatedUserByOauth();
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-
-            String role = ROLE_EDIT_COLLECTION;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
+            // jestli ma pravo edit a zda pid neni kolekce, pokud jo pak zda ma na kolekci pravo cist 
+            if (!permitCollectionEdit(this.rightsResolver, user1, collectionPid)) {
+                throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
-            checkObjectExists(collectionPid);
-            checkObjectExists(itemPid);
-            checkCanAddItemToCollection(itemPid, collectionPid);
-            //extract relsExt and update by adding new relation
-            Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
-            boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
-            if (!addedNow) {
-                throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
+            
+            
+            if (!permitAbleToAdd(this.rightsResolver, user1, itemPid)) {
+                throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
             }
-            //save updated rels-ext
-            krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
-            //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
-            String batchToken = UUID.randomUUID().toString();
-            //mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-            scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
-            return Response.status(Response.Status.CREATED).build();
+            synchronized (CollectionsResource.class) {
+                //LOGGER.info("addItemToCollection execute, Thread " + Thread.currentThread().getName());
+                checkObjectExists(collectionPid);
+                checkObjectExists(itemPid);
+                checkCanAddItemToCollection(itemPid, collectionPid);
+                //extract relsExt and update by adding new relation
+                Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
+                boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+                if (!addedNow) {
+                    throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
+                }
+                //save updated rels-ext
+                krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
+                //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
+                //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                //LOGGER.info("addItemToCollection end, Thread " + Thread.currentThread().getName());
+                return Response.status(Response.Status.CREATED).build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -316,6 +390,7 @@ public class CollectionsResource extends AdminApiResource {
         }
         //detect cycle
         if ("collection".equals(krameriusRepositoryApi.getModel(itemPid))) {
+            // check api 
             detectCyclicPath(itemPid, collectionPid, String.format("%s --contains--> %s", collectionPid, itemPid));
         }
     }
@@ -341,42 +416,46 @@ public class CollectionsResource extends AdminApiResource {
      */
     @DELETE
     @Path("{collectionPid}/items/{itemPid}")
-    public Response removeItemFromCollection(@PathParam("collectionPid") String
-                                                     collectionPid, @PathParam("itemPid") String itemPid) {
-        try {
-            checkSupportedObjectPid(collectionPid);
-            checkSupportedObjectPid(itemPid);
-            //authentication
-            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid,
+                                             @PathParam("itemPid") String itemPid) {
+        synchronized (CollectionsResource.class) {
+            try {
+                checkSupportedObjectPid(collectionPid);
+                checkSupportedObjectPid(itemPid);
+                //authentication
+                //AuthenticatedUser user = getAuthenticatedUserByOauth();
 
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+                User user1 = this.userProvider.get();
+                List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            String role = ROLE_EDIT_COLLECTION;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to edit collections (missing role '%s')", user1.getLoginname(), role); //403
+                if (!permitCollectionEdit(this.rightsResolver, user1, collectionPid)) {
+                    throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
+                }
+
+                if (!permitAbleToAdd(this.rightsResolver, user1, itemPid)) {
+                    throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
+                }
+                checkObjectExists(collectionPid);
+                checkObjectExists(itemPid);
+                checkCanRemoveItemFromCollection(itemPid, collectionPid);
+                //extract relsExt and update by removing relation
+                Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
+                boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+                if (!removed) {
+                    throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
+                }
+                //save updated rels-ext
+                krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
+                //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
+                //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                return Response.status(Response.Status.OK).build();
+            } catch (WebApplicationException e) {
+                throw e;
+            } catch (Throwable e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
             }
-            checkObjectExists(collectionPid);
-            checkObjectExists(itemPid);
-            checkCanRemoveItemFromCollection(itemPid, collectionPid);
-            //extract relsExt and update by removing relation
-            Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
-            boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
-            if (!removed) {
-                throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
-            }
-            //save updated rels-ext
-            krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
-            //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
-            String batchToken = UUID.randomUUID().toString();
-            //mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-            scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", batchToken, true, itemPid);
-            return Response.status(Response.Status.OK).build();
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
         }
     }
 
@@ -406,10 +485,11 @@ public class CollectionsResource extends AdminApiResource {
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            String role = ROLE_DELETE_COLLECTION;
-            if (!roles.contains(role)) {
-                throw new ForbiddenException("user '%s' is not allowed to delete collections (missing role '%s')", user1.getLoginname(), role); //403
+            if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid()) &&
+                    !permitDelete(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
+
             //extract children before deleting collection
             Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
             List<String> childrenPids = new ArrayList<>();
@@ -425,10 +505,10 @@ public class CollectionsResource extends AdminApiResource {
             krameriusRepositoryApi.getLowLevelApi().deleteObject(pid, false);
             //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees), 3. no need to reindex collections owning this one
             String batchToken = UUID.randomUUID().toString();
-            scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", batchToken, false, "sbírka " + pid);
+            scheduleReindexationInBatch(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", batchToken, false, "sbírka " + pid);
             for (String childPid : childrenPids) {
-                //mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                scheduleReindexation(childPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", batchToken, true, childPid);
+                //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+                scheduleReindexationInBatch(childPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", batchToken, true, childPid);
             }
             return Response.ok().build();
         } catch (WebApplicationException e) {
@@ -444,6 +524,10 @@ public class CollectionsResource extends AdminApiResource {
         Collection collection = new Collection();
         collection.pid = pid;
         //timestamps from Foxml properties
+        if (!krameriusRepositoryApi.getLowLevelApi().objectExists(pid)) {
+            // index + akubra synchronization problem
+        }
+        
         collection.created = krameriusRepositoryApi.getLowLevelApi().getPropertyCreated(pid);
         collection.modified = krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(pid);
         //data from MODS
@@ -490,6 +574,54 @@ public class CollectionsResource extends AdminApiResource {
         } catch (JSONException e) {
             throw new BadRequestException("error parsing json: " + e);
         }
+    }
+
+    public  boolean permitCollectionEdit(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
+        ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
+        if (pidPaths.length > 0) {
+            for (ObjectPidsPath objectPidsPath : pidPaths) {
+                boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+                if (permited) return permited;
+            }
+        } else {
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null, ObjectPidsPath.REPOSITORY_PATH).flag() : false;
+            if (permited) return permited;
+        }
+        return false;
+    }
+
+    public  boolean permitDelete(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
+        ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
+        for (ObjectPidsPath objectPidsPath : pidPaths) {
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_DELETE.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+            if (permited) return permited;
+        }
+        return false;
+    }
+    
+    public boolean permitCollectionRead(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
+        // jeste neni vytvorena - nema cestu nahoru
+        ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
+        if (pidPaths.length > 0) {
+            for (ObjectPidsPath objectPidsPath : pidPaths) {
+                boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_COLLECTIONS_READ.getFormalName(), collectionPid, null, objectPidsPath).flag() : false;
+                if (permited) return permited;
+            }
+        } else {
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_COLLECTIONS_READ.getFormalName(), collectionPid, null, ObjectPidsPath.REPOSITORY_PATH).flag() : false;
+            if (permited) return permited;
+        }
+        return false;
+    }
+    
+    public boolean permitAbleToAdd(RightsResolver rightsResolver, User user, String pid) throws IOException {
+        ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+        for (ObjectPidsPath objectPidsPath : pidPaths) {
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION.getFormalName(), pid, null , objectPidsPath ).flag() : false;
+            if (permited) return permited;
+        }
+        return false;
+
     }
 
 }

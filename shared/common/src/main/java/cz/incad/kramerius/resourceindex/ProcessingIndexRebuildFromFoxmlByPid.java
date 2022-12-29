@@ -47,7 +47,7 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
      * args[0] - authToken
      * args[1] - pid
      */
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException, FcrepoOperationFailedException {
+    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -62,7 +62,7 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
         //process params
         String pid = args[argsIndex++];
 
-        ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML objektu %s", pid));
+        ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekt %s", pid));
         new ProcessingIndexRebuildFromFoxmlByPid().rebuildProcessingIndexFromFoxml(pid);
     }
 

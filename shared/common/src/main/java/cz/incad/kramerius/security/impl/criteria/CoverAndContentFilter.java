@@ -2,8 +2,11 @@ package cz.incad.kramerius.security.impl.criteria;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.solr.SolrUtils;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -45,12 +48,14 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
                 if ("page".equals(fedoraAccess.getKrameriusModelName(pid))) {
                     Document mods = XMLUtils.parseDocument(
                             fedoraAccess.getDataStream(pid, "BIBLIO_MODS"), true);
+                    if (checkTypeElement(mods).equals(EvaluatingResultState.TRUE))
+                        return isNotPeriodical(pid);
                     return checkTypeElement(mods);
                 } else {
                     return EvaluatingResultState.NOT_APPLICABLE;
                 }
             } else {
-                return EvaluatingResultState.TRUE;
+                return EvaluatingResultState.NOT_APPLICABLE;
             }
         } catch (IOException | SAXException | ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -71,6 +76,24 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
         } catch (XPathExpressionException e) {
             throw new IOException(e);
         }
+    }
+
+    private EvaluatingResultState isNotPeriodical(String pid) throws IOException {
+        try {
+            //SolrAccess solrAccess = getEvaluateContext().getSolrAccess();
+            SolrAccess solrAccess = getEvaluateContext().getSolrAccessNewIndex();
+            Document doc = solrAccess.getSolrDataByPid(pid); //SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + pid + "\"");
+            String rootPID = SolrUtils.disectRootPid(doc);
+            doc = solrAccess.getSolrDataByPid(rootPID);
+            String rootFedoraModel = SolrUtils.disectFedoraModel(doc);
+            if (rootFedoraModel.equals("periodical"))
+                return EvaluatingResultState.NOT_APPLICABLE;
+            else
+                return EvaluatingResultState.TRUE;
+        } catch (XPathExpressionException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+        return EvaluatingResultState.TRUE;
     }
 
     private void initModsTypeExpr() throws IOException {
@@ -104,6 +127,6 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
 
     @Override
     public SecuredActions[] getApplicableActions() {
-        return new SecuredActions[]{SecuredActions.READ};
+        return new SecuredActions[]{SecuredActions.A_READ};
     }
 }
