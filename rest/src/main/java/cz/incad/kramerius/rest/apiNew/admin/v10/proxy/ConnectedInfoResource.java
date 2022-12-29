@@ -40,111 +40,120 @@ import cz.incad.kramerius.timestamps.impl.SolrTimestamp;
 @Path("/admin/v7.0/connected")
 public class ConnectedInfoResource {
 
-	public static final Logger LOGGER = Logger.getLogger(ConnectedInfoResource.class.getName());
-	
-	@Inject
-	private Instances libraries;
+    public static final Logger LOGGER = Logger.getLogger(ConnectedInfoResource.class.getName());
 
-	@Inject
-	private TimestampStore timestampStore;
-		
+    @Inject
+    private Instances libraries;
+
+    @Inject
+    private TimestampStore timestampStore;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllConnected() {
-    	JSONObject retval = new JSONObject();
-    	this.libraries.allInstances().forEach(library-> {
-    		JSONObject json = libraryJSON(library);
-    		retval.put(library.getName(), json);
-    	});
+        JSONObject retval = new JSONObject();
+        this.libraries.allInstances().forEach(library -> {
+            JSONObject json = libraryJSON(library);
+            retval.put(library.getName(), json);
+        });
         return Response.ok(retval).build();
     }
 
     private JSONObject libraryJSON(OneInstance found) {
-    	JSONObject retval = new JSONObject();
-    	retval.put("status", found.isConnected());
-    	retval.put("type", found.getType().name());
-    	return retval;
+        JSONObject retval = new JSONObject();
+        retval.put("status", found.isConnected());
+        retval.put("type", found.getType().name());
+        return retval;
     }
 
-    
-	@GET
+    @GET
     @Path("{library}/status")
     @Produces(MediaType.APPLICATION_JSON)
     public Response library(@PathParam("library") String library) {
-		OneInstance find = this.libraries.find(library);
-		if (find != null) {
-			return Response.ok(libraryJSON(find)).build();
-		} else {
-			return Response.status(Response.Status.BAD_REQUEST).build();
-		}
+        OneInstance find = this.libraries.find(library);
+        if (find != null) {
+            return Response.ok(libraryJSON(find)).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
     }
 
-	@PUT
+    @PUT
     @Path("{library}/status")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response library(@PathParam("library") String library,@QueryParam("status") String status) {
-		OneInstance find = this.libraries.find(library);
-		if (find != null) {
-			find.setConnected(Boolean.parseBoolean(status), TypeOfChangedStatus.user);
-			return Response.ok(libraryJSON(find)).build();
-		} else {
-			return Response.status(Response.Status.BAD_REQUEST).build();
-		}
+    public Response library(@PathParam("library") String library, @QueryParam("status") String status) {
+        OneInstance find = this.libraries.find(library);
+        if (find != null) {
+            find.setConnected(Boolean.parseBoolean(status), TypeOfChangedStatus.user);
+            return Response.ok(libraryJSON(find)).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
     }
-	
-	
 
-	@GET
+    @GET
     @Path("{library}/timestamp")
     @Produces(MediaType.APPLICATION_JSON)
     public Response timestamp(@PathParam("library") String library) {
-		try {
-			Timestamp latest = this.timestampStore.findLatest(library);
-			if (latest != null) {
-				return Response.ok(latest.toJSONObject().toString()).build();
-			} else return Response.status(Response.Status.NOT_FOUND).build();
-		} catch (SolrServerException | IOException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-		}
-		
-    }
-	
+        try {
+            Timestamp latest = this.timestampStore.findLatest(library);
+            if (latest != null) {
+                return Response.ok(latest.toJSONObject().toString()).build();
+            } else
+                return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (SolrServerException | IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
 
-	@GET
+    }
+
+    @GET
+    @Path("refresh")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response refresh() {
+        try {
+            this.libraries.cronRefresh();
+            return Response.ok(new JSONObject()).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
     @Path("{library}/timestamps")
     @Produces(MediaType.APPLICATION_JSON)
     public Response timestamps(@PathParam("library") String library) {
-		try {
-			JSONArray array = new JSONArray();
-			List<Timestamp> retrieveTimestamp = this.timestampStore.retrieveTimestamps(library);
-			retrieveTimestamp.forEach(t-> {
-				array.put(t.toJSONObject());
-			});
-			return Response.ok(array.toString()).build();
-		} catch (SolrServerException | IOException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-		}
-		
+        try {
+            JSONArray array = new JSONArray();
+            List<Timestamp> retrieveTimestamp = this.timestampStore.retrieveTimestamps(library);
+            retrieveTimestamp.forEach(t -> {
+                array.put(t.toJSONObject());
+            });
+            return Response.ok(array.toString()).build();
+        } catch (SolrServerException | IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-	@PUT
+    @PUT
     @Path("{library}/timestamp")
     @Produces(MediaType.APPLICATION_JSON)
-	@Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_JSON+";charset=utf-8"})
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response timestamp(@PathParam("library") String library, JSONObject jsonObject) {
-		try {
-			Timestamp timestamp = SolrTimestamp.fromJSONDoc(library, jsonObject);
-			if (timestamp.getDate() == null) {
-				timestamp.updateDate(new Date());
-			}
-			timestamp.updateName(library);
-			this.timestampStore.storeTimestamp(timestamp);
-			return Response.ok(timestamp.toJSONObject().toString()).build();
-		} catch (SolrServerException | IOException e) {
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-		}
+        try {
+            Timestamp timestamp = SolrTimestamp.fromJSONDoc(library, jsonObject);
+            if (timestamp.getDate() == null) {
+                timestamp.updateDate(new Date());
+            }
+            timestamp.updateName(library);
+            this.timestampStore.storeTimestamp(timestamp);
+            return Response.ok(timestamp.toJSONObject().toString()).build();
+        } catch (SolrServerException | IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

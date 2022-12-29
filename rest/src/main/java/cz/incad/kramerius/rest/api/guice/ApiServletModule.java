@@ -55,8 +55,6 @@ import cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
-//import cz.incad.kramerius.rest.api.k5.client.user.ClientUserResource;
-import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientResources;
 import cz.incad.kramerius.rest.apiNew.client.v60.ClientProvider;
 import cz.incad.kramerius.rest.apiNew.client.v60.ClientUserResource;
 import cz.incad.kramerius.rest.apiNew.client.v60.filter.DefaultFilter;
@@ -65,7 +63,6 @@ import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.properties.DefaultPropertiesInstances;
 import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.timestamps.impl.SolrTimestampStore;
-import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyReader;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyWriter;
@@ -91,8 +88,7 @@ public class ApiServletModule extends JerseyServletModule {
         // API Client 5.0 Resources
         bind(ClientUserResource.class);
         bind(FeederResource.class);
-        bind(ClientVirtualCollections.class);
-        bind(ClientResources.class);
+
         bind(SearchResource.class);
         bind(FeedbackResource.class);
         bind(ClientRightsResource.class);
