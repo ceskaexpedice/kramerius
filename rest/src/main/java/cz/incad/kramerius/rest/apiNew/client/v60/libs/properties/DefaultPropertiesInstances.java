@@ -35,10 +35,16 @@ public class DefaultPropertiesInstances implements Instances {
     public static final Logger LOGGER = Logger.getLogger(DefaultPropertiesInstances.class.getName());
 
     private List<OneInstance> instances = new ArrayList<>();
-
+    private Set<String> names = new HashSet<>();
+    
     public DefaultPropertiesInstances() {
         super();
-        Set<String> names = new HashSet<>();
+
+        LOGGER.info("Refreshing configuration ");
+        refreshingConfiguration();
+    }
+
+    private void refreshingConfiguration() {
         Configuration configuration = KConfiguration.getInstance().getConfiguration();
         Iterator<String> keys = configuration.getKeys("cdk.collections.sources");
         while (keys.hasNext()) {
@@ -48,8 +54,10 @@ public class DefaultPropertiesInstances implements Instances {
                 if (rest.lastIndexOf(".") > 0) {
                     String acronym = rest.substring(0, rest.lastIndexOf("."));
                     if (!names.contains(acronym)) {
+                        LOGGER.info(String.format("Adding library %s", acronym));
                         names.add(acronym);
-                        instances.add(new DefaultOnePropertiesInstance(this, acronym));
+                        DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(this, acronym);
+                        instances.add(di);
                     }
                 }
             }
@@ -58,16 +66,19 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public List<OneInstance> allInstances() {
+        this.refreshingConfiguration();
         return this.instances;
     }
 
     @Override
     public List<OneInstance> enabledInstances() {
+        this.refreshingConfiguration();
         return this.instances.stream().filter(OneInstance::isConnected).collect(Collectors.toList());
     }
 
     @Override
     public List<OneInstance> disabledInstances() {
+        this.refreshingConfiguration();
         return this.instances.stream().filter(it -> {
             return !it.isConnected();
         }).collect(Collectors.toList());
@@ -75,12 +86,14 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public boolean isAnyDisabled() {
+        this.refreshingConfiguration();
         List<OneInstance> eInsts = this.enabledInstances();
         return this.allInstances().size() != eInsts.size();
     }
 
     @Override
     public OneInstance find(String acronym) {
+        this.refreshingConfiguration();
         List<OneInstance> collect = this.instances.stream().filter(it -> {
             return it.getName().equals(acronym);
         }).collect(Collectors.toList());
@@ -94,6 +107,7 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public void cronRefresh() {
+        this.refreshingConfiguration();
         try {
             Map<String, Boolean> statuses = new HashMap<>();
             Client client = Client.create();
