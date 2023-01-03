@@ -110,6 +110,7 @@ public class V5RedirectHandler extends ProxyItemHandler {
         String baseurl = baseUrl();
         boolean streamsThumb = KConfiguration.getInstance().getConfiguration()
                 .getBoolean("cdk.collections.sources." + this.source + ".thumb.streams", false);
+        LOGGER.info("cdk.collections.sources."+ this.source + ".thumb.streams  = "+streamsThumb);
         if (streamsThumb) {
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/IMG_THUMB";
             return buildRedirectResponse(url);
