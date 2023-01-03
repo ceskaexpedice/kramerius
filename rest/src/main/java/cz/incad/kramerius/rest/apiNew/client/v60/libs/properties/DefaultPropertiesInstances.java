@@ -127,8 +127,10 @@ public class DefaultPropertiesInstances implements Instances {
                     // musi vynechat, vypnul uzivatel
                 } else {
                     Boolean registrStatus = statuses.get(oneInstance.getName());
-                    if (registrStatus.booleanValue() != isConnected) {
-                        oneInstance.setConnected(registrStatus.booleanValue(), TypeOfChangedStatus.automat);
+                    if (registrStatus != null) {
+                        if (registrStatus.booleanValue() != isConnected) {
+                            oneInstance.setConnected(registrStatus.booleanValue(), TypeOfChangedStatus.automat);
+                        }
                     }
                 }
             }

@@ -22,8 +22,8 @@ public class NullWorker extends Worker {
     public static final Logger LOGGER = Logger.getLogger(ExistsWorker.class.getName());
 
 
-    public NullWorker(Element workerElm, Client client, List<IterationItem> pids) {
-        super(workerElm, client, pids);
+    public NullWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids) {
+        super(sourceName, workerElm, client, pids);
 
     }
 

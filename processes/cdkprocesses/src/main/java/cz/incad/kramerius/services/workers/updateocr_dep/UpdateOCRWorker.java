@@ -25,8 +25,8 @@ public abstract class UpdateOCRWorker extends Worker {
     private String user;
     private String pass;
 
-    public UpdateOCRWorker(Element worker, Client client, List<IterationItem> items) {
-        super(worker, client, items);
+    public UpdateOCRWorker(String sourceName, Element worker, Client client, List<IterationItem> items) {
+        super(sourceName, worker, client, items);
 
         Element request = XMLUtils.findElement(workerElm, "request");
         if (request != null) {

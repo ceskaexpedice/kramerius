@@ -1,6 +1,8 @@
 package cz.incad.kramerius.services.transform;
 
 import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateConsumer;
+import cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateConsumer.ModifyFieldResult;
 import cz.incad.kramerius.services.workers.replicate.k7date.DateExtractor;
 import cz.incad.kramerius.services.workers.replicate.k7date.DateInfo;
 import cz.incad.kramerius.services.workers.replicate.k7date.MyDateTimeUtils;
@@ -84,7 +86,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
 
 
     @Override
-    public void transform(Element sourceDocElm, Document destDocument, Element destDocElem, Consumer<Element> consumer) {
+    public void transform(Element sourceDocElm, Document destDocument, Element destDocElem, CopyReplicateConsumer consumer) {
         if (sourceDocElm.getNodeName().equals("doc")) {
 
             Map<String, List<String>> document = new HashMap<>();
@@ -362,20 +364,23 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
         }
     }
 
-    private void field(Document destDocument, Element destDocElem, String value, String targetName, Consumer<Element> consumer) {
+    private void field(Document destDocument, Element destDocElem, String value, String targetName, CopyReplicateConsumer consumer) {
         Element strElm = destDocument.createElement("field");
         strElm.setAttribute("name", targetName);
-        destDocElem.appendChild(strElm);
         String content = StringEscapeUtils.escapeXml(value);
         // add to context to process
         strElm.setTextContent(content);
+        ModifyFieldResult result = ModifyFieldResult.none;
         if (consumer != null) {
-        	consumer.accept(strElm);
+        	result = consumer.modifyField(strElm);
+        }
+        if (!result.equals(ModifyFieldResult.delete)) {
+            destDocElem.appendChild(strElm);
         }
     }
 
 
-    public void arrayValue(String pid, Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node, Consumer<Element> consumer) {
+    public void arrayValue(String pid, Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node, CopyReplicateConsumer consumer) {
         String attributeName = ((Element) node).getAttribute("name");
         NodeList childNodes = node.getChildNodes();
         for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
@@ -393,7 +398,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
     }
 
 
-    private void appendDateFields(Document feedDoc, Element feedDocElement, DateInfo dateInfo, Consumer<Element> consumer) {
+    private void appendDateFields(Document feedDoc, Element feedDocElement, DateInfo dateInfo, CopyReplicateConsumer consumer) {
         //min-max dates
         if (dateInfo.dateMin != null) {
             field(feedDoc, feedDocElement,MyDateTimeUtils.formatForSolr(dateInfo.dateMin),"date.min", consumer);

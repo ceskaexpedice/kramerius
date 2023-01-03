@@ -5,6 +5,9 @@
 
 <cdkprocess>
 
+    <source-name>svkhk</source-name>
+	<name>full-crawl-svkh</name>
+
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
@@ -21,7 +24,7 @@
 		
     </iteration>
 
-    <threads>1</threads>
+    <threads>2</threads>
 
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
@@ -71,6 +74,8 @@
             </onindex>
             <!-- on update -->
             <onupdate>
+                <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels</fieldlist>
+            
                 <update.dest.field>
 	                
 	                <field name="cdk.collection" update="add-distinct">svkhk</field>

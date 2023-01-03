@@ -40,8 +40,8 @@ public class ExistsWorker extends Worker {
     private Map<String, String> collections;
     private LogExistsCondition typeOfLogging = LogExistsCondition.BOTH;
 
-    public ExistsWorker(Element workerElm, Client client, List<IterationItem> items, Map<String, String> cols) {
-        super(workerElm, client, items);
+    public ExistsWorker(String sourceName, Element workerElm, Client client, List<IterationItem> items, Map<String, String> cols) {
+        super(sourceName, workerElm, client, items);
 
         this.collections = cols;
 

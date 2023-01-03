@@ -1,29 +1,31 @@
-<!--  
-	Process pro KNAV
-	Sbirka: knav
+<!--
+    Sbirka pro mlp
+	vc:cf415d59-3db5-4684-bb14-2ea06eab72a8
  -->
-<cdkprocess>
-
-    <source-name>knav</source-name>
-	<name>full-crawl-knav</name>
-
+ 
+ <cdkprocess>
+ 
+     <source-name>mlp</source-name>
+     <name>full-crawl-mlp</name>
+ 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
+    
+        <fquery>created:[2010-01-01T00:00:00.000Z TO 2015-01-01T00:00:00.000Z]</fquery>
+    
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
 
-
         <id>PID</id>
-        <rows>7000</rows>
-
+        <rows>800</rows>
         <type>CURSOR</type>
 
         <user>$iteration.user$</user>
         <pass>$iteration.pass$</pass>
     </iteration>
-	
-    <threads>2</threads>
+
+    <threads>1</threads>
 
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
@@ -52,7 +54,6 @@
 
             <trasfrom>K7</trasfrom>
 
-
         </request>
 
         <destination>
@@ -66,19 +67,24 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-                    <field name="cdk.collection">knav</field>
-                    <field name="cdk.leader">knav</field>
+                    <field name="cdk.collection">mlp</field>
+                    <field name="cdk.leader">mlp</field>
+
                 </update.dest.field>
             </onindex>
-            
+
             <!-- on update -->
             <onupdate>
-                <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels</fieldlist>
                 <update.dest.field>
-                   	<field name="cdk.collection" update="add-distinct">knav</field>
+					<!--  
+                    <field name="cdk.collection" update="add-distinct">vc:cf415d59-3db5-4684-bb14-2ea06eab72a8</field>
+                    -->
+                    <field name="cdk.collection" update="add-distinct">mlp</field>
+                    
                 </update.dest.field>
             </onupdate>
 
         </destination>
     </worker>
 </cdkprocess>
+ 

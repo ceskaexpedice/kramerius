@@ -35,6 +35,9 @@ public class ParallelProcessImpl {
     private Client client;
     private WorkerFactory workerFactory;
 
+    private String sourceName;
+    private String name;
+    
     private int threads;
 
     private Element workerElem;
@@ -86,6 +89,16 @@ public class ParallelProcessImpl {
         	timestamp = timestampElm.getTextContent();
         }
 
+        Element sourceNameElm = XMLUtils.findElement(document.getDocumentElement(), "source-name");
+        if (sourceNameElm != null) {
+            this.sourceName = sourceNameElm.getTextContent();
+            if (timestamp != null) {
+                if (timestamp.endsWith("connected") || timestamp.endsWith("connected/")) {
+                    timestamp = timestamp+(timestamp.endsWith("/") ? "" : "/")+String.format("%s/timestamp",this.sourceName);
+                }
+            }
+        }
+
         // Iterator factory
         Element iteratorFactory = XMLUtils.findElement(document.getDocumentElement(),"iteratorFactory");
         String iteratorClass = iteratorFactory.getAttribute("class");
@@ -102,6 +115,11 @@ public class ParallelProcessImpl {
         this.workerElem = XMLUtils.findElement(document.getDocumentElement(), "worker");
         this.finisher = this.workerFactory.createFinisher(timestamp,  workerElem,this.client);
 
+
+        Element nameElm = XMLUtils.findElement(document.getDocumentElement(), "name");
+        if (nameElm != null) {
+            this.name = nameElm.getTextContent();
+        }
 
         final List<Worker>  worksWhatHasToBeDone = new ArrayList<>();
         try {
@@ -140,7 +158,7 @@ public class ParallelProcessImpl {
 
     private Worker createWorker(ProcessIterator iteratorInstance, Element workerElm, List<IterationItem> identifiers) {
         try {
-            return this.workerFactory.createWorker(iteratorInstance, workerElm, this.client,identifiers);
+            return this.workerFactory.createWorker(this.sourceName, iteratorInstance, workerElm, this.client,identifiers);
         } catch ( IllegalStateException  e ) {
             throw new RuntimeException("Cannot create worker instance "+e.getMessage());
         }

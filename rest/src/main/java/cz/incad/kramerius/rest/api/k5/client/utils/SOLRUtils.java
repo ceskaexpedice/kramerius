@@ -36,11 +36,16 @@ public class SOLRUtils {
 
     public static final Logger LOGGER = Logger.getLogger(SOLRUtils.class.getName());
     
-    public static Map<Class, String> SOLR_TYPE_NAMES = new HashMap<Class, String>();
+    public static Map<Class, String> SOLR_TYPE_NAMES = new HashMap<>();
+    public static Map<String, Class> SOLR_NAME_TYPES = new HashMap<>();
     static {
         SOLR_TYPE_NAMES.put(String.class, "str");
         SOLR_TYPE_NAMES.put(Boolean.class, "bool");
         SOLR_TYPE_NAMES.put(Integer.class, "int");
+
+        SOLR_NAME_TYPES.put("str", String.class);
+        SOLR_NAME_TYPES.put("bool", Boolean.class);
+        SOLR_NAME_TYPES.put("int", Integer.class);
     }
 
     public static <T> T value(String val, Class<T> clz) {

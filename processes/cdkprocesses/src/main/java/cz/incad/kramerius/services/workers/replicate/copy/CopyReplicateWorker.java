@@ -19,6 +19,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -34,8 +35,8 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
 
     public static Logger LOGGER = Logger.getLogger(CopyReplicateWorker.class.getName());
 
-    public CopyReplicateWorker(Element workerElm, Client client, List<IterationItem> pids) {
-        super(workerElm, client, pids);
+    public CopyReplicateWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids) {
+        super(sourceName, workerElm, client, pids);
         config(workerElm);
     }
 
@@ -53,12 +54,45 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                 try {
                 	List<String> subpids = pidsToBeProcessed.subList(from, Math.min(to,pidsToBeProcessed.size() ));
                     ReplicateFinisher.BATCHES.addAndGet(subpids.size());
+                    // rozdeleni na indexovane a neindexovane
                     ReplicateContext pidsToReplicate = findPidsAlreadyIndexed(subpids, this.transform);
+                    
                     if (!pidsToReplicate.getNotIndexed().isEmpty()) {
-
-                    	String fl = this.onIndexedFieldList != null ? this.onIndexedFieldList : this.fieldList;
-                    	Document batch = retrieveAndCretebatch(pidsToReplicate.getNotIndexed(), fl, (field)->{
-                    	});
+                        
+                        // ziskat dokumenty a vytvorit davku
+                        String fl = this.onIndexedFieldList != null ? this.onIndexedFieldList : this.fieldList;
+                        Document batch = retrieveAndCretebatch(pidsToReplicate.getNotIndexed(), fl, new CopyReplicateConsumer() {
+                            
+                            @Override
+                            public ModifyFieldResult modifyField(Element field) {
+                                return ModifyFieldResult.none;
+                            }
+                            
+                            
+                            @Override
+                            public void changeDocument(Element doc) {
+                                List<Element> foundElements = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                                    
+                                    @Override
+                                    public boolean acceptElement(Element element) {
+                                        String attribute = element.getAttribute("name");
+                                        return "licenses".equals(attribute);
+                                    }
+                                });
+                                
+                                if (!foundElements.isEmpty()) {
+                                    for (Element fElm : foundElements) {
+                                        Document document = fElm.getOwnerDocument();
+                                        Element cdkLicenses = document.createElement("field");
+                                        cdkLicenses.setAttribute("name", "cdk.licenses");
+                                        cdkLicenses.setTextContent(sourceName+"_"+ fElm.getTextContent());
+                                        
+                                        //cdkLicenses.setAttribute("update", "add-distinct");
+                                        doc.appendChild(cdkLicenses);
+                                    }
+                                }
+                            }
+                        });
 
                     	Element addDocument = batch.getDocumentElement();
                         // on index - remove element
@@ -86,7 +120,6 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                         ReplicateFinisher.NEWINDEXED.addAndGet(XMLUtils.getElements(addDocument).size());
                         String s = SolrUtils.sendToDest(this.destinationUrl, this.client, batch);
                         LOGGER.info(s);
-
                     }
 
                     //
@@ -94,19 +127,64 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                         // un update
                         if (!this.onUpdateUpdateElements.isEmpty()) {
 
-                        	String fl = this.onUpdateFieldList != null ? this.onUpdateFieldList : null;
-                        	Document destBatch = null;
-                        	if (fl != null) {
+                            String fl = this.onUpdateFieldList != null ? this.onUpdateFieldList : null;
+                            Document destBatch = null;
+                            if (fl != null) {
                                 List<String> pids = pidsToReplicate.getAlreadyIndexed().stream().map(pair->{
-                                	String string = pair.get(transform.getField(childOfComposite));
-                                	return string;
+                                    String string = pair.get(transform.getField(childOfComposite));
+                                    return string;
                                 }).collect(Collectors.toList());
-                        		
-                        		destBatch =  retrieveAndCretebatch(pids, fl, (Element field)->{
-                            		field.setAttribute("update", "set");
-                        		});
-                        	} else {
-                        		Document db = XMLUtils.crateDocument("add");
+                                
+                                destBatch =  retrieveAndCretebatch(pids, fl, new CopyReplicateConsumer() {
+                                    
+                                    @Override
+                                    public ModifyFieldResult modifyField(Element field) {
+                                        List<String> deleteFields = Arrays.asList();
+                                        List<String> addValues = Arrays.asList("licenses","licenses_of_ancestors","contains_licenses");
+                                        
+                                        String name = field.getAttribute("name");
+                                        if (deleteFields.contains(name)) {
+                                            return ModifyFieldResult.delete;
+                                        }
+                                        else {
+                                            //licenses_of_ancestors
+                                            if (addValues.contains(name)) {
+                                                field.setAttribute("update", "add-distinct");
+                                            } else {
+                                                field.setAttribute("update", "set");
+                                            }
+                                            return ModifyFieldResult.edit;
+                                        }
+                                        
+                                    }
+                                    
+                                    @Override
+                                    public void changeDocument(Element doc) {
+                                        List<Element> foundElements = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                                            
+                                            @Override
+                                            public boolean acceptElement(Element element) {
+                                                String attribute = element.getAttribute("name");
+                                                return "licenses".equals(attribute);
+                                            }
+                                        });
+                                        
+                                        if (!foundElements.isEmpty()) {
+                                            for (Element fElm : foundElements) {
+                                                Document document = fElm.getOwnerDocument();
+                                                Element cdkLicenses = document.createElement("field");
+                                                cdkLicenses.setAttribute("name", "cdk.licenses");
+                                                cdkLicenses.setTextContent(sourceName+"_"+fElm.getTextContent());
+                                                
+                                                cdkLicenses.setAttribute("update", "add-distinct");
+                                                doc.appendChild(cdkLicenses);
+                                            }
+                                        }
+                                        
+                                    }
+                                });
+                            } else {
+                                Document db = XMLUtils.crateDocument("add");
                                 pidsToReplicate.getAlreadyIndexed().stream().forEach(pair->{
                                     Element doc = db.createElement("doc");
                                     Element field = db.createElement("field");
@@ -120,6 +198,7 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                         field.setTextContent(root +"!"+child);
 
                                     } else {
+                                        
                                         String idname = transform.getField(idIdentifier);
                                         String identifier = pair.get(idname);
                                         // if compositeid
@@ -169,10 +248,8 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
     }
 	
 	
-	private Document retrieveAndCretebatch(List<String> pids, String fl, Consumer<Element> consumer)
+	private Document retrieveAndCretebatch(List<String> pids, String fl, CopyReplicateConsumer consumer)
 			throws IOException, SAXException, ParserConfigurationException, MigrateSolrIndexException {
-		// fetch document 
-		//List<String> notIndexed = pidsToReplicate.getNotIndexed();
 		
 		Element response = fetchDocumentFromRemoteSOLR( this.client,  pids, fl);
 		Element resultElem = XMLUtils.findElement(response, (elm) -> {
@@ -189,8 +266,6 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
 		this.onUpdateUpdateElements.stream().forEach(f->{
 		    synchronized (f.getOwnerDocument()) {
 		        String name = f.getAttribute("name");
-		        // collection ?? not do it for everything... how to do that
-		        // iterating over doc
 		        List<Element> docs = XMLUtils.getElements(addDocument);
 		        for (int j = 0,ll=docs.size(); j < ll; j++) {
 		            Element doc = docs.get(j);
@@ -211,7 +286,6 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
 		        for (int j = 0,ll=docs.size(); j < ll; j++) {
 		            Element doc = docs.get(j);
 		            Node node = f.cloneNode(true);
-
 		            doc.getOwnerDocument().adoptNode(node);
 		            doc.appendChild(node);
 		        }

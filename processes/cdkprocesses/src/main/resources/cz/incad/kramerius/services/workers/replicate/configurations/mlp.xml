@@ -4,6 +4,10 @@
  -->
  
  <cdkprocess>
+ 
+     <source-name>knav</source-name>
+     <name>full-crawl-knav</name>
+ 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
@@ -11,7 +15,7 @@
         <endpoint>select</endpoint>
 
         <id>PID</id>
-        <rows>7000</rows>
+        <rows>4000</rows>
         <type>CURSOR</type>
 
         <user>$iteration.user$</user>
@@ -60,10 +64,6 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-					<!--  
-                    <field name="cdk.collection">vc:cf415d59-3db5-4684-bb14-2ea06eab72a8</field>
-                    <field name="cdk.leader">vc:cf415d59-3db5-4684-bb14-2ea06eab72a8</field>
-					-->
                     <field name="cdk.collection">mlp</field>
                     <field name="cdk.leader">mlp</field>
 

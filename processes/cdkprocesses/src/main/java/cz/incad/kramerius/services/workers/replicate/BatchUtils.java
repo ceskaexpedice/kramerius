@@ -16,6 +16,7 @@ import org.w3c.dom.Element;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.transform.SourceToDestTransform;
+import cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateConsumer;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class BatchUtils {
@@ -26,7 +27,7 @@ public class BatchUtils {
     public static final Logger LOGGER = Logger.getLogger(BatchUtils.class.getName());
 
 
-    public static Document batch(Element resultElem, boolean compositeId, String root, String child, SourceToDestTransform srcTransform, Consumer<Element> consumer ) throws ParserConfigurationException, MigrateSolrIndexException  {
+    public static Document batch(Element resultElem, boolean compositeId, String root, String child, SourceToDestTransform srcTransform, CopyReplicateConsumer consumer ) throws ParserConfigurationException, MigrateSolrIndexException  {
         //List<String> removalSourceElements = itemsToRemove();
         Document destBatch = XMLUtils.crateDocument("add");
         List<Element> docs = XMLUtils.getElements(resultElem, new XMLUtils.ElementsFilter() {
@@ -59,6 +60,9 @@ public class BatchUtils {
             } else {
                 destBatch.getDocumentElement().appendChild(destDocElement);
             }
+            
+            consumer.changeDocument(destDocElement);
+            
         }
         return destBatch;
     }

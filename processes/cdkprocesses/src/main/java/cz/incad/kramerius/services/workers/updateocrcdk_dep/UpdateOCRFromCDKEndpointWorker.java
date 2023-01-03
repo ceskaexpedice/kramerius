@@ -23,8 +23,8 @@ public class UpdateOCRFromCDKEndpointWorker extends UpdateOCRWorker {
     private String user;
     private String pass;
 
-    public UpdateOCRFromCDKEndpointWorker(Element worker, Client client, List<IterationItem> items) {
-        super(worker, client, items);
+    public UpdateOCRFromCDKEndpointWorker(String sourceName, Element worker, Client client, List<IterationItem> items) {
+        super(sourceName, worker, client, items);
         Element request = XMLUtils.findElement(workerElm, "request");
         if (request != null) {
             Element userElm = XMLUtils.findElement(request, "cdk.user");

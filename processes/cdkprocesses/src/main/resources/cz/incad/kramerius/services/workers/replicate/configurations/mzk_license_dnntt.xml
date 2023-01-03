@@ -5,6 +5,9 @@
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
+        <!--  Sliced collection  -->
+    	<fquery>license:dnntt</fquery>
+    
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
         <id>pid</id>
@@ -33,7 +36,7 @@
             <!-- cdk source field -->
             <collection>cdk.collection</collection>
 
-            <fieldlist>indexer_version pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr licenses contains_licenses licenses_of_ancestors</fieldlist>
+            <fieldlist>indexer_version pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr</fieldlist>
 
         </request>
 
@@ -48,12 +51,9 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-					<!--  
-                    <field name="cdk.collection">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
-                    <field name="cdk.leader">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
-                    -->
                     <field name="cdk.collection">mzk</field>
                     <field name="cdk.leader">mzk</field>
+                    <field name="cdk.licenses">mzk_dnntt</field>
                 </update.dest.field>
             </onindex>
 
@@ -65,6 +65,7 @@
                     <field name="cdk.leader" update="set">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</field>
                      -->
                     <field name="cdk.collection" update="add-distinct">mzk</field>
+                    <field name="cdk.licenses" update="add-distinct">mzk_dnntt</field>
                 </update.dest.field>
             </onupdate>
 

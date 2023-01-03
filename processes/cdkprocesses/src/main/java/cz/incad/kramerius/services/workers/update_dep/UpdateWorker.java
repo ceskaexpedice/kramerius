@@ -23,8 +23,8 @@ public class UpdateWorker extends Worker {
 
     private List<Element> updateElements = new ArrayList<>();
 
-    public UpdateWorker(Element workerElm, Client client, List<IterationItem> pids) {
-        super(workerElm, client, pids);
+    public UpdateWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids) {
+        super(sourceName, workerElm, client, pids);
         Element destinationElm = XMLUtils.findElement(workerElm, "destination");
         if (destinationElm != null) {
             Element updateFieldElement = XMLUtils.findElement(destinationElm, "update.dest.field");

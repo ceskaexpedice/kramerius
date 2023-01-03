@@ -28,7 +28,7 @@ public class ExistsWorkerFactory extends WorkerFactory {
     }
 
     @Override
-    public Worker createWorker(ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items) {
+    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items) {
         Element requestElm = XMLUtils.findElement(worker, "request");
         if (requestElm == null) throw new IllegalStateException("cannot find element request");
         Element localKrameriusElm = XMLUtils.findElement(requestElm, "local.kramerius");
@@ -63,7 +63,7 @@ public class ExistsWorkerFactory extends WorkerFactory {
             }
 
         }
-        return new ExistsWorker(worker, client, items, collections);
+        return new ExistsWorker(sourceName, worker, client, items, collections);
     }
 
     public static Element execRequest(Client client, String url) throws ParserConfigurationException, SAXException, IOException, UniformInterfaceException {

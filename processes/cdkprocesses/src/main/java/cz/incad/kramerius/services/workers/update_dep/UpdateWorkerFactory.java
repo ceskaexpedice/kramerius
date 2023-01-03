@@ -20,7 +20,7 @@ public class UpdateWorkerFactory extends WorkerFactory {
     }
 
     @Override
-    public Worker createWorker(ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items) {
-        return new UpdateWorker(worker, client, items);
+    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items) {
+        return new UpdateWorker(sourceName, worker, client, items);
     }
 }

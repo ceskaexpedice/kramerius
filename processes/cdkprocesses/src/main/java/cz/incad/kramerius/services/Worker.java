@@ -29,7 +29,7 @@ public abstract class Worker implements Runnable {
     protected List<IterationItem> itemsToBeProcessed;
 
     protected CyclicBarrier barrier;
-
+    protected String sourceName;
     protected Element workerElm;
 
     // default properties
@@ -73,13 +73,14 @@ public abstract class Worker implements Runnable {
 
 
 
-    public Worker(Element workerElm, Client client, List<IterationItem> items) {
+    public Worker(String sourceName, Element workerElm, Client client, List<IterationItem> items) {
         super();
         this.client = client;
         this.itemsToBeProcessed = items;
         this.pidsToBeProcessed = items.stream().map(IterationItem::getPid).collect(Collectors.toList());
         this.workerElm = workerElm;
-
+        this.sourceName = sourceName;
+            
         Element requestElm = XMLUtils.findElement(workerElm, "request");
         if (requestElm != null) {
 

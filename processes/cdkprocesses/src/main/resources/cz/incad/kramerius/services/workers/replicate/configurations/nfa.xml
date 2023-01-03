@@ -4,8 +4,8 @@
  -->
 <cdkprocess>
 
-    <source-name>knav</source-name>
-	<name>full-crawl-knav</name>
+    <source-name>nfa</source-name>
+	<name>full-crawl-nfa</name>
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
@@ -15,7 +15,7 @@
 
 
         <id>PID</id>
-        <rows>7000</rows>
+        <rows>1000</rows>
 
         <type>CURSOR</type>
 
@@ -23,7 +23,7 @@
         <pass>$iteration.pass$</pass>
     </iteration>
 	
-    <threads>2</threads>
+    <threads>1</threads>
 
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
@@ -66,16 +66,15 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-                    <field name="cdk.collection">knav</field>
-                    <field name="cdk.leader">knav</field>
+                    <field name="cdk.collection">nfa</field>
+                    <field name="cdk.leader">nfa</field>
                 </update.dest.field>
             </onindex>
             
             <!-- on update -->
             <onupdate>
-                <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels</fieldlist>
                 <update.dest.field>
-                   	<field name="cdk.collection" update="add-distinct">knav</field>
+                   	<field name="cdk.collection" update="add-distinct">nfa</field>
                 </update.dest.field>
             </onupdate>
 

@@ -48,7 +48,7 @@ public class SolrIteratorFactory extends ProcessIteratorFactory {
             	JSONObject timestamp = timestamp(client, timestampUrl);
             	if (timestamp != null &&  timestamp.has("date")) {
             		if (StringUtils.isAnyString(filterQuery)) {
-            			filterQuery = filterQuery + "AND "+ timestampField+":["+timestamp.getString("date") + " TO NOW]";
+            			filterQuery = filterQuery + " AND "+ timestampField+":["+timestamp.getString("date") + " TO NOW]";
             		} else {
             			filterQuery = timestampField+":["+timestamp.getString("date") + " TO NOW]";
             		}

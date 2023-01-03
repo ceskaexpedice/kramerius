@@ -34,6 +34,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi.OwnRelationsMapping;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
 public class V5RedirectHandler extends ProxyItemHandler {
@@ -107,8 +108,16 @@ public class V5RedirectHandler extends ProxyItemHandler {
     @Override
     public Response imageThumb(RequestMethodName method) throws ProxyHandlerException {
         String baseurl = baseUrl();
-        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/thumb";
-        return buildRedirectResponse(url);
+        boolean streamsThumb = KConfiguration.getInstance().getConfiguration()
+                .getBoolean("cdk.collections.sources." + this.source + ".thumb.streams", false);
+        if (streamsThumb) {
+            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/IMG_THUMB";
+            return buildRedirectResponse(url);
+            
+        } else {
+            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/thumb";
+            return buildRedirectResponse(url);
+        }
     }
 
     @Override

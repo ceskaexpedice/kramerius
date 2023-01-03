@@ -1,6 +1,8 @@
 package cz.incad.kramerius.services.utils;
 
 import com.sun.jersey.api.client.*;
+
+import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -14,7 +16,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,8 +86,56 @@ public class SolrUtils {
         }
     }
 
+    
+    public static List<Map<String,Object>> findIterationDocuments(Element elm) {
+        Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                String nodeName = element.getNodeName();
+                return nodeName.equals("result");
+            }
+        });
+        if (result != null) {
+            List<Map<String,Object>> retvals = new ArrayList<>();
+            List<Element> elements = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    String nodeName = element.getNodeName();
+                    return nodeName.equals("doc");
+                }
+            });
+            for (Element doc : elements) {
+                Map<String, Object> mapDoc = new HashMap<>();
+                List<Element> fields = XMLUtils.getElements(doc);
+                for (Element field : fields) {
+                    String name = field.getAttribute("name");
+                    if (field.getNodeName().equals("arr")) {
+                        List<Object> collected = new ArrayList<>();
+                        XMLUtils.getElements(field).stream().forEach(ai -> {
+                            Class type = SOLRUtils.SOLR_NAME_TYPES.get(ai.getNodeName());
+                            Object value = SOLRUtils.value(ai.getTextContent(), type);
+                            collected.add(value);
 
+                        });
+                        mapDoc.put(name, collected);
+                        
+                    } else {
+                        Class type = SOLRUtils.SOLR_NAME_TYPES.get(field.getNodeName());
+                        Object value = SOLRUtils.value(field.getTextContent(), type);
+                        mapDoc.put(name, value);
+                    }
+                }
+               
+                retvals.add(mapDoc);
+                
+            }
+            return retvals;
+            
+        } else return new ArrayList<>();
+        
+    }
 
+    //
     public static List<String> findAllPids(Element elm) {
         Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
             @Override

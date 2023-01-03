@@ -32,8 +32,8 @@ public class CheckIndexWorker extends Worker {
 
     private String checkingIndexType;
 
-    public CheckIndexWorker(Element workerElm, Client client, List<IterationItem> pids) {
-        super(workerElm, client, pids);
+    public CheckIndexWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids) {
+        super(sourceName, workerElm, client, pids);
 
         Element destinationElm = XMLUtils.findElement(workerElm, "destination");
         if (destinationElm != null) {

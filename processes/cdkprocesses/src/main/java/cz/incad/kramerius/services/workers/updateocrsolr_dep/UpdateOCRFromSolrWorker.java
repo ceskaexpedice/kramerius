@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 
 public class UpdateOCRFromSolrWorker extends UpdateOCRWorker {
 
-    public UpdateOCRFromSolrWorker(Element worker, Client client, List<IterationItem> items) {
-        super(worker, client, items);
+    public UpdateOCRFromSolrWorker(String sourceName, Element worker, Client client, List<IterationItem> items) {
+        super(sourceName, worker, client, items);
     }
 
     @Override
