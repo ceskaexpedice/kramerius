@@ -27,6 +27,7 @@ public class Kramerius4ConnectionProvider implements Provider<Connection> {
             ds.setLeakDetectionThreshold(KConfiguration.getInstance().getConfiguration().getInt("jdbcLeakDetectionThreshold"));
             ds.setMaximumPoolSize(KConfiguration.getInstance().getConfiguration().getInt("jdbcMaximumPoolSize"));
             ds.setConnectionTimeout(KConfiguration.getInstance().getConfiguration().getInt("jdbcConnectionTimeout"));
+            ds.addDataSourceProperty("socketTimeout", "30");
             return ds;
     }
 
