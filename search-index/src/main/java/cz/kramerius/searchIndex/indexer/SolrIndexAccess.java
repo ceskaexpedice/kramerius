@@ -138,7 +138,7 @@ public class SolrIndexAccess {
     public UpdateResponse deleteById(String id) throws IOException, SolrServerException {
         //System.out.println("deleting " + id);
         if (useCompositeId()){
-            UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id);
+            UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id.replace(":", "\\:"));
         }else {
             UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
         }
@@ -152,7 +152,7 @@ public class SolrIndexAccess {
         //System.out.println("deleting " + id);
         for (String id : ids) {
             if (useCompositeId()){
-                UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id);
+                UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id.replace(":", "\\:"));
             }else {
                 UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
             }
