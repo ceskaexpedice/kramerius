@@ -16,6 +16,7 @@ import java.util.logging.Level;
  */
 public class Kramerius4ConnectionProvider implements Provider<Connection> {
 
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Kramerius4ConnectionProvider.class.getName());
     private static DataSource dataSource = createDataSource();
 
     private static DataSource createDataSource(){
@@ -35,17 +36,15 @@ public class Kramerius4ConnectionProvider implements Provider<Connection> {
         super();
     }
 
-    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Kramerius4ConnectionProvider.class.getName());
-
     @Override
     public Connection get() {
         try {
             return dataSource.getConnection();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);;
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return null;
-        } catch(Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return null;
         }
     }

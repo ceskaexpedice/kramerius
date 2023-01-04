@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 public class RepositoryApiImpl implements RepositoryApi {
@@ -42,7 +43,7 @@ public class RepositoryApiImpl implements RepositoryApi {
     @Inject
     public RepositoryApiImpl(ProcessingIndexFeeder processingIndexFeeder, @Named("akubraCacheManager") CacheManager cacheManager) throws RepositoryException {
         try {
-            AkubraDOManager akubraDOManager = new AkubraDOManager( cacheManager);
+            AkubraDOManager akubraDOManager = new AkubraDOManager(cacheManager);
             this.akubraRepository = (AkubraRepository) AkubraRepository.build(processingIndexFeeder, akubraDOManager);
             this.digitalObjectUnmarshaller = JAXBContext.newInstance(DigitalObject.class).createUnmarshaller();
         } catch (IOException e) {
@@ -53,15 +54,25 @@ public class RepositoryApiImpl implements RepositoryApi {
     }
 
     @Override
-    public void ingestObject(Document foxmlDoc) throws RepositoryException, IOException {
+    public void ingestObject(Document foxmlDoc, String pid) throws RepositoryException, IOException {
         DigitalObject digitalObject = foxmlDocToDigitalObject(foxmlDoc);
-        akubraRepository.ingestObject(digitalObject);
-        akubraRepository.commitTransaction();
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            akubraRepository.ingestObject(digitalObject);
+            akubraRepository.commitTransaction();
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
     public boolean objectExists(String pid) throws RepositoryException {
-        return akubraRepository.objectExists(pid);
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            return akubraRepository.objectExists(pid);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
@@ -103,51 +114,76 @@ public class RepositoryApiImpl implements RepositoryApi {
 
     @Override
     public Document getFoxml(String pid) throws RepositoryException, IOException {
-        RepositoryObject object = akubraRepository.getObject(pid);
-        return Utils.inputstreamToDocument(object.getFoxml(), true);
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            RepositoryObject object = akubraRepository.getObject(pid);
+            return Utils.inputstreamToDocument(object.getFoxml(), true);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public boolean datastreamExists(String pid, String dsId) throws RepositoryException, IOException {
-        RepositoryObject object = akubraRepository.getObject(pid);
-        return object == null ? false : object.streamExists(dsId);
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            RepositoryObject object = akubraRepository.getObject(pid);
+            return object == null ? false : object.streamExists(dsId);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public String getDatastreamMimetype(String pid, String dsId) throws RepositoryException, IOException {
-        RepositoryObject object = akubraRepository.getObject(pid);
-        if (object != null) {
-            RepositoryDatastream stream = object.getStream(dsId);
-            if (stream != null) {
-                return stream.getMimeType();
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            RepositoryObject object = akubraRepository.getObject(pid);
+            if (object != null) {
+                RepositoryDatastream stream = object.getStream(dsId);
+                if (stream != null) {
+                    return stream.getMimeType();
+                }
             }
+            return null;
+        } finally {
+            readLock.unlock();
         }
-        return null;
     }
 
     @Override
     public Document getDatastreamXml(String pid, String dsId) throws RepositoryException, IOException {
-        RepositoryObject object = akubraRepository.getObject(pid);
-        if (object.streamExists(dsId)) {
-            Document foxml = Utils.inputstreamToDocument(object.getFoxml(), true);
-            Element dcEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", dsId)).selectSingleNode(foxml);
-            Element detached = (Element) dcEl.detach();
-            Document result = DocumentHelper.createDocument();
-            result.add(detached);
-            return result;
-        } else {
-            return null;
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            RepositoryObject object = akubraRepository.getObject(pid);
+            if (object.streamExists(dsId)) {
+                Document foxml = Utils.inputstreamToDocument(object.getFoxml(), true);
+                Element dcEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", dsId)).selectSingleNode(foxml);
+                Element detached = (Element) dcEl.detach();
+                Document result = DocumentHelper.createDocument();
+                result.add(detached);
+                return result;
+            } else {
+                return null;
+            }
+        } finally {
+            readLock.unlock();
         }
     }
 
     @Override
     public InputStream getLatestVersionOfDatastream(String pid, String dsId) throws RepositoryException, IOException {
-        RepositoryObject object = akubraRepository.getObject(pid);
-        if (object.streamExists(dsId)) {
-            RepositoryDatastream stream = object.getStream(dsId);
-            return stream.getContent();
-        } else {
-            return null;
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            RepositoryObject object = akubraRepository.getObject(pid);
+            if (object.streamExists(dsId)) {
+                RepositoryDatastream stream = object.getStream(dsId);
+                return stream.getContent();
+            } else {
+                return null;
+            }
+        } finally {
+            readLock.unlock();
         }
     }
 
@@ -193,23 +229,18 @@ public class RepositoryApiImpl implements RepositoryApi {
         return pids;
     }
 
-    
-
-    
 
     @Override
     public Pair<Long, List<String>> getPidsOfObjectsByModel(String model, int rows, int pageIndex) throws RepositoryException, IOException, SolrServerException {
         String query = String.format("type:description AND model:%s", "model\\:" + model); //prvni "model:" je filtr na solr pole, druhy "model:" je hodnota pole, coze  uprime zbytecne
         org.apache.commons.lang3.tuple.Pair<Long, List<SolrDocument>> cp = akubraRepository.getProcessingIndexFeeder().getPageSortedByTitle(query, rows, pageIndex, Arrays.asList("source"));
         Long numberOfRecords = cp.getLeft();
-        List<String> pids = cp.getRight().stream().map(sd-> {
+        List<String> pids = cp.getRight().stream().map(sd -> {
             Object fieldValue = sd.getFieldValue("source");
             return fieldValue.toString();
         }).collect(Collectors.toList());
         return new Pair<>(numberOfRecords, pids);
     }
-    
-    
 
     //TODO : Should be replaced by pairs
     @Override
@@ -220,7 +251,7 @@ public class RepositoryApiImpl implements RepositoryApi {
         }
         org.apache.commons.lang3.tuple.Pair<Long, List<SolrDocument>> cp = akubraRepository.getProcessingIndexFeeder().getPageSortedByTitle(query, rows, pageIndex, Arrays.asList("source"));
         Long numberOfRecords = cp.getLeft();
-        List<String> pids = cp.getRight().stream().map(sd-> {
+        List<String> pids = cp.getRight().stream().map(sd -> {
             Object fieldValue = sd.getFieldValue("source");
             return fieldValue.toString();
         }).collect(Collectors.toList());
@@ -342,28 +373,38 @@ public class RepositoryApiImpl implements RepositoryApi {
 
     @Override
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException {
-        Document foxml = getFoxml(pid);
-        appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);
-        updateLastModifiedTimestamp(foxml);
-        DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
-        akubraRepository.deleteObject(pid, false, false);
-        akubraRepository.ingestObject(updatedDigitalObject);
-        akubraRepository.commitTransaction();
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            Document foxml = getFoxml(pid);
+            appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);
+            updateLastModifiedTimestamp(foxml);
+            DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
+            akubraRepository.deleteObject(pid, false, false);
+            akubraRepository.ingestObject(updatedDigitalObject);
+            akubraRepository.commitTransaction();
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
     public void setDatastreamXml(String pid, String dsId, Document ds) throws RepositoryException, IOException {
-        Document foxml = getFoxml(pid);
-        Element originalDsEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", dsId)).selectSingleNode(foxml);
-        if (originalDsEl != null) {
-            originalDsEl.detach();
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            Document foxml = getFoxml(pid);
+            Element originalDsEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", dsId)).selectSingleNode(foxml);
+            if (originalDsEl != null) {
+                originalDsEl.detach();
+            }
+            foxml.getRootElement().add(ds.getRootElement().detach());
+            updateLastModifiedTimestamp(foxml);
+            DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
+            akubraRepository.deleteObject(pid, false, false);
+            akubraRepository.ingestObject(updatedDigitalObject);
+            akubraRepository.commitTransaction();
+        } finally {
+            writeLock.unlock();
         }
-        foxml.getRootElement().add(ds.getRootElement().detach());
-        updateLastModifiedTimestamp(foxml);
-        DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
-        akubraRepository.deleteObject(pid, false, false);
-        akubraRepository.ingestObject(updatedDigitalObject);
-        akubraRepository.commitTransaction();
     }
 
     private void updateLastModifiedTimestamp(Document foxml) {
@@ -411,8 +452,13 @@ public class RepositoryApiImpl implements RepositoryApi {
 
     @Override
     public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams) throws RepositoryException, IOException {
-        akubraRepository.deleteObject(pid, deleteDataOfManagedDatastreams, true);
-        akubraRepository.commitTransaction();
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            akubraRepository.deleteObject(pid, deleteDataOfManagedDatastreams, true);
+            akubraRepository.commitTransaction();
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     private DigitalObject foxmlDocToDigitalObject(Document foxml) throws IOException {
