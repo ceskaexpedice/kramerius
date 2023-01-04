@@ -29,6 +29,7 @@ public class Kramerius4ConnectionProvider implements Provider<Connection> {
             ds.setMaximumPoolSize(KConfiguration.getInstance().getConfiguration().getInt("jdbcMaximumPoolSize"));
             ds.setConnectionTimeout(KConfiguration.getInstance().getConfiguration().getInt("jdbcConnectionTimeout"));
             ds.addDataSourceProperty("socketTimeout", "30");
+            ds.setKeepaliveTime(120000);
             return ds;
     }
 
