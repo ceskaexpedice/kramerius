@@ -25,7 +25,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -84,6 +86,18 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
         keycloack3rdUser.setProperty("authentication_time", ""+token.getAuth_time());
         keycloack3rdUser.setProperty("preffered_user_name", token.getPreferredUsername());
         keycloack3rdUser.setProperty("expires_in", ""+(token.getExp()-token.getAuth_time()));
+
+        
+        LOGGER.fine("Token id: "+token.getId() +", and returned claims:"+ token.getOtherClaims());
+        Map<String, Object> otherClaims = token.getOtherClaims();
+        otherClaims.keySet().forEach(key-> {
+            Object object = otherClaims.get(key);
+            if (object != null) {
+                LOGGER.log(Level.FINE,"Key value  "+key+" = "+object.toString());
+                keycloack3rdUser.setProperty(key, object.toString());
+            }
+        });
+
         
         return keycloack3rdUser;
     }
