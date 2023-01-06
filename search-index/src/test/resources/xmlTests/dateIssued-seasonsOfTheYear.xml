@@ -1,82 +1,102 @@
 <testSuite testType="mods" model="monograph">
 
     <test name="Jaro 2012">
-        <desc>Jaro roku</desc>
+        <desc>Jaro roku (meteorogicky: březen-květen, ne astronomicky)</desc>
         <in>
             <originInfo>
                 <dateIssued>Jaro 2012</dateIssued>
             </originInfo>
         </in>
         <out>
-            <field name="date.max">2012-06-20T23:59:59.999Z</field>
-            <field name="date.min">2012-03-21T00:00:00.001Z</field>
+            <field name="date.max">2012-05-31T23:59:59.999Z</field>
+            <field name="date.min">2012-03-01T00:00:00.001Z</field>
             <field name="date.str">Jaro 2012</field>
-            <field name="date_range_end.day">20</field>
-            <field name="date_range_end.month">6</field>
+            <field name="date_range_end.day">31</field>
+            <field name="date_range_end.month">5</field>
             <field name="date_range_end.year">2012</field>
-            <field name="date_range_start.day">21</field>
+            <field name="date_range_start.day">1</field>
             <field name="date_range_start.month">3</field>
             <field name="date_range_start.year">2012</field>
         </out>
     </test>
 
     <test name="léto 2012">
-        <desc>Leto roku</desc>
+        <desc>Léto roku (meteorogicky: červen-srpen, ne astronomicky)</desc>
         <in>
             <originInfo>
                 <dateIssued>léto 2012</dateIssued>
             </originInfo>
         </in>
         <out>
-            <field name="date.max">2012-09-20T23:59:59.999Z</field>
-            <field name="date.min">2012-06-21T00:00:00.001Z</field>
+            <field name="date.max">2012-08-31T23:59:59.999Z</field>
+            <field name="date.min">2012-06-01T00:00:00.001Z</field>
             <field name="date.str">léto 2012</field>
-            <field name="date_range_end.day">20</field>
-            <field name="date_range_end.month">9</field>
+            <field name="date_range_end.day">31</field>
+            <field name="date_range_end.month">8</field>
             <field name="date_range_end.year">2012</field>
-            <field name="date_range_start.day">21</field>
+            <field name="date_range_start.day">1</field>
             <field name="date_range_start.month">6</field>
             <field name="date_range_start.year">2012</field>
         </out>
     </test>
 
     <test name="Podzim 2012">
-        <desc>Podzim roku</desc>
+        <desc>Podzim roku (meteorogicky: září-listopad, ne astronomicky)</desc>
         <in>
             <originInfo>
                 <dateIssued>Podzim 2012</dateIssued>
             </originInfo>
         </in>
         <out>
-            <field name="date.max">2012-12-20T23:59:59.999Z</field>
-            <field name="date.min">2012-09-21T00:00:00.001Z</field>
+            <field name="date.max">2012-11-30T23:59:59.999Z</field>
+            <field name="date.min">2012-09-01T00:00:00.001Z</field>
             <field name="date.str">Podzim 2012</field>
-            <field name="date_range_end.day">20</field>
-            <field name="date_range_end.month">12</field>
+            <field name="date_range_end.day">30</field>
+            <field name="date_range_end.month">11</field>
             <field name="date_range_end.year">2012</field>
-            <field name="date_range_start.day">21</field>
+            <field name="date_range_start.day">1</field>
             <field name="date_range_start.month">9</field>
             <field name="date_range_start.year">2012</field>
         </out>
     </test>
 
-    <test name="zima 2012">
-        <desc>Zima roku</desc>
+    <test name="zima 2012/2013 (nepřestupný rok v únoru)">
+        <desc>Zima roku (meteorogicky: prosinec-únor, ne astronomicky)</desc>
         <in>
             <originInfo>
                 <dateIssued>Zima 2012</dateIssued>
             </originInfo>
         </in>
         <out>
-            <field name="date.max">2013-03-20T23:59:59.999Z</field>
-            <field name="date.min">2012-12-21T00:00:00.001Z</field>
+            <field name="date.max">2013-02-28T23:59:59.999Z</field>
+            <field name="date.min">2012-12-01T00:00:00.001Z</field>
             <field name="date.str">Zima 2012</field>
-            <field name="date_range_end.day">20</field>
-            <field name="date_range_end.month">3</field>
+            <field name="date_range_end.day">28</field>
+            <field name="date_range_end.month">2</field>
             <field name="date_range_end.year">2013</field>
-            <field name="date_range_start.day">21</field>
+            <field name="date_range_start.day">1</field>
             <field name="date_range_start.month">12</field>
             <field name="date_range_start.year">2012</field>
+        </out>
+    </test>
+
+    <test name="zima 2011/2012 (přestupný rok v únoru)">
+        <desc>Zima roku (meteorogicky: prosinec-únor, ne astronomicky)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>Zima 2011</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">2012-02-29T23:59:59.999Z</field>
+            <field name="date.min">2011-12-01T00:00:00.001Z</field>
+            <field name="date.str">Zima 2011</field>
+            <field name="date_range_end.day">29</field>
+            <field name="date_range_end.month">2</field>
+            <field name="date_range_end.year">2012</field>
+            <field name="date_range_start.day">1</field>
+            <field name="date_range_start.month">12</field>
+            <field name="date_range_start.year">2011</field>
         </out>
     </test>
 

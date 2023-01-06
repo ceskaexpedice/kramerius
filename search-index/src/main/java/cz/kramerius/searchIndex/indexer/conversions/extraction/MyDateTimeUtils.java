@@ -135,5 +135,9 @@ public class MyDateTimeUtils {
         return sdf.format(date) + "Z";
     }
 
+    public static boolean isLeapYear(int year) {
+        GregorianCalendar gregorianCalendar = new GregorianCalendar(year, 1, 1, 0, 0, 0);
+        return gregorianCalendar.isLeapYear(year);
+    }
 
 }

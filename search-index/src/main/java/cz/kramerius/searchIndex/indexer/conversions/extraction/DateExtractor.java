@@ -19,7 +19,7 @@ public class DateExtractor {
     private static final String REGEXP_DAY_MONTH_YEAR = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //7.4.1920, 07. 04. 1920
     private static final String REGEXP_MONTH_YEAR = "(\\d{1,2})\\.\\s*(\\d{1,4})"; //4.1920, 04. 1920
     private static final String REGEXP_YEAR = "\\[?[p,c]?(\\d{4})\\??\\]?"; //'1920', '1920]', '[1920', '[1920]', '[1920?]', '1920?]', 'p1920', 'c1920'
-    private static final String REGEXP_YEAR_CCA = "\\[?(?:ca|asi)\\s(\\d{4})\\]?"; //'[ca 1690]', 'ca 1690]', '[ca 1690', 'asi 1690'
+    private static final String REGEXP_YEAR_CCA = "\\[?(?:ca|asi)\\s(\\d{4})\\]?"; //'[ca 1690]', 'ca 1690]', '[ca 1690', 'ca 1690', '[asi 1690]', 'asi 1690]', '[asi 1690', 'asi 1690'
     private static final String REGEXP_YEAR_PARTIAL = "[0-9]{1}[0-9ux\\-]{0,3}"; //194u, 18--, 19uu, 180-, 19u7
     private static final String REGEXP_CENTURY = "\\[?(\\d{2})--\\??\\]?"; //'[18--]', '[18--?]', '18--?', '18--?]'
     private static final String REGEXP_DECADE = "\\[?(\\d{3})-\\??\\]?"; //'[183-]', '[183-?]', '183-?', '183-?]', '183-'
@@ -37,7 +37,6 @@ public class DateExtractor {
     private static final String REGEXP_YEAR_RANGE_VERBAL2 = "\\[?mezi\\s(\\d{4})\\??-(\\d{4})\\??\\]?"; //'[mezi 1897-1908]', '[mezi 1898-1914?]', '[mezi 1898?-1914]', '[mezi 1895-1919', 'mezi 1895-1919]'
     private static final String REGEXP_YEAR_RANGE_VERBAL3 = "\\[?(\\d{4})\\??\\snebo\\s(\\d{4})\\??\\]?"; //'[1897 nebo 1898]', '[1897 nebo 1898?]', '[1897? nebo 1898]', '[1897 nebo 1898', '1897 nebo 1898]'
     private static final String REGEXP_YEAR_RANGE_PARTIAL = "[0-9]{1}[0-9ux]{0,3}\\s*-\\s*[0-9]{1}[0-9ux]{0,3}"; //192u-19uu, NOT '18uu-195-' (combination of range and '-' for uknown value are not supported due to uncertainty)
-    private static final String REGEXP_YEAR_RANGE_WITHOUT_END = "\\[?(\\d{4})\\??\\]?-\\]?";
 
     // indexing both years for searching purposes
     private static final String REGEXP_CORRECT_INCORRECT_YEAR1 = "(\\d{4}),?\\s\\[i\\.e\\.\\sc?(\\d{4})\\]"; //'1997 [i.e. 1998]', '1997, [i.e. 1998]', '1997, [i.e. c1998]'
@@ -47,18 +46,19 @@ public class DateExtractor {
     private static final String REGEXP_CORRECT_INCORRECT_YEAR4 = "\\[?(\\d{4}),?\\s\\[?[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-z\\.\\s]*\\]?(?:\\d{4})\\]?"; // '1933, [přetisk 1936]', '2009 [soubor distribuován 2011]'
 
     private static final String REGEXP_SPRING_OF_YEAR = "(?:Jaro|jaro)\\s(\\d{4})"; // 'Jaro 1920', 'jaro 1920'
-    private static final String REGEXP_SUMMER_OF_YEAR = "(?:Leto|leto|Léto|léto)\\s(\\d{4})"; // 'Leto 1920', 'léto 1920'
+    private static final String REGEXP_SUMMER_OF_YEAR = "(?:Léto|léto)\\s(\\d{4})"; // 'Léto 1920', 'léto 1920'
     private static final String REGEXP_AUTUMN_OF_YEAR = "(?:Podzim|podzim)\\s(\\d{4})"; // 'Podzim 1920', 'podzim 1920'
-    private static final String REGEXP_WINTER_OF_YEAR = "(?:Zima|zima)\\s(\\d{4})"; // 'Zima 1920', 'zima 1920'
+    private static final String REGEXP_WINTER_OF_YEAR = "(?:Zima|zima)\\s(\\d{4})"; // 'Zima 1920', 'zima 1920' (not exactly correct, it's actually 2020/2021, still accepted)
 
-    private static final String REGEXP_MONTH_NAME_YEAR = "[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-Z]*,?\\s(\\d{4})"; // 'červenec, 1999', 'prosinec 2000', 'März 1932'
+    private static final String REGEXP_MONTH_NAME_YEAR = "[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-Z]*,?\\s(\\d{4})"; // 'červenec, 1999', 'prosinec 2000', 'Prosinec 2000', 'März 1932', 'March 1932', 'march 1932',
     // parsing of month name depends on avaiable locales
     private static final String DATE_FORMAT_MONTH_NAME_YEAR1 = "LLLL yyyy";
     private static final String DATE_FORMAT_MONTH_NAME_YEAR2 = "LLLL, yyyy";
-    private static final String REGEXP_DAY_MONTH_NAME_YEAR = "(\\d{1,2})\\.\\s[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-Z]*,?\\s(\\d{4})"; // '1. února 1886'
+    private static final String REGEXP_DAY_MONTH_NAME_YEAR = "(\\d{1,2})\\.\\s[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-Z]*,?\\s(\\d{4})"; // '1. února 1886', '1. März 1886', '1. March 1886', '1. march 1886' (non-czech ones are not exactly correct, still accepted)
     private static final String DATE_FORMAT_DAY_MONTH_NAME_YEAR = "d. MMMM yyyy";
 
-    private static final String REGEXP_YEAR_WITH_NOTE = "[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-Z\\.\\s\\[\\]]*(\\d{4})\\??\\]?[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-Z\\.\\s\\[\\],]*";
+    //too broad definition, enables typos like 'juny 2000' to be parsed as year with note;
+    //private static final String REGEXP_YEAR_WITH_NOTE = "[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-Z\\.\\s\\[\\]]*(\\d{4})\\??\\]?[äöüßÄÖÜẞěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓa-zA-Z\\.\\s\\[\\],]*";
 
     public DateInfo extractDateInfoFromMultipleSources(Element modsEl, String pid) {
         DateExtractor dateExtractor = new DateExtractor();
@@ -326,40 +326,41 @@ public class DateExtractor {
             List<Integer> numbers = extractNumbers(result.value, REGEXP_SPRING_OF_YEAR);
             if (numbers != null) {
                 int year = numbers.get(0);
-                result.setStart(21, 3, year);
-                result.setEnd(20, 6, year);
-                result.dateMin = MyDateTimeUtils.toDayStart(21, 3, year);
-                result.dateMax = MyDateTimeUtils.toDayEnd(20, 6, year);
+                result.setStart(1, 3, year);
+                result.setEnd(31, 5, year);
+                result.dateMin = MyDateTimeUtils.toDayStart(1, 3, year);
+                result.dateMax = MyDateTimeUtils.toDayEnd(31, 5, year);
             }
         } else if (matchesRegexp(result.value, REGEXP_SUMMER_OF_YEAR)) {
             List<Integer> numbers = extractNumbers(result.value, REGEXP_SUMMER_OF_YEAR);
             if (numbers != null) {
                 int year = numbers.get(0);
-                result.setStart(21, 6, year);
-                result.setEnd(20, 9, year);
-                result.dateMin = MyDateTimeUtils.toDayStart(21, 6, year);
-                result.dateMax = MyDateTimeUtils.toDayEnd(20, 9, year);
+                result.setStart(1, 6, year);
+                result.setEnd(31, 8, year);
+                result.dateMin = MyDateTimeUtils.toDayStart(1, 6, year);
+                result.dateMax = MyDateTimeUtils.toDayEnd(31, 8, year);
             }
         } else if (matchesRegexp(result.value, REGEXP_AUTUMN_OF_YEAR)) {
             List<Integer> numbers = extractNumbers(result.value, REGEXP_AUTUMN_OF_YEAR);
             if (numbers != null) {
                 int year = numbers.get(0);
-                result.setStart(21, 9, year);
-                result.setEnd(20, 12, year);
-                result.dateMin = MyDateTimeUtils.toDayStart(21, 9, year);
-                result.dateMax = MyDateTimeUtils.toDayEnd(20, 12, year);
+                result.setStart(1, 9, year);
+                result.setEnd(30, 11, year);
+                result.dateMin = MyDateTimeUtils.toDayStart(1, 9, year);
+                result.dateMax = MyDateTimeUtils.toDayEnd(30, 11, year);
             }
         } else if (matchesRegexp(result.value, REGEXP_WINTER_OF_YEAR)) {
             List<Integer> numbers = extractNumbers(result.value, REGEXP_WINTER_OF_YEAR);
             if (numbers != null) {
                 int year = numbers.get(0);
-                result.setStart(21, 12, year);
-                result.setEnd(20, 3, year + 1);
-                result.dateMin = MyDateTimeUtils.toDayStart(21, 12, year);
-                result.dateMax = MyDateTimeUtils.toDayEnd(20, 3, year + 1);
+                boolean endYearLeap = MyDateTimeUtils.isLeapYear(year + 1);
+                result.setStart(1, 12, year);
+                result.setEnd(endYearLeap ? 29 : 28, 2, year + 1);
+                result.dateMin = MyDateTimeUtils.toDayStart(1, 12, year);
+                result.dateMax = MyDateTimeUtils.toDayEnd(endYearLeap ? 29 : 28, 2, year + 1);
             }
-        } else if (matchesRegexp(result.value, REGEXP_MONTH_NAME_YEAR)
-                && matchesDateFormat(result.value, DATE_FORMAT_MONTH_NAME_YEAR1)) {
+        } else if (matchesRegexp(result.value, REGEXP_MONTH_NAME_YEAR) //'prosinec 2000', 'März 1932'
+                && matchesDateFormatContainingMonthByName(result.value, DATE_FORMAT_MONTH_NAME_YEAR1)) {
             List<Integer> numbers = extractNumbers(result.value, REGEXP_MONTH_NAME_YEAR);
             if (numbers != null) {
                 int month = extractMonthNumber(result.value, DATE_FORMAT_MONTH_NAME_YEAR1);
@@ -369,8 +370,8 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toMonthStart(month, year);
                 result.dateMax = MyDateTimeUtils.toMonthEnd(month, year);
             }
-        } else if (matchesRegexp(result.value, REGEXP_MONTH_NAME_YEAR)
-                && matchesDateFormat(result.value, DATE_FORMAT_MONTH_NAME_YEAR2)) {
+        } else if (matchesRegexp(result.value, REGEXP_MONTH_NAME_YEAR) //'prosinec, 2000', 'März, 1932'
+                && matchesDateFormatContainingMonthByName(result.value, DATE_FORMAT_MONTH_NAME_YEAR2)) {
             List<Integer> numbers = extractNumbers(result.value, REGEXP_MONTH_NAME_YEAR);
             if (numbers != null) {
                 int month = extractMonthNumber(result.value, DATE_FORMAT_MONTH_NAME_YEAR2);
@@ -380,8 +381,8 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toMonthStart(month, year);
                 result.dateMax = MyDateTimeUtils.toMonthEnd(month, year);
             }
-        } else if (matchesRegexp(result.value, REGEXP_DAY_MONTH_NAME_YEAR)
-                && matchesDateFormat(result.value, DATE_FORMAT_DAY_MONTH_NAME_YEAR)) {
+        } else if (matchesRegexp(result.value, REGEXP_DAY_MONTH_NAME_YEAR) //'1. února 1886'
+                && matchesDateFormatContainingMonthByName(result.value, DATE_FORMAT_DAY_MONTH_NAME_YEAR)) {
             List<Integer> numbers = extractNumbers(result.value, REGEXP_DAY_MONTH_NAME_YEAR);
             if (numbers != null) {
                 int day = numbers.get(0);
@@ -392,7 +393,7 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toDayStart(day, month, year);
                 result.dateMax = MyDateTimeUtils.toDayEnd(day, month, year);
             }
-        } else if (matchesRegexp(result.value, REGEXP_YEAR_WITH_NOTE)) {
+        }/* else if (matchesRegexp(result.value, REGEXP_YEAR_WITH_NOTE)) {
             List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_WITH_NOTE);
             if (numbers != null) {
                 result.rangeStartYear = numbers.get(0);
@@ -402,7 +403,7 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toYearStart(result.rangeStartYear);
                 result.dateMax = MyDateTimeUtils.toYearEnd(result.rangeEndYear);
             }
-        } else {
+        }*/ else {
             System.err.println(String.format("Chyba v datech objektu %s: nelze parsovat '%s'", pid, result.value));
         }
         result.updateInstantData();
@@ -520,7 +521,7 @@ public class DateExtractor {
         return str != null && str.matches(regexp);
     }
 
-    private boolean matchesDateFormat(String str, String dateFormat) {
+    private boolean matchesDateFormatContainingMonthByName(String str, String dateFormat) {
         return extractMonthNumber(str, dateFormat) > 0;
     }
 

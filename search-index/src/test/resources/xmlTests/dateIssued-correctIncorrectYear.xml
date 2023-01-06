@@ -1,7 +1,7 @@
 <testSuite testType="mods" model="monograph">
 
     <test name="1951, [i.e. 1952]">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication</desc>
         <in>
             <originInfo>
                 <dateIssued>1951, [i.e. 1952]</dateIssued>
@@ -17,7 +17,7 @@
     </test>
 
     <test name="1951 [i.e. 1952]">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication</desc>
         <in>
             <originInfo>
                 <dateIssued>1951 [i.e. 1952]</dateIssued>
@@ -33,7 +33,7 @@
     </test>
 
     <test name="1951, [v tir.] 1952">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication</desc>
         <in>
             <originInfo>
                 <dateIssued>1951, [v tir.] 1952</dateIssued>
@@ -49,7 +49,7 @@
     </test>
 
     <test name="1947, [v tiráži] 1948">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication</desc>
         <in>
             <originInfo>
                 <dateIssued>1947, [v tiráži] 1948</dateIssued>
@@ -65,7 +65,7 @@
     </test>
 
     <test name="1952, [v tir. spr. 1953]">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication (though text indicates second one)</desc>
         <in>
             <originInfo>
                 <dateIssued>1952, [v tir. spr. 1953]</dateIssued>
@@ -81,7 +81,7 @@
     </test>
 
     <test name="1952, [v tir. správně 1953]">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication (though text indicates second one)</desc>
         <in>
             <originInfo>
                 <dateIssued>1952, [v tir. správně 1953]</dateIssued>
@@ -97,7 +97,7 @@
     </test>
 
     <test name="1952, [v tir. nesprávně 1953]">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication (though text indicates first one)</desc>
         <in>
             <originInfo>
                 <dateIssued>1952, [v tir. nesprávně 1953]</dateIssued>
@@ -113,7 +113,7 @@
     </test>
 
     <test name="1952 v tir. nespr. 1953">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication (though text indicates first one)</desc>
         <in>
             <originInfo>
                 <dateIssued>1952 v tir. nespr. 1953</dateIssued>
@@ -129,7 +129,7 @@
     </test>
 
     <test name="1952 v tir. 1953">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication</desc>
         <in>
             <originInfo>
                 <dateIssued>1952 v tir. 1953</dateIssued>
@@ -145,7 +145,7 @@
     </test>
 
     <test name="1952 [v tir.] 1953">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication</desc>
         <in>
             <originInfo>
                 <dateIssued>1952 [v tir.] 1953</dateIssued>
@@ -161,7 +161,7 @@
     </test>
 
     <test name="1952, [spr. 1953]">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication (though text indicates second one)</desc>
         <in>
             <originInfo>
                 <dateIssued>1952, [spr. 1953]</dateIssued>
@@ -177,7 +177,7 @@
     </test>
 
     <test name="1915, [na obálce 1916]">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication</desc>
         <in>
             <originInfo>
                 <dateIssued>1915, [na obálce 1916]</dateIssued>
@@ -193,7 +193,7 @@
     </test>
 
     <test name="1874, [na ob.] 1876">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication</desc>
         <in>
             <originInfo>
                 <dateIssued>1874, [na ob.] 1876</dateIssued>
@@ -209,7 +209,7 @@
     </test>
 
     <test name="1874, [na ob. 1876]">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication</desc>
         <in>
             <originInfo>
                 <dateIssued>1874, [na ob. 1876]</dateIssued>
@@ -225,7 +225,7 @@
     </test>
 
     <test name="1968, [na tit. l. chybně] 1967">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication (though text indicates first one)</desc>
         <in>
             <originInfo>
                 <dateIssued>1968, [na tit. l. chybně] 1967</dateIssued>
@@ -241,7 +241,7 @@
     </test>
 
     <test name="1968, [na tit. listu chybně] 1967">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication (though text indicates second one)</desc>
         <in>
             <originInfo>
                 <dateIssued>1968, [na tit. listu chybně] 1967</dateIssued>
@@ -257,7 +257,7 @@
     </test>
 
     <test name="1968, [na tit. listu nespr.] 1967">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication (though text indicates second one)</desc>
         <in>
             <originInfo>
                 <dateIssued>1968, [na tit. listu nespr.] 1967</dateIssued>
@@ -273,7 +273,7 @@
     </test>
 
     <test name="1933, [přetisk 1936]">
-        <desc></desc>
+        <desc>two years, not sure which one is correct year of publication</desc>
         <in>
             <originInfo>
                 <dateIssued>1933, [přetisk 1936]</dateIssued>
@@ -289,7 +289,7 @@
     </test>
 
     <test name="2009 [soubor distribuován 2011]">
-        <desc></desc>
+        <desc>two years, first one is year of publication, second one irrelevant</desc>
         <in>
             <originInfo>
                 <dateIssued>2009 [soubor distribuován 2011]</dateIssued>
