@@ -40,6 +40,7 @@ public class SolrIndexAccess {
     private final String collection; //because solrClient is buggy and still requires explicit collection-name as a parameter for some operations even though it gets collection-name in the constructor
 
     public SolrIndexAccess(SolrConfig config) {
+        System.setProperty("solr.cloud.client.stallTime", "119999");
         this.solrClient = config.login == null
                 ? buildHttpSolrClientWithoutAuth(config.baseUrl, config.collection, config.useHttps)
                 : buildHttpSolrClientWithAuth(config.baseUrl, config.collection, config.useHttps, config.login, config.password);
