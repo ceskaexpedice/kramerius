@@ -1,8 +1,6 @@
-<!--  inovatika update -->
-
 <cdkprocess>
 
-	<!--  update knav -->
+    <source-name>inovatika</source-name>
 	<name>inovatika-update</name>
 	
 	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/knav/timestamp</timestamp>

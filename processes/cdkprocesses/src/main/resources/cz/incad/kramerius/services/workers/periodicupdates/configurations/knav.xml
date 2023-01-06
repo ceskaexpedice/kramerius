@@ -1,12 +1,9 @@
-<!--  
-	
-	k7 inovatika dev
- -->
 <cdkprocess>
-	<!--  update knav -->
+	
+	<source-name>knav</source-name>
 	<name>knav-update</name>
 	
-	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/knav/timestamp</timestamp>
+	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/</timestamp>
     <threads>1</threads>
 
     <!-- Iteration part -->

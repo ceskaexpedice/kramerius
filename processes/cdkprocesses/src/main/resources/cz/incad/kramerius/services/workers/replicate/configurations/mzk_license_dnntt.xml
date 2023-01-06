@@ -6,7 +6,7 @@
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         <!--  Sliced collection  -->
-    	<fquery>license:dnntt</fquery>
+    	<fquery>licenses:dnntt</fquery>
     
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
@@ -36,7 +36,7 @@
             <!-- cdk source field -->
             <collection>cdk.collection</collection>
 
-            <fieldlist>indexer_version pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr</fieldlist>
+            <fieldlist>indexer_version pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr licenses contains_licenses licenses_of_ancestors</fieldlist>
 
         </request>
 
@@ -54,6 +54,7 @@
                     <field name="cdk.collection">mzk</field>
                     <field name="cdk.leader">mzk</field>
                     <field name="cdk.licenses">mzk_dnntt</field>
+                    <field name="licenses">dnntt</field>
                 </update.dest.field>
             </onindex>
 
@@ -66,6 +67,7 @@
                      -->
                     <field name="cdk.collection" update="add-distinct">mzk</field>
                     <field name="cdk.licenses" update="add-distinct">mzk_dnntt</field>
+                    <field name="licenses" update="add-distinct">dnntt</field>
                 </update.dest.field>
             </onupdate>
 

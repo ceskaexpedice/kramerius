@@ -1,10 +1,9 @@
-<!--  
-	
-	k7 inovatika dev
- -->
 <cdkprocess>
-	<!--  update knav -->
-	<name>svkul-update</name>
+
+    <source-name>skvul</source-name>
+	<name>skvul-update</name>
+	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/</timestamp>
+    <threads>1</threads>
 	
 	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/svkul/timestamp</timestamp>
     <threads>1</threads>

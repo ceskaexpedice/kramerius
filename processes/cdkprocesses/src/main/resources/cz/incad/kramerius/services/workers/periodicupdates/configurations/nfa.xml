@@ -1,45 +1,56 @@
-<!--  
-	Process 
- -->
 <cdkprocess>
+
+    <source-name>nfa</source-name>
+	<name>nfa-update</name>
+	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/</timestamp>
+    <threads>1</threads>
+
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
-    
-        <!--  Sliced collection  -->
-    	<fquery>created:[2021-01-01T00:00:00.000Z TO 2022-01-01T00:00:00.000Z]</fquery>
-    
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
-        <id>pid</id>
-        <rows>4000</rows>
-        <type>CURSOR</type>
-    </iteration>
 
-    <threads>2</threads>
+
+        <id>PID</id>
+        <rows>1000</rows>
+
+        <type>CURSOR</type>
+
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
+    </iteration>
+	
+    <threads>1</threads>
+
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
     <worker>
         <request>
-        	
-            <url>$iteration.url$</url>
+
             <endpoint>select</endpoint>
             <batchsize>20</batchsize>
 
-            <id>pid</id>
-			<!--  composite id - solr cloud -->
+            <url>$iteration.url$</url>
+
+            <user>$iteration.user$</user>
+            <pass>$iteration.pass$</pass>
+
+
             <composite.id>true</composite.id>
-            <composite.root>root.pid</composite.root>
-            <composite.child>pid</composite.child>
-            
-			<!--  zjisteni zda existuji, pokud ano - update  -->
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
+
+
             <checkUrl>$destination.url$</checkUrl>
             <checkEndpoint>select</checkEndpoint>
 
             <!-- cdk source field -->
             <collection>cdk.collection</collection>
 
-            <fieldlist>indexer_version pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr licenses contains_licenses licenses_of_ancestors</fieldlist>
+            <trasfrom>K7</trasfrom>
+
+
         </request>
 
         <destination>
@@ -53,15 +64,15 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-                    <field name="cdk.collection">mzk</field>
-                    <field name="cdk.leader">mzk</field>
+                    <field name="cdk.collection">nfa</field>
+                    <field name="cdk.leader">nfa</field>
                 </update.dest.field>
             </onindex>
-
-            <!-- on update; disabled for now -->
+            
+            <!-- on update -->
             <onupdate>
                 <update.dest.field>
-                    <field name="cdk.collection" update="add-distinct">mzk</field>
+                   	<field name="cdk.collection" update="add-distinct">nfa</field>
                 </update.dest.field>
             </onupdate>
 
