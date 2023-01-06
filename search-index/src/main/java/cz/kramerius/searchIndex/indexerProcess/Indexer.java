@@ -202,7 +202,10 @@ public class Indexer {
         } catch (SolrServerException e) {
             counters.incrementErrors();
             report(" Solr server error", e);
-        } finally {
+        } catch (SolrException e) {
+            counters.incrementErrors();
+            report(" Solr error", e);
+        }finally {
             if (progressListener != null) {
                 progressListener.onProgress(counters.getProcessed());
             }
