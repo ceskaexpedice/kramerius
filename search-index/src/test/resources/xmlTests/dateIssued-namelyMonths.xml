@@ -146,6 +146,30 @@
         </out>
     </test>
 
+    <test name="1. červen 1888">
+        <desc>Day, month name, year (won't parse due to wrong declension)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1. červen 1888</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.str">1. červen 1888</field>
+        </out>
+    </test>
+
+    <test name="1. Červen 1888">
+        <desc>Day, month name, year (won't parse due to wrong declension)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1. Červen 1888</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.str">1. Červen 1888</field>
+        </out>
+    </test>
+
     <test name="1. April 1888">
         <desc>Day, month name, year (english, incorrect format for the language)</desc>
         <in>

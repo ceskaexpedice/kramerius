@@ -273,7 +273,7 @@
     </test>
 
     <test name="1933, [přetisk 1936]">
-        <desc>two years, not sure which one is correct year of publication</desc>
+        <desc>two years, first one is year of publication, second one irrelevant</desc>
         <in>
             <originInfo>
                 <dateIssued>1933, [přetisk 1936]</dateIssued>
