@@ -41,8 +41,8 @@ public class XSLServiceImpl implements XSLService {
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(XSLServiceImpl.class.getName());
     private Provider<Locale> localeProvider;
     
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
 
     @Inject
     public XSLServiceImpl(Provider<Locale> localeProvider) {

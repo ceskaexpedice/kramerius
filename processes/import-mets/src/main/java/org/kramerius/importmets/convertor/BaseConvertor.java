@@ -20,6 +20,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
 import org.kramerius.alto.Alto;
 import org.kramerius.dc.ElementType;
 import org.kramerius.dc.OaiDcType;
@@ -707,22 +708,24 @@ public abstract class BaseConvertor {
                             case EPUB: 
                                 
                                 try {
-                                    URL fileUrl = new URL(FILE_SCHEME_PREFIX + fixWindowsFileURL(f.getFilename()));
-                                    
+
+                                    File ebookFile = new File(getConfig().getImportFolder() + System.getProperty("file.separator") + f.getFilename());
                                     DatastreamType fullStreamEPUB = this.createFullStreamEPUB(f.getFilename(),"application/epub+zip");
                                     if (fullStreamEPUB != null) {
                                         addCheckedDataStream(foxmlObject, fullStreamEPUB);
                                     }
                                     EpubReader epubReader = new EpubReader();
-                                    Book book = epubReader.readEpub(fileUrl.openStream());
+
+                                    Book book = epubReader.readEpub(new FileInputStream(ebookFile));
+
                                     Resource coverImage = book.getCoverImage();
                                     InputStream inputStream = coverImage.getInputStream();
-    
-                                    BufferedImage ebookImage = ImageIO.read(inputStream);
-                                    
-                                    DatastreamType thumbnailEBook = this.createThumbnailStreamEBook(ebookImage, ImageMimeType.JPEG.getValue());
-                                    if (thumbnailEBook != null) {
-                                        addCheckedDataStream(foxmlObject, thumbnailEBook);
+                                    BufferedImage ebookImage = coverImage(inputStream);
+                                    if (ebookImage != null) {
+                                        DatastreamType thumbnailEBook = this.createThumbnailStreamEBook(ebookImage, ImageMimeType.JPEG.getValue());
+                                        if (thumbnailEBook != null) {
+                                            addCheckedDataStream(foxmlObject, thumbnailEBook);
+                                        }
                                     }
                                 } catch (IOException e1) {
                                     log.error(e1.getMessage());
@@ -791,6 +794,18 @@ public abstract class BaseConvertor {
                     }
                 }
             }
+        }
+    }
+    
+    //TODO: Move to KrameriusImage support
+    private BufferedImage coverImage(InputStream inputStream)  {
+        try {
+            byte[] bytes = org.apache.commons.io.IOUtils.toByteArray(inputStream);
+            BufferedImage ebookImage = ImageIO.read(new ByteArrayInputStream(bytes));
+            return ebookImage;
+        } catch (IOException e) {
+            java.util.logging.Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,e.getMessage(),e);
+            return null;
         }
     }
 

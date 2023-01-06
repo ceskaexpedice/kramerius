@@ -38,10 +38,10 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
 
 
     @Inject
-    public FedoraAccessAkubraImpl(KConfiguration configuration, ProcessingIndexFeeder feeder, @Nullable AggregatedAccessLogs accessLog, @Named("akubraCacheManager") CacheManager cacheManager) throws IOException {
-        super(configuration, accessLog);
+    public FedoraAccessAkubraImpl( ProcessingIndexFeeder feeder, @Nullable AggregatedAccessLogs accessLog, @Named("akubraCacheManager") CacheManager cacheManager) throws IOException {
+        super( accessLog);
         try {
-            this.manager = new AkubraDOManager(configuration, cacheManager);
+            this.manager = new AkubraDOManager(cacheManager);
             this.feeder = feeder;
             this.repository = AkubraRepository.build(feeder, this.manager);
             this.accessLog = accessLog;

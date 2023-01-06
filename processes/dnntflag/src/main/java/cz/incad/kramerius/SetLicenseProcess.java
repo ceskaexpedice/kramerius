@@ -95,7 +95,7 @@ public class SetLicenseProcess {
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
-        SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig(KConfiguration.getInstance()));
+        SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
         IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
 
         switch (action) {

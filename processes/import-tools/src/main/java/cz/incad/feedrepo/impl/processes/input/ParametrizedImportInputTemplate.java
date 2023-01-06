@@ -37,8 +37,8 @@ import java.util.ResourceBundle;
 
 public class ParametrizedImportInputTemplate implements ProcessInputTemplate {
 
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
     
     @Inject
     Provider<Locale> localesProvider;

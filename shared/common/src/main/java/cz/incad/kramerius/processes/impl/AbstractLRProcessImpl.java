@@ -48,7 +48,7 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
 
     private LRProcessDefinition definition;
     private LRProcessManager manager;
-    private KConfiguration configuration;
+    private KConfiguration configuration = KConfiguration.getInstance();
 
     private String pid;
     private long startTime;
@@ -83,11 +83,10 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
 
     
     public AbstractLRProcessImpl(LRProcessDefinition definition,
-            LRProcessManager manager, KConfiguration configuration) {
+            LRProcessManager manager) {
         super();
         this.definition = definition;
         this.manager = manager;
-        this.configuration = configuration;
         this.uuid = UUID.randomUUID().toString();
     }
 

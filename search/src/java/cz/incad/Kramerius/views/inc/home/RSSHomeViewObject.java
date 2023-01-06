@@ -43,8 +43,9 @@ public class RSSHomeViewObject {
     MostDesirable mostDesirable;
     
 
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
+
     public String getChannelURL() {
         HttpServletRequest request = this.requestProvider.get();
         String urlString = request.getRequestURL().toString();

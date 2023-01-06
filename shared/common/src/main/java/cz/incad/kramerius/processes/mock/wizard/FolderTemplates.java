@@ -39,8 +39,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class FolderTemplates implements ProcessInputTemplate {
 
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
     
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {

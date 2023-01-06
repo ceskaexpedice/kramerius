@@ -18,8 +18,6 @@ public class Shibboleth3rdUser extends AbstractThirdPartyUser {
 
     private Map<String, String> sessionAttributes = new HashMap<>();
 
-    private List<String> roles = new ArrayList<String>();
-    
     public Shibboleth3rdUser(String calculatedName) {
         super();
         this.calculatedName = calculatedName;
@@ -37,15 +35,6 @@ public class Shibboleth3rdUser extends AbstractThirdPartyUser {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
-    public void setRoles(List<String> rls) {
-        this.roles = rls;
-    }
-    
-    public List<String> getRoles() {
-        return roles;
-    }
-
 
     public void addSessionAttribute(String key, String value) {
         this.sessionAttributes.put(key, value);

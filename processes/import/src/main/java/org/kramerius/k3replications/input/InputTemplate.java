@@ -62,8 +62,8 @@ public class InputTemplate implements ProcessInputTemplate {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(InputTemplate.class.getName());
     
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
     
     @Inject
     Provider<Locale> localesProvider;

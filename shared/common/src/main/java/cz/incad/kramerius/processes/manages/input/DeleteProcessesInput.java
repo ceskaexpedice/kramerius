@@ -49,8 +49,7 @@ import cz.incad.kramerius.utils.stemplates.ResourceBundleUtils;
 public class DeleteProcessesInput implements ProcessInputTemplate{
 
 
-    @Inject
-    KConfiguration configuration;
+    KConfiguration configuration = KConfiguration.getInstance();
     
     @Inject
     Provider<Locale> localesProvider;

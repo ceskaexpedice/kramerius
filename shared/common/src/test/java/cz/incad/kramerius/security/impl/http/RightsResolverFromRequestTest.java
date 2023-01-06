@@ -38,7 +38,7 @@ public class RightsResolverFromRequestTest {
         conf.setProperty("x_ip_forwared_enabled_for", Arrays.asList(IPAddressUtils.LOCALHOSTS));
 
         RightsResolver righsResolver = new RightsResolverFromRequest(null, reqProvider, null, null, null);
-        String rAddres = IPAddressUtils.getRemoteAddress(req, conf);
+        String rAddres = IPAddressUtils.getRemoteAddress(req);
         Assert.assertTrue("192.167.1.2".equals(rAddres));
         Assert.assertFalse("127.0.0.1".equals(rAddres));
     }
@@ -62,7 +62,7 @@ public class RightsResolverFromRequestTest {
         conf.setProperty("x_ip_forwared_enabled_for", Arrays.asList());
 
         RightsResolver righsResolver = new RightsResolverFromRequest(null, reqProvider, null, null, null);
-        String rAddres = IPAddressUtils.getRemoteAddress(req, conf);
+        String rAddres = IPAddressUtils.getRemoteAddress(req);
         Assert.assertTrue("192.167.1.2".equals(rAddres));
         Assert.assertFalse("127.0.0.1".equals(rAddres));
     }

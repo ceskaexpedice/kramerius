@@ -48,6 +48,7 @@ import java.util.logging.Logger;
 
 public class AkubraDOManager {
     public static final Logger LOGGER = Logger.getLogger(AkubraDOManager.class.getName());
+    private KConfiguration configuration = KConfiguration.getInstance();
     private ILowlevelStorage storage;
 
     private static HazelcastInstance hzInstance;
@@ -106,9 +107,9 @@ public class AkubraDOManager {
         });
     }
 
-    public AkubraDOManager(KConfiguration configuration, CacheManager cacheManager) throws IOException {
+    public AkubraDOManager( CacheManager cacheManager) throws IOException {
         try {
-            this.storage = initLowLevelStorage(configuration);
+            this.storage = initLowLevelStorage();
             objectCache = cacheManager.getCache(DIGITALOBJECT_CACHE_ALIAS, String.class, DigitalObject.class);
             if (objectCache == null) {
                 objectCache = cacheManager.createCache(DIGITALOBJECT_CACHE_ALIAS,
@@ -122,15 +123,15 @@ public class AkubraDOManager {
         }
     }
 
-    private ILowlevelStorage initLowLevelStorage(KConfiguration configuration) throws Exception {
+    private ILowlevelStorage initLowLevelStorage() throws Exception {
         if (configuration.getConfiguration().getBoolean("legacyfs", false)) {
-            return createDefaultLowLevelStorage(configuration);
+            return createDefaultLowLevelStorage();
         } else {
-            return createAkubraLowLevelStorage(configuration);
+            return createAkubraLowLevelStorage();
         }
     }
 
-    private AkubraLowlevelStorage createAkubraLowLevelStorage(KConfiguration configuration) throws Exception {
+    private AkubraLowlevelStorage createAkubraLowLevelStorage() throws Exception {
         BlobStore fsObjectStore = new FSBlobStore(new URI("urn:example.org:fsObjectStore"), new File(configuration.getProperty("objectStore.path")));
         IdMapper fsObjectStoreMapper = new HashPathIdMapper(configuration.getProperty("objectStore.pattern"));
         BlobStore objectStore = new IdMappingBlobStore(new URI("urn:example.org:objectStore"), fsObjectStore, fsObjectStoreMapper);
@@ -141,7 +142,7 @@ public class AkubraDOManager {
         return retval;
     }
 
-    private DefaultLowlevelStorage createDefaultLowLevelStorage(KConfiguration configuration) throws Exception {
+    private DefaultLowlevelStorage createDefaultLowLevelStorage() throws Exception {
         Map<String, Object> conf = new HashMap<>();
         conf.put("path_algorithm", configuration.getProperty("path_algorithm"));
         conf.put("object_store_base", configuration.getProperty("object_store_base"));
@@ -149,11 +150,11 @@ public class AkubraDOManager {
         conf.put("path_registry", configuration.getProperty("path_registry"));
         conf.put("file_system", configuration.getProperty("file_system"));
         conf.put("backslashIsEscape", configuration.getProperty("backslash_is_escape"));
-        conf.put("connectionPool", createConnectionPool(configuration));
+        conf.put("connectionPool", createConnectionPool());
         return new DefaultLowlevelStorage(conf);
     }
 
-    private ConnectionPool createConnectionPool(KConfiguration configuration) throws Exception {
+    private ConnectionPool createConnectionPool() throws Exception {
         return new ConnectionPool(
                 configuration.getProperty("legacyfs.jdbcDriverClass"),
                 configuration.getProperty("legacyfs.jdbcURL"),

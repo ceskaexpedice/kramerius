@@ -62,8 +62,6 @@ public class LongRunningProcessServlet extends GuiceServlet {
     @Inject
     LRProcessManager lrProcessManager;
 
-    @Inject
-    KConfiguration configuration;
 
     @Inject
     ProcessScheduler processScheduler;
@@ -151,7 +149,7 @@ public class LongRunningProcessServlet extends GuiceServlet {
         newProcess.setUser(user);
         newProcess.setLoggedUserKey(loggedUserKey);
         newProcess.setParameters(Arrays.asList(params));
-        newProcess.planMe(paramsMapping, IPAddressUtils.getRemoteAddress(request, KConfiguration.getInstance().getConfiguration()));
+        newProcess.planMe(paramsMapping, IPAddressUtils.getRemoteAddress(request));
         return newProcess;
     }
 

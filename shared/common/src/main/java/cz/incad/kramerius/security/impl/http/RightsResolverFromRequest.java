@@ -77,7 +77,7 @@ public class RightsResolverFromRequest implements RightsResolver {
     public RightsReturnObject[] isActionAllowedForAllPath(String actionName, String pid, String stream, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
-            RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration()), this);
+            RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get()), this);
             return this.rightsManager.resolveAllPath(ctx, pid, path, actionName, user);
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
@@ -95,7 +95,7 @@ public class RightsResolverFromRequest implements RightsResolver {
     }
 
     public RightsReturnObject isAllowedInternalForFedoraDocuments(String actionName, String pid, String stream, ObjectPidsPath path, User user) throws RightCriteriumException {
-        RightCriteriumContext ctx = this.ctxFactory.create(pid, stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get(),KConfiguration.getInstance().getConfiguration()), this);
+        RightCriteriumContext ctx = this.ctxFactory.create(pid, stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get()), this);
         RightsReturnObject resolved = this.rightsManager.resolve(ctx, pid, path, actionName, user);
         // TODO: Change it in future
         currentThreadReturnObject.set(resolved);

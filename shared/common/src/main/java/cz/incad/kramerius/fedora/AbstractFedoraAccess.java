@@ -42,13 +42,12 @@ public abstract class AbstractFedoraAccess implements FedoraAccess {
 
     public static final Logger LOGGER = Logger.getLogger(AbstractFedoraAccess.class.getName());
     protected XPathFactory xPathFactory;
-    protected KConfiguration configuration;
+    protected KConfiguration configuration = KConfiguration.getInstance();
 
     @Inject
-    public AbstractFedoraAccess(KConfiguration configuration, @Nullable StatisticsAccessLog accessLog)
+    public AbstractFedoraAccess( @Nullable StatisticsAccessLog accessLog)
             throws IOException {
         super();
-        this.configuration = configuration;
         this.xPathFactory = XPathFactory.newInstance();
     }
 

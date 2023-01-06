@@ -26,14 +26,14 @@ public class CachedSolrAccessImpl extends SolrAccessImplNewIndex implements Solr
     private Cache<String, Document> cache;
 
     @Inject
-    public CachedSolrAccessImpl(CacheManager cacheManager, KConfiguration configuration) {
+    public CachedSolrAccessImpl(CacheManager cacheManager) {
         cache = cacheManager.getCache(CACHE_ALIAS, String.class, Document.class);
         if (cache == null) {
             cache = cacheManager.createCache(CACHE_ALIAS,
                     CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, Document.class,
                                     ResourcePoolsBuilder.heap(1000).offheap(32, MemoryUnit.MB))
                             .withExpiry(Expirations.timeToLiveExpiration(
-                                    Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
+                                    Duration.of(  KConfiguration.getInstance().getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }
     }
 

@@ -2,6 +2,7 @@ package cz.incad.kramerius.utils;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +28,7 @@ public class IPAddressUtils {
         }
     }
 
-    public static String getRemoteAddress(HttpServletRequest httpReq, Configuration conf) {
+    public static String getRemoteAddress(HttpServletRequest httpReq) {
         //String headerFowraded = httpReq.getHeader(X_IP_FORWARD);
 
         String headerFowraded = null;
@@ -39,7 +40,7 @@ public class IPAddressUtils {
             }
         }
 
-        if (StringUtils.isAnyString(headerFowraded) && IPAddressUtils.matchConfigurationAddress(httpReq, conf)) {
+        if (StringUtils.isAnyString(headerFowraded) && IPAddressUtils.matchConfigurationAddress(httpReq)) {
             if (headerFowraded.contains(",")) {
                 return headerFowraded.split(",")[0];
             } else return headerFowraded;
@@ -48,9 +49,9 @@ public class IPAddressUtils {
         }
     }
 
-    public static boolean matchConfigurationAddress(HttpServletRequest httpReq, Configuration conf) {
+    public static boolean matchConfigurationAddress(HttpServletRequest httpReq) {
         String remoteAddr = httpReq.getRemoteAddr();
-        List<String> forwaredEnabled = Lists.transform(conf.getList("x_ip_forwared_enabled_for", Arrays.asList(LOCALHOSTS)), Functions.toStringFunction());
+        List<String> forwaredEnabled = Lists.transform( KConfiguration.getInstance().getConfiguration().getList("x_ip_forwared_enabled_for", Arrays.asList(LOCALHOSTS)), Functions.toStringFunction());
         if (!forwaredEnabled.isEmpty()) {
             for (String pattern : forwaredEnabled) {
                 if (remoteAddr.matches(pattern)) return true;

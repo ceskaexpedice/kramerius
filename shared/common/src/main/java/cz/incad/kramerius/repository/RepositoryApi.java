@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Interface for accessing data in repository (Akubra, formerly Fedora).
  * Only subset of Fedora's API (API-A, API-M) is implemented, as needed.
- * This is independent from domain-specific logic built on the repository (i.e. Kramerius),
+ * This is independent of domain-specific logic built on the repository (i.e. Kramerius),
  * as it should be with regard to separation of abstraction levels.
  *
  * @link https://wiki.lyrasis.org/display/FEDORA38/REST+API
@@ -40,7 +40,7 @@ public interface RepositoryApi {
     //TODO: methods for updating datastreams (new versions)
 
     //CREATE
-    public void ingestObject(Document foxmlDoc) throws RepositoryException, IOException;
+    public void ingestObject(Document foxmlDoc, String pid) throws RepositoryException, IOException;
 
     //READ
     public boolean objectExists(String pid) throws RepositoryException;
@@ -74,11 +74,10 @@ public interface RepositoryApi {
 
     public List<String> getPidsOfObjectsByModel(String model) throws RepositoryException, IOException, SolrServerException;
 
-    public Pair<Long,  List<String>> getPidsOfObjectsByModel(String model, int rows, int pageIndex) throws RepositoryException, IOException, SolrServerException;
+    public Pair<Long, List<String>> getPidsOfObjectsByModel(String model, int rows, int pageIndex) throws RepositoryException, IOException, SolrServerException;
 
-    public Pair<Long,  List<String>> getPidsOfObjectsByModel(String model, String titlePrefix, int rows, int pageIndex) throws RepositoryException, IOException, SolrServerException;
+    public Pair<Long, List<String>> getPidsOfObjectsByModel(String model, String titlePrefix, int rows, int pageIndex) throws RepositoryException, IOException, SolrServerException;
 
-    
     public TitlePidPairs getPidsOfObjectsWithTitlesByModel(String model, boolean ascendingOrder, int offset, int limit) throws RepositoryException, IOException, SolrServerException;
 
     public TitlePidPairs getPidsOfObjectsWithTitlesByModelWithCursor(String model, boolean ascendingOrder, String cursor, int limit) throws RepositoryException, IOException, SolrServerException;

@@ -10,6 +10,7 @@ import cz.incad.kramerius.security.Role;
 import org.apache.commons.configuration.ConfigurationException;
 import org.json.JSONException;
 
+import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.auth.thirdparty.shibb.impl.ShibThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.shibb.utils.Shibboleth3rdUser;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;

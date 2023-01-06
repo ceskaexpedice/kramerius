@@ -9,6 +9,8 @@ import com.google.inject.servlet.ServletScopes;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.SchedulersLifeCycleHook;
+import cz.incad.kramerius.processes.cdk.KeycloakCDKCache;
+import cz.incad.kramerius.processes.cdk.KeycloakCDKCycleHook;
 import cz.incad.kramerius.processes.impl.DatabaseProcessManager;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
 import cz.incad.kramerius.processes.new_api.ProcessManager;
@@ -42,7 +44,10 @@ public class LongRunningProcessModule extends AbstractModule {
 
         Multibinder<LifeCycleHook> lfhooks = Multibinder.newSetBinder(binder(), LifeCycleHook.class);
         lfhooks.addBinding().to(SchedulersLifeCycleHook.class);
-
+        // Move to keycloak cdk module
+        lfhooks.addBinding().to(KeycloakCDKCycleHook.class);
+        bind(KeycloakCDKCache.class).in(Scopes.SINGLETON);
+        
     }
 
 }

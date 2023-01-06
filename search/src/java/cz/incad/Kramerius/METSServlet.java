@@ -26,8 +26,8 @@ public class METSServlet extends GuiceServlet {
 
     @Inject
     transient METSService service;
-    @Inject
-    transient KConfiguration configuration;
+
+    transient KConfiguration configuration = KConfiguration.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)

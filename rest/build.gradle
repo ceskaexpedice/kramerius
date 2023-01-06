@@ -4,7 +4,6 @@ description "Remote API"
 dependencies {
 
     api project(':shared:common')
-    api project(':security:security-core')
     api project(':security:oauth')
     api project(':search-index')
 
@@ -19,8 +18,8 @@ dependencies {
 
     api 'commons-codec:commons-codec:1.5'
 
-    api 'org.keycloak:keycloak-servlet-filter-adapter:15.0.2'
-    api 'org.keycloak:keycloak-authz-client:15.0.2'
+    api "org.keycloak:keycloak-servlet-filter-adapter:${keycloakversion}"
+    api "org.keycloak:keycloak-authz-client:${keycloakversion}"
 
     //dom4j
     implementation 'jaxen:jaxen:1.2.0'

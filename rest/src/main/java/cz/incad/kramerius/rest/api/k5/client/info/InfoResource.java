@@ -40,8 +40,8 @@ public class InfoResource {
 
     private static final String RIGHT_MSG_ALTERNATIVE = "rightMsgAlternative";
 
-    @Inject
-    private KConfiguration configuration;
+
+    private KConfiguration configuration = KConfiguration.getInstance();
 
     @Inject
     private TextsService textService;

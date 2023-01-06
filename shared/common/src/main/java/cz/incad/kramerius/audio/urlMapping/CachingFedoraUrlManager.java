@@ -76,7 +76,7 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
     }
 
     @Inject
-    public CachingFedoraUrlManager(CacheManager cacheManager, KConfiguration configuration) throws IOException {
+    public CachingFedoraUrlManager(CacheManager cacheManager) throws IOException {
         LOGGER.log(Level.INFO, "initializing {0}", CachingFedoraUrlManager.class.getName());
         this.dsLocation = createDsLocationExpression();
         this.cacheManager = cacheManager;
@@ -87,7 +87,7 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
                     CacheConfigurationBuilder.newCacheConfigurationBuilder(AudioStreamId.class, URL.class,
                             ResourcePoolsBuilder.heap(1000).offheap(32, MemoryUnit.MB))
                             .withExpiry(Expirations.timeToLiveExpiration(
-                                    Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
+                                    Duration.of(  KConfiguration.getInstance().getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
         }
     }
 

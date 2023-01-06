@@ -160,9 +160,12 @@ mptr and area elements for mapping MPEG21 DII Identifier values
 	3. Added "XPTR" to the enumerated values for the BETYPE attribute on the areaType data type
 	4. Added BEGIN, END and BETYPE attributes to the <file> and <stream> elements for specifying the location of a nested file or a stream within it's parent file.
 -->
-<xsd:schema targetNamespace="http://www.loc.gov/METS/" xmlns="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+<xsd:schema targetNamespace="http://www.loc.gov/METS/" xmlns="http://www.loc.gov/METS/" 
+xmlns:xlink="http://www.w3.org/1999/xlink" 
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
             jxb:version="2.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
-	<xsd:import namespace="http://www.w3.org/1999/xlink" schemaLocation="http://www.loc.gov/standards/xlink/xlink.xsd"/>
+	<xsd:import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlink.xsd"/>
 	
 	<xsd:element name="mets">
 		<xsd:annotation>

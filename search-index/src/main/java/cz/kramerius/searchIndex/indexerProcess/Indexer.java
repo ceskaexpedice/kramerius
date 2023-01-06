@@ -1,6 +1,7 @@
 package cz.kramerius.searchIndex.indexerProcess;
 
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
@@ -10,7 +11,9 @@ import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapte
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
+import org.apache.solr.common.SolrInputDocument;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
@@ -38,6 +41,27 @@ public class Indexer {
 
     private final SolrInputBuilder solrInputBuilder;
     private SolrIndexAccess solrIndexer = null;
+
+    public static boolean useCompositeId(){
+        return KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false);
+    }
+
+    public static String getCompositeId(RepositoryNode repositoryNode, String pid){
+        String rootPid =  (repositoryNode != null) ?repositoryNode.getRootPid():"null";
+        return rootPid+"!"+pid;
+    }
+
+    public static void ensureCompositeId(SolrInput solrInput, RepositoryNode repositoryNode, String pid){
+        if (useCompositeId()){
+            solrInput.addField("compositeId", getCompositeId(repositoryNode,pid));
+        }
+    }
+
+    public static void ensureCompositeId(SolrInputDocument solrInput, RepositoryNode repositoryNode, String pid){
+        if (useCompositeId()){
+            solrInput.addField("compositeId", getCompositeId(repositoryNode,pid));
+        }
+    }
 
     public Indexer(KrameriusRepositoryAccessAdapter repositoryConnector, SolrConfig solrConfig, OutputStream reportLoggerStream, boolean ignoreInconsistentObjects) {
         this.repositoryConnector = repositoryConnector;
@@ -83,16 +107,16 @@ public class Indexer {
             long start = System.currentTimeMillis();
             Counters counters = new Counters();
             LOGGER.info("Processing " + pid + " (indexation type: " + type + ")");
-
+            RepositoryNode node = nodeManager.getKrameriusNode(pid);
             boolean setFullIndexationInProgress = type == IndexationType.TREE_AND_FOSTER_TREES;
             if (setFullIndexationInProgress) {
-                setFullIndexationInProgress(pid);
+                setFullIndexationInProgress(pid, node);
             }
-            RepositoryNode node = nodeManager.getKrameriusNode(pid);
+
             indexObjectWithCounters(pid, node, counters, setFullIndexationInProgress, progressListener);
             processChildren(pid, node, counters, type, true, progressListener);
             if (setFullIndexationInProgress) {
-                clearFullIndexationInProgress(pid);
+                clearFullIndexationInProgress(pid, node);
             }
             commitAfterLastIndexation(counters);
 
@@ -116,12 +140,13 @@ public class Indexer {
         }
     }
 
-    private void setFullIndexationInProgress(String pid) {
+    private void setFullIndexationInProgress(String pid, RepositoryNode repositoryNode) {
         try {
             SolrInput solrInput = new SolrInput();
             solrInput.addField("pid", pid);
             solrInput.addField("full_indexation_in_progress", Boolean.TRUE.toString());
             solrInput.addField("indexer_version", String.valueOf(INDEXER_VERSION));
+            ensureCompositeId(solrInput, repositoryNode, pid);
             String solrInputStr = solrInput.getDocument().asXML();
             solrIndexer.indexFromXmlString(solrInputStr, false);
         } catch (Exception e) {
@@ -129,11 +154,11 @@ public class Indexer {
         }
     }
 
-    private void clearFullIndexationInProgress(String pid) {
+    private void clearFullIndexationInProgress(String pid, RepositoryNode repositoryNode) {
         report("clearing field full_indexation_in_progress for " + pid);
         //will not work for objects that are not stored and not docValues
         //see https://github.com/ceskaexpedice/kramerius/issues/782
-        solrIndexer.setSingleFieldValue(pid, "full_indexation_in_progress", null, false);
+        solrIndexer.setSingleFieldValue(pid, repositoryNode,"full_indexation_in_progress", null, false);
     }
 
     private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean setFullIndexationInProgress, ProgressListener progressListener) {

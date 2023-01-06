@@ -2,7 +2,6 @@ description "MovingWall process"
 
 dependencies {
     implementation project(':shared:common')
-    implementation project(':security:security-core')
     implementation project(':processes:indexer')
 
     implementation 'commons-codec:commons-codec:1.5'

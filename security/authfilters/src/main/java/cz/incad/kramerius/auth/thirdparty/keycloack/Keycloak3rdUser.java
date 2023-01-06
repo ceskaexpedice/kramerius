@@ -18,7 +18,6 @@ public class Keycloak3rdUser extends AbstractThirdPartyUser {
     private String hash;
 
     private Map<String,String> sessionAttributes = new HashMap<>();
-    private List<String> roles = new ArrayList<>();
 
     public Keycloak3rdUser(String h) {
         this.hash = h;
@@ -43,13 +42,6 @@ public class Keycloak3rdUser extends AbstractThirdPartyUser {
         return this.sessionAttributes.keySet();
     }
 
-    public void setRoles(List<String> rls) {
-        this.roles = rls;
-    }
-
-    public List<String> getRoles() {
-        return roles;
-    }
 
     @Override
     public User toUser(UserManager userManager) {
@@ -75,6 +67,5 @@ public class Keycloak3rdUser extends AbstractThirdPartyUser {
         LOGGER.fine(String.format("Returning wrapped user %s (%s)",user.getLoginname(), Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(","))));
         
         return user;
-
     }
 }

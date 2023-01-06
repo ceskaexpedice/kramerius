@@ -51,8 +51,8 @@ public class FacebookLikeItButton extends AbstractSocialButton {
     @Inject
     Provider<Locale> localeProvider;
 
-    @Inject
-    KConfiguration configuration;
+
+    KConfiguration configuration = KConfiguration.getInstance();
     
     
     

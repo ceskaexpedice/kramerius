@@ -13,6 +13,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.logging.Level;
 
+/**
+ * @author happy
+ */
 public class KeycloakFilter extends ExtAuthFilter {
 
     @Inject
@@ -39,7 +42,6 @@ public class KeycloakFilter extends ExtAuthFilter {
         }catch (Throwable th){
             LOGGER.log(Level.SEVERE,"Error retrieving KeycloakAccount", th);
         }
-
         return false;
     }
 

@@ -44,17 +44,16 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(LRProcessDefinitionManagerImpl.class.getName());
-	private KConfiguration configuration;
+	private KConfiguration configuration = KConfiguration.getInstance();
 	private LRProcessManager processManager;
 
 	
 	@Inject
-	public LRProcessDefinitionManagerImpl(KConfiguration configuration,
+	public LRProcessDefinitionManagerImpl(
 			LRProcessManager processManager, 
 			@Named("LIBS")String defaultLibsdir//, 
 			/*String configFile*/) {
 		super();
-		this.configuration = configuration;
 		this.processManager = processManager;
 		LOGGER.fine("loading configuration ...");
 		this.load();
@@ -132,7 +131,7 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 		for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
 			Node item = childNodes.item(i);
 			if (item.getNodeType() == Node.ELEMENT_NODE) {
-				LRProcessDefinitionImpl def = new LRProcessDefinitionImpl(this.processManager, this.configuration);
+				LRProcessDefinitionImpl def = new LRProcessDefinitionImpl(this.processManager);
 				def.loadFromXml((Element) item);
 				this.definitions.put(def.getId(), def);
 			}
@@ -145,14 +144,6 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 		return new ArrayList<LRProcessDefinition>(definitions.values());
 	}
 
-
-	public KConfiguration getConfiguration() {
-		return configuration;
-	}
-
-	public void setConfiguration(KConfiguration configuration) {
-		this.configuration = configuration;
-	}
 
 
 	public LRProcessManager getProcessManager() {

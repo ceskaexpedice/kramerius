@@ -56,7 +56,7 @@ public class ItemsResource extends AdminApiResource {
     private static final String ROLE_EDIT_OBJECTS = "kramerius_admin";
     private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
     */
-    
+
 
     @javax.inject.Inject
     Provider<User> userProvider;
@@ -67,7 +67,7 @@ public class ItemsResource extends AdminApiResource {
     @Inject
     @Named("new-index")
     private SolrAccess solrAccess;
-    
+
 
     /**
      * Returns array of pids (with titles) that have given model. Only partial array with offset & limit.
@@ -94,13 +94,13 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            
+
             if (!userIsAllowedToRead(this.rightsResolver, user, SpecialObjects.REPOSITORY.getPid())) {
                 // request doesnt contain user principal
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
-            
-            
+
+
             //model
             if (model == null || model.isEmpty()) {
                 throw new BadRequestException("missing mandatory query param 'model'");
@@ -178,7 +178,7 @@ public class ItemsResource extends AdminApiResource {
 //            if (!roles.contains(role)) {
 //                throw new ForbiddenException("user '%s' is not allowed to do this (missing role '%s')", user.getLoginname(), role); //403
 //            }
-            
+
             if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
@@ -316,7 +316,7 @@ public class ItemsResource extends AdminApiResource {
             }
             krameriusRepositoryApi.updateRelsExt(pid, relsExt);
 
-            scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT_AND_CHILDREN", true, pid);
+            scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT_AND_CHILDREN", false, pid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
@@ -576,12 +576,12 @@ public class ItemsResource extends AdminApiResource {
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-            
+
             if (!userIsAllowedToRead(this.rightsResolver, user, targetPid)) {
                 // request doesnt contain user principal
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
-            
+
             //check target object
             checkSupportedObjectPid(targetPid);
             checkObjectExists(targetPid);
@@ -627,7 +627,7 @@ public class ItemsResource extends AdminApiResource {
                 // request doesnt contain user principal
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
             }
-            
+
             //check target object
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -654,7 +654,7 @@ public class ItemsResource extends AdminApiResource {
         }
         for (int i = 0; i < paths.length; i++) {
             ObjectPidsPath path = paths[i];
-            if (rightsResolver.isActionAllowed(user, SecuredActions.A_ADMIN_READ .getFormalName(), pid, null, path.injectRepository()).flag()) {
+            if (rightsResolver.isActionAllowed(user, SecuredActions.A_ADMIN_READ.getFormalName(), pid, null, path.injectRepository()).flag()) {
                 return true;
             }
         }

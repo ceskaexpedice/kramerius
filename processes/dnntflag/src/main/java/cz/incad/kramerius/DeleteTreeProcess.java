@@ -98,7 +98,7 @@ public class DeleteTreeProcess {
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
         IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
-        SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig(KConfiguration.getInstance()));
+        SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
 
         //check object exists in repository
         if (!repository.getLowLevelApi().objectExists(pid)) {

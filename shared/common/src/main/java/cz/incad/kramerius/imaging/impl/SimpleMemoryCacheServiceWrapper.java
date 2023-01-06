@@ -33,8 +33,8 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	@Named("fileSystemCache")
 	DeepZoomCacheService wrappingInstance;
 
-	@Inject
-	KConfiguration kConfiguration;
+
+	KConfiguration kConfiguration = KConfiguration.getInstance();
 	
 	private MemoryCache memoryCache = new MemoryCache();
 	

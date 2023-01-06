@@ -46,8 +46,6 @@ public class DeleteServiceImpl implements DeleteService {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
-    @Inject
-    KConfiguration configuration;
 
     @Inject
     IResourceIndex resourceIndex;

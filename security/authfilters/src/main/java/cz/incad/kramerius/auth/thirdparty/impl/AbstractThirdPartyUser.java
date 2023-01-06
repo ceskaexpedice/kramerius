@@ -3,6 +3,10 @@ package cz.incad.kramerius.auth.thirdparty.impl;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.UserImpl;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONObject;
 
 import cz.incad.kramerius.auth.thirdparty.ThirdPartyUser;
@@ -10,6 +14,8 @@ import cz.incad.kramerius.security.utils.UserUtils;
 
 public abstract class AbstractThirdPartyUser implements ThirdPartyUser {
 
+
+    private List<String> roles = new ArrayList<String>();
 
     @Override
     public User toUser(UserManager userManager) {
@@ -32,5 +38,13 @@ public abstract class AbstractThirdPartyUser implements ThirdPartyUser {
         object.put("surname", getProperty(UserUtils.LAST_NAME_KEY));
         object.put("password", pass);
         return object;
+    }
+
+    public void setRoles(List<String> rls) {
+        this.roles = rls;
+    }
+
+    public List<String> getRoles() {
+        return roles;
     }
 }

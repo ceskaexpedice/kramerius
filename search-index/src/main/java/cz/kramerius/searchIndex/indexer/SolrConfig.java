@@ -17,7 +17,8 @@ public class SolrConfig {
         this.password = password;
     }
 
-    public SolrConfig(KConfiguration config) {
+    public SolrConfig() {
+        KConfiguration config = KConfiguration.getInstance();
         String host = config.getSolrSearchHost();
         if (host.startsWith("https://")) {
             useHttps = true;

@@ -68,7 +68,7 @@ public class NewIndexerProcessIndexObject {
                 : String.format("Indexace %s (typ %s)", pid, type)
         );
 
-        SolrConfig solrConfig = new SolrConfig(KConfiguration.getInstance());
+        SolrConfig solrConfig = new SolrConfig();
 
         //access to repository through new public HTTP APIs
         /*RepositoryAccessImplByKrameriusNewApis.Credentials krameriusCredentials = new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);

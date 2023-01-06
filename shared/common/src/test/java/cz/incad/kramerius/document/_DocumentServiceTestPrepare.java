@@ -53,7 +53,7 @@ public class _DocumentServiceTestPrepare {
         Object[] confObjects = _DocumentServiceTestPrepare.prepareConfiguration(pages, turnOffPdfCheck);
         replay(fa4, solrAccess, bundleService,acLog,confObjects[0],confObjects[1]);
         
-        Injector injector = Guice.createInjector(new _DocumentServiceModule(locale, fa4, bundleService,solrAccess,(KConfiguration) confObjects[1]));
+        Injector injector = Guice.createInjector(new _DocumentServiceModule(locale, fa4, bundleService,solrAccess));
         return injector;
     }
 
@@ -85,7 +85,7 @@ public class _DocumentServiceTestPrepare {
 
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
 
-        .withConstructor(KConfiguration.getInstance(), feeder ,acLog, cacheManager)
+        .withConstructor( feeder ,acLog, cacheManager)
         //.addMockedMethod("getFedoraDescribeStream")
         .addMockedMethod("getRelsExt")
         .addMockedMethod("isImageFULLAvailable")

@@ -30,7 +30,7 @@ buildScan {
 
 
 plugins {
-    id 'com.google.cloud.tools.jib' version '3.3.0' apply false
+    id 'com.google.cloud.tools.jib' version '3.3.1' apply false
 }
 
 if (!hasProperty('buildProfile')) ext.buildProfile = 'docker'  //supported profiles: dist, docker
@@ -91,6 +91,7 @@ allprojects {
     ext.slf4jversion='1.7.35'
     //ext.jerseyversion = '1.17.1'
     ext.jerseyversion = '1.19.4'
+    ext.keycloakversion = '20.0.2' 
 
     ext.generatedSources = "generated-sources"
 
@@ -297,7 +298,6 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
     group "Distribution"
     from {'search/build/libs'}
     //from {'processes/migration/build/distributions'}
-    from {'security/security-core/build/libs'}
     //from configurations.editors
     from configurations.database
     from {'build/installation'}
@@ -314,7 +314,6 @@ task distZipWOEditors(type: Zip, dependsOn: 'zipInstallDir') {
     baseName "kramerius"
     group "Distribution"
     from { 'search/build/libs' }
-    from { 'security-core/build/libs' }
     from { 'build/installation' }
 }
 
@@ -328,7 +327,6 @@ task distPatchZip(type:Zip) {
     from configurations.database
     from {'search/build/libs'}
     from {'processes/migration/build/distributions'}
-    from {'security/security-core/build/libs'}
 
     exclude "**.tar"
 }
@@ -345,7 +343,7 @@ task zipInstallDir(type:Zip) {
 
 // disabled distributions
 task zipAllJavadocs(type: Zip) {
-    String[] _spr = ["shared:common","security:security-core","rest","search"];
+    String[] _spr = ["shared:common","rest","search"];
     description "create javadocs for ${_spr} and zip it"
     baseName "kramerius-javadoc"
     for(String project in _spr) {

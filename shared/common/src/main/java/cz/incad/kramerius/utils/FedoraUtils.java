@@ -137,8 +137,8 @@ public class FedoraUtils {
      * Returns url stream 
      * @return
      */
-    public static String getDjVuImage(KConfiguration configuration, String pid) {
-        String imagePath = configuration.getFedoraHost() + "/get/" + pid + "/" + IMG_FULL_STREAM;
+    public static String getDjVuImage( String pid) {
+        String imagePath = KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + IMG_FULL_STREAM;
         return imagePath;
     }
 
@@ -148,8 +148,8 @@ public class FedoraUtils {
      * @param stream Stream ID
      * @return
      */
-    public static String getFedoraStreamPath(KConfiguration conf, String pid, String stream) {
-        String imagePath = conf.getFedoraHost() + "/get/" + pid + "/" + stream;
+    public static String getFedoraStreamPath( String pid, String stream) {
+        String imagePath =  KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + stream;
         return imagePath;
     }
     
@@ -157,18 +157,17 @@ public class FedoraUtils {
      * Returns path to fedora description
      * @return
      */
-    public static String getFedoraDescribe(KConfiguration conf) {
-        String describePath = conf.getFedoraHost() + "/describe?xml=true";
+    public static String getFedoraDescribe() {
+        String describePath = KConfiguration.getInstance().getFedoraHost() + "/describe?xml=true";
         return describePath;
     }
     
 
     /**
      * Returns true if given stream (profile of the stream) is referenced stream by URL
-     * @param conf KConfiguration object
      * @param profileDoc Profile document
      */
-    public static boolean isFedoraExternalStream(KConfiguration conf, Document profileDoc) throws XPathExpressionException {
+    public static boolean isFedoraExternalStream( Document profileDoc) throws XPathExpressionException {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
         XPathExpression expr = xpath.compile("/datastreamProfile/dsLocationType/text()");
@@ -182,7 +181,7 @@ public class FedoraUtils {
         }
     }
 
-    public static String getLocation(KConfiguration conf, Document profileDoc) throws XPathExpressionException {
+    public static String getLocation( Document profileDoc) throws XPathExpressionException {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
         XPathExpression expr = xpath.compile("/datastreamProfile/dsLocation/text()");
@@ -200,18 +199,17 @@ public class FedoraUtils {
      * Returns thumb stream
      * @return
      */
-    public static String getThumbnailFromFedora(KConfiguration configuration, String pid) {
-        String imagePath = configuration.getFedoraHost() + "/get/" + pid + "/" + IMG_THUMB_STREAM;
+    public static String getThumbnailFromFedora( String pid) {
+        String imagePath =  KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + IMG_THUMB_STREAM;
         return imagePath;
     }
 
     /**
      * Returns list of fedora streams
-     * @param configuration KConfiguration configuration object
      * @return
      */
-    public static String getFedoraDatastreamsList(KConfiguration configuration, String pid) {
-        String datastreamsListPath = configuration.getFedoraHost() + "/objects/" + pid + "/datastreams?format=xml";
+    public static String getFedoraDatastreamsList( String pid) {
+        String datastreamsListPath =  KConfiguration.getInstance().getFedoraHost() + "/objects/" + pid + "/datastreams?format=xml";
         return datastreamsListPath;
     }
 

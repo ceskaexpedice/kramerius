@@ -71,22 +71,19 @@ public class DocumentServiceImpl implements DocumentService {
     private Provider<Locale> localeProvider;
     private ResourceBundleService resourceBundleService;
     private SolrAccess solrAccess;
-    private KConfiguration kConfiguration;
 
     @Inject
     public DocumentServiceImpl(
             @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
             @Named("new-index") SolrAccess solrAccess,
-            KConfiguration configuration,
             Provider<Locale> localeProvider,
-            ResourceBundleService resourceBundleService,
-            KConfiguration kConfig) {
+            ResourceBundleService resourceBundleService
+            ) {
         super();
         this.fedoraAccess = fedoraAccess;
         this.localeProvider = localeProvider;
         this.resourceBundleService = resourceBundleService;
         this.solrAccess = solrAccess;
-        this.kConfiguration = kConfig;
         try {
             this.init();
         } catch (IOException e) {
@@ -454,7 +451,7 @@ public class DocumentServiceImpl implements DocumentService {
                     .mapDCConent(pid, DCUtils.contentFromDC(dcDocument));
         }
 
-        buildRenderingDocumentAsFlat(renderedDocument, pidFrom, ConfigurationUtils.checkNumber(howMany, this.kConfiguration.getConfiguration()));
+        buildRenderingDocumentAsFlat(renderedDocument, pidFrom, ConfigurationUtils.checkNumber(howMany, KConfiguration.getInstance().getConfiguration()));
         return renderedDocument;
     }
 

@@ -32,7 +32,7 @@ import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.*;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.apache.commons.lang3.tuple.Triple;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
@@ -202,7 +202,7 @@ public class Consistency {
     public static class _Module extends AbstractModule {
         @Override
         protected void configure() {
-            bind(KConfiguration.class).toInstance(KConfiguration.getInstance());
+
 
 //            bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
 //            bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);

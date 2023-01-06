@@ -20,8 +20,7 @@ public class METSServiceImpl implements METSService {
 	@Inject
 	@Named("securedFedoraAccess")
 	FedoraAccess fedoraAccess;
-	@Inject
-	KConfiguration configuration;
+	KConfiguration configuration = KConfiguration.getInstance();
 
 	private static final String INFO = "info:fedora/";
 

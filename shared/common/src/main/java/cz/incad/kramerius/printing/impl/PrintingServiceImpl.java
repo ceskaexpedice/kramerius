@@ -94,7 +94,7 @@ public class PrintingServiceImpl implements PrintingService {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PrintingServiceImpl.class.getName());
 
     private FedoraAccess fedoraAccess;
-    private KConfiguration configuration;
+    private KConfiguration configuration = KConfiguration.getInstance();
 
     private SolrAccess solrAccess;
 
@@ -105,11 +105,9 @@ public class PrintingServiceImpl implements PrintingService {
     private Provider<Locale> localesProvider;
     
     @Inject
-    public PrintingServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, @Named("new-index") SolrAccess solrAccess, KConfiguration configuration, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService, Provider<User> userProvider) {
+    public PrintingServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, @Named("new-index") SolrAccess solrAccess, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService, Provider<User> userProvider) {
         super();
         this.fedoraAccess = fedoraAccess;
-        this.configuration = configuration;
-        this.configuration = configuration;
         this.solrAccess = solrAccess;
         this.documentService = documentService;
         this.pdfService = pdfService;

@@ -85,7 +85,7 @@ public class CollectionsResource extends AdminApiResource {
             }
             collection.pid = "uuid:" + UUID.randomUUID().toString();
             Document foxml = foxmlBuilder.buildFoxml(collection, null);
-            krameriusRepositoryApi.getLowLevelApi().ingestObject(foxml);
+            krameriusRepositoryApi.getLowLevelApi().ingestObject(foxml, collection.pid);
             //schedule reindexation - new collection (only object)
             scheduleReindexation(collection.pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
             return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
@@ -136,7 +136,7 @@ public class CollectionsResource extends AdminApiResource {
     @GET
     @Path("/prefix")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCollectionsByPrefix(@QueryParam("rows") String rows,@QueryParam("page") String page, @QueryParam("prefix") String prefix) {
+    public Response getCollectionsByPrefix(@QueryParam("rows") String rows, @QueryParam("page") String page, @QueryParam("prefix") String prefix) {
         try {
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
@@ -146,8 +146,8 @@ public class CollectionsResource extends AdminApiResource {
                     !permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_READ); //403
             }
-            
-            Pair<Long,List<String>> pidsOfObjectsByModel = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection", prefix, Integer.parseInt(rows), Integer.parseInt(page));
+
+            Pair<Long, List<String>> pidsOfObjectsByModel = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsByModel("collection", prefix, Integer.parseInt(rows), Integer.parseInt(page));
             JSONArray collections = new JSONArray();
             for (String pid : pidsOfObjectsByModel.getSecond()) {
                 try {
@@ -162,7 +162,7 @@ public class CollectionsResource extends AdminApiResource {
             result.put("total_size", pidsOfObjectsByModel.getFirst());
             result.put("collections", collections);
             return Response.ok(result.toString()).build();
-    } catch (WebApplicationException e) {
+        } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -170,7 +170,7 @@ public class CollectionsResource extends AdminApiResource {
         }
 
     }
-    
+
     /**
      * Returns all collections or collections that directly contain given item.
      *
@@ -301,15 +301,14 @@ public class CollectionsResource extends AdminApiResource {
             if (!permitCollectionEdit(this.rightsResolver, user1, pid)) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
-            
-            
+
             for (int i = 0; i < pidsOfItems.length(); i++) {
                 String p = pidsOfItems.getString(i);
                 if (!permitAbleToAdd(this.rightsResolver, user1, p)) {
                     throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), p, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
                 }
             }
-            
+
             checkSupportedObjectPid(pid);
             synchronized (CollectionsResource.class) {
                 //TODO: implement
@@ -345,8 +344,7 @@ public class CollectionsResource extends AdminApiResource {
             if (!permitCollectionEdit(this.rightsResolver, user1, collectionPid)) {
                 throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
-            
-            
+
             if (!permitAbleToAdd(this.rightsResolver, user1, itemPid)) {
                 throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
             }
@@ -365,7 +363,7 @@ public class CollectionsResource extends AdminApiResource {
                 krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
                 //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
                 //LOGGER.info("addItemToCollection end, Thread " + Thread.currentThread().getName());
                 return Response.status(Response.Status.CREATED).build();
             }
@@ -446,7 +444,7 @@ public class CollectionsResource extends AdminApiResource {
                 krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
                 //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
                 return Response.status(Response.Status.OK).build();
             } catch (WebApplicationException e) {
                 throw e;
@@ -525,7 +523,7 @@ public class CollectionsResource extends AdminApiResource {
         if (!krameriusRepositoryApi.getLowLevelApi().objectExists(pid)) {
             // index + akubra synchronization problem
         }
-        
+
         collection.created = krameriusRepositoryApi.getLowLevelApi().getPropertyCreated(pid);
         collection.modified = krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(pid);
         //data from MODS
@@ -574,11 +572,11 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    public  boolean permitCollectionEdit(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
+    public boolean permitCollectionEdit(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
         ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
         if (pidPaths.length > 0) {
             for (ObjectPidsPath objectPidsPath : pidPaths) {
-                boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+                boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_COLLECTIONS_EDIT.getFormalName(), collectionPid, null, objectPidsPath).flag() : false;
                 if (permited) return permited;
             }
         } else {
@@ -588,15 +586,15 @@ public class CollectionsResource extends AdminApiResource {
         return false;
     }
 
-    public  boolean permitDelete(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
+    public boolean permitDelete(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
         ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
         for (ObjectPidsPath objectPidsPath : pidPaths) {
-            boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_DELETE.getFormalName(), collectionPid, null , objectPidsPath ).flag() : false;
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_DELETE.getFormalName(), collectionPid, null, objectPidsPath).flag() : false;
             if (permited) return permited;
         }
         return false;
     }
-    
+
     public boolean permitCollectionRead(RightsResolver rightsResolver, User user, String collectionPid) throws IOException {
         // jeste neni vytvorena - nema cestu nahoru
         ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(collectionPid);
@@ -611,11 +609,11 @@ public class CollectionsResource extends AdminApiResource {
         }
         return false;
     }
-    
+
     public boolean permitAbleToAdd(RightsResolver rightsResolver, User user, String pid) throws IOException {
         ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
         for (ObjectPidsPath objectPidsPath : pidPaths) {
-            boolean permited = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION.getFormalName(), pid, null , objectPidsPath ).flag() : false;
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION.getFormalName(), pid, null, objectPidsPath).flag() : false;
             if (permited) return permited;
         }
         return false;

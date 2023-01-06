@@ -224,7 +224,7 @@ public class LRResource {
                         }
                         newProcess.setParameters(params);
                         newProcess.setUser(user);
-                        newProcess.planMe(new Properties(),IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
+                        newProcess.planMe(new Properties(),IPAddressUtils.getRemoteAddress(this.requestProvider.get()));
                         lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
                         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
                         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
@@ -294,7 +294,7 @@ public class LRResource {
                 newProcess.setParameters(Arrays.asList(new String[0]));
                 newProcess.setUser(user);
 
-                newProcess.planMe(props, IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration()));
+                newProcess.planMe(props, IPAddressUtils.getRemoteAddress(this.requestProvider.get()));
                 lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
                 URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
                 return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();

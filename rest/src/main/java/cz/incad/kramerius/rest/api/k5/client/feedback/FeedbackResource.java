@@ -39,8 +39,8 @@ public class FeedbackResource {
 
     private static Logger LOGGER = Logger.getLogger(FeedbackResource.class.getName());
 
-    @Inject
-    private KConfiguration configuration;
+
+    private KConfiguration configuration = KConfiguration.getInstance();
     @Inject
     private ResourceBundleService resourceBundleService;
     @Inject

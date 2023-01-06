@@ -69,7 +69,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     @Inject
     public GeneratePDFServiceImpl(
             @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
-            @Named("new-index")SolrAccess solrAccess, KConfiguration configuration,
+            @Named("new-index")SolrAccess solrAccess,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService,
             DocumentService documentService,

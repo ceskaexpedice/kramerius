@@ -20,7 +20,7 @@ public class SearchIndexHelper {
     private SolrIndexAccess searchIndex;
 
     public SearchIndexHelper() {
-        SolrConfig solrConfig = new SolrConfig(KConfiguration.getInstance());
+        SolrConfig solrConfig = new SolrConfig();
         this.searchIndex = new SolrIndexAccess(solrConfig);
     }
 

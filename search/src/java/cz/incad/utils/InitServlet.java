@@ -25,8 +25,8 @@ import com.google.inject.Inject;
  */
 public class InitServlet extends GuiceServlet  {
 
-	@Inject
-	transient KConfiguration configuration;
+
+	transient KConfiguration configuration = KConfiguration.getInstance();
 	
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -78,12 +78,6 @@ public class InitServlet extends GuiceServlet  {
         return "Short description";
     }// </editor-fold>
 
-	public KConfiguration getConfiguration() {
-		return configuration;
-	}
 
-	public void setConfiguration(KConfiguration configuration) {
-		this.configuration = configuration;
-	}
     
 }

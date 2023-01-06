@@ -91,14 +91,6 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
         IOUtils.copy(is, resp.getOutputStream());
     }
 
-    public KConfiguration getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(KConfiguration configuration) {
-        this.configuration = configuration;
-    }
-
     public FedoraAccess getFedoraAccess() {
         return fedoraAccess;
     }

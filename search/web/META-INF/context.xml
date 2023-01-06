@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/search">
-  <Resource auth="Container" driverClassName="org.postgresql.Driver" initialSize="3" maxActive="100" maxIdle="30" maxWait="10000" name="jdbc/kramerius4" password="fedoraAdmin" type="javax.sql.DataSource" url="jdbc:postgresql://localhost/kramerius4" username="fedoraAdmin"/>
+  <!--Resource auth="Container" driverClassName="org.postgresql.Driver" initialSize="3" maxActive="100" maxIdle="30" maxWait="10000" name="jdbc/kramerius4" password="fedoraAdmin" type="javax.sql.DataSource" url="jdbc:postgresql://localhost/kramerius4" username="fedoraAdmin"/-->
   <Realm appName="search" className="org.apache.catalina.realm.JAASRealm" debug="99" roleClassNames="cz.incad.kramerius.security.jaas.K4RolePrincipal"  userClassNames="cz.incad.kramerius.security.jaas.K4User" />
   <!--Context path="/your-context-path">
     <Valve className="org.keycloak.adapters.tomcat.KeycloakAuthenticatorValve"/>

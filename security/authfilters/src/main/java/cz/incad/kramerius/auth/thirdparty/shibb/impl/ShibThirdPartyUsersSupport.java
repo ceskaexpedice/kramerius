@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.ShibRuleLexer;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.ShibRuleParser;
