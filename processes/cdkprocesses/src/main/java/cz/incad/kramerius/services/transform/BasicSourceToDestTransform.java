@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
+
+//TODO: Change it in future; copied from K5 cdk download
 public class BasicSourceToDestTransform extends SourceToDestTransform{
 
     // text is copied but not for PDF; uuugrrrr !!! Terrible

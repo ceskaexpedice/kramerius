@@ -19,9 +19,11 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -70,7 +72,7 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                             
                             
                             @Override
-                            public void changeDocument(Element doc) {
+                            public void changeDocument(String rootPid, String pid,Element doc) {
                                 List<Element> foundElements = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
                                     
                                     @Override
@@ -87,7 +89,6 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                         cdkLicenses.setAttribute("name", "cdk.licenses");
                                         cdkLicenses.setTextContent(sourceName+"_"+ fElm.getTextContent());
                                         
-                                        //cdkLicenses.setAttribute("update", "add-distinct");
                                         doc.appendChild(cdkLicenses);
                                     }
                                 }
@@ -122,23 +123,31 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                         LOGGER.info(s);
                     }
 
-                    //
+                    // Jiz indexovane pidy 
                     if (!pidsToReplicate.getAlreadyIndexed().isEmpty()) {
-                        // un update
+                        // un update udalost
                         if (!this.onUpdateUpdateElements.isEmpty()) {
-
+                            // pokud je definovany fieldlist pak musime ziskat data ze zdrojoveho krameria
                             String fl = this.onUpdateFieldList != null ? this.onUpdateFieldList : null;
                             Document destBatch = null;
                             if (fl != null) {
+                                // indexovane pidy & a mapovani pid <=> dokument
                                 List<String> pids = pidsToReplicate.getAlreadyIndexed().stream().map(pair->{
-                                    String string = pair.get(transform.getField(childOfComposite));
+                                    String string = pair.get("pid").toString();
                                     return string;
                                 }).collect(Collectors.toList());
-                                
+                                Map<String,Map<String, Object>> docs = pidsToReplicate.getAlreadyIndexedAsMap();
+
                                 destBatch =  retrieveAndCretebatch(pids, fl, new CopyReplicateConsumer() {
                                     
+                                    /**
+                                     * Modifikovani pole  
+                                     * @param field
+                                     * @return
+                                     */
                                     @Override
                                     public ModifyFieldResult modifyField(Element field) {
+
                                         List<String> deleteFields = Arrays.asList();
                                         List<String> addValues = Arrays.asList("licenses","licenses_of_ancestors","contains_licenses");
                                         
@@ -147,7 +156,7 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                             return ModifyFieldResult.delete;
                                         }
                                         else {
-                                            //licenses_of_ancestors
+                                            // pridavani poli
                                             if (addValues.contains(name)) {
                                                 field.setAttribute("update", "add-distinct");
                                             } else {
@@ -159,8 +168,12 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                     }
                                     
                                     @Override
-                                    public void changeDocument(Element doc) {
-                                        List<Element> foundElements = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                                    public void changeDocument(String root, String pid, Element doc) {
+                                        
+                                        // cdk dokument
+                                        Map<String, Object> cdkDoc = docs.get(pid);
+                                        
+                                        List<Element> newIndexedLicenses = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
                                             
                                             @Override
                                             public boolean acceptElement(Element element) {
@@ -169,14 +182,39 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                             }
                                         });
                                         
-                                        if (!foundElements.isEmpty()) {
-                                            for (Element fElm : foundElements) {
+
+                                        List<String> newCDKLicenses = new ArrayList<>();
+                                        newCDKLicenses =  newIndexedLicenses.stream().map(Element::getTextContent).map(lic-> {
+                                            return sourceName+"_"+lic;
+                                        }).collect(Collectors.toList());
+                                        
+                                        List<String> indexedCDKLicenses = (List<String>) cdkDoc.get("cdk.licenses");
+                                        if (indexedCDKLicenses == null) {
+                                            indexedCDKLicenses = new ArrayList<>();
+                                        }
+
+                                        List<String> toRemoveCDKLicenses = new ArrayList<>(indexedCDKLicenses);
+                                        toRemoveCDKLicenses.removeAll(newCDKLicenses);
+                                        
+                                        if (!newCDKLicenses.isEmpty()) {
+                                            for (Element fElm : newIndexedLicenses) {
                                                 Document document = fElm.getOwnerDocument();
                                                 Element cdkLicenses = document.createElement("field");
                                                 cdkLicenses.setAttribute("name", "cdk.licenses");
                                                 cdkLicenses.setTextContent(sourceName+"_"+fElm.getTextContent());
                                                 
                                                 cdkLicenses.setAttribute("update", "add-distinct");
+                                                doc.appendChild(cdkLicenses);
+                                            }
+                                        }
+                                        
+                                        if (toRemoveCDKLicenses!=null && toRemoveCDKLicenses.size() > 0) {
+                                            for (String remove : toRemoveCDKLicenses) {
+                                                Document document = doc.getOwnerDocument();
+                                                Element cdkLicenses = document.createElement("field");
+                                                cdkLicenses.setAttribute("name", "cdk.licenses");
+                                                cdkLicenses.setTextContent(sourceName+"_"+remove);
+                                                cdkLicenses.setAttribute("update", "remove");
                                                 doc.appendChild(cdkLicenses);
                                             }
                                         }
@@ -189,10 +227,10 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                     Element doc = db.createElement("doc");
                                     Element field = db.createElement("field");
                                     if (compositeId) {
-                                        String compositeId = pair.get("compositeId");
+                                        String compositeId = pair.get("compositeId").toString();
 
-                                        String root = pair.get(transform.getField(rootOfComposite));
-                                        String child = pair.get(transform.getField(childOfComposite));
+                                        String root = pair.get(transform.getField(rootOfComposite)).toString();
+                                        String child = pair.get(transform.getField(childOfComposite)).toString();
 
                                         field.setAttribute("name", "compositeId");
                                         field.setTextContent(root +"!"+child);
@@ -200,7 +238,7 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                     } else {
                                         
                                         String idname = transform.getField(idIdentifier);
-                                        String identifier = pair.get(idname);
+                                        String identifier = pair.get(idname).toString();
                                         // if compositeid
                                         field.setAttribute("name", idname);
                                         // formal name from hashmap

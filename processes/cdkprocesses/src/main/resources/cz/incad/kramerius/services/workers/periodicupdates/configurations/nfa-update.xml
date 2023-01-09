@@ -1,8 +1,12 @@
 <cdkprocess>
 
-    <source-name>uzei</source-name>
-	<name>uzei-update</name>
-	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/</timestamp>
+	<source-name>nfa</source-name>
+	<name>nfa-update</name>
+	<type>update</type>
+	
+	<timestamp>$timestamp.url$</timestamp>
+
+
     <threads>1</threads>
 
     <!-- Iteration part -->
@@ -11,14 +15,16 @@
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
 
+
         <id>PID</id>
-        <rows>7000</rows>
+        <rows>1000</rows>
+
         <type>CURSOR</type>
 
         <user>$iteration.user$</user>
         <pass>$iteration.pass$</pass>
     </iteration>
-
+	
     <threads>1</threads>
 
 
@@ -61,27 +67,18 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-					<!--  
-                    <field name="cdk.collection">vc:f3bf3648-de60-47a5-9ba5-4301c5203962</field>
-                    <field name="cdk.leader">vc:f3bf3648-de60-47a5-9ba5-4301c5203962</field>
-					-->
-                    <field name="cdk.collection">uzei</field>
-                    <field name="cdk.leader">uzei</field>
-
+                    <field name="cdk.collection">nfa</field>
+                    <field name="cdk.leader">nfa</field>
                 </update.dest.field>
             </onindex>
-
+            
             <!-- on update -->
             <onupdate>
                 <update.dest.field>
-					<!--  
-                    <field name="cdk.collection" update="add-distinct">vc:f3bf3648-de60-47a5-9ba5-4301c5203962</field>
-					-->
-                    <field name="cdk.collection" update="add-distinct">uzei</field>
+                   	<field name="cdk.collection" update="add-distinct">nfa</field>
                 </update.dest.field>
             </onupdate>
 
         </destination>
     </worker>
 </cdkprocess>
- 

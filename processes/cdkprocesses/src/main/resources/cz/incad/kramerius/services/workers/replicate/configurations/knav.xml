@@ -1,17 +1,15 @@
-<!--  
-	Process pro KNAV
-	Sbirka: knav
- -->
+<!--  Knihovna akademi ved/knav  -->
 <cdkprocess>
 
     <source-name>knav</source-name>
-	<name>full-crawl-knav</name>
+	<name>knav-full</name>
+	<type>full</type>
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         <url>$iteration.url$</url>
-        <endpoint>select</endpoint>
+        <endpoint>search</endpoint>
 
 
         <id>PID</id>
@@ -21,6 +19,10 @@
 
         <user>$iteration.user$</user>
         <pass>$iteration.pass$</pass>
+        
+      	<!--  timestamp field  -->
+        <timestamp_field>modified_date</timestamp_field>
+        
     </iteration>
 	
     <threads>2</threads>
@@ -30,7 +32,7 @@
     <worker>
         <request>
 
-            <endpoint>select</endpoint>
+            <endpoint>search</endpoint>
             <batchsize>20</batchsize>
 
             <url>$iteration.url$</url>
@@ -47,12 +49,7 @@
             <checkUrl>$destination.url$</checkUrl>
             <checkEndpoint>select</checkEndpoint>
 
-            <!-- cdk source field -->
-            <collection>cdk.collection</collection>
-
             <trasfrom>K7</trasfrom>
-
-
         </request>
 
         <destination>
@@ -73,7 +70,9 @@
             
             <!-- on update -->
             <onupdate>
+ 
                 <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels</fieldlist>
+ 
                 <update.dest.field>
                    	<field name="cdk.collection" update="add-distinct">knav</field>
                 </update.dest.field>

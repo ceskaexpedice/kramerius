@@ -1,9 +1,11 @@
-<!-- 
-    
-    Sbirka pro uzei
-    vc:f3bf3648-de60-47a5-9ba5-4301c5203962
- -->
+<!-- Zemedelska a potravinarska knihovna Antonina Svehly/uzei -->
 <cdkprocess>
+
+    <source-name>uzei</source-name>
+	<name>uzei-full</name>
+
+	<timestamp>$timestamp.url$</timestamp>
+
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>

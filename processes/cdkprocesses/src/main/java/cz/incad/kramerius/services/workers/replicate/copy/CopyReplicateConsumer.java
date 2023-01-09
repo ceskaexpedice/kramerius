@@ -10,5 +10,5 @@ public interface CopyReplicateConsumer {
     
     public ModifyFieldResult modifyField(Element field);
     
-    public void changeDocument(Element doc);
+    public void changeDocument(String rootPid, String pid, Element doc);
 }

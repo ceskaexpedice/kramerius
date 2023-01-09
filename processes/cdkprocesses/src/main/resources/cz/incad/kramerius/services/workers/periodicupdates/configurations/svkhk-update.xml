@@ -1,9 +1,10 @@
+<!--  Studijni a vedecka knihovna Hradec Kralove/svkhk   -->
 <cdkprocess>
 
-    <source-name>nfa</source-name>
-	<name>nfa-update</name>
-	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/</timestamp>
-    <threads>1</threads>
+    <source-name>svkhk</source-name>
+	<name>svkh-full</name>
+
+	<timestamp>$timestamp.url$</timestamp>
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
@@ -11,17 +12,17 @@
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
 
-
         <id>PID</id>
-        <rows>1000</rows>
-
+        <rows>7000</rows>
         <type>CURSOR</type>
 
         <user>$iteration.user$</user>
         <pass>$iteration.pass$</pass>
-    </iteration>
 	
-    <threads>1</threads>
+		
+    </iteration>
+
+    <threads>2</threads>
 
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
@@ -36,7 +37,6 @@
             <user>$iteration.user$</user>
             <pass>$iteration.pass$</pass>
 
-
             <composite.id>true</composite.id>
             <composite.root>root_pid</composite.root>
             <composite.child>PID</composite.child>
@@ -47,10 +47,8 @@
 
             <!-- cdk source field -->
             <collection>cdk.collection</collection>
-
+			<!--  transform  to K7 -->
             <trasfrom>K7</trasfrom>
-
-
         </request>
 
         <destination>
@@ -64,15 +62,16 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-                    <field name="cdk.collection">nfa</field>
-                    <field name="cdk.leader">nfa</field>
+                    <field name="cdk.collection">svkhk</field>
+                    <field name="cdk.leader">svkhk</field>
                 </update.dest.field>
             </onindex>
-            
             <!-- on update -->
             <onupdate>
+                <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels</fieldlist>
+            
                 <update.dest.field>
-                   	<field name="cdk.collection" update="add-distinct">nfa</field>
+	                <field name="cdk.collection" update="add-distinct">svkhk</field>
                 </update.dest.field>
             </onupdate>
 

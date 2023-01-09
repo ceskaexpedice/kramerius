@@ -41,6 +41,7 @@ public abstract class AbstractReplicateWorker extends Worker {
 
     protected String idIdentifier = DEFAULT_PID_FIELD;
     protected String collectionField = COLLECTION_FIELD;
+
     protected boolean compositeId = false;
     protected String rootOfComposite = null;
     protected String childOfComposite = null;
@@ -52,6 +53,7 @@ public abstract class AbstractReplicateWorker extends Worker {
         super(sourceName, workerElm, client, items);
     }
 
+    // zjistuje, ziskava vsechny pidy, ktere jsou naindexovane 
     protected ReplicateContext findPidsAlreadyIndexed(List<String> subpids, SourceToDestTransform transform)
             throws ParserConfigurationException, SAXException, IOException {
 
@@ -61,15 +63,16 @@ public abstract class AbstractReplicateWorker extends Worker {
         }).collect(Collectors.joining(" OR "));
 
         // field list je pid + collection + rootpid + dalsi field list
-        String fieldlist = this.transform.getField(idIdentifier) + " " + collectionField +" cdk.leader";
+        //String fieldlist = this.transform.getField(idIdentifier) + " " + collectionField +" cdk.leader cdk.licenses cdk.collection";
+        String fieldlist = "pid " + collectionField +" cdk.leader cdk.licenses cdk.collection";
         if (compositeId) {
-            fieldlist = fieldlist + " " + this.transform.getField(this.rootOfComposite);
-            if (!idIdentifier.equals(childOfComposite)) {
-                fieldlist = fieldlist + " " + this.transform.getField(this.childOfComposite);
-            }
+            fieldlist = fieldlist + " " + " root.pid compositeId";
+//            if (!idIdentifier.equals(childOfComposite)) {
+//                fieldlist = fieldlist + " " + this.transform.getField(this.childOfComposite);
+//            }
         }
 
-        String query = "?q=" + this.transform.getField(idIdentifier) + ":(" + URLEncoder.encode(reduce, "UTF-8")
+        String query = "?q=" + "pid" + ":(" + URLEncoder.encode(reduce, "UTF-8")
                 + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + subpids.size();
 
         String checkUrl = this.checkUrl + (this.checkUrl.endsWith("/") ? "" : "/") + this.checkEndpoint;
@@ -79,16 +82,17 @@ public abstract class AbstractReplicateWorker extends Worker {
                 });
 
         List<Element> docs = XMLUtils.getElements(resultElem);
-        List<Map<String, String>> list = new ArrayList<>();
+        List<Map<String, Object>> list = new ArrayList<>();
         docs.stream().forEach(d -> {
-            Map<String, String> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
 
             Element pid = XMLUtils.findElement(d, e -> {
-                return e.getAttribute("name").equals(this.transform.getField(idIdentifier));
+                return e.getAttribute("name").equals("pid");
             });
             if (pid != null) {
-                map.put(this.transform.getField(idIdentifier), pid.getTextContent());
+                map.put("pid", pid.getTextContent());
             }
+
             Element collection = XMLUtils.findElement(d, e -> {
                 return e.getAttribute("name").equals(collectionField);
             });
@@ -105,6 +109,17 @@ public abstract class AbstractReplicateWorker extends Worker {
                 map.put("cdk.leader", cdkLeader.getTextContent());
             }
 
+            Element cdkLicenses = XMLUtils.findElement(d, e -> {
+                return e.getAttribute("name").equals("cdk.licenses");
+            });
+            
+            if (cdkLicenses != null) {
+                List<String> licenses = XMLUtils.getElements(cdkLicenses).stream().map(Element::getTextContent).collect(Collectors.toList());
+                map.put("cdk.licenses", licenses);
+            }
+            
+            
+            
             if (compositeId) {
                 Element compositeRoot = XMLUtils.findElement(d, e -> {
                     return e.getAttribute("name").equals(this.transform.getField(rootOfComposite));
@@ -125,7 +140,7 @@ public abstract class AbstractReplicateWorker extends Worker {
         });
 
         List<String> pidsFromLocalSolr = list.stream().map(m -> {
-            return m.get(this.transform.getField(idIdentifier));
+            return m.get("pid").toString();
         }).collect(Collectors.toList());
 
         List<String> notindexed = new ArrayList<>();

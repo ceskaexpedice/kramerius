@@ -1,46 +1,42 @@
- <cdkprocess>
- 
-     <source-name>mlp</source-name>
-     <name>mlp-update</name>
- 
-	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/</timestamp>
+<cdkprocess>
+	
+	<source-name>knav</source-name>
+	<name>knav-update</name>
+	<type>update</type>
+	
+	<timestamp>$timestamp.url$</timestamp>
     <threads>1</threads>
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         <url>$iteration.url$</url>
-        <endpoint>select</endpoint>
-
+        <endpoint>search</endpoint>
         <id>PID</id>
-        <rows>4000</rows>
         <type>CURSOR</type>
 
-        <user>$iteration.user$</user>
-        <pass>$iteration.pass$</pass>
+		<!--  timestamp field  -->
+        <timestamp_field>modified_date</timestamp_field>
+
+    	<fquery>root_pid:"uuid:477085e4-50f6-4893-a639-229a41fc7a3f"</fquery>
+    	
     </iteration>
-
-    <threads>1</threads>
-
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
     <worker>
         <request>
-
-            <endpoint>select</endpoint>
+            <url>$iteration.url$</url>
+            <endpoint>search</endpoint>
             <batchsize>20</batchsize>
 
-            <url>$iteration.url$</url>
+	        <id>PID</id>
 
-            <user>$iteration.user$</user>
-            <pass>$iteration.pass$</pass>
-
-
+            <!--  construct composite id   -->
             <composite.id>true</composite.id>
             <composite.root>root_pid</composite.root>
             <composite.child>PID</composite.child>
-
-
+            
+            <!--  zjisteni jiz naindexovanych pidu  --> 
             <checkUrl>$destination.url$</checkUrl>
             <checkEndpoint>select</checkEndpoint>
 
@@ -62,24 +58,22 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-                    <field name="cdk.collection">mlp</field>
-                    <field name="cdk.leader">mlp</field>
-
+                    <field name="cdk.collection">knav</field>
+                    <field name="cdk.leader">knav</field>
                 </update.dest.field>
             </onindex>
 
-            <!-- on update -->
+            <!-- on update; disabled for now -->
             <onupdate>
+
+                <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels </fieldlist>
+
                 <update.dest.field>
-					<!--  
-                    <field name="cdk.collection" update="add-distinct">vc:cf415d59-3db5-4684-bb14-2ea06eab72a8</field>
-                    -->
-                    <field name="cdk.collection" update="add-distinct">mlp</field>
-                    
+                    <field name="cdk.collection" update="add-distinct">knav</field>
+                    <field name="cdk.leader" update="set">knav</field>
                 </update.dest.field>
             </onupdate>
 
         </destination>
     </worker>
 </cdkprocess>
- 

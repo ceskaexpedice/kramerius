@@ -1,10 +1,10 @@
+<!--  Severoceska vedecka knihovna Usti nad Labem/svkul  -->
 <cdkprocess>
 
-    <source-name>inovatika</source-name>
-	<name>inovatika-update</name>
-	
-	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/knav/timestamp</timestamp>
-    <threads>1</threads>
+    <source-name>svkul</source-name>
+	<name>svkul-full</name>
+
+	<timestamp>$timestamp.url$</timestamp>
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
@@ -12,18 +12,16 @@
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
 
-        <id>pid</id>
-        <rows>7000</rows>
-
+        <id>PID</id>
+        <rows>5000</rows>
         <type>CURSOR</type>
 
         <user>$iteration.user$</user>
         <pass>$iteration.pass$</pass>
-        
-        <timestamp_field>indexed</timestamp_field>
-        
     </iteration>
-	
+
+    <threads>1</threads>
+
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
     <worker>
@@ -39,8 +37,8 @@
 
 
             <composite.id>true</composite.id>
-            <composite.root>root.pid</composite.root>
-            <composite.child>pid</composite.child>
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
 
 
             <checkUrl>$destination.url$</checkUrl>
@@ -49,9 +47,7 @@
             <!-- cdk source field -->
             <collection>cdk.collection</collection>
 
-			<onupdate>
-            	<fieldlist>pid root.* own_parent.* own_pid_path own_model_path</fieldlist>
-			</onupdate>
+            <trasfrom>K7</trasfrom>
 
         </request>
 
@@ -66,18 +62,20 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-                    <field name="cdk.collection">inovatika</field>
-                    <field name="cdk.leader">inovatika</field>
+                    <field name="cdk.collection">svkul</field>
+                    <field name="cdk.leader">svkul</field>
+
                 </update.dest.field>
             </onindex>
-            
+
             <!-- on update -->
             <onupdate>
                 <update.dest.field>
-                   	<field name="cdk.collection" update="add-distinct">inovatika</field>
+                    <field name="cdk.collection" update="add-distinct">svkul</field>
                 </update.dest.field>
             </onupdate>
 
         </destination>
     </worker>
 </cdkprocess>
+ 

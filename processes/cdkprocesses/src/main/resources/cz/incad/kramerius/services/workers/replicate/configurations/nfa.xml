@@ -1,11 +1,9 @@
-<!--  
-	Process pro KNAV
-	Sbirka: knav
- -->
+<!--   Narodni filmovy archiv/nfa -->
 <cdkprocess>
 
     <source-name>nfa</source-name>
-	<name>full-crawl-nfa</name>
+	<name>nfa-full</name>
+
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
@@ -21,6 +19,10 @@
 
         <user>$iteration.user$</user>
         <pass>$iteration.pass$</pass>
+
+      	<!--  timestamp field  -->
+        <timestamp_field>modified_date</timestamp_field>
+
     </iteration>
 	
     <threads>1</threads>
@@ -73,6 +75,7 @@
             
             <!-- on update -->
             <onupdate>
+                <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels</fieldlist>
                 <update.dest.field>
                    	<field name="cdk.collection" update="add-distinct">nfa</field>
                 </update.dest.field>

@@ -1,12 +1,10 @@
-<!-- 
-    Sbirka pro uzei
-    vc:4e6b7ee5-3374-4cde-9289-e1f6a2a335b2
- -->
-
+<!--  Studijni a vedecka knihovna Hradec Kralove/svkhk   -->
 <cdkprocess>
 
     <source-name>svkhk</source-name>
-	<name>full-crawl-svkh</name>
+	<name>svkh-full</name>
+
+	<timestamp>$timestamp.url$</timestamp>
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>

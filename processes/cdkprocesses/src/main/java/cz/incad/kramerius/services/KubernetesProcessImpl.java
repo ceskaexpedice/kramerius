@@ -22,6 +22,7 @@ import java.util.logging.Logger;
  */
 public class KubernetesProcessImpl {
 
+    public static final String TMSP_URL ="TIMESTAMP_URL";
     public static final String ITERATION_URL = "ITERATION_URL";
     public static final String CHECK_URL = "CHECK_URL";
     public static final String DESTINATION_URL = "DESTINATION_URL";
@@ -32,6 +33,7 @@ public class KubernetesProcessImpl {
     public static final String CHECK_PREFIX = "CHECK_";
     public static final String DEST_PREFIX = "DESTINATION_";
 
+    public static final String TMSP_PREFIX = "TIMESTAMP_";
 
 
     public static final Logger LOGGER = Logger.getLogger(KubernetesProcessImpl.class.getName());
@@ -43,6 +45,7 @@ public class KubernetesProcessImpl {
             InputStream stream = KubernetesProcessImpl.class.getResourceAsStream(configSource);
             if (stream != null) {
 
+                
                 Map<String, String> iteration = new HashMap<>();
                 prefixVariables(env, iteration, ITERATION_PREFIX);
                 if (env.containsKey(ITERATION_URL)) {
@@ -61,12 +64,19 @@ public class KubernetesProcessImpl {
                     destination.put("url", env.get(DESTINATION_URL));
                 }
 
+                Map<String, String> timestamps = new HashMap<>();
+                prefixVariables(env, timestamps, TMSP_PREFIX);
+                if (env.containsKey(TMSP_PREFIX)) {
+                    destination.put("url", env.get(DESTINATION_URL));
+                }
+
                 StringTemplate template = new StringTemplate(
                         IOUtils.toString(stream, "UTF-8"), DefaultTemplateLexer.class);
 
                 template.setAttribute("iteration", iteration);
                 template.setAttribute("check", check);
                 template.setAttribute("destination", destination);
+                template.setAttribute("timestamp", timestamps);
 
                 String configuration = template.toString();
                 LOGGER.info("Loading configuration "+configuration);

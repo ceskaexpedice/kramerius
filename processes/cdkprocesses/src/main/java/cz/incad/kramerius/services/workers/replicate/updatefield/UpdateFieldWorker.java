@@ -69,7 +69,7 @@ public class UpdateFieldWorker extends AbstractReplicateWorker {
                     if (!pidsToReplicate.getAlreadyIndexed().isEmpty()) {
 
                         List<String> pids = pidsToReplicate.getAlreadyIndexed().stream().map(m -> {
-                            return m.get(this.idIdentifier);
+                            return m.get(this.idIdentifier).toString();
                         }).collect(Collectors.toList());
 
                         Element response = fetchFields(pids);
@@ -116,15 +116,15 @@ public class UpdateFieldWorker extends AbstractReplicateWorker {
                             if (compositeId) {
                                 // String compositeId = pair.get("compositeId");
 
-                                String root = pair.get(transform.getField(rootOfComposite));
-                                String child = pair.get(transform.getField(childOfComposite));
+                                String root = pair.get(transform.getField(rootOfComposite)).toString();
+                                String child = pair.get(transform.getField(childOfComposite)).toString();
 
                                 field.setAttribute("name", "compositeId");
                                 field.setTextContent(root + "!" + child);
 
                             } else {
                                 String idname = transform.getField(idIdentifier);
-                                String identifier = pair.get(idname);
+                                String identifier = pair.get(idname).toString();
                                 // if compositeid
                                 field.setAttribute("name", idname);
                                 // formal name from hashmap
@@ -133,7 +133,7 @@ public class UpdateFieldWorker extends AbstractReplicateWorker {
                             doc.appendChild(field);
 
                             String idname = transform.getField(idIdentifier);
-                            String identifier = pair.get(idname);
+                            String identifier = pair.get(idname).toString();
                             if (map.containsKey(identifier)) {
                                 List<String> values = map.get(identifier).getLeft();
                                 for (String value : values) {

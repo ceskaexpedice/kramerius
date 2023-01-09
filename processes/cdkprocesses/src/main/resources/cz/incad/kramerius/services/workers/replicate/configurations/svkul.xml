@@ -1,7 +1,11 @@
-<!-- 
-    
- -->
+<!--  Severoceska vedecka knihovna Usti nad Labem/svkul  -->
 <cdkprocess>
+
+    <source-name>svkul</source-name>
+	<name>svkul-full</name>
+
+	<timestamp>$timestamp.url$</timestamp>
+
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>

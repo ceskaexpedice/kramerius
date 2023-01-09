@@ -1,7 +1,10 @@
-<!-- 
-    
- -->
+<!--  Krajska knihovna pardubice/kkp -->
 <cdkprocess>
+
+    <source-name>kkp</source-name>
+	<name>kkp-full</name>
+	<type>full</type>
+
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
@@ -14,6 +17,10 @@
 
         <user>$iteration.user$</user>
         <pass>$iteration.pass$</pass>
+
+      	<!--  timestamp field  -->
+        <timestamp_field>modified_date</timestamp_field>
+        
     </iteration>
 
     <threads>1</threads>
@@ -66,7 +73,9 @@
 
             <!-- on update -->
             <onupdate>
-                <update.dest.field>
+            
+               <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels</fieldlist>
+                 <update.dest.field>
                     <field name="cdk.collection" update="add-distinct">kkp</field>
                 </update.dest.field>
             </onupdate>

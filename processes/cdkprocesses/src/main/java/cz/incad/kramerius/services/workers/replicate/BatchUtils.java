@@ -37,6 +37,15 @@ public class BatchUtils {
             }
         });
 
+        StringWriter writer = new StringWriter();
+        try {
+            XMLUtils.print(resultElem, writer);
+        } catch (TransformerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        
         for (int i = 0; i < docs.size(); i++) {
             Element destDocElement = destBatch.createElement("doc");
             Element sourceDocElm = docs.get(i);
@@ -44,6 +53,15 @@ public class BatchUtils {
             // basic transform
             srcTransform.transform(sourceDocElm, destBatch, destDocElement,consumer);
 
+            writer = new StringWriter();
+            try {
+                XMLUtils.print(destDocElement, writer);
+            } catch (TransformerException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            
             // composite id is not supported
             if (compositeId && root != null && child != null) {
 
@@ -61,8 +79,34 @@ public class BatchUtils {
                 destBatch.getDocumentElement().appendChild(destDocElement);
             }
             
-            consumer.changeDocument(destDocElement);
             
+            Element rootPidElm = XMLUtils.findElement(destDocElement, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    String name = element.getAttribute("name");
+                    return name.equals("root.pid");
+                }
+            });
+
+            
+            Element pidElm = XMLUtils.findElement(destDocElement, new XMLUtils.ElementsFilter() {
+                
+                @Override
+                public boolean acceptElement(Element element) {
+                    String name = element.getAttribute("name");
+                    return name.equals("pid");
+                }
+            });
+
+            writer = new StringWriter();
+            try {
+                XMLUtils.print(destDocElement, writer);
+            } catch (TransformerException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            consumer.changeDocument(rootPidElm.getTextContent(),pidElm.getTextContent(), destDocElement);
         }
         return destBatch;
     }

@@ -1,12 +1,8 @@
-<!--
-    Sbirka pro mlp
-	vc:cf415d59-3db5-4684-bb14-2ea06eab72a8
- -->
- 
+<!--  Metska knihovna Praha/mlp   -->
  <cdkprocess>
  
-     <source-name>knav</source-name>
-     <name>full-crawl-knav</name>
+     <source-name>mlp</source-name>
+     <name>mlp-full</name>
  
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>

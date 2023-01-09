@@ -1,32 +1,39 @@
+<!-- Zemedelska a potravinarska knihovna Antonina Svehly/uzei -->
 <cdkprocess>
 
-    <source-name>skvul</source-name>
-	<name>skvul-update</name>
-	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/</timestamp>
-    <threads>1</threads>
-	
-	<timestamp>http://localhost:8080/search/api/admin/v7.0/connected/svkul/timestamp</timestamp>
-    <threads>1</threads>
+    <source-name>uzei</source-name>
+	<name>uzei-full</name>
+
+	<timestamp>$timestamp.url$</timestamp>
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
-		<timemstamp>inovatika</timemstamp>
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
+
         <id>PID</id>
+        <rows>7000</rows>
         <type>CURSOR</type>
 
-		<!--  timestamp field  -->
-        <timestamp_field>modified_date</timestamp_field>
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
     </iteration>
+
+    <threads>1</threads>
+
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
     <worker>
         <request>
-            <url>$iteration.url$</url>
+
             <endpoint>select</endpoint>
             <batchsize>20</batchsize>
+
+            <url>$iteration.url$</url>
+
+            <user>$iteration.user$</user>
+            <pass>$iteration.pass$</pass>
 
 
             <composite.id>true</composite.id>
@@ -40,16 +47,8 @@
             <!-- cdk source field -->
             <collection>cdk.collection</collection>
 
-			
-			<onupdate>
-	            <fieldlist>PID  root_pid dc.title title document_type </fieldlist>
-			</onupdate>
-
             <trasfrom>K7</trasfrom>
 
-			<!--  	
-            <fieldlist>indexer_version pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr</fieldlist>
-			-->
         </request>
 
         <destination>
@@ -63,19 +62,27 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-                    <field name="cdk.collection">svkul</field>
-                    <field name="cdk.leader">svkul</field>
+					<!--  
+                    <field name="cdk.collection">vc:f3bf3648-de60-47a5-9ba5-4301c5203962</field>
+                    <field name="cdk.leader">vc:f3bf3648-de60-47a5-9ba5-4301c5203962</field>
+					-->
+                    <field name="cdk.collection">uzei</field>
+                    <field name="cdk.leader">uzei</field>
+
                 </update.dest.field>
             </onindex>
 
-            <!-- on update; disabled for now -->
+            <!-- on update -->
             <onupdate>
                 <update.dest.field>
-                    <field name="cdk.collection" update="add-distinct">svkul</field>
-                    <field name="cdk.leader" update="set">svkul</field>
+					<!--  
+                    <field name="cdk.collection" update="add-distinct">vc:f3bf3648-de60-47a5-9ba5-4301c5203962</field>
+					-->
+                    <field name="cdk.collection" update="add-distinct">uzei</field>
                 </update.dest.field>
             </onupdate>
 
         </destination>
     </worker>
 </cdkprocess>
+ 

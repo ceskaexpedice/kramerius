@@ -7,6 +7,7 @@ import cz.incad.kramerius.services.WorkerFinisher;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 
 import org.json.JSONObject;
 import org.w3c.dom.Element;
@@ -39,8 +40,17 @@ public class ReplicateFinisher   extends WorkerFinisher {
     
     long start = System.currentTimeMillis();
 
+    protected String typeOfCrawl;
+
+    
     public ReplicateFinisher(String timestampUrl, Element workerElm, Client client) {
         super(timestampUrl, workerElm, client);
+
+        Element typeElm = XMLUtils.findElement((Element)workerElm.getParentNode(), "type");
+        if (typeElm != null) {
+            typeOfCrawl = typeElm.getTextContent();
+        }
+
     }
 
 	private JSONObject storeTimestamp() {
@@ -49,6 +59,10 @@ public class ReplicateFinisher   extends WorkerFinisher {
 		jsonObject.put("batches", BATCHES.get());
 		jsonObject.put("indexed", NEWINDEXED);
 		jsonObject.put("updated", UPDATED);
+		
+		if (typeOfCrawl != null) {
+	        jsonObject.put("type", typeOfCrawl);
+		}
 		
         LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] url %s", timestampUrl));
     	WebResource r = client.resource(timestampUrl);
