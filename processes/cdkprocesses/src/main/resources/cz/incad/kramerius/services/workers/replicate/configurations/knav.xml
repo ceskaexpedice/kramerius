@@ -9,7 +9,7 @@
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         <url>$iteration.url$</url>
-        <endpoint>search</endpoint>
+        <endpoint>select</endpoint>
 
 
         <id>PID</id>
@@ -32,7 +32,7 @@
     <worker>
         <request>
 
-            <endpoint>search</endpoint>
+            <endpoint>select</endpoint>
             <batchsize>20</batchsize>
 
             <url>$iteration.url$</url>

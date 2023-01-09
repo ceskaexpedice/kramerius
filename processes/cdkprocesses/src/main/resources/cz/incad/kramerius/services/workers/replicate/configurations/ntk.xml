@@ -1,9 +1,9 @@
-<!-- 
-    
-    Sbirka pro uzei
-    vc:f3bf3648-de60-47a5-9ba5-4301c5203962
- -->
+<!--  Narodni technicka knihovna/ntk -->
 <cdkprocess>
+
+     <source-name>mzk</source-name>
+     <name>mzk-full</name>
+
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>

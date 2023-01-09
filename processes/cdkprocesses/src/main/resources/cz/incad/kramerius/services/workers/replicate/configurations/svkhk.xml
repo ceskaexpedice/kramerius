@@ -4,7 +4,6 @@
     <source-name>svkhk</source-name>
 	<name>svkh-full</name>
 
-	<timestamp>$timestamp.url$</timestamp>
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
@@ -62,10 +61,6 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-                	<!--  
-                    <field name="cdk.collection">vc:4e6b7ee5-3374-4cde-9289-e1f6a2a335b2</field>
-                    <field name="cdk.leader">vc:4e6b7ee5-3374-4cde-9289-e1f6a2a335b2</field>
-                    -->
                     <field name="cdk.collection">svkhk</field>
                     <field name="cdk.leader">svkhk</field>
                 </update.dest.field>
@@ -77,10 +72,6 @@
                 <update.dest.field>
 	                
 	                <field name="cdk.collection" update="add-distinct">svkhk</field>
-                
-                	<!--  
-                    <field name="cdk.collection" update="add-distinct">vc:4e6b7ee5-3374-4cde-9289-e1f6a2a335b2</field>
-                    -->
                 </update.dest.field>
             </onupdate>
 

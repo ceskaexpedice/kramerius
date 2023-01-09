@@ -18,7 +18,6 @@
 		<!--  timestamp field  -->
         <timestamp_field>modified_date</timestamp_field>
 
-    	<fquery>root_pid:"uuid:477085e4-50f6-4893-a639-229a41fc7a3f"</fquery>
     	
     </iteration>
 

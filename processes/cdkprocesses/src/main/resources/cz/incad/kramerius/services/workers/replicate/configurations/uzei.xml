@@ -62,10 +62,6 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-					<!--  
-                    <field name="cdk.collection">vc:f3bf3648-de60-47a5-9ba5-4301c5203962</field>
-                    <field name="cdk.leader">vc:f3bf3648-de60-47a5-9ba5-4301c5203962</field>
-					-->
                     <field name="cdk.collection">uzei</field>
                     <field name="cdk.leader">uzei</field>
 
@@ -75,9 +71,6 @@
             <!-- on update -->
             <onupdate>
                 <update.dest.field>
-					<!--  
-                    <field name="cdk.collection" update="add-distinct">vc:f3bf3648-de60-47a5-9ba5-4301c5203962</field>
-					-->
                     <field name="cdk.collection" update="add-distinct">uzei</field>
                 </update.dest.field>
             </onupdate>
