@@ -360,4 +360,25 @@
         </out>
     </test>
 
+    <test name="03 - 12.02.1952">
+        <desc>Rozsah datumů (DD-DD.MM.RRRR)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>03 - 12.02.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="date.min">1952-02-03T00:00:00.001Z</field>
+            <field name="date.str">03 - 12.02.1952</field>
+            <field name="date_range_end.day">12</field>
+            <field name="date_range_end.month">2</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.day">3</field>
+            <field name="date_range_start.month">2</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+
 </testSuite>

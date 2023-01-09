@@ -221,5 +221,27 @@
         </out>
     </test>
 
+    <test name="7 - 11.1952">
+        <desc>Rozsah měsíců v roce (MM-MM.RRRR)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>7 - 11.1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-11-30T23:59:59.999Z</field>
+            <field name="date.min">1952-07-01T00:00:00.001Z</field>
+            <field name="date.str">7 - 11.1952</field>
+            <field name="date_range_end.month">11</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.month">7</field>
+            <field name="date_range_start.year">1952</field>
+
+            <!--
+            <field name="datum_str">7. - 11.1952</field>
+            -->
+        </out>
+    </test>
+
 
 </testSuite>

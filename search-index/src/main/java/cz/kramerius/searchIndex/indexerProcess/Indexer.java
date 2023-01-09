@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 public class Indexer {
     private static final Logger LOGGER = Logger.getLogger(Indexer.class.getName());
 
-    public static final int INDEXER_VERSION = 14; //this should be updated after every change in logic, that affects full indexation
+    public static final int INDEXER_VERSION = 15; //this should be updated after every change in logic, that affects full indexation
 
     private final SolrConfig solrConfig;
     //only state variable
@@ -202,7 +202,10 @@ public class Indexer {
         } catch (SolrServerException e) {
             counters.incrementErrors();
             report(" Solr server error", e);
-        } finally {
+        } catch (SolrException e) {
+            counters.incrementErrors();
+            report(" Solr error", e);
+        }finally {
             if (progressListener != null) {
                 progressListener.onProgress(counters.getProcessed());
             }

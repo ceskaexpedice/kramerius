@@ -204,6 +204,11 @@ public class Foxml2SolrInputConverterTest {
     }
 
     @TestFactory
+    public Collection<DynamicTest> dateIssuedCorrectIncorrectYear() throws DocumentException {
+        return testBuilder.buildTests("src/test/resources/xmlTests/dateIssued-correctIncorrectYear.xml");
+    }
+
+    @TestFactory
     public Collection<DynamicTest> dateIssuedGranularityDay() throws DocumentException {
         return testBuilder.buildTests("src/test/resources/xmlTests/dateIssued-granularityDay.xml");
     }
@@ -221,6 +226,16 @@ public class Foxml2SolrInputConverterTest {
     @TestFactory
     public Collection<DynamicTest> dateIssuedTextRange() throws DocumentException {
         return testBuilder.buildTests("src/test/resources/xmlTests/dateIssued-textRange.xml");
+    }
+
+    @TestFactory
+    public Collection<DynamicTest> dateIssuedSeasonsOfTheYear() throws DocumentException {
+        return testBuilder.buildTests("src/test/resources/xmlTests/dateIssued-seasonsOfTheYear.xml");
+    }
+
+    @TestFactory
+    public Collection<DynamicTest> dateIssuedNamelyMonths() throws DocumentException {
+        return testBuilder.buildTests("src/test/resources/xmlTests/dateIssued-namelyMonths.xml");
     }
 
     @TestFactory

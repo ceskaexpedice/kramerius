@@ -40,6 +40,7 @@ public class SolrIndexAccess {
     private final String collection; //because solrClient is buggy and still requires explicit collection-name as a parameter for some operations even though it gets collection-name in the constructor
 
     public SolrIndexAccess(SolrConfig config) {
+        System.setProperty("solr.cloud.client.stallTime", "119999");
         this.solrClient = config.login == null
                 ? buildHttpSolrClientWithoutAuth(config.baseUrl, config.collection, config.useHttps)
                 : buildHttpSolrClientWithAuth(config.baseUrl, config.collection, config.useHttps, config.login, config.password);
@@ -138,7 +139,7 @@ public class SolrIndexAccess {
     public UpdateResponse deleteById(String id) throws IOException, SolrServerException {
         //System.out.println("deleting " + id);
         if (useCompositeId()){
-            UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id);
+            UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id.replace(":", "\\:"));
         }else {
             UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
         }
@@ -152,7 +153,7 @@ public class SolrIndexAccess {
         //System.out.println("deleting " + id);
         for (String id : ids) {
             if (useCompositeId()){
-                UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id);
+                UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id.replace(":", "\\:"));
             }else {
                 UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
             }

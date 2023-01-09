@@ -824,6 +824,54 @@
         </out>
     </test>
 
+    <test name="2003, c1986">
+        <desc>publication year, copyright year</desc>
+        <in>
+            <originInfo>
+                <dateIssued>2003, c1986</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">2003-12-31T23:59:59.999Z</field>
+            <field name="date.min">2003-01-01T00:00:00.001Z</field>
+            <field name="date.str">2003, c1986</field>
+            <field name="date_range_end.year">2003</field>
+            <field name="date_range_start.year">2003</field>
+        </out>
+    </test>
+
+    <test name="[2003], c1986">
+        <desc>publication year, copyright year</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[2003], c1986</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">2003-12-31T23:59:59.999Z</field>
+            <field name="date.min">2003-01-01T00:00:00.001Z</field>
+            <field name="date.str">[2003], c1986</field>
+            <field name="date_range_end.year">2003</field>
+            <field name="date_range_start.year">2003</field>
+        </out>
+    </test>
+
+    <test name="[2003?], c1986">
+        <desc>publication year, copyright year</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[2003?], c1986</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">2003-12-31T23:59:59.999Z</field>
+            <field name="date.min">2003-01-01T00:00:00.001Z</field>
+            <field name="date.str">[2003?], c1986</field>
+            <field name="date_range_end.year">2003</field>
+            <field name="date_range_start.year">2003</field>
+        </out>
+    </test>
+
     <test name="[ca 1690]">
         <desc>uuid:6a0369d1-02ad-4896-80ef-8975af99b81b</desc>
         <in>
@@ -867,6 +915,86 @@
             <field name="date.max">1737-12-31T23:59:59.999Z</field>
             <field name="date.min">1737-01-01T00:00:00.001Z</field>
             <field name="date.str">[ca 1737</field>
+            <field name="date_range_end.year">1737</field>
+            <field name="date_range_start.year">1737</field>
+        </out>
+    </test>
+
+    <test name="ca 1737">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>ca 1737</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1737-12-31T23:59:59.999Z</field>
+            <field name="date.min">1737-01-01T00:00:00.001Z</field>
+            <field name="date.str">ca 1737</field>
+            <field name="date_range_end.year">1737</field>
+            <field name="date_range_start.year">1737</field>
+        </out>
+    </test>
+
+    <test name="[asi 1690]">
+        <desc>uuid:6a0369d1-02ad-4896-80ef-8975af99b81b</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[asi 1690]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1690-12-31T23:59:59.999Z</field>
+            <field name="date.min">1690-01-01T00:00:00.001Z</field>
+            <field name="date.str">[asi 1690]</field>
+            <field name="date_range_end.year">1690</field>
+            <field name="date_range_start.year">1690</field>
+        </out>
+    </test>
+
+    <test name="asi 1737]">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>asi 1737]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1737-12-31T23:59:59.999Z</field>
+            <field name="date.min">1737-01-01T00:00:00.001Z</field>
+            <field name="date.str">asi 1737]</field>
+            <field name="date_range_end.year">1737</field>
+            <field name="date_range_start.year">1737</field>
+        </out>
+    </test>
+
+    <test name="[asi 1737">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>[asi 1737</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1737-12-31T23:59:59.999Z</field>
+            <field name="date.min">1737-01-01T00:00:00.001Z</field>
+            <field name="date.str">[asi 1737</field>
+            <field name="date_range_end.year">1737</field>
+            <field name="date_range_start.year">1737</field>
+        </out>
+    </test>
+
+    <test name="asi 1737">
+        <desc></desc>
+        <in>
+            <originInfo>
+                <dateIssued>asi 1737</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1737-12-31T23:59:59.999Z</field>
+            <field name="date.min">1737-01-01T00:00:00.001Z</field>
+            <field name="date.str">asi 1737</field>
             <field name="date_range_end.year">1737</field>
             <field name="date_range_start.year">1737</field>
         </out>
