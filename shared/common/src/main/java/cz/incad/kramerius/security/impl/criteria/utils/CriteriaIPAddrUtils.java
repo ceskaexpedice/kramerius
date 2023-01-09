@@ -23,20 +23,24 @@ public class CriteriaIPAddrUtils {
                 negativePattern = true;
             }
 
-            boolean matched = remoteAddr.matches(patternStr);
-            if ((matched) && (!negativePattern)) {
-                LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - ACCEPTING");
-                return true;
-            } else if ((!matched) && (negativePattern)) {
-                LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - (negative pattern) ACCEPTING");
-                return true;
-            }
+            try {
+                boolean matched = remoteAddr.matches(patternStr);
+                if ((matched) && (!negativePattern)) {
+                    LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - ACCEPTING");
+                    return true;
+                } else if ((!matched) && (negativePattern)) {
+                    LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - (negative pattern) ACCEPTING");
+                    return true;
+                }
 
-            // only debug
-            if ((!matched) && (!negativePattern)) {
-                LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - NOT ACCEPTING");
-            } else if ((matched) && (negativePattern)) {
-                LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' -(negative pattern) NOT ACCEPTING");
+                // only debug
+                if ((!matched) && (!negativePattern)) {
+                    LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' - NOT ACCEPTING");
+                } else if ((matched) && (negativePattern)) {
+                    LOGGER.fine("\t regexpattern '"+patternStr+"' trying to match with address  '"+remoteAddr+"' -(negative pattern) NOT ACCEPTING");
+                }
+            } catch (Exception e) {
+                LOGGER.warning(e.getMessage());
             }
         }
         return false;
