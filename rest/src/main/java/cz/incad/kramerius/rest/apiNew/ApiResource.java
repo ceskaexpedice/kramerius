@@ -57,11 +57,14 @@ public abstract class ApiResource {
     }*/
 
     protected final void checkObjectExists(String pid) throws ApiException {
+        if (!objectExists(pid)) {
+            throw new NotFoundException("object %s not found in repository", pid);
+        }
+    }
+
+    protected final boolean objectExists(String pid) throws ApiException {
         try {
-            boolean exists = krameriusRepositoryApi.getLowLevelApi().objectExists(pid);
-            if (!exists) {
-                throw new NotFoundException("object %s not found in repository", pid);
-            }
+            return krameriusRepositoryApi.getLowLevelApi().objectExists(pid);
         } catch (RepositoryException e) {
             throw new InternalErrorException(e.getMessage());
         }
@@ -86,8 +89,12 @@ public abstract class ApiResource {
 
 
     protected final void checkSupportedObjectPid(String pid) {
-        if (!PID_PATTERN.matcher(pid).matches()) {
+        if (!isSupporetdObjectPid(pid)) {
             throw new BadRequestException("'%s' is not in supported PID format for this operation", pid);
         }
+    }
+
+    protected final boolean isSupporetdObjectPid(String pid) {
+        return PID_PATTERN.matcher(pid).matches();
     }
 }
