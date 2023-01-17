@@ -86,6 +86,7 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
         keycloack3rdUser.setProperty("authentication_time", ""+token.getAuth_time());
         keycloack3rdUser.setProperty("preffered_user_name", token.getPreferredUsername());
         keycloack3rdUser.setProperty("expires_in", ""+(token.getExp()-token.getAuth_time()));
+        keycloack3rdUser.setProperty("token_id", ""+token.getId());
 
         
         LOGGER.fine("Token id: "+token.getId() +", and returned claims:"+ token.getOtherClaims());
