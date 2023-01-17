@@ -1,6 +1,5 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 
-import cz.incad.kramerius.AbstractObjectPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
@@ -17,6 +16,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
@@ -31,10 +31,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -43,6 +40,8 @@ import java.util.stream.Collectors;
 public class CollectionsResource extends AdminApiResource {
 
     public static final Logger LOGGER = Logger.getLogger(CollectionsResource.class.getName());
+
+    private static final int MAX_BATCH_SIZE = 100;
 
 
     @Inject
@@ -333,20 +332,16 @@ public class CollectionsResource extends AdminApiResource {
     @Path("{pid}/items")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response addItemToCollection(@PathParam("pid") String collectionPid, String itemPid) {
-        //TODO: maybe JSONArray insted of single String, to be able to add multiple items at once. But with limited size of batch
         try {
             checkSupportedObjectPid(collectionPid);
             checkSupportedObjectPid(itemPid);
-            User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            User user = this.userProvider.get();
 
-            // jestli ma pravo edit a zda pid neni kolekce, pokud jo pak zda ma na kolekci pravo cist 
-            if (!permitCollectionEdit(this.rightsResolver, user1, collectionPid)) {
-                throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
+            if (!permitCollectionEdit(this.rightsResolver, user, collectionPid)) {
+                throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
-
-            if (!permitAbleToAdd(this.rightsResolver, user1, itemPid)) {
-                throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
+            if (!permitAbleToAdd(this.rightsResolver, user, itemPid)) {
+                throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
             }
             synchronized (CollectionsResource.class) {
                 //LOGGER.info("addItemToCollection execute, Thread " + Thread.currentThread().getName());
@@ -363,7 +358,7 @@ public class CollectionsResource extends AdminApiResource {
                 krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
                 //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
                 //LOGGER.info("addItemToCollection end, Thread " + Thread.currentThread().getName());
                 return Response.status(Response.Status.CREATED).build();
             }
@@ -375,9 +370,113 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    private void checkCanAddItemToCollection(String itemPid, String collectionPid) throws SolrServerException, RepositoryException, IOException {
+    /**
+     * Add multiple items to collection
+     *
+     * @param collectionPid
+     * @param itemsPidsJsonArrayStr
+     * @return
+     */
+    @POST
+    @Path("{pid}/items")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addItemsToCollection(@PathParam("pid") String collectionPid, String itemsPidsJsonArrayStr) { //primo JSONArray itemsPids jako parametr nefunguje
+        System.out.println(itemsPidsJsonArrayStr);
+        try {
+            //parse JSON Array on input
+            JSONArray itemsPid;
+            try {
+                itemsPid = new JSONArray(itemsPidsJsonArrayStr);
+                if (itemsPid.length() > MAX_BATCH_SIZE) {
+                    throw new BadRequestException("too many items in a batch (%d), limit is %d", itemsPid.length(), MAX_BATCH_SIZE);
+                }
+            } catch (JSONException e) {
+                throw new BadRequestException("not a json array: " + itemsPidsJsonArrayStr);
+            }
+
+            //check collection
+            checkSupportedObjectPid(collectionPid);
+            if (!isModelCollection(collectionPid)) {
+                throw new ForbiddenException("not a collection: " + collectionPid);
+            }
+            User user = this.userProvider.get();
+            if (!permitCollectionEdit(this.rightsResolver, user, collectionPid)) {
+                throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
+            }
+
+            //check each item pid
+            List<String> pidsToBeAdded = new ArrayList<>();
+            Map<String, String> errorsByPid = new HashedMap<>();
+            for (int i = 0; i < itemsPid.length(); i++) {
+                System.out.println(itemsPid);
+                String itemPid = itemsPid.getString(i);
+                if (!isSupporetdObjectPid(itemPid)) {
+                    errorsByPid.put(itemPid, "not supported PID format");
+                } else if (!objectExists(itemPid)) {
+                    errorsByPid.put(itemPid, "object not found in repository");
+                } else if (collectionPid.equals(itemPid)) {
+                    errorsByPid.put(itemPid, "cannot add collection into itself");
+                } else if (!permitAbleToAdd(this.rightsResolver, user, itemPid)) {
+                    errorsByPid.put(itemPid, String.format("user '%s' is not allowed to add item %s to collection (missing action '%s')", user.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION));
+                } else {
+                    String cyclicPath = findCyclicPath(itemPid, collectionPid, String.format("%s --contains--> %s", collectionPid, itemPid));
+                    if (cyclicPath != null) {
+                        errorsByPid.put(itemPid, "adding item to collection would create cycle: " + cyclicPath);
+                    } else {
+                        pidsToBeAdded.add(itemPid);
+                    }
+                }
+            }
+
+            //add items to rels-ext of collection, schedule reindexation of items that had been added
+            List<String> pidsAdded = new ArrayList<>();
+            synchronized (CollectionsResource.class) {
+                Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
+                boolean atLeastOneAdded = false;
+                for (String itemPid : pidsToBeAdded) {
+                    boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+                    if (addedNow) {
+                        pidsAdded.add(itemPid);
+                        atLeastOneAdded = true;
+                    } else {
+                        errorsByPid.put(itemPid, "item is already present in collection");
+                    }
+                }
+                if (atLeastOneAdded) {
+                    //save updated rels-ext
+                    krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
+                    //no need to re-index collection itself
+                    for (String itemPid : pidsAdded) {
+                        //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+                        scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                    }
+                }
+            }
+
+            JSONArray ignored = new JSONArray();
+            for (String itemPid : errorsByPid.keySet()) {
+                JSONObject ignoredPidInfo = new JSONObject();
+                ignoredPidInfo.put("pid", itemPid);
+                ignoredPidInfo.put("problem", errorsByPid.get(itemPid));
+                ignored.put(ignoredPidInfo);
+            }
+            JSONObject result = new JSONObject();
+            result.put("added", pidsAdded.size());
+            result.put("ignored", ignored);
+            return Response.ok(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    private void checkCanAddItemToCollection(String itemPid, String collectionPid) throws
+            SolrServerException, RepositoryException, IOException {
         //pid of object that item is to be added into must belong to collection
-        if (!"collection".equals(krameriusRepositoryApi.getModel(collectionPid))) {
+        if (!isModelCollection(collectionPid)) {
             throw new ForbiddenException("not a collection: " + collectionPid);
         }
         //cannot add to itself
@@ -386,21 +485,32 @@ public class CollectionsResource extends AdminApiResource {
         }
         //detect cycle
         if ("collection".equals(krameriusRepositoryApi.getModel(itemPid))) {
-            // check api 
-            detectCyclicPath(itemPid, collectionPid, String.format("%s --contains--> %s", collectionPid, itemPid));
+            String cyclicPath = findCyclicPath(itemPid, collectionPid, String.format("%s --contains--> %s", collectionPid, itemPid));
+            if (cyclicPath != null) {
+                throw new ForbiddenException("adding item to collection would create cycle: " + cyclicPath);
+            }
         }
     }
 
-    private void detectCyclicPath(String pid, String pidOfObjectNotAllowedOnPath, String pathSoFar) throws SolrServerException, RepositoryException, IOException {
+    private boolean isModelCollection(String collectionPid) throws
+            SolrServerException, RepositoryException, IOException {
+        return "collection".equals(krameriusRepositoryApi.getModel(collectionPid));
+    }
+
+    private String findCyclicPath(String pid, String pidOfObjectNotAllowedOnPath, String pathSoFar) throws SolrServerException, RepositoryException, IOException {
         List<RepositoryApi.Triplet> fosterChildrenTriplets = krameriusRepositoryApi.getChildren(pid).getSecond();
         for (RepositoryApi.Triplet triplet : fosterChildrenTriplets) {
             String path = String.format("%s --%s--> %s ", pathSoFar, triplet.relation, triplet.target);
             if (pidOfObjectNotAllowedOnPath.equals(triplet.target)) {
                 throw new ForbiddenException("adding item to collection would create cycle: " + path);
             } else {
-                detectCyclicPath(triplet.target, pidOfObjectNotAllowedOnPath, path);
+                String cyclicPathFound = findCyclicPath(triplet.target, pidOfObjectNotAllowedOnPath, path);
+                if (cyclicPathFound != null) {
+                    return cyclicPathFound;
+                }
             }
         }
+        return null;
     }
 
     /**
