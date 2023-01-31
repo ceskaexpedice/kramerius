@@ -76,11 +76,13 @@ public class SearchResource {
                 return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo)).build();
             } else { //format not specified in query param "wt"
                 boolean preferXmlAccordingToHeaderAccept = false;
-                List<String> headerValues = headers.getRequestHeader("Accept");
-                for (String headerValue : headerValues) {
-                    if ("application/xml".equals(headerValue) || "text/xml".equals(headerValue)) {
-                        preferXmlAccordingToHeaderAccept = true;
-                        break;
+                List<String> headerAcceptValues = headers.getRequestHeader("Accept");
+                if (headerAcceptValues != null) { //can be null instead of empty list in some implementations
+                    for (String headerValue : headerAcceptValues) {
+                        if ("application/xml".equals(headerValue) || "text/xml".equals(headerValue)) {
+                            preferXmlAccordingToHeaderAccept = true;
+                            break;
+                        }
                     }
                 }
                 if (preferXmlAccordingToHeaderAccept) { //header Accept contains "application/xml" or "text/xml"

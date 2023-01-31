@@ -85,7 +85,11 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
         keycloack3rdUser.setProperty("expiration_time", ""+token.getExp());
         keycloack3rdUser.setProperty("authentication_time", ""+token.getAuth_time());
         keycloack3rdUser.setProperty("preffered_user_name", token.getPreferredUsername());
-        keycloack3rdUser.setProperty("expires_in", ""+(token.getExp()-token.getAuth_time()));
+        if (token.getExp()!= null && token.getAuth_time() != null) {
+            keycloack3rdUser.setProperty("expires_in", "" + (token.getExp() - token.getAuth_time()));
+        } else if (token.getExp()!= null && token.getIat() != null) {
+            keycloack3rdUser.setProperty("expires_in", "" + (token.getExp() - token.getIat()));
+        }
         keycloack3rdUser.setProperty("token_id", ""+token.getId());
 
         
