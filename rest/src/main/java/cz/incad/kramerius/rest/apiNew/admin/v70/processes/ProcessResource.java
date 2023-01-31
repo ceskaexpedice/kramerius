@@ -197,6 +197,38 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+    @GET
+    @Path("by_process_uuid/{process_uuid}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getProcessByProcessUuid(@PathParam("process_uuid") String processUuid) {
+        try {
+            //authentication
+            //AuthenticatedUser user = getAuthenticatedUserByOauth();
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
+            
+            ProcessInBatch processInBatch = this.processManager.getProcessInBatchByProcessUUid(processUuid);
+
+            //authorization
+            LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
+            boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
+                                SecurityProcessUtils.permitReader(rightsResolver, user) ||
+                                SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
+            if (!permitted) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing action '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
+            }
+
+            
+            JSONObject result = processInBatchToJson(processInBatch);
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
 
     /**
      * Get whole OUT log file
@@ -720,8 +752,12 @@ public class ProcessResource extends AdminApiResource {
     }
 
     private JSONObject lrPRocessToJSONObject(LRProcess lrProcess) throws JSONException {
+
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("uuid", lrProcess.getUUID());
+        
+        
+        
         jsonObject.put("pid", lrProcess.getPid()); //empty
         jsonObject.put("id", lrProcess.getDefinitionId());
         jsonObject.put("state", lrProcess.getProcessState().toString());

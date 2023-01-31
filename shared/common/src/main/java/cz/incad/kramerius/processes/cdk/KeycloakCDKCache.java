@@ -124,8 +124,10 @@ public class KeycloakCDKCache {
                 if (url !=  null) {
                     ResteasyClientBuilder newBuilder = (ResteasyClientBuilder) ResteasyClientBuilder.newBuilder();
                     keycloak = keycloak(newBuilder);
-
+                    
+                     
                     RealmResource realmResource = keycloak.realm(kramerius);
+                    
                     // referesh groups in cache
                     refreshGroups(realmResource);
                     

@@ -97,7 +97,7 @@ public class ItemsResource extends AdminApiResource {
 
             if (!userIsAllowedToRead(this.rightsResolver, user, SpecialObjects.REPOSITORY.getPid())) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
 
 
@@ -181,7 +181,7 @@ public class ItemsResource extends AdminApiResource {
 
             if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectExists(pid);
@@ -205,7 +205,7 @@ public class ItemsResource extends AdminApiResource {
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
             checkObjectExists(pid);
             Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
@@ -230,7 +230,7 @@ public class ItemsResource extends AdminApiResource {
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectExists(pid);
@@ -277,7 +277,7 @@ public class ItemsResource extends AdminApiResource {
             //authorization
             if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
             checkObjectExists(pid);
 
@@ -357,7 +357,7 @@ public class ItemsResource extends AdminApiResource {
             //authorization
             if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectExists(pid);
@@ -388,7 +388,7 @@ public class ItemsResource extends AdminApiResource {
             //authorization
             if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectAndDatastreamExist(pid, dsid);
@@ -419,7 +419,7 @@ public class ItemsResource extends AdminApiResource {
             //authorization
             if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectAndDatastreamExist(pid, dsid);
@@ -497,7 +497,7 @@ public class ItemsResource extends AdminApiResource {
             //authorization
             if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             checkObjectAndDatastreamExist(pid, dsId);
@@ -579,7 +579,7 @@ public class ItemsResource extends AdminApiResource {
 
             if (!userIsAllowedToRead(this.rightsResolver, user, targetPid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             //check target object
@@ -625,7 +625,7 @@ public class ItemsResource extends AdminApiResource {
             //authorization
             if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", requestProvider.get().getUserPrincipal().getName(), SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
 
             //check target object

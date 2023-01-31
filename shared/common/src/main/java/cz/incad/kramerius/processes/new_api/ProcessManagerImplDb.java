@@ -283,6 +283,72 @@ public class ProcessManagerImplDb implements ProcessManager {
             DatabaseUtils.tryClose(connection);
         }
     }
+    
+    @Override
+    public ProcessInBatch getProcessInBatchByProcessUUid(String processUuid) {
+        Connection connection = connectionProvider.get();
+        if (connection == null) {
+            throw new NotReadyException("connection not ready");
+        }
+        try {
+            String sql = "SELECT" +
+                    "  batch.batch_token AS batch_token," +
+                    "  batch.first_process_id AS batch_id," +
+                    "  batch.batch_state AS batch_state," +
+                    "  batch.planned AS batch_planned," +
+                    "  batch.started AS batch_started," +
+                    "  batch.finished AS batch_finished," +
+                    "  batch.owner_id AS batch_owner_id," +
+                    "  batch.owner_name AS batch_owner_name," +
+                    "  batch.process_count AS batch_size," +
+                    "" +
+                    "  process.process_id AS process_id," +
+                    "  process.uuid AS process_uuid," +
+                    "  process.defid AS process_defid," +
+                    "  process.name AS process_name," +
+                    "  process.status AS process_state," +
+                    "  process.planned AS process_planned," +
+                    "  process.started AS process_started," +
+                    "  process.finished AS process_finished" +
+                    " FROM" +
+                    "  process_batch AS batch," +
+                    "  processes AS process" +
+                    " WHERE" +
+                    "  process.process_uuid = ?" +
+                    " AND" +
+                    "  batch.batch_token = process.token";
+            List<ProcessInBatch> processes = new JDBCQueryTemplate<ProcessInBatch>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<ProcessInBatch> returnsList) throws SQLException {
+                    ProcessInBatch result = new ProcessInBatch();
+                    result.batchToken = rs.getString("batch_token");
+                    result.batchId = rs.getString("batch_id");
+                    result.batchStateCode = rs.getInt("batch_state");
+                    result.batchPlanned = toLocalDateTime(rs.getTimestamp("batch_planned"));
+                    result.batchStarted = toLocalDateTime(rs.getTimestamp("batch_started"));
+                    result.batchFinished = toLocalDateTime(rs.getTimestamp("batch_finished"));
+                    result.batchOwnerId = rs.getString("batch_owner_id");
+                    result.batchOwnerName = rs.getString("batch_owner_name");
+                    result.batchSize = rs.getInt("batch_size");
+
+                    result.processId = rs.getString("process_id");
+                    result.processUuid = rs.getString("process_uuid");
+                    result.processDefid = rs.getString("process_defid");
+                    result.processName = rs.getString("process_name");
+                    result.processStateCode = rs.getInt("process_state");
+                    result.processPlanned = toLocalDateTime(rs.getTimestamp("process_planned"));
+                    result.processStarted = toLocalDateTime(rs.getTimestamp("process_started"));
+                    result.processFinished = toLocalDateTime(rs.getTimestamp("process_finished"));
+                    returnsList.add(result);
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(sql, processUuid);
+            return !processes.isEmpty() ? processes.get(0) : null;
+        } finally {
+            DatabaseUtils.tryClose(connection);
+        }
+    }
+
 
 
     @Override
@@ -357,8 +423,6 @@ public class ProcessManagerImplDb implements ProcessManager {
             throw new NotReadyException("connection not ready");
         }
         try {
-            
-            
             PreparedStatement prepareStatement = connection.prepareStatement("DELETE FROM processes WHERE token = ?");
             prepareStatement.setString(1, batchToken);
             int deleted = prepareStatement.executeUpdate();

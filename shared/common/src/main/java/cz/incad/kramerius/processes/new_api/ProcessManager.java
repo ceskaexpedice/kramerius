@@ -37,6 +37,13 @@ public interface ProcessManager {
     public ProcessInBatch getProcessInBatchByProcessId(int processId);
 
     /**
+     * Return by process uuid;
+     * @param processUuid
+     * @return
+     */
+    public ProcessInBatch getProcessInBatchByProcessUUid(String processUuid);
+
+    /**
      * Returns users, that have ever scheduled any process
      *
      * @return
