@@ -209,7 +209,11 @@ public class ProcessResource extends AdminApiResource {
             
             ProcessInBatch processInBatch = this.processManager.getProcessInBatchByProcessUUid(processUuid);
 
-            //authorization
+            if (processInBatch == null) {
+                throw new NotFoundException("there's no process with process_uuid=" + processUuid);
+            }
+
+            
             LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
             boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
                                 SecurityProcessUtils.permitReader(rightsResolver, user) ||
@@ -217,10 +221,13 @@ public class ProcessResource extends AdminApiResource {
             if (!permitted) {
                 throw new ForbiddenException("user '%s' is not allowed to manage processes (missing action '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
-
+            
+            
             
             JSONObject result = processInBatchToJson(processInBatch);
             return Response.ok().entity(result.toString()).build();
+
+            
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {

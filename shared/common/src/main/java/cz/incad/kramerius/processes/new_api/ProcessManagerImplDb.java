@@ -314,7 +314,7 @@ public class ProcessManagerImplDb implements ProcessManager {
                     "  process_batch AS batch," +
                     "  processes AS process" +
                     " WHERE" +
-                    "  process.process_uuid = ?" +
+                    "  process.uuid = ?" +
                     " AND" +
                     "  batch.batch_token = process.token";
             List<ProcessInBatch> processes = new JDBCQueryTemplate<ProcessInBatch>(connection) {
