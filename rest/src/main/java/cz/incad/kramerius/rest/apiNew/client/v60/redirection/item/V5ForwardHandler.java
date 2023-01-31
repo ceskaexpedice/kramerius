@@ -26,11 +26,21 @@ import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler.RequestMethodName;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class V5ForwardHandler extends V5RedirectHandler {
 
     public static final Logger LOGGER = Logger.getLogger(V5ForwardHandler.class.getName());
 
+    
+    
+    protected String forwardUrl() {
+        String baseurl = KConfiguration.getInstance().getConfiguration()
+                .getString("cdk.collections.sources." + this.source + ".forwardurl");
+        return baseurl;
+    }
+
+    
     public V5ForwardHandler(Instances instances, User user, Client client, SolrAccess solrAccess, String source,
             String pid, String remoteAddr) {
         super(instances, user, client, solrAccess, source, pid, remoteAddr);
@@ -38,7 +48,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
 
     @Override
     public Response image(RequestMethodName method) throws ProxyHandlerException {
-        String baseurl = super.baseUrl();
+        String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/item/" + this.pid
                 + "/streams/IMG_FULL";
         if (method == RequestMethodName.head) {
@@ -50,7 +60,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
 
     @Override
     public Response imagePreview(RequestMethodName method) throws ProxyHandlerException {
-        String baseurl = super.baseUrl();
+        String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/item/" + this.pid
                 + "/streams/IMG_PREVIEW";
 
@@ -64,12 +74,12 @@ public class V5ForwardHandler extends V5RedirectHandler {
     @Override
     public Response mods(RequestMethodName method) throws ProxyHandlerException {
         if (method == RequestMethodName.head) {
-            String baseurl = super.baseUrl();
+            String baseurl = this.baseUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid
                     + "/streams/BIBLIO_MODS";
             return buildRedirectResponse(url);
         } else {
-            String baseurl = super.baseUrl();
+            String baseurl = this.forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/item/" + this.pid
                     + "/streams/BIBLIO_MODS";
             // String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/"
@@ -80,7 +90,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
 
     @Override
     public Response zoomifyImageProperties(RequestMethodName method) throws ProxyHandlerException {
-        String baseurl = super.baseUrl();
+        String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/zoomify/" + this.pid
                 + "/ImageProperties.xml";
 
@@ -93,7 +103,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
 
     @Override
     public Response zoomifyTile(String tileGroupStr, String tileStr) throws ProxyHandlerException {
-        String baseurl = baseUrl();
+        String baseurl = this.forwardUrl();
         String formatted = String.format("api/v5.0/cdk/forward/zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
         return buildForwardResponseGET(url);
@@ -101,7 +111,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
 
     @Override
     public Response textOCR(RequestMethodName method) throws ProxyHandlerException {
-        String baseurl = super.baseUrl();
+        String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/" + this.pid
                 + "/streams/TEXT_OCR";
 

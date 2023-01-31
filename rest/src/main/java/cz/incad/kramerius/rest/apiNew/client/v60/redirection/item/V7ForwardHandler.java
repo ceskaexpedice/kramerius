@@ -23,6 +23,7 @@ import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler.RequestMethodName;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class V7ForwardHandler extends V7RedirectHandler {
 
@@ -32,9 +33,16 @@ public class V7ForwardHandler extends V7RedirectHandler {
         super(instances, user, client, solrAccess, source, pid, remoteAddr);
 	}
 
+    protected String forwardUrl() {
+        String baseurl = KConfiguration.getInstance().getConfiguration()
+                .getString("cdk.collections.sources." + this.source + ".forwardurl");
+        return baseurl;
+    }
+
+    
     @Override
     public Response image(RequestMethodName method) throws ProxyHandlerException {
-        String baseurl = super.baseUrl();
+        String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/IMG_FULL";
         if (method == RequestMethodName.head) {
@@ -46,7 +54,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
 
     @Override
     public Response imagePreview(RequestMethodName method) throws ProxyHandlerException {
-        String baseurl = super.baseUrl();
+        String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/IMG_PREVIEW";
 
@@ -62,7 +70,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return super.mods(method);
         } else {
-            String baseurl = super.baseUrl();
+            String baseurl = this.forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                     + "/streams/BIBLIO_MODS";
             return buildForwardResponseGET(url);
@@ -81,19 +89,21 @@ public class V7ForwardHandler extends V7RedirectHandler {
             return buildForwardResponseGET(url);
         }
     }
+    
     @Override
     public Response zoomifyTile(String tileGroupStr, String tileStr) throws ProxyHandlerException {
-        String formatted = String.format("image/zoomify/%s/%s", tileGroupStr, tileStr);
+        //String formatted = String.format("image/zoomify/%s/%s", tileGroupStr, tileStr);
         //String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + pid + "/" + endpoint;
-        String baseurl = baseUrl();
-        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/"+formatted;
+        String baseurl = forwardUrl();
+        String formatted = String.format("api/cdk/v7.0/forward/zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
         return buildRedirectResponse(url);
     }
 
     
     @Override
     public Response textOCR(RequestMethodName method) throws ProxyHandlerException {
-        String baseurl = super.baseUrl();
+        String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/TEXT_OCR";
 
