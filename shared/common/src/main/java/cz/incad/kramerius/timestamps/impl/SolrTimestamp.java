@@ -1,5 +1,7 @@
 package cz.incad.kramerius.timestamps.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -170,5 +172,6 @@ public class SolrTimestamp implements Timestamp{
 		
 		return new SolrTimestamp(id, name, type, date, indexed, updated, batches, workers);
  	}
+	
 
 }

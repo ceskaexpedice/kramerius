@@ -149,7 +149,12 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                     public ModifyFieldResult modifyField(Element field) {
 
                                         List<String> deleteFields = Arrays.asList();
-                                        List<String> addValues = Arrays.asList("licenses","licenses_of_ancestors","contains_licenses");
+                                        List<String> addValues = Arrays.asList(
+                                                "licenses",
+                                                "licenses_of_ancestors",
+                                                "contains_licenses",
+                                                "in_collections",
+                                                "in_collections.direct");
                                         
                                         String name = field.getAttribute("name");
                                         if (deleteFields.contains(name)) {

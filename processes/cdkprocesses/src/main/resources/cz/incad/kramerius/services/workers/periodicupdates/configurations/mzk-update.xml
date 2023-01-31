@@ -3,6 +3,7 @@
 
      <source-name>mzk</source-name>
      <name>mzk-update</name>
+	<type>update</type>
 
 	<timestamp>$timestamp.url$</timestamp>
 
@@ -10,10 +11,17 @@
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         <url>$iteration.url$</url>
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
+        
         <endpoint>select</endpoint>
         <id>pid</id>
         <rows>4000</rows>
         <type>CURSOR</type>
+        
+        		<!--  timestamp field  -->
+        <timestamp_field>indexed</timestamp_field>
+        
     </iteration>
 
     <threads>2</threads>
@@ -22,8 +30,11 @@
     <worker>
         <request>
             <url>$iteration.url$</url>
+            <user>$iteration.user$</user>
+            <pass>$iteration.pass$</pass>
+            
             <endpoint>select</endpoint>
-            <batchsize>20</batchsize>
+            <batchsize>70</batchsize>
 
             <id>pid</id>
 
@@ -59,7 +70,7 @@
 
             <!-- on update; disabled for now -->
             <onupdate>
-                <fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors</fieldlist>
+                <fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors in_collections in_collections.direct</fieldlist>
 
                 <update.dest.field>
                     <field name="cdk.collection" update="add-distinct">mzk</field>

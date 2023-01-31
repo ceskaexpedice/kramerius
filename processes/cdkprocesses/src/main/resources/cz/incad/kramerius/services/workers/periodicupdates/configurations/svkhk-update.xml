@@ -3,6 +3,7 @@
 
     <source-name>svkhk</source-name>
 	<name>svkh-full</name>
+	<type>update</type>
 
 	<timestamp>$timestamp.url$</timestamp>
 
@@ -19,6 +20,8 @@
         <user>$iteration.user$</user>
         <pass>$iteration.pass$</pass>
 	
+		<!--  timestamp field  -->
+        <timestamp_field>modified_date</timestamp_field>
 		
     </iteration>
 
@@ -30,7 +33,7 @@
         <request>
 
             <endpoint>select</endpoint>
-            <batchsize>20</batchsize>
+            <batchsize>70</batchsize>
 
             <url>$iteration.url$</url>
 
