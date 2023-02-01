@@ -22,6 +22,7 @@ import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class V5ForwardUserHandler extends ProxyUserHandler {
 
@@ -30,9 +31,16 @@ public class V5ForwardUserHandler extends ProxyUserHandler {
 		super(instances, user, client, solrAccess, source, remoteAddr);
 	}
 
+    protected String forwardUrl() {
+        String baseurl = KConfiguration.getInstance().getConfiguration()
+                .getString("cdk.collections.sources." + this.source + ".forwardurl");
+        return baseurl;
+    }
+
+	
 	@Override
 	public Pair<User, List<String>> user() throws ProxyHandlerException {
-		String baseurl = baseUrl();
+		String baseurl = forwardUrl();
 		//https://kramerius-dnnt.lib.cas.cz/search/api/v5.0/cdk/forward/user
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/user";
         ClientResponse fResponse = super.forwardedResponse(url);
