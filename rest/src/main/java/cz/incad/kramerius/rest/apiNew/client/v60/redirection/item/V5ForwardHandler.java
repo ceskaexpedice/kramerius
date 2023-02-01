@@ -124,7 +124,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
 
     @Override
     public Response altoOCR(RequestMethodName method) throws ProxyHandlerException {
-        String baseurl = super.baseUrl();
+        String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/" + this.pid
                 + "/streams/ALTO";
 
@@ -138,7 +138,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
     protected JSONArray providedByLicense() {
         JSONArray retVal = new JSONArray();
         try {
-            String baseurl = super.baseUrl();
+            String baseurl = this.forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/providedBy/" + this.pid;
             WebResource.Builder r = buidFowrardResponse(url);
             ClientResponse response = r.get(ClientResponse.class);
