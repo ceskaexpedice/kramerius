@@ -106,13 +106,16 @@ public abstract class ProxyHandlerSupport {
 			};
 
 			ResponseBuilder respEntity = Response.status(200).entity(stream);
+			
+			/* Disable header forward 
 			headers.keySet().forEach(key -> {
 				List<String> values = headers.get(key);
 				values.stream().forEach(val -> {
 					respEntity.header(key, val);
 				});
 			});
-
+            */
+			
 			return respEntity.build();
 		} else {
 			return Response.status(response.getStatus()).build();

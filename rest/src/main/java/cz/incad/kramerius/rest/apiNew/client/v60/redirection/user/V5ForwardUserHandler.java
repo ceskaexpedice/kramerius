@@ -45,7 +45,9 @@ public class V5ForwardUserHandler extends ProxyUserHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/user";
         ClientResponse fResponse = super.forwardedResponse(url);
         String entity = fResponse.getEntity(String.class);
-    	return userFromJSON(new JSONObject(entity));
+        JSONObject jObject = new JSONObject(entity);
+        //LOGGER.info("Collecting user information from = "+url+"; information = "+jObject.toString());
+        return userFromJSON(jObject);
 	}
 	
     public static Pair<User, List<String>> userFromJSON(JSONObject json) throws JSONException {
