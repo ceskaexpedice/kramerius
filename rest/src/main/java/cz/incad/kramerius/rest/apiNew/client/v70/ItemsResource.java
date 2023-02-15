@@ -331,9 +331,7 @@ public class ItemsResource extends ClientApiResource {
 
     private void childrenInSearchIndex(Map<String, Integer> relsExtSort, List<String> childrenPids)
             throws IOException, UnsupportedEncodingException {
-        //max batch size
-        //int batchSize = 90;
-            
+
         int numberOfBatches = childrenPids.size() / SEARCH_INDEX_BATCH_SIZE;
         numberOfBatches += childrenPids.size() % SEARCH_INDEX_BATCH_SIZE == 0 ? 0 : 1;
         
