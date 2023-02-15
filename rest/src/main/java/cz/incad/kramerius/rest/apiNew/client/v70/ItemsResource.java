@@ -37,8 +37,13 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -101,6 +106,8 @@ public class ItemsResource extends ClientApiResource {
      * It would be inefficient to use byte-serving this way. Since Kramerius Repository (Akubra) has to fetch whole audio file again for every byte-serving request
      */
     private static final boolean AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE = true;
+
+    private static final int SEARCH_INDEX_BATCH_SIZE = 98;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -275,12 +282,40 @@ public class ItemsResource extends ClientApiResource {
         structure.put("parents", parents);
         //children
         JSONObject children = new JSONObject();
+        
+        //
         Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
-        JSONArray ownChildren = new JSONArray();
+        Map<String, JSONObject> pidAndRelations = new HashMap<>();
+        Map<String, Integer> relsExtSort = new HashMap<>();
+
+        List<String> childrenPids = new ArrayList<>();
+
         for (RepositoryApi.Triplet ownChildTpl : childrenTpls.getFirst()) {
-            ownChildren.put(pidAndRelationToJson(ownChildTpl.target, ownChildTpl.relation));
+            pidAndRelations.put(ownChildTpl.target, pidAndRelationToJson(ownChildTpl.target, ownChildTpl.relation));
+            childrenPids.add(ownChildTpl.target);
+        }
+        
+        // children in searchindex
+        childrenInSearchIndex(relsExtSort, childrenPids);
+        
+        childrenPids.sort((l,r)-> {
+            Integer leftSort = relsExtSort.get(l);
+            if (leftSort == null) {
+                leftSort = childrenPids.indexOf(l);
+            }
+            Integer rightSort = relsExtSort.get(r);
+            if (rightSort == null) {
+                rightSort = childrenPids.indexOf(r);
+            }
+            return leftSort.compareTo(rightSort);
+        });
+        
+        JSONArray ownChildren = new JSONArray();
+        for (String childPid : childrenPids) {
+            ownChildren.put(pidAndRelations.get(childPid));
         }
         children.put("own", ownChildren);
+
         JSONArray fosterChildren = new JSONArray();
         for (RepositoryApi.Triplet fosterChildTpl : childrenTpls.getSecond()) {
             fosterChildren.put(pidAndRelationToJson(fosterChildTpl.target, fosterChildTpl.relation));
@@ -292,6 +327,36 @@ public class ItemsResource extends ClientApiResource {
         structure.put("model", model);
 
         return structure;
+    }
+
+    private void childrenInSearchIndex(Map<String, Integer> relsExtSort, List<String> childrenPids)
+            throws IOException, UnsupportedEncodingException {
+        //max batch size
+        //int batchSize = 90;
+            
+        int numberOfBatches = childrenPids.size() / SEARCH_INDEX_BATCH_SIZE;
+        numberOfBatches += childrenPids.size() % SEARCH_INDEX_BATCH_SIZE == 0 ? 0 : 1;
+        
+        for (int i = 0; i < numberOfBatches; i++) {
+            int start = i*SEARCH_INDEX_BATCH_SIZE;
+            int stop = Math.min( (i+1)*SEARCH_INDEX_BATCH_SIZE, childrenPids.size());
+            
+            List<String> ipids = childrenPids.subList(start, stop);
+
+            String collect = ipids.stream().map(p-> {
+                String retVal = "\"" + p + "\"";
+                return retVal;
+            }).collect(Collectors.joining(" OR "));
+
+            JSONObject solrResponseJson = solrAccess.requestWithSelectReturningJson("q=pid:("+URLEncoder.encode(collect, "UTF-8")+")"+ "&fl="+URLEncoder.encode("pid rels_ext_index.sort","UTF-8"));
+            JSONArray docs = solrResponseJson.getJSONObject("response").getJSONArray("docs");
+            for (int j = 0; j < docs.length(); j++) {
+                JSONObject hit = docs.getJSONObject(j);
+                String hitPid = hit.optString("pid");
+                int hitRelsExt = hit.optInt("rels_ext_index.sort");
+                relsExtSort.put(hitPid, hitRelsExt);
+            }
+        }
     }
 
     private Object extractImageSourceInfo(String pid) throws IOException, RepositoryException {
