@@ -37,6 +37,9 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.DatabaseRightsManager;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -96,6 +99,9 @@ public class ClientUserResource {
     @Inject
     RightsResolver rightsResolver;
 
+    @Inject
+    LicensesManager licensesManager;
+
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -143,9 +149,34 @@ public class ClientUserResource {
             }
         });
 
-        return evaluatedObjects.stream().filter(label-> {
+
+        List<String> userLicenses =  evaluatedObjects.stream().filter(label-> {
             return  (Character.isAlphabetic(label.charAt(0)));
         }).collect(Collectors.toList());
+        
+
+        
+        
+        try {
+            List<License> licenses = this.licensesManager.getLabels();
+            licenses.sort(new Comparator<License>() {
+                @Override
+                public int compare(License o1, License o2) {
+                    return Integer.valueOf(o1.getPriority()).compareTo(Integer.valueOf(o2.getPriority()));
+                }
+            });
+            
+            List<String> retvals = new ArrayList<>();
+            for (License license : licenses) {
+                if (userLicenses.contains(license.getName())) {
+                    retvals.add(license.getName());
+                }
+            }
+            return retvals;
+        } catch (LicensesManagerException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage());
+            return userLicenses;
+        }
     }
 
     //TODO: Merge with actionsForPids
