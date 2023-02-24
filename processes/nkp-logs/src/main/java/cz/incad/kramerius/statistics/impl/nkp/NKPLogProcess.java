@@ -30,9 +30,14 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class NKPLogProcess {
 
+    private static final String NKP_LOGS_FOLDER_KEY = "nkp.logs.folder";
+    private static final String NKP_LOGS_VISIBILITY_KEY = "nkp.logs.visibility";
+    private static final String NKP_LOGS_INSTITUTION_KEY = "nkp.logs.institution";
+    private static final String NKP_LOGS_ANONYMIZATION_KEY = "nkp.logs.anonymization";
     public static Logger LOGGER = Logger.getLogger(NKPLogProcess.class.getName());
 
     public static void main(String[] args) throws NoSuchAlgorithmException, ParseException, IOException {
@@ -41,10 +46,10 @@ public class NKPLogProcess {
             String from = args[1];
             String to = args[2];
 
-            String folder = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.folder", System.getProperty("java.io.tmpdir"));
-            String visibility = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.visibility", "ALL");
-            String institution = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.institution", "-none-");
-            String anonymization = KConfiguration.getInstance().getConfiguration().getString("nkp.logs.anonimization", "username,session_eppn,dnnt_user,eduPersonUniqueId,affilation,remoteAddr");
+            String folder = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_FOLDER_KEY, System.getProperty("java.io.tmpdir"));
+            String visibility = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_VISIBILITY_KEY, "ALL");
+            String institution = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_INSTITUTION_KEY, "-none-");
+            List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_ANONYMIZATION_KEY, Arrays.asList("username","session_eppn","dnnt_user","eduPersonUniqueId","affilation","remoteAddr"));
 
             process(from, to, folder, institution, visibility, anonymization);
         }
@@ -55,16 +60,17 @@ public class NKPLogProcess {
                                String folder,
                                String institution,
                                String visibility,
-                               String anonymization
+                               List<Object> anonymization
     ) throws ParseException, IOException, NoSuchAlgorithmException {
 
         ProcessStarter.updateName(String.format("Generování NKP logů pro období %s - %s", from, to));
 
         // folder, institution, visibility from configuration
         LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to, folder, institution, visibility, anonymization));
-
-        List<String> annonymizationKeys = anonymization != null ? Arrays.asList(anonymization.split(",")) : new ArrayList<>();
-
+        
+        
+        
+        List<String> annonymizationKeys = anonymization != null ? anonymization.stream().map(Objects::toString).collect(Collectors.toList()) : new ArrayList<>();
 
         Client client = Client.create();
 
@@ -155,4 +161,8 @@ public class NKPLogProcess {
             return value;
         }
     }
+
+    
 }
+
+

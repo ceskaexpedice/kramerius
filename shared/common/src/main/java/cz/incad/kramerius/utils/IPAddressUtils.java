@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 
 public class IPAddressUtils {
 
+    private static final String X_IP_FORWARED_ENABLED_FOR_KEY = "x_ip_forwarded_enabled_for";
+
     public static Logger LOGGER = Logger.getLogger(IPAddressUtils.class.getName());
 
     public static final String X_IP_FORWARD = "x-forwarded-for";
@@ -51,7 +53,7 @@ public class IPAddressUtils {
 
     public static boolean matchConfigurationAddress(HttpServletRequest httpReq) {
         String remoteAddr = httpReq.getRemoteAddr();
-        List<String> forwaredEnabled = Lists.transform( KConfiguration.getInstance().getConfiguration().getList("x_ip_forwared_enabled_for", Arrays.asList(LOCALHOSTS)), Functions.toStringFunction());
+        List<String> forwaredEnabled = Lists.transform( KConfiguration.getInstance().getConfiguration().getList(X_IP_FORWARED_ENABLED_FOR_KEY, Arrays.asList(LOCALHOSTS)), Functions.toStringFunction());
         if (!forwaredEnabled.isEmpty()) {
             for (String pattern : forwaredEnabled) {
                 if (remoteAddr.matches(pattern)) return true;
