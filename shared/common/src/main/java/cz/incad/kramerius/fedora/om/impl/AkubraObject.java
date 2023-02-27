@@ -96,7 +96,7 @@ public class AkubraObject implements RepositoryObject {
     }
 
 
-    private DatastreamType createDatastreamHeader(String streamId, String mimeType, String controlGroup ) throws RepositoryException{
+    private DatastreamType createDatastreamHeader(String streamId, String mimeType, String controlGroup) throws RepositoryException{
         List<DatastreamType> datastreamList = digitalObject.getDatastream();
         Iterator<DatastreamType> iterator = datastreamList.iterator();
         while (iterator.hasNext()){
@@ -115,6 +115,10 @@ public class AkubraObject implements RepositoryObject {
         datastreamVersionType.setID(streamId+".0");
         datastreamVersionType.setCREATED(AkubraUtils.getCurrentXMLGregorianCalendar());
         datastreamVersionType.setMIMETYPE(mimeType);
+        String formatUri = FedoraUtils.getFormatUriForDS(streamId);
+        if (formatUri != null) {
+            datastreamVersionType.setFORMATURI(formatUri);
+        }
         datastreamVersion.add(datastreamVersionType);
         datastreamList.add(datastreamType);
         return datastreamType;

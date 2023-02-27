@@ -11,7 +11,9 @@ import cz.incad.kramerius.fedora.om.impl.AkubraRepository;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
@@ -21,9 +23,8 @@ import org.ehcache.CacheManager;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -375,13 +376,17 @@ public class RepositoryApiImpl implements RepositoryApi {
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException {
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
-            Document foxml = getFoxml(pid);
-            appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);
-            updateLastModifiedTimestamp(foxml);
-            DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
-            akubraRepository.deleteObject(pid, false, false);
-            akubraRepository.ingestObject(updatedDigitalObject);
-            akubraRepository.commitTransaction();
+            RepositoryObject object = akubraRepository.getObject(pid);
+
+            object.deleteStream(dsId);
+            object.createStream(dsId, "text/xml", new ByteArrayInputStream(streamDoc.asXML().getBytes(Charset.forName("UTF-8"))));
+
+//            appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);
+//            updateLastModifiedTimestamp(foxml);
+//            DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
+//            akubraRepository.deleteObject(pid, false, false);
+//            akubraRepository.ingestObject(updatedDigitalObject);
+//            akubraRepository.commitTransaction();
         } finally {
             writeLock.unlock();
         }

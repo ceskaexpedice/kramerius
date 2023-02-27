@@ -65,7 +65,24 @@ public class FedoraUtils {
         //add(RELS_EXT_STREAM);
         add(POLICY_STREAM);
      }};
-    
+
+
+    public static final String RELS_EXT_FORMAT_URI = "info:fedora/fedora-system:FedoraRELSExt-1.0";
+    public static final String BIBLIO_MODS_FORMAT_URI = "http://www.loc.gov/mods/v3";
+    public static final String DC_FORMAT_URI = "http://www.openarchives.org/OAI/2.0/oai_dc/";
+
+    public static String getFormatUriForDS(String dsID){
+        if (RELS_EXT_STREAM.equals(dsID)){
+            return RELS_EXT_FORMAT_URI;
+        }
+        if (BIBLIO_MODS_STREAM.equals(dsID)){
+            return BIBLIO_MODS_FORMAT_URI;
+        }
+        if (DC_STREAM.equals(dsID)){
+            return DC_FORMAT_URI;
+        }
+        return null;
+    }
 
     
     public static final int THUMBNAIL_HEIGHT = 128;
