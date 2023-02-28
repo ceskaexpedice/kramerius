@@ -1,6 +1,7 @@
 package cz.kramerius.searchIndex.indexer;
 
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
+import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
 import cz.kramerius.shared.Dom4jUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
