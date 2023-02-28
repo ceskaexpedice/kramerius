@@ -67,12 +67,12 @@ public class AkubraRepository extends Repository {
      */
     @Override
     public void commitTransaction() throws RepositoryException {
-        try {
-            //to avoid temporary inconsistency between Akubra and Processing index
-            this.feeder.commit();
-        } catch (IOException | SolrServerException e) {
-            throw new RepositoryException(e);
-        }
+//        try {
+//            //to avoid temporary inconsistency between Akubra and Processing index
+//            this.feeder.commit();
+//        } catch (IOException | SolrServerException e) {
+//            throw new RepositoryException(e);
+//        }
     }
 
     /* (non-Javadoc)
