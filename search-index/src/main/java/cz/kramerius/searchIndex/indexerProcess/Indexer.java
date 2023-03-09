@@ -11,7 +11,6 @@ import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapte
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.dom4j.Document;
@@ -42,24 +41,24 @@ public class Indexer {
     private final SolrInputBuilder solrInputBuilder;
     private SolrIndexAccess solrIndexer = null;
 
-    public static boolean useCompositeId(){
+    public static boolean useCompositeId() {
         return KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false);
     }
 
-    public static String getCompositeId(RepositoryNode repositoryNode, String pid){
-        String rootPid =  (repositoryNode != null) ?repositoryNode.getRootPid():"null";
-        return rootPid+"!"+pid;
+    public static String getCompositeId(RepositoryNode repositoryNode, String pid) {
+        String rootPid = (repositoryNode != null) ? repositoryNode.getRootPid() : "null";
+        return rootPid + "!" + pid;
     }
 
-    public static void ensureCompositeId(SolrInput solrInput, RepositoryNode repositoryNode, String pid){
-        if (useCompositeId()){
-            solrInput.addField("compositeId", getCompositeId(repositoryNode,pid));
+    public static void ensureCompositeId(SolrInput solrInput, RepositoryNode repositoryNode, String pid) {
+        if (useCompositeId()) {
+            solrInput.addField("compositeId", getCompositeId(repositoryNode, pid));
         }
     }
 
-    public static void ensureCompositeId(SolrInputDocument solrInput, RepositoryNode repositoryNode, String pid){
-        if (useCompositeId()){
-            solrInput.addField("compositeId", getCompositeId(repositoryNode,pid));
+    public static void ensureCompositeId(SolrInputDocument solrInput, RepositoryNode repositoryNode, String pid) {
+        if (useCompositeId()) {
+            solrInput.addField("compositeId", getCompositeId(repositoryNode, pid));
         }
     }
 
@@ -128,6 +127,7 @@ public class Indexer {
             report("=======================================");
             report(" objects processed: " + counters.getProcessed());
             report(" objects indexed:   " + counters.getIndexed());
+            report(" objects ignored:   " + counters.getIgnored());
             report(" objects removed:   " + counters.getRemoved());
             report(" objects erroneous: " + counters.getErrors());
             report(" *counters include pages from pdf, i.e. not real objects in repository");
@@ -158,7 +158,7 @@ public class Indexer {
         report("clearing field full_indexation_in_progress for " + pid);
         //will not work for objects that are not stored and not docValues
         //see https://github.com/ceskaexpedice/kramerius/issues/782
-        solrIndexer.setSingleFieldValue(pid, repositoryNode,"full_indexation_in_progress", null, false);
+        solrIndexer.setSingleFieldValue(pid, repositoryNode, "full_indexation_in_progress", null, false);
     }
 
     private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean setFullIndexationInProgress, ProgressListener progressListener) {
@@ -166,10 +166,21 @@ public class Indexer {
             counters.incrementProcessed();
             boolean objectAvailable = repositoryNode != null;
             if (!objectAvailable) {
-                report("object not found in repository (or found in inconsistent state), removing from index: " + pid);
-                System.err.println("object not found in repository (or found in inconsistent state), removing from index: " + pid);
-                solrIndexer.deleteById(pid);
-                counters.incrementRemoved();
+                //TODO: hodit ignorObjectsMissingFromRepository do konfigurace, nebo nastavit na false pri pouziti takove implementace KrameriusRepositoryAccessAdapter, ktera falesne neoznacuje existujici objekty v repozitari za chybejici
+                //protoze vysledkem tehle zmeny (neexistujici/falesne neexistujici objekty budou v indexu ponechany v dosavadnim stavu, namisto smazani) muze byt skryta zastaralost v indexu, napr.:
+                //monografie se muze jevit jako zaindexovana indexerem ve verzi třeba 15, ale obsahuje stranku, ktera preindexovana nebyla, nebyla ale ani zahozena a jeji zaznam v indexu je nenapadne zastaraly
+                //podobne pro periodikum, pokud by nebyl dostupny zaznam cisla, nebude preindexovano a ani jeji stranky
+                boolean ignorObjectsMissingFromRepository = true;
+                if (ignorObjectsMissingFromRepository) { //ignore missing objects
+                    report("object not found in repository (or found in inconsistent state), ignoring: " + pid);
+                    System.err.println("object not found in repository (or found in inconsistent state), ignoring: " + pid);
+                    counters.incrementIgnored();
+                } else { //remove missing objects from index
+                    report("object not found in repository (or found in inconsistent state), removing from index: " + pid);
+                    System.err.println("object not found in repository (or found in inconsistent state), removing from index: " + pid);
+                    solrIndexer.deleteById(pid);
+                    counters.incrementRemoved();
+                }
                 report("");
             } else {
                 LOGGER.info("Indexing " + pid);
@@ -205,7 +216,7 @@ public class Indexer {
         } catch (SolrException e) {
             counters.incrementErrors();
             report(" Solr error", e);
-        }finally {
+        } finally {
             if (progressListener != null) {
                 progressListener.onProgress(counters.getProcessed());
             }
