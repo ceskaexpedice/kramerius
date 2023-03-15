@@ -8,8 +8,8 @@ import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.repository.ExtractStructureHelper;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.ProvidedLicensesUtils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
@@ -22,10 +22,8 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.inject.Named;
@@ -42,7 +40,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -152,7 +149,8 @@ public class ItemsResource extends ClientApiResource {
             checkObjectExists(pid);
             JSONObject json = new JSONObject();
             json.put("data", extractAvailableDataInfo(pid));
-            json.put("structure", extractStructureInfo(pid));
+            
+            //json.put("structure", extractStructureInfo(pid));
             json.put("image", extractImageSourceInfo(pid));
             json.put(ProvidedLicensesUtils.PROVIDED_BY_LICENSES, ProvidedLicensesUtils.extractLicensesProvidingAccess(this.rightsResolver, this.solrAccess, pid));
             return Response.ok(json).build();
@@ -210,7 +208,7 @@ public class ItemsResource extends ClientApiResource {
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            return Response.ok(extractStructureInfo(pid)).build();
+            return Response.ok(ExtractStructureHelper.extractStructureInfo(this.krameriusRepositoryApi, pid)).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -266,96 +264,35 @@ public class ItemsResource extends ClientApiResource {
         return dataAvailable;
     }
 
-    private JSONObject extractStructureInfo(String pid) throws RepositoryException, SolrServerException, IOException {
-        JSONObject structure = new JSONObject();
-        //parents
-        JSONObject parents = new JSONObject();
-        Pair<RepositoryApi.Triplet, List<RepositoryApi.Triplet>> parentsTpls = krameriusRepositoryApi.getParents(pid);
-        if (parentsTpls.getFirst() != null) {
-            parents.put("own", pidAndRelationToJson(parentsTpls.getFirst().source, parentsTpls.getFirst().relation));
-        }
-        JSONArray fosterParents = new JSONArray();
-        for (RepositoryApi.Triplet fosterParentTpl : parentsTpls.getSecond()) {
-            fosterParents.put(pidAndRelationToJson(fosterParentTpl.source, fosterParentTpl.relation));
-        }
-        parents.put("foster", fosterParents);
-        structure.put("parents", parents);
-        //children
-        JSONObject children = new JSONObject();
-        
-        //
-        Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
-        Map<String, JSONObject> pidAndRelations = new HashMap<>();
-        Map<String, Integer> relsExtSort = new HashMap<>();
+    
 
-        List<String> childrenPids = new ArrayList<>();
-
-        for (RepositoryApi.Triplet ownChildTpl : childrenTpls.getFirst()) {
-            pidAndRelations.put(ownChildTpl.target, pidAndRelationToJson(ownChildTpl.target, ownChildTpl.relation));
-            childrenPids.add(ownChildTpl.target);
-        }
-        
-        // children in searchindex
-        childrenInSearchIndex(relsExtSort, childrenPids);
-        
-        childrenPids.sort((l,r)-> {
-            Integer leftSort = relsExtSort.get(l);
-            if (leftSort == null) {
-                leftSort = childrenPids.indexOf(l);
-            }
-            Integer rightSort = relsExtSort.get(r);
-            if (rightSort == null) {
-                rightSort = childrenPids.indexOf(r);
-            }
-            return leftSort.compareTo(rightSort);
-        });
-        
-        JSONArray ownChildren = new JSONArray();
-        for (String childPid : childrenPids) {
-            ownChildren.put(pidAndRelations.get(childPid));
-        }
-        children.put("own", ownChildren);
-
-        JSONArray fosterChildren = new JSONArray();
-        for (RepositoryApi.Triplet fosterChildTpl : childrenTpls.getSecond()) {
-            fosterChildren.put(pidAndRelationToJson(fosterChildTpl.target, fosterChildTpl.relation));
-        }
-        children.put("foster", fosterChildren);
-        structure.put("children", children);
-        //model
-        String model = krameriusRepositoryApi.getModel(pid);
-        structure.put("model", model);
-
-        return structure;
-    }
-
-    private void childrenInSearchIndex(Map<String, Integer> relsExtSort, List<String> childrenPids)
-            throws IOException, UnsupportedEncodingException {
-
-        int numberOfBatches = childrenPids.size() / SEARCH_INDEX_BATCH_SIZE;
-        numberOfBatches += childrenPids.size() % SEARCH_INDEX_BATCH_SIZE == 0 ? 0 : 1;
-        
-        for (int i = 0; i < numberOfBatches; i++) {
-            int start = i*SEARCH_INDEX_BATCH_SIZE;
-            int stop = Math.min( (i+1)*SEARCH_INDEX_BATCH_SIZE, childrenPids.size());
-            
-            List<String> ipids = childrenPids.subList(start, stop);
-
-            String collect = ipids.stream().map(p-> {
-                String retVal = "\"" + p + "\"";
-                return retVal;
-            }).collect(Collectors.joining(" OR "));
-
-            JSONObject solrResponseJson = solrAccess.requestWithSelectReturningJson("q=pid:("+URLEncoder.encode(collect, "UTF-8")+")"+ "&fl="+URLEncoder.encode("pid rels_ext_index.sort","UTF-8"));
-            JSONArray docs = solrResponseJson.getJSONObject("response").getJSONArray("docs");
-            for (int j = 0; j < docs.length(); j++) {
-                JSONObject hit = docs.getJSONObject(j);
-                String hitPid = hit.optString("pid");
-                int hitRelsExt = hit.optInt("rels_ext_index.sort");
-                relsExtSort.put(hitPid, hitRelsExt);
-            }
-        }
-    }
+//    private void childrenInSearchIndex(Map<String, Integer> relsExtSort, List<String> childrenPids)
+//            throws IOException, UnsupportedEncodingException {
+//
+//        int numberOfBatches = childrenPids.size() / SEARCH_INDEX_BATCH_SIZE;
+//        numberOfBatches += childrenPids.size() % SEARCH_INDEX_BATCH_SIZE == 0 ? 0 : 1;
+//        
+//        for (int i = 0; i < numberOfBatches; i++) {
+//            int start = i*SEARCH_INDEX_BATCH_SIZE;
+//            int stop = Math.min( (i+1)*SEARCH_INDEX_BATCH_SIZE, childrenPids.size());
+//            
+//            List<String> ipids = childrenPids.subList(start, stop);
+//
+//            String collect = ipids.stream().map(p-> {
+//                String retVal = "\"" + p + "\"";
+//                return retVal;
+//            }).collect(Collectors.joining(" OR "));
+//
+//            JSONObject solrResponseJson = solrAccess.requestWithSelectReturningJson("q=pid:("+URLEncoder.encode(collect, "UTF-8")+")"+ "&fl="+URLEncoder.encode("pid rels_ext_index.sort","UTF-8"));
+//            JSONArray docs = solrResponseJson.getJSONObject("response").getJSONArray("docs");
+//            for (int j = 0; j < docs.length(); j++) {
+//                JSONObject hit = docs.getJSONObject(j);
+//                String hitPid = hit.optString("pid");
+//                int hitRelsExt = hit.optInt("rels_ext_index.sort");
+//                relsExtSort.put(hitPid, hitRelsExt);
+//            }
+//        }
+//    }
 
     private Object extractImageSourceInfo(String pid) throws IOException, RepositoryException {
         JSONObject json = new JSONObject();
@@ -374,13 +311,6 @@ public class ItemsResource extends ClientApiResource {
                 json.put("type", imgFullMimetype);
             }
         }
-        return json;
-    }
-
-    private JSONObject pidAndRelationToJson(String pid, String relation) {
-        JSONObject json = new JSONObject();
-        json.put("pid", pid);
-        json.put("relation", relation);
         return json;
     }
 

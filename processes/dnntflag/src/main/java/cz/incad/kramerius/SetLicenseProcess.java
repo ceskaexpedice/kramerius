@@ -92,11 +92,13 @@ public class SetLicenseProcess {
         String license = args[argsIndex++];
         String target = args[argsIndex++];
 
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),  new ResourceIndexModule());
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
+        
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
-        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
+        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(repository, ProcessUtils.getCoreBaseUrl());
 
         switch (action) {
             case ADD:

@@ -10,8 +10,10 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.repository.RepositoryApi;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -99,12 +101,16 @@ public class NewIndexerProcessIndexModel {
         FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl, krameriusCredentials);*/
 
         //access to repository through java directly (injected cz.incad.kramerius.FedoraAccess)
-        Injector injector = Guice.createInjector(new SearchIndexModule(), new NullStatisticsModule(), new SolrModule(), new RepoModule());
+        Injector injector = Guice.createInjector(new SearchIndexModule(), new NullStatisticsModule(), new SolrModule(), new RepoModule(), new ResourceIndexModule());
+
+        KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
+
         cz.incad.kramerius.FedoraAccess rawRepositoryAccess = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
         FedoraAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepositoryAccess);
 
+        
         //access to resource index through new public APIs
-        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
+        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusApiRepository, ProcessUtils.getCoreBaseUrl());
 
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
         Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out, ignoreInconsistentObjects);

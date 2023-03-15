@@ -78,7 +78,8 @@ public class SolrInputBuilder {
 
         addSolrField(solrInput, "own_pid_path", parentNode.getPidPath() + "/" + pid);
         addSolrField(solrInput, "own_model_path", parentNode.getModelPath() + "/" + model);
-
+        
+        
         addSolrField(solrInput, "rels_ext_index.sort", pageNumber);
         if (parentNode.getTitle() != null) {
             addSolrField(solrInput, "own_parent.title", parentNode.getTitle().toString());

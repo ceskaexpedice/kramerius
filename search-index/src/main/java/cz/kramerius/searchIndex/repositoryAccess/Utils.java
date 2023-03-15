@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 
 public class Utils {
 
@@ -82,6 +83,14 @@ public class Utils {
      */
     public static JsonObject inputstreamToJsonObject(InputStream in) throws IOException {
         try (final Reader reader = new InputStreamReader(in)) {
+            //String json = CharStreams.toString(reader);
+            JsonParser parser = new JsonParser();
+            return parser.parse(reader).getAsJsonObject();
+        }
+    }
+
+    public static JsonObject stringToJsonObject(String content) throws IOException {
+        try (final Reader reader = new StringReader(content)) {
             //String json = CharStreams.toString(reader);
             JsonParser parser = new JsonParser();
             return parser.parse(reader).getAsJsonObject();

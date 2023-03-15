@@ -1,6 +1,19 @@
 package cz.kramerius.searchIndex;
 
 import com.google.common.collect.ObjectArrays;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi;
+import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.adapters.FedoraAccess;
 import cz.kramerius.adapters.IResourceIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -347,6 +360,9 @@ public class Main {
             String solrLogin = args[index++];
             String solrPassword = args[index++];
 
+            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
+
             //pids
             String[] pids = subArray(args, 5);
             for (String pid : pids) {
@@ -358,7 +374,9 @@ public class Main {
                 FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
                         new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
                 //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
-                IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
+                IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusApiRepository,krameriusBackendBaseUrl);
+
+                
                 KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
                 Indexer process = new Indexer(repositoryAdapter, solrConfig, System.out, false);
                 //process.indexByObjectPid(pid, IndexationType.TREE);
@@ -391,14 +409,24 @@ public class Main {
             String solrPassword = args[index++];
             //pid
             String pid = args[index++];
+            
+            //TODO: Injection for all instances 
+            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
 
             //FedoraAccess repository = new RepositoryAccessImplDummy();
             //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);
             FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
                     new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
+            
+
+            KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
+
+            
             //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
-            IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
+            IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusApiRepository,krameriusBackendBaseUrl);
             KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
+
+            
             RepositoryNodeManager nodeManager = new RepositoryNodeManager(repositoryAdapter, false);
             SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
             SolrIndexAccess solrAccess = new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));

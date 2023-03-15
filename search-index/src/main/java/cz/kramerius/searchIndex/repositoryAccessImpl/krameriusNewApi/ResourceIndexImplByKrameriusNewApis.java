@@ -3,6 +3,11 @@ package cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.repository.ExtractStructureHelper;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi;
+import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.kramerius.searchIndex.repositoryAccess.Utils;
 import cz.kramerius.searchIndex.repositoryAccessImpl.ResourceIndexImplAbstract;
@@ -13,13 +18,28 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.solr.client.solrj.SolrServerException;
+import org.json.JSONObject;
 
 public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstract {
+    
+    public static final Logger LOGGER = Logger.getLogger(ResourceIndexImplByKrameriusNewApis.class.getName());
+    
+    //public KrameriusRepositoryApiImpl krameriusRepositoryApi;
 
+    private final KrameriusRepositoryApi krameriusRepositoryApi;
     public final String coreBaseUrl;
 
-    public ResourceIndexImplByKrameriusNewApis(String coreBaseUrl) {
+//    public ResourceIndexImplByKrameriusNewApis(String coreBaseUrl) {
+//        this.coreBaseUrl = coreBaseUrl;
+//    }
+
+    public ResourceIndexImplByKrameriusNewApis(KrameriusRepositoryApi repositoryApi, String coreBaseUrl) {
         this.coreBaseUrl = coreBaseUrl;
+        this.krameriusRepositoryApi = repositoryApi;
     }
 
     //cache (TODO: just temporary, we don't want to break api (FedoraAccess) now)
@@ -27,12 +47,13 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
     String pidOfCachedStructure = null;
     JsonObject cachedStructure = null;
 
+    // ok, vrati model
     @Override
     public String getModel(String pid) throws ResourceIndexException {
         JsonObject structure = getStructure(pid);
         return structure.get("model").getAsString();
     }
-
+    // strukturovane deti - pids o
     @Override
     public Pair<String, Set<String>> getPidsOfParents(String pid) throws ResourceIndexException {
         JsonObject structure = getStructure(pid);
@@ -73,51 +94,36 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
         return new Pair<>(ownChildren, fosterChildren);
     }
 
+    
+    
     private JsonObject getStructure(String pid) throws ResourceIndexException {
         if (cachingEndabled) {
             if (pidOfCachedStructure != null && pidOfCachedStructure.equals(pid)) {
                 return cachedStructure;
             } else {
                 JsonObject structure = fetchStructure(pid);
-                pidOfCachedStructure = pid;
-                cachedStructure = structure;
-                return structure;
+                if (structure != null) {
+                    pidOfCachedStructure = pid;
+                    cachedStructure = structure;
+                    return structure;
+                } else return null;
             }
         } else {
             return fetchStructure(pid);
         }
     }
-
+    
+    
     private JsonObject fetchStructure(String pid) throws ResourceIndexException {
-        InputStream inputStream = null;
         try {
-            //GET http://localhost:8080/search/api/client/v7.0/items/uuid:db886a43-93cd-48a1-86db-a96c5b15b2b2/info/structure
-            URL url = new URL(coreBaseUrl + "/api/client/v7.0/items/" + pid + "/info/structure");
-            //System.out.println(url);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("GET");
-            con.setConnectTimeout(10000);
-            con.setReadTimeout(15000);
-            //System.out.println("GET " + url.toString());
-            int code = con.getResponseCode();
-            if (code == 200) {
-                inputStream = con.getInputStream();
-                JsonObject structure = Utils.inputstreamToJsonObject(inputStream);
-                return structure;
-            } else {
-                String errorMessage = Utils.inputstreamToString(con.getErrorStream());
-                throw new IOException("object " + pid + " not found or error reading it: " + errorMessage);
-            }
-        } catch (IOException e) {
-            throw new ResourceIndexException(e);
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    throw new ResourceIndexException(e);
-                }
-            }
+            JSONObject extractStructureInfo = ExtractStructureHelper.extractStructureInfo(this.krameriusRepositoryApi, pid);
+            return Utils.stringToJsonObject(extractStructureInfo.toString());
+        } catch (RepositoryException  | SolrServerException | IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return null;
         }
-    }
+    }    
+    
+    
+    
 }
