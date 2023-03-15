@@ -1,6 +1,6 @@
 package cz.kramerius.searchIndex.repositoryAccessImpl;
 
-import cz.kramerius.adapters.FedoraAccess;
+import cz.kramerius.adapters.RepositoryAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.TreeNodeProcessor;
@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public abstract class RepositoryAccessImplAbstract implements FedoraAccess {
+public abstract class RepositoryAccessImplAbstract implements RepositoryAccess {
 
     @Override
     public Document getRelsExt(String pid) throws IOException {

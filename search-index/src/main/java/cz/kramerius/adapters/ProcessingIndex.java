@@ -15,7 +15,7 @@ import java.util.Set;
  * @see cz.incad.kramerius.resourceindex.IResourceIndex
  * @see cz.kramerius.searchIndex.repositoryAccessImpl.ResourceIndexImplAbstract
  */
-public interface IResourceIndex extends cz.incad.kramerius.resourceindex.IResourceIndex {
+public interface ProcessingIndex extends cz.incad.kramerius.resourceindex.IResourceIndex {
 
     /**
      * @return pids of own children (first) and foster children (second) of an object identified by pid; both lists are sorted in an order from RELS-EXT elements

@@ -1,6 +1,5 @@
 package cz.kramerius.adapters;
 
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -13,7 +12,7 @@ import java.io.InputStream;
  * @see cz.incad.kramerius.FedoraAccess
  * @see cz.kramerius.searchIndex.repositoryAccessImpl.RepositoryAccessImplAbstract
  */
-public interface FedoraAccess extends cz.incad.kramerius.FedoraAccess {
+public interface RepositoryAccess extends cz.incad.kramerius.FedoraAccess {
 
     public InputStream getFoxml(String pid) throws IOException;
 

@@ -1,8 +1,8 @@
 package cz.kramerius.searchIndex.repositoryAccess;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.adapters.FedoraAccess;
-import cz.kramerius.adapters.IResourceIndex;
+import cz.kramerius.adapters.RepositoryAccess;
+import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.shared.Pair;
 import org.dom4j.Document;
 
@@ -16,12 +16,12 @@ import java.util.Set;
  */
 public class KrameriusRepositoryAccessAdapter {
 
-    private final FedoraAccess repository;
-    private final IResourceIndex resourceIndex;
+    private final RepositoryAccess repository;
+    private final ProcessingIndex processingIndex;
 
-    public KrameriusRepositoryAccessAdapter(FedoraAccess repository, IResourceIndex resourceIndex) {
+    public KrameriusRepositoryAccessAdapter(RepositoryAccess repository, ProcessingIndex processingIndex) {
         this.repository = repository;
-        this.resourceIndex = resourceIndex;
+        this.processingIndex = processingIndex;
     }
 
     //OBJECT
@@ -42,7 +42,7 @@ public class KrameriusRepositoryAccessAdapter {
     //structure
 
     public String getModel(String pid) throws ResourceIndexException {
-        return resourceIndex.getModel(pid);
+        return processingIndex.getModel(pid);
     }
 
     /**
@@ -51,7 +51,7 @@ public class KrameriusRepositoryAccessAdapter {
      * @throws ResourceIndexException
      */
     public Pair<String, Set<String>> getPidsOfParents(String pid) throws ResourceIndexException {
-        return resourceIndex.getPidsOfParents(pid);
+        return processingIndex.getPidsOfParents(pid);
     }
 
     /**
@@ -60,7 +60,7 @@ public class KrameriusRepositoryAccessAdapter {
      * @throws ResourceIndexException
      */
     public Pair<List<String>, List<String>> getPidsOfChildren(String pid) throws ResourceIndexException {
-        return resourceIndex.getPidsOfChildren(pid);
+        return processingIndex.getPidsOfChildren(pid);
     }
 
     //RELS-EXT

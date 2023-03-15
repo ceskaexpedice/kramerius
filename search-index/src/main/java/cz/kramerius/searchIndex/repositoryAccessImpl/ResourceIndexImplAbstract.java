@@ -2,7 +2,7 @@ package cz.kramerius.searchIndex.repositoryAccessImpl;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.adapters.IResourceIndex;
+import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.shared.Pair;
 import org.w3c.dom.Document;
 
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ResourceIndexImplAbstract implements IResourceIndex {
+public class ResourceIndexImplAbstract implements ProcessingIndex {
 
     private Object notImplmented() {
         throw new UnsupportedOperationException("Not implemented");
