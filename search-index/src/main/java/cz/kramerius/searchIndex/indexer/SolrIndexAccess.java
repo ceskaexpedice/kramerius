@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static cz.kramerius.searchIndex.indexerProcess.Indexer.*;
+import static cz.kramerius.searchIndex.indexer.execution.Indexer.*;
 
 public class SolrIndexAccess {
 

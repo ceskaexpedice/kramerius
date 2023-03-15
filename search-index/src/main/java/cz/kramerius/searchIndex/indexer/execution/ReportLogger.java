@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.kramerius.searchIndex.indexerProcess;
+package cz.kramerius.searchIndex.indexer.execution;
 
 import java.io.OutputStream;
 import java.io.PrintStream;

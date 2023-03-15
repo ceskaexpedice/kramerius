@@ -13,12 +13,12 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.adapters.RepositoryAccess;
 import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
-import cz.kramerius.searchIndex.indexerProcess.IndexationType;
-import cz.kramerius.searchIndex.indexerProcess.Indexer;
-import cz.kramerius.searchIndex.indexerProcess.ProgressListener;
-import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryFascade;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
+import cz.kramerius.searchIndex.indexer.execution.IndexationType;
+import cz.kramerius.searchIndex.indexer.execution.Indexer;
+import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
+import cz.kramerius.searchIndex.krameriusRepositoryAccess.KrameriusRepositoryFascade;
+import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
+import cz.kramerius.adapters.impl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
 
 import java.io.IOException;
 import java.util.logging.Logger;

@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.indexerProcess;
+package cz.kramerius.searchIndex.indexer.execution;
 
 public interface ProgressListener {
 

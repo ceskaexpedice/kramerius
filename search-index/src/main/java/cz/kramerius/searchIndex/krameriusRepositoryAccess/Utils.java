@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.repositoryAccess;
+package cz.kramerius.searchIndex.krameriusRepositoryAccess;
 
 import com.google.common.io.CharStreams;
 import com.google.gson.JsonArray;

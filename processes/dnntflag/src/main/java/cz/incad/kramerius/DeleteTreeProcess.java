@@ -24,7 +24,7 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
+import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
 import cz.kramerius.shared.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;

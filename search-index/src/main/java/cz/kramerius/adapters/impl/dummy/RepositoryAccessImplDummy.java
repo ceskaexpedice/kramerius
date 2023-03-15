@@ -1,6 +1,6 @@
-package cz.kramerius.searchIndex.repositoryAccessImpl.dummy;
+package cz.kramerius.adapters.impl.dummy;
 
-import cz.kramerius.searchIndex.repositoryAccessImpl.RepositoryAccessImplAbstract;
+import cz.kramerius.adapters.impl.RepositoryAccessImplAbstract;
 import org.w3c.dom.Document;
 
 import java.io.File;

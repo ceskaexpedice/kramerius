@@ -1,7 +1,7 @@
 package cz.kramerius.adapters;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.searchIndex.repositoryAccessImpl.ProcessingIndexImplAbstract;
+import cz.kramerius.adapters.impl.ProcessingIndexImplAbstract;
 import cz.kramerius.shared.Pair;
 
 import java.util.List;

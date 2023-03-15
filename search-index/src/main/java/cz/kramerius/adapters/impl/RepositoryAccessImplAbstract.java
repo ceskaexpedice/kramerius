@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.repositoryAccessImpl;
+package cz.kramerius.adapters.impl;
 
 import cz.kramerius.adapters.RepositoryAccess;
 import cz.incad.kramerius.ProcessSubtreeException;

@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.repositoryAccessImpl;
+package cz.kramerius.adapters.impl;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;

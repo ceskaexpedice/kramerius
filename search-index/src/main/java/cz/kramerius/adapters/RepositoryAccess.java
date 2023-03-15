@@ -1,5 +1,7 @@
 package cz.kramerius.adapters;
 
+import cz.kramerius.adapters.impl.RepositoryAccessImplAbstract;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -10,7 +12,7 @@ import java.io.InputStream;
  * tak mohou implementace cz.kramerius.adapters.FedoraAccess používat jen vybrané metody z minulosti, přítomnosti a budoucnosti.
  *
  * @see cz.incad.kramerius.FedoraAccess
- * @see cz.kramerius.searchIndex.repositoryAccessImpl.RepositoryAccessImplAbstract
+ * @see RepositoryAccessImplAbstract
  */
 public interface RepositoryAccess extends cz.incad.kramerius.FedoraAccess {
 

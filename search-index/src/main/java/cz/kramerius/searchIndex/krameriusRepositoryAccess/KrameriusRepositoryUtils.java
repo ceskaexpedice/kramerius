@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.repositoryAccess;
+package cz.kramerius.searchIndex.krameriusRepositoryAccess;
 
 import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Pair;

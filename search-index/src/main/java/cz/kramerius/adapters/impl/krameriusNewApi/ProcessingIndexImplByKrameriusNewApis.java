@@ -1,11 +1,11 @@
-package cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi;
+package cz.kramerius.adapters.impl.krameriusNewApi;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.searchIndex.repositoryAccess.Utils;
-import cz.kramerius.searchIndex.repositoryAccessImpl.ProcessingIndexImplAbstract;
+import cz.kramerius.searchIndex.krameriusRepositoryAccess.Utils;
+import cz.kramerius.adapters.impl.ProcessingIndexImplAbstract;
 import cz.kramerius.shared.Pair;
 
 import java.io.IOException;

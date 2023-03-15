@@ -1,7 +1,7 @@
-package cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi;
+package cz.kramerius.adapters.impl.krameriusNewApi;
 
-import cz.kramerius.searchIndex.repositoryAccess.Utils;
-import cz.kramerius.searchIndex.repositoryAccessImpl.RepositoryAccessImplAbstract;
+import cz.kramerius.searchIndex.krameriusRepositoryAccess.Utils;
+import cz.kramerius.adapters.impl.RepositoryAccessImplAbstract;
 
 import java.io.IOException;
 import java.io.InputStream;

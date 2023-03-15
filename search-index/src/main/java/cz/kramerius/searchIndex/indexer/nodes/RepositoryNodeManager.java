@@ -2,7 +2,7 @@ package cz.kramerius.searchIndex.indexer.nodes;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
-import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryFascade;
+import cz.kramerius.searchIndex.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Pair;
