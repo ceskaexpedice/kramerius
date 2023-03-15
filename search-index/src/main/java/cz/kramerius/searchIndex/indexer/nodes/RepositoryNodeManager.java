@@ -1,8 +1,8 @@
-package cz.kramerius.searchIndex.repositoryAccess.nodes;
+package cz.kramerius.searchIndex.indexer.nodes;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
-import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
+import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Pair;
@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 
 public class RepositoryNodeManager {
 
-    private final KrameriusRepositoryAccessAdapter krameriusRepositoryAccessAdapter;
+    private final KrameriusRepositoryFascade krameriusRepositoryFascade;
     private final LRUCache<String, RepositoryNode> nodesByPid = new LRUCache<>(1024);
     private final boolean surviveInconsistentObjects;
 
-    public RepositoryNodeManager(KrameriusRepositoryAccessAdapter krameriusRepositoryAccessAdapter, boolean surviveInconsistentObjects) {
-        this.krameriusRepositoryAccessAdapter = krameriusRepositoryAccessAdapter;
+    public RepositoryNodeManager(KrameriusRepositoryFascade krameriusRepositoryFascade, boolean surviveInconsistentObjects) {
+        this.krameriusRepositoryFascade = krameriusRepositoryFascade;
         this.surviveInconsistentObjects = surviveInconsistentObjects;
     }
 
@@ -76,11 +76,11 @@ public class RepositoryNodeManager {
 
     private RepositoryNode buildKrameriusNodeFromRepository(String pid, List<String> path) {
         try {
-            if (!krameriusRepositoryAccessAdapter.isObjectAvailable(pid)) {
+            if (!krameriusRepositoryFascade.isObjectAvailable(pid)) {
                 return null;
             }
             //System.out.println("building node for " + pid);
-            Pair<String, Set<String>> parents = krameriusRepositoryAccessAdapter.getPidsOfParents(pid);
+            Pair<String, Set<String>> parents = krameriusRepositoryFascade.getPidsOfParents(pid);
             //process parents first
             RepositoryNode ownParent = parents.getFirst() == null ? null : getKrameriusNodeWithCycleDetection(parents.getFirst(), path);
             List<RepositoryNode> fosterParents = new ArrayList<>();
@@ -105,20 +105,20 @@ public class RepositoryNodeManager {
                 }
             }*/
 
-            Document relsExtDoc = krameriusRepositoryAccessAdapter.getRelsExt(pid, false);
+            Document relsExtDoc = krameriusRepositoryFascade.getRelsExt(pid, false);
             //String model = KrameriusRepositoryUtils.extractKrameriusModelName(relsExtDoc);
-            String model = krameriusRepositoryAccessAdapter.getModel(pid);
+            String model = krameriusRepositoryFascade.getModel(pid);
             List<String> ownChildren = null;
             List<String> fosterChildren = null;
             if (!"page".equals(model) && !"track".equals(model)) { //just optimization, pages and tracks never have children
                 //Pair<List<String>, List<String>> children = KrameriusRepositoryUtils.extractChildren(relsExtDoc);
-                Pair<List<String>, List<String>> children = krameriusRepositoryAccessAdapter.getPidsOfChildren(pid);
+                Pair<List<String>, List<String>> children = krameriusRepositoryFascade.getPidsOfChildren(pid);
                 ownChildren = children.getFirst();
                 fosterChildren = children.getSecond();
             }
             //System.out.println("own children: " + (ownChildren == null? null : ownChildren.size()));
 
-            Document modsDoc = krameriusRepositoryAccessAdapter.getMods(pid, false);
+            Document modsDoc = krameriusRepositoryFascade.getMods(pid, false);
             if (modsDoc == null) {
                 throw new RuntimeException("missing MODS");
             }

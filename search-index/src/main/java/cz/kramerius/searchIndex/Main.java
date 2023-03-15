@@ -10,9 +10,9 @@ import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
 import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import cz.kramerius.searchIndex.indexerProcess.Indexer;
-import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
+import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryFascade;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.RepositoryAccessImplByKrameriusNewApis;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -359,8 +359,8 @@ public class Main {
                         new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
                 //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
                 ProcessingIndex resourceIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
-                KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
-                Indexer process = new Indexer(repositoryAdapter, solrConfig, System.out, false);
+                KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, resourceIndex);
+                Indexer process = new Indexer(krameriusRepositoryFascade, solrConfig, System.out, false);
                 //process.indexByObjectPid(pid, IndexationType.TREE);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT_AND_CHILDREN);
@@ -398,7 +398,7 @@ public class Main {
                     new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
             //IResourceIndex processingIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
             ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
-            KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, processingIndex);
+            KrameriusRepositoryFascade repositoryAdapter = new KrameriusRepositoryFascade(repository, processingIndex);
             RepositoryNodeManager nodeManager = new RepositoryNodeManager(repositoryAdapter, false);
             SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
             SolrIndexAccess solrAccess = new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
@@ -433,7 +433,7 @@ public class Main {
         }
     }
 
-    private static Integer detectAudioLength(String pid, KrameriusRepositoryAccessAdapter repositoryConnector) {
+    private static Integer detectAudioLength(String pid, KrameriusRepositoryFascade repositoryConnector) {
         try {
             AudioAnalyzer analyzer = new AudioAnalyzer();
             if (repositoryConnector.isAudioWavAvailable(pid)) {

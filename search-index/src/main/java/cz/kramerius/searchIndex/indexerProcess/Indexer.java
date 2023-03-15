@@ -7,9 +7,9 @@ import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
-import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
+import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryFascade;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
@@ -36,7 +36,7 @@ public class Indexer {
     private boolean shutDown = false;
     //helpers
     private final ReportLogger reportLogger;
-    private final KrameriusRepositoryAccessAdapter repositoryConnector;
+    private final KrameriusRepositoryFascade krameriusRepositoryFascade;
     private final RepositoryNodeManager nodeManager;
 
     private final SolrInputBuilder solrInputBuilder;
@@ -63,9 +63,9 @@ public class Indexer {
         }
     }
 
-    public Indexer(KrameriusRepositoryAccessAdapter repositoryConnector, SolrConfig solrConfig, OutputStream reportLoggerStream, boolean ignoreInconsistentObjects) {
-        this.repositoryConnector = repositoryConnector;
-        this.nodeManager = new RepositoryNodeManager(repositoryConnector, ignoreInconsistentObjects);
+    public Indexer(KrameriusRepositoryFascade krameriusRepositoryFascade, SolrConfig solrConfig, OutputStream reportLoggerStream, boolean ignoreInconsistentObjects) {
+        this.krameriusRepositoryFascade = krameriusRepositoryFascade;
+        this.nodeManager = new RepositoryNodeManager(krameriusRepositoryFascade, ignoreInconsistentObjects);
         this.solrInputBuilder = new SolrInputBuilder();
         this.solrConfig = solrConfig;
         this.reportLogger = new ReportLogger(reportLoggerStream);
@@ -197,15 +197,15 @@ public class Indexer {
                 report("");
             } else {
                 LOGGER.info("Indexing " + pid);
-                Document foxmlDoc = repositoryConnector.getObjectFoxml(pid, true);
+                Document foxmlDoc = krameriusRepositoryFascade.getObjectFoxml(pid, true);
                 report("model: " + repositoryNode.getModel());
                 report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
-                String ocrText = normalizeWhitespacesForOcrText(repositoryConnector.getOcrText(pid));
+                String ocrText = normalizeWhitespacesForOcrText(krameriusRepositoryFascade.getOcrText(pid));
                 //System.out.println("ocr: " + ocrText);
                 //IMG_FULL mimetype
-                String imgFullMime = repositoryConnector.getImgFullMimetype(pid);
+                String imgFullMime = krameriusRepositoryFascade.getImgFullMimetype(pid);
 
                 Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid()) : null;
                 SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
@@ -239,8 +239,8 @@ public class Indexer {
     private Integer detectAudioLength(String pid) {
         try {
             AudioAnalyzer analyzer = new AudioAnalyzer();
-            if (repositoryConnector.isAudioWavAvailable(pid)) {
-                AudioAnalyzer.Result result = analyzer.analyze(repositoryConnector.getAudioWav(pid), AudioAnalyzer.Format.WAV);
+            if (krameriusRepositoryFascade.isAudioWavAvailable(pid)) {
+                AudioAnalyzer.Result result = analyzer.analyze(krameriusRepositoryFascade.getAudioWav(pid), AudioAnalyzer.Format.WAV);
                 return result.duration;
             }
             System.out.println("failed to detect audio length of " + pid);
@@ -254,7 +254,7 @@ public class Indexer {
 
     private void indexPagesFromPdf(String pid, RepositoryNode repositoryNode, Counters counters) throws IOException, DocumentException, SolrServerException {
         report("object " + pid + " contains PDF, extracting pages");
-        InputStream imgFull = repositoryConnector.getImgFull(pid);
+        InputStream imgFull = krameriusRepositoryFascade.getImgFull(pid);
         PdfExtractor extractor = new PdfExtractor(pid, imgFull);
         int pages = extractor.getPagesCount();
         for (int i = 0; i < pages; i++) {

@@ -14,12 +14,12 @@ import java.util.Set;
 /**
  * This class is an adapter for Kramerius-specific operations over general repository (formally Fedora, newly Akubra) and Resource Index.
  */
-public class KrameriusRepositoryAccessAdapter {
+public class KrameriusRepositoryFascade {
 
     private final RepositoryAccess repository;
     private final ProcessingIndex processingIndex;
 
-    public KrameriusRepositoryAccessAdapter(RepositoryAccess repository, ProcessingIndex processingIndex) {
+    public KrameriusRepositoryFascade(RepositoryAccess repository, ProcessingIndex processingIndex) {
         this.repository = repository;
         this.processingIndex = processingIndex;
     }
