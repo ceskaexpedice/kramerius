@@ -55,19 +55,8 @@ public class ExtractStructureHelper {
         }
         parents.put("foster", fosterParents);
         structure.put("parents", parents);
-        //children
 
         Document relsExt = krameriusRepositoryApi.getRelsExt(pid, true);
-
-        OutputFormat format = OutputFormat.createPrettyPrint();
-        format.setIndentSize(2);
-        format.setSuppressDeclaration(true);
-        format.setEncoding("UTF-8");
-        StringWriter sw = new StringWriter();
-        XMLWriter writer = new XMLWriter(sw, format);
-        writer.write(relsExt);
-        
-        System.out.println(sw.toString());
         
         JSONObject children = new JSONObject();
         Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
