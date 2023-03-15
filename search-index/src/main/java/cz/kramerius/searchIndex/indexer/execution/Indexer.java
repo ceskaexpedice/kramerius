@@ -7,7 +7,7 @@ import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
-import cz.kramerius.searchIndex.krameriusRepositoryAccess.KrameriusRepositoryFascade;
+import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import org.apache.solr.client.solrj.SolrServerException;

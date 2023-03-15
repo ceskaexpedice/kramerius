@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.searchIndex.krameriusRepositoryAccess.Utils;
+import cz.kramerius.shared.IoUtils;
 import cz.kramerius.adapters.impl.ProcessingIndexImplAbstract;
 import cz.kramerius.shared.Pair;
 
@@ -37,7 +37,7 @@ public class ProcessingIndexImplByKrameriusOldApis extends ProcessingIndexImplAb
             if (code == 200) {
                 inputStream = con.getInputStream();
                 //JsonArray jsonArray = AdapterUtils.inputstreamToJsonArrayTmp(inputStream);
-                JsonArray jsonArray = Utils.inputstreamToJsonArray(inputStream);
+                JsonArray jsonArray = IoUtils.inputstreamToJsonArray(inputStream);
                 Iterator<JsonElement> arrayIterator = jsonArray.iterator();
                 List<String> parents = new ArrayList<>();
                 while (arrayIterator.hasNext()) {

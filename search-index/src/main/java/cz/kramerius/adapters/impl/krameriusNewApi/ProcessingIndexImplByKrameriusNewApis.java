@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.searchIndex.krameriusRepositoryAccess.Utils;
+import cz.kramerius.shared.IoUtils;
 import cz.kramerius.adapters.impl.ProcessingIndexImplAbstract;
 import cz.kramerius.shared.Pair;
 
@@ -102,10 +102,10 @@ public class ProcessingIndexImplByKrameriusNewApis extends ProcessingIndexImplAb
             int code = con.getResponseCode();
             if (code == 200) {
                 inputStream = con.getInputStream();
-                JsonObject structure = Utils.inputstreamToJsonObject(inputStream);
+                JsonObject structure = IoUtils.inputstreamToJsonObject(inputStream);
                 return structure;
             } else {
-                String errorMessage = Utils.inputstreamToString(con.getErrorStream());
+                String errorMessage = IoUtils.inputstreamToString(con.getErrorStream());
                 throw new IOException("object " + pid + " not found or error reading it: " + errorMessage);
             }
         } catch (IOException e) {
