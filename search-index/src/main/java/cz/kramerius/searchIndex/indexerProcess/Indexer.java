@@ -179,12 +179,12 @@ public class Indexer {
             counters.incrementProcessed();
             boolean objectAvailable = repositoryNode != null;
             if (!objectAvailable) {
-                //TODO: hodit ignorObjectsMissingFromRepository do konfigurace, nebo nastavit na false pri pouziti takove implementace KrameriusRepositoryAccessAdapter, ktera falesne neoznacuje existujici objekty v repozitari za chybejici
+                //TODO: hodit ignoreObjectsMissingFromRepository do konfigurace, nebo nastavit na false pri pouziti takove implementace KrameriusRepositoryAccessAdapter, ktera falesne neoznacuje existujici objekty v repozitari za chybejici
                 //protoze vysledkem tehle zmeny (neexistujici/falesne neexistujici objekty budou v indexu ponechany v dosavadnim stavu, namisto smazani) muze byt skryta zastaralost v indexu, napr.:
                 //monografie se muze jevit jako zaindexovana indexerem ve verzi třeba 15, ale obsahuje stranku, ktera preindexovana nebyla, nebyla ale ani zahozena a jeji zaznam v indexu je nenapadne zastaraly
                 //podobne pro periodikum, pokud by nebyl dostupny zaznam cisla, nebude preindexovano a ani jeji stranky
-                boolean ignorObjectsMissingFromRepository = true;
-                if (ignorObjectsMissingFromRepository) { //ignore missing objects
+                boolean ignoreObjectsMissingFromRepository = true;
+                if (ignoreObjectsMissingFromRepository) { //ignore missing objects
                     report("object not found in repository (or found in inconsistent state), ignoring: " + pid);
                     System.err.println("object not found in repository (or found in inconsistent state), ignoring: " + pid);
                     counters.incrementIgnored();
@@ -296,7 +296,7 @@ public class Indexer {
                     }
                     for (String childPid : parentNode.getPidsOfFosterChildren()) {
                         RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                        indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index fosetr child
+                        indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index foster child
                     }
                 }
             }
