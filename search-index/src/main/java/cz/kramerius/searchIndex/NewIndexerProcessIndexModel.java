@@ -22,7 +22,7 @@ import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import cz.kramerius.searchIndex.indexerProcess.Indexer;
 import cz.kramerius.searchIndex.indexerProcess.ProgressListener;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
+import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
@@ -103,7 +103,7 @@ public class NewIndexerProcessIndexModel {
         RepositoryAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepository);
 
         //access to processing index through new public APIs
-        ProcessingIndex processingIndex = new ResourceIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
+        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
 
         KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, processingIndex);
         Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out, ignoreInconsistentObjects);

@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.kramerius.searchIndex.repositoryAccess.Utils;
-import cz.kramerius.searchIndex.repositoryAccessImpl.ResourceIndexImplAbstract;
+import cz.kramerius.searchIndex.repositoryAccessImpl.ProcessingIndexImplAbstract;
 import cz.kramerius.shared.Pair;
 
 import java.io.IOException;
@@ -14,11 +14,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 
-public class ResourceIndexImplByKrameriusOldApis extends ResourceIndexImplAbstract {
+public class ProcessingIndexImplByKrameriusOldApis extends ProcessingIndexImplAbstract {
 
     public final String coreBaseUrl;
 
-    public ResourceIndexImplByKrameriusOldApis(String coreBaseUrl) {
+    public ProcessingIndexImplByKrameriusOldApis(String coreBaseUrl) {
         this.coreBaseUrl = coreBaseUrl;
     }
 

@@ -17,7 +17,7 @@ import cz.kramerius.searchIndex.indexerProcess.IndexationType;
 import cz.kramerius.searchIndex.indexerProcess.Indexer;
 import cz.kramerius.searchIndex.indexerProcess.ProgressListener;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
+import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
 
 import java.io.IOException;
@@ -79,9 +79,9 @@ public class NewIndexerProcessIndexObject {
         RepositoryAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepository);
 
         //access to resource index through new public APIs
-        ProcessingIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
+        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
 
-        KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
+        KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, processingIndex);
         Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out, ignoreInconsistentObjects);
         indexer.indexByObjectPid(pid, IndexationType.valueOf(type), new ProgressListener() {
             @Override

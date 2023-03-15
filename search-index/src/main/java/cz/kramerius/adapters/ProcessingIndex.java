@@ -1,6 +1,7 @@
 package cz.kramerius.adapters;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.kramerius.searchIndex.repositoryAccessImpl.ProcessingIndexImplAbstract;
 import cz.kramerius.shared.Pair;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Set;
  * tak mohou implementace cz.kramerius.adapters.IResourceIndex používat jen vybrané metody z minulosti, přítomnosti a budoucnosti.
  *
  * @see cz.incad.kramerius.resourceindex.IResourceIndex
- * @see cz.kramerius.searchIndex.repositoryAccessImpl.ResourceIndexImplAbstract
+ * @see ProcessingIndexImplAbstract
  */
 public interface ProcessingIndex extends cz.incad.kramerius.resourceindex.IResourceIndex {
 

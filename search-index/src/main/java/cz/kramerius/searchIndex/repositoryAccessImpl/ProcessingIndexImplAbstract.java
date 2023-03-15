@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ResourceIndexImplAbstract implements ProcessingIndex {
+public class ProcessingIndexImplAbstract implements ProcessingIndex {
 
     private Object notImplmented() {
         throw new UnsupportedOperationException("Not implemented");

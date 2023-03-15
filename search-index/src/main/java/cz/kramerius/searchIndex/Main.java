@@ -13,8 +13,8 @@ import cz.kramerius.searchIndex.indexerProcess.Indexer;
 import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
+import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
 import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.RepositoryAccessImplByKrameriusNewApis;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -358,7 +358,7 @@ public class Main {
                 RepositoryAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
                         new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
                 //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
-                ProcessingIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
+                ProcessingIndex resourceIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
                 KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
                 Indexer process = new Indexer(repositoryAdapter, solrConfig, System.out, false);
                 //process.indexByObjectPid(pid, IndexationType.TREE);
@@ -396,9 +396,9 @@ public class Main {
             //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);
             RepositoryAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
                     new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
-            //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
-            ProcessingIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
-            KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
+            //IResourceIndex processingIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
+            ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusBackendBaseUrl);
+            KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, processingIndex);
             RepositoryNodeManager nodeManager = new RepositoryNodeManager(repositoryAdapter, false);
             SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
             SolrIndexAccess solrAccess = new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));

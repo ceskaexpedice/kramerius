@@ -24,7 +24,7 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
+import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
 import cz.kramerius.shared.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
@@ -91,7 +91,7 @@ public class DeleteTreeProcess {
 
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
-        ProcessingIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
+        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(ProcessUtils.getCoreBaseUrl());
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
 
         //check object exists in repository
@@ -99,7 +99,7 @@ public class DeleteTreeProcess {
             throw new RuntimeException(String.format("object %s not found in repository", pid));
         }
 
-        boolean noErrors = deleteTree(pid, true, repository, resourceIndex, indexerAccess, searchIndex, fa);
+        boolean noErrors = deleteTree(pid, true, repository, processingIndex, indexerAccess, searchIndex, fa);
         if (!noErrors) {
             throw new WarningException("failed to delete some objects");
         }
