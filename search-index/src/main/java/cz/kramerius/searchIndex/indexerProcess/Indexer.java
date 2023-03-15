@@ -11,6 +11,7 @@ import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapte
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.dom4j.Document;
@@ -108,13 +109,12 @@ public class Indexer {
             LOGGER.info("Processing " + pid + " (indexation type: " + type + ")");
             RepositoryNode node = nodeManager.getKrameriusNode(pid);
             boolean setFullIndexationInProgress = type == IndexationType.TREE_AND_FOSTER_TREES;
-            if (setFullIndexationInProgress) {
+            if (node != null && setFullIndexationInProgress) {
                 setFullIndexationInProgress(pid, node);
             }
-
             indexObjectWithCounters(pid, node, counters, setFullIndexationInProgress, progressListener);
             processChildren(pid, node, counters, type, true, progressListener);
-            if (setFullIndexationInProgress) {
+            if (node != null && setFullIndexationInProgress) {
                 clearFullIndexationInProgress(pid, node);
             }
             commitAfterLastIndexation(counters);
@@ -141,16 +141,29 @@ public class Indexer {
     }
 
     private void setFullIndexationInProgress(String pid, RepositoryNode repositoryNode) {
+        boolean alreadyInIndex = false;
         try {
-            SolrInput solrInput = new SolrInput();
-            solrInput.addField("pid", pid);
-            solrInput.addField("full_indexation_in_progress", Boolean.TRUE.toString());
-            solrInput.addField("indexer_version", String.valueOf(INDEXER_VERSION));
-            ensureCompositeId(solrInput, repositoryNode, pid);
-            String solrInputStr = solrInput.getDocument().asXML();
-            solrIndexer.indexFromXmlString(solrInputStr, false);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            SolrDocument objectByPid = solrIndexer.getObjectByPid(pid);
+            alreadyInIndex = objectByPid != null;
+        } catch (SolrServerException | IOException e) {
+            e.printStackTrace();
+        }
+
+        if (alreadyInIndex) { // keep data from previous indexation in case this indexation fails during
+            solrIndexer.setSingleFieldValue(pid, repositoryNode, "full_indexation_in_progress", Boolean.TRUE.toString(), false);
+            solrIndexer.setSingleFieldValue(pid, repositoryNode, "indexer_version", String.valueOf(INDEXER_VERSION), false);
+        } else {
+            try {
+                SolrInput solrInput = new SolrInput();
+                solrInput.addField("pid", pid);
+                solrInput.addField("full_indexation_in_progress", Boolean.TRUE.toString());
+                solrInput.addField("indexer_version", String.valueOf(INDEXER_VERSION));
+                ensureCompositeId(solrInput, repositoryNode, pid);
+                String solrInputStr = solrInput.getDocument().asXML();
+                solrIndexer.indexFromXmlString(solrInputStr, false);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
