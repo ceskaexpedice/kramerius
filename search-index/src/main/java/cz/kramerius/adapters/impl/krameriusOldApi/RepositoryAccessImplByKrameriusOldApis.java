@@ -1,6 +1,6 @@
-package cz.kramerius.searchIndex.repositoryAccessImpl.krameriusOldApi;
+package cz.kramerius.adapters.impl.krameriusOldApi;
 
-import cz.kramerius.searchIndex.repositoryAccessImpl.RepositoryAccessImplAbstract;
+import cz.kramerius.adapters.impl.RepositoryAccessImplAbstract;
 
 import java.io.IOException;
 import java.io.InputStream;

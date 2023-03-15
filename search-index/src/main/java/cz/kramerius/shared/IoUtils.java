@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.repositoryAccess;
+package cz.kramerius.shared;
 
 import com.google.common.io.CharStreams;
 import com.google.gson.JsonArray;
@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 
-public class Utils {
+public class IoUtils {
 
     /**
      * InputStream is being closed here (after extracting String or error).

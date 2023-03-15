@@ -12,16 +12,16 @@ import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
+import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.Dom4jUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.kramerius.adapters.IResourceIndex;
+import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
+import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -98,19 +98,21 @@ public class SetLicenseProcess {
         
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
-        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(repository, ProcessUtils.getCoreBaseUrl());
+
+       // IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(repository, ProcessUtils.getCoreBaseUrl());
+        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(repository,ProcessUtils.getCoreBaseUrl());
 
         switch (action) {
             case ADD:
                 ProcessStarter.updateName(String.format("Přidání licence '%s' pro %s", license, target));
                 for (String pid : extractPids(target)) {
-                    addLicense(license, pid, repository, resourceIndex, searchIndex, indexerAccess);
+                    addLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess);
                 }
                 break;
             case REMOVE:
                 ProcessStarter.updateName(String.format("Odebrání licence '%s' pro %s", license, target));
                 for (String pid : extractPids(target)) {
-                    removeLicense(license, pid, repository, resourceIndex, searchIndex, indexerAccess, authToken);
+                    removeLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess, authToken);
                 }
                 break;
         }
@@ -134,7 +136,7 @@ public class SetLicenseProcess {
         }
     }
 
-    private static void addLicense(String license, String targetPid, KrameriusRepositoryApi repository, IResourceIndex resourceIndex, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException, ResourceIndexException {
+    private static void addLicense(String license, String targetPid, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException, ResourceIndexException {
         LOGGER.info(String.format("Adding license '%s' to %s", license, targetPid));
 
         //1. Do rels-ext ciloveho objektu se doplni license=L, pokud uz tam neni. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
@@ -143,7 +145,7 @@ public class SetLicenseProcess {
 
         //2. Do rels-ext (vlastnich) predku se doplni containsLicense=L, pokud uz tam neni
         LOGGER.info("updating RELS-EXT record of all (own) ancestors of the target object " + targetPid);
-        List<String> pidsOfAncestors = getPidsOfOwnAncestors(targetPid, resourceIndex);
+        List<String> pidsOfAncestors = getPidsOfOwnAncestors(targetPid, processingIndex);
         for (String ancestorPid : pidsOfAncestors) {
             addRelsExtRelationAfterNormalization(ancestorPid, RELS_EXT_RELATION_CONTAINS_LICENSE, RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED, license, repository);
         }
@@ -176,11 +178,11 @@ public class SetLicenseProcess {
         }
     }
 
-    private static List<String> getPidsOfOwnAncestors(String targetPid, IResourceIndex resourceIndex) throws ResourceIndexException {
+    private static List<String> getPidsOfOwnAncestors(String targetPid, ProcessingIndex processingIndex) throws ResourceIndexException {
         List<String> result = new ArrayList<>();
         String pidOfCurrentNode = targetPid;
         String pidOfCurrentNodesOwnParent;
-        while ((pidOfCurrentNodesOwnParent = resourceIndex.getPidsOfParents(pidOfCurrentNode).getFirst()) != null) {
+        while ((pidOfCurrentNodesOwnParent = processingIndex.getPidsOfParents(pidOfCurrentNode).getFirst()) != null) {
             result.add(pidOfCurrentNodesOwnParent);
             pidOfCurrentNode = pidOfCurrentNodesOwnParent;
         }
@@ -239,7 +241,7 @@ public class SetLicenseProcess {
         return relsExtNeedsToBeUpdated;
     }
 
-    private static void removeLicense(String license, String targetPid, KrameriusRepositoryApi repository, IResourceIndex resourceIndex, SolrAccess searchIndex, SolrIndexAccess indexerAccess, String authToken) throws RepositoryException, IOException, ResourceIndexException {
+    private static void removeLicense(String license, String targetPid, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, SolrAccess searchIndex, SolrIndexAccess indexerAccess, String authToken) throws RepositoryException, IOException, ResourceIndexException {
         LOGGER.info(String.format("Removing license '%s' from %s", license, targetPid));
 
         //1. Z rels-ext ciloveho objektu se odebere license=L, pokud tam je. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
@@ -250,7 +252,7 @@ public class SetLicenseProcess {
         //A pokud neexistuje jiny zdroj pro licenci (jiny potomek predka, ktery ma rels-ext:containsLicense kvuli jineho objektu, nez targetPid)
         //Takovy objekt (jiny zdroj) muze byt kdekoliv, treba ve stromu objektu targetPid
         LOGGER.info("updating RELS-EXT record of all (own) ancestors (without another source of license) of the target object " + targetPid);
-        List<String> pidsOfAncestorsWithoutAnotherSourceOfLicense = getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(targetPid, repository, resourceIndex, license);
+        List<String> pidsOfAncestorsWithoutAnotherSourceOfLicense = getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(targetPid, repository, processingIndex, license);
         for (String ancestorPid : pidsOfAncestorsWithoutAnotherSourceOfLicense) {
             LicenseHelper.removeRelsExtRelationAfterNormalization(ancestorPid, RELS_EXT_RELATION_CONTAINS_LICENSE, RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED, license, repository);
         }
@@ -266,7 +268,7 @@ public class SetLicenseProcess {
         indexerAccess.removeSingleFieldValueFromMultipleObjects(targetPidOnly, SOLR_FIELD_LICENSES, license, false);
 
         //5. Pokud uz zadny z (vlastnich) predku ciloveho objektu nevlastni licenci, aktualizuji se indexy potomku ciloveho objektu (v opacnem pripade to neni treba)
-        if (!hasAncestorThatOwnsLicense(targetPid, license, resourceIndex, repository)) {
+        if (!hasAncestorThatOwnsLicense(targetPid, license, processingIndex, repository)) {
             //5a. Aktualizuji se indexy vsech (vlastnich) potomku (odebere se licenses_of_ancestors=L) atomic updaty po davkach (muzou to byt az stovky tisic objektu)
             LOGGER.info("updating search index for all (own) descendants of target object");
             PidsOfDescendantsProducer descendantsIterator = new PidsOfDescendantsProducer(targetPid, searchIndex, true);
@@ -276,7 +278,7 @@ public class SetLicenseProcess {
                 LOGGER.info(String.format("Indexed: %d/%d", descendantsIterator.getReturned(), descendantsIterator.getTotal()));
             }
             //5b. Vsem potomkum ciloveho objektu, ktere take vlastni licenci, budou aktualizovany licence jejich potomku (prida se licenses_of_ancestors=L), protoze byly nepravem odebrany v kroku 5a.
-            List<String> pidsOfDescendantsOfTargetOwningLicence = getDescendantsOwningLicense(targetPid, license, repository, resourceIndex);
+            List<String> pidsOfDescendantsOfTargetOwningLicence = getDescendantsOwningLicense(targetPid, license, repository, processingIndex);
             for (String pid : pidsOfDescendantsOfTargetOwningLicence) {
                 PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(pid, searchIndex, true);
                 while (iterator.hasNext()) {
@@ -288,7 +290,7 @@ public class SetLicenseProcess {
         }
 
         //6. pokud ma target nevlastni deti (tj. je sbirka, clanek, nebo obrazek), synchronizuje se jejich index
-        List<String> fosterChildren = resourceIndex.getPidsOfChildren(targetPid).getSecond();
+        List<String> fosterChildren = processingIndex.getPidsOfChildren(targetPid).getSecond();
         if (fosterChildren != null && !fosterChildren.isEmpty()) {
             //6a. vsem potomkum (primi/neprimi, vlastni/nevlastni) budou aktualizovany licence (odebere se licenses_of_ancestors=L)
             PidsOfDescendantsProducer allDescendantsIterator = new PidsOfDescendantsProducer(targetPid, searchIndex, false);
@@ -309,10 +311,10 @@ public class SetLicenseProcess {
         }
     }
 
-    private static boolean hasAncestorThatOwnsLicense(String pid, String license, IResourceIndex resourceIndex, KrameriusRepositoryApi repository) throws ResourceIndexException, RepositoryException, IOException {
+    private static boolean hasAncestorThatOwnsLicense(String pid, String license, ProcessingIndex processingIndex, KrameriusRepositoryApi repository) throws ResourceIndexException, RepositoryException, IOException {
         String currentPid = pid;
         String parentPid;
-        while ((parentPid = resourceIndex.getPidsOfParents(currentPid).getFirst()) != null) {
+        while ((parentPid = processingIndex.getPidsOfParents(currentPid).getFirst()) != null) {
             if (LicenseHelper.ownsLicenseByRelsExt(parentPid, license, repository)) {
                 return true;
             }
@@ -321,16 +323,16 @@ public class SetLicenseProcess {
         return false;
     }
 
-    private static List<String> getDescendantsOwningLicense(String targetPid, String license, KrameriusRepositoryApi repository, IResourceIndex resourceIndex) throws ResourceIndexException, RepositoryException, IOException {
+    private static List<String> getDescendantsOwningLicense(String targetPid, String license, KrameriusRepositoryApi repository, ProcessingIndex processingIndex) throws ResourceIndexException, RepositoryException, IOException {
         List<String> result = new ArrayList<>();
         if (LicenseHelper.containsLicenseByRelsExt(targetPid, license, repository)) { //makes sense only if object itself contains license
-            List<String> pidsOfOwnChildren = resourceIndex.getPidsOfChildren(targetPid).getFirst();
+            List<String> pidsOfOwnChildren = processingIndex.getPidsOfChildren(targetPid).getFirst();
             for (String childPid : pidsOfOwnChildren) {
                 if (LicenseHelper.ownsLicenseByRelsExt(childPid, license, repository)) {
                     result.add(childPid);
                 }
                 if (LicenseHelper.containsLicenseByRelsExt(childPid, license, repository)) {
-                    result.addAll(getDescendantsOwningLicense(childPid, license, repository, resourceIndex));
+                    result.addAll(getDescendantsOwningLicense(childPid, license, repository, processingIndex));
                 }
             }
         }
@@ -341,13 +343,13 @@ public class SetLicenseProcess {
      * Returns list of pids of own ancestors of an object (@param pid), that don't have another source of license but this object (@param pid)
      * Object is never source of license for itself. Meaning that if it has rels-ext:license, but no rels-ext:containsLicense, it is considered not having source of license.
      */
-    private static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, KrameriusRepositoryApi repository, IResourceIndex resourceIndex, String license) throws IOException, ResourceIndexException, RepositoryException {
+    private static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, String license) throws IOException, ResourceIndexException, RepositoryException {
         List<String> result = new ArrayList<>();
         String pidOfChild = pid;
         String pidOfParent;
-        while ((pidOfParent = resourceIndex.getPidsOfParents(pidOfChild).getFirst()) != null) {
+        while ((pidOfParent = processingIndex.getPidsOfParents(pidOfChild).getFirst()) != null) {
             String pidToBeIgnored = pidOfChild.equals(pid) ? null : pidOfChild; //only grandparent of original pid can be ignored, because it has been already analyzed in this loop, but not the original pid
-            boolean hasAnotherSourceOfLicense = LicenseHelper.hasAnotherSourceOfLicense(pidOfParent, pid, pidToBeIgnored, license, repository, resourceIndex);
+            boolean hasAnotherSourceOfLicense = LicenseHelper.hasAnotherSourceOfLicense(pidOfParent, pid, pidToBeIgnored, license, repository, processingIndex);
             boolean ownsLicense = LicenseHelper.ownsLicenseByRelsExt(pidOfParent, license, repository);
             if (!hasAnotherSourceOfLicense) { //add this to the list
                 result.add(pidOfParent);

@@ -1,6 +1,7 @@
 package cz.kramerius.searchIndex;
 
 import com.google.common.collect.ObjectArrays;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -14,20 +15,20 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.kramerius.adapters.FedoraAccess;
-import cz.kramerius.adapters.IResourceIndex;
+import cz.kramerius.adapters.RepositoryAccess;
+import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
-import cz.kramerius.searchIndex.indexerProcess.IndexationType;
-import cz.kramerius.searchIndex.indexerProcess.Indexer;
-import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.RepositoryAccessImplByKrameriusNewApis;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
+import cz.kramerius.searchIndex.indexer.execution.IndexationType;
+import cz.kramerius.searchIndex.indexer.execution.Indexer;
+import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
+import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
+import cz.kramerius.adapters.impl.krameriusNewApi.RepositoryAccessImplByKrameriusNewApis;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -371,14 +372,13 @@ public class Main {
                 //String krameriusBackendBaseUrl = "http://localhost:8080/search";
                 //FedoraAccess repository = new RepositoryAccessImplDummy();
                 //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);
-                FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
+                RepositoryAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
                         new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
                 //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
-                IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusApiRepository,krameriusBackendBaseUrl);
 
-                
-                KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
-                Indexer process = new Indexer(repositoryAdapter, solrConfig, System.out, false);
+                ProcessingIndex resourceIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusApiRepository, krameriusBackendBaseUrl);
+                KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, resourceIndex);
+                Indexer process = new Indexer(krameriusRepositoryFascade, solrConfig, System.out, false);
                 //process.indexByObjectPid(pid, IndexationType.TREE);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT_AND_CHILDREN);
@@ -415,18 +415,16 @@ public class Main {
 
             //FedoraAccess repository = new RepositoryAccessImplDummy();
             //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);
-            FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
+            RepositoryAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
                     new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
-            
 
             KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
 
             
-            //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
-            IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusApiRepository,krameriusBackendBaseUrl);
-            KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
+            //IResourceIndex processingIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
+            ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusApiRepository, krameriusBackendBaseUrl);
+            KrameriusRepositoryFascade repositoryAdapter = new KrameriusRepositoryFascade(repository, processingIndex);
 
-            
             RepositoryNodeManager nodeManager = new RepositoryNodeManager(repositoryAdapter, false);
             SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
             SolrIndexAccess solrAccess = new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
@@ -461,7 +459,7 @@ public class Main {
         }
     }
 
-    private static Integer detectAudioLength(String pid, KrameriusRepositoryAccessAdapter repositoryConnector) {
+    private static Integer detectAudioLength(String pid, KrameriusRepositoryFascade repositoryConnector) {
         try {
             AudioAnalyzer analyzer = new AudioAnalyzer();
             if (repositoryConnector.isAudioWavAvailable(pid)) {

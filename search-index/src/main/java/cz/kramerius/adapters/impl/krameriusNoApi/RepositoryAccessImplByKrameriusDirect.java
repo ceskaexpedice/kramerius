@@ -1,7 +1,7 @@
-package cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi;
+package cz.kramerius.adapters.impl.krameriusNoApi;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.kramerius.searchIndex.repositoryAccessImpl.RepositoryAccessImplAbstract;
+import cz.kramerius.adapters.impl.RepositoryAccessImplAbstract;
 
 import java.io.IOException;
 import java.io.InputStream;

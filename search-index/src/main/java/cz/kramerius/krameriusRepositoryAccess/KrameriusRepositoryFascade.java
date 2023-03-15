@@ -1,8 +1,9 @@
-package cz.kramerius.searchIndex.repositoryAccess;
+package cz.kramerius.krameriusRepositoryAccess;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.adapters.FedoraAccess;
-import cz.kramerius.adapters.IResourceIndex;
+import cz.kramerius.adapters.RepositoryAccess;
+import cz.kramerius.adapters.ProcessingIndex;
+import cz.kramerius.shared.IoUtils;
 import cz.kramerius.shared.Pair;
 import org.dom4j.Document;
 
@@ -14,14 +15,14 @@ import java.util.Set;
 /**
  * This class is an adapter for Kramerius-specific operations over general repository (formally Fedora, newly Akubra) and Resource Index.
  */
-public class KrameriusRepositoryAccessAdapter {
+public class KrameriusRepositoryFascade {
 
-    private final FedoraAccess repository;
-    private final IResourceIndex resourceIndex;
+    private final RepositoryAccess repository;
+    private final ProcessingIndex processingIndex;
 
-    public KrameriusRepositoryAccessAdapter(FedoraAccess repository, IResourceIndex resourceIndex) {
+    public KrameriusRepositoryFascade(RepositoryAccess repository, ProcessingIndex processingIndex) {
         this.repository = repository;
-        this.resourceIndex = resourceIndex;
+        this.processingIndex = processingIndex;
     }
 
     //OBJECT
@@ -36,13 +37,13 @@ public class KrameriusRepositoryAccessAdapter {
 
     public Document getObjectFoxml(String pid, boolean nsAware) throws IOException {
         InputStream is = repository.getFoxml(pid);
-        return Utils.inputstreamToDocument(is, nsAware);
+        return IoUtils.inputstreamToDocument(is, nsAware);
     }
 
     //structure
 
     public String getModel(String pid) throws ResourceIndexException {
-        return resourceIndex.getModel(pid);
+        return processingIndex.getModel(pid);
     }
 
     /**
@@ -51,7 +52,7 @@ public class KrameriusRepositoryAccessAdapter {
      * @throws ResourceIndexException
      */
     public Pair<String, Set<String>> getPidsOfParents(String pid) throws ResourceIndexException {
-        return resourceIndex.getPidsOfParents(pid);
+        return processingIndex.getPidsOfParents(pid);
     }
 
     /**
@@ -60,7 +61,7 @@ public class KrameriusRepositoryAccessAdapter {
      * @throws ResourceIndexException
      */
     public Pair<List<String>, List<String>> getPidsOfChildren(String pid) throws ResourceIndexException {
-        return resourceIndex.getPidsOfChildren(pid);
+        return processingIndex.getPidsOfChildren(pid);
     }
 
     //RELS-EXT
@@ -71,7 +72,7 @@ public class KrameriusRepositoryAccessAdapter {
 
     public Document getRelsExt(String pid, boolean nsAware) throws IOException {
         InputStream is = repository.getDataStream(pid, KnownDatastreams.RELS_EXT);
-        return Utils.inputstreamToDocument(is, nsAware);
+        return IoUtils.inputstreamToDocument(is, nsAware);
     }
 
     //DC
@@ -82,7 +83,7 @@ public class KrameriusRepositoryAccessAdapter {
 
     public Document getDublinCore(String pid, boolean nsAware) throws IOException {
         InputStream is = repository.getDataStream(pid, KnownDatastreams.METADATA_DC);
-        return Utils.inputstreamToDocument(is, nsAware);
+        return IoUtils.inputstreamToDocument(is, nsAware);
     }
 
     //MODS
@@ -93,7 +94,7 @@ public class KrameriusRepositoryAccessAdapter {
 
     public Document getMods(String pid, boolean nsAware) throws IOException {
         InputStream is = repository.getDataStream(pid, KnownDatastreams.METADATA_MODS);
-        return Utils.inputstreamToDocument(is, nsAware);
+        return IoUtils.inputstreamToDocument(is, nsAware);
     }
 
     //OCR
@@ -104,7 +105,7 @@ public class KrameriusRepositoryAccessAdapter {
 
     public String getOcrText(String pid) throws IOException {
         InputStream is = repository.getDataStream(pid, KnownDatastreams.OCR_TEXT);
-        String result = Utils.inputstreamToString(is);
+        String result = IoUtils.inputstreamToString(is);
         return result == null ? null : result.trim();
     }
 

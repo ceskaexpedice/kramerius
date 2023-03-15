@@ -17,9 +17,8 @@ import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.kramerius.searchIndex.indexerProcess.IndexationType;
+import cz.kramerius.searchIndex.indexer.execution.IndexationType;
 
-import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,7 +43,6 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;

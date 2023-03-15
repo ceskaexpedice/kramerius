@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.indexerProcess;
+package cz.kramerius.searchIndex.indexer.execution;
 
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -7,10 +7,11 @@ import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
-import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
+import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.dom4j.Document;
@@ -35,7 +36,7 @@ public class Indexer {
     private boolean shutDown = false;
     //helpers
     private final ReportLogger reportLogger;
-    private final KrameriusRepositoryAccessAdapter repositoryConnector;
+    private final KrameriusRepositoryFascade krameriusRepositoryFascade;
     private final RepositoryNodeManager nodeManager;
 
     private final SolrInputBuilder solrInputBuilder;
@@ -62,9 +63,9 @@ public class Indexer {
         }
     }
 
-    public Indexer(KrameriusRepositoryAccessAdapter repositoryConnector, SolrConfig solrConfig, OutputStream reportLoggerStream, boolean ignoreInconsistentObjects) {
-        this.repositoryConnector = repositoryConnector;
-        this.nodeManager = new RepositoryNodeManager(repositoryConnector, ignoreInconsistentObjects);
+    public Indexer(KrameriusRepositoryFascade krameriusRepositoryFascade, SolrConfig solrConfig, OutputStream reportLoggerStream, boolean ignoreInconsistentObjects) {
+        this.krameriusRepositoryFascade = krameriusRepositoryFascade;
+        this.nodeManager = new RepositoryNodeManager(krameriusRepositoryFascade, ignoreInconsistentObjects);
         this.solrInputBuilder = new SolrInputBuilder();
         this.solrConfig = solrConfig;
         this.reportLogger = new ReportLogger(reportLoggerStream);
@@ -108,13 +109,12 @@ public class Indexer {
             LOGGER.info("Processing " + pid + " (indexation type: " + type + ")");
             RepositoryNode node = nodeManager.getKrameriusNode(pid);
             boolean setFullIndexationInProgress = type == IndexationType.TREE_AND_FOSTER_TREES;
-            if (setFullIndexationInProgress) {
+            if (node != null && setFullIndexationInProgress) {
                 setFullIndexationInProgress(pid, node);
             }
-
             indexObjectWithCounters(pid, node, counters, setFullIndexationInProgress, progressListener);
             processChildren(pid, node, counters, type, true, progressListener);
-            if (setFullIndexationInProgress) {
+            if (node != null && setFullIndexationInProgress) {
                 clearFullIndexationInProgress(pid, node);
             }
             commitAfterLastIndexation(counters);
@@ -141,16 +141,29 @@ public class Indexer {
     }
 
     private void setFullIndexationInProgress(String pid, RepositoryNode repositoryNode) {
+        boolean alreadyInIndex = false;
         try {
-            SolrInput solrInput = new SolrInput();
-            solrInput.addField("pid", pid);
-            solrInput.addField("full_indexation_in_progress", Boolean.TRUE.toString());
-            solrInput.addField("indexer_version", String.valueOf(INDEXER_VERSION));
-            ensureCompositeId(solrInput, repositoryNode, pid);
-            String solrInputStr = solrInput.getDocument().asXML();
-            solrIndexer.indexFromXmlString(solrInputStr, false);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            SolrDocument objectByPid = solrIndexer.getObjectByPid(pid);
+            alreadyInIndex = objectByPid != null;
+        } catch (SolrServerException | IOException e) {
+            e.printStackTrace();
+        }
+
+        if (alreadyInIndex) { // keep data from previous indexation in case this indexation fails during
+            solrIndexer.setSingleFieldValue(pid, repositoryNode, "full_indexation_in_progress", Boolean.TRUE.toString(), false);
+            solrIndexer.setSingleFieldValue(pid, repositoryNode, "indexer_version", String.valueOf(INDEXER_VERSION), false);
+        } else {
+            try {
+                SolrInput solrInput = new SolrInput();
+                solrInput.addField("pid", pid);
+                solrInput.addField("full_indexation_in_progress", Boolean.TRUE.toString());
+                solrInput.addField("indexer_version", String.valueOf(INDEXER_VERSION));
+                ensureCompositeId(solrInput, repositoryNode, pid);
+                String solrInputStr = solrInput.getDocument().asXML();
+                solrIndexer.indexFromXmlString(solrInputStr, false);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -166,12 +179,12 @@ public class Indexer {
             counters.incrementProcessed();
             boolean objectAvailable = repositoryNode != null;
             if (!objectAvailable) {
-                //TODO: hodit ignorObjectsMissingFromRepository do konfigurace, nebo nastavit na false pri pouziti takove implementace KrameriusRepositoryAccessAdapter, ktera falesne neoznacuje existujici objekty v repozitari za chybejici
+                //TODO: hodit ignoreObjectsMissingFromRepository do konfigurace, nebo nastavit na false pri pouziti takove implementace KrameriusRepositoryAccessAdapter, ktera falesne neoznacuje existujici objekty v repozitari za chybejici
                 //protoze vysledkem tehle zmeny (neexistujici/falesne neexistujici objekty budou v indexu ponechany v dosavadnim stavu, namisto smazani) muze byt skryta zastaralost v indexu, napr.:
                 //monografie se muze jevit jako zaindexovana indexerem ve verzi třeba 15, ale obsahuje stranku, ktera preindexovana nebyla, nebyla ale ani zahozena a jeji zaznam v indexu je nenapadne zastaraly
                 //podobne pro periodikum, pokud by nebyl dostupny zaznam cisla, nebude preindexovano a ani jeji stranky
-                boolean ignorObjectsMissingFromRepository = true;
-                if (ignorObjectsMissingFromRepository) { //ignore missing objects
+                boolean ignoreObjectsMissingFromRepository = true;
+                if (ignoreObjectsMissingFromRepository) { //ignore missing objects
                     report("object not found in repository (or found in inconsistent state), ignoring: " + pid);
                     System.err.println("object not found in repository (or found in inconsistent state), ignoring: " + pid);
                     counters.incrementIgnored();
@@ -184,15 +197,15 @@ public class Indexer {
                 report("");
             } else {
                 LOGGER.info("Indexing " + pid);
-                Document foxmlDoc = repositoryConnector.getObjectFoxml(pid, true);
+                Document foxmlDoc = krameriusRepositoryFascade.getObjectFoxml(pid, true);
                 report("model: " + repositoryNode.getModel());
                 report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
-                String ocrText = normalizeWhitespacesForOcrText(repositoryConnector.getOcrText(pid));
+                String ocrText = normalizeWhitespacesForOcrText(krameriusRepositoryFascade.getOcrText(pid));
                 //System.out.println("ocr: " + ocrText);
                 //IMG_FULL mimetype
-                String imgFullMime = repositoryConnector.getImgFullMimetype(pid);
+                String imgFullMime = krameriusRepositoryFascade.getImgFullMimetype(pid);
 
                 Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid()) : null;
                 SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
@@ -226,8 +239,8 @@ public class Indexer {
     private Integer detectAudioLength(String pid) {
         try {
             AudioAnalyzer analyzer = new AudioAnalyzer();
-            if (repositoryConnector.isAudioWavAvailable(pid)) {
-                AudioAnalyzer.Result result = analyzer.analyze(repositoryConnector.getAudioWav(pid), AudioAnalyzer.Format.WAV);
+            if (krameriusRepositoryFascade.isAudioWavAvailable(pid)) {
+                AudioAnalyzer.Result result = analyzer.analyze(krameriusRepositoryFascade.getAudioWav(pid), AudioAnalyzer.Format.WAV);
                 return result.duration;
             }
             System.out.println("failed to detect audio length of " + pid);
@@ -241,7 +254,7 @@ public class Indexer {
 
     private void indexPagesFromPdf(String pid, RepositoryNode repositoryNode, Counters counters) throws IOException, DocumentException, SolrServerException {
         report("object " + pid + " contains PDF, extracting pages");
-        InputStream imgFull = repositoryConnector.getImgFull(pid);
+        InputStream imgFull = krameriusRepositoryFascade.getImgFull(pid);
         PdfExtractor extractor = new PdfExtractor(pid, imgFull);
         int pages = extractor.getPagesCount();
         for (int i = 0; i < pages; i++) {
@@ -283,7 +296,7 @@ public class Indexer {
                     }
                     for (String childPid : parentNode.getPidsOfFosterChildren()) {
                         RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                        indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index fosetr child
+                        indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index foster child
                     }
                 }
             }

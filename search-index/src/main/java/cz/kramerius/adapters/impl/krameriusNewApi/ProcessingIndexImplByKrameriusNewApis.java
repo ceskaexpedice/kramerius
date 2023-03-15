@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi;
+package cz.kramerius.adapters.impl.krameriusNewApi;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -9,8 +9,8 @@ import cz.incad.kramerius.repository.ExtractStructureHelper;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.searchIndex.repositoryAccess.Utils;
-import cz.kramerius.searchIndex.repositoryAccessImpl.ResourceIndexImplAbstract;
+import cz.kramerius.shared.IoUtils;
+import cz.kramerius.adapters.impl.ProcessingIndexImplAbstract;
 import cz.kramerius.shared.Pair;
 
 import java.io.IOException;
@@ -24,20 +24,14 @@ import java.util.logging.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
 
-public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstract {
-    
-    public static final Logger LOGGER = Logger.getLogger(ResourceIndexImplByKrameriusNewApis.class.getName());
-    
-    //public KrameriusRepositoryApiImpl krameriusRepositoryApi;
+public class ProcessingIndexImplByKrameriusNewApis extends ProcessingIndexImplAbstract {
+
+    public static final Logger LOGGER = Logger.getLogger(ProcessingIndexImplByKrameriusNewApis.class.getName());
 
     private final KrameriusRepositoryApi krameriusRepositoryApi;
     public final String coreBaseUrl;
 
-//    public ResourceIndexImplByKrameriusNewApis(String coreBaseUrl) {
-//        this.coreBaseUrl = coreBaseUrl;
-//    }
-
-    public ResourceIndexImplByKrameriusNewApis(KrameriusRepositoryApi repositoryApi, String coreBaseUrl) {
+    public ProcessingIndexImplByKrameriusNewApis(KrameriusRepositoryApi repositoryApi, String coreBaseUrl) {
         this.coreBaseUrl = coreBaseUrl;
         this.krameriusRepositoryApi = repositoryApi;
     }
@@ -117,7 +111,7 @@ public class ResourceIndexImplByKrameriusNewApis extends ResourceIndexImplAbstra
     private JsonObject fetchStructure(String pid) throws ResourceIndexException {
         try {
             JSONObject extractStructureInfo = ExtractStructureHelper.extractStructureInfo(this.krameriusRepositoryApi, pid);
-            return Utils.stringToJsonObject(extractStructureInfo.toString());
+            return IoUtils.stringToJsonObject(extractStructureInfo.toString());
         } catch (RepositoryException  | SolrServerException | IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return null;

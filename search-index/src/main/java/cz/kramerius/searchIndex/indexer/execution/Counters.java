@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.indexerProcess;
+package cz.kramerius.searchIndex.indexer.execution;
 
 public class Counters {
     private int processed = 0;

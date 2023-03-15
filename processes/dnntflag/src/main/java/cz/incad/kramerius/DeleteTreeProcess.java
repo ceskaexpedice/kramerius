@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import com.qbizm.kramerius.imptool.poc.valueobj.RelsExt;
 
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
@@ -17,17 +16,15 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.utils.Dom4jUtils;
-import cz.incad.kramerius.utils.PathEncoder;
 import cz.incad.kramerius.utils.RelsExtHelper;
-import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.kramerius.adapters.IResourceIndex;
+import cz.kramerius.adapters.ProcessingIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
+import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
 import cz.kramerius.shared.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
@@ -38,11 +35,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -98,7 +92,7 @@ public class DeleteTreeProcess {
         KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
 
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
-        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusApiRepository, ProcessUtils.getCoreBaseUrl());
+        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusApiRepository, ProcessUtils.getCoreBaseUrl());
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
 
         //check object exists in repository
@@ -106,24 +100,24 @@ public class DeleteTreeProcess {
             throw new RuntimeException(String.format("object %s not found in repository", pid));
         }
 
-        boolean noErrors = deleteTree(pid, true, repository, resourceIndex, indexerAccess, searchIndex, fa);
+        boolean noErrors = deleteTree(pid, true, repository, processingIndex, indexerAccess, searchIndex, fa);
         if (!noErrors) {
             throw new WarningException("failed to delete some objects");
         }
     }
 
-    public static boolean deleteTree(String pid, boolean deletionRoot, KrameriusRepositoryApi repository, IResourceIndex resourceIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex, FedoraAccess fa) throws ResourceIndexException, RepositoryException, IOException, SolrServerException {
+    public static boolean deleteTree(String pid, boolean deletionRoot, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex, FedoraAccess fa) throws ResourceIndexException, RepositoryException, IOException, SolrServerException {
         LOGGER.info(String.format("deleting own tree of %s", pid));
         boolean someProblem = false;
 
         //1. potomci
-        Pair<List<String>, List<String>> pidsOfChildren = resourceIndex.getPidsOfChildren(pid);
+        Pair<List<String>, List<String>> pidsOfChildren = processingIndex.getPidsOfChildren(pid);
         //1.a. smaz vlastni potomky
         for (String ownChild : pidsOfChildren.getFirst()) {
-            someProblem &= deleteTree(ownChild, false, repository, resourceIndex, indexerAccess, searchIndex,fa);
+            someProblem &= deleteTree(ownChild, false, repository, processingIndex, indexerAccess, searchIndex, fa);
         }
         //1.b. pokud jsem sbirka a mam nevlastni potomky, odeber celym jejich stromum nalezitost do sbirky (mne) ve vyhledavacim indexu
-        String myModel = resourceIndex.getModel(pid);
+        String myModel = processingIndex.getModel(pid);
         if ("collection".equals(myModel) && !pidsOfChildren.getSecond().isEmpty()) {
             LOGGER.info(String.format("object %s is collection and not empty, removing items from the collection", pid));
             for (String fosterChild : pidsOfChildren.getSecond()) {
@@ -132,7 +126,7 @@ public class DeleteTreeProcess {
         }
 
         //2. předci
-        Pair<String, Set<String>> pidsOfParents = resourceIndex.getPidsOfParents(pid);
+        Pair<String, Set<String>> pidsOfParents = processingIndex.getPidsOfParents(pid);
         //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
         if (deletionRoot && pidsOfParents.getFirst() != null) {
             deleteRelationFromOwnParent(pid, pidsOfParents.getFirst(), repository);
@@ -143,7 +137,7 @@ public class DeleteTreeProcess {
         }
 
         //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
-        updateLicenseFlagsForAncestors(pid, repository, resourceIndex, indexerAccess);
+        updateLicenseFlagsForAncestors(pid, repository, processingIndex, indexerAccess);
 
         //4. smaz me z repozitare i vyhledavaciho indexu
         deleteObject(pid, "collection".equals(myModel), repository, indexerAccess, fa);
@@ -151,7 +145,7 @@ public class DeleteTreeProcess {
         return !someProblem;
     }
 
-    private static void updateLicenseFlagsForAncestors(String pid, KrameriusRepositoryApi repository, IResourceIndex resourceIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException, ResourceIndexException {
+    private static void updateLicenseFlagsForAncestors(String pid, KrameriusRepositoryApi repository, ProcessingIndex resourceIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException, ResourceIndexException {
         List<String> licences = LicenseHelper.getLicensesByRelsExt(pid, repository);
         for (String license : licences) {
             //Z rels-ext vsech (vlastnich) predku se odebere containsLicence=L, pokud tam je.
@@ -206,13 +200,13 @@ public class DeleteTreeProcess {
 
             String tilesUrl = null;
             try {
-                tilesUrl =  RelsExtHelper.getRelsExtTilesUrl(pid, fa);
+                tilesUrl = RelsExtHelper.getRelsExtTilesUrl(pid, fa);
             } catch (XPathExpressionException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
-            
+
             repository.getLowLevelApi().deleteObject(pid, !isCollection); //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
             if (tilesUrl != null) {
                 boolean deleteFromImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("delete.fromImageServer", false);
@@ -232,26 +226,26 @@ public class DeleteTreeProcess {
     public static void deleteFileFromIIP(String tilesUrl, String imageTilesUrlPrefix, String imageDir) throws MalformedURLException {
         int indexOf = tilesUrl.indexOf(imageTilesUrlPrefix);
         if (indexOf >= 0) {
-            String endPath = tilesUrl.substring(indexOf+imageTilesUrlPrefix.length());
-            
+            String endPath = tilesUrl.substring(indexOf + imageTilesUrlPrefix.length());
+
             List<File> filesToDelete = new ArrayList<>();
             File realPath = new File(new File(imageDir), endPath);
-            String compareName = realPath.getName().contains(".") ? realPath.getName().substring(0,realPath.getName().indexOf(".")) : realPath.getName();
+            String compareName = realPath.getName().contains(".") ? realPath.getName().substring(0, realPath.getName().indexOf(".")) : realPath.getName();
             File parentFile = realPath.getParentFile();
             File[] listFiles = parentFile.listFiles(new FileFilter() {
-              @Override
-              public boolean accept(File pathname) {
-                  String name = pathname.getName();
-                  return (name.contains(compareName));
-              }
+                @Override
+                public boolean accept(File pathname) {
+                    String name = pathname.getName();
+                    return (name.contains(compareName));
+                }
             });
-  
+
             if (listFiles != null) {
                 Arrays.asList(listFiles).forEach(filesToDelete::add);
             }
-  
+
             File[] filesArray = filesToDelete.toArray(new File[filesToDelete.size()]);
-            for (int i = 0,ll=filesArray.length; i < ll; i++) {
+            for (int i = 0, ll = filesArray.length; i < ll; i++) {
                 File deletingFile = filesArray[i];
                 if (deletingFile.exists() && deletingFile.isFile()) {
                     File parentFolder = deletingFile.getParentFile();
@@ -260,7 +254,7 @@ public class DeleteTreeProcess {
                     }
                 }
             }
-            LOGGER.info("Deleting files: "+filesToDelete.stream().map(File::getAbsolutePath).collect(Collectors.joining(", ")));
+            LOGGER.info("Deleting files: " + filesToDelete.stream().map(File::getAbsolutePath).collect(Collectors.joining(", ")));
             if (!filesToDelete.isEmpty()) {
                 filesToDelete.forEach(File::delete);
             }

@@ -13,20 +13,20 @@ import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.repository.RepositoryApi;
+import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
-import cz.kramerius.adapters.FedoraAccess;
-import cz.kramerius.adapters.IResourceIndex;
+import cz.kramerius.adapters.RepositoryAccess;
+import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
-import cz.kramerius.searchIndex.indexerProcess.IndexationType;
-import cz.kramerius.searchIndex.indexerProcess.Indexer;
-import cz.kramerius.searchIndex.indexerProcess.ProgressListener;
-import cz.kramerius.searchIndex.repositoryAccess.KrameriusRepositoryAccessAdapter;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi.ResourceIndexImplByKrameriusNewApis;
-import cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
+import cz.kramerius.searchIndex.indexer.execution.IndexationType;
+import cz.kramerius.searchIndex.indexer.execution.Indexer;
+import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
+import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
+import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
+import cz.kramerius.adapters.impl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -105,15 +105,20 @@ public class NewIndexerProcessIndexModel {
 
         KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
 
-        cz.incad.kramerius.FedoraAccess rawRepositoryAccess = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
-        FedoraAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepositoryAccess);
+//        cz.incad.kramerius.FedoraAccess rawRepositoryAccess = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
+//        FedoraAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepositoryAccess);
 
         
-        //access to resource index through new public APIs
-        IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(krameriusApiRepository, ProcessUtils.getCoreBaseUrl());
 
-        KrameriusRepositoryAccessAdapter repositoryAdapter = new KrameriusRepositoryAccessAdapter(repository, resourceIndex);
-        Indexer indexer = new Indexer(repositoryAdapter, solrConfig, System.out, ignoreInconsistentObjects);
+        //Injector injector = Guice.createInjector(new SearchIndexModule(), new NullStatisticsModule(), new SolrModule(), new RepoModule());
+        cz.incad.kramerius.FedoraAccess rawRepository = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
+        RepositoryAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepository);
+
+        //access to processing index through new public APIs
+        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusApiRepository, ProcessUtils.getCoreBaseUrl());
+
+        KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, processingIndex);
+        Indexer indexer = new Indexer(krameriusRepositoryFascade, solrConfig, System.out, ignoreInconsistentObjects);
 
         KrameriusRepositoryApiImpl krameriusRepositoryApi = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class));
         SolrAccess solrAccess = filters.indexAll() ? null : injector.getInstance(Key.get(SolrAccess.class, Names.named("new-index")));

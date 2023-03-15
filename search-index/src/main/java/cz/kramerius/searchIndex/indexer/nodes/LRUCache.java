@@ -1,5 +1,5 @@
 
-package cz.kramerius.searchIndex.repositoryAccess.nodes;
+package cz.kramerius.searchIndex.indexer.nodes;
 
 import java.util.HashMap;
 import java.util.Map;

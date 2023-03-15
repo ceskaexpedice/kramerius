@@ -5,7 +5,7 @@ import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AuthorsExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.DateExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.LanguagesExtractor;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Dom4jUtils;

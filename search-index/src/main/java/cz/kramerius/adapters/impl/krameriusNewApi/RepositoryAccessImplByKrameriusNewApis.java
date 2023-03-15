@@ -1,7 +1,7 @@
-package cz.kramerius.searchIndex.repositoryAccessImpl.krameriusNewApi;
+package cz.kramerius.adapters.impl.krameriusNewApi;
 
-import cz.kramerius.searchIndex.repositoryAccess.Utils;
-import cz.kramerius.searchIndex.repositoryAccessImpl.RepositoryAccessImplAbstract;
+import cz.kramerius.shared.IoUtils;
+import cz.kramerius.adapters.impl.RepositoryAccessImplAbstract;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -118,7 +118,7 @@ public class RepositoryAccessImplByKrameriusNewApis extends RepositoryAccessImpl
         if (code == 200) {
             InputStream is = null;
             is = con.getInputStream();
-            return Utils.inputstreamToString(is);
+            return IoUtils.inputstreamToString(is);
         } else if (code == 404) {
             //not found
             return null;

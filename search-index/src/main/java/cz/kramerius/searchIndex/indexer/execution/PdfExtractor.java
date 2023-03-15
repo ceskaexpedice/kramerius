@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.indexerProcess;
+package cz.kramerius.searchIndex.indexer.execution;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.FileUtils;

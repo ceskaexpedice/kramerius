@@ -1,6 +1,7 @@
 package cz.kramerius.adapters;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.kramerius.adapters.impl.ProcessingIndexImplAbstract;
 import cz.kramerius.shared.Pair;
 
 import java.util.List;
@@ -13,9 +14,9 @@ import java.util.Set;
  * tak mohou implementace cz.kramerius.adapters.IResourceIndex používat jen vybrané metody z minulosti, přítomnosti a budoucnosti.
  *
  * @see cz.incad.kramerius.resourceindex.IResourceIndex
- * @see cz.kramerius.searchIndex.repositoryAccessImpl.ResourceIndexImplAbstract
+ * @see ProcessingIndexImplAbstract
  */
-public interface IResourceIndex extends cz.incad.kramerius.resourceindex.IResourceIndex {
+public interface ProcessingIndex extends cz.incad.kramerius.resourceindex.IResourceIndex {
 
     /**
      * @return pids of own children (first) and foster children (second) of an object identified by pid; both lists are sorted in an order from RELS-EXT elements

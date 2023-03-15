@@ -1,7 +1,6 @@
 package cz.kramerius.searchIndex.indexer;
 
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.shared.Dom4jUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -13,6 +12,7 @@ import org.apache.solr.client.solrj.impl.HttpClientUtil;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.MapSolrParams;
@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static cz.kramerius.searchIndex.indexerProcess.Indexer.*;
+import static cz.kramerius.searchIndex.indexer.execution.Indexer.*;
 
 public class SolrIndexAccess {
 
@@ -139,9 +139,9 @@ public class SolrIndexAccess {
 
     public UpdateResponse deleteById(String id) throws IOException, SolrServerException {
         //System.out.println("deleting " + id);
-        if (useCompositeId()){
-            UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id.replace(":", "\\:"));
-        }else {
+        if (useCompositeId()) {
+            UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:" + id.replace(":", "\\:"));
+        } else {
             UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
         }
         //System.out.println("delete response: " + deleteResponse);
@@ -153,9 +153,9 @@ public class SolrIndexAccess {
     public UpdateResponse deleteByIds(List<String> ids) throws IOException, SolrServerException {
         //System.out.println("deleting " + id);
         for (String id : ids) {
-            if (useCompositeId()){
-                UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:"+id.replace(":", "\\:"));
-            }else {
+            if (useCompositeId()) {
+                UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:" + id.replace(":", "\\:"));
+            } else {
                 UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
             }
             //System.out.println("delete response: " + deleteResponse);
@@ -186,6 +186,12 @@ public class SolrIndexAccess {
         return response.getResults();
     }
 
+    public SolrDocument getObjectByPid(String pid) throws SolrServerException, IOException {
+        String query = "pid:" + pid.replace(":", "\\:");
+        SolrDocumentList result = searchInAllFields(query);
+        return result.size() > 0 ? result.get(0) : null;
+    }
+
     public SolrDocumentList searchInAllFields(String query, Long start, Integer rows, String outputFieldList) throws IOException, SolrServerException {
         Map<String, String> queryParamMap = new HashMap<>();
         queryParamMap.put("q", query);
@@ -208,7 +214,7 @@ public class SolrIndexAccess {
     public void setSingleFieldValue(String pid, RepositoryNode repositoryNode, String fieldName, Object value, boolean explicitCommit) {
         try {
             SolrInputDocument updateDoc = new SolrInputDocument();
-            ensureCompositeId(updateDoc,repositoryNode, pid);
+            ensureCompositeId(updateDoc, repositoryNode, pid);
             updateDoc.addField("pid", pid);
 
             Map<String, Object> updateData = new HashMap<>();

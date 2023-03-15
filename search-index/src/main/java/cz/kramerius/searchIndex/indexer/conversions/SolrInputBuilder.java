@@ -1,12 +1,11 @@
 package cz.kramerius.searchIndex.indexer.conversions;
 
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.searchIndex.indexer.utils.NamespaceRemovingVisitor;
-import cz.kramerius.searchIndex.indexerProcess.Indexer;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNode;
-import cz.kramerius.searchIndex.repositoryAccess.nodes.RepositoryNodeManager;
+import cz.kramerius.searchIndex.indexer.execution.Indexer;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Dom4jUtils;
@@ -22,7 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static cz.kramerius.searchIndex.indexerProcess.Indexer.*;
+import static cz.kramerius.searchIndex.indexer.execution.Indexer.*;
 
 /*
 @see https://github.com/ceskaexpedice/kramerius/blob/akubra/processes/indexer/src/cz/incad/kramerius/indexer/res/K4.xslt

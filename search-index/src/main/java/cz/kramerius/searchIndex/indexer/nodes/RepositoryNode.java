@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex.repositoryAccess.nodes;
+package cz.kramerius.searchIndex.indexer.nodes;
 
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;

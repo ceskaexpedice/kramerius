@@ -45,7 +45,6 @@ public class ExtractStructureHelper {
         JSONObject parents = new JSONObject();
         Pair<RepositoryApi.Triplet, List<RepositoryApi.Triplet>> parentsTpls = krameriusRepositoryApi.getParents(pid);
         if (parentsTpls.getFirst() != null) {
-            //sortRelations(relsExt, ownRelations);
             parents.put("own", pidAndRelationToJson(parentsTpls.getFirst().source, parentsTpls.getFirst().relation));
 
         }
@@ -59,16 +58,6 @@ public class ExtractStructureHelper {
 
         Document relsExt = krameriusRepositoryApi.getRelsExt(pid, true);
 
-        OutputFormat format = OutputFormat.createPrettyPrint();
-        format.setIndentSize(2);
-        format.setSuppressDeclaration(true);
-        format.setEncoding("UTF-8");
-        StringWriter sw = new StringWriter();
-        XMLWriter writer = new XMLWriter(sw, format);
-        writer.write(relsExt);
-        
-        System.out.println(sw.toString());
-        
         JSONObject children = new JSONObject();
         Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
         JSONArray ownChildren = new JSONArray();
