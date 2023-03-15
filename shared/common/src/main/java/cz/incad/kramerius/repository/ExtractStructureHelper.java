@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
@@ -29,6 +30,8 @@ import cz.incad.kramerius.utils.java.Pair;
 
 // helper utility used for extracting structure information 
 public class ExtractStructureHelper {
+    
+    public static final Logger LOGGER = Logger.getLogger(ExtractStructureHelper.class.getName());
     
     private ExtractStructureHelper() {}
 
@@ -85,6 +88,10 @@ public class ExtractStructureHelper {
             }
         });
 
+        List<String> devList = new ArrayList<>();
+        for (int i = 0; i < ownChildren.length(); i++) { devList.add(ownChildren.get(i).toString()); }
+        LOGGER.fine(String.format("Pids sorted by RELS-EXT %s %s", pid, devList));
+        
         
         children.put("own", ownChildren);
         JSONArray fosterChildren = new JSONArray();
