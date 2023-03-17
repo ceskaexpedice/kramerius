@@ -97,7 +97,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String baseurl = forwardUrl();
         String formatted = String.format("api/cdk/v7.0/forward/zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
-        return buildRedirectResponse(url);
+        return buildForwardResponseGET(url);
     }
 
     
