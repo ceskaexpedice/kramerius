@@ -13,6 +13,7 @@ import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.V7ForwardHandl
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.V7RedirectHandler;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.user.ProxyUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.user.V5ForwardUserHandler;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.user.V7ForwardUserHandler;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -82,7 +83,7 @@ public class DefaultOnePropertiesInstance implements OneInstance {
             case V5:
                 return new V5ForwardUserHandler(this.instances, user, client, solrAccess, source, remoteAddr);
             default:
-                throw new UnsupportedOperationException("licence access is not supported");
+                return new V7ForwardUserHandler(this.instances, user, client, solrAccess, source, remoteAddr);
             }
 
         } else {

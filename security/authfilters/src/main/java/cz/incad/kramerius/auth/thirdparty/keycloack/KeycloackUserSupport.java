@@ -166,6 +166,20 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
 
     @Override
     public String calculateUserName(HttpServletRequest request) {
-        return  KEYCLOACK_USER_PREFIX+ request.getUserPrincipal().getName();
+        if (request.getUserPrincipal() != null) {
+            if (request.getUserPrincipal() instanceof KeycloakPrincipal) {
+                AccessToken token = ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext()
+                        .getToken();
+                if (token.getEmail() != null) {
+                    return token.getEmail();
+                } else {
+                    return token.getPreferredUsername();
+                }
+            } else {
+                return request.getUserPrincipal().getName();
+            }
+        } else {
+            return "null";
+        }
     }
 }

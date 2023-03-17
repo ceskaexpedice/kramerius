@@ -11,9 +11,12 @@
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         <url>$iteration.url$</url>
-        <endpoint>search</endpoint>
+        <endpoint>select</endpoint>
         <id>PID</id>
         <type>CURSOR</type>
+
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
 
 		<!--  timestamp field  -->
         <timestamp_field>modified_date</timestamp_field>
@@ -25,8 +28,11 @@
     <worker>
         <request>
             <url>$iteration.url$</url>
-            <endpoint>search</endpoint>
+            <endpoint>select</endpoint>
             <batchsize>20</batchsize>
+
+	        <user>$iteration.user$</user>
+	        <pass>$iteration.pass$</pass>
 
 	        <id>PID</id>
 

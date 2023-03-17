@@ -72,7 +72,6 @@
             <onupdate>
  
                 <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels</fieldlist>
- 
                 <update.dest.field>
                    	<field name="cdk.collection" update="add-distinct">knav</field>
                 </update.dest.field>
