@@ -39,6 +39,8 @@ public class NextSchedulerTask extends TimerTask {
                     LRProcess lrProcess = plannedProcess.get(0);
                     lrProcess.startMe(false, this.processScheduler.getApplicationLib(),
                             this.processScheduler.getAdditionalJarFiles());
+                } else {
+                    LOGGER.fine("the maximum number of running processes is reached");
                 }
             } else {
                 LOGGER.fine("no planned process found");
