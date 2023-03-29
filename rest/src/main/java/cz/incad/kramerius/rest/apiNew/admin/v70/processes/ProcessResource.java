@@ -982,7 +982,7 @@ public class ProcessResource extends AdminApiResource {
                 } else {
                     pidlist.forEach(p-> {
                         try {
-                            ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                            ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(p);
                             User user = this.userProvider.get();
                             LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
                             boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
