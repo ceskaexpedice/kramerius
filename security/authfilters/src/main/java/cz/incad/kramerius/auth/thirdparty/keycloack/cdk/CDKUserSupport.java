@@ -96,15 +96,6 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
     @Override
     public String calculateUserName(HttpServletRequest req) {
 
-//        "displayName": "Inovatika",
-//        "remote_user": "fnhawo4p7y7vff4nk3lx3aaiiutg5m4e",
-//        "eduPersonScopedAffiliation": "[employee@lib.cas.cz, member@lib.cas.cz]",
-//        "token_id": "ccb9f4ec-a231-4934-92f3-076284e54975",
-//        "affiliation": "[employee@lib.cas.cz, member@lib.cas.cz]",
-//        "eduPersonPrincipalName": "inovatika@lib.cas.cz",
-//        "shib-session-id": "_dd68cbd66641c9b647b05509ac0241fa",
-
-        
         Map<String, String> map = attributes(req);
         String username = "not_defined";
         if (map.containsKey("eduPersonPrincipalName")) {
@@ -112,7 +103,7 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
         } else if (map.containsKey("displayName")) {
             username = map.get("displayName");
         } else if (map.containsKey("remote_user")) {
-            username = map.get("displayName");
+            username = map.get("remote_user");
         }
         
         return "_cdk_"+username;
