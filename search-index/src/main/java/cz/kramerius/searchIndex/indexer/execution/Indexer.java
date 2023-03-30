@@ -208,9 +208,16 @@ public class Indexer {
                 String imgFullMime = krameriusRepositoryFascade.getImgFullMimetype(pid);
 
                 Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid()) : null;
-                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
-                String solrInputStr = solrInput.getDocument().asXML();
-                solrIndexer.indexFromXmlString(solrInputStr, false);
+                try {
+                    SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
+                    String solrInputStr = solrInput.getDocument().asXML();
+                    solrIndexer.indexFromXmlString(solrInputStr, false);
+                } catch (DocumentException e) {  //try to reindex without ocr - TODO: hack, ocr should be properly escaped
+                    //typical root cause: Caused by: org.xml.sax.SAXParseException; lineNumber: 2; columnNumber: 2302; Character reference "&#6" is an invalid XML character.
+                    SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, "", repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
+                    String solrInputStr = solrInput.getDocument().asXML();
+                    solrIndexer.indexFromXmlString(solrInputStr, false);
+                }
                 counters.incrementIndexed();
                 report("");
                 if ("application/pdf".equals(imgFullMime)) {
