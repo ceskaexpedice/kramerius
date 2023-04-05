@@ -67,7 +67,11 @@ public class ClientUserResource {
 
     public static final String[] LABELS_CRITERIA = new String[]{
             "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels",
-            "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered"
+            "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered",
+            "cz.incad.kramerius.security.impl.criteria.Licenses",
+            "cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered",
+            "cz.incad.kramerius.security.impl.criteria.LicensesGEOIPFiltered"
+            
     };
 
     @Inject

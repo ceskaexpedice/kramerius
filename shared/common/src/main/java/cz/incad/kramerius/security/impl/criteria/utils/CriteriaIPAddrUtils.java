@@ -32,14 +32,21 @@ public class CriteriaIPAddrUtils {
             InetAddress ipAddress = InetAddress.getByName(remoteAddr);
             CountryResponse response = reader.country(ipAddress);
             Country country = response.getCountry();
+            LOGGER.fine("\t detected country is  '"+country.getIsoCode());
+            
             for (int i = 0; i < objs.length; i++) {
-                String obj = objs[i].toString();
-                if (obj.equals(country.getIsoCode())) {
+                String obj = objs[i].toString().toUpperCase();
+                if (obj.equals(country.getIsoCode().toUpperCase())) {
+                    LOGGER.fine("\t  - ACCEPTING");
                     return true;
+                } else {
+                    LOGGER.fine(String.format("\t  - NOT ACCEPTING(%s)", obj.toString()));
+                    
                 }
             }
         } catch (AddressNotFoundException e) {
             // ok
+            LOGGER.fine(String.format("\t Address not found  is  %s",remoteAddr));
         }
         
         return false;
