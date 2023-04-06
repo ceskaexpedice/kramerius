@@ -10,6 +10,9 @@ To build search.war:
 
 ./gradlew :search:clean :search:build
 
+To build and publish Docker image:
+./gradlew :search:clean :search:jib
+
 
 Creating full distribution (contains rightseditor,editor, K5, Client and javadocs ):
 
