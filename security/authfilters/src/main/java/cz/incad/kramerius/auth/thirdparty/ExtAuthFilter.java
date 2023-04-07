@@ -59,7 +59,12 @@ public abstract class ExtAuthFilter implements Filter {
                     }
                 }
             }
-            chain.doFilter(getThirdPartyUsersSupport().updateRequest((HttpServletRequest) req), resp);
+            ThirdPartyUsersSupport sup = getThirdPartyUsersSupport();
+            if (sup == null){
+                throw new NullPointerException("ThirdPartyUsersSupport is null in "+this.getClass());
+            }
+            HttpServletRequest supreq = sup.updateRequest((HttpServletRequest) req);
+            chain.doFilter(supreq, resp);
         } catch (IOException e) {
             throw e;
         }
