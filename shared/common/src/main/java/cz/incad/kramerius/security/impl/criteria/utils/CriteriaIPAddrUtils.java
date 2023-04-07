@@ -32,8 +32,15 @@ public class CriteriaIPAddrUtils {
             InetAddress ipAddress = InetAddress.getByName(remoteAddr);
             CountryResponse response = reader.country(ipAddress);
             Country country = response.getCountry();
-            LOGGER.fine("\t detected country is  '"+country.getIsoCode());
-            
+            if (country == null){
+                LOGGER.fine("Country is null for remote Address: "+remoteAddr);
+                return false;
+            }
+            LOGGER.fine("\t detected country is  '"+country.getName()+", code:"+country.getIsoCode()+", confidence:"+country.getConfidence());
+            if (country.getIsoCode() == null){
+                LOGGER.fine("Country ISOCODE is null for remote Address: "+remoteAddr);
+                return false;
+            }
             for (int i = 0; i < objs.length; i++) {
                 String obj = objs[i].toString().toUpperCase();
                 if (obj.equals(country.getIsoCode().toUpperCase())) {
