@@ -48,6 +48,7 @@ dependencies {
 
     api project(':processes:dnntflag')
     api project(':processes:nkp-logs')
+    api project(':processes:sdnnt')
 
 
     api 'javax.servlet:jstl:1.2'

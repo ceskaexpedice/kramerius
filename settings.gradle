@@ -27,6 +27,7 @@ include	'search-index'
 // statistics resources
 include 'processes:nkp-logs'
 include 'processes:statistics'
+include 'processes:sdnnt'
 
 include 'security:authfilters'
 include 'security:oauth'

@@ -680,4 +680,20 @@
         <securedaction>a_generate_nkplogs</securedaction>
     </process>
 
+
+    <process>
+        <id>sdnnt-sync</id>
+        <description>SDNNT sync</description>
+        <!-- spoustena trida -->
+        <mainClass>cz.inovatika.sdnnt.SDNNTFetch</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <templates>
+            <input class="cz.incad.kramerius.statistics.impl.nkp.ParametrizedNKPInputTemplate"></input>
+        </templates>
+        <securedaction>a_generate_nkplogs</securedaction>
+    </process>
 </processes>

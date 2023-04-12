@@ -761,8 +761,6 @@ public class ProcessResource extends AdminApiResource {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("uuid", lrProcess.getUUID());
         
-        
-        
         jsonObject.put("pid", lrProcess.getPid()); //empty
         jsonObject.put("id", lrProcess.getDefinitionId());
         jsonObject.put("state", lrProcess.getProcessState().toString());
@@ -820,6 +818,9 @@ public class ProcessResource extends AdminApiResource {
                 }
                 case "nkplogs": {
                     return String.format("Generování NKP logů pro období %s - %s", params.get(0), params.get(1));
+                }
+                case "sdnnt-sync": {
+                    return "Synchronizace se SDNNT";
                 }
                 case "delete_tree": {
                     String pid = params.get(0);
@@ -1023,6 +1024,11 @@ public class ProcessResource extends AdminApiResource {
                 consumer.accept(false);
                 return result;
             }
+            case "sdnnt-sync": { //TODO: rename to verb like "generate_nkp_logs"
+                List<String> result = new ArrayList<>();
+                return result;
+            }
+            
             case "delete_tree": {
                 String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
                 String title = extractOptionalParamString(params, "title", null);

@@ -33,9 +33,9 @@ import static cz.kramerius.searchIndex.indexer.execution.Indexer.*;
 
 public class SolrIndexAccess {
 
-    private static final int MAX_TIME_WITHOUT_COMMIT_MS = 15000; //15 seconds
-    private static final int CONNECTION_TIMEOUT = 10000;
-    private static final int SOCKET_TIMEOUT = 60000;
+    public static final int MAX_TIME_WITHOUT_COMMIT_MS = 15000; //15 seconds
+    public static final int CONNECTION_TIMEOUT = 10000;
+    public static final int SOCKET_TIMEOUT = 60000;
 
     private final HttpSolrClient solrClient;
     private final String collection; //because solrClient is buggy and still requires explicit collection-name as a parameter for some operations even though it gets collection-name in the constructor
