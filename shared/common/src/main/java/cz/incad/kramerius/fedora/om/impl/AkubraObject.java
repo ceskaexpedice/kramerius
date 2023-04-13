@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2016 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -75,7 +75,6 @@ public class AkubraObject implements RepositoryObject {
     private ProcessingIndexFeeder feeder;
 
 
-
     public AkubraObject(AkubraDOManager manager, String pid, DigitalObject digitalObject, ProcessingIndexFeeder feeder) {
         super();
         this.manager = manager;
@@ -96,12 +95,12 @@ public class AkubraObject implements RepositoryObject {
     }
 
 
-    private DatastreamType createDatastreamHeader(String streamId, String mimeType, String controlGroup) throws RepositoryException{
+    private DatastreamType createDatastreamHeader(String streamId, String mimeType, String controlGroup) throws RepositoryException {
         List<DatastreamType> datastreamList = digitalObject.getDatastream();
         Iterator<DatastreamType> iterator = datastreamList.iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             DatastreamType datastreamType = iterator.next();
-            if (streamId.equals(datastreamType.getID())){
+            if (streamId.equals(datastreamType.getID())) {
                 iterator.remove();
             }
         }
@@ -112,7 +111,7 @@ public class AkubraObject implements RepositoryObject {
         datastreamType.setVERSIONABLE(false);
         List<DatastreamVersionType> datastreamVersion = datastreamType.getDatastreamVersion();
         DatastreamVersionType datastreamVersionType = new DatastreamVersionType();
-        datastreamVersionType.setID(streamId+".0");
+        datastreamVersionType.setID(streamId + ".0");
         datastreamVersionType.setCREATED(AkubraUtils.getCurrentXMLGregorianCalendar());
         datastreamVersionType.setMIMETYPE(mimeType);
         String formatUri = FedoraUtils.getFormatUriForDS(streamId);
@@ -135,15 +134,13 @@ public class AkubraObject implements RepositoryObject {
 
         AkubraDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, AkubraDatastream.Type.INDIRECT);
 
-        try{
+        try {
             manager.commit(digitalObject, streamId);
             return ds;
-        }  catch (IOException e) {
+        } catch (IOException e) {
             throw new RepositoryException(e);
         }
     }
-
-
 
 
     @Override
@@ -151,16 +148,16 @@ public class AkubraObject implements RepositoryObject {
         List<RepositoryDatastream> list = new ArrayList<>();
         List<DatastreamType> datastreamList = digitalObject.getDatastream();
         for (DatastreamType datastreamType : datastreamList) {
-            list.add(new AkubraDatastream(manager,datastreamType, datastreamType.getID(), controlGroup2Type(datastreamType.getCONTROLGROUP())));
+            list.add(new AkubraDatastream(manager, datastreamType, datastreamType.getID(), controlGroup2Type(datastreamType.getCONTROLGROUP())));
         }
         return list;
     }
 
 
-    private AkubraDatastream.Type controlGroup2Type(String controlGroup){
-        if ("E".equals(controlGroup) || "R".equals(controlGroup)){
+    private AkubraDatastream.Type controlGroup2Type(String controlGroup) {
+        if ("E".equals(controlGroup) || "R".equals(controlGroup)) {
             return AkubraDatastream.Type.INDIRECT;
-        } else{
+        } else {
             return AkubraDatastream.Type.DIRECT;
         }
     }
@@ -168,20 +165,19 @@ public class AkubraObject implements RepositoryObject {
 
     @Override
     public void deleteStream(String streamId) throws RepositoryException {
-        try  {
+        try {
             manager.deleteStream(pid, streamId);
             if (streamId.equals(FedoraUtils.RELS_EXT_STREAM)) {
-                try{
-                this.feeder.deleteByRelationsForPid(this.getPid());
+                try {
+                    this.feeder.deleteByRelationsForPid(this.getPid());
                 } catch (SolrServerException e) {
-                    throw new RepositoryException ("Cannot delete relations for streamId " + streamId, e);
+                    throw new RepositoryException("Cannot delete relations for streamId " + streamId, e);
                 }
             }
         } catch (IOException e) {
             throw new RepositoryException("Cannot delete  streamId " + streamId, e);
         }
     }
-
 
 
     @Override
@@ -194,7 +190,7 @@ public class AkubraObject implements RepositoryObject {
 
         AkubraDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, AkubraDatastream.Type.DIRECT);
 
-        try{
+        try {
             manager.commit(digitalObject, streamId);
             if (streamId.equals(FedoraUtils.RELS_EXT_STREAM)) {
                 // process rels-ext and create all children and relations
@@ -203,7 +199,7 @@ public class AkubraObject implements RepositoryObject {
                 rebuildProcessingIndexImpl(input);
             }
             return ds;
-        }  catch (Exception ex) {
+        } catch (Exception ex) {
             throw new RepositoryException(ex);
         }
     }
@@ -228,7 +224,7 @@ public class AkubraObject implements RepositoryObject {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if ( ret != null ){
+        if (ret != null) {
             return ret.getDocumentElement();
         } else {
             return null;
@@ -236,10 +232,10 @@ public class AkubraObject implements RepositoryObject {
     }
 
 
-    public RepositoryDatastream createManagedStream(String streamId, String mimeType, InputStream input) throws RepositoryException{
+    public RepositoryDatastream createManagedStream(String streamId, String mimeType, InputStream input) throws RepositoryException {
         DatastreamType datastreamType = createDatastreamHeader(streamId, mimeType, "M");
 
-        try{
+        try {
             datastreamType.getDatastreamVersion().get(0).setBinaryContent(IOUtils.toByteArray(input));
 
             AkubraDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, AkubraDatastream.Type.DIRECT);
@@ -247,7 +243,7 @@ public class AkubraObject implements RepositoryObject {
 
             manager.commit(digitalObject, streamId);
             return ds;
-        }  catch (Exception ex) {
+        } catch (Exception ex) {
             throw new RepositoryException(ex);
         }
     }
@@ -259,9 +255,9 @@ public class AkubraObject implements RepositoryObject {
         if (localName.equals("hasModel")) {
             try {
                 boolean dcStreamExists = this.streamExists(FedoraUtils.DC_STREAM);
-                // TODO: Biblio mods ukladat jinam ?? 
+                // TODO: Biblio mods ukladat jinam ??
                 boolean modsStreamExists = this.streamExists(FedoraUtils.BIBLIO_MODS_STREAM);
-                if (dcStreamExists || modsStreamExists ) {
+                if (dcStreamExists || modsStreamExists) {
                     try {
                         if (dcStreamExists) {
                             List<String> dcTList = dcTitle();
@@ -327,8 +323,8 @@ public class AkubraObject implements RepositoryObject {
                 return false;
             }
         });
-        
-        
+
+
         if (elements.isEmpty()) {
             elements = XMLUtils.getElementsRecursive(docElement, new XMLUtils.ElementsFilter() {
                 @Override
@@ -342,14 +338,14 @@ public class AkubraObject implements RepositoryObject {
                     return false;
                 }
             });
-            
+
         }
-        
-        return  elements.stream().map(Element::getTextContent).collect(Collectors.toList());
-        
+
+        return elements.stream().map(Element::getTextContent).collect(Collectors.toList());
+
     }
 
-    
+
     private void indexRelation(String localName, String object) throws IOException, SolrServerException {
         this.feeder.feedRelationDocument(this.getPid(), localName, object);
     }
@@ -400,7 +396,6 @@ public class AkubraObject implements RepositoryObject {
     public Document getMetadata() throws RepositoryException {
         return null;
     }
-
 
 
     @Override
@@ -469,7 +464,7 @@ public class AkubraObject implements RepositoryObject {
         try {
             final String targetPID = targetRelation.startsWith(PIDParser.INFO_FEDORA_PREFIX) ? targetRelation : PIDParser.INFO_FEDORA_PREFIX + targetRelation;
             RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
-            Document document= XMLUtils.parseDocument(stream.getContent(), true);
+            Document document = XMLUtils.parseDocument(stream.getContent(), true);
             Element relationElement = XMLUtils.findElement(document.getDocumentElement(), (element) -> {
                 String elmNamespace = element.getNamespaceURI();
                 String elmLocalname = element.getLocalName();
@@ -496,7 +491,6 @@ public class AkubraObject implements RepositoryObject {
             throw new RepositoryException(e);
         }
     }
-
 
 
     public List<Triple<String, String, String>> getRelations(String namespace) throws RepositoryException {
@@ -564,7 +558,7 @@ public class AkubraObject implements RepositoryObject {
         final String targetPID = targetRelation.startsWith(PIDParser.INFO_FEDORA_PREFIX) ? targetRelation : PIDParser.INFO_FEDORA_PREFIX + targetRelation;
         RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
         if (stream == null) {
-            throw new RepositoryException("FOXML object "+ this.pid + "does not have RELS-EXT stream " );
+            throw new RepositoryException("FOXML object " + this.pid + "does not have RELS-EXT stream ");
         }
         Document document = null;
         try {
@@ -588,7 +582,7 @@ public class AkubraObject implements RepositoryObject {
 
     @Override
     public boolean relationExists(String relation, String namespace, String targetRelation) throws RepositoryException {
-        Element foundElement = findRelationElement(relation, namespace,targetRelation);
+        Element foundElement = findRelationElement(relation, namespace, targetRelation);
         return foundElement != null;
     }
 
@@ -638,8 +632,8 @@ public class AkubraObject implements RepositoryObject {
 
             });
 
-            if(!descs.isEmpty()) {
-                descs.stream().forEach(literal-> {
+            if (!descs.isEmpty()) {
+                descs.stream().forEach(literal -> {
                     literal.getParentNode().removeChild(literal);
                 });
                 changeRelations(document);
@@ -774,6 +768,15 @@ public class AkubraObject implements RepositoryObject {
             throw new RepositoryException(e);
         } catch (ParserConfigurationException e) {
             throw new RepositoryException(e);
+        } finally {
+            try {
+                this.feeder.commit();
+                LOGGER.info("CALLED PROCESSING INDEX COMMIT");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (SolrServerException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
