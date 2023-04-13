@@ -457,7 +457,7 @@ public class Import {
                 if (updateExisting) {
                     log.info("Replacing existing object " + pid);
                     try {
-                        repo.deleteObject(pid);
+                        repo.deleteObject(pid, true, false);
                         log.info("purged old object " + pid);
                     } catch (Exception ex) {
                         log.severe("Cannot purge object " + pid + ", skipping: " + ex);
