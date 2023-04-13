@@ -198,6 +198,15 @@ public class AkubraRepository extends Repository {
             }
         } catch (Exception e) {
             throw new RepositoryException(e);
+        }finally {
+            try {
+                this.feeder.commit();
+                LOGGER.info("CALLED PROCESSING INDEX COMMIT AFTER DELETE "+pid);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (SolrServerException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
