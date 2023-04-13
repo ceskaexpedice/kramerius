@@ -1,0 +1,20 @@
+description "SDNNT check process"
+
+
+dependencies {
+    
+	api project(':shared:common')
+    api project(':search-index')
+    api "org.apache.commons:commons-csv:1.6"
+	
+}
+
+configurations.findAll {!it.name.endsWith('json-lib')}.each { conf ->
+    conf.exclude group: "net.sf.json-lib", module: "json-lib"
+}
+
+
+
+
+
+
