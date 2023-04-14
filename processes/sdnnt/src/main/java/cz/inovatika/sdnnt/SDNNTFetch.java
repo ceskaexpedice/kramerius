@@ -53,6 +53,30 @@ public class SDNNTFetch {
     
     //public static final SyncConfig KNAV = new SyncConfig("https://kramerius.lib.cas.cz/search/" , "v5", "knav");
     
+    public static enum SyncActionEnum {
+        
+        add_dnnto(0), 
+        add_dnntt(1), 
+        remove_dnnto(2), 
+        remove_dnntt(3), 
+        change_dnnto_dnntt(4), 
+        change_dnntt_dnnto(5), 
+        partial_change(6);
+        
+        private int sortValue = 0;
+
+        private SyncActionEnum(int sortValue) {
+            this.sortValue = sortValue;
+        }
+        
+        public Integer getValue() {
+            return new Integer(this.sortValue);
+        }
+        
+        
+    }
+    
+    
     private static final SimpleDateFormat S_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 
     public static final Logger LOGGER = Logger.getLogger(SDNNTFetch.class.getName());
@@ -73,7 +97,7 @@ public class SDNNTFetch {
         }
         HttpSolrClient client = new HttpSolrClient.Builder(sdnntHost).build();
         try {
-            process(args, client, new SyncConfig());
+            process(client, new SyncConfig());
         } finally {
             client.close();
         }
@@ -81,19 +105,15 @@ public class SDNNTFetch {
 
 
 
-    public static void process(String[] args, HttpSolrClient client, SyncConfig config) throws IOException, InterruptedException, SolrServerException {
-
-        if (args.length >= 1) {
-            String sdnntEndpoint = args[0];
+    public static void process(HttpSolrClient client, SyncConfig config) throws IOException, InterruptedException, SolrServerException {
             long start = System.currentTimeMillis();
             
-            //Map<String,List<String>> identifiers = new HashMap<>();
             Map<String,String> pids2idents = new HashMap<>();
             
             LOGGER.info("Connecting sdnnt list and iterating serials ");
-            iterateSDNNTFormat(client, config, sdnntEndpoint,  "SE", start, pids2idents);
+            iterateSDNNTFormat(client, config, config.getSdnntEndpoint(),  "SE", start, pids2idents);
             LOGGER.info("Connecting sdnnt list and iterating books ");
-            iterateSDNNTFormat(client, config, sdnntEndpoint,  "BK", start, pids2idents);
+            iterateSDNNTFormat(client, config, config.getSdnntEndpoint(),  "BK", start, pids2idents);
 
             long stop = System.currentTimeMillis();
             LOGGER.info("List fetched. It took " + (stop - start) + " ms");
@@ -112,39 +132,46 @@ public class SDNNTFetch {
                 int setsize = licenses.size();
                 int batchsize = 100;
                 int numberofiteration = setsize / batchsize;
+
+                List<String> allChangedIds = new ArrayList<>();
+                Map<String, SolrInputDocument> allChanges = new HashMap<>();
+
                 if (setsize % batchsize != 0) numberofiteration = numberofiteration + 1;
                 for (int i = 0; i < numberofiteration; i++) {
+                    
                   int from = i*batchsize;
                   int to = Math.min((i+1)*batchsize, setsize);
                   List<String> subList = fetchedPids.subList(from, to);
 
-                  List<String> changedIdents = new ArrayList<>();
-                  Map<String, SolrInputDocument> allChanges = new HashMap<>();
                   for (int j = 0; j < subList.size(); j++) {
                       String pid = subList.get(j);
                       String ident = pids2idents.get(pid);
                       if (ident != null) {
-                          
-                          SolrInputDocument idoc = new SolrInputDocument();
-                          idoc.setField("id", ident);
+                          SolrInputDocument idoc =  null;
+                          if (allChanges.containsKey(ident)) {
+                              idoc = allChanges.get(ident.toString());
+                          } else {
+                              idoc = new SolrInputDocument();
+                              idoc.setField("id", ident);
+                          }
                           
                           List<String> pidLicenses = licenses.get(pid);
                           if (pidLicenses != null && !pidLicenses.isEmpty()) {
                               
                               LOGGER.info("Updating document "+ident);
-                              pidLicenses.stream().forEach(lic-> {
+                              for (String lic : pidLicenses) {
                                   atomicAddDistinct(idoc, lic, "real_kram_licenses");
-                              });
-                              
+                              }
                           }
                           atomicSet(idoc, true, "real_kram_exists");
-                          changedIdents.add(ident);
-                          allChanges.put(ident, idoc);
+                          if (!allChangedIds.contains(ident.toString())) {
+                              allChangedIds.add(ident);
+                              allChanges.put(ident, idoc);
+                          }
                       }
                   }
                   
-
-                  SolrDocumentList list = client.getById(config.getSyncCollection(), changedIdents);
+                  SolrDocumentList list = client.getById(config.getSyncCollection(), subList.stream().map(pids2idents::get).collect(Collectors.toList()));
                   for (SolrDocument rDoc : list) {
                     Object ident = rDoc.getFieldValue("id");
                     SolrInputDocument in = allChanges.get(ident.toString());
@@ -156,49 +183,73 @@ public class SDNNTFetch {
                                 return m.get("add-distinct");
                             }).collect(Collectors.toList()) : new ArrayList<>();
 
+                    
+                    Collection<Object> syncMasterActions = in.getFieldValues("sync_actions");
+                    List<String> masterActions = syncMasterActions != null ? syncMasterActions.stream()
+                            .map(obj-> {
+                                Map<String,String> m = (Map<String, String>) obj;
+                                return m.get("add-distinct");
+                            }).collect(Collectors.toList()) : new ArrayList<>();
+
                     Object type = rDoc.getFieldValue("type");
-                    boolean granularityChange = type != null ? type.toString().equals("granularity") : false;
+                    //Object hasGranularityField = rDoc.getFieldValue("has_granularity");
+
+                    boolean hasGranularity = rDoc.getFieldValue("has_granularity") != null ? (boolean) rDoc.getFieldValue("has_granularity") : false;
+                    boolean granularityItem = type != null ? type.toString().equals("granularity") : false;
                     boolean dirty = false;
+
                     Object rDocState = rDoc.getFieldValue("state");
                     if (rDocState!= null &&  rDocState.toString().equals("A")) {
-                        Object license = rDoc.getFieldValue("license");
-                        if (license != null) {
-                            if (license.toString().equals("dnntt") && !docLicenses.contains("dnntt")) {
-                                if (docLicenses.contains("dnnto")) {
-                                    atomicAddDistinct(in, "change_dnnto_dnntt", "sync_actions");
-                                    dirty = true;
-                                } else {
-                                    atomicAddDistinct(in, "add_dnntt", "sync_actions");
-                                    dirty = true;
+                        // polozka granularity nebo samostatny titul
+                        if (granularityItem || !hasGranularity) {
+                            Object license = rDoc.getFieldValue("license");
+                            if (license != null) {
+                                if (license.toString().equals("dnntt") && !docLicenses.contains("dnntt")) {
+                                    if (docLicenses.contains("dnnto")) {
+                                        atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name(), "sync_actions");
+                                        atomicSet(in, SyncActionEnum.change_dnnto_dnntt.getValue(), "sync_sort");
+                                        dirty = true;
+                                    } else {
+                                        atomicAddDistinct(in, SyncActionEnum.add_dnntt.name(), "sync_actions");
+                                        atomicSet(in, SyncActionEnum.add_dnntt.getValue(), "sync_sort");
+                                        dirty = true;
+                                    }
                                 }
-                            }
 
-                            if (license.toString().equals("dnnto") && !docLicenses.contains("dnnto")) {
-                                if (docLicenses.contains("dnntt")) {
-                                    atomicAddDistinct(in, "change_dnnto_dnntt", "sync_actions");
-                                    dirty = true;
-                                } else {
-                                    atomicAddDistinct(in, "add_dnnto", "sync_actions");
-                                    dirty = true;
+                                if (license.toString().equals("dnnto") && !docLicenses.contains("dnnto")) {
+                                    if (docLicenses.contains("dnntt")) {
+                                        atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name() /*"change_dnnto_dnntt"*/, "sync_actions");
+                                        atomicSet(in, SyncActionEnum.change_dnnto_dnntt.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
+                                        
+                                        dirty = true;
+                                    } else {
+                                        atomicAddDistinct(in, SyncActionEnum.add_dnnto.name() /*"add_dnnto"*/, "sync_actions");
+                                        atomicSet(in, SyncActionEnum.add_dnnto.getValue() /*"add_dnnto"*/, "sync_sort");
+                                        dirty = true;
+                                    }
                                 }
                             }
                         }
                     } else {
-                       // neocekavam licencece 
-                        if (docLicenses.contains("dnntt")) {
-                            atomicAddDistinct(in, "remove_dnntt", "sync_actions");
-                            dirty = true;
-                        }
-                        if (docLicenses.contains("dnnto")) {
-                            atomicAddDistinct(in, "remove_dnnto", "sync_actions");
-                            dirty = true;
+                        if (granularityItem || !hasGranularity) {
+                            if (docLicenses.contains("dnntt")) {
+                                atomicAddDistinct(in, SyncActionEnum.remove_dnntt.name() /*"remove_dnntt"*/, "sync_actions");
+                                atomicSet(in, SyncActionEnum.remove_dnntt.getValue() /*"remove_dnntt"*/, "sync_sort");
+                                dirty = true;
+                            }
+                            if (docLicenses.contains("dnnto")) {
+                                atomicAddDistinct(in, SyncActionEnum.remove_dnnto.name() /*"remove_dnnto"*/, "sync_actions");
+                                atomicSet(in, SyncActionEnum.remove_dnnto.getValue() /*"remove_dnnto"*/, "sync_sort");
+                                dirty = true;
+                            }
                         }
                     }
                     
-                    if (dirty && granularityChange) {
+                    // ja vim ze mam polozku granulairity ... tak menim parenta 
+                    if (dirty && granularityItem) {
                         Object field = rDoc.getFieldValue("parent_id"); 
                         if (field!= null) {
-                            if (changedIdents.contains(field.toString())) {
+                            if (allChangedIds.contains(field.toString())) {
                                 SolrInputDocument masterIn = allChanges.get(field.toString());
                                 // pozmenime
                                 Collection<Object> masterInSyncActions = masterIn.getFieldValues("sync_actions");
@@ -207,15 +258,17 @@ public class SDNNTFetch {
                                             Map<String,String> m = (Map<String, String>) obj;
                                             return m.get("add-distinct");
                                         }).collect(Collectors.toList()) : new ArrayList<>();
-                                if (!actions.contains("partial_change")) {
-                                    atomicAddDistinct(masterIn, "partial_change", "sync_actions");
+                                if (!actions.contains(SyncActionEnum.partial_change.name())) {
+                                    atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
+                                    atomicSet(masterIn,  SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
                                 }
                                 //if (fieldValue.con)
                             } else {
                                 SolrInputDocument masterIn = new SolrInputDocument();
                                 masterIn.setField("id", field.toString());
-                                atomicAddDistinct(masterIn, "partial_change", "sync_actions");
-                                changedIdents.add(field.toString());
+                                atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
+                                atomicSet(masterIn,  SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
+                                allChangedIds.add(field.toString());
                                 allChanges.put(field.toString(), masterIn);
                             }
                         }
@@ -223,9 +276,9 @@ public class SDNNTFetch {
                   }
                   
                   
-                  if (!changedIdents.isEmpty()) {
+                  if (!allChangedIds.isEmpty()) {
                       UpdateRequest req = new UpdateRequest();
-                      changedIdents.forEach(ident-> {
+                      allChangedIds.forEach(ident-> {
                           req.add(allChanges.get(ident));
                       });
                       
@@ -240,9 +293,6 @@ public class SDNNTFetch {
               }
               
             }
-        } else {
-            LOGGER.warning("Expecting two parameters. <sdnnt_endpoint>, <solr_endpoint> <folder>");
-        }
     }
 
     public static void atomicSet(SolrInputDocument idoc, Object fValue, String fName) {
@@ -304,6 +354,7 @@ public class SDNNTFetch {
         String sdnntApiEndpoint = sdnntChangesEndpoint + "?format=" + format + "&rows=1000&resumptionToken=%s&digital_library="+config.getAcronym();
         while (token != null && !token.equals(prevToken)) {
             String formatted = String.format(sdnntApiEndpoint, token);
+            LOGGER.info("Conctacting sdnnt instance "+format);
             File file = throttle(c, formatted);
             String response = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
             JSONObject resObject = new JSONObject(response);
@@ -346,11 +397,13 @@ public class SDNNTFetch {
                     doc.setField("license", mainObject.getString("license"));
                 }
                 doc.setField("type", "main");
-                docs.add(doc);
+
                 
                 if (mainObject.has("granularity")) {
                     
                     JSONArray gr = mainObject.getJSONArray("granularity");
+                    doc.setField("has_granularity", new Boolean( gr.length()>0));
+
                     for (int j = 0; j < gr.length(); j++) {
                         JSONObject item = gr.getJSONObject(j);
                         SolrInputDocument gDod = new SolrInputDocument();
@@ -382,7 +435,12 @@ public class SDNNTFetch {
                         
                         docs.add(gDod);
                     }
+                } else {
+                               //"has_granularity"
+                    doc.setField("has_granularity", new Boolean(false));
                 }
+                docs.add(doc);
+                
             }
         }
         

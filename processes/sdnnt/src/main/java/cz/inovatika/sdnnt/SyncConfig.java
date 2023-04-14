@@ -76,4 +76,8 @@ public class SyncConfig {
     public String getSyncSolrHost() {
         return syncSolrHost;
     }
+    
+    public String getSdnntEndpoint() {
+        return sdnntEndpoint;
+    }
 }

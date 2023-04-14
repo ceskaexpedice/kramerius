@@ -31,13 +31,55 @@ public class SDNNTSyncResource {
     
     public static final int DEFAULT_PAGE = 0;
     public static final int DEFAULT_ROWS = 15;
-    
+
+    @GET
+    @Path("info")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    public Response info() {
+        
+        JSONObject infoObject = new JSONObject();
+        infoObject.put("acronym", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.acronym"));
+        infoObject.put("endpoint", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.endpoint","https://sdnnt.nkp.cz/sdnnt/api/v1.0/lists/changes"));
+        infoObject.put("version", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.version","v7"));
+        
+        return Response.ok().entity(infoObject.toString(2)).build();
+        
+    }
+
     
     @GET
-    @Path("timestamp")
+    @Path("sync/timestamp")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response lastTimestamp(String dd) {
-        return null;
+        try {
+
+            String mainQuery = URLEncoder.encode("type:main AND sync_actions:*","UTF-8");
+            String sort = URLEncoder.encode("fetched asc","UTF-8");
+            
+            String sdnntHost  = KConfiguration.getInstance().getConfiguration().getString("solrSdnntHost");
+            String url = sdnntHost+String.format("/select?q=%s&wt=json&rows=%d&start=%d&sort=%s", mainQuery, 1, 0, sort);
+            InputStream is = RESTHelper.inputStream(url, null,null);
+            
+            String res = IOUtils.toString(is, Charset.forName("UTF-8"));
+            JSONObject responseJSON = new JSONObject(res);
+            JSONObject response = responseJSON.getJSONObject("response");
+            JSONArray docs = response.getJSONArray("docs");
+            String fetched = null;
+            for (int i = 0; i < docs.length(); i++) {
+                JSONObject oneDoc = docs.getJSONObject(i);
+                fetched = oneDoc.getString("fetched");
+            }
+            docs.remove(0);
+            
+            JSONObject newObject = new JSONObject();
+            newObject.put("fetched", fetched);
+            docs.put(newObject);
+            
+            return Response.ok().entity(response.toString(2)).build();
+
+        } catch (IOException e) {
+            throw new WebApplicationException(e);
+        }
     }
 
     @GET
@@ -60,7 +102,7 @@ public class SDNNTSyncResource {
 
             int start = (page * rows)+rows;
             String mainQuery = URLEncoder.encode("type:main AND sync_actions:*","UTF-8");
-            String sort = URLEncoder.encode("type_of_rec asc","UTF-8");
+            String sort = URLEncoder.encode("sync_sort asc","UTF-8");
 
             String url = sdnntHost+String.format("/select?q=%s&wt=json&rows=%d&start=%d&sort=%s", mainQuery, rows, start, sort);
             InputStream is = RESTHelper.inputStream(url, null,null);
