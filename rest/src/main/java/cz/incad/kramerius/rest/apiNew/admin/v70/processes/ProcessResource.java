@@ -50,6 +50,8 @@ import java.util.stream.Collectors;
 @Path("/admin/v7.0/processes")
 public class ProcessResource extends AdminApiResource {
 
+    private static final int MAX_TITLE_LENGTH = 1024;
+
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
 
     private static final Integer GET_BATCHES_DEFAULT_OFFSET = 0;
@@ -718,7 +720,8 @@ public class ProcessResource extends AdminApiResource {
                 paramsList.addAll(paramsToList(defid, params, (permitted) -> {
                     
                 }));
-                return scheduleProcess(defid, paramsList, userId, userName, batchToken, buildInitialProcessName(defid, paramsList));
+                String title = shortenIfTooLong(buildInitialProcessName(defid, paramsList), MAX_TITLE_LENGTH);
+                return scheduleProcess(defid, paramsList, userId, userName, batchToken, title);
             
             } else { //run by user (through web client)
                 AtomicBoolean pidPermitted = new AtomicBoolean(false);
@@ -740,7 +743,9 @@ public class ProcessResource extends AdminApiResource {
                     throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
                 }
 
-                return scheduleProcess(defid, paramsList, user.getLoginname(), user.getLoginname(), batchToken, buildInitialProcessName(defid, paramsList));
+                String title =  shortenIfTooLong(buildInitialProcessName(defid, paramsList), MAX_TITLE_LENGTH);
+                
+                return scheduleProcess(defid, paramsList, user.getLoginname(), user.getLoginname(), batchToken, title);
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -838,6 +843,17 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+    
+    private static String shortenIfTooLong(String string, int maxLength) {
+        if (string == null || string.isEmpty() || string.length() <= maxLength) {
+            return string;
+        } else {
+            String suffix = "...";
+            return string.substring(0, maxLength - suffix.length()) + suffix;
+        }
+    }
+
+    
     private List<String> paramsToList(String id, JSONObject params, Consumer<Boolean> consumer) {
         switch (id) {
             case "new_process_api_test": {
