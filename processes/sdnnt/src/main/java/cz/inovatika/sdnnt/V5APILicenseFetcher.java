@@ -45,7 +45,7 @@ public class V5APILicenseFetcher extends LicenseAPIFetcher {
             if (i%15 == 0) {
                 LOGGER.info( String.format("Current iteration is: %d, time: %d ", i, (System.currentTimeMillis() - checkStart)));
             }
-//            
+
             String condition = batchPids.stream().map(p -> {
                 return p.replace(":", "\\:");
             }).collect(Collectors.joining(" OR "));

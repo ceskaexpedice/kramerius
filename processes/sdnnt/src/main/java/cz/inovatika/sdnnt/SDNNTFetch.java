@@ -72,8 +72,6 @@ public class SDNNTFetch {
         public Integer getValue() {
             return new Integer(this.sortValue);
         }
-        
-        
     }
     
     
@@ -130,14 +128,16 @@ public class SDNNTFetch {
                 List<String> fetchedPids = new ArrayList<>(licenses.keySet());
                 
                 int setsize = licenses.size();
-                int batchsize = 100;
+                int batchsize = 5000;
                 int numberofiteration = setsize / batchsize;
 
-                List<String> allChangedIds = new ArrayList<>();
-                Map<String, SolrInputDocument> allChanges = new HashMap<>();
+                List<String> allChangedIds = new ArrayList<>(100000);
+                Map<String, SolrInputDocument> allChanges = new HashMap<>(100000);
 
                 if (setsize % batchsize != 0) numberofiteration = numberofiteration + 1;
                 for (int i = 0; i < numberofiteration; i++) {
+                  
+                  List<String> batchChangedIds = new ArrayList<>();
                     
                   int from = i*batchsize;
                   int to = Math.min((i+1)*batchsize, setsize);
@@ -158,7 +158,7 @@ public class SDNNTFetch {
                           List<String> pidLicenses = licenses.get(pid);
                           if (pidLicenses != null && !pidLicenses.isEmpty()) {
                               
-                              LOGGER.info("Updating document "+ident);
+                              //LOGGER.info("Updating document "+ident);
                               for (String lic : pidLicenses) {
                                   atomicAddDistinct(idoc, lic, "real_kram_licenses");
                               }
@@ -166,12 +166,16 @@ public class SDNNTFetch {
                           atomicSet(idoc, true, "real_kram_exists");
                           if (!allChangedIds.contains(ident.toString())) {
                               allChangedIds.add(ident);
+                              batchChangedIds.add(ident);
                               allChanges.put(ident, idoc);
                           }
                       }
                   }
                   
-                  SolrDocumentList list = client.getById(config.getSyncCollection(), subList.stream().map(pids2idents::get).collect(Collectors.toList()));
+                  //int getSize = 100;
+                  List<String> pids = subList.stream().map(pids2idents::get).collect(Collectors.toList());
+                  String collection = config.getSyncCollection();
+                  SolrDocumentList list = getById(client, pids, collection);
                   for (SolrDocument rDoc : list) {
                     Object ident = rDoc.getFieldValue("id");
                     SolrInputDocument in = allChanges.get(ident.toString());
@@ -220,7 +224,6 @@ public class SDNNTFetch {
                                     if (docLicenses.contains("dnntt")) {
                                         atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name() /*"change_dnnto_dnntt"*/, "sync_actions");
                                         atomicSet(in, SyncActionEnum.change_dnnto_dnntt.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
-                                        
                                         dirty = true;
                                     } else {
                                         atomicAddDistinct(in, SyncActionEnum.add_dnnto.name() /*"add_dnnto"*/, "sync_actions");
@@ -269,6 +272,7 @@ public class SDNNTFetch {
                                 atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
                                 atomicSet(masterIn,  SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
                                 allChangedIds.add(field.toString());
+                                batchChangedIds.add(field.toString());
                                 allChanges.put(field.toString(), masterIn);
                             }
                         }
@@ -278,10 +282,10 @@ public class SDNNTFetch {
                   
                   if (!allChangedIds.isEmpty()) {
                       UpdateRequest req = new UpdateRequest();
-                      allChangedIds.forEach(ident-> {
+                      batchChangedIds.forEach(ident-> {
                           req.add(allChanges.get(ident));
                       });
-                      
+                      LOGGER.info(String.format("Update batch with size %s",  req.getDocuments().size()));
                       try {
                           UpdateResponse response = req.process(client, config.getSyncCollection());
                           LOGGER.info("qtime:"+response.getQTime());
@@ -293,6 +297,23 @@ public class SDNNTFetch {
               }
               
             }
+    }
+
+
+
+    private static SolrDocumentList getById(HttpSolrClient client, List<String> pids, String collection)
+            throws SolrServerException, IOException {
+        SolrDocumentList list = new SolrDocumentList();
+        int getBatch = 100;
+        int numberOfBatch = pids.size() / getBatch;
+        numberOfBatch = numberOfBatch + (pids.size() % getBatch == 0 ? 0 : 1);
+        for (int i = 0; i < numberOfBatch; i++) {
+            int from = i*getBatch;
+            int to = Math.min((i+1)*getBatch, pids.size());
+            List<String> subPids = pids.subList(from, to);
+            list.addAll(client.getById(collection, subPids));
+        }
+        return list;
     }
 
     public static void atomicSet(SolrInputDocument idoc, Object fValue, String fName) {
@@ -461,6 +482,7 @@ public class SDNNTFetch {
                 }
                 try {
                     UpdateResponse response = req.process(client, config.getSyncCollection());
+                    client.commit(config.getSyncCollection());
                     LOGGER.info("qtime:"+response.getQTime());
                 } catch (SolrServerException  | IOException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage());

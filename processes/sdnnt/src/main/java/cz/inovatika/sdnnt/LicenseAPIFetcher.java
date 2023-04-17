@@ -48,7 +48,7 @@ public abstract class LicenseAPIFetcher {
 
             @Override
             public LicenseAPIFetcher build(String apiUrl, String apiVersion) {
-                return new V5APILicenseFetcher(apiUrl,apiVersion);
+                return new V7APILicenseFetcher(apiUrl,apiVersion);
             }
             
         };

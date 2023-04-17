@@ -37,7 +37,7 @@ public class V7APILicenseFetcher extends LicenseAPIFetcher{
             List<String> batchPids = processingPids.subList(start, end);
 
             String condition = batchPids.stream().map(p -> {
-                return p.replace(":", "\\:");
+                return  '"'+ p +'"';
             }).collect(Collectors.joining(" OR "));
 
             if (!baseUrl.endsWith("/")) {
@@ -48,7 +48,7 @@ public class V7APILicenseFetcher extends LicenseAPIFetcher{
                     "pid:(" + condition + ")", "UTF-8");
             
             String encodedFieldList = URLEncoder.encode("pid licenses", "UTF-8");
-            String url = baseUrl + "api/client/v7.0/search?q=" + encodedCondition + "&wt=json&rows=" + MAX_FETCHED_DOCS
+            String url = baseUrl + (baseUrl.endsWith("/") ?  "":"/") +"search?q=" + encodedCondition + "&wt=json&rows=" + MAX_FETCHED_DOCS
                     + "&fl=" + encodedFieldList;
             
             InputStream is = RESTHelper.inputStream(url, null, null);
