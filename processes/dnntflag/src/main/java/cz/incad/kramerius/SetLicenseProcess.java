@@ -29,6 +29,7 @@ import org.dom4j.Node;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -106,13 +107,23 @@ public class SetLicenseProcess {
             case ADD:
                 ProcessStarter.updateName(String.format("Přidání licence '%s' pro %s", license, target));
                 for (String pid : extractPids(target)) {
-                    addLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess);
+                    try {
+                        addLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess);
+                    } catch (Exception ex) {
+                        LOGGER.log(Level.SEVERE, ex.getMessage() ,ex);
+                        LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
+                    }
                 }
                 break;
             case REMOVE:
                 ProcessStarter.updateName(String.format("Odebrání licence '%s' pro %s", license, target));
                 for (String pid : extractPids(target)) {
-                    removeLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess, authToken);
+                    try {
+                        removeLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess, authToken);
+                    } catch(Exception ex) {
+                        LOGGER.log(Level.SEVERE, ex.getMessage() ,ex);
+                        LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
+                    }
                 }
                 break;
         }

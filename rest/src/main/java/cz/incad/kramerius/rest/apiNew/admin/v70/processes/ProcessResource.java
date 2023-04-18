@@ -1286,11 +1286,14 @@ public class ProcessResource extends AdminApiResource {
         batchJson.put("token", batchWithProcesses.token);
         batchJson.put("id", batchWithProcesses.firstProcessId);
         batchJson.put("state", toBatchStateName(batchWithProcesses.stateCode));
+        
         batchJson.put("planned", Utils.toFormattedStringOrNull(batchWithProcesses.planned));
         batchJson.put("started", Utils.toFormattedStringOrNull(batchWithProcesses.started));
         batchJson.put("finished", Utils.toFormattedStringOrNull(batchWithProcesses.finished));
         batchJson.put("owner_id", batchWithProcesses.ownerId);
         batchJson.put("owner_name", batchWithProcesses.ownerName);
+
+        
         json.put("batch", batchJson);
         //processes
         JSONArray processArray = new JSONArray();
@@ -1332,6 +1335,7 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+
     private String toBatchStateName(Integer batchStateCode) {
         switch (batchStateCode) {
             case 0:
@@ -1344,6 +1348,8 @@ public class ProcessResource extends AdminApiResource {
                 return "FAILED";
             case 4:
                 return "KILLED";
+            case 5:
+                return "WARNING";
             default:
                 return "UNKNOWN";
         }
@@ -1361,6 +1367,8 @@ public class ProcessResource extends AdminApiResource {
                 return 3;
             case "KILLED":
                 return 4;
+            case "WARNING":
+                return 5;
             default:
                 throw new BadRequestException("unknown state '%s'", batchStateName);
         }

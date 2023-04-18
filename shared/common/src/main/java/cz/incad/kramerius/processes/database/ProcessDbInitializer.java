@@ -154,6 +154,7 @@ public class ProcessDbInitializer {
                 //7.0.2
                 alterProcessTableParams(connection);
                 alterProcessTableParamsMapping(connection);
+                changeProcessBatchProcdeure(connection);
             } else { // >= 6.9.0
 
             }
@@ -269,6 +270,22 @@ public class ProcessDbInitializer {
      */
     private static void dropAndCreateProcessBatchTable(Connection connection) throws SQLException, IOException {
         InputStream is = ProcessDbInitializer.class.getResourceAsStream("res/initProcessBatchTable.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        template.executeUpdate(sqlScript);
+    }
+
+    /**
+     * Deletes and creates table process_batch and related functions and triggers.
+     * Content of this table is derived from table processes, so this opertion is idempotent.
+     *
+     * @param connection
+     * @throws SQLException
+     * @throws IOException
+     */
+    private static void changeProcessBatchProcdeure(Connection connection) throws SQLException, IOException {
+        InputStream is = ProcessDbInitializer.class.getResourceAsStream("res/changeProcessBatchProcedure.sql");
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
         template.setUseReturningKeys(false);
         String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
