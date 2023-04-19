@@ -21,7 +21,10 @@ import java.util.List;
 
 /**
  * Represents process grouping state
+ * 
+ * TODO: Nyni reprezentovano jinak, viz cz/incad/kramerius/processes/database/res/initProcessBatchTable.sql 
  */
+@Deprecated
 public enum BatchStates {
 
     /**

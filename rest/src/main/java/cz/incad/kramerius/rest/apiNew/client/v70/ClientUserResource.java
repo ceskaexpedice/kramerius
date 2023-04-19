@@ -16,8 +16,14 @@
  */
 package cz.incad.kramerius.rest.apiNew.client.v70;
 
+import static cz.incad.kramerius.Constants.WORKING_DIR;
+
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
@@ -44,12 +50,20 @@ import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+import org.apache.commons.io.IOUtils;
+import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
+import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
@@ -59,13 +73,15 @@ import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.users.UserProfileManager;
 
+
+
 //@Path("/v5.0/user")
 @Path("/client/v7.0/user")
 public class ClientUserResource {
 
     public static final Logger LOGGER  = Logger.getLogger(ClientUserResource.class.getName());
 
-    public static final String[] LABELS_CRITERIA = new String[]{
+    public static final String[] LICENSES_CRITERIA = new String[]{
             "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels",
             "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered",
             "cz.incad.kramerius.security.impl.criteria.Licenses",
@@ -135,7 +151,7 @@ public class ClientUserResource {
         // find all rights associated with current user and labels criteria
         Right[] rightsAsssignedWithLabels = this.databaseRightsManager.findAllRightByCriteriumNames(
                 SecuredActions.A_READ.getFormalName(),
-                LABELS_CRITERIA,
+                LICENSES_CRITERIA,
                 user
         );
         // mock evaluate this criteria
@@ -346,13 +362,65 @@ public class ClientUserResource {
     }
 
     
+    @GET
+    @Path("auth/login")
+    public Response login(@QueryParam("redirect_uri") String redirectUri) {
+        try {
+            String path = WORKING_DIR + "/keycloak.json";
+            String str = IOUtils.toString(new FileInputStream(path),"UTF-8");
+            ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
+            URI uri = URI.create(cnf.loginKeycloak(redirectUri));
+            return Response.temporaryRedirect(uri).build();
+        } catch (IOException e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
     
     @GET
-    @Path("logout")
+    @Path("auth/token")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response token(@QueryParam("code") String code, @QueryParam("redirect_uri") String redirectUri) {
+        try {
+            String path = WORKING_DIR + "/keycloak.json";
+            String str = IOUtils.toString(new FileInputStream(path),"UTF-8");
+            ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
+
+            String type = "application/x-www-form-urlencoded; charset=UTF-8";
+            
+            Client client = Client.create();
+            WebResource webResource = client.resource(cnf.token(code));
+            MultivaluedMapImpl<String, String> values = new MultivaluedMapImpl();
+            values.add("grant_type", "authorization_code");
+            values.add("code", code);
+            values.add("client_id", cnf.getResource());
+            values.add("client_secret", cnf.getSecret());
+            values.add("redirect_uri", redirectUri);
+            // TODO: Dat to do konfigurace
+            values.add("scope", "openid");
+            ClientResponse post = webResource.type(type).post(ClientResponse.class, values);
+            String entity = (String) post.getEntity(String.class);
+            return Response.ok().entity(entity.toString()).build();
+
+        } catch (Exception e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
+
+
+    
+    
+    @GET
+    @Path("auth/logout")
     public Response logout() {
-        HttpServletRequest httpServletRequest = this.provider.get();
-        httpServletRequest.getSession().invalidate();
-        return Response.ok().entity("{}").build();
+        try {
+            String path = WORKING_DIR + "/keycloak.json";
+            String str = IOUtils.toString(new FileInputStream(path),"UTF-8");
+            ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
+            URI uri = URI.create(cnf.logoutKeycloak());
+            return Response.temporaryRedirect(uri).build();
+        } catch (IOException e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
     }
 
 }

@@ -42,6 +42,8 @@ public class Indexer {
     private final SolrInputBuilder solrInputBuilder;
     private SolrIndexAccess solrIndexer = null;
 
+    private boolean ignoreInconsistentObjects=true;
+
     public static boolean useCompositeId() {
         return KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false);
     }
@@ -69,6 +71,7 @@ public class Indexer {
         this.solrInputBuilder = new SolrInputBuilder();
         this.solrConfig = solrConfig;
         this.reportLogger = new ReportLogger(reportLoggerStream);
+        this.ignoreInconsistentObjects = ignoreInconsistentObjects;
         init();
     }
 
@@ -183,8 +186,10 @@ public class Indexer {
                 //protoze vysledkem tehle zmeny (neexistujici/falesne neexistujici objekty budou v indexu ponechany v dosavadnim stavu, namisto smazani) muze byt skryta zastaralost v indexu, napr.:
                 //monografie se muze jevit jako zaindexovana indexerem ve verzi třeba 15, ale obsahuje stranku, ktera preindexovana nebyla, nebyla ale ani zahozena a jeji zaznam v indexu je nenapadne zastaraly
                 //podobne pro periodikum, pokud by nebyl dostupny zaznam cisla, nebude preindexovano a ani jeji stranky
-                boolean ignoreObjectsMissingFromRepository = true;
-                if (ignoreObjectsMissingFromRepository) { //ignore missing objects
+                
+                // Replaced ingoremissingFromRepository by ingore inconsistent object
+                //boolean ignoreObjectsMissingFromRepository = true;
+                if (this.ignoreInconsistentObjects) { //ignore missing objects
                     report("object not found in repository (or found in inconsistent state), ignoring: " + pid);
                     System.err.println("object not found in repository (or found in inconsistent state), ignoring: " + pid);
                     counters.incrementIgnored();
