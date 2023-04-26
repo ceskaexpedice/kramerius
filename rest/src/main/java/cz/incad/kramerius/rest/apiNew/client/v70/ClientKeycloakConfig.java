@@ -2,6 +2,8 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import org.json.JSONObject;
 
+import cz.incad.kramerius.utils.StringUtils;
+
 public class ClientKeycloakConfig {
     
     private String realm;
@@ -41,18 +43,23 @@ public class ClientKeycloakConfig {
         builder.append("realms/");
         builder.append(this.realm);
         builder.append("/protocol/openid-connect/auth?client_id=").append(this.resource);
-        builder.append("&redirect_uri="+redirectUrl);
+        if (StringUtils.isAnyString(redirectUrl)) {
+            builder.append("&redirect_uri="+redirectUrl);
+        }
         builder.append("&response_type=code");
         return builder.toString();
     }
 
-    public String logoutKeycloak() {
+    public String logoutKeycloak(String redirectUrl) {
         StringBuilder builder = new StringBuilder();
         builder.append(this.authServer);
         if (!builder.toString().endsWith("/")) builder.append("/");
         builder.append("realms/");
         builder.append(this.realm);
         builder.append("/protocol/openid-connect/logout");
+        if (StringUtils.isAnyString(redirectUrl)) {
+            builder.append("?redirect_uri="+redirectUrl);
+        }
         return builder.toString();
     }
 
