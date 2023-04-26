@@ -411,12 +411,12 @@ public class ClientUserResource {
     
     @GET
     @Path("auth/logout")
-    public Response logout() {
+    public Response logout(@QueryParam("redirect_uri") String redirectUri) {
         try {
             String path = WORKING_DIR + "/keycloak.json";
             String str = IOUtils.toString(new FileInputStream(path),"UTF-8");
             ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
-            URI uri = URI.create(cnf.logoutKeycloak());
+            URI uri = URI.create(cnf.logoutKeycloak(redirectUri));
             return Response.temporaryRedirect(uri).build();
         } catch (IOException e) {
             throw new GenericApplicationException(e.getMessage());
