@@ -1047,11 +1047,16 @@ public class ProcessResource extends AdminApiResource {
             
             case "delete_tree": {
                 String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                Boolean ignoreIncostencies = extractOptionalParamBoolean(params, "ignoreIncosistencies", false);
+
                 String title = extractOptionalParamString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
                 result.add(pid);
                 result.add(title);
+                if (ignoreIncostencies) {
+                    result.add(ignoreIncostencies.toString());
+                }
                 
 
                 try {
