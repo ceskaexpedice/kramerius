@@ -235,6 +235,7 @@ public class SDNNTFetch {
                         }
                     } else {
                         if (granularityItem || !hasGranularity) {
+                            
                             if (docLicenses.contains("dnntt")) {
                                 atomicAddDistinct(in, SyncActionEnum.remove_dnntt.name() /*"remove_dnntt"*/, "sync_actions");
                                 atomicSet(in, SyncActionEnum.remove_dnntt.getValue() /*"remove_dnntt"*/, "sync_sort");
@@ -242,7 +243,9 @@ public class SDNNTFetch {
                             }
                             if (docLicenses.contains("dnnto")) {
                                 atomicAddDistinct(in, SyncActionEnum.remove_dnnto.name() /*"remove_dnnto"*/, "sync_actions");
-                                atomicSet(in, SyncActionEnum.remove_dnnto.getValue() /*"remove_dnnto"*/, "sync_sort");
+                                if (!docLicenses.contains("dnntt")) {
+                                    atomicSet(in, SyncActionEnum.remove_dnnto.getValue() /*"remove_dnnto"*/, "sync_sort");
+                                }
                                 dirty = true;
                             }
                         }

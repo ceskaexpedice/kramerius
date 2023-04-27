@@ -396,7 +396,7 @@ public class ClientUserResource {
             values.add("client_secret", cnf.getSecret());
             values.add("redirect_uri", redirectUri);
             // TODO: Dat to do konfigurace
-            values.add("scope", "openid");
+            //values.add("scope", "openid");
             ClientResponse post = webResource.type(type).post(ClientResponse.class, values);
             String entity = (String) post.getEntity(String.class);
             return Response.ok().entity(entity.toString()).build();
@@ -422,5 +422,17 @@ public class ClientUserResource {
             throw new GenericApplicationException(e.getMessage());
         }
     }
+    
+    // Legacy logout - support for old client. 
+    // Will be removed in future
+    @GET
+    @Path("logout")
+    public Response logout() {
+        HttpServletRequest httpServletRequest = this.provider.get();
+        httpServletRequest.getSession().invalidate();
+        return Response.ok().entity("{}").build();
+    }
+    
+
 
 }
