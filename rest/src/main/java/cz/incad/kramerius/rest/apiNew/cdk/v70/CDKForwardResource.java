@@ -1,16 +1,20 @@
 package cz.incad.kramerius.rest.apiNew.cdk.v70;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.Inject;
@@ -20,7 +24,8 @@ import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKUsersResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKZoomifyResource;
-
+import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.SOLRResource;
+import cz.incad.kramerius.service.ReplicateException;
 
 @Path("cdk/v7.0/forward")
 public class CDKForwardResource {
@@ -37,6 +42,10 @@ public class CDKForwardResource {
     @Inject
     CDKZoomifyResource zoomifyResource;
 
+    @Inject
+    SOLRResource solrResource;
+    
+    // --------- User's endpoint --------------------
     @GET
     @Path("user")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -44,6 +53,8 @@ public class CDKForwardResource {
         return this.usersResource.user();
     }
 
+    
+    // --------------- Item's endpoint ---------------
     @GET
     @Path("item/{pid}/streams/{dsid}")
     public Response stream(@Context HttpHeaders headers, @PathParam("pid") String pid, @PathParam("dsid") String dsid) {
@@ -93,6 +104,39 @@ public class CDKForwardResource {
     @Produces("appliction/json")
     public Response providedBy(@PathParam("pid") String pid) {
         return this.itemResource.providedBy(pid);
+    }
+
+    
+    
+    // --------------- CDK Replication endpoint ---------------
+    @GET
+    @Path("sync/solr/select")
+    @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
+    public Response selectXML(@Context UriInfo uriInfo) throws IOException {
+        return this.solrResource.selectXML(uriInfo);
+    }
+
+    @GET
+    @Path("sync/solr/select")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response selectJSON(@Context UriInfo uriInfo) throws IOException {
+        return this.solrResource.selectJSON(uriInfo);
+    }
+    
+    @GET
+    @Path("sync/batch/foxmls")
+    @Produces("application/zip")
+    public Response batchedFOXL(@QueryParam("pids") String stringPids, @QueryParam("collection") String collection)  throws ReplicateException, IOException {
+        return this.solrResource.batchedFOXL(stringPids, collection);
+    }
+    
+    @GET
+    @Path("sync/{pid}/foxml")
+    @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
+    public Response getExportedFOXML(@PathParam("pid") String pid,
+        @QueryParam("collection") String collection)
+        throws ReplicateException, UnsupportedEncodingException {
+        return this.solrResource.getExportedFOXML(pid, collection);
     }
 
 }

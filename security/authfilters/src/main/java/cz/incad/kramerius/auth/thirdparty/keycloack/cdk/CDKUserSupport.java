@@ -124,14 +124,15 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
             map.keySet().forEach(key-> {
                 if(attributes.containsKey(key)) {
                     if (matchValue(map.get(key), attributes.get(key))) {
-                        LOGGER.info("Found match in attribute:"+key);
+                        LOGGER.info(String.format("Found match in attribute: %s",key));
                         resultOfGroup.add(grp);
                     }
                 }
             });
         });
         
-        LOGGER.info("Associated group with user is "+resultOfGroup);
+        LOGGER.info(String.format("Associated group with user is %s",resultOfGroup.stream().map(GroupRepresentation::getName).collect(Collectors.toList())));
+        
         Set<String> roles = new HashSet<>();
         resultOfGroup.stream().forEach(rg-> {
             roles.addAll(rg.getRealmRoles());
