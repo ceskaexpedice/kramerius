@@ -158,10 +158,20 @@ public abstract class ProxyHandlerSupport {
 	protected WebResource.Builder buidFowrardResponse(String url) {
 		String prefixHeaders = KConfiguration.getInstance().getConfiguration().getString("cdk.shibboleth.forward.headers");
 		
-		Map<String, String> attributes = this.user.getSessionAttributes();
-		String header = attributes.keySet().stream().map(key -> {
-			return "header_" + key + "=" + attributes.get(key);
-		}).collect(Collectors.joining("|"));
+		// no user session attributes in case of no federation
+		String header = "";
+
+        boolean shibbolethAttributes = KConfiguration.getInstance().getConfiguration()
+                .getBoolean("cdk.collections.sources." + this.source + ".shibboleth_attributes", false);
+
+        //cdk.collections.sources.svkul.pswd=yTTJ00B
+        
+		if (shibbolethAttributes) {
+	        Map<String, String> attributes = this.user.getSessionAttributes();
+	        header = header + attributes.keySet().stream().map(key -> {
+	            return "header_" + key + "=" + attributes.get(key);
+	        }).collect(Collectors.joining("|"));
+		}
 
 		if (this.remoteAddr != null) {
 			header = header + "|" + "header_ip_address=" + this.remoteAddr;
