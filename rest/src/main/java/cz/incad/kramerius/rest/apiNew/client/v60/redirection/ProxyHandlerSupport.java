@@ -162,9 +162,8 @@ public abstract class ProxyHandlerSupport {
 		String header = "";
 
         boolean shibbolethAttributes = KConfiguration.getInstance().getConfiguration()
-                .getBoolean("cdk.collections.sources." + this.source + ".shibboleth_attributes", false);
+                .getBoolean("cdk.collections.sources." + this.source + ".shibboleth_attributes", true);
 
-        //cdk.collections.sources.svkul.pswd=yTTJ00B
         
 		if (shibbolethAttributes) {
 	        Map<String, String> attributes = this.user.getSessionAttributes();
