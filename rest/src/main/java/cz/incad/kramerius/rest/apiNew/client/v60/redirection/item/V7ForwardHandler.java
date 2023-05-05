@@ -84,8 +84,8 @@ public class V7ForwardHandler extends V7RedirectHandler {
         } else {
             
             String baseurl = super.baseUrl();
-            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid
-                    + "/image/zoomify/ImageProperties.xml";
+            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/zoomify/" + this.pid
+                    + "/ImageProperties.xml";
             return buildForwardResponseGET(url);
         }
     }
