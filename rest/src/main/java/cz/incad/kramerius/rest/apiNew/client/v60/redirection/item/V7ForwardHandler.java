@@ -83,9 +83,10 @@ public class V7ForwardHandler extends V7RedirectHandler {
             return super.zoomifyImageProperties(method);
         } else {
             
-            String baseurl = super.baseUrl();
+            String baseurl = forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/zoomify/" + this.pid
                     + "/ImageProperties.xml";
+            LOGGER.info(String.format("Base url %s", url));
             return buildForwardResponseGET(url);
         }
     }
