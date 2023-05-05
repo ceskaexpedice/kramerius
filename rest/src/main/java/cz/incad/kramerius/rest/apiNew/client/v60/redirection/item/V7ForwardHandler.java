@@ -54,7 +54,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         //http://tunel/search/api/cdk/v7.0/forward/providedBy/uuid:dfc71c54-0fff-4e8a-a59e-b235274da271
         JSONArray licenses = null;
         String baseurl = this.forwardUrl();
-        String providedByUrl = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/providedBy/" + this.pid;
+        String providedByUrl = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/providedBy/" + this.pid;
         LOGGER.info("Provided by url "+providedByUrl);
         
         WebResource.Builder providedByBuilder = buidFowrardResponse(providedByUrl);
