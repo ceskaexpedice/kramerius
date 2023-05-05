@@ -2,10 +2,15 @@ package cz.incad.kramerius.rest.apiNew.client.v60.redirection.item;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -40,6 +45,48 @@ public class V7ForwardHandler extends V7RedirectHandler {
     }
 
     
+    
+    
+    @Override
+    public Response info() throws ProxyHandlerException {
+
+        
+        //http://tunel/search/api/cdk/v7.0/forward/providedBy/uuid:dfc71c54-0fff-4e8a-a59e-b235274da271
+        JSONArray licenses = null;
+        String baseurl = this.forwardUrl();
+        String providedByUrl = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/providedBy/" + this.pid;
+        WebResource.Builder providedByBuilder = buidFowrardResponse(providedByUrl);
+        ClientResponse providedBy = providedByBuilder.get(ClientResponse.class);
+        if (providedBy.getStatus() == 200) {
+            String content = providedBy.getEntity(String.class);
+            //{"licenses":["dnnto"]}
+            JSONObject providedByJSON = new JSONObject(content);
+            licenses = providedByJSON.optJSONArray("licenses");
+        }
+        
+        
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/info";
+        // enhance by providedBy
+        WebResource.Builder b = buidFowrardResponse(url);
+        ClientResponse response = b.get(ClientResponse.class);
+        if (response.getStatus() == 200) {
+            
+            //"providedByLicenses": ["dnnto"],
+            String infoContent = response.getEntity(String.class);
+            JSONObject infoContentJSON = new JSONObject(infoContent);
+            if (licenses != null)  infoContentJSON.put("providedByLicenses", licenses);
+            
+            
+            ResponseBuilder respEntity = Response.status(200).entity(infoContentJSON.toString());
+            
+            return respEntity.build();
+        } else {
+            return Response.status(response.getStatus()).build();
+        }
+
+        //return super.info();
+    }
+
     @Override
     public Response image(RequestMethodName method) throws ProxyHandlerException {
         String baseurl = this.forwardUrl();
@@ -86,7 +133,6 @@ public class V7ForwardHandler extends V7RedirectHandler {
             String baseurl = forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/zoomify/" + this.pid
                     + "/ImageProperties.xml";
-            LOGGER.info(String.format("Base url %s", url));
             return buildForwardResponseGET(url);
         }
     }
