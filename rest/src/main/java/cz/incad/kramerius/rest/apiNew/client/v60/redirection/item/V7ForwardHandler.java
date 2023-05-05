@@ -55,6 +55,8 @@ public class V7ForwardHandler extends V7RedirectHandler {
         JSONArray licenses = null;
         String baseurl = this.forwardUrl();
         String providedByUrl = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/providedBy/" + this.pid;
+        LOGGER.info("Provided by url "+providedByUrl);
+        
         WebResource.Builder providedByBuilder = buidFowrardResponse(providedByUrl);
         ClientResponse providedBy = providedByBuilder.get(ClientResponse.class);
         if (providedBy.getStatus() == 200) {
@@ -63,8 +65,8 @@ public class V7ForwardHandler extends V7RedirectHandler {
             JSONObject providedByJSON = new JSONObject(content);
             licenses = providedByJSON.optJSONArray("licenses");
         }
-        
-        
+        //TOD
+        LOGGER.info("Provided by result "+licenses);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/info";
         // enhance by providedBy
         WebResource.Builder b = buidFowrardResponse(url);
