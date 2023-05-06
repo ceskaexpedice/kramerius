@@ -1,6 +1,8 @@
 package cz.incad.migration;
 
+import cz.incad.kramerius.resourceindex.ProcessingIndexRebuild;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.kramerius.searchIndex.NewIndexerProcessIndexModel;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -96,6 +98,40 @@ public class Main {
                 builder.append("\tdatastreamStore.pattern").append(" -  struktura ciloveho adresare akubra_fs pro datastreamy").append('\n');
                 builder.append("\tobjectStore.pattern").append(" - struktura ciloveho adresare akubra_fs pro objekty").append('\n');
 
+                return builder.toString();
+            }
+        },
+
+        REBUILDPROCESSING {
+            @Override
+            public void doCommand(String[] args) throws Exception {
+                ProcessingIndexRebuild.main(args);
+            }
+
+            @Override
+            public String desc() {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Rebuild processing indexu. ").append('\n');
+                builder.append("Parametry: REBUILDPROCESSING").append('\n');
+                builder.append("Nutne promenne pro migraci: ").append('\n');
+                builder.append("\tobjectStore.path").append(" - adresar akubra_fs pro objekty").append('\n');
+                return builder.toString();
+            }
+        },
+
+        REBUILDSEARCH {
+            @Override
+            public void doCommand(String[] args) throws Exception {
+                NewIndexerProcessIndexModel.main(new String[]{"xxxtoken", "TREE_AND_FOSTER_TREES", args[1],"true","true","true","true", "true", "false"});
+            }
+
+            @Override
+            public String desc() {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Rebuild search indexu. ").append('\n');
+                builder.append("Parametry: REBUILDSEARCH model:modelname").append('\n');
+                builder.append("Nutne promenne pro migraci: ").append('\n');
+                builder.append("\tobjectStore.path").append(" - adresar akubra_fs pro objekty").append('\n');
                 return builder.toString();
             }
         };

@@ -54,6 +54,7 @@ public class NewIndexerProcessIndexModel {
      * args[5] - index objects that running or erroneously indexed
      * args[6] - index objects that indexed with older version of indexer
      * args[7] - index objects that indexed with current version of indexer
+     * args[8]  - optional - if false, do not update Process name, just log (for running as standalone process)
      */
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
         //args
@@ -87,8 +88,11 @@ public class NewIndexerProcessIndexModel {
             return;
         }
         String model = modelPid.substring("model:".length());
-        ProcessStarter.updateName(String.format("Indexace %s (typ %s)", modelPid, type));
-
+        if (args.length>8 && !Boolean.valueOf(args[8])){
+            LOGGER.info(String.format("Indexace %s (typ %s)", modelPid, type));
+        }else {
+            ProcessStarter.updateName(String.format("Indexace %s (typ %s)", modelPid, type));
+        }
         if (filters.indexNone()) {
             LOGGER.info("Podle kombinace filtrů není co indexovat, končím");
             return;
