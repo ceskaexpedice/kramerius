@@ -58,7 +58,11 @@ public class ProcessingIndexRebuild {
 
 
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
-        ProcessStarter.updateName("Přebudování Processing indexu");
+        if (args.length>=1 && "REBUILDPROCESSING".equalsIgnoreCase(args[0])){
+            LOGGER.info("Přebudování Processing indexu");
+        } else {
+            ProcessStarter.updateName("Přebudování Processing indexu");
+        }
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         final ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
@@ -111,18 +115,19 @@ public class ProcessingIndexRebuild {
             }
         } catch (Exception e) {
             throw new RepositoryException(e);
-        } finally {
-            if (feeder != null) {
-                try {
-                    feeder.commit();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (SolrServerException e) {
-                    throw new RuntimeException(e);
-                }
-                LOGGER.info("Feeder commited.");
-            }
         }
+ //       finally {
+//            if (feeder != null) {
+//                try {
+//                    feeder.commit();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                } catch (SolrServerException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                LOGGER.info("Feeder commited.");
+//            }
+ //       }
     }
 
     private static void rebuildProcessingIndexImpl(AkubraObject akubraObject, InputStream content) throws RepositoryException {
