@@ -209,7 +209,7 @@ public class KeycloakCDKCache {
             List<GroupRepresentation> cdkGroups = groupsResource.groups(CDK, 0, 100, false);
             cache.setGroups(cdkGroups);
         }
-        
-
     }
+    
+    
 }

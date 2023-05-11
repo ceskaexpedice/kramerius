@@ -84,7 +84,7 @@ allprojects {
 
 
     compileJava.options.encoding = 'UTF-8'
-
+	compileTestJava.options.encoding = 'UTF-8'
 
     ext.guiceversion ='4.2.2'
     ext.postgresversion = '42.3.1'

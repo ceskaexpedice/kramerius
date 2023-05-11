@@ -19,6 +19,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
+import cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource;
 import cz.incad.kramerius.security.DataMockExpectation;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.Right;
@@ -39,10 +40,10 @@ public class CDKUsersResource {
 
     public static final Logger LOGGER  = Logger.getLogger(CDKUsersResource.class.getName());
 
-    public static final String[] LABELS_CRITERIA = new String[]{
-            "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels",
-            "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered"
-    };
+//    public static final String[] LABELS_CRITERIA = new String[]{
+//            "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels",
+//            "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered"
+//    };
 
     @Inject
     UserProfileManager userProfileManager;
@@ -92,7 +93,7 @@ public class CDKUsersResource {
         // find all rights associated with current user and labels criteria
         Right[] rightsAsssignedWithLabels = this.databaseRightsManager.findAllRightByCriteriumNames(
                 SecuredActions.A_READ.getFormalName(),
-                LABELS_CRITERIA,
+                ClientUserResource.LICENSES_CRITERIA,
                 user
         );
         // mock evaluate this criteria
