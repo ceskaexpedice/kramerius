@@ -24,6 +24,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,12 +73,15 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
         String name = req.getUserPrincipal().getName();
         // keycloak introspection
         KeycloakAccount kAcc = (KeycloakAccount) req.getAttribute(KeycloakAccount.class.getName());
-        Set<String> roleSet = kAcc.getRoles();
+        Set<String> roleSet = new HashSet<>(kAcc.getRoles());
 
         Keycloak3rdUser keycloack3rdUser = new Keycloak3rdUser(calculateUserName(req));
-        keycloack3rdUser.setRoles(new ArrayList<>(roleSet));
 
         AccessToken token = ((KeycloakPrincipal<KeycloakSecurityContext>) req.getUserPrincipal()).getKeycloakSecurityContext().getToken();
+        roleSet.addAll(token.getRealmAccess().getRoles());
+
+        keycloack3rdUser.setRoles(new ArrayList<>(roleSet));
+        
         
         keycloack3rdUser.setProperty(UserUtils.FIRST_NAME_KEY, token.getGivenName());
         keycloack3rdUser.setProperty(UserUtils.LAST_NAME_KEY, token.getFamilyName());
