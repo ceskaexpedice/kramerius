@@ -116,32 +116,35 @@ public class KeycloakCDKCache {
 
         @Override
         public void run() {
-            Keycloak keycloak =  null;
-            Boolean users = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.keycloak.realm.createusers",true);
-            String kramerius = KConfiguration.getInstance().getConfiguration().getString("cdk.keycloak.realm.kramerius","kramerius");
-            String url = KConfiguration.getInstance().getConfiguration().getString("cdk.keycloak.url");
-            try {
-                if (url !=  null) {
-                    ResteasyClientBuilder newBuilder = (ResteasyClientBuilder) ResteasyClientBuilder.newBuilder();
-                    keycloak = keycloak(newBuilder);
-                    
-                     
-                    RealmResource realmResource = keycloak.realm(kramerius);
-                    
-                    // referesh groups in cache
-                    refreshGroups(realmResource);
-                    
-                    // refresh registerUsers
-                    if (users) {
-                        refreshOrRegisterUsers(realmResource);
+            boolean channelEnabled  =  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel");
+            if (channelEnabled) {
+                Keycloak keycloak =  null;
+                Boolean users = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.keycloak.realm.createusers",true);
+                String kramerius = KConfiguration.getInstance().getConfiguration().getString("cdk.keycloak.realm.kramerius","kramerius");
+                String url = KConfiguration.getInstance().getConfiguration().getString("cdk.keycloak.url");
+                try {
+                    if (url !=  null) {
+                        ResteasyClientBuilder newBuilder = (ResteasyClientBuilder) ResteasyClientBuilder.newBuilder();
+                        keycloak = keycloak(newBuilder);
+                        
+                         
+                        RealmResource realmResource = keycloak.realm(kramerius);
+                        
+                        // referesh groups in cache
+                        refreshGroups(realmResource);
+                        
+                        // refresh registerUsers
+                        if (users) {
+                            refreshOrRegisterUsers(realmResource);
+                        }
+                        
+                    } else {
+                        LOGGER.warning("Missing attributes: 'cdk.keycloak.url', 'cdk.keycloak.adminuser', 'cdk.keycloak.adminpass' in configuration");
                     }
-                    
-                } else {
-                    LOGGER.warning("Missing attributes: 'cdk.keycloak.url', 'cdk.keycloak.adminuser', 'cdk.keycloak.adminpass' in configuration");
+                } finally {
+                    if (keycloak != null) keycloak.close();
+                    cache.scheduleNextTask();
                 }
-            } finally {
-                if (keycloak != null) keycloak.close();
-                cache.scheduleNextTask();
             }
         }
 
