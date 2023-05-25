@@ -5,7 +5,6 @@ import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.kramerius.searchIndex.indexer.execution.Indexer;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;

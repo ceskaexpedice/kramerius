@@ -65,6 +65,7 @@ import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.user.ProxyUserHandler;
+import cz.incad.kramerius.rest.apiNew.client.v70.ClientKeycloakConfig;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
