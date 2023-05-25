@@ -136,7 +136,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(SimpleJSONMessageBodyWriter.class);
 
         // decorators
-        //decorators();
+        decorators();
 
 
         // cdk
