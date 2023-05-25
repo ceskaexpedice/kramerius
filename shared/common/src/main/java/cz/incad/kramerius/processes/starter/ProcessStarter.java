@@ -109,6 +109,7 @@ public class ProcessStarter {
                 }
             }));
 
+            LOGGER.info("STARTING PROCESS WITH USER HOME:"+System.getProperty("user.home"));
             Class<?> clz = Class.forName(mainClass);
 
             String pid = getPID();
