@@ -64,10 +64,11 @@ repositories {
     mavenLocal()
 }
 
+/*
 allprojects {
 	 group='cz.incad.kramerius'
 	 version='7.0.3-beta2_cdk'
-}
+}*/
 
 
 /**
