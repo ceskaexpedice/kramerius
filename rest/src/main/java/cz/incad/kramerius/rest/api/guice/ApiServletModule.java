@@ -109,7 +109,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.client.v60.InfoResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v60.SearchResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v60.ConfigResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.InfoResource.class);
+        //bind(cz.incad.kramerius.rest.apiNew.client.v70.InfoResource.class);
         
         bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
         bind(cz.incad.kramerius.rest.apiNew.client.v60.ItemsResource.class);
