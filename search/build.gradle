@@ -101,7 +101,7 @@ task infofile(dependsOn: gitcall)  {
 	}
 }
 
-processResources.dependsOn infofile
+//processResources.dependsOn infofile
 
 war {
     baseName='search'
