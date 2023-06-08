@@ -28,6 +28,7 @@ include	'search-index'
 include 'processes:nkp-logs'
 include 'processes:statistics'
 include 'processes:sdnnt'
+include 'processes:licenses'
 
 include 'security:authfilters'
 include 'security:oauth'
