@@ -103,7 +103,10 @@ public enum SecuredActions {
     */
     
     /** Pravo pro admin cteni admina */
-    A_ADMIN_READ("a_admin_read");
+    A_ADMIN_READ("a_admin_read"),
+
+    /** SDNNT synchronization */
+    A_SDNNT_SYNC("a_sdnnt_sync");
     
     
     private String formalName;

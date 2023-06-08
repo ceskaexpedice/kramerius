@@ -95,7 +95,7 @@ public class Licenses extends AbstractCriterium implements RightCriteriumLabelAw
 
 
     @Override
-    public boolean isLabelAssignable() {
+    public boolean isLicenseAssignable() {
         return true;
     }
 

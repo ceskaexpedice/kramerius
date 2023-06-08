@@ -124,7 +124,7 @@ public class LicensesGEOIPFiltered extends AbstractCriterium implements RightCri
     }
 
     @Override
-    public boolean isLabelAssignable() {
+    public boolean isLicenseAssignable() {
         return true;
     }
 

@@ -33,6 +33,8 @@ import java.util.logging.Logger;
 import org.antlr.stringtemplate.StringTemplate;
 
 import cz.incad.kramerius.database.VersionService;
+import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
+import cz.incad.kramerius.security.licenses.impl.embedded.sk.SlovakEmbeddedLicenses;
 import cz.incad.kramerius.users.database.LoggedUserDbHelper;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -43,9 +45,14 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 public class SecurityDbInitializer {
 
-    static List<String> EMBEDDED_LABELS = Arrays.asList(
-            "dnntt", "dnnto", "covid"
-    );
+    
+    
+    
+//    static List<String> EMBEDDED_LICENSES = Arrays.asList(
+//            "dnntt", "dnnto", "covid",
+//            "onsite","public", // cz licenses 
+//            "paying_users","not_accessible","only_in_library" // sk licenses
+//    );
 
     static Logger LOGGER = Logger.getLogger(SecurityDbInitializer.class.getName());
 
@@ -234,31 +241,55 @@ public class SecurityDbInitializer {
     
     
     private static void checkLabelExists(Connection connection) {
-
-        EMBEDDED_LABELS.stream().forEach(label -> {
-                    List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
-                        @Override
-                        public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-                            returnsList.add(rs.getString("label_name"));
-                            return super.handleRow(rs, returnsList);
-                        }
-                    }.executeQuery("select * from labels_entity where label_name = ?", label);
-                    if (labels.isEmpty()) {
-                        try {
-                            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                            template.setUseReturningKeys(false);
-                            template.executeUpdate(
-                                    "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
-                                            "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, '', (select coalesce(max(label_priority),0)+1 from labels_entity))",
-                                    label);
-
-                        } catch (SQLException e) {
-                            LOGGER.log(Level.SEVERE, String.format("Cannot create embedded label %s", label));
-
-                        }
-                    }
+        /** Czech global licenses **/
+        CzechEmbeddedLicenses.LICENSES.forEach(lic-> {
+            List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                    returnsList.add(rs.getString("label_name"));
+                    return super.handleRow(rs, returnsList);
                 }
-        );
+            }.executeQuery("select * from labels_entity where label_name = ?", lic.getName());
+            if (labels.isEmpty()) {
+                try {
+                    JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                    template.setUseReturningKeys(false);
+                    template.executeUpdate(
+                            "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
+                                    "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, ?, (select coalesce(max(label_priority),0)+1 from labels_entity))",
+                            lic.getName(), lic.getDescription());
+
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, String.format("Cannot create embedded label %s", lic.getName()));
+
+                }
+            }
+        });
+
+        /** Slovak global licenses **/
+        SlovakEmbeddedLicenses.LICENSES.forEach(lic-> {
+            List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                    returnsList.add(rs.getString("label_name"));
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery("select * from labels_entity where label_name = ?", lic.getName());
+            if (labels.isEmpty()) {
+                try {
+                    JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                    template.setUseReturningKeys(false);
+                    template.executeUpdate(
+                            "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
+                                    "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, ?, (select coalesce(max(label_priority),0)+1 from labels_entity))",
+                            lic.getName(), lic.getDescription());
+
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, String.format("Cannot create embedded label %s", lic.getName()));
+
+                }
+            }
+        });
     }
 
 

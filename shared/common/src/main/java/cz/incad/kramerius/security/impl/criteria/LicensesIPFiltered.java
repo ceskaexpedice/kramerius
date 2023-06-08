@@ -87,7 +87,7 @@ public class LicensesIPFiltered extends AbstractCriterium implements RightCriter
     }
 
     @Override
-    public boolean isLabelAssignable() {
+    public boolean isLicenseAssignable() {
         return true;
     }
 

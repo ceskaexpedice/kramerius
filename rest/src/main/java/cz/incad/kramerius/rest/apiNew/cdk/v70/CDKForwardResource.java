@@ -27,6 +27,13 @@ import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKZoomifyResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.SOLRResource;
 import cz.incad.kramerius.service.ReplicateException;
 
+/**
+ * CDK Forward resource
+ * <p>
+ *  Provides endpoints for secured channel between source and CDK instance; 
+ *  The visibility of endpoints must be enabled and configuration by following <a href="https://github.com/ceskaexpedice/ceska-digitalni-knihovna/wiki/Zabezpe%C4%8Den%C3%A1-komunikace-chr%C3%A1n%C4%9Bn%C3%BD-kan%C3%A1l"> insructions </a>
+ *</p>
+ */
 @Path("cdk/v7.0/forward")
 public class CDKForwardResource {
 

@@ -41,11 +41,13 @@ import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+/**
+ * Provides support for IIIF endpoints
+ * @author happy
+ */
 public class CDKIIIFResource extends AbstractTileResource {
 
 	public static final Logger LOGGER = Logger.getLogger(CDKIIIFResource.class.getName());
-
-	//        bind(SolrAccess.class).annotatedWith(Names.named("new-index")).to(SolrAccessImplNewIndex.class).in(Scopes.SINGLETON);
 
 	
     @Inject

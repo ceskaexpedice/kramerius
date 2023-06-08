@@ -55,7 +55,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
     }
 
     @Override
-    public void addLocalLabel(License license) throws LicensesManagerException {
+    public void addLocalLicense(License license) throws LicensesManagerException {
         Connection connection = null;
         int transactionIsolation = -1;
         try {
@@ -99,7 +99,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
     }
 
     @Override
-    public void removeLocalLabel(License license) throws LicensesManagerException {
+    public void removeLocalLicense(License license) throws LicensesManagerException {
         try {
 
 
@@ -141,7 +141,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
 
 
     @Override
-    public License getLabelByPriority(int priority) throws LicensesManagerException {
+    public License getLicenseByPriority(int priority) throws LicensesManagerException {
         List<License> licenses = new JDBCQueryTemplate<License>(provider.get()) {
             @Override
             public boolean handleRow(ResultSet rs, List<License> returnsList) throws SQLException {
@@ -154,7 +154,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
 
 
     @Override
-    public License getLabelById(int id) throws LicensesManagerException {
+    public License getLicenseById(int id) throws LicensesManagerException {
         List<License> licenses = new JDBCQueryTemplate<License>(provider.get()) {
             @Override
             public boolean handleRow(ResultSet rs, List<License> returnsList) throws SQLException {
@@ -166,7 +166,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
     }
 
     @Override
-    public License getLabelByName(String name) throws LicensesManagerException {
+    public License getLicenseByName(String name) throws LicensesManagerException {
         List<License> licenses = new JDBCQueryTemplate<License>(provider.get()) {
             @Override
             public boolean handleRow(ResultSet rs, List<License> returnsList) throws SQLException {
@@ -178,7 +178,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
     }
 
     @Override
-    public void updateLabel(License license) throws LicensesManagerException {
+    public void updateLicense(License license) throws LicensesManagerException {
         try {
             new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(
                     new JDBCCommand() {
@@ -205,7 +205,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
     public void moveUp(License license) throws LicensesManagerException {
         int priority = license.getPriority();
         if (priority >= 2) {
-            License upPriorityLicense = getLabelByPriority(priority - 1);
+            License upPriorityLicense = getLicenseByPriority(priority - 1);
             if (upPriorityLicense != null) {
                 int upPriority   = upPriorityLicense.getPriority();
                 try {
@@ -227,7 +227,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
     public void moveDown(License license) throws LicensesManagerException {
         int priority = license.getPriority();
         if (priority < getMinPriority()) {
-            License downPriorityLicense = getLabelByPriority(priority + 1);
+            License downPriorityLicense = getLicenseByPriority(priority + 1);
             if (downPriorityLicense != null) {
                 int downPriority = downPriorityLicense.getPriority();
 
@@ -247,7 +247,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
     }
 
     @Override
-    public List<License> getLabels() {
+    public List<License> getLicenses() {
         return new JDBCQueryTemplate<License>(provider.get()){
             @Override
             public boolean handleRow(ResultSet rs, List<License> returnsList) throws SQLException {
@@ -283,11 +283,11 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
                 return element.getAttribute("name");
             }).collect(Collectors.toList());
 
-            getLabels().stream().forEach(eLabel-> {
+            getLicenses().stream().forEach(eLabel-> {
                 labelsUsedInSolr.remove(eLabel.getName());
             });
 
-            for (String lname : labelsUsedInSolr) {  this.addLocalLabel(new LicenseImpl(lname, "", LicensesManager.IMPORTED_GROUP_NAME)); }
+            for (String lname : labelsUsedInSolr) {  this.addLocalLicense(new LicenseImpl(lname, "", LicensesManager.GLOBAL_GROUP_NAME)); }
 
         } catch (IOException e) {
             throw new LicensesManagerException(e.getMessage(),e);

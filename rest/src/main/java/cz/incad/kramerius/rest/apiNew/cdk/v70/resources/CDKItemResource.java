@@ -42,10 +42,13 @@ import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 
+/**
+ * Provides endpoints for item resource
+ * @author happy
+ */
 public class CDKItemResource {
-	
-	public static final Logger LOGGER = Logger.getLogger(CDKItemResource.class.getName());
-	
+
+    public static final Logger LOGGER = Logger.getLogger(CDKItemResource.class.getName());
 
     @Inject
     private RightsResolver actionAllowed;
@@ -61,34 +64,33 @@ public class CDKItemResource {
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
-    
     public Response providedBy(String pid) {
         try {
-            
+
             JSONObject responseJson = new JSONObject();
-            responseJson.put("licenses", ProvidedLicensesUtils.extractLicensesProvidingAccess(this.actionAllowed,this.solrAccess,pid));
+            responseJson.put("licenses",
+                    ProvidedLicensesUtils.extractLicensesProvidingAccess(this.actionAllowed, this.solrAccess, pid));
             return Response.ok(responseJson).type("application/json").build();
-            
+
         } catch (IOException | RepositoryException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return Response.status(500).build();
         }
 
     }
-    
-    public Response stream(String pid,String dsid) {
+
+    public Response stream(String pid, String dsid) {
         try {
-        	checkPid(pid);
-    		if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
+            checkPid(pid);
+            if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
                 if (!PIDSupport.isComposedPID(pid)) {
-                    // audio streas is not suported 	
-                	if (!FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
-                        final InputStream is = this.fedoraAccess.getDataStream(pid,dsid);
+                    // audio streas is not suported
+                    if (!FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
+                        final InputStream is = this.fedoraAccess.getDataStream(pid, dsid);
                         String mimeTypeForStream = this.fedoraAccess.getMimeTypeForStream(pid, dsid);
 
                         StreamingOutput stream = new StreamingOutput() {
-                            public void write(OutputStream output)
-                                    throws IOException, WebApplicationException {
+                            public void write(OutputStream output) throws IOException, WebApplicationException {
                                 try {
                                     IOUtils.copyStreams(is, output);
                                 } catch (Exception e) {
@@ -112,8 +114,6 @@ public class CDKItemResource {
         }
     }
 
-	
-    
     private void checkPid(String pid) throws PIDNotFound {
         try {
             if (PIDSupport.isComposedPID(pid)) {
@@ -128,8 +128,8 @@ public class CDKItemResource {
             }
         } catch (IOException e) {
             throw new PIDNotFound("pid not found");
-        } catch(Exception e) {
-            throw new PIDNotFound("error while parsing pid ("+pid+")");
+        } catch (Exception e) {
+            throw new PIDNotFound("error while parsing pid (" + pid + ")");
         }
     }
 

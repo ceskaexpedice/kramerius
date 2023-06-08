@@ -43,7 +43,7 @@ public class DNNTExportTemplate implements ProcessInputTemplate {
 
             template.setAttribute("bundle", AbstractDNNTCSVInputTemplate.resourceBundleMap(resbundle));
             template.setAttribute("process", "parametrizeddnntexport");
-            template.setAttribute("allLabels", licensesManager.getLabels().stream().map(License::getName).collect(Collectors.toList()));
+            template.setAttribute("allLabels", licensesManager.getLicenses().stream().map(License::getName).collect(Collectors.toList()));
 
             writer.write(template.toString());
         } catch (LicensesManagerException e) {

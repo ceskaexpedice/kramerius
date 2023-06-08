@@ -61,12 +61,6 @@ public class ProcessResource extends AdminApiResource {
     private static final Integer GET_LOGS_DEFAULT_LIMIT = 10;
 
 
-    //TODO: prejmenovat role podle spravy uctu ??
-//    private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
-//    private static final String ROLE_READ_PROCESSES = "kramerius_admin";
-//    private static final String ROLE_READ_PROCESS_OWNERS = "kramerius_admin";
-//    private static final String ROLE_DELETE_PROCESSES = "kramerius_admin";
-//    private static final String ROLE_CANCEL_OR_KILL_PROCESSES = "kramerius_admin";
 
     @Inject
     LRProcessManager lrProcessManager;
@@ -780,6 +774,7 @@ public class ProcessResource extends AdminApiResource {
         return jsonObject;
     }
 
+    //TODO: I18N
     private String buildInitialProcessName(String defId, List<String> params) {
         try {
             switch (defId) {
@@ -793,9 +788,11 @@ public class ProcessResource extends AdminApiResource {
                             ? String.format("Indexace %s (%s, typ %s)", title, pid, type)
                             : String.format("Indexace %s (typ %s)", pid, type);
                 }
+                
                 case "new_indexer_index_model": {
                     return String.format("Indexace %s (typ %s)", params.get(1), params.get(0));
                 }
+                
                 case "set_policy": {
                     String scope = params.get(0);
                     String policy = params.get(1);
@@ -805,7 +802,17 @@ public class ProcessResource extends AdminApiResource {
                             ? String.format("Změna viditelnosti %s (%s, %s, %s)", title, pid, policy, scope)
                             : String.format("Změna viditelnosti %s (%s, %s)", pid, policy, scope);
                 }
-                case "processing_rebuild":
+                
+                case "remove_policy": {
+                    String scope = params.get(0);
+                    String pid = params.get(1);
+                    String title = params.get(2);
+                    return title != null
+                            ? String.format("Odebrání příznaku viditelnosti %s (%s, %s)", title, pid, scope)
+                            : String.format("Odebrání příznaku viditelnosti %s (%s)", pid,  scope);
+               }
+               
+               case "processing_rebuild":
                     return "Přebudování Processing indexu";
                 case "processing_rebuild_for_object":
                     return String.format("Aktualizace Processing indexu z FOXML pro objekt %s", params.get(0));
@@ -821,6 +828,14 @@ public class ProcessResource extends AdminApiResource {
                 case "remove_license": {
                     return String.format("Odebrání licence '%s' pro %s", params.get(0), params.get(1));
                 }
+                case "flag_to_license": {
+                    if(params.get(0).equals("true")) {
+                        return String.format("Změna příznaku na licence a spuštění procesu mazání příznku");
+                    } else {
+                        return String.format("Změna příznaku na licence");
+                    }
+                }
+                
                 case "nkplogs": {
                     return String.format("Generování NKP logů pro období %s - %s", params.get(0), params.get(1));
                 }
@@ -873,13 +888,25 @@ public class ProcessResource extends AdminApiResource {
             }
             case "new_indexer_index_object": {
                 String type = extractMandatoryParamWithValueFromEnum(params, "type", IndexationType.class);
-                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                String pid = extractOptionalParamString(params, "pid", "uuid:");
+                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+
+                if (pid == null && (pidlist == null || pidlist.size()  == 0)) {
+                    throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist");
+                }
+                
+                
                 Boolean ignoreInconsistentObjects = extractOptionalParamBoolean(params, "ignoreInconsistentObjects", false);
                 String title = extractOptionalParamString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
                 result.add(type);//indexation type
-                result.add(pid);//indexation's root pid
+                if (pidlist != null) {
+                    result.add(pidlist.stream().collect(Collectors.joining(";")));
+                } else {
+                    result.add(pid);//indexation's root pid
+                }
+ 
                 result.add(ignoreInconsistentObjects.toString());
                 result.add(title);//indexation's root title
                 consumer.accept(false);
@@ -926,6 +953,64 @@ public class ProcessResource extends AdminApiResource {
                 result.add(scope);
                 result.add(policy);
                 result.add(pid);
+                result.add(title);
+                return result;
+            }
+            case "remove_policy": {
+                String scope = extractMandatoryParamWithValueFromEnum(params, "scope", SetPolicyProcess.Scope.class);
+                //String policy = extractMandatoryParamWithValueFromEnum(params, "policy", SetPolicyProcess.Policy.class);
+                //String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                String pid = extractOptionalParamString(params, "pid", null);
+                String title = extractOptionalParamString(params, "title", null);
+
+                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+                String target;
+                if (pid != null) {
+                    target = "pid:" + pid;
+                } else if (pidlist != null) {
+                    target = "pidlist:" + pidlist.stream().collect(Collectors.joining(";"));
+                } else {
+                    throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist");
+                }
+
+                
+                if (pid != null) {
+                    try {
+                        ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                        User user = this.userProvider.get();
+                        LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("set_policy");
+                        boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
+                        consumer.accept(permit);
+                    } catch (IOException e) {
+                        consumer.accept(false);
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+                } else {
+                    pidlist.stream().forEach(p-> {
+                        try {
+                            ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(p);
+                            User user = this.userProvider.get();
+                            LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("set_policy");
+                            boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, p, pidPaths);
+                            consumer.accept(permit);
+                        } catch (IOException e) {
+                            consumer.accept(false);
+                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        }
+                    });
+                }
+                
+                
+                List<String> result = new ArrayList<>();
+
+                result.add(scope);
+                
+                if (pid != null) {
+                    result.add(pid);
+                } else {
+                    result.add(pidlist.stream().collect(Collectors.joining(";")));
+                }
+
                 result.add(title);
                 return result;
             }
@@ -1002,7 +1087,7 @@ public class ProcessResource extends AdminApiResource {
                             ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(p);
                             User user = this.userProvider.get();
                             LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
-                            boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
+                            boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, p, pidPaths);
                             consumer.accept(permit);
                         } catch (IOException e) {
                             consumer.accept(false);
@@ -1016,6 +1101,29 @@ public class ProcessResource extends AdminApiResource {
                 result.add(target);
                 return result;
             }
+
+            case "flag_to_license": {
+                    
+                //String modelList = extractOptionalParamString(params, "modellist","monographunit;periodicalvolume");
+                boolean removePolicy = extractOptionalParamBoolean(params, "remove_policy",false);
+                
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+                    ObjectPidsPath.REPOSITORY_PATH
+                };
+                User user = this.userProvider.get();
+                LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
+                boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
+                consumer.accept(permit);
+
+                
+                List<String> result = new ArrayList<>();
+                //result.add(modelList);
+                result.add(""+removePolicy);
+                
+                return result;
+
+            }
+                
             case "nkplogs": { //TODO: rename to verb like "generate_nkp_logs"
 
                 String dateFrom = extractMandatoryParamString(params, "dateFrom");
@@ -1082,6 +1190,9 @@ public class ProcessResource extends AdminApiResource {
 
     private List<String> extractOptionalParamStringList(JSONObject params, String paramName, List<String> defaultValue) {
         if (params.has(paramName)) {
+            if (! (params.get(paramName) instanceof JSONArray)) {
+                throw new BadRequestException("mandatory parameter %s is not array", paramName);
+            }
             JSONArray jsonArray = params.getJSONArray(paramName);
             List<String> result = new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {

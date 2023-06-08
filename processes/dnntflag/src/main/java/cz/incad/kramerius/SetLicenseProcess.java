@@ -7,7 +7,7 @@ import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
-import cz.incad.kramerius.processes.new_api.IndexationScheduler;
+import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
@@ -311,7 +311,7 @@ public class SetLicenseProcess {
 
             //6b. naplanuje se reindexace target, aby byly opraveny pripadne chyby zanasene v bode 6a
             //nekteri potomci mohli mit narok na licenci z jineho zdroje ve svem strome, coz nelze u odebirani licence nevlastniho predka efektivne zjistit
-            IndexationScheduler.scheduleIndexation(targetPid, null, true, authToken);
+            ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
         }
         //commit changes in index
         try {

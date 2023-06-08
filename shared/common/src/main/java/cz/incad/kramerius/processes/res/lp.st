@@ -88,9 +88,6 @@
         <mainClass>cz.incad.kramerius.lp.ParametrizedPDFExport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <templates>
-            <input class="cz.incad.kramerius.lp.ParametrizedPDFExportInputTemplate"></input>
-        </templates>
         <securedaction>export</securedaction>
     </process>
 
@@ -132,9 +129,6 @@
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
         <parameters></parameters>
-        <templates>
-            <input class="org.kramerius.k3replications.input.InputTemplate"></input>
-        </templates>
         <securedaction>replikator_k3</securedaction>
     </process>
 
@@ -251,6 +245,18 @@
         <checkErrorStream>false</checkErrorStream>
         <securedaction>a_set_accessibility</securedaction>
     </process>
+    
+    <!-- remove policy flag -->
+    <process>
+        <id>remove_policy</id>
+        <description>Remove policy </description>
+        <mainClass>cz.incad.kramerius.processes.RemovePolicyProcess</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <checkErrorStream>false</checkErrorStream>
+        <securedaction>a_set_accessibility</securedaction>
+    </process>
 
     <process>
         <id>add_license</id>
@@ -273,6 +279,19 @@
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
         <!--<checkErrorStream>false</checkErrorStream>-->
         <parameters>REMOVE</parameters>
+        <securedaction>a_set_accessibility</securedaction>
+    </process>
+
+
+    <process>
+        <id>flag_to_license</id>
+        <description>Change flag (public| private) to license (public | onsite)</description>
+        <mainClass>cz.inovatika.licenses.FlagToLicenseProcess</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <!--<checkErrorStream>false</checkErrorStream>-->
+        <!--parameters>ADD</parameters-->
         <securedaction>a_set_accessibility</securedaction>
     </process>
 
@@ -322,9 +341,6 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
-        <templates>
-            <input class="org.kramerius.convert.input.ParametrizedConvertInputTemplate"></input>
-        </templates>
         <securedaction>convert</securedaction>
     </process>
 
@@ -336,9 +352,6 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
-        <templates>
-            <input class="org.kramerius.importmets.parametrized.input.MetsImportInputTemplate"></input>
-        </templates>
         <securedaction>ndk_mets_import</securedaction>
     </process>
 
@@ -361,9 +374,6 @@
         <mainClass>org.kramerius.imports.ParametrizedImport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <templates>
-            <input class="org.kramerius.imports.input.ParametrizedImportInputTemplate"></input>
-        </templates>
         <securedaction>a_import</securedaction>
     </process>
 
@@ -447,10 +457,6 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
-        <templates>
-            <input class="org.kramerius.replications.input.InputTemplate"></input>
-            <output class="org.kramerius.replications.outputs.OutputTemplate"></output>
-        </templates>
         <securedaction>a_import_replications</securedaction>
     </process>
 
@@ -462,9 +468,6 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms512m</javaProcessParameters>
-        <templates>
-            <input class="cz.incad.kramerius.processes.manages.input.DeleteProcessesInput"></input>
-        </templates>
     </process>
 
     <!-- Apply moving wall to subtree -->
@@ -485,9 +488,6 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
-        <templates>
-            <input class="cz.cas.lib.knav.templates.ParametrizedApplyMWTemplate"></input>
-        </templates>
     </process>
 
     <!-- iterate over models -->
@@ -509,9 +509,6 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>aggregate</securedaction>
-        <templates>
-            <input class="cz.cas.lib.knav.templates.ParametrizedIterateRepoApplyMWTemplate"></input>
-        </templates>
     </process>
 
     <!-- iterate over models -->
@@ -584,10 +581,6 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>import</securedaction>
-        <templates>
-            <input class="org.kramerius.replications.input.DataMigrationInputTemplate"></input>
-            <output class="org.kramerius.replications.output.DataMigrationOutputTemplate"></output>
-        </templates>
     </process>
 
     <process>
@@ -621,9 +614,6 @@
         <errOs>lrErr</errOs>
         <parameters>true</parameters>
         <securedaction>a_set_accessibility</securedaction>
-        <templates>
-            <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
-        </templates>
     </process>
 
     <!-- parametrized label dnntunset -->
@@ -635,9 +625,6 @@
         <errOs>lrErr</errOs>
         <parameters>true</parameters>
         <securedaction>dnnt_admin</securedaction>
-        <templates>
-            <input class="cz.incad.kramerius.template.DNNTUnsetCSVInputTemplate"></input>
-        </templates>
     </process>
 
 
@@ -658,9 +645,6 @@
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <securedaction>a_set_accessibility</securedaction>
-        <templates>
-            <input class="cz.incad.kramerius.template.DNNTExportTemplate"></input>
-        </templates>
     </process>
 
 
@@ -674,9 +658,6 @@
         <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
-        <templates>
-            <input class="cz.incad.kramerius.statistics.impl.nkp.ParametrizedNKPInputTemplate"></input>
-        </templates>
         <securedaction>a_generate_nkplogs</securedaction>
     </process>
 
@@ -691,9 +672,6 @@
         <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
-        <templates>
-            <input class="cz.incad.kramerius.statistics.impl.nkp.ParametrizedNKPInputTemplate"></input>
-        </templates>
         <securedaction>a_generate_nkplogs</securedaction>
     </process>
 </processes>

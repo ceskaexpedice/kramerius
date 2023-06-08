@@ -53,9 +53,9 @@ public class RightsDBUtils {
         CriteriumType type = CriteriumType.findByValue(rstype);
         if (qname != null) {
             RightCriteriumWrapper rightCriteriumWrapper = factory.loadExistingWrapper(type, qname, criteriumId, createCriteriumParams(rs));
-            if (rightCriteriumWrapper.isLabelAwareCriterium()) {
+            if (rightCriteriumWrapper.isLicenseAwareCriterium()) {
                 License licenseImpl = new LicenseImpl(rs.getInt("label_id"), rs.getString("label_name"),  rs.getString("label_description"),rs.getString("label_group"),rs.getInt("label_priority"));
-                rightCriteriumWrapper.setLabel(licenseImpl);
+                rightCriteriumWrapper.setLicense(licenseImpl);
             }
             return rightCriteriumWrapper;
         } else return null;

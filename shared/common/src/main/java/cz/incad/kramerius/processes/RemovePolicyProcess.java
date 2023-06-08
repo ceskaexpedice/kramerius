@@ -22,8 +22,11 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.StringTokenizer;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
 
@@ -31,9 +34,9 @@ import java.util.logging.Logger;
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (set_policy)
  * Nahrazuje cz.incad.kramerius.service.impl.PolicyServiceImpl.main()
  */
-public class SetPolicyProcess {
+public class RemovePolicyProcess {
 
-    public static final Logger LOGGER = Logger.getLogger(SetPolicyProcess.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(RemovePolicyProcess.class.getName());
 
     /**
      * args[0] - authToken
@@ -43,6 +46,7 @@ public class SetPolicyProcess {
      * args[4-...] - optional title of the root object
      */
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
+        LOGGER.info("Process parameters "+Arrays.asList(args));
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -56,40 +60,57 @@ public class SetPolicyProcess {
         String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //process params
         Scope scope = Scope.valueOf(args[argsIndex++]);
-        Policy policy = Policy.valueOf(args[argsIndex++]);
-        String pid = args[argsIndex++];
+        //Policy policy = Policy.valueOf(args[argsIndex++]);
+        String pidArg = args[argsIndex++];
+        List<String> pids = extractPids(pidArg);
+
         String title = shortenIfTooLong(mergeArraysEnd(args, argsIndex), 256);
         String scopeDesc = scope == Scope.OBJECT ? "jen objekt" : "objekt včetně potomků";
         ProcessStarter.updateName(title != null
-                ? String.format("Změna viditelnosti %s (%s, %s, %s)", title, pid, policy, scopeDesc)
-                : String.format("Změna viditelnosti %s (%s, %s)", pid, policy, scopeDesc)
+                ? String.format("Odebrání příznaku viditelnosti %s (%s,  %s)", title, pids.toString(),  scopeDesc)
+                : String.format("Odebrání příznaku viditelnosti %s (%s)", pids.toString(), scopeDesc)
         );
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
-
-        //check object exists in repository
-        if (!repository.getLowLevelApi().objectExists(pid)) {
-            throw new RuntimeException(String.format("object %s not found in repository", pid));
+        List<Boolean> errors = new ArrayList<>();
+        for (String pid : pids) {
+            //check object exists in repository
+            if (!repository.getLowLevelApi().objectExists(pid)) {
+                throw new RuntimeException(String.format("object %s not found in repository", pid));
+            }
+            //boolean includingDescendants = scope == Scope.TREE;
+            boolean noErrors = removePolicy(pid, true, repository);
+            LOGGER.info(String.format("Remove policy %b for object %s", noErrors, pid));
+            errors.add(noErrors);
         }
-        boolean includingDescendants = scope == Scope.TREE;
-        boolean noErrors = setPolicy(policy, pid, includingDescendants, repository);
-        ProcessScheduler.scheduleIndexation(pid, title, includingDescendants, authToken);
-
-        if (!noErrors) {
+        ProcessScheduler.scheduleIndexation(pids, title, true, authToken);
+        
+        Optional<Boolean> findAny = errors.stream().filter(b-> {return !b; }).findAny();
+        
+        if (findAny.isPresent()) {
             throw new WarningException("failed to set policy for some objects");
         }
+    }
+
+    private static List<String> extractPids(String pidArg) {
+        List<String> tokens = new ArrayList<>();
+        StringTokenizer tokenizer = new StringTokenizer(pidArg,";");
+        while(tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            tokens.add(token);
+        }
+        return tokens;
     }
 
     /**
      * @return true if all objects where processed without problems, false otherwise
      */
-    private static boolean setPolicy(Policy policy, String pid, boolean includingDescendants, KrameriusRepositoryApi repository) {
-        LOGGER.info(String.format("Setting policy (to %s) for %s", policy, pid));
+    private static boolean removePolicy(String pid, boolean includingDescendants, KrameriusRepositoryApi repository) {
+        //LOGGER.info(String.format("Setting policy (to %s) for %s", policy, pid));
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
-            setPolicyDC(pid, policy, repository); //TODO: zatim takto, at nevznikaji zmatky, dokud neni datastream DC uplne odstranen
-            setPolicyRELS_EXT(pid, policy, repository);
-            //setPolicyPOLICY(pid, policy, repository); //tohle uz vubec neresit, datastream POLICY je prebytecny a ne vzdy pritomen
+            removePolicyDC(pid,  repository); //TODO: zatim takto, at nevznikaji zmatky, dokud neni datastream DC uplne odstranen
+            removePolicyRELS_EXT(pid,  repository);
 
             boolean noErros = true;
             if (includingDescendants) {
@@ -97,7 +118,7 @@ public class SetPolicyProcess {
                 if (children.getFirst() != null && !children.getFirst().isEmpty()) {
                     for (RepositoryApi.Triplet triplet : children.getFirst()) {
                         String childPid = triplet.target;
-                        noErros &= setPolicy(policy, childPid, includingDescendants, repository);
+                        noErros &= removePolicy(childPid, includingDescendants, repository);
                     }
                 }
             }
@@ -111,7 +132,7 @@ public class SetPolicyProcess {
         }
     }
 
-    private static void setPolicyRELS_EXT(String pid, Policy policy, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    private static void removePolicyRELS_EXT(String pid,  KrameriusRepositoryApi repository) throws RepositoryException, IOException {
         if (!repository.isRelsExtAvailable(pid)) {
             throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
         }
@@ -124,12 +145,10 @@ public class SetPolicyProcess {
                 policyEl.detach();
             }
         }
-        Element newPolicyEl = rootEl.addElement("policy", Dom4jUtils.getNamespaceUri("rel"));
-        newPolicyEl.addText(policy == Policy.PRIVATE ? "policy:private" : "policy:public");
         repository.updateRelsExt(pid, relsExt);
     }
 
-    private static void setPolicyDC(String pid, Policy policy, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    private static void removePolicyDC(String pid,  KrameriusRepositoryApi repository) throws RepositoryException, IOException {
         if (!repository.isDublinCoreAvailable(pid)) {
             LOGGER.info("Dublin Core record (datastream DC) not found for " + pid);
             return;
@@ -143,8 +162,6 @@ public class SetPolicyProcess {
                 policyEl.detach();
             }
         }
-        Element newRightsEl = rootEl.addElement("rights", Dom4jUtils.getNamespaceUri("dc"));
-        newRightsEl.addText(policy == Policy.PRIVATE ? "policy:private" : "policy:public");
         repository.updateDublinCore(pid, dc);
     }
 

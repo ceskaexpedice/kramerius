@@ -24,6 +24,10 @@ import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKramerius
 import cz.kramerius.adapters.impl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 /**
@@ -41,6 +45,7 @@ public class NewIndexerProcessIndexObject {
      * args[4...] - optional title
      */
     public static void main(String[] args) throws IOException {
+        LOGGER.info("Process parameters "+Arrays.asList(args));
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -54,7 +59,13 @@ public class NewIndexerProcessIndexObject {
         String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //process params
         String type = args[argsIndex++];
-        String pid = args[argsIndex++];
+        
+        // TODO: Support one pid or list of pids
+        String argument = args[argsIndex++];
+        List<String> pids = extractPids(argument);
+        //String pid = args[argsIndex++];
+
+        
         Boolean ignoreInconsistentObjects = Boolean.valueOf(args[argsIndex++]);
         //tady je problem v tom, ze pokud jeden z parametru obsahuje carku, tak Kramerius pri parsovani argumentu z pole v databazi to vyhodnoti jako vice argumentu.
         //napr.
@@ -66,8 +77,8 @@ public class NewIndexerProcessIndexObject {
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
         ProcessStarter.updateName(title != null
-                ? String.format("Indexace %s (%s, typ %s)", title, pid, type)
-                : String.format("Indexace %s (typ %s)", pid, type)
+                ? String.format("Indexace %s (%s, typ %s)", title, pids.toString(), type)
+                : String.format("Indexace %s (typ %s)", pids.toString(), type)
         );
 
         SolrConfig solrConfig = new SolrConfig();
@@ -91,22 +102,32 @@ public class NewIndexerProcessIndexObject {
 
         KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, processingIndex);
         Indexer indexer = new Indexer(krameriusRepositoryFascade, solrConfig, System.out, ignoreInconsistentObjects);
-        indexer.indexByObjectPid(pid, IndexationType.valueOf(type), new ProgressListener() {
-            @Override
-            public void onProgress(int processed) {
-                //log number of objects processed so far
-                if (processed < 100 && processed % 10 == 0 ||
-                        processed < 1000 && processed % 100 == 0 ||
-                        processed % 1000 == 0
-                ) {
-                    LOGGER.info("objects processed so far: " + processed);
-                }
-            }
 
-            @Override
-            public void onFinished(int processed) {
-            }
-        });
+        for (String pid : pids) {
+            indexer.indexByObjectPid(pid, IndexationType.valueOf(type), new ProgressListener() {
+                @Override
+                public void onProgress(int processed) {
+                    //log number of objects processed so far
+                    if (processed < 100 && processed % 10 == 0 ||
+                            processed < 1000 && processed % 100 == 0 ||
+                            processed % 1000 == 0
+                    ) {
+                        LOGGER.info("objects processed so far: " + processed);
+                    }
+                }
+
+                @Override
+                public void onFinished(int processed) {
+                }
+            });
+        }
+    }
+
+    private static List<String> extractPids(String argument) {
+        List<String> vals = new ArrayList<>();
+        StringTokenizer tokenizer = new StringTokenizer(argument,";");
+        while(tokenizer.hasMoreTokens()) { vals.add(tokenizer.nextToken());}
+        return vals;
     }
 
     //FIXME: duplicate code (same method in NewIndexerProcessIndexObject, SetPolicyProcess), use abstract/utility class, but not before bigger cleanup in process scheduling

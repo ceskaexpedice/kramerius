@@ -58,19 +58,36 @@ import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+/**
+ * Provides endpoints for synchronization between SDNNT and local kramerius
+ * @author happy
+ * TODO: Consider; move to another package
+ */
 @Path("/admin/v7.0/sdnnt")
 public class SDNNTSyncResource {
 
     public static final Logger LOGGER = Logger.getLogger(SDNNTSyncResource.class.getName());
     
+    /** Enum represents basic sync operations */
     public static enum SyncActionEnum {
-
+        
+        /** The title needs to be updated by adding dnnto license  */
         add_dnnto(Arrays.asList("dnnto"), Arrays.asList("add_license")),
+        
+        /** The title needs to be updated by adding dnntt license */
         add_dnntt(Arrays.asList("dnntt"), Arrays.asList("add_license")),
+        
+        /** The title needs to be udpated by removing dnnto license */
         remove_dnnto(Arrays.asList("dnnto"), Arrays.asList("remove_license")),
+        
+        /** The title needs to be updated by removing dnntt license */
         remove_dnntt(Arrays.asList("dnntt"), Arrays.asList("remove_license")),
-        change_dnnto_dnntt(Arrays.asList("dnntt", "dnntt"), Arrays.asList("add_license", "remove_license")),
-        change_dnntt_dnnto(Arrays.asList("dnntt", "dnntt"), Arrays.asList("add_license", "remove_license"));
+        
+        /** The title needs to be udpated by changing owning license from dnnto to dnntt */
+        change_dnnto_dnntt(Arrays.asList("dnnto", "dnntt"), Arrays.asList("add_license", "remove_license")),
+
+        /** The title needs to be udpated by changing owning license from dnntt to dnnto */
+        change_dnntt_dnnto(Arrays.asList("dnntt", "dnnto"), Arrays.asList("add_license", "remove_license"));
         // partial_change(new ArrayList<String>(), new ArrayList<String>());
 
         private List<String> licenses;
@@ -80,11 +97,19 @@ public class SDNNTSyncResource {
             this.licenses = licenses;
             this.defids = defids;
         }
-
+        
+        /**
+         * Returns licenses
+         * @return
+         */
         public List<String> getLicenses() {
             return licenses;
         }
-
+        
+        /**
+         * Returns process identifiers 
+         * @return
+         */
         public List<String> getDefids() {
             return defids;
         }
@@ -107,13 +132,18 @@ public class SDNNTSyncResource {
 
     @Inject
     DefinitionManager definitionManager;
-
+    
+    /**
+     * Basic inforamtion endpoints
+     * @return
+     */
     @GET
     @Path("info")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response info() {
 
         JSONObject infoObject = new JSONObject();
+        // acronym of library; it must correspond with register
         infoObject.put("kramerius", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api"));
         infoObject.put("acronym", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.acronym"));
         infoObject.put("endpoint", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.endpoint",
@@ -122,9 +152,13 @@ public class SDNNTSyncResource {
                 KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.version", "v7"));
 
         return Response.ok().entity(infoObject.toString(2)).build();
-
     }
 
+    /**
+     * Returns the timestamp of the last run of sychrronization process
+     * @param dd
+     * @return
+     */
     @GET
     @Path("sync/timestamp")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -161,7 +195,10 @@ public class SDNNTSyncResource {
         }
     }
 
-    // rename to plan batches
+    /**
+     * 
+     * @return
+     */
     @GET
     @Path("sync/batches")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -298,6 +335,12 @@ public class SDNNTSyncResource {
         return pids;
     }
 
+    /**
+     * Returns information about the last sychroniztation
+     * @param spage Current page 
+     * @param srows Number the rows in the page
+     * @return
+     */
     @GET
     @Path("sync")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -339,6 +382,11 @@ public class SDNNTSyncResource {
         }
     }
 
+    /**
+     * Returns granuarity; Information about structure
+     * @param id
+     * @return
+     */
     @GET
     @Path("sync/granularity/{id}")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })

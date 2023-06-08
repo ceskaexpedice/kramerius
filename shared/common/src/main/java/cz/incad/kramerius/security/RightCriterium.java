@@ -105,7 +105,7 @@ public interface RightCriterium extends Serializable  {
      * Is label's assignable
      * @return
      */
-    public boolean isLabelAssignable();
+    public boolean isLicenseAssignable();
 
 
     /**

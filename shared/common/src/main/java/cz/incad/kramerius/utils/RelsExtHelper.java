@@ -63,7 +63,12 @@ public class RelsExtHelper {
         Object tiles = expr.evaluate(relsExt, XPathConstants.NODE);
         if (tiles != null) {
             String data = ((Text) tiles).getData();
-            return  data != null ? data.trim() : null;
+            if (data != null) {
+                return data.trim();
+            } else {
+                LOGGER.fine(String.format("krameirus:tiles-url  == null for %s", uuid));
+                return null;
+            }
         }
         else return null;
     }

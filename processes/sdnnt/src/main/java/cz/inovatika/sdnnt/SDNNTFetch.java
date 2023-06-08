@@ -51,7 +51,6 @@ import cz.kramerius.searchIndex.indexer.SolrConfig;
 
 public class SDNNTFetch {
     
-    //public static final SyncConfig KNAV = new SyncConfig("https://kramerius.lib.cas.cz/search/" , "v5", "knav");
     
     public static enum SyncActionEnum {
         

@@ -161,7 +161,7 @@ public class ClientUserResource {
             try {
                 EvaluatingResultState result = right.mockEvaluate(ctx, this.databaseRightsManager, DataMockExpectation.EXPECT_DATA_VAUE_EXISTS);
                 if (result.equals(EvaluatingResultState.TRUE)) {
-                    String name = right.getCriteriumWrapper().getLabel().getName();
+                    String name = right.getCriteriumWrapper().getLicense().getName();
                     evaluatedObjects.add(name);
                 }
             } catch (RightCriteriumException e) {
@@ -176,9 +176,8 @@ public class ClientUserResource {
         
 
         
-        
         try {
-            List<License> licenses = this.licensesManager.getLabels();
+            List<License> licenses = this.licensesManager.getLicenses();
             licenses.sort(new Comparator<License>() {
                 @Override
                 public int compare(License o1, License o2) {
@@ -192,6 +191,7 @@ public class ClientUserResource {
                     retvals.add(license.getName());
                 }
             }
+
             return retvals;
         } catch (LicensesManagerException e) {
             LOGGER.log(Level.SEVERE,e.getMessage());

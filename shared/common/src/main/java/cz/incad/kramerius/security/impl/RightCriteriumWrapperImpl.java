@@ -102,21 +102,21 @@ public class RightCriteriumWrapperImpl implements RightCriteriumWrapper, Seriali
     }
 
     @Override
-    public boolean isLabelAwareCriterium() {
+    public boolean isLicenseAwareCriterium() {
         if (this.criteriumType.equals(CriteriumType.CLASS)) {
             return this.wrappedInstance instanceof RightCriteriumLabelAware;
         } else return false;
     }
 
     @Override
-    public License getLabel() {
-        License license = isLabelAwareCriterium() ? ((RightCriteriumLabelAware) this.wrappedInstance).getLicense() : null;
+    public License getLicense() {
+        License license = isLicenseAwareCriterium() ? ((RightCriteriumLabelAware) this.wrappedInstance).getLicense() : null;
         return license;
     }
 
     @Override
-    public void setLabel(License license) {
-        if (isLabelAwareCriterium()) {
+    public void setLicense(License license) {
+        if (isLicenseAwareCriterium()) {
             ((RightCriteriumLabelAware)this.wrappedInstance).setLicense(license);
         }
     }
