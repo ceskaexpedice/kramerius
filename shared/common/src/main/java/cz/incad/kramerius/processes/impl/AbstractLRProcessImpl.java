@@ -147,6 +147,9 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
                 command.add(jpParam);
             }
 
+
+            command.add("-Duser.home=" + System.getProperty("user.home"));
+
             command.add("-D" + ProcessStarter.MAIN_CLASS_KEY + "="
                     + this.definition.getMainClass());
 
