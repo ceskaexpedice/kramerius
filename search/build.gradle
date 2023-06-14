@@ -43,12 +43,12 @@ dependencies {
     api project(':processes:import')
 
     api project(':processes:import-mets')
-    api project(':processes:solr-migration') //TODO: Delete
-    api project(':processes:data-migration') //TODO: Delete
+    api project(':processes:solr-migration')     //TODO: Delete
+    api project(':processes:data-migration')     //TODO: Delete
 
-    api project(':processes:dnntflag')       //TODO: Move licenses and dnnt delete
-    api project(':processes:nkp-logs')       //TODO: Move
-    api project(':processes:sdnnt')          //TODO: Move
+    api project(':processes:dnntflag')           //TODO: Move licenses and dnnt delete
+    api project(':processes:nkp-logs')           //TODO: Move
+    api project(':processes:sdnnt')              //TODO: Move
 
     api project(':processes:licenses')
 

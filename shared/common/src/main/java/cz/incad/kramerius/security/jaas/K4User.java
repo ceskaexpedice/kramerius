@@ -22,6 +22,7 @@ import java.security.Principal;
 /**
  * K4 user principal
  * @author pavels
+ * TODO: Remove 
  */
 public class K4User implements Principal, Serializable {
 

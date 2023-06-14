@@ -46,6 +46,7 @@ import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 /**
  * JAAS login module
  * @author pavels
+ * TODO: Remove 
  */
 public class K4LoginModule implements LoginModule {
 

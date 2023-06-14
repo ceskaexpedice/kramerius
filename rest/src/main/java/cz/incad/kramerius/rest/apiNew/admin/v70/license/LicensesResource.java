@@ -38,19 +38,48 @@ public class LicensesResource {
     @Inject
     Provider<User> userProvider;
 
-
+    /** All licenses */
     @GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response licenses() {
+    public Response allLicenses() {
         try {
-            return labelsAsResponse();
+            List<License> localLicenses = this.licensesManager.getAllLicenses();
+            return labelsAsResponse(localLicenses);
         } catch (JSONException | LicensesManagerException e) {
             throw new GenericApplicationException(e.getMessage(), e);
         }
     }
 
+    /** Global licenses */
     @GET
-    @Path("{id:[0-9]+}")
+    @Path("global")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    public Response globalLicenses() {
+        try {
+            List<License> localLicenses = this.licensesManager.getGlobalLicenses();
+            return labelsAsResponse(localLicenses);
+        } catch (JSONException | LicensesManagerException e) {
+            throw new GenericApplicationException(e.getMessage(), e);
+        }
+    }
+    
+    /** Local licenses */
+    @GET
+    @Path("local")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    public Response LocalLicenses() {
+        try {
+            List<License> localLicenses = this.licensesManager.getLocalLicenses();
+            return labelsAsResponse(localLicenses);
+        } catch (JSONException | LicensesManagerException e) {
+            throw new GenericApplicationException(e.getMessage(), e);
+        }
+    }
+    
+    
+
+    @GET
+    @Path("local/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response oneLicense(@PathParam("id")String id ) {
         try {
@@ -67,6 +96,7 @@ public class LicensesResource {
 
 
     @POST
+    @Path("local")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response insert(JSONObject json) {
@@ -103,7 +133,7 @@ public class LicensesResource {
 
 
     @PUT
-    @Path("{id:[0-9]+}")
+    @Path("local/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response update(@PathParam("id")String id, JSONObject jsonObject) {
@@ -118,7 +148,7 @@ public class LicensesResource {
                             if (licenseByName != null && l.getId() != licenseByName.getId()) {
                                 throw new CreateException(String.format("Licence %s already exists", l.getName()));
                             } else {
-                                this.licensesManager.updateLicense(l);
+                                this.licensesManager.updateLocalLicense(l);
                                 License licenseById = this.licensesManager.getLicenseById(l.getId());
                                 if (licenseById != null) {
                                     return Response.ok().entity(licenseToJSON(licenseById).toString()).build();
@@ -155,7 +185,7 @@ public class LicensesResource {
                     int priority = license.getPriority();
                     if (priority >= 2) {
                         this.licensesManager.moveUp(license);
-                        return labelsAsResponse();
+                        return labelsAsResponse(this.licensesManager.getLocalLicenses());
                     } else {
                         throw new BadRequestException(String.format("cannot change priority for label %s", license.toString()));
                     }
@@ -183,7 +213,7 @@ public class LicensesResource {
 
                     if (priority < minPriority) {
                         this.licensesManager.moveDown(license);
-                        return labelsAsResponse();
+                        return labelsAsResponse(this.licensesManager.getLocalLicenses());
                     } else {
                         throw new BadRequestException(String.format("cannot change priority for label %s", license.toString()));
                     }
@@ -197,8 +227,8 @@ public class LicensesResource {
     }
 
 
-    private Response labelsAsResponse() throws LicensesManagerException {
-        List<License> licenses = this.licensesManager.getLicenses();
+    private Response labelsAsResponse(List<License> licenses) throws LicensesManagerException {
+        //List<License> licenses = this.licensesManager.getLicenses();
         licenses.sort(new Comparator<License>() {
             @Override
             public int compare(License o1, License o2) {
@@ -214,7 +244,7 @@ public class LicensesResource {
 
 
     @DELETE
-    @Path("{id:[0-9]+}")
+    @Path("local/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response delete(@PathParam("id")String id) {
         if (permit(this.userProvider.get())) try {

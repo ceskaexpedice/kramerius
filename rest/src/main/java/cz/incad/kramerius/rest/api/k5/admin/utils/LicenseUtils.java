@@ -15,6 +15,7 @@ public class LicenseUtils {
         labelObject.put("name", l.getName());
         labelObject.put("description", l.getDescription());
         labelObject.put("priority", l.getPriority());
+        labelObject.put("group", l.getGroup());
         return labelObject;
     }
 

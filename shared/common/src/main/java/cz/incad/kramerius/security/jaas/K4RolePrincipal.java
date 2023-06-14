@@ -21,6 +21,7 @@ import java.security.Principal;
 /**
  * K4 role principal
  * @author pavels
+ * TODO: Remove 
  */
 public class K4RolePrincipal implements Principal {
 

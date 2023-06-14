@@ -60,12 +60,18 @@ public class InfoResource extends ClientApiResource {
             }
             json.put("indexerVersion", Indexer.INDEXER_VERSION);
             
-            // Acronym 
+            // Acronym & and info about instance 
             String acronym = KConfiguration.getInstance().getConfiguration().getString("acronym","");
             if (StringUtils.isAnyString(acronym)) {
                 JSONObject instance =  new JSONObject();
+
                 instance.put("acronym", acronym);
                 instance.put("registr", String.format("https://registr.digitalniknihovna.cz/library/%s", acronym));
+                
+                // client url 
+                String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
+                if (clientUrl != null) instance.put("client", clientUrl);
+                
                 json.put("instance", instance);
             }
             

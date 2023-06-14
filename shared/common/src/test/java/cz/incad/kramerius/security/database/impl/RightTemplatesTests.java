@@ -203,7 +203,7 @@ public class RightTemplatesTests {
         RightCriteriumWrapperFactory wrapperFactory = injector.getInstance(RightCriteriumWrapperFactory.class);
         RightCriteriumWrapper lb = wrapperFactory.createCriteriumWrapper(ReadDNNTLabelsIPFiltered.class.getName());
 
-        lb.setLabel(new LicenseImpl(4, "name","desc","group"));
+        lb.setLicense(new LicenseImpl(4, "name","desc","group"));
 
         StringTemplate template1 = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRightCriterium");
         template1.setAttribute("criteriumWrapper", lb);

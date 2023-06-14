@@ -1,5 +1,22 @@
+/*
+ * Copyright (C) Jun 8, 2023 Pavel Stastny
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package cz.incad.kramerius.security.licenses;
 
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -7,12 +24,18 @@ import java.util.List;
  * @author happy
  */
 public interface LicensesManager {
+
+    
     
     /** Local license **/
     public static final String LOCAL_GROUP_NAME="local";
-    /** Global license **/
-    public static final String GLOBAL_GROUP_NAME ="imported";
 
+    
+    /** Global license **/
+    public static final String GLOBAL_GROUP_NAME_IMPORTED ="imported";
+    public static final String GLOBAL_GROUP_NAME_EMBEDDED ="embedded";
+
+    
     /**
      * Adds a new local license object
      * @param license License object
@@ -49,6 +72,9 @@ public interface LicensesManager {
      */
     public License getLicenseByPriority(int priority) throws LicensesManagerException;
     
+    
+    
+    
     /**
      * Finds the licenses by given id 
      * @param id
@@ -72,13 +98,34 @@ public interface LicensesManager {
      */
     public List<License> getLicenses() throws LicensesManagerException;
 
+    /**
+     * Returns all global licenses
+     * @return
+     * @throws LicensesManagerException
+     */
+    public List<License> getGlobalLicenses() throws LicensesManagerException;
+    
+    /**
+     * Returns only local liceses
+     * @return
+     * @throws LicensesManagerException
+     */
+    public List<License> getLocalLicenses() throws LicensesManagerException;
+    
+    /**
+     * Returns only local liceses
+     * @return
+     * @throws LicensesManagerException
+     */
+    public List<License> getAllLicenses() throws LicensesManagerException;
+
     
     /**
      * Update local license
      * @param license License object
      * @throws LicensesManagerException Cannot update license
      */
-    public void updateLicense(License license) throws LicensesManagerException;
+    public void updateLocalLicense(License license) throws LicensesManagerException;
     
     /**
      * Change priority of the license; Increase priority
@@ -100,4 +147,21 @@ public interface LicensesManager {
      * @throws LicensesManagerException
      */
     public void refreshLabelsFromSolr() throws LicensesManagerException;
+    
+    
+    
+    /** 
+     * Rearrange global priorities
+     * @param globalLicenses
+     */
+    public void rearrangePriorities(List<License> globalLicenses) throws LicensesManagerException;
+
+    /** 
+     * TODO: 
+     * Rearrange global priorities
+     * @param globalLicenses
+     */
+    public void rearrangePriorities(List<License> globalLicenses, Connection conn) throws LicensesManagerException;
+    
+    
 }

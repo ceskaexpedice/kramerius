@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) Jun 8, 2023 Pavel Stastny
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package cz.incad.kramerius.security.licenses.impl;
 
 import cz.incad.kramerius.security.licenses.License;
@@ -6,20 +22,22 @@ import java.io.Serializable;
 
 public class LicenseImpl implements License, Serializable {
 
+    
+    private int priorityHint = -1;
+    
     private int id = -1;
     private String name;
     private String group;
     private String description;
     private int labelPrirority = DEFAULT_PRIORITY;
-
-
+    
+    
     public LicenseImpl(int id, String name, String description, String group, int labelPrirority) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.group = group;
         this.labelPrirority = labelPrirority;
-        //validateName(name);
     }
 
     public LicenseImpl(String name, String description, String group, int labelPrirority) {
@@ -27,9 +45,17 @@ public class LicenseImpl implements License, Serializable {
         this.description = description;
         this.group = group;
         this.labelPrirority = labelPrirority;
-        //validateName(name);
     }
 
+    public LicenseImpl(String name, String description, String group, int labelPrirority, int priorityHint) {
+        this.name = name;
+        this.description = description;
+        this.group = group;
+        this.labelPrirority = labelPrirority;
+        this.priorityHint = priorityHint;
+    }
+    
+    
     public LicenseImpl(String name, String description, String group) {
         this.description = description;
         this.name = name;
@@ -82,7 +108,11 @@ public class LicenseImpl implements License, Serializable {
         return this.description;
     }
 
-
+    
+    @Override
+    public int getPriorityHint() {
+        return this.priorityHint;
+    }
 
     @Override
     public String toString() {

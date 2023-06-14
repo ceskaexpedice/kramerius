@@ -15,6 +15,7 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
 import cz.incad.kramerius.utils.RESTHelper;
 
 public class V7APILicenseFetcher extends LicenseAPIFetcher{
@@ -47,9 +48,11 @@ public class V7APILicenseFetcher extends LicenseAPIFetcher{
             String encodedCondition = URLEncoder.encode(
                     "pid:(" + condition + ")", "UTF-8");
             
+            String filter = "(licenses:"+CzechEmbeddedLicenses.ONSITE_LICENSE.getName()+" OR accessibility:private)";
+            
             String encodedFieldList = URLEncoder.encode("pid licenses", "UTF-8");
             String url = baseUrl + (baseUrl.endsWith("/") ?  "":"/") +"search?q=" + encodedCondition + "&wt=json&rows=" + MAX_FETCHED_DOCS
-                    + "&fl=" + encodedFieldList;
+                    + "&fl=" + encodedFieldList +"&fq=" + filter;
             
             InputStream is = RESTHelper.inputStream(url, null, null);
             String string = IOUtils.toString(is, Charset.forName("UTF-8"));
