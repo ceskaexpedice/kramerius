@@ -24,6 +24,7 @@ import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
 
 /** Licenses in SNK */
+// TODO: Move to different  
 public class SlovakEmbeddedLicenses {
 
 
