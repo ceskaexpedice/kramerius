@@ -24,18 +24,21 @@ import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
 
 /** Licenses in SNK */
-// TODO: Move to different  
+// TODO: Move to different location
 public class SlovakEmbeddedLicenses {
 
+    public static final String SK_GLOBAL_GROUP_NAME_EMBEDDED = "embedded.sk";
+    
+    
 
     /** paying users **/
-    public static License PAYING_USERS_LICENSE = new LicenseImpl("paying_users", " Available online - Out-of-Commerce Works", LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED);
+    public static License PAYING_USERS_LICENSE = new LicenseImpl("paying_users", " Available online - Out-of-Commerce Works", SK_GLOBAL_GROUP_NAME_EMBEDDED);
             
     /** not accessible **/
-    public static License NOT_ACESSIBLE = new LicenseImpl("not_accessible", "Not accessible", LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED);
+    public static License NOT_ACESSIBLE = new LicenseImpl("not_accessible", "Not accessible", SK_GLOBAL_GROUP_NAME_EMBEDDED);
 
     /** only in library - on site equivalent **/
-    public static License ONLY_IN_LIBRARY = new LicenseImpl("only_in_library", "Accessible only in the library", LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED);
+    public static License ONLY_IN_LIBRARY = new LicenseImpl("only_in_library", "Accessible only in the library", SK_GLOBAL_GROUP_NAME_EMBEDDED);
 
 
     public static List<License> LICENSES = Arrays.asList(

@@ -14,9 +14,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -105,28 +107,40 @@ public class SDNNTFetch {
     public static void process(HttpSolrClient client, SyncConfig config) throws IOException, InterruptedException, SolrServerException {
             long start = System.currentTimeMillis();
             
-            Map<String,String> pids2idents = new HashMap<>();
+            //Map<String,String> pids2idents = new HashMap<>();
+            Map<String,List<String>> pids2idents = new HashMap<>();
+            
             
             LOGGER.info("Connecting sdnnt list and iterating serials ");
             iterateSDNNTFormat(client, config, config.getSdnntEndpoint(),  "SE", start, pids2idents);
             LOGGER.info("Connecting sdnnt list and iterating books ");
             iterateSDNNTFormat(client, config, config.getSdnntEndpoint(),  "BK", start, pids2idents);
 
+            Map<String, String> idents2pid = new HashMap<>();
+            pids2idents.keySet().stream().forEach(pid-> {
+                List<String> idents = pids2idents.get(pid);
+                idents.forEach(ident-> {  idents2pid.put(ident, pid); });
+            });
+            
             long stop = System.currentTimeMillis();
-            LOGGER.info("List fetched. It took " + (stop - start) + " ms");
+            LOGGER.info("SDNNT List fetched; It took " + (stop - start) + " ms");
             
             OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(new Date(start).toInstant(), ZoneId.systemDefault());
             String format = DateTimeFormatter.ISO_INSTANT.format(offsetDateTime);
+            // one minute before process start
             client.deleteByQuery(config.getSyncCollection(), String.format("fetched:[* TO %s-1MINUTE] AND type:(main OR granularity)", format));
             
             if (config.getSyncCollection() != null) client.commit(config.getSyncCollection());
 
             if (config.getBaseUrl() != null) {
-                LicenseAPIFetcher apiFetcher = LicenseAPIFetcher.Versions.valueOf(config.getVersion()).build(config.getBaseUrl(), config.getVersion());
-                Map<String, List<String>> licenses = apiFetcher.check(pids2idents.keySet());
-                List<String> fetchedPids = new ArrayList<>(licenses.keySet());
+                LicenseAPIFetcher apiFetcher = LicenseAPIFetcher.Versions.valueOf(config.getVersion()).build(config.getBaseUrl(), config.getVersion(), true);
+
+                long kstart = System.currentTimeMillis();
+                Map<String, Map<String, Object>> fetchedObject = apiFetcher.check(pids2idents.keySet());
+                LOGGER.info("Kramerius documents fetched; It took " + (System.currentTimeMillis() - kstart) + " ms");
+                List<String> fetchedPids = new ArrayList<>(fetchedObject.keySet());
                 
-                int setsize = licenses.size();
+                int setsize = fetchedObject.size();
                 int batchsize = 5000;
                 int numberofiteration = setsize / batchsize;
 
@@ -134,6 +148,8 @@ public class SDNNTFetch {
                 Map<String, SolrInputDocument> allChanges = new HashMap<>(100000);
 
                 if (setsize % batchsize != 0) numberofiteration = numberofiteration + 1;
+                LOGGER.info(String.format("Updating data;  Number of iteration %d", numberofiteration));
+                long ustart = System.currentTimeMillis();
                 for (int i = 0; i < numberofiteration; i++) {
                   
                   List<String> batchChangedIds = new ArrayList<>();
@@ -143,59 +159,76 @@ public class SDNNTFetch {
                   List<String> subList = fetchedPids.subList(from, to);
 
                   for (int j = 0; j < subList.size(); j++) {
+                      
                       String pid = subList.get(j);
-                      String ident = pids2idents.get(pid);
-                      if (ident != null) {
-                          SolrInputDocument idoc =  null;
-                          if (allChanges.containsKey(ident)) {
-                              idoc = allChanges.get(ident.toString());
-                          } else {
-                              idoc = new SolrInputDocument();
-                              idoc.setField("id", ident);
-                          }
-                          
-                          List<String> pidLicenses = licenses.get(pid);
-                          if (pidLicenses != null && !pidLicenses.isEmpty()) {
+                      List<String> idents = pids2idents.get(pid);
+                      if (idents != null) {
+                          for (String ident : idents) {
+                              SolrInputDocument idoc =  null;
+                              if (allChanges.containsKey(ident)) {
+                                  idoc = allChanges.get(ident.toString());
+                              } else {
+                                  idoc = new SolrInputDocument();
+                                  idoc.setField("id", ident);
+                              }
                               
-                              //LOGGER.info("Updating document "+ident);
-                              for (String lic : pidLicenses) {
-                                  atomicAddDistinct(idoc, lic, "real_kram_licenses");
+                              
+                              List<String> pidLicenses = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_LICENSES_KEY);
+                              if (pidLicenses != null && !pidLicenses.isEmpty()) {
+                                  for (String lic : pidLicenses) {
+                                      atomicAddDistinct(idoc, lic, "real_kram_licenses");
+                                  }
+                              }
+                              
+                              // titles
+                              List<String> titles = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_TITLES_KEY);
+                              if (titles != null && !titles.isEmpty()) {
+                                  for (String lic : titles) {
+                                      atomicAddDistinct(idoc, lic, "real_kram_titles_search");
+                                  }
+                              }
+
+                              atomicOneValSet(idoc, true, "real_kram_exists");
+                              
+                              String date = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_DATE_KEY);
+                              if (date != null) {
+                                  atomicOneValSet(idoc, date, "real_kram_date");
+                              }
+                              
+                              String model = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_MODEL_KEY);
+                              if (model != null) {
+                                  atomicOneValSet(idoc, model, "real_kram_model");
+                              }
+
+                              if (!allChangedIds.contains(ident.toString())) {
+                                  allChangedIds.add(ident);
+                                  batchChangedIds.add(ident);
+                                  allChanges.put(ident, idoc);
                               }
                           }
-                          atomicSet(idoc, true, "real_kram_exists");
-                          if (!allChangedIds.contains(ident.toString())) {
-                              allChangedIds.add(ident);
-                              batchChangedIds.add(ident);
-                              allChanges.put(ident, idoc);
-                          }
+                          
                       }
+                      
                   }
-                  
-                  //int getSize = 100;
-                  List<String> pids = subList.stream().map(pids2idents::get).collect(Collectors.toList());
+
+                  LOGGER.info("Batch number "+i+"; Data updated;  It took " + (System.currentTimeMillis() - ustart) + " ms");
+                  LOGGER.info("Batch number "+i+"; Calculating differences");
+                  List<String> identifiers = subList.stream().map(pids2idents::get).flatMap(Collection::stream).collect(Collectors.toList());
+
                   String collection = config.getSyncCollection();
-                  SolrDocumentList list = getById(client, pids, collection);
+                  SolrDocumentList list = getById(client, identifiers, collection);
                   for (SolrDocument rDoc : list) {
                     Object ident = rDoc.getFieldValue("id");
                     SolrInputDocument in = allChanges.get(ident.toString());
 
                     Collection<Object> fieldValues = in.getFieldValues("real_kram_licenses");
-                    List<String> docLicenses = fieldValues != null ? fieldValues.stream()
-                            .map(obj-> {
-                                Map<String,String> m = (Map<String, String>) obj;
-                                return m.get("add-distinct");
-                            }).collect(Collectors.toList()) : new ArrayList<>();
 
+                    List<String> docLicenses = distinctValues(fieldValues);
                     
                     Collection<Object> syncMasterActions = in.getFieldValues("sync_actions");
-                    List<String> masterActions = syncMasterActions != null ? syncMasterActions.stream()
-                            .map(obj-> {
-                                Map<String,String> m = (Map<String, String>) obj;
-                                return m.get("add-distinct");
-                            }).collect(Collectors.toList()) : new ArrayList<>();
+                    List<String> masterActions = distinctValues(syncMasterActions);
 
                     Object type = rDoc.getFieldValue("type");
-                    //Object hasGranularityField = rDoc.getFieldValue("has_granularity");
 
                     boolean hasGranularity = rDoc.getFieldValue("has_granularity") != null ? (boolean) rDoc.getFieldValue("has_granularity") : false;
                     boolean granularityItem = type != null ? type.toString().equals("granularity") : false;
@@ -210,11 +243,11 @@ public class SDNNTFetch {
                                 if (license.toString().equals("dnntt") && !docLicenses.contains("dnntt")) {
                                     if (docLicenses.contains("dnnto")) {
                                         atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name(), "sync_actions");
-                                        atomicSet(in, SyncActionEnum.change_dnnto_dnntt.getValue(), "sync_sort");
+                                        atomicOneValSet(in, SyncActionEnum.change_dnnto_dnntt.getValue(), "sync_sort");
                                         dirty = true;
                                     } else {
                                         atomicAddDistinct(in, SyncActionEnum.add_dnntt.name(), "sync_actions");
-                                        atomicSet(in, SyncActionEnum.add_dnntt.getValue(), "sync_sort");
+                                        atomicOneValSet(in, SyncActionEnum.add_dnntt.getValue(), "sync_sort");
                                         dirty = true;
                                     }
                                 }
@@ -222,11 +255,11 @@ public class SDNNTFetch {
                                 if (license.toString().equals("dnnto") && !docLicenses.contains("dnnto")) {
                                     if (docLicenses.contains("dnntt")) {
                                         atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name() /*"change_dnnto_dnntt"*/, "sync_actions");
-                                        atomicSet(in, SyncActionEnum.change_dnnto_dnntt.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
+                                        atomicOneValSet(in, SyncActionEnum.change_dnnto_dnntt.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
                                         dirty = true;
                                     } else {
                                         atomicAddDistinct(in, SyncActionEnum.add_dnnto.name() /*"add_dnnto"*/, "sync_actions");
-                                        atomicSet(in, SyncActionEnum.add_dnnto.getValue() /*"add_dnnto"*/, "sync_sort");
+                                        atomicOneValSet(in, SyncActionEnum.add_dnnto.getValue() /*"add_dnnto"*/, "sync_sort");
                                         dirty = true;
                                     }
                                 }
@@ -237,13 +270,13 @@ public class SDNNTFetch {
                             
                             if (docLicenses.contains("dnntt")) {
                                 atomicAddDistinct(in, SyncActionEnum.remove_dnntt.name() /*"remove_dnntt"*/, "sync_actions");
-                                atomicSet(in, SyncActionEnum.remove_dnntt.getValue() /*"remove_dnntt"*/, "sync_sort");
+                                atomicOneValSet(in, SyncActionEnum.remove_dnntt.getValue() /*"remove_dnntt"*/, "sync_sort");
                                 dirty = true;
                             }
                             if (docLicenses.contains("dnnto")) {
                                 atomicAddDistinct(in, SyncActionEnum.remove_dnnto.name() /*"remove_dnnto"*/, "sync_actions");
                                 if (!docLicenses.contains("dnntt")) {
-                                    atomicSet(in, SyncActionEnum.remove_dnnto.getValue() /*"remove_dnnto"*/, "sync_sort");
+                                    atomicOneValSet(in, SyncActionEnum.remove_dnnto.getValue() /*"remove_dnnto"*/, "sync_sort");
                                 }
                                 dirty = true;
                             }
@@ -256,23 +289,54 @@ public class SDNNTFetch {
                         if (field!= null) {
                             if (allChangedIds.contains(field.toString())) {
                                 SolrInputDocument masterIn = allChanges.get(field.toString());
-                                // pozmenime
+
                                 Collection<Object> masterInSyncActions = masterIn.getFieldValues("sync_actions");
-                                List<String> actions = masterInSyncActions != null ? masterInSyncActions.stream()
-                                        .map(obj-> {
-                                            Map<String,String> m = (Map<String, String>) obj;
-                                            return m.get("add-distinct");
-                                        }).collect(Collectors.toList()) : new ArrayList<>();
+                                List<String> actions = distinctValues(masterInSyncActions);
+
                                 if (!actions.contains(SyncActionEnum.partial_change.name())) {
                                     atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
-                                    atomicSet(masterIn,  SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
+                                    atomicOneValSet(masterIn,  SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
                                 }
                                 //if (fieldValue.con)
                             } else {
+                                
+                                String masterId = field.toString();
+                                String pid = idents2pid.get(masterId);
+                                        
                                 SolrInputDocument masterIn = new SolrInputDocument();
-                                masterIn.setField("id", field.toString());
+                                masterIn.setField("id", masterId);
                                 atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
-                                atomicSet(masterIn,  SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
+                                atomicOneValSet(masterIn,  SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
+
+                                if (fetchedObject.keySet().contains(pid)) {
+                                    atomicOneValSet(masterIn,  true, "real_kram_exists");
+                                    
+                                    List<String> pidLicenses = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_LICENSES_KEY);
+                                    if (pidLicenses != null && !pidLicenses.isEmpty()) {
+                                        for (String lic : pidLicenses) {
+                                            atomicAddDistinct(masterIn, lic, "real_kram_licenses");
+                                        }
+                                    }
+                                    
+                                    // titles
+                                    List<String> titles = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_TITLES_KEY);
+                                    if (titles != null && !titles.isEmpty()) {
+                                        for (String lic : titles) {
+                                            atomicAddDistinct(masterIn, lic, "real_kram_titles_search");
+                                        }
+                                    }
+
+                                    String date = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_DATE_KEY);
+                                    if (date != null) {
+                                        atomicOneValSet(masterIn, date, "real_kram_date");
+                                    }
+                                    
+                                    String model = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_MODEL_KEY);
+                                    if (model != null) {
+                                        atomicOneValSet(masterIn, model, "real_kram_model");
+                                    }
+                                }
+
                                 allChangedIds.add(field.toString());
                                 batchChangedIds.add(field.toString());
                                 allChanges.put(field.toString(), masterIn);
@@ -287,10 +351,10 @@ public class SDNNTFetch {
                       batchChangedIds.forEach(ident-> {
                           req.add(allChanges.get(ident));
                       });
-                      LOGGER.info(String.format("Update batch with size %s",  req.getDocuments().size()));
+                      LOGGER.fine(String.format("Update batch with size %s",  req.getDocuments().size()));
                       try {
                           UpdateResponse response = req.process(client, config.getSyncCollection());
-                          LOGGER.info("qtime:"+response.getQTime());
+                          LOGGER.fine("qtime:"+response.getQTime());
                           if (config.getSyncCollection() != null) client.commit(config.getSyncCollection());
                       } catch (SolrServerException  | IOException e) {
                           LOGGER.log(Level.SEVERE,e.getMessage());
@@ -299,6 +363,27 @@ public class SDNNTFetch {
               }
               
             }
+    }
+
+
+    private static List<String> distinctValues(Collection<Object> fieldValues) {
+        List<Object> data = new ArrayList<>();
+        if (fieldValues != null) {
+            fieldValues.stream().forEach(obj-> {
+                Map<String,Object> m = (Map<String, Object>) obj;
+                //Object val = 
+                Iterator<Entry<String, Object>> iterator = m.entrySet().iterator();
+                if (iterator.hasNext())  {
+                    Object val = iterator.next().getValue();
+                    if (val instanceof Collection) {
+                        data.addAll( (Collection) val );
+                    } else {
+                        data.add(val);
+                    }
+                }
+            });
+        }
+        return data.stream().map(Object::toString).collect(Collectors.toList());
     }
 
 
@@ -318,16 +403,60 @@ public class SDNNTFetch {
         return list;
     }
 
+    public static void atomicOneValSet(SolrInputDocument idoc, Object fValue, String fName) {
+        Object fieldValue = idoc.getFieldValue(fName);
+        if (fieldValue == null) {
+            Map<String, Object> modifier = new HashMap<>(1);
+            modifier.put("set", fValue);
+            idoc.addField(fName, modifier);
+        }
+    }
+    
     public static void atomicSet(SolrInputDocument idoc, Object fValue, String fName) {
-        Map<String, Object> modifier = new HashMap<>(1);
-        modifier.put("set", fValue);
-        idoc.addField(fName, modifier);
+        if (!addToExistingModifier(idoc, fValue, fName)) {
+            Map<String, Object> modifier = new HashMap<>(1);
+            modifier.put("set", fValue);
+            idoc.addField(fName, modifier);
+        }
     }
 
     public static void atomicAddDistinct(SolrInputDocument idoc, Object fValue, String fName) {
-        Map<String, Object> modifier = new HashMap<>(1);
-        modifier.put("add-distinct", fValue);
-        idoc.addField(fName, modifier);
+        if (!addToExistingModifier(idoc, fValue, fName)) {
+            Map<String, Object> modifier = new HashMap<>(1);
+            modifier.put("add-distinct", fValue);
+            idoc.addField(fName, modifier);
+        }
+    }
+
+
+
+    private static boolean addToExistingModifier(SolrInputDocument idoc, Object fValue, String fName) {
+        Object fieldValue = idoc.getFieldValue(fName);
+        if (fieldValue != null) {
+            String key = null;
+            List<Object> values = new ArrayList<>();
+            Map<String, Object> map = (Map<String, Object>) fieldValue;
+            Iterator<Entry<String, Object>> iterator = map.entrySet().iterator();
+            if (iterator.hasNext())  {
+                Entry<String, Object> entry = iterator.next();
+                key = entry.getKey();
+                Object value = entry.getValue();
+                if (value instanceof Collection) {
+                    values.addAll((Collection)value);
+                    values.add(fValue);
+                } else {
+                    values.add(value);
+                    values.add(fValue);
+                }
+            }
+            
+            if (key != null) {
+                map.put(key, values);
+            }
+            return true;
+        }
+        return false;
+        
     }
 
 
@@ -365,7 +494,7 @@ public class SDNNTFetch {
             String sdnntChangesEndpoint, 
             String format, 
             long startProcess,
-            Map<String,String> pids2oais) throws IOException, InterruptedException, SolrServerException {
+            Map<String,List<String>> pids2oais) throws IOException, InterruptedException, SolrServerException {
         List<SolrInputDocument> docs = new ArrayList<>();
         Map<String, AtomicInteger> counters = new HashMap<>();
         
@@ -381,7 +510,7 @@ public class SDNNTFetch {
             File file = throttle(c, formatted);
             String response = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
             JSONObject resObject = new JSONObject(response);
-
+            
             prevToken = token;
             token = resObject.optString("resumptiontoken");
             
@@ -390,7 +519,6 @@ public class SDNNTFetch {
             System.out.println("Size :"+items.length() +" and sum:"+(sum));
             for (int i = 0; i < items.length(); i++) {
                 
-                //List<String> apids = new ArrayList<>();
                 
                 JSONObject mainObject = items.getJSONObject(i);
                 String ident = mainObject.getString("catalog_identifier");
@@ -402,18 +530,38 @@ public class SDNNTFetch {
                 SolrInputDocument doc = new SolrInputDocument();
                 doc.setField("id", ident+"_"+counters.get(ident).get());
                 
+                String catalogIdentifier = mainObject.getString("catalog_identifier");
+                
                 doc.setField("catalog", mainObject.getString("catalog_identifier"));
                 doc.setField("title", mainObject.getString("title"));
                 doc.setField("type_of_rec", mainObject.getString("type"));
                 doc.setField("state", mainObject.getString("state"));
                 doc.setField("state", mainObject.getString("state"));
                 doc.setField("fetched", new Date(startProcess));
+                // controlfield 008 
                 
+                JSONObject skc = mainObject.optJSONObject("skc");
+                if (skc != null) {
+                    String controlField008 = skc.optString("controlfield_008");
+                    if (controlField008 != null) {
+                        
+                        String typeOfDate = controlField008.substring(6, 7);
+                        String date1 = controlField008.substring(7, 11);
+                        String date2 = controlField008.substring(11, 15);
+                        doc.setField("controlField_typeofdate", typeOfDate);
+                        doc.setField("controlField_date1", date1);
+                        doc.setField("controlField_date2", date2);
+                    }
+                }
                 
                 
                 if (mainObject.has("pid")) {
                     doc.setField("pid", mainObject.getString("pid"));
-                    pids2oais.put(mainObject.getString("pid"), ident+"_"+counters.get(ident).get());
+                    if (!pids2oais.containsKey(mainObject.getString("pid"))) {
+                        pids2oais.put(mainObject.getString("pid"), new ArrayList<>());
+                    }
+
+                    pids2oais .get(mainObject.getString("pid")).add(ident+"_"+counters.get(ident).get());
                 }
                 
                 if (mainObject.has("license")) {
@@ -429,6 +577,7 @@ public class SDNNTFetch {
 
                     for (int j = 0; j < gr.length(); j++) {
                         JSONObject item = gr.getJSONObject(j);
+                        
                         SolrInputDocument gDod = new SolrInputDocument();
                         gDod.setField("parent_id", ident+"_"+counters.get(ident).get());
                         if (item.has("states")) {
@@ -447,7 +596,11 @@ public class SDNNTFetch {
                         
                         if (item.has("pid")) {
                             gDod.setField("pid", item.getString("pid"));
-                            pids2oais.put(item.getString("pid"), ident+"_"+counters.get(ident).get()+"_"+item.getString("pid"));
+                            if (!pids2oais.containsKey(item.getString("pid"))) {
+                                pids2oais.put(item.getString("pid"), new ArrayList<>());
+                            }
+                            //pids2oais.put(item.getString("pid"), ident+"_"+counters.get(ident).get()+"_"+item.getString("pid"));
+                            pids2oais.get(item.getString("pid")).add(ident+"_"+counters.get(ident).get()+"_"+item.getString("pid"));
                             gDod.setField("id", ident+"_"+counters.get(ident).get()+"_"+item.getString("pid"));
                         }
                         
@@ -455,7 +608,7 @@ public class SDNNTFetch {
                             gDod.setField("license", item.getString("license"));
                         }
                         gDod.setField("fetched", new Date(startProcess));
-                        
+
                         docs.add(gDod);
                     }
                 } else {

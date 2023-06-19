@@ -65,8 +65,10 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
 
     @Override
     public void addLocalLicense(License license) throws LicensesManagerException {
-        check(license);
-
+        checkAcronymExists();
+        checkGroup(license);
+        checkStartNameWithAcronym(license);
+        
         Connection connection = null;
         int transactionIsolation = -1;
         try {
@@ -108,18 +110,19 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
         }
     }
 
-    private void check(License license) throws LicensesManagerException {
-        checkAcronym();
+    private void checkGroup(License license) throws LicensesManagerException {
         if (!license.getGroup().equals(LicensesManager.LOCAL_GROUP_NAME)) {
             throw new LicensesManagerException("Given license is not local license");
         }
+    }
 
+    private void checkStartNameWithAcronym(License license) throws LicensesManagerException {
         if (!license.getName().startsWith(this.acronym + "_")) {
             throw new LicensesManagerException("Local license must start with '" + this.acronym + "_'");
         }
     }
 
-    private void checkAcronym() throws LicensesManagerException {
+    private void checkAcronymExists() throws LicensesManagerException {
         if (!StringUtils.isAnyString(this.acronym)) {
             throw new LicensesManagerException("property acronym must be defined in configuration.properties");
         }
@@ -127,9 +130,10 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
 
     @Override
     public void removeLocalLicense(License license) throws LicensesManagerException {
-        check(license);
+        checkGroup(license);
+        checkAcronymExists();
+        
         try {
-
             new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(
 
                     new JDBCCommand() {

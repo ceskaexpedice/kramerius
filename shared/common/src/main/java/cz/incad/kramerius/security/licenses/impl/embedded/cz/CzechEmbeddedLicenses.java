@@ -23,30 +23,33 @@ import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
 
+import static cz.incad.kramerius.security.licenses.LicensesManager.*;
+
 /**
  * The class contains global lisense definitions
  * @author happy
  */
 public class CzechEmbeddedLicenses {
 
-
+    public static final String CZ_GLOBAL_GROUP_NAME_EMBEDDED = "embedded.cz";
+    
     /** dnnto licenses **/
-    public static License DNNTO_LICENSE = new LicenseImpl("dnnto", "DNNT online license", LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED, 1);
+    public static License DNNTO_LICENSE = new LicenseImpl("dnnto", "DNNT online license", GLOBAL_GROUP_NAME_EMBEDDED, 1);
 
     /** dnntt licenses **/
-    public static License DNNTT_LICENSE = new LicenseImpl("dnntt", "DNNT terminal license", LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED, 2);
+    public static License DNNTT_LICENSE = new LicenseImpl("dnntt", "DNNT terminal license", GLOBAL_GROUP_NAME_EMBEDDED, 2);
 
     /** Generic licenses - on site **/
-    public static License ONSITE_LICENSE = new LicenseImpl("onsite", "Accessible only in library", LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED, 3);
+    public static License ONSITE_LICENSE = new LicenseImpl("onsite", "Accessible only in library", GLOBAL_GROUP_NAME_EMBEDDED, 3);
 
     /** Generic licenses - public **/
-    public static License PUBLIC_LICENSE = new LicenseImpl("public", "Public license", LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED, 4);
+    public static License PUBLIC_LICENSE = new LicenseImpl("public", "Public license", GLOBAL_GROUP_NAME_EMBEDDED, 4);
 
     /** Generic licenses - public muo **/
-    public static License PUBLIC_MUO_LICENSE = new LicenseImpl("public-muo", "Public license - sheetmusic Kroměříž ", LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED, 5);
+    public static License PUBLIC_MUO_LICENSE = new LicenseImpl("public-muo", "Public license - sheetmusic Kroměříž ", GLOBAL_GROUP_NAME_EMBEDDED, 5);
     
     /** Public licenses - sheetmusic **/
-    public static License SHHETMUSIC_ONSITE_LICENSE = new LicenseImpl("onsite-sheetmusic", "On site sheet music", LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED, 6);
+    public static License SHHETMUSIC_ONSITE_LICENSE = new LicenseImpl("onsite-sheetmusic", "On site sheet music", GLOBAL_GROUP_NAME_EMBEDDED, 6);
     
     
     public static List<License> LICENSES = Arrays.asList(

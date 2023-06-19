@@ -20,11 +20,16 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class Configurations {
     
     //TODO: Specific to one process - move ? 
+    /**
+     * Specific configuration for process <b>flag_to_license</b>
+     * @return
+     */
     @GET
     @Path("flagtolicense")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response info() {
         
+        // configured models
         List<String> models = KConfiguration.getInstance().getConfiguration().getList("processess.flag_to_license.models", Arrays.asList(
                 "monograph",
                 "periodicalvolume",

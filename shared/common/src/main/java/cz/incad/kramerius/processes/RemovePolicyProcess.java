@@ -16,12 +16,17 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.java.Pair;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +34,7 @@ import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (set_policy)
@@ -62,6 +68,8 @@ public class RemovePolicyProcess {
         Scope scope = Scope.valueOf(args[argsIndex++]);
         //Policy policy = Policy.valueOf(args[argsIndex++]);
         String pidArg = args[argsIndex++];
+        // TODO: Support pidlist 
+        
         List<String> pids = extractPids(pidArg);
 
         String title = shortenIfTooLong(mergeArraysEnd(args, argsIndex), 256);
@@ -92,14 +100,38 @@ public class RemovePolicyProcess {
         }
     }
 
-    private static List<String> extractPids(String pidArg) {
-        List<String> tokens = new ArrayList<>();
-        StringTokenizer tokenizer = new StringTokenizer(pidArg,";");
-        while(tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
-            tokens.add(token);
+    private static List<String> extractPids(String target) {
+        if (target.startsWith("pid:")) {
+            String pid = target.substring("pid:".length());
+            List<String> result = new ArrayList<>();
+            result.add(pid);
+            return result;
+        } else if (target.startsWith("pidlist:")) {
+            List<String> pids = Arrays.stream(target.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+            return pids;
+        } else if (target.startsWith("pidlist_file:")) {
+            String filePath  = target.substring("pidlist_file:".length());
+            File file = new File(filePath);
+            if (file.exists()) {
+                try {
+                    return IOUtils.readLines(new FileInputStream(file), Charset.forName("UTF-8"));
+                } catch (IOException e) {
+                    throw new RuntimeException("IOException " + e.getMessage());
+                }
+            } else {
+                throw new RuntimeException("file " + file.getAbsolutePath()+" doesnt exist ");
+            }
+        } else {
+            // expecting list of pids tokenized by ;
+            List<String> tokens = new ArrayList<>();
+            StringTokenizer tokenizer = new StringTokenizer(target,";");
+            while(tokenizer.hasMoreTokens()) {
+                String token = tokenizer.nextToken();
+                tokens.add(token);
+            }
+            return tokens;
         }
-        return tokens;
+        
     }
 
     /**

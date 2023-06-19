@@ -33,6 +33,7 @@ public interface LicensesManager {
     
     /** Global license **/
     public static final String GLOBAL_GROUP_NAME_IMPORTED ="imported";
+
     public static final String GLOBAL_GROUP_NAME_EMBEDDED ="embedded";
 
     

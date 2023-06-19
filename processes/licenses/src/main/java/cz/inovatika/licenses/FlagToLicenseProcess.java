@@ -1,7 +1,11 @@
 package cz.inovatika.licenses;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,11 +20,13 @@ import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -209,7 +215,7 @@ public class FlagToLicenseProcess {
         }
     }
 
-    private static void scheduleRemovePolicyFlag(List<String> pids, String parentAuthToken) {
+    private static void scheduleRemovePolicyFlag(List<String> pids, String parentAuthToken) throws FileNotFoundException, IOException {
         int iterations = pids.size() / DEFAULT_BATCH_SIZE + (pids.size() % DEFAULT_BATCH_SIZE == 0 ? 0 : 1);
         for (int i = 0; i < iterations; i++) {
             int start = i*DEFAULT_BATCH_SIZE;
@@ -217,12 +223,11 @@ public class FlagToLicenseProcess {
             JSONObject json = new JSONObject();
             json.put("defid","remove_policy");
             
-            JSONArray pidlist = new JSONArray();
-            pids.subList(start, end).stream().forEach(pidlist::put);
-
-            
+            //File pidlistFile = pidlistFile(pids.subList(start, end));
             JSONObject parameters = new JSONObject();
-            parameters.put("pidlist", pidlist);
+            
+            parameters.put("pidlist_file", pidlistFile(pids.subList(start, end)).getAbsoluteFile());
+
             parameters.put("scope", Scope.TREE.name());
             json.put("params", parameters);
 
@@ -231,8 +236,14 @@ public class FlagToLicenseProcess {
         }
     }
 
+    private static File pidlistFile(List<String> pids) throws IOException, FileNotFoundException {
+        File pidlistFile = File.createTempFile("remove_policy", ".txt");
+        IOUtils.writeLines(pids,"\n", new FileOutputStream(pidlistFile), Charset.forName("UTF-8"));
+        return pidlistFile;
+    }
+
     
-    private static void scheduleSetLicenses(List<String> pids, String lic, String parentAuthToken) {
+    private static void scheduleSetLicenses(List<String> pids, String lic, String parentAuthToken) throws JSONException, FileNotFoundException, IOException {
         int iterations = pids.size() / DEFAULT_BATCH_SIZE + (pids.size() % DEFAULT_BATCH_SIZE == 0 ? 0 : 1);
         for (int i = 0; i < iterations; i++) {
             int start = i*DEFAULT_BATCH_SIZE;
@@ -240,12 +251,10 @@ public class FlagToLicenseProcess {
             JSONObject json = new JSONObject();
             json.put("defid","add_license");
             
-            JSONArray pidlist = new JSONArray();
-            pids.subList(start, end).stream().forEach(pidlist::put);
 
             JSONObject parameters = new JSONObject();
             parameters.put("license", lic);
-            parameters.put("pidlist", pidlist);
+            parameters.put("pidlist_file", pidlistFile(pids.subList(start, end)).getAbsoluteFile());
             json.put("params", parameters);
 
             ProcessScheduler.schedule(json.toString(), parentAuthToken);

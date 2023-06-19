@@ -830,7 +830,7 @@ public class ProcessResource extends AdminApiResource {
                 }
                 case "flag_to_license": {
                     if(params.get(0).equals("true")) {
-                        return String.format("Změna příznaku na licence a spuštění procesu mazání příznku");
+                        return String.format("Změna příznaku na licence a spuštění procesu mazání příznaku");
                     } else {
                         return String.format("Změna příznaku na licence");
                     }

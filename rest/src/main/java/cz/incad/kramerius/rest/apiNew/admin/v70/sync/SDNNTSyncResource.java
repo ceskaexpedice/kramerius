@@ -1,5 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.sync;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -8,7 +10,10 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,6 +41,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.inject.Provider;
+import com.hazelcast.scheduledexecutor.impl.operations.IsDoneOperation;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -57,6 +63,9 @@ import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.sdnnt.LicenseAPIFetcher;
+import cz.inovatika.sdnnt.SyncConfig;
+import cz.inovatika.sdnnt.V7APILicenseFetcher;
 
 /**
  * Provides endpoints for synchronization between SDNNT and local kramerius
@@ -231,9 +240,14 @@ public class SDNNTSyncResource {
                                 return p.getRight();
                             }).collect(Collectors.toList());
 
-                            List<String> paramsList = Arrays.asList(license,
-                                    "pidlist:"+pids.stream().collect(Collectors.joining(";")));
+                            File pidlistFile = File.createTempFile(String.format("batch_%s_%d_%s",action.name(), j, defid), ".txt");
+                            IOUtils.writeLines(pids,"\n", new FileOutputStream(pidlistFile), Charset.forName("UTF-8"));
 
+                            // to file 
+                            List<String> paramsList = Arrays.asList(license,
+                                    "pidlist_file:"+pidlistFile.getAbsolutePath());
+
+                            
                             String prefix = action.name().startsWith("add") ? "Přidání licence" : "Odebrání licence";
                             String name = String.format("%s '%s' pro %s", prefix, paramsList.get(0), paramsList.get(1));
                             if (name.toCharArray().length > 1024) {
@@ -347,6 +361,10 @@ public class SDNNTSyncResource {
     public Response sync(@DefaultValue("0") @QueryParam("page") String spage,
             @DefaultValue("15") @QueryParam("rows") String srows) {
         try {
+            
+            List<String> pids = new ArrayList<>();
+            Map<String, JSONObject> map = new HashMap<>();
+
             int page = DEFAULT_PAGE;
             int rows = DEFAULT_ROWS;
             try {
@@ -359,6 +377,7 @@ public class SDNNTSyncResource {
             }
 
             String sdnntHost = KConfiguration.getInstance().getConfiguration().getString("solrSdnntHost");
+            //String sdnntHost = KConfiguration.getInstance().getConfiguration().getString("solrSdnntHost");
 
             int start = (page * rows);
             String mainQuery = URLEncoder.encode("type:main AND sync_actions:*", "UTF-8");
@@ -374,6 +393,37 @@ public class SDNNTSyncResource {
             JSONArray docs = response.getJSONArray("docs");
             for (int i = 0; i < docs.length(); i++) {
                 JSONObject oneDoc = docs.getJSONObject(i);
+
+                if (!oneDoc.has("real_kram_exists") && oneDoc.has("pid")) {
+                    String pid = oneDoc.getString("pid");
+                    pids.add(pid);
+                    map.put(pid, oneDoc);
+                }
+
+                if (!pids.isEmpty()) {
+                    SyncConfig config = new SyncConfig();
+                    LicenseAPIFetcher apiFetcher = LicenseAPIFetcher.Versions.valueOf(config.getVersion()).build(config.getBaseUrl(), config.getVersion(), false);
+                    Map<String, Map<String, Object>> checked = apiFetcher.check(new HashSet<>(pids));
+                    checked.keySet().forEach(pid-> {
+                        Map<String, Object> object = checked.get(pid);
+                        Object model = object.get(LicenseAPIFetcher.FETCHER_MODEL_KEY);
+                        Object date = object.get(LicenseAPIFetcher.FETCHER_DATE_KEY);
+                        Object titles = object.get(LicenseAPIFetcher.FETCHER_TITLES_KEY);
+                        if (map.containsKey(pid)) {
+                            map.get(pid).put("real_kram_exists", true);
+                            map.get(pid).put("real_kram_date", date);
+                            map.get(pid).put("real_kram_model", model);
+                            
+                            if (titles != null) {
+                                JSONArray titlesArray = new JSONArray();
+                                ((List)titles).forEach(titlesArray::put);
+                                map.get(pid).put("real_kram_titles_search", titlesArray);
+                            }
+                        }
+                        
+                    });
+                }
+
                 oneDoc.remove("_version_");
             }
             return Response.ok().entity(response.toString(2)).build();

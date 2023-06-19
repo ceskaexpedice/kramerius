@@ -23,14 +23,14 @@ public class V5APILicenseFetcher extends LicenseAPIFetcher {
 
     public static final Logger LOGGER = Logger.getLogger(V5APILicenseFetcher.class.getName());
     
-    public V5APILicenseFetcher(String apiUrl, String apiVersion) {
-        super(apiUrl, apiVersion);
+    public V5APILicenseFetcher(String apiUrl, String apiVersion, boolean privateFilter) {
+        super(apiUrl, apiVersion, privateFilter);
     }
 
     @Override
-    public Map<String, List<String>> check(Set<String> pids) throws IOException{
-        Map<String, List<String>> result = new HashMap<>();
-        
+    public Map<String, Map<String, Object>> check(Set<String> pids) throws IOException{
+        Map<String, Map<String, Object>> result = new HashMap<>();
+
         String apiUrl = getApiUrl();
         List<String> processingPids = new ArrayList<>(pids);
         int numberOfIterations = processingPids.size() / BATCH_SIZE;
@@ -56,11 +56,15 @@ public class V5APILicenseFetcher extends LicenseAPIFetcher {
             
             String encodedCondition = URLEncoder.encode(
                     "PID:(" + condition + ")", "UTF-8");
-            String filter = "dostupnost:private";
             
-            String encodedFieldList = URLEncoder.encode("PID dnnt-labels", "UTF-8");
+            String encodedFieldList = URLEncoder.encode("PID dnnt-labels datum_str fedora.model", "UTF-8");
             String url = apiUrl + "search?q=" + encodedCondition + "&wt=json&rows=" + MAX_FETCHED_DOCS
-                    + "&fl=" + encodedFieldList+"&fq=" + filter;
+                    + "&fl=" + encodedFieldList;
+            //"&fq=" + filter;
+            if (this.isPrivateFilter()) {
+                String filter = "dostupnost:private";
+                url = url + filter;
+            }
 
             InputStream is = RESTHelper.inputStream(url, null, null);
             String string = IOUtils.toString(is, Charset.forName("UTF-8"));
@@ -77,7 +81,21 @@ public class V5APILicenseFetcher extends LicenseAPIFetcher {
                     for (int k = 0; k < slicenses.length(); k++) { licenses.add(slicenses.getString(k)); }
                 }
                 
-                result.put(pid, licenses);
+                if (!result.containsKey(pid)) {
+                    Map<String, Object> properties =  new HashMap<>();
+                    result.put(pid, properties);
+                }
+
+                result.get(pid).put(FETCHER_LICENSES_KEY, licenses);
+
+                if (oneItem.has("datum_str")) {
+                    result.get(pid).put(FETCHER_DATE_KEY, oneItem.getString("datum_str"));
+                }
+
+                if (oneItem.has("fedora.model")) {
+                    result.get(pid).put(FETCHER_MODEL_KEY, oneItem.getString("fedora.model"));
+                }
+
             }
         }
         return result;

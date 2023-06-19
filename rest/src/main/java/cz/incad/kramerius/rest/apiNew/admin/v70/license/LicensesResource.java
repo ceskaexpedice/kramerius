@@ -23,11 +23,16 @@ import javax.ws.rs.core.Response;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils.*;
 
 @Path("/admin/v7.0/licenses")
 public class LicensesResource {
+    
+    public static final Logger LOGGER = Logger.getLogger(LicensesResource.class.getName()); 
+    
 
     @Inject
     LicensesManager licensesManager;
@@ -262,6 +267,7 @@ public class LicensesResource {
                 throw new ObjectNotFound("cannot find label '" + id + "'");
             }
         } catch (NumberFormatException | LicensesManagerException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new GenericApplicationException(e.getMessage());
         }
         else throw new ActionNotAllowed("action is not allowed");

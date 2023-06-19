@@ -29,6 +29,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,7 +42,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import cz.incad.kramerius.database.VersionService;
+import cz.incad.kramerius.security.impl.criteria.Licenses;
 import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
 import cz.incad.kramerius.security.licenses.impl.DatabaseLicensesManagerImpl;
 import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
@@ -269,7 +272,10 @@ public class SecurityDbInitializer {
         });
 
         
+        
+        
         /** Slovak global licenses **/
+        /*
         SlovakEmbeddedLicenses.LICENSES.forEach(lic-> {
             List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
                 @Override
@@ -292,9 +298,50 @@ public class SecurityDbInitializer {
 
                 }
             }
-        });
+        });*/
+        
+        /** update group */
+        List<License> all = new ArrayList<>(CzechEmbeddedLicenses.LICENSES);all.addAll(SlovakEmbeddedLicenses.LICENSES);
+        updateGlobalLicense(all, connection);
     }
     
+    
+    private static void updateGlobalLicense(List<License> globalLicenses, Connection conn) {
+
+        String condition = globalLicenses.stream().map( lic -> {
+            return "label_name='"+lic.getName()+"'";
+        }).collect(Collectors.joining(" OR "));
+        
+        
+        String query = "select * from labels_entity where  ("+condition+") AND label_group not like 'embedded%'";
+        List<Triple<String, Integer, Integer>> notGroupLicenses =new JDBCQueryTemplate<Triple<String, Integer, Integer>>(conn, false) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Triple<String, Integer, Integer>> returnsList) throws SQLException {
+                String labelName = rs.getString("label_name");
+                Integer labelPriority = rs.getInt("label_priority");
+                Integer labelId = rs.getInt("label_id");
+                returnsList.add(Triple.of( labelName, labelId, labelPriority));
+                return super.handleRow(rs, returnsList);
+            }
+        }.executeQuery(query);
+        
+        
+        List<JDBCCommand> commands = new ArrayList<>();
+        for (int i = 0; i < notGroupLicenses.size(); i++) {
+            int labelId = notGroupLicenses.get(i).getMiddle();
+            UpdateGroupCommand command = new UpdateGroupCommand(labelId, LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED);
+            commands.add(command);
+        }
+        
+        
+        if (commands.size() > 0) {
+            try {
+                new JDBCTransactionTemplate(conn, false).updateWithTransaction(commands);
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            }
+        }
+    }
     
     //Automatic sort is disabled
     private static void sortByHint(List<License> globalLicenses, Connection conn) {
@@ -310,8 +357,6 @@ public class SecurityDbInitializer {
         }).collect(Collectors.joining(" OR "));
         
 
-    
-        
         List<Triple<String, Integer, Integer>> realLicenses =new JDBCQueryTemplate<Triple<String, Integer, Integer>>(conn, false) {
             @Override
             public boolean handleRow(ResultSet rs, List<Triple<String, Integer, Integer>> returnsList) throws SQLException {
@@ -325,6 +370,7 @@ public class SecurityDbInitializer {
         
         
         List<JDBCCommand> commands = new ArrayList<>();
+        
         
         if (realLicenses.size() == globalLicenses.size()) {
             
@@ -378,6 +424,28 @@ public class SecurityDbInitializer {
     }
 
     
+    private static class UpdateGroupCommand extends JDBCCommand {
+
+        private int  licenseid;
+        private String group;
+        
+        public UpdateGroupCommand(int licenseId, String grp) {
+            this.licenseid = licenseId;
+            this.group = grp;
+        }
+
+        @Override
+        public Object executeJDBCCommand(Connection con) throws SQLException {
+            PreparedStatement prepareStatement = con
+                    .prepareStatement("update labels_entity set label_group = ? where label_id = ? ");
+
+            prepareStatement.setString(1, group);
+            prepareStatement.setInt(2, licenseid);
+
+            return prepareStatement.executeUpdate();
+        }
+    }
+
     private static class UpdatePriorityCommand extends JDBCCommand {
 
         private int  licenseid;
@@ -396,7 +464,7 @@ public class SecurityDbInitializer {
             if (licenseid == -1) {
                 prepareStatement.setNull(1, Types.INTEGER);
             } else {
-                prepareStatement.setInt(1, licenseid);
+                prepareStatement.setInt(1, priority);
             }
             prepareStatement.setInt(2, licenseid);
 

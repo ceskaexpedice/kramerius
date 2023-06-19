@@ -71,7 +71,11 @@ public class InfoResource extends ClientApiResource {
                 // client url 
                 String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
                 if (clientUrl != null) instance.put("client", clientUrl);
-                
+
+                // contact
+                String contact = KConfiguration.getInstance().getConfiguration().getString("contact");
+                if (contact != null) instance.put("contact", contact);
+
                 json.put("instance", instance);
             }
             
