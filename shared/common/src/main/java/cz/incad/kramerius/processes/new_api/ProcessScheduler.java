@@ -10,6 +10,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -80,6 +81,20 @@ public class ProcessScheduler {
         pidlist.stream().forEach(jsonArray::add);
         
         params.put("pidlist", jsonArray);
+        params.put("title", title);
+        params.put("ignoreInconsistentObjects", true);
+        data.put("params", params);
+        schedule(data.toString(), parentProcessAuthToken);
+    }
+
+    //TODO: cleanup
+    public static void scheduleIndexation(File pidListFile, String title, boolean includingDescendants, String parentProcessAuthToken) {
+        JSONObject data = new JSONObject();
+        data.put("defid", "new_indexer_index_object");
+        JSONObject params = new JSONObject();
+        params.put("type", includingDescendants ? "TREE_AND_FOSTER_TREES" : "OBJECT");
+        
+        params.put("pidlist_file", pidListFile.getAbsolutePath());
         params.put("title", title);
         params.put("ignoreInconsistentObjects", true);
         data.put("params", params);

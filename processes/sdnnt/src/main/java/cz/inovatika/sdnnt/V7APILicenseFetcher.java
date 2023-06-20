@@ -68,9 +68,6 @@ public class V7APILicenseFetcher extends LicenseAPIFetcher{
             InputStream is = RESTHelper.inputStream(url, null, null);
             String string = IOUtils.toString(is, Charset.forName("UTF-8"));
             
-            File tempfile = File.createTempFile("v7solr", "solr");
-            IOUtils.write(string.getBytes("UTF-8"), new FileOutputStream(tempfile));
-            
             
             JSONObject obj = new JSONObject(string);
             JSONObject response = obj.getJSONObject("response");

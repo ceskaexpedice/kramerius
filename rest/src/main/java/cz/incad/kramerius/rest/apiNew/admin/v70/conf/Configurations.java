@@ -32,6 +32,7 @@ public class Configurations {
         // configured models
         List<String> models = KConfiguration.getInstance().getConfiguration().getList("processess.flag_to_license.models", Arrays.asList(
                 "monograph",
+                "monographunit",
                 "periodicalvolume",
                 "manuscript",
                 "soundrecording",

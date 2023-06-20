@@ -253,6 +253,7 @@ public class SDNNTSyncResource {
                             if (name.toCharArray().length > 1024) {
                                 name = name.substring(0, 1019) + "...";
                             }
+                            
 
                             LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, paramsList,
                                     user.getLoginname(), user.getLoginname(), batchToken, name);

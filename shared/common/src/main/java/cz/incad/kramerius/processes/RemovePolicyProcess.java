@@ -42,6 +42,8 @@ import java.util.stream.Collectors;
  */
 public class RemovePolicyProcess {
 
+    private static final String PIDLIST_FILE_PREFIX = "pidlist_file:";
+    
     public static final Logger LOGGER = Logger.getLogger(RemovePolicyProcess.class.getName());
 
     /**
@@ -74,10 +76,19 @@ public class RemovePolicyProcess {
 
         String title = shortenIfTooLong(mergeArraysEnd(args, argsIndex), 256);
         String scopeDesc = scope == Scope.OBJECT ? "jen objekt" : "objekt včetně potomků";
-        ProcessStarter.updateName(title != null
-                ? String.format("Odebrání příznaku viditelnosti %s (%s,  %s)", title, pids.toString(),  scopeDesc)
-                : String.format("Odebrání příznaku viditelnosti %s (%s)", pids.toString(), scopeDesc)
-        );
+        if (pidArg.startsWith("pidlist_file")) {
+            ProcessStarter.updateName(title != null
+                    ? String.format("Odebrání příznaku viditelnosti %s (%s,  %s)", title, pidArg.substring(PIDLIST_FILE_PREFIX.length()),  scopeDesc)
+                    : String.format("Odebrání příznaku viditelnosti %s (%s)", pidArg.substring(PIDLIST_FILE_PREFIX.length()), scopeDesc)
+            );
+            
+        } else {
+            ProcessStarter.updateName(title != null
+                    ? String.format("Odebrání příznaku viditelnosti %s (%s,  %s)", title, shortenIfTooLong(pids.toString(),256),  scopeDesc)
+                    : String.format("Odebrání příznaku viditelnosti %s (%s)", shortenIfTooLong(pids.toString(),256), scopeDesc)
+            );
+            
+        }
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         List<Boolean> errors = new ArrayList<>();
@@ -91,7 +102,12 @@ public class RemovePolicyProcess {
             LOGGER.info(String.format("Remove policy %b for object %s", noErrors, pid));
             errors.add(noErrors);
         }
-        ProcessScheduler.scheduleIndexation(pids, title, true, authToken);
+        if (pidArg != null && pidArg.startsWith(PIDLIST_FILE_PREFIX)) {
+            ProcessScheduler.scheduleIndexation(new File(pidArg.substring(PIDLIST_FILE_PREFIX.length())), title, true, authToken);
+            
+        } else {
+            ProcessScheduler.scheduleIndexation(pids, title, true, authToken);
+        }
         
         Optional<Boolean> findAny = errors.stream().filter(b-> {return !b; }).findAny();
         
@@ -109,8 +125,8 @@ public class RemovePolicyProcess {
         } else if (target.startsWith("pidlist:")) {
             List<String> pids = Arrays.stream(target.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
             return pids;
-        } else if (target.startsWith("pidlist_file:")) {
-            String filePath  = target.substring("pidlist_file:".length());
+        } else if (target.startsWith(PIDLIST_FILE_PREFIX)) {
+            String filePath  = target.substring(PIDLIST_FILE_PREFIX.length());
             File file = new File(filePath);
             if (file.exists()) {
                 try {
