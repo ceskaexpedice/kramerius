@@ -122,10 +122,9 @@
   <!-- stav --> 	
   <field name="state" type="string" indexed="true" stored="true" multiValued="false"></field>	
 
-  <!-- identifier has granularity --> 		
+	
   <field name="has_granularity" type="boolean" indexed="true" stored="true" 
   multiValued="false"></field>	
-
 
   <!-- control fields --> 	
   <field name="controlField_typeofdate" type="string" indexed="true" stored="true" multiValued="false"></field>	
