@@ -214,6 +214,7 @@ public class SDNNTSyncResource {
     public Response planBatches() {
         Client client = Client.create();
         JSONArray response = new JSONArray();
+
         try {
             SyncActionEnum[] values = SyncActionEnum.values();
             for (SyncActionEnum action : values) {

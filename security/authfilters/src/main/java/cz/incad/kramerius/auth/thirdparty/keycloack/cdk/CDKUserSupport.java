@@ -143,7 +143,6 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
             cdkUser.setProperty(key, map.get(key));
         });
         
-        
         Map<String,List<String>> userAttributes = new HashMap<>();
         map.keySet().forEach(key-> {
             userAttributes.put(key, Arrays.asList(map.get(key)));
@@ -169,14 +168,19 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
     }
 
     private boolean matchValue(String expectedValue, List<String> groupAttrs) {
-        for (String grpAttr : groupAttrs) {
-            if (expectedValue.equals(grpAttr)) {
-                return true;
+        try {
+            for (String grpAttr : groupAttrs) {
+                if (expectedValue.equals(grpAttr)) {
+                    return true;
+                }
+                if (expectedValue.matches(grpAttr)) {
+                    return true;
+                }
             }
-            if (expectedValue.matches(grpAttr)) {
-                return true;
-            }
+            return false;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return false;
         }
-        return false;
     }
 }

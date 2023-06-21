@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+import com.ibm.icu.impl.Pair;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.licenses.License;
@@ -208,7 +209,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
             License globalLicense = globalLicenses.get(i);
             int realPriority = realLicenses.get(i).getPriority();
             License realLicense = realLienseMappings.get(globalLicense.getName());
-            commands.add(new  UpdatePriorityCommand(realLicense.getUpdatedPriorityLabel(realPriority)));
+            commands.add(new  UpdateLicensePriorityCommand(realLicense.getUpdatedPriorityLabel(realPriority)));
         }
 
         try {
@@ -252,7 +253,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
             License globalLicense = globalLicenses.get(i);
             int realPriority = realLicenses.get(i).getPriority();
             License realLicense = realLienseMappings.get(globalLicense.getName());
-            commands.add(new  UpdatePriorityCommand(realLicense.getUpdatedPriorityLabel(realPriority)));
+            commands.add(new  UpdateLicensePriorityCommand(realLicense.getUpdatedPriorityLabel(realPriority)));
         }
 
         try {
@@ -324,19 +325,25 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
 
     @Override
     public void moveUp(License license) throws LicensesManagerException {
-        //check(license);
-        int priority = license.getPriority();
-        if (priority >= 2) {
-            License upPriorityLicense = getLicenseByPriority(priority - 1);
-            if (upPriorityLicense != null) {
-                int upPriority = upPriorityLicense.getPriority();
+
+        List<License> licenses = getLicenses();
+        List<Integer> ids = licenses.stream().map(License::getId).collect(Collectors.toList());
+        List<Integer> priorities = licenses.stream().map(License::getPriority).collect(Collectors.toList());
+
+        /**  index posunujici licence  */ 
+        Integer movingIdIndex = ids.indexOf(license.getId());
+        // priorita posunujici licence
+        Integer movingPriority = priorities.get(movingIdIndex);
+        if (movingIdIndex >= 1) {
+            // predchozi index 
+            Integer previousId = ids.get(movingIdIndex-1);
+            // predchozi priorita
+            Integer previousPriority = priorities.get(movingIdIndex-1);
+            if (movingIdIndex != null && movingPriority != null && previousId != null && previousPriority != null) {
                 try {
                     new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(
-                            new UpdatePriorityCommand(license.getUpdatedPriorityLabel(-1)),
-                            new UpdatePriorityCommand(upPriorityLicense.getUpdatedPriorityLabel(-1)),
-
-                            new UpdatePriorityCommand(license.getUpdatedPriorityLabel(upPriority)),
-                            new UpdatePriorityCommand(upPriorityLicense.getUpdatedPriorityLabel(priority)));
+                            new UpdatePriorityCommand(license.getId(), previousPriority),
+                            new UpdatePriorityCommand(previousId, movingPriority));
                 } catch (SQLException e) {
                     throw new LicensesManagerException(e.getMessage(), e);
                 }
@@ -347,26 +354,49 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
 
     @Override
     public void moveDown(License license) throws LicensesManagerException {
-        //check(license);
-        int priority = license.getPriority();
-        if (priority < getMinPriority()) {
-            License downPriorityLicense = getLicenseByPriority(priority + 1);
-            if (downPriorityLicense != null) {
-                int downPriority = downPriorityLicense.getPriority();
 
+        List<License> licenses = getLicenses();
+        List<Integer> ids = licenses.stream().map(License::getId).collect(Collectors.toList());
+        List<Integer> priorities = licenses.stream().map(License::getPriority).collect(Collectors.toList());
+
+        Integer movingIndex = ids.indexOf(license.getId());
+        Integer movingPriority = priorities.get(movingIndex);
+        if (movingIndex < ids.size()-1) {
+            Integer nextId = ids.get(movingIndex+1);
+            Integer previousPriority = priorities.get(movingIndex+1);
+            
+            if (movingIndex != null && movingPriority != null && nextId != null && previousPriority != null) {
                 try {
                     new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(
-                            new UpdatePriorityCommand(license.getUpdatedPriorityLabel(-1)),
-                            new UpdatePriorityCommand(downPriorityLicense.getUpdatedPriorityLabel(-1)),
-
-                            new UpdatePriorityCommand(license.getUpdatedPriorityLabel(downPriority)),
-                            new UpdatePriorityCommand(downPriorityLicense.getUpdatedPriorityLabel(priority)));
+                            new UpdatePriorityCommand(license.getId(), previousPriority),
+                            new UpdatePriorityCommand(nextId, movingPriority));
                 } catch (SQLException e) {
                     throw new LicensesManagerException(e.getMessage(), e);
                 }
             }
         } else
-            throw new LicensesManagerException("cannot decrease the priority for " + license);
+            throw new LicensesManagerException("cannot increase the priority for " + license);
+
+        //check(license);
+//        int priority = license.getPriority();
+//        if (priority < getMinPriority()) {
+//            License downPriorityLicense = getLicenseByPriority(priority + 1);
+//            if (downPriorityLicense != null) {
+//                int downPriority = downPriorityLicense.getPriority();
+//
+//                try {
+//                    new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(
+//                            new UpdatePriorityCommand(license.getUpdatedPriorityLabel(-1)),
+//                            new UpdatePriorityCommand(downPriorityLicense.getUpdatedPriorityLabel(-1)),
+//
+//                            new UpdatePriorityCommand(license.getUpdatedPriorityLabel(downPriority)),
+//                            new UpdatePriorityCommand(downPriorityLicense.getUpdatedPriorityLabel(priority)));
+//                } catch (SQLException e) {
+//                    throw new LicensesManagerException(e.getMessage(), e);
+//                }
+//            }
+//        } else
+//            throw new LicensesManagerException("cannot decrease the priority for " + license);
     }
 
     @Override
@@ -419,12 +449,38 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
 
     }
 
-    
+
     private static class UpdatePriorityCommand extends JDBCCommand {
+
+        private Integer id;
+        private Integer priority;
+        
+        public UpdatePriorityCommand(Integer id, Integer priority) {
+            this.id = id;
+            this.priority = priority;
+        }
+
+        @Override
+        public Object executeJDBCCommand(Connection con) throws SQLException {
+            PreparedStatement prepareStatement = con
+                    .prepareStatement("update labels_entity set label_priority = ? where label_id = ? ");
+
+            if (priority == -1) {
+                prepareStatement.setNull(1, Types.INTEGER);
+            } else {
+                prepareStatement.setInt(1, priority);
+            }
+            prepareStatement.setInt(2, this.id);
+
+            return prepareStatement.executeUpdate();
+        }
+    }
+
+    private static class UpdateLicensePriorityCommand extends JDBCCommand {
 
         private License license;
 
-        public UpdatePriorityCommand(License license) {
+        public UpdateLicensePriorityCommand(License license) {
             this.license = license;
         }
 

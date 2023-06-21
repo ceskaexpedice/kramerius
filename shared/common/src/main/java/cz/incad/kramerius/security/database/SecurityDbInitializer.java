@@ -301,7 +301,8 @@ public class SecurityDbInitializer {
         });*/
         
         /** update group */
-        List<License> all = new ArrayList<>(CzechEmbeddedLicenses.LICENSES);all.addAll(SlovakEmbeddedLicenses.LICENSES);
+        List<License> all = new ArrayList<>(CzechEmbeddedLicenses.LICENSES);
+        all.addAll(SlovakEmbeddedLicenses.LICENSES);
         updateGlobalLicense(all, connection);
     }
     
