@@ -411,11 +411,10 @@ public class AkubraLowlevelStorage
         try {
             URI blobId = getBlobId(key);
 
-            logger.fine(String.format("URI %s for key %s", blobId.toString(), key));
             connection = getConnection(store, null);
             Blob blob = getBlob(connection, blobId, null);
             String rawSchemeSpecificPart = blobId.getRawSchemeSpecificPart();
-            logger.fine(String.format("Blob %s for key %s, raw specific part %s", blob.getId().toString(),key, rawSchemeSpecificPart));
+            logger.debug(String.format("Blob %s for key %s, raw specific part %s", blob.getId().toString(),key, rawSchemeSpecificPart));
             
             content = openInputStream(blob);
             successful = true;
