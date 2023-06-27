@@ -110,6 +110,7 @@ public class ProcessStarter {
             }));
 
             LOGGER.info("STARTING PROCESS WITH USER HOME:"+System.getProperty("user.home"));
+            LOGGER.info("STARTING PROCESS WITH FILE ENCODING:"+System.getProperty("file.encoding"));
             Class<?> clz = Class.forName(mainClass);
 
             String pid = getPID();
