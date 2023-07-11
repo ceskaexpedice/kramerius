@@ -171,7 +171,11 @@ public class ClientUserResource {
 
 
         List<String> userLicenses =  evaluatedObjects.stream().filter(label-> {
-            return  (Character.isAlphabetic(label.charAt(0)));
+            if (label != null && label.length() > 0) {
+                return  (Character.isAlphabetic(label.charAt(0)));
+            } else {
+                return false;
+            }
         }).collect(Collectors.toList());
         
 
