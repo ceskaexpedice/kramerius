@@ -161,8 +161,14 @@
 							if (i>0) {
 								td5 =td5 + "&nbsp;<b>|</b>&nbsp; ";
 							}
+							let htmlPostfix = '';
 							let state = doc["process_uuid_details"][uuids[i]]['state'];
-							td5 =td5 + "<a target=\"_blank\" href=\"processes/standard-output/"+uuids[i]+"\">"+uuids[i].substring(0,5)+" ("+state+")</a>";
+							if (state === 'FINISHED') {
+								htmlPostfix = '<span class="ui-icon ui-icon-check">'+state+'</span>';
+							} else {
+								htmlPostfix = '<span class="ui-icon ui-icon-alert">'+state+'</span>';
+							}
+							td5 =td5 + "<a target=\"_blank\" href=\"inc/admin/_processes_outputs.jsp?uuid="+uuids[i]+"\">"+uuids[i].substring(0,5)+"</a> "+htmlPostfix;
 						}
 					}
 					td5 = td5 + '</td>'
@@ -294,9 +300,17 @@
 										td5 =td5 + "&nbsp;<b>|</b>&nbsp; ";
 									}
 
+									let htmlPostfix = '';
 									let state = doc["process_uuid_details"][uuids[i]]['state'];
-									td5 += "<a target=\"_blank\" href=\"processes/standard-output/"+uuids[i]+"\">"+uuids[i].substring(0,5) +"("+state+")</a>";
-								}
+									if (state === 'FINISHED') {
+										htmlPostfix = '<span class="ui-icon ui-icon-check">'+state+'</span>';
+									} else {
+										htmlPostfix = '<span class="ui-icon ui-icon-alert">'+state+'</span>';
+									}
+
+									//let state = doc["process_uuid_details"][uuids[i]]['state'];
+									td5 += "<a target=\"_blank\" href=\"inc/admin/_processes_outputs.jsp?uuid="+uuids[i]+"\">"+uuids[i].substring(0,5) +"</a> "+htmlPostfix;
+							}
 							}
 							td5 += '</td>'
 
