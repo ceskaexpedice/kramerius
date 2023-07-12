@@ -25,6 +25,7 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 import cz.incad.kramerius.rest.api.k5.admin.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
+import cz.incad.kramerius.rest.api.k5.admin.sync.sdnnt.SDNNTSyncResource;
 import cz.incad.kramerius.rest.api.k5.admin.users.RolesResource;
 import cz.incad.kramerius.rest.api.k5.admin.users.UsersResource;
 import cz.incad.kramerius.rest.api.k5.admin.vc.VirtualCollectionsResource;
@@ -62,6 +63,7 @@ import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.resources.CDKIIIFResource;
 import cz.incad.kramerius.rest.api.replication.resources.CDKItemResource;
 import cz.incad.kramerius.rest.api.replication.resources.CDKUsersResource;
+import cz.incad.kramerius.rest.api.replication.resources.CDKReplicateResource;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyReader;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyWriter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -86,6 +88,7 @@ public class ApiServletModule extends JerseyServletModule {
         	bind(CDKIIIFResource.class).asEagerSingleton();
         	bind(CDKItemResource.class).asEagerSingleton();
         	bind(CDKUsersResource.class).asEagerSingleton();
+        	bind(CDKReplicateResource.class).asEagerSingleton();
         }
 
         // API Resources
@@ -111,6 +114,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(VirtualCollectionsResource.class);
 
         bind(StatisticsResource.class);
+        bind(SDNNTSyncResource.class);
 
         // debug resource
         bind(HTTPHeaders.class);

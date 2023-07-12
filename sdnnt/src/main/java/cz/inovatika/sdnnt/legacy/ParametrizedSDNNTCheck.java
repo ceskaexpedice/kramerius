@@ -1,4 +1,4 @@
-package cz.inovatika.sdnnt;
+package cz.inovatika.sdnnt.legacy;
 
 import java.io.File;
 import java.io.FileFilter;

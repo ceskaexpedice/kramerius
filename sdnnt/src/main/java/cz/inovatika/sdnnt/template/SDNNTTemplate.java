@@ -53,26 +53,28 @@ public class SDNNTTemplate implements ProcessInputTemplate {
 
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
-        try {
-        	
-        	String krameriusInstance = ApplicationURL.applicationURL(provider.get()); // KConfiguration.getInstance().getConfiguration().getString("sdnnt.kramerius.instance", DEFAULT_KRAMERIUS_INSTANCE);
-        	
-            InputStream iStream = this.getClass().getResourceAsStream("sdnnt.st");
-            StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
-            StringTemplate template = templateGroup.getInstanceOf("form");
-            ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localeProvider.get());
+    	String api = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api");
+    	String acronym = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.acronym");
+    	String sdnntInstance = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.endpoint",
+                "https://sdnnt.nkp.cz/sdnnt/api/v1.0/lists/changes");
+    	String version = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.version", "v5");
+    	
+    	
+    	//String krameriusInstance = ApplicationURL.applicationURL(provider.get()); // KConfiguration.getInstance().getConfiguration().getString("sdnnt.kramerius.instance", DEFAULT_KRAMERIUS_INSTANCE);
+    	
+        InputStream iStream = this.getClass().getResourceAsStream("sdnnt.st");
+        StringTemplateGroup templateGroup = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
+        StringTemplate template = templateGroup.getInstanceOf("form");
+        ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localeProvider.get());
 
-            template.setAttribute("bundle", resourceBundleMap(resbundle));
-            template.setAttribute("process", "parametrizedsdnntlist");
-            template.setAttribute("sdnntendoint", DEFAULT_SDNNT_ENDPOINT);
-            template.setAttribute("krameriusinstance", krameriusInstance);
-            
-            template.setAttribute("allLabels", labelsManager.getLabels().stream().map(Label::getName).collect(Collectors.toList()));
+        template.setAttribute("bundle", resourceBundleMap(resbundle));
+        //template.setAttribute("process", "parametrizedsdnntlist");
+        template.setAttribute("sdnntendoint", sdnntInstance);
+        template.setAttribute("kraminstance", api);
+        template.setAttribute("acronym", acronym);
+        
 
-            writer.write(template.toString());
-        } catch (LabelsManagerException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-        }
+        writer.write(template.toString());
     }
     
     public static Map<String, String> resourceBundleMap(ResourceBundle bundle) {

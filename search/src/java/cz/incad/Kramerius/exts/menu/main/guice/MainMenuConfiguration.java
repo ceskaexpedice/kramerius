@@ -102,8 +102,10 @@ public class MainMenuConfiguration extends AbstractModule {
         adminItems.addBinding().to(ParametrizedDNNTCSVExport.class);
 
         adminItems.addBinding().to(ParametrizedNKPLogs.class);
-
+        
+        //Seznam SDNNT 
         adminItems.addBinding().to(ParametrizedSDNNTCheck.class);
+        adminItems.addBinding().to(ParametrizedSDNNTShowResult.class);
 
         bind(MainMenu.class).to(MainMenuImpl.class);
     }

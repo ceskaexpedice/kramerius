@@ -669,7 +669,7 @@
             </templates>
     </process>
     
-    	<!-- SDNNT LIST -->
+	<!-- // Deprecated -->
     <process>
             <id>sdnntlist</id>
             <description>Check sdnnt list</description>
@@ -682,7 +682,7 @@
             <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
     </process>
 	
-	<!-- PARAMETRIZED SDNNT LIST -->
+	<!-- // Deprecated -->
     <process>
             <id>parametrizedsdnntlist</id>
             <description>Check sdnnt list</description>
@@ -699,7 +699,22 @@
             <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
     </process>
 
-    
+    <!-- SDNNT synchronization --> 
+    <process>
+        <id>sdnnt-sync</id>
+        <description>SDNNT sync</description>
+        <!-- spoustena trida -->
+        <mainClass>cz.inovatika.sdnnt.SDNNTFetch</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <securedaction>dnnt_admin</securedaction>
+        <templates>
+            <input class="cz.inovatika.sdnnt.template.SDNNTTemplate"></input>
+	    </templates>
+    </process>
 
 
 </processes>

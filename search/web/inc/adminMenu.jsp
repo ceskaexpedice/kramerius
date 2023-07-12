@@ -91,6 +91,11 @@
     <div id="indexerContent"><fmt:message bundle="${lctx}" key="administrator.dialogs.waiting" /></div>
 </div>
 
+<!-- sdnnt synchornizace -->
+<div id="sdnntSync" style="display:none;">
+    <div id="sdnntSyncContent"><fmt:message bundle="${lctx}" key="administrator.dialogs.waiting" /></div>
+</div>
+
 <!-- common -->
 <div id="common_started" style="display:none;">
 	<div id="common_started_waiting" style="margin: 16px; font-family: sans-serif; font-size: 10px; ">
@@ -481,6 +486,34 @@ function getAllowed(action, pids, div){
         $(div).html(s);
     });
 }
+
+var _sdnntSyncDialog = null;
+function showSdnntSync(){
+    hideAdminMenu();
+    var url = "inc/admin/_sdnnt_diff.jsp";
+    $.get(url, function(data) {
+        $("#sdnntSync").html(data);
+        //checkIndexed();
+    });
+    if (_sdnntSyncDialog) {
+    	_sdnntSyncDialog.dialog('open');
+    	_sdnntSyncDialog.dialog("option", "width", $(window).width()-20);
+    	_sdnntSyncDialog.dialog("option", "height", $(window).height()-60);
+    } else {
+    	_sdnntSyncDialog = $("#sdnntSync").dialog({
+            bgiframe: true,
+            width: $(window).width()-20,
+            height: $(window).height()-60,
+            modal: true,
+	        title: dictionary['administrator.menu.dialogs.indexDocuments.title'],
+            buttons: [
+            	{ text:dictionary['common.apply'], click: function() {  _applychanges(); $(this).dialog("close");   }},
+            	{ text:dictionary['common.close'], click: function() { $(this).dialog("close")  }}
+           	]
+        });
+    }
+}
+
 
 
 function ShowSearchHistory() {

@@ -1,4 +1,6 @@
-package cz.inovatika.sdnnt;
+package cz.inovatika.sdnnt.legacy;
+
+import static cz.inovatika.sdnnt.legacy.utils.SDNNTCheckUtils.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,9 +30,7 @@ import org.json.JSONObject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.inovatika.sdnnt.utils.SDNNTCheckUtils;
-
-import static cz.inovatika.sdnnt.utils.SDNNTCheckUtils.*;
+import cz.inovatika.sdnnt.legacy.utils.SDNNTCheckUtils;
 
 public class SDNNTCheck {
 	

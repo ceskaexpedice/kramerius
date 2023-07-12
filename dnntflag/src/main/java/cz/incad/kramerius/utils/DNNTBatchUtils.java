@@ -8,6 +8,9 @@ import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 public class DNNTBatchUtils {
@@ -81,6 +84,16 @@ public class DNNTBatchUtils {
 
         doc.appendChild(labels);
 
+        /** modified_date ??  **/ 
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
+        String formatted = formatter.format(new Date().toInstant());
+        
+        Element modifiedDate = document.createElement("field");
+        modifiedDate.setAttribute("name",  "modified_date");
+        modifiedDate.setTextContent(formatted);
+
+        doc.appendChild(modifiedDate);
+        
         return doc;
     }
 
@@ -95,6 +108,8 @@ public class DNNTBatchUtils {
         for (String pid : pids) {
             Element doc = addLabel(document, pid, label, addRemoveFlag);
             rootElm.appendChild(doc);
+            
+            
         }
         return document;
     }
@@ -120,7 +135,18 @@ public class DNNTBatchUtils {
         containsLabels.setTextContent(label);
 
         doc.appendChild(containsLabels);
+        
+        /** modified_date ??  **/ 
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
+        String formatted = formatter.format(new Date().toInstant());
+        
+        Element modifiedDate = document.createElement("field");
+        modifiedDate.setAttribute("name",  "modified_date");
+        modifiedDate.setTextContent(formatted);
 
+        doc.appendChild(modifiedDate);
+
+        
         return doc;
 
     }

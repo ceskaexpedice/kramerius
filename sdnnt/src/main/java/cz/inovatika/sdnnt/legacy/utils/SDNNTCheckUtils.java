@@ -1,4 +1,4 @@
-package cz.inovatika.sdnnt.utils;
+package cz.inovatika.sdnnt.legacy.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.incad.kramerius.utils.RESTHelper;
-import cz.inovatika.sdnnt.SDNNTFetch;
+import cz.inovatika.sdnnt.legacy.SDNNTCheck;
 
 public class SDNNTCheckUtils {
 	
