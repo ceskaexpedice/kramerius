@@ -113,11 +113,17 @@
 				$("#_sdnnt_date").html(_sdnntdata.table[0].fetched);
 	
 				var trs = map(function(doc) { 
-					var td1 = '<td><a target="_blank" href="handle"'+doc.pid+'\>'+doc.pid+'</a></td>'					
-					var td2 = '<td><a target="_blank" href="https://sdnnt.nkp.cz/sdnnt/search?q="'+doc.catalog+'\>'+doc.catalog+"</a></td>"					
+					//var td1 = '<td><a target="_blank" href="handle/'+doc.pid+'"\>'+doc.pid+'</a></td>'		
+					var td1 = doc.pid ? '<td><a target="_blank" href="handle/'+doc.pid+'"\>'+doc.pid+'</a></td>' : 	'<td> - none - </td>'				
+					
+					var td2 = '<td><a target="_blank" href="https://sdnnt.nkp.cz/sdnnt/search?q='+doc.catalog+'"\>'+doc.catalog+"</a></td>"					
 					var td3 = "<td>"+doc.title+"</td>"					
-					var td31 = "<td>"+doc.real_kram_date+"</td>"					
-					var td32 = "<td>"+doc.real_kram_model+"</td>"					
+
+					//var td31 = "<td>"+doc.real_kram_date+"</td>"					
+					var td31 = doc.real_kram_date ? "<td>"+doc.real_kram_date+"</td>" : "<td> - none - </td>";					
+					
+					//var td32 = "<td>"+doc.real_kram_model+"</td>"					
+					var td32 = doc.real_kram_model ? "<td>"+doc.real_kram_model+"</td>"	:	"<td> - none - </td>";			
 
 					var td4 = '<td><div class="app-icon-txt">'
 					
@@ -229,10 +235,38 @@
 			}
 		}
 		
+		var _waitContent = '<div id="sdnntSync_planning_wait" style="margin: 16px; font-family: sans-serif; font-size: 10px;"><table style=\'width:100%\'><tbody><tr><td align="center"><img src="img/loading.gif" height="16px" width="16px"></td></tr><tr><td align="center" id="sdnntSync_planning_text">Prosím čekejte, plánují se procesy </td></tr></tbody></table></div>';
+		var _statusContent = '<div id="sdnntSync_sdnntSync_planning_status" style="margin: 16px; font-family: sans-serif; font-size: 10px; "><span>Procesy naplanovány</span></div>';
+		var _sdnntPlanning = null;
+
 		function _applychanges() {
+			
+
+			if (_sdnntPlanning) {
+				_sdnntPlanning.dialog('open');
+			} else {
+				_sdnntPlanning = $("#sdnntSync_planning").dialog({
+					width: 300,
+					height: 200,
+					modal: true,
+					title: 'Plánování procesů pro pridávání/odebírání labelů',
+					buttons: [{
+						text:dictionary['common.close'],
+						click: function() {
+							$(this).dialog("close") 
+							if (_sdnntSyncDialog)  _sdnntSyncDialog.dialog("close");
+						} 
+					}]
+				});
+	
+			}
+
+			$("#sdnntSync_planning").html(_waitContent);
+
 			var url = "api/v5.0/admin/sdnnt/sync/batches";
+			
 			$.get(url, function(data) {
-				_sdnntload();
+				$("#sdnntSync_planning").html(_statusContent);
 			});
 		}
 		
@@ -255,11 +289,13 @@
 					});
 						
 					var innertable="<td colspan=\"5\">"
-					innertable +="<table class=\"app-table\" cellpadding=\"0\" cellspacing=\"0\">";
+					//innertable +="<table class=\"app-table\" cellpadding=\"0\" cellspacing=\"0\">";
+					innertable +="<table class=\"app-table\" cellpadding=\"0\" cellspacing=\"0\" style=\" border: 1px solid #000; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);\" >";
+
 					innertable += "<thead><tr><th>Pid</th> <th>Title</th> <th>Datum</th> <th>Model</th> <th>Navrhovaná změna</th><th>Proces</th></tr></thead>";
 					innertable += "<tbody>";
 					var trs = map(function(doc) { 
-							var td1 = '<td><a target="_blank" href="handle/"'+doc.pid+'\>'+doc.pid+'</a></td>'					
+							var td1 = '<td><a target="_blank" href="handle/'+doc.pid+'"\>'+doc.pid+'</a></td>'					
 							
 							var td31 = "<td>"+doc.real_kram_date+"</td>"					
 							var td32 = "<td>"+doc.real_kram_model+"</td>"					

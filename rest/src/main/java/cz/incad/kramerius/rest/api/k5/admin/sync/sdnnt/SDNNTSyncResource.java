@@ -166,12 +166,15 @@ public class SDNNTSyncResource {
     	if (permit(this.userProvider.get())) {
 
     		JSONObject infoObject = new JSONObject();
-            infoObject.put("kramerius", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api"));
+
+    		String kramerius = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api", KConfiguration.getInstance().getConfiguration().getString("api.point"));
+			
+    		infoObject.put("kramerius", kramerius);
             infoObject.put("acronym", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.acronym"));
             infoObject.put("endpoint", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.endpoint",
                     "https://sdnnt.nkp.cz/sdnnt/api/v1.0/lists/changes"));
             infoObject.put("version",
-                    KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.version", "v7"));
+                    KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.version", "v5"));
 
             return Response.ok().entity(infoObject.toString(2)).build();
     		

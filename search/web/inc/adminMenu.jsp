@@ -81,6 +81,15 @@
         <span id="proccess_confirm_text"></span>
 </div>
 
+
+<!-- inform dialog -->
+<div id="inform_dialog" title="Potvrdit" style="display:none;">
+      <span id="inform_text"></span>
+</div>
+
+
+
+
 <!-- administrace virtualnich sbirek -->
 <div id="vcAdminDialog" style="display:none;">
     <div class="content"><fmt:message bundle="${lctx}" key="administrator.dialogs.waiting" /></div>
@@ -95,6 +104,16 @@
 <div id="sdnntSync" style="display:none;">
     <div id="sdnntSyncContent"><fmt:message bundle="${lctx}" key="administrator.dialogs.waiting" /></div>
 </div>
+
+
+<!-- sdnnt wait - planning process -->
+<div id="sdnntSync_planning" style="display: none;">
+
+
+</div>
+
+
+
 
 <!-- common -->
 <div id="common_started" style="display:none;">
@@ -170,6 +189,23 @@ function showConfirmYesNoDialog(t,f1, f2){
             text:dictionary['common.close'],
             click:function() {
                 $(this).dialog('destroy');
+            }
+        }]
+    });
+}
+
+function showInformDialog(t,f){
+    $("#inform_dialog").dialog('destroy');
+    $( "#inform_text" ).html(t);
+    $( "#inform_dialog" ).dialog({
+        resizable: false,
+        height:140,
+        modal: true,
+        buttons: [{
+            text:dictionary['common.ok'],
+            click:function() {
+                $(this).dialog('destroy');
+                f();
             }
         }]
     });
@@ -507,8 +543,13 @@ function showSdnntSync(){
             modal: true,
 	        title: dictionary['administrator.menu.dialogs.indexDocuments.title'],
             buttons: [
-            	{ text:dictionary['common.apply'], click: function() {  _applychanges(); $(this).dialog("close");   }},
-            	{ text:dictionary['common.close'], click: function() { $(this).dialog("close")  }}
+			
+            	{ text:dictionary['common.apply'], 
+				  click: function() { _applychanges(); }
+				},
+            	
+            	{ text:dictionary['common.close'], 
+				  click: function() { $(this).dialog("close")  }}
            	]
         });
     }

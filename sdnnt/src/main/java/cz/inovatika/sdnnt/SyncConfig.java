@@ -42,9 +42,9 @@ public class SyncConfig {
         }
 
         
-        this.version = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.version","v7");
-        
-        this.baseUrl = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api");
+        this.version = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.version","v5");
+		String kramerius = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api", KConfiguration.getInstance().getConfiguration().getString("api.point"));
+        this.baseUrl = kramerius;
 
         this.acronym  = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.acronym");
         if (acronym == null) {

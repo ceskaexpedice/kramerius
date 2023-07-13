@@ -53,7 +53,9 @@ public class SDNNTTemplate implements ProcessInputTemplate {
 
     @Override
     public void renderInput(LRProcessDefinition definition, Writer writer, Properties paramsMapping) throws IOException {
-    	String api = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api");
+    	//String api = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api");
+		String api = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api", KConfiguration.getInstance().getConfiguration().getString("api.point"));
+
     	String acronym = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.acronym");
     	String sdnntInstance = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.endpoint",
                 "https://sdnnt.nkp.cz/sdnnt/api/v1.0/lists/changes");
