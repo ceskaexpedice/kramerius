@@ -688,6 +688,12 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!-- licences belonging to (own) ancestors-->
         <field name="licenses_of_ancestors" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
 
+		<!-- licenses facet field; contains data from licenenses, contains_licenses, licenses_of_ancestors -->
+        <field name="licenses.facet" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+        <copyField source="licenses_of_ancestors" dest="licenses.facet"/>
+        <copyField source="contains_licenses" dest="licenses.facet"/>
+        <copyField source="licenses" dest="licenses.facet"/>
+
 
         <!-- Lemmatized is disabled now
         <copyField source="text_ocr" dest="text_ocr.lemmatized"/>
