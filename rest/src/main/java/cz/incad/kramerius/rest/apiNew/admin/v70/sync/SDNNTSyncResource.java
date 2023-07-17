@@ -153,7 +153,7 @@ public class SDNNTSyncResource {
 
         JSONObject infoObject = new JSONObject();
         // acronym of library; it must correspond with register
-        infoObject.put("kramerius", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api"));
+        infoObject.put("kramerius", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api", KConfiguration.getInstance().getConfiguration().getString("api.point")));
         infoObject.put("acronym", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.acronym"));
         infoObject.put("endpoint", KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.endpoint",
                 "https://sdnnt.nkp.cz/sdnnt/api/v1.0/lists/changes"));

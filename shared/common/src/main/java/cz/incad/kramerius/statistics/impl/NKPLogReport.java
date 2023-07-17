@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
@@ -30,6 +31,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -102,6 +104,8 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
     @Override
     public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer filters)
             throws StatisticsReportException {
+        
+        
         try {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             if (dateFilter.getFromDate() != null && dateFilter.getToDate() != null) {
@@ -113,6 +117,8 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                 
                 String selectEndpoint = logsEndpoint();
                 Client client = Client.create();
+                // commit 
+                commit(client, selectEndpoint);
                 logsCursorIteration(client, selectEndpoint, builder.toString(), (elm, i) -> {
 
                     Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
@@ -166,6 +172,13 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
     }
 
     
+    private static void commit(Client client, String logsindex) {
+        String updateCommit = "update?commit=true";
+        // http://localhost:8983/solr/update?commit=true
+        WebResource r = client.resource(logsindex + (logsindex.endsWith("/") ? "" : "/") + updateCommit);
+        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
+    }
+
     public static void logsCursorIteration(Client client,String address, String masterQuery,IterationCallback callback, IterationEndCallback endCallback) throws ParserConfigurationException,  SAXException, IOException, InterruptedException, BrokenBarrierException {
         String cursorMark = null;
         String queryCursorMark = null;

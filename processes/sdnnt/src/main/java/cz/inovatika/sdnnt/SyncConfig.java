@@ -44,7 +44,9 @@ public class SyncConfig {
         
         this.version = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.version","v7");
         
-        this.baseUrl = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api");
+
+        String localApi = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.local.api", KConfiguration.getInstance().getConfiguration().getString("api.point"));
+        this.baseUrl = localApi;
 
         this.acronym  = KConfiguration.getInstance().getConfiguration().getString("sdnnt.check.acronym");
         if (acronym == null) {
