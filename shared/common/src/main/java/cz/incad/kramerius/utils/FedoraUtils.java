@@ -44,6 +44,33 @@ public class FedoraUtils {
     
     public static final String POLICY_STREAM="POLICY";
     
+    
+    public static List<String> DEFAULT_SECURED_STREAM = new ArrayList<String>(){{
+        
+        add(IMG_FULL_STREAM);
+        add(IMG_PREVIEW_STREAM);
+
+        add(TEXT_OCR_STREAM);
+        add(ALTO_STREAM);
+
+        add(MP3_STREAM);
+        add(WAV_STREAM);
+        add(OGG_STREAM);
+        
+        add(ALTO_STREAM);
+        
+    }};
+    
+    
+    
+    public static List<String> getSecuredStreams() {
+        String[] securedStreamsExtension = KConfiguration.getInstance().getSecuredAditionalStreams();
+        List<String> retvals = new ArrayList<>(DEFAULT_SECURED_STREAM);
+        Arrays.stream(securedStreamsExtension).forEach(retvals::add);
+        return retvals;
+    }
+    
+    
     public static List<String> INTERNAL_STREAM = new ArrayList<String>(){{
        add(RELS_EXT_STREAM);
        add(IMG_THUMB_STREAM);

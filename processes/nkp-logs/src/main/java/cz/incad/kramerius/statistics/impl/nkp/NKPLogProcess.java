@@ -34,6 +34,17 @@ import java.util.stream.Collectors;
 
 public class NKPLogProcess {
 
+    private static final List<String> DEFAULT_ANONYMIZATION_PROPERTIES = Arrays.asList(
+            "username",
+            "session_eppn",
+            "dnnt_user",
+            "eduPersonUniqueId",
+            "affilation",
+            "remoteAddr",
+            "eduPersonPrincipalName",
+            "email",
+            "preffered_user_name");
+    
     private static final String NKP_LOGS_FOLDER_KEY = "nkp.logs.folder";
     private static final String NKP_LOGS_VISIBILITY_KEY = "nkp.logs.visibility";
     private static final String NKP_LOGS_INSTITUTION_KEY = "nkp.logs.institution";
@@ -49,7 +60,8 @@ public class NKPLogProcess {
             String folder = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_FOLDER_KEY, System.getProperty("java.io.tmpdir"));
             String visibility = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_VISIBILITY_KEY, "ALL");
             String institution = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_INSTITUTION_KEY, "-none-");
-            List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_ANONYMIZATION_KEY, Arrays.asList("username","session_eppn","dnnt_user","eduPersonUniqueId","affilation","remoteAddr"));
+            List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_ANONYMIZATION_KEY, 
+                    DEFAULT_ANONYMIZATION_PROPERTIES);
 
             process(from, to, folder, institution, visibility, anonymization);
         }
@@ -137,7 +149,7 @@ public class NKPLogProcess {
                             double ratioA = (double) usedMemory / (double) totalMemory;
                             double ratioB = (double) usedMemory / (double) maxMemory;
 
-                            LOGGER.info(String.format("Free memory (bytes) %d,Used memory (bytes) %d, Total memory(bytes) %d, Max memory (bytes) %d, ratio (used/totalmemory)  %f,ratio (used/maxmemory)  %f", freeMemory, usedMemory, totalMemory, maxMemory, ratioA, ratioB));
+                            LOGGER.fine(String.format("Free memory (bytes) %d,Used memory (bytes) %d, Total memory(bytes) %d, Max memory (bytes) %d, ratio (used/totalmemory)  %f,ratio (used/maxmemory)  %f", freeMemory, usedMemory, totalMemory, maxMemory, ratioA, ratioB));
                         }
                     }
                 }

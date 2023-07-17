@@ -61,13 +61,10 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
  */
 public class NKPLogReport extends AbstractStatisticsReport implements StatisticReport {
 
+    /*
     public static final String RUNTIME_ATTRS = "runtimeAttributes";
     public static final String MISSING_ATTRS = "missingAttributes";
-    // public static List<String> EXPECTED_FIELDS = Arrays.asList("");
-
-    //public static final SimpleDateFormat SOLR_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    //public static final SimpleDateFormat INPUT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    
+    */
     public static final Logger LOGGER = Logger.getLogger(AuthorReport.class.getName());
 
     public static final String REPORT_ID = "nkp";
@@ -174,9 +171,9 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
     
     private static void commit(Client client, String logsindex) {
         String updateCommit = "update?commit=true";
-        // http://localhost:8983/solr/update?commit=true
         WebResource r = client.resource(logsindex + (logsindex.endsWith("/") ? "" : "/") + updateCommit);
         String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
+        LOGGER.fine(String.format("Committing, %s; response %s ", r.toString(), t));
     }
 
     public static void logsCursorIteration(Client client,String address, String masterQuery,IterationCallback callback, IterationEndCallback endCallback) throws ParserConfigurationException,  SAXException, IOException, InterruptedException, BrokenBarrierException {
@@ -276,14 +273,14 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                                 DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
                         identifiers.keySet().forEach(runtimeFileds::add);
 
-                        map.put(RUNTIME_ATTRS, runtimeFileds);
-                        map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel"));
+                        //map.put(RUNTIME_ATTRS, runtimeFileds);
+                        //map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel"));
                     }
                 } else {
-                    map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel",
-                            DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY, DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
-                            DNNTStatisticsAccessLogImpl.DNNT_KEY, DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
-                            DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
+//                   map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel",
+//                            DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY, DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
+//                            DNNTStatisticsAccessLogImpl.DNNT_KEY, DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
+//                            DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
 
                 }
             } catch (IOException e) {
@@ -296,13 +293,13 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                     if (solrDoc != null) {
                         List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
                         map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
-                        map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+                        //map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
                     }
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             } else {
-                map.put(MISSING_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+                //map.put(MISSING_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
             }
         }
         sup.processReportRecord(map);
@@ -406,4 +403,5 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         }
         return retvals;
     }
+    
 }
