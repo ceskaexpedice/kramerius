@@ -312,7 +312,8 @@ public class SDNNTSyncResource {
     								
     								Element processUuid = add.createElement("field");
     								processUuid.setAttribute("name", "process_uuid");
-    								processUuid.setAttribute("update", "add-distinct");
+    								//processUuid.setAttribute("update", "add-distinct");
+    								processUuid.setAttribute("update", "add");
     								processUuid.setTextContent(process.getUUID().toString());
     								doc.appendChild(processUuid);
     								
