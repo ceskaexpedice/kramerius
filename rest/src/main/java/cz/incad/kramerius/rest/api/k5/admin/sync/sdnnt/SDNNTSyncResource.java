@@ -297,52 +297,53 @@ public class SDNNTSyncResource {
                         	File f = storePids(pids, actionFolder, subfodler, i);
                         	LRProcess process = planProcess(f, license, this.definitionManager.getLongRunningProcessDefinition(defid));
 
-                        	for (Pair<String,String> pair : sublist) {
-                            	try {
-    								String sdnntHost = KConfiguration.getInstance().getConfiguration().getString("solrSdnntHost");
+                        	try {
+								String sdnntHost = KConfiguration.getInstance().getConfiguration().getString("solrSdnntHost");
+                        		Document add = XMLUtils.crateDocument("add");
+	                        	for (Pair<String,String> pair : sublist) {
+	
+	    								Element doc = add.createElement("doc");
+	    								
+	    								Element idField = add.createElement("field");
+	    								idField.setAttribute("name", "id");
+	    								idField.setTextContent(pair.getLeft());
+	    								doc.appendChild(idField);
+	    								
+	    								
+	    								Element processUuid = add.createElement("field");
+	    								processUuid.setAttribute("name", "process_uuid");
+	    								//processUuid.setAttribute("update", "add-distinct");
+	    								processUuid.setAttribute("update", "add");
+	    								processUuid.setTextContent(process.getUUID().toString());
+	    								doc.appendChild(processUuid);
+	    								
+	    								add.getDocumentElement().appendChild(doc);
+	
+	
+	    								JSONObject retobject = new JSONObject();
+	    								//retobject.put("processId", batch.processId);
+	    								retobject.put("processUuid", process.getUUID());
+	    								retobject.put("sync_actions", action.name());
+	    								retobject.put("defid", defid);
+	    								retobject.put("license", license);
+	    								retobject.put("number_of_objects", sublist.size());
+	    								retobject.put("batch_number", i);
+	    								
+	    								
+	    								response.put(retobject);
+	    						}
+	                        	//
+								StringWriter writer = new StringWriter();
+								XMLUtils.print(add, writer);
+								WebResource r = client.resource(sdnntHost+"/update");
+								ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
+								if (resp.getStatus() != 200) {
+								    throw new IllegalStateException("Exiting with staus:"+resp.getStatus());
+								}
 
-    								Document add = XMLUtils.crateDocument("add");
-    								Element doc = add.createElement("doc");
-    								
-    								Element idField = add.createElement("field");
-    								idField.setAttribute("name", "id");
-    								idField.setTextContent(pair.getLeft());
-    								doc.appendChild(idField);
-    								
-    								
-    								Element processUuid = add.createElement("field");
-    								processUuid.setAttribute("name", "process_uuid");
-    								//processUuid.setAttribute("update", "add-distinct");
-    								processUuid.setAttribute("update", "add");
-    								processUuid.setTextContent(process.getUUID().toString());
-    								doc.appendChild(processUuid);
-    								
-    								add.getDocumentElement().appendChild(doc);
-
-    								
-    								StringWriter writer = new StringWriter();
-    								XMLUtils.print(add, writer);
-    								WebResource r = client.resource(sdnntHost+"/update?commitWithin=7000");
-    								ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
-    								if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
-    								    throw new IllegalStateException("Exiting with staus:"+resp.getStatus());
-    								}
-
-    								JSONObject retobject = new JSONObject();
-    								//retobject.put("processId", batch.processId);
-    								retobject.put("processUuid", process.getUUID());
-    								retobject.put("sync_actions", action.name());
-    								retobject.put("defid", defid);
-    								retobject.put("license", license);
-    								retobject.put("number_of_objects", sublist.size());
-    								retobject.put("batch_number", i);
-    								
-    								
-    								response.put(retobject);
-    							} catch (DOMException | UniformInterfaceException | ClientHandlerException | JSONException | ParserConfigurationException | TransformerException e) {
-    								LOGGER.log(Level.SEVERE, e.getMessage(),e);
-    							}
-    						}
+                        	} catch (DOMException | UniformInterfaceException | ClientHandlerException | JSONException | ParserConfigurationException | TransformerException e) {
+								LOGGER.log(Level.SEVERE, e.getMessage(),e);
+							}
     					}
                     }
             	}
