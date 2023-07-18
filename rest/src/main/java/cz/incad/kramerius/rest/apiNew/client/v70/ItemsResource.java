@@ -11,6 +11,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.ExtractStructureHelper;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
+import cz.incad.kramerius.rest.apiNew.client.v70.epub.EPubFileTypes;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.ProvidedLicensesUtils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
@@ -19,9 +20,11 @@ import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
@@ -32,15 +35,21 @@ import org.json.JSONObject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -51,6 +60,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 /**
  * @see cz.incad.kramerius.rest.api.k5.client.item.ItemResource
@@ -97,6 +109,9 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/audio/ogg
     // GET/HEAD {pid}/audio/wav
 
+    // Specificke endpointy; funguji pouze pro konkretni mimethype 
+    // GET/HEAD {pid}/specific/epub
+    
 
     public static final Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
     /**
@@ -131,6 +146,7 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     RightsResolver rightsResolver;
+    
 
     @HEAD
     @Path("{pid}")
@@ -895,6 +911,128 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    
+    // =========== EPub specific endpoints
+
+    @HEAD
+    @Path("{pid}/epub")
+    public Response isEpubAvailable(@PathParam("pid") String pid) {
+        try {
+            checkSupportedObjectPid(pid);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserIsAllowedToReadDatastream(pid, dsId); 
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
+
+            boolean epub = isEpubMimeType(pid, dsId);
+            if (epub) {
+                return Response.ok().build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+    private boolean isEpubMimeType(String pid, KrameriusRepositoryApi.KnownDatastreams dsId)
+            throws RepositoryException, IOException {
+        String datastreamMimetype = krameriusRepositoryApi.getLowLevelApi().getDatastreamMimetype(pid, dsId.name());
+        boolean epub = datastreamMimetype != null  && datastreamMimetype.equals(ImageMimeType.EPUB.getValue());
+        return epub;
+    }
+
+    @GET
+    @Path("{pid}/epub/{path: .*}")
+    public Response getPaths(@PathParam("pid") String pid, @PathParam("path") PathSegment pathSegment,@Context UriInfo info ) {
+        try {
+            List<PathSegment> segments = info.getPathSegments();
+            List<String> paths=  segments.stream().map(PathSegment::getPath).collect(Collectors.toList());
+            int indexOf = paths.indexOf("epub");
+            List<String> zipPath = paths.subList(indexOf+1, paths.size());
+            return getEpubInternalPart(pid, zipPath);
+            
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    
+    
+    private Response getEpubInternalPart(String pid, List<String> paths) {
+        try {
+            String path = paths.stream().collect(Collectors.joining("/"));
+            LOGGER.fine("Reading zip path "+path);
+            
+            checkSupportedObjectPid(pid);
+            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId);
+            checkUserIsAllowedToReadDatastream(pid, dsId); 
+            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
+
+            boolean epub = isEpubMimeType(pid, dsId);
+            if (epub) {
+                InputStream is = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, dsId.name());
+                
+                ZipInputStream zipInputStream = new ZipInputStream(is);
+                ZipEntry entry;
+                while ((entry = zipInputStream.getNextEntry()) != null) {
+                    if (entry.getName().equals(path)) {
+                        break; 
+                    }
+                }
+                
+                if (entry != null) {
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = zipInputStream.read(buffer)) != -1) {
+                        bos.write(buffer,0, bytesRead);
+                    }
+                    byte[] bytes = bos.toByteArray();
+                    return copyStreams(path,  bytes);
+                    
+                } else {
+                    return Response.status(Response.Status.NOT_FOUND).build();
+                }
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    private Response copyStreams(String path, byte[] bytes) {
+        StreamingOutput stream = new StreamingOutput() {
+            public void write(OutputStream output)
+                    throws IOException, WebApplicationException {
+                try {
+                    cz.incad.kramerius.utils.IOUtils.copyStreams(new ByteArrayInputStream(bytes), output);
+                } catch (Exception e) {
+                    throw new WebApplicationException(e);
+                }
+            }
+        };
+        return Response.ok()
+                .entity(stream)
+                .type(EPubFileTypes.findMimetype(path))
+                .header("Content-Length", bytes.length).build();
+    }
+
+
     Pair<InputStream, String> getFirstAvailableImgFull(String pid) throws IOException, RepositoryException {
         InputStream is = krameriusRepositoryApi.getImgFull(pid);
         if (is != null) {
@@ -953,10 +1091,8 @@ public class ItemsResource extends ClientApiResource {
         return null;
     }
 
-//    private String getApiBaseUrl() {
-//        //return "http://localhost:8080/search/api";
-//        String appUrl = ApplicationURL.applicationURL(this.requestProvider.get());
-//        return appUrl + "/api";
-//    }
     
+    
+    
+
 }
