@@ -63,7 +63,7 @@ public class V5APILicenseFetcher extends LicenseAPIFetcher {
                     + "&fl=" + encodedFieldList;
             //"&fq=" + filter;
             if (this.isPrivateFilter()) {
-                String filter = "&dostupnost:private";
+                String filter = "&fq=dostupnost:private";
                 url = url + filter;
             }
 
@@ -73,6 +73,13 @@ public class V5APILicenseFetcher extends LicenseAPIFetcher {
             JSONObject obj = new JSONObject(string);
             JSONObject response = obj.getJSONObject("response");
             JSONArray docs = response.getJSONArray("docs");
+
+            JSONObject responseHeader = obj.getJSONObject("responseHeader");
+            JSONObject params= responseHeader.getJSONObject("params");
+            
+            
+            //LOGGER.info(String.format( "\t Number of docs %d, params %s", docs.length(), params.toString()));
+
             for (int j = 0; j < docs.length(); j++) {
                 JSONObject oneItem = docs.getJSONObject(j);
                 String pid = oneItem.getString("PID");
