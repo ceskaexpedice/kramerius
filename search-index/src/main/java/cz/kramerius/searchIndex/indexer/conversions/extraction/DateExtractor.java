@@ -4,23 +4,24 @@ import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Dom4jUtils;
 import org.dom4j.Element;
 
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.Month;
-import java.util.Locale;
-
 public class DateExtractor {
 
-    private static final String REGEXP_DAY_MONTH_YEAR = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //7.4.1920, 07. 04. 1920
-    private static final String REGEXP_MONTH_YEAR = "(\\d{1,2})\\.\\s*(\\d{1,4})"; //4.1920, 04. 1920
+    private static final String REGEXP_DAY_MONTH_YEAR = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //'7.4.1920', '07. 04. 1920'
+    private static final String REGEXP_DAY_MONTH_YEAR_BRACKETS = "\\[(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]"; //'[7.4.1920]', '[07. 04. 1920]'
+
+    private static final String REGEXP_MONTH_YEAR = "(\\d{1,2})\\.\\s*(\\d{1,4})"; //'4.1920', '04. 1920'
     private static final String REGEXP_YEAR = "\\[?[p,c]?(\\d{4})\\??\\]?"; //'1920', '1920]', '[1920', '[1920]', '[1920?]', '1920?]', 'p1920', 'c1920'
     private static final String REGEXP_YEAR_CCA = "\\[?(?:ca|asi)\\s(\\d{4})\\]?"; //'[ca 1690]', 'ca 1690]', '[ca 1690', 'ca 1690', '[asi 1690]', 'asi 1690]', '[asi 1690', 'asi 1690'
-    private static final String REGEXP_YEAR_PARTIAL = "[0-9]{1}[0-9ux\\-]{0,3}"; //194u, 18--, 19uu, 180-, 19u7
+    private static final String REGEXP_YEAR_PARTIAL = "[0-9]{1}[0-9ux\\-]{0,3}"; //'194u', '18--', '19uu', '180-', '19u7'
     private static final String REGEXP_CENTURY = "\\[?(\\d{2})--\\??\\]?"; //'[18--]', '[18--?]', '18--?', '18--?]'
     private static final String REGEXP_DECADE = "\\[?(\\d{3})-\\??\\]?"; //'[183-]', '[183-?]', '183-?', '183-?]', '183-'
     private static final String REGEXP_YEAR_AND_COPYRIGHT_YEAR = "\\[?[p,c]?(\\d{4})\\??\\]?(?:,?\\s?c\\d{4})?"; //'1920, c1910', '[1920, c1910]', '[1920?], c1920?]'
@@ -32,11 +33,12 @@ public class DateExtractor {
     private static final String REGEXP_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,4})\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.RRRR-MM.RRRR
     private static final String REGEXP_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.-MM.RRRR
 
-    private static final String REGEXP_YEAR_RANGE = "\\[?(\\d{1,4})\\]?\\s*-\\s*(\\d{1,4})\\??\\]?"; //1900-1902, 1900 - 1903, [1900-1902], [1900-1902]?, 1900-1902?, [1881]-1938
+    /
+    private static final String REGEXP_YEAR_RANGE = "\\[?(\\d{1,4})\\]?\\s*-\\s*(\\d{1,4})\\??\\]?"; //''1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938'
     private static final String REGEXP_YEAR_RANGE_VERBAL1 = "\\[?mezi\\s(\\d{4})\\??\\sa\\s(\\d{4})\\??\\]?"; //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]', '[mezi 1739? a 1750?]'
     private static final String REGEXP_YEAR_RANGE_VERBAL2 = "\\[?mezi\\s(\\d{4})\\??-(\\d{4})\\??\\]?"; //'[mezi 1897-1908]', '[mezi 1898-1914?]', '[mezi 1898?-1914]', '[mezi 1895-1919', 'mezi 1895-1919]'
     private static final String REGEXP_YEAR_RANGE_VERBAL3 = "\\[?(\\d{4})\\??\\snebo\\s(\\d{4})\\??\\]?"; //'[1897 nebo 1898]', '[1897 nebo 1898?]', '[1897? nebo 1898]', '[1897 nebo 1898', '1897 nebo 1898]'
-    private static final String REGEXP_YEAR_RANGE_PARTIAL = "[0-9]{1}[0-9ux]{0,3}\\s*-\\s*[0-9]{1}[0-9ux]{0,3}"; //192u-19uu, NOT '18uu-195-' (combination of range and '-' for uknown value are not supported due to uncertainty)
+    private static final String REGEXP_YEAR_RANGE_PARTIAL = "[0-9]{1}[0-9ux]{0,3}\\s*-\\s*[0-9]{1}[0-9ux]{0,3}"; //'192u-19uu', NOT '18uu-195-' (combination of range and '-' for uknown value are not supported due to uncertainty)
 
     // indexing both years for searching purposes
     private static final String REGEXP_CORRECT_INCORRECT_YEAR1 = "(\\d{4}),?\\s\\[i\\.e\\.\\sc?(\\d{4})\\]"; //'1997 [i.e. 1998]', '1997, [i.e. 1998]', '1997, [i.e. c1998]'
@@ -108,8 +110,19 @@ public class DateExtractor {
     public DateInfo extractFromString(String string, String pid) {
         DateInfo result = new DateInfo();
         result.value = string.trim();
-        if (matchesRegexp(result.value, REGEXP_DAY_MONTH_YEAR)) { //7.4.1920, 07. 04. 1920
+        if (matchesRegexp(result.value, REGEXP_DAY_MONTH_YEAR)) { //'7.4.1920', '07. 04. 1920'
             List<Integer> numbers = extractNumbers(result.value, REGEXP_DAY_MONTH_YEAR);
+            if (numbers != null) {
+                int day = numbers.get(0);
+                int month = numbers.get(1);
+                int year = numbers.get(2);
+                result.setStart(day, month, year);
+                result.setEnd(day, month, year);
+                result.dateMin = MyDateTimeUtils.toDayStart(day, month, year);
+                result.dateMax = MyDateTimeUtils.toDayEnd(day, month, year);
+            }
+        } else if (matchesRegexp(result.value, REGEXP_DAY_MONTH_YEAR_BRACKETS)) { //'[7.4.1920]', '[07. 04. 1920]'
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_DAY_MONTH_YEAR_BRACKETS);
             if (numbers != null) {
                 int day = numbers.get(0);
                 int month = numbers.get(1);
@@ -161,7 +174,7 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toDayStart(startDay, startMonth, startYear);
                 result.dateMax = MyDateTimeUtils.toDayEnd(endDay, endMonth, endYear);
             }
-        } else if (matchesRegexp(result.value, REGEXP_MONTH_YEAR)) { //4.1920, 04. 1920
+        } else if (matchesRegexp(result.value, REGEXP_MONTH_YEAR)) { //'4.1920', '04. 1920'
             List<Integer> numbers = extractNumbers(result.value, REGEXP_MONTH_YEAR);
             if (numbers != null) {
                 int month = numbers.get(0);
@@ -213,7 +226,7 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toYearStart(year);
                 result.dateMax = MyDateTimeUtils.toYearEnd(year);
             }
-        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE)) {//1900-1902, 1900 - 1903
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE)) {//'1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938
             List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_RANGE);
             if (numbers != null) {
                 result.rangeStartYear = numbers.get(0);
@@ -276,10 +289,10 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toYearStart(year);
                 result.dateMax = MyDateTimeUtils.toYearEnd(year);
             }
-        } else if (matchesRegexp(result.value, REGEXP_YEAR_PARTIAL)) { //194u, 18--, 19uu, 180-, 19u7
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_PARTIAL)) { //'194u', '18--', '19uu', '180-', '19u7'
             result.dateMin = MyDateTimeUtils.toYearStartFromPartialYear(result.value);
             result.dateMax = MyDateTimeUtils.toYearEndFromPartialYear(result.value);
-        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE_PARTIAL)) { //192u-19uu
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE_PARTIAL)) { //'192u-19uu', NOT '18uu-195-' (combination of range and '-' for uknown value are not supported due to uncertainty)
             String[] tokens = result.value.split("-");
             result.dateMin = MyDateTimeUtils.toYearStartFromPartialYear(tokens[0].trim());
             result.dateMax = MyDateTimeUtils.toYearEndFromPartialYear(tokens[1].trim());
@@ -440,7 +453,7 @@ public class DateExtractor {
         result.valueEnd = ExtractorUtils.toStringOrNull(Dom4jUtils.buildXpath("dateIssued[@point='end']").selectSingleNode(originInfoEl));
         //START
         if (result.valueStart != null) {
-            if (matchesRegexp(result.valueStart, REGEXP_DAY_MONTH_YEAR)) { //7.4.1920, 07. 04. 1920
+            if (matchesRegexp(result.valueStart, REGEXP_DAY_MONTH_YEAR)) { //'7.4.1920', '07. 04. 1920'
                 List<Integer> numbers = extractNumbers(result.valueStart, REGEXP_DAY_MONTH_YEAR);
                 if (numbers != null) {
                     int day = numbers.get(0);
@@ -449,7 +462,16 @@ public class DateExtractor {
                     result.setStart(day, month, year);
                     result.dateMin = MyDateTimeUtils.toDayStart(day, month, year);
                 }
-            } else if (matchesRegexp(result.valueStart, REGEXP_MONTH_YEAR)) { //4.1920, 04. 1920
+            } else if (matchesRegexp(result.valueStart, REGEXP_DAY_MONTH_YEAR_BRACKETS)) { //'[7.4.1920]', '[07. 04. 1920]'
+                List<Integer> numbers = extractNumbers(result.valueStart, REGEXP_DAY_MONTH_YEAR_BRACKETS);
+                if (numbers != null) {
+                    int day = numbers.get(0);
+                    int month = numbers.get(1);
+                    int year = numbers.get(2);
+                    result.setStart(day, month, year);
+                    result.dateMin = MyDateTimeUtils.toDayStart(day, month, year);
+                }
+            } else if (matchesRegexp(result.valueStart, REGEXP_MONTH_YEAR)) { //'4.1920', '04. 1920'
                 List<Integer> numbers = extractNumbers(result.valueStart, REGEXP_MONTH_YEAR);
                 if (numbers != null) {
                     int month = numbers.get(0);
@@ -463,7 +485,7 @@ public class DateExtractor {
                     result.rangeStartYear = numbers.get(0);
                     result.dateMin = MyDateTimeUtils.toYearStart(numbers.get(0));
                 }
-            } else if (matchesRegexp(result.valueStart, REGEXP_YEAR_PARTIAL)) { //194u, 18--, 19uu, 180-, 19u7
+            } else if (matchesRegexp(result.valueStart, REGEXP_YEAR_PARTIAL)) { //'194u', '18--', '19uu', '180-', '19u7'
                 result.dateMin = MyDateTimeUtils.toYearStartFromPartialYear(result.valueStart);
             } else {
                 System.err.println(String.format("Chyba v datech objektu %s: nelze parsovat '%s'", pid, result.valueStart));
@@ -471,7 +493,7 @@ public class DateExtractor {
         }
         //END
         if (result.valueEnd != null) {
-            if (matchesRegexp(result.valueEnd, REGEXP_DAY_MONTH_YEAR)) { //7.4.1920, 07. 04. 1920
+            if (matchesRegexp(result.valueEnd, REGEXP_DAY_MONTH_YEAR)) { //'7.4.1920', '07. 04. 1920'
                 List<Integer> numbers = extractNumbers(result.valueEnd, REGEXP_DAY_MONTH_YEAR);
                 if (numbers != null) {
                     int day = numbers.get(0);
@@ -480,7 +502,16 @@ public class DateExtractor {
                     result.setEnd(day, month, year);
                     result.dateMax = MyDateTimeUtils.toDayEnd(day, month, year);
                 }
-            } else if (matchesRegexp(result.valueEnd, REGEXP_MONTH_YEAR)) { //4.1920, 04. 1920
+            } else if (matchesRegexp(result.valueEnd, REGEXP_DAY_MONTH_YEAR_BRACKETS)) { //'[7.4.1920]', '[07. 04. 1920]'
+                List<Integer> numbers = extractNumbers(result.valueEnd, REGEXP_DAY_MONTH_YEAR_BRACKETS);
+                if (numbers != null) {
+                    int day = numbers.get(0);
+                    int month = numbers.get(1);
+                    int year = numbers.get(2);
+                    result.setEnd(day, month, year);
+                    result.dateMax = MyDateTimeUtils.toDayEnd(day, month, year);
+                }
+            } else if (matchesRegexp(result.valueEnd, REGEXP_MONTH_YEAR)) { //'4.1920', '04. 1920'
                 List<Integer> numbers = extractNumbers(result.valueEnd, REGEXP_MONTH_YEAR);
                 if (numbers != null) {
                     int month = numbers.get(0);
@@ -494,7 +525,7 @@ public class DateExtractor {
                     result.rangeEndYear = numbers.get(0);
                     result.dateMax = MyDateTimeUtils.toYearEnd(numbers.get(0));
                 }
-            } else if (matchesRegexp(result.valueEnd, REGEXP_YEAR_PARTIAL)) { //194u, 18--, 19uu, 180-, 19u7
+            } else if (matchesRegexp(result.valueEnd, REGEXP_YEAR_PARTIAL)) { //'194u', '18--', '19uu', '180-', '19u7'
                 result.dateMax = MyDateTimeUtils.toYearEndFromPartialYear(result.valueEnd);
             } else {
                 System.err.println(String.format("Chyba v datech objektu %s: nelze parsovat '%s'", pid, result.valueEnd));

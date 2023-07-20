@@ -95,6 +95,65 @@
         </out>
     </test>
 
+    <test name="[3.7.1947]">
+        <desc>Den, měsíc, rok; celé v hranatých závorkách</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[3.7.1947]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1947-07-03T23:59:59.999Z</field>
+            <field name="date.min">1947-07-03T00:00:00.001Z</field>
+            <field name="date.str">[3.7.1947]</field>
+            <field name="date_range_end.day">3</field>
+            <field name="date_range_end.month">7</field>
+            <field name="date_range_end.year">1947</field>
+            <field name="date_range_start.day">3</field>
+            <field name="date_range_start.month">7</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="[03.07.1947]">
+        <desc>Den a měsíc prefixovány nulou; celé v hranatých závorkách</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[03.07.1947]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1947-07-03T23:59:59.999Z</field>
+            <field name="date.min">1947-07-03T00:00:00.001Z</field>
+            <field name="date.str">[03.07.1947]</field>
+            <field name="date_range_end.day">3</field>
+            <field name="date_range_end.month">7</field>
+            <field name="date_range_end.year">1947</field>
+            <field name="date_range_start.day">3</field>
+            <field name="date_range_start.month">7</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="[3. 7. 1947]">
+        <desc>Mezery za dnem a měsícem; celé v hranatých závorkách</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[3. 7. 1947]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1947-07-03T23:59:59.999Z</field>
+            <field name="date.min">1947-07-03T00:00:00.001Z</field>
+            <field name="date.str">[3. 7. 1947]</field>
+            <field name="date_range_end.day">3</field>
+            <field name="date_range_end.month">7</field>
+            <field name="date_range_end.year">1947</field>
+            <field name="date_range_start.day">3</field>
+            <field name="date_range_start.month">7</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
 
     <!--DD.MM.RRRR-DD.MM.RRRR-->
 
@@ -184,76 +243,76 @@
         </out>
     </test>
 
-  <!--  <test name="03. 7. 1947 - 12.02.1952">
-        <desc>Rozsah celých datumů (start, end) 2</desc>
-        <in>
-            <originInfo>
-                <dateIssued point="start">03. 7. 1947</dateIssued>
-                <dateIssued point="end">12.02.1952</dateIssued>
-            </originInfo>
-        </in>
-        <out>
-            <field name="date.max">1952-02-12T23:59:59.999Z</field>
+    <!--  <test name="03. 7. 1947 - 12.02.1952">
+          <desc>Rozsah celých datumů (start, end) 2</desc>
+          <in>
+              <originInfo>
+                  <dateIssued point="start">03. 7. 1947</dateIssued>
+                  <dateIssued point="end">12.02.1952</dateIssued>
+              </originInfo>
+          </in>
+          <out>
+              <field name="date.max">1952-02-12T23:59:59.999Z</field>
 
 
-            <field name="date.min">1947-07-03T00:00:00.001Z</field>
-            <field name="date_certainty">day/month/year/decade/century/millenium</field>
+              <field name="date.min">1947-07-03T00:00:00.001Z</field>
+              <field name="date_certainty">day/month/year/decade/century/millenium</field>
 
-            <field name="date_min_exact">day</field>
-            <field name="date_max_exact">month</field>
+              <field name="date_min_exact">day</field>
+              <field name="date_max_exact">month</field>
 
-            <field name="date_range_end.day">12</field>
-            <field name="date_range_end.month">2</field>
+              <field name="date_range_end.day">12</field>
+              <field name="date_range_end.month">2</field>
 
-            <field name="date_range_end.year">1952</field>
-            <field name="date_range_start.day">3</field>
-            <field name="date_range_start.month">7</field>
-            <field name="date_range_start.year">1947</field>
-            <field name="date.str">03. 7. 1947? - 12.02.1952</field>
-
-
-            <field name="date.max">1952-02-31T23:59:59.999Z</field>
-            <field name="date.min">1947-07-12T00:00:00.001Z</field>
-            <field name="date_range_end.month">2</field>
-            <field name="date_range_end.year">1952</field>
-            <field name="date_range_start.month">7</field>
-            <field name="date_range_start.year">1947</field>
-            <field name="date.str">7. 1947 - 02.1952</field>
-
-            <field name="date.max">1952-02-31T23:59:59.999Z</field>
-            <field name="date.min">1947-07-12T00:00:00.001Z</field>
-            <field name="date_min_exact">year</field>
-            <field name="date_max_exact">year</field>
-            <field name="date.str">1947 - 1952</field>
-
-            <field name="date.max">1999-02-31T23:59:59.999Z</field>
-            <field name="date.min">1947-07-12T00:00:00.001Z</field>
-
-            <field name="date_min_exact">year</field>
-            <field name="date_max_exact">-</field>
-            <field name="date.str">19uu</field>
-
-            &lt;!&ndash;TODO: lidovky, nocni, ranni vydani (cas)&ndash;&gt;
-
-            date_min a _max se pouziva na,
-            1. razeni:
-            date_sort_max
-            date_sort_min
-            2.filtrovani:
+              <field name="date_range_end.year">1952</field>
+              <field name="date_range_start.day">3</field>
+              <field name="date_range_start.month">7</field>
+              <field name="date_range_start.year">1947</field>
+              <field name="date.str">03. 7. 1947? - 12.02.1952</field>
 
 
-            issue-type: bude ranni, nocni apod, nove pole a pouzite k sekundarnimu razeni
+              <field name="date.max">1952-02-31T23:59:59.999Z</field>
+              <field name="date.min">1947-07-12T00:00:00.001Z</field>
+              <field name="date_range_end.month">2</field>
+              <field name="date_range_end.year">1952</field>
+              <field name="date_range_start.month">7</field>
+              <field name="date_range_start.year">1947</field>
+              <field name="date.str">7. 1947 - 02.1952</field>
 
-            &lt;!&ndash;
-            &lt;!&ndash;spatne&ndash;&gt;
-            <field name="datum">1952-02-11T23:00:00.000Z</field>
-            &lt;!&ndash;spatne&ndash;&gt;
-            <field name="datum_str">12.02.1952</field>
-            &lt;!&ndash;spatne&ndash;&gt;
-            <field name="rok">1952</field>
-            &ndash;&gt;
-        </out>
-    </test>-->
+              <field name="date.max">1952-02-31T23:59:59.999Z</field>
+              <field name="date.min">1947-07-12T00:00:00.001Z</field>
+              <field name="date_min_exact">year</field>
+              <field name="date_max_exact">year</field>
+              <field name="date.str">1947 - 1952</field>
+
+              <field name="date.max">1999-02-31T23:59:59.999Z</field>
+              <field name="date.min">1947-07-12T00:00:00.001Z</field>
+
+              <field name="date_min_exact">year</field>
+              <field name="date_max_exact">-</field>
+              <field name="date.str">19uu</field>
+
+              &lt;!&ndash;TODO: lidovky, nocni, ranni vydani (cas)&ndash;&gt;
+
+              date_min a _max se pouziva na,
+              1. razeni:
+              date_sort_max
+              date_sort_min
+              2.filtrovani:
+
+
+              issue-type: bude ranni, nocni apod, nove pole a pouzite k sekundarnimu razeni
+
+              &lt;!&ndash;
+              &lt;!&ndash;spatne&ndash;&gt;
+              <field name="datum">1952-02-11T23:00:00.000Z</field>
+              &lt;!&ndash;spatne&ndash;&gt;
+              <field name="datum_str">12.02.1952</field>
+              &lt;!&ndash;spatne&ndash;&gt;
+              <field name="rok">1952</field>
+              &ndash;&gt;
+          </out>
+      </test>-->
 
     <!--DD.MM-DD.MM.RRRR-->
     <test name="3.7.-12.9.1952">
