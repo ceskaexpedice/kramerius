@@ -19,6 +19,7 @@ public class DateExtractor {
     private static final String REGEXP_DAY_MONTH_YEAR_BRACKETS = "\\[(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]"; //'[7.4.1920]', '[07. 04. 1920]'
 
     private static final String REGEXP_MONTH_YEAR = "(\\d{1,2})\\.\\s*(\\d{1,4})"; //'4.1920', '04. 1920'
+    private static final String REGEXP_MONTH_YEAR_BRACKETS = "\\[(\\d{1,2})\\.\\s*(\\d{1,4})\\]"; //['4.1920'], ['04. 1920']
     private static final String REGEXP_YEAR = "\\[?[p,c]?(\\d{4})\\??\\]?"; //'1920', '1920]', '[1920', '[1920]', '[1920?]', '1920?]', 'p1920', 'c1920'
     private static final String REGEXP_YEAR_CCA = "\\[?(?:ca|asi)\\s(\\d{4})\\]?"; //'[ca 1690]', 'ca 1690]', '[ca 1690', 'ca 1690', '[asi 1690]', 'asi 1690]', '[asi 1690', 'asi 1690'
     private static final String REGEXP_YEAR_PARTIAL = "[0-9]{1}[0-9ux\\-]{0,3}"; //'194u', '18--', '19uu', '180-', '19u7'
@@ -190,6 +191,16 @@ public class DateExtractor {
             }
         } else if (matchesRegexp(result.value, REGEXP_MONTH_YEAR)) { //'4.1920', '04. 1920'
             List<Integer> numbers = extractNumbers(result.value, REGEXP_MONTH_YEAR);
+            if (numbers != null) {
+                int month = numbers.get(0);
+                int year = numbers.get(1);
+                result.setStart(month, year);
+                result.setEnd(month, year);
+                result.dateMin = MyDateTimeUtils.toMonthStart(month, year);
+                result.dateMax = MyDateTimeUtils.toMonthEnd(month, year);
+            }
+        } else if (matchesRegexp(result.value, REGEXP_MONTH_YEAR_BRACKETS)) { //'[4.1920]', '[04. 1920]'
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_MONTH_YEAR_BRACKETS);
             if (numbers != null) {
                 int month = numbers.get(0);
                 int year = numbers.get(1);
@@ -493,6 +504,14 @@ public class DateExtractor {
                     result.setStart(month, year);
                     result.dateMin = MyDateTimeUtils.toMonthStart(month, year);
                 }
+            } else if (matchesRegexp(result.valueStart, REGEXP_MONTH_YEAR_BRACKETS)) { //'[4.1920]', '[04. 1920]'
+                List<Integer> numbers = extractNumbers(result.valueStart, REGEXP_MONTH_YEAR_BRACKETS);
+                if (numbers != null) {
+                    int month = numbers.get(0);
+                    int year = numbers.get(1);
+                    result.setStart(month, year);
+                    result.dateMin = MyDateTimeUtils.toMonthStart(month, year);
+                }
             } else if (matchesRegexp(result.valueStart, REGEXP_YEAR)) { //'1920', '1920?', '1920]', '[1920', '[1920]', '[1920?]', '1920?]', 'p1920', 'c1920'
                 List<Integer> numbers = extractNumbers(result.valueStart, REGEXP_YEAR);
                 if (numbers != null) {
@@ -527,6 +546,14 @@ public class DateExtractor {
                 }
             } else if (matchesRegexp(result.valueEnd, REGEXP_MONTH_YEAR)) { //'4.1920', '04. 1920'
                 List<Integer> numbers = extractNumbers(result.valueEnd, REGEXP_MONTH_YEAR);
+                if (numbers != null) {
+                    int month = numbers.get(0);
+                    int year = numbers.get(1);
+                    result.setEnd(month, year);
+                    result.dateMax = MyDateTimeUtils.toMonthEnd(month, year);
+                }
+            } else if (matchesRegexp(result.valueEnd, REGEXP_MONTH_YEAR_BRACKETS)) { //'[4.1920]', '[04. 1920]'
+                List<Integer> numbers = extractNumbers(result.valueEnd, REGEXP_MONTH_YEAR_BRACKETS);
                 if (numbers != null) {
                     int month = numbers.get(0);
                     int year = numbers.get(1);
