@@ -385,13 +385,6 @@
             <field name="date_range_start.day">3</field>
             <field name="date_range_start.month">2</field>
             <field name="date_range_start.year">1952</field>
-            <!--
-            &lt;!&ndash;spatne&ndash;&gt;
-            <field name="datum">0001-12-02T23:00:00.000Z</field>
-            <field name="datum_str">3.-12.2.1952</field>
-            &lt;!&ndash;spatne&ndash;&gt;
-            <field name="rok">0001</field>
-            -->
         </out>
     </test>
 
@@ -412,15 +405,11 @@
             <field name="date_range_start.day">3</field>
             <field name="date_range_start.month">2</field>
             <field name="date_range_start.year">1952</field>
-
-            <!--
-            <field name="datum_str">03. - 12.02.1952</field>
-            -->
         </out>
     </test>
 
     <test name="03 - 12.02.1952">
-        <desc>Rozsah datumů (DD-DD.MM.RRRR)</desc>
+        <desc>Rozsah datumů (DD-DD.MM.RRRR) 3</desc>
         <in>
             <originInfo>
                 <dateIssued>03 - 12.02.1952</dateIssued>
@@ -430,6 +419,66 @@
             <field name="date.max">1952-02-12T23:59:59.999Z</field>
             <field name="date.min">1952-02-03T00:00:00.001Z</field>
             <field name="date.str">03 - 12.02.1952</field>
+            <field name="date_range_end.day">12</field>
+            <field name="date_range_end.month">2</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.day">3</field>
+            <field name="date_range_start.month">2</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+    <test name="[3.-12.2.1952]">
+        <desc>Rozsah datumů (DD.-DD.MM.RRRR); v hranatých závorkách</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[3.-12.2.1952]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="date.min">1952-02-03T00:00:00.001Z</field>
+            <field name="date.str">[3.-12.2.1952]</field>
+            <field name="date_range_end.day">12</field>
+            <field name="date_range_end.month">2</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.day">3</field>
+            <field name="date_range_start.month">2</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+    <test name="[03. - 12.02.1952]">
+        <desc>Rozsah datumů (DD.-DD.MM.RRRR) 2; v hranatých závorkách</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[03. - 12.02.1952]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="date.min">1952-02-03T00:00:00.001Z</field>
+            <field name="date.str">[03. - 12.02.1952]</field>
+            <field name="date_range_end.day">12</field>
+            <field name="date_range_end.month">2</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.day">3</field>
+            <field name="date_range_start.month">2</field>
+            <field name="date_range_start.year">1952</field>
+        </out>
+    </test>
+
+    <test name="[03 - 12.02.1952]">
+        <desc>Rozsah datumů (DD-DD.MM.RRRR) 3; v hranatých závorkách</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[03 - 12.02.1952]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-02-12T23:59:59.999Z</field>
+            <field name="date.min">1952-02-03T00:00:00.001Z</field>
+            <field name="date.str">[03 - 12.02.1952]</field>
             <field name="date_range_end.day">12</field>
             <field name="date_range_end.month">2</field>
             <field name="date_range_end.year">1952</field>

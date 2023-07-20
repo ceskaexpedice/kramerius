@@ -29,6 +29,7 @@ public class DateExtractor {
     private static final String REGEXP_DAY_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.MM.RRRR-DD.MM.RRRR
     private static final String REGEXP_DAY_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.MM-DD.MM.RRRR
     private static final String REGEXP_DAY_MONTH_YEAR_RANGE3 = "(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.-DD.MM.RRRR
+    private static final String REGEXP_DAY_MONTH_YEAR_RANGE4 = "\\[?(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]?"; //[DD.-DD.MM.RRRR];
 
     private static final String REGEXP_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,4})\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.RRRR-MM.RRRR
     private static final String REGEXP_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.-MM.RRRR
@@ -161,6 +162,20 @@ public class DateExtractor {
             }
         } else if (matchesRegexp(result.value, REGEXP_DAY_MONTH_YEAR_RANGE3)) { //DD.-DD.MM.RRRR, '03 - 04.12.2012'
             List<Integer> numbers = extractNumbers(result.value, REGEXP_DAY_MONTH_YEAR_RANGE3);
+            if (numbers != null) {
+                int startDay = numbers.get(0);
+                int startMonth = numbers.get(2);
+                int startYear = numbers.get(3);
+                result.setStart(startDay, startMonth, startYear);
+                int endDay = numbers.get(1);
+                int endMonth = numbers.get(2);
+                int endYear = numbers.get(3);
+                result.setEnd(endDay, endMonth, endYear);
+                result.dateMin = MyDateTimeUtils.toDayStart(startDay, startMonth, startYear);
+                result.dateMax = MyDateTimeUtils.toDayEnd(endDay, endMonth, endYear);
+            }
+        } else if (matchesRegexp(result.value, REGEXP_DAY_MONTH_YEAR_RANGE4)) { //[DD.-DD.MM.RRRR], '[03 - 04.12.2012]'
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_DAY_MONTH_YEAR_RANGE4);
             if (numbers != null) {
                 int startDay = numbers.get(0);
                 int startMonth = numbers.get(2);
