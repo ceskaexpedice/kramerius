@@ -30,10 +30,11 @@ public class DateExtractor {
     private static final String REGEXP_DAY_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.MM.RRRR-DD.MM.RRRR
     private static final String REGEXP_DAY_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.MM-DD.MM.RRRR
     private static final String REGEXP_DAY_MONTH_YEAR_RANGE3 = "(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.-DD.MM.RRRR
-    private static final String REGEXP_DAY_MONTH_YEAR_RANGE4 = "\\[?(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]?"; //[DD.-DD.MM.RRRR];
+    private static final String REGEXP_DAY_MONTH_YEAR_RANGE4 = "\\[(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]"; //[DD.-DD.MM.RRRR];
 
     private static final String REGEXP_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,4})\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.RRRR-MM.RRRR
     private static final String REGEXP_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.-MM.RRRR
+    private static final String REGEXP_MONTH_YEAR_RANGE3 = "\\[(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]";  //[MM.-MM.RRRR]
 
     private static final String REGEXP_YEAR_RANGE = "\\[?(\\d{1,4})\\]?\\s*-\\s*(\\d{1,4})\\??\\]?"; //''1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938'
     private static final String REGEXP_YEAR_RANGE_VERBAL1 = "\\[?mezi\\s(\\d{4})\\??\\sa\\s(\\d{4})\\??\\]?"; //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]', '[mezi 1739? a 1750?]'
@@ -221,8 +222,20 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toMonthStart(startMonth, startYear);
                 result.dateMax = MyDateTimeUtils.toMonthEnd(endMonth, endYear);
             }
-        } else if (matchesRegexp(result.value, REGEXP_MONTH_YEAR_RANGE2)) { //MM.-MM.RRRR, 'MM-MM.RRRR'
+        } else if (matchesRegexp(result.value, REGEXP_MONTH_YEAR_RANGE2)) { //MM.-MM.RRRR
             List<Integer> numbers = extractNumbers(result.value, REGEXP_MONTH_YEAR_RANGE2);
+            if (numbers != null) {
+                int startMonth = numbers.get(0);
+                int startYear = numbers.get(2);
+                result.setStart(startMonth, startYear);
+                int endMonth = numbers.get(1);
+                int endYear = numbers.get(2);
+                result.setEnd(endMonth, endYear);
+                result.dateMin = MyDateTimeUtils.toMonthStart(startMonth, startYear);
+                result.dateMax = MyDateTimeUtils.toMonthEnd(endMonth, endYear);
+            }
+        } else if (matchesRegexp(result.value, REGEXP_MONTH_YEAR_RANGE3)) { //[MM.-MM.RRRR]
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_MONTH_YEAR_RANGE3);
             if (numbers != null) {
                 int startMonth = numbers.get(0);
                 int startYear = numbers.get(2);
