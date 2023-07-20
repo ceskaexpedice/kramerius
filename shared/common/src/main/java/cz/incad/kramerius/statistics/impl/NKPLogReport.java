@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
@@ -30,6 +31,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -59,13 +61,10 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
  */
 public class NKPLogReport extends AbstractStatisticsReport implements StatisticReport {
 
+    /*
     public static final String RUNTIME_ATTRS = "runtimeAttributes";
     public static final String MISSING_ATTRS = "missingAttributes";
-    // public static List<String> EXPECTED_FIELDS = Arrays.asList("");
-
-    //public static final SimpleDateFormat SOLR_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    //public static final SimpleDateFormat INPUT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    
+    */
     public static final Logger LOGGER = Logger.getLogger(AuthorReport.class.getName());
 
     public static final String REPORT_ID = "nkp";
@@ -102,6 +101,8 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
     @Override
     public void processAccessLog(ReportedAction action, StatisticsReportSupport sup, StatisticsFiltersContainer filters)
             throws StatisticsReportException {
+        
+        
         try {
             DateFilter dateFilter = filters.getFilter(DateFilter.class);
             if (dateFilter.getFromDate() != null && dateFilter.getToDate() != null) {
@@ -113,6 +114,8 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                 
                 String selectEndpoint = logsEndpoint();
                 Client client = Client.create();
+                // commit 
+                commit(client, selectEndpoint);
                 logsCursorIteration(client, selectEndpoint, builder.toString(), (elm, i) -> {
 
                     Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
@@ -166,6 +169,13 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
     }
 
     
+    private static void commit(Client client, String logsindex) {
+        String updateCommit = "update?commit=true";
+        WebResource r = client.resource(logsindex + (logsindex.endsWith("/") ? "" : "/") + updateCommit);
+        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
+        LOGGER.fine(String.format("Committing, %s; response %s ", r.toString(), t));
+    }
+
     public static void logsCursorIteration(Client client,String address, String masterQuery,IterationCallback callback, IterationEndCallback endCallback) throws ParserConfigurationException,  SAXException, IOException, InterruptedException, BrokenBarrierException {
         String cursorMark = null;
         String queryCursorMark = null;
@@ -263,14 +273,14 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                                 DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
                         identifiers.keySet().forEach(runtimeFileds::add);
 
-                        map.put(RUNTIME_ATTRS, runtimeFileds);
-                        map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel"));
+                        //map.put(RUNTIME_ATTRS, runtimeFileds);
+                        //map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel"));
                     }
                 } else {
-                    map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel",
-                            DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY, DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
-                            DNNTStatisticsAccessLogImpl.DNNT_KEY, DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
-                            DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
+//                   map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel",
+//                            DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY, DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
+//                            DNNTStatisticsAccessLogImpl.DNNT_KEY, DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
+//                            DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
 
                 }
             } catch (IOException e) {
@@ -283,13 +293,13 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                     if (solrDoc != null) {
                         List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
                         map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
-                        map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+                        //map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
                     }
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             } else {
-                map.put(MISSING_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+                //map.put(MISSING_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
             }
         }
         sup.processReportRecord(map);
@@ -393,4 +403,5 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         }
         return retvals;
     }
+    
 }

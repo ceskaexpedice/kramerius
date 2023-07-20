@@ -73,18 +73,27 @@ public class DeleteTreeProcess {
         if (args.length < 2) {
             throw new RuntimeException("Not enough arguments.");
         }
+        LOGGER.info("Process parameters "+Arrays.asList(args));
+        
         int argsIndex = 0;
         //token for keeping possible following processes in same batch
         String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //process params
         String pid = args[argsIndex++];
-        String title = ProcessHelper.shortenIfTooLong(ProcessHelper.mergeArraysEnd(args, argsIndex), 256);
+        String title = ProcessHelper.shortenIfTooLong(ProcessHelper.mergeArraysEnd(args, argsIndex++), 256);
         //String scopeDesc = scope == SetPolicyProcess.Scope.OBJECT ? "jen objekt" : "objekt včetně potomků";
         ProcessStarter.updateName(title != null
                 ? String.format("Smazání stromu %s (%s)", title, pid)
                 : String.format("Smazání stromu %s", pid)
         );
-
+        
+        boolean ignoreIncosistencies = false;
+        
+        if (args.length >3 ) {
+            ignoreIncosistencies =  Boolean.valueOf(args[argsIndex++]);
+        }
+        
+        
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ResourceIndexModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
@@ -96,52 +105,69 @@ public class DeleteTreeProcess {
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
 
         //check object exists in repository
-        if (!repository.getLowLevelApi().objectExists(pid)) {
+        // pokud je 
+        //boolean existsInProcessingIndex = processingIndex.existsPid(pid);
+        
+        if (!repository.getLowLevelApi().objectExists(pid) && !ignoreIncosistencies) {
             throw new RuntimeException(String.format("object %s not found in repository", pid));
         }
 
-        boolean noErrors = deleteTree(pid, true, repository, processingIndex, indexerAccess, searchIndex, fa);
+        boolean noErrors = deleteTree(pid, true, repository, processingIndex, indexerAccess, searchIndex, fa, ignoreIncosistencies);
         if (!noErrors) {
             throw new WarningException("failed to delete some objects");
         }
     }
 
-    public static boolean deleteTree(String pid, boolean deletionRoot, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex, FedoraAccess fa) throws ResourceIndexException, RepositoryException, IOException, SolrServerException {
+    public static boolean deleteTree(String pid, boolean deletionRoot, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex, FedoraAccess fa, boolean ignoreIncosistencies) throws ResourceIndexException, RepositoryException, IOException, SolrServerException {
         LOGGER.info(String.format("deleting own tree of %s", pid));
         boolean someProblem = false;
+        //
+        boolean skipP = ignoreIncosistencies && !repository.getLowLevelApi().objectExists(pid);
+        
+        String myModel = "";
+        if (!skipP) {
 
-        //1. potomci
-        Pair<List<String>, List<String>> pidsOfChildren = processingIndex.getPidsOfChildren(pid);
-        //1.a. smaz vlastni potomky
-        for (String ownChild : pidsOfChildren.getFirst()) {
-            someProblem &= deleteTree(ownChild, false, repository, processingIndex, indexerAccess, searchIndex, fa);
-        }
-        //1.b. pokud jsem sbirka a mam nevlastni potomky, odeber celym jejich stromum nalezitost do sbirky (mne) ve vyhledavacim indexu
-        String myModel = processingIndex.getModel(pid);
-        if ("collection".equals(myModel) && !pidsOfChildren.getSecond().isEmpty()) {
-            LOGGER.info(String.format("object %s is collection and not empty, removing items from the collection", pid));
-            for (String fosterChild : pidsOfChildren.getSecond()) {
-                removeItemsFromCollectionBeforeDeletingCollection(pid, fosterChild, searchIndex, indexerAccess);
+            //1. potomci
+            Pair<List<String>, List<String>> pidsOfChildren = processingIndex.getPidsOfChildren(pid);
+            //1.a. smaz vlastni potomky
+            for (String ownChild : pidsOfChildren.getFirst()) {
+                someProblem &= deleteTree(ownChild, false, repository, processingIndex, indexerAccess, searchIndex, fa, ignoreIncosistencies);
             }
+
+            //1.b. pokud jsem sbirka a mam nevlastni potomky, odeber celym jejich stromum nalezitost do sbirky (mne) ve vyhledavacim indexu
+            myModel = processingIndex.getModel(pid);
+            if ("collection".equals(myModel) && !pidsOfChildren.getSecond().isEmpty()) {
+                LOGGER.info(String.format("object %s is collection and not empty, removing items from the collection", pid));
+                for (String fosterChild : pidsOfChildren.getSecond()) {
+                    removeItemsFromCollectionBeforeDeletingCollection(pid, fosterChild, searchIndex, indexerAccess);
+                }
+            }
+            
+
+            //2. předci
+            Pair<String, Set<String>> pidsOfParents = processingIndex.getPidsOfParents(pid);
+            //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
+            if (deletionRoot && pidsOfParents.getFirst() != null) {
+                deleteRelationFromOwnParent(pid, pidsOfParents.getFirst(), repository);
+            }
+            //2.a. smaz rels-ext vazby na me ze vsech nevlastnich rodicu
+            for (String fosterParent : pidsOfParents.getSecond()) {
+                deleteRelationFromForsterParent(pid, fosterParent, repository);
+            }
+
+            //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
+            updateLicenseFlagsForAncestors(pid, repository, processingIndex, indexerAccess);
+            
+        } else {
+            LOGGER.warning(String.format("object %s is not found in repository, skipping 1b", pid));
         }
 
-        //2. předci
-        Pair<String, Set<String>> pidsOfParents = processingIndex.getPidsOfParents(pid);
-        //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
-        if (deletionRoot && pidsOfParents.getFirst() != null) {
-            deleteRelationFromOwnParent(pid, pidsOfParents.getFirst(), repository);
-        }
-        //2.a. smaz rels-ext vazby na me ze vsech nevlastnich rodicu
-        for (String fosterParent : pidsOfParents.getSecond()) {
-            deleteRelationFromForsterParent(pid, fosterParent, repository);
-        }
-
-        //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
-        updateLicenseFlagsForAncestors(pid, repository, processingIndex, indexerAccess);
 
         //4. smaz me z repozitare i vyhledavaciho indexu
         deleteObject(pid, "collection".equals(myModel), repository, indexerAccess, fa);
-
+        
+        
+        
         return !someProblem;
     }
 
@@ -206,8 +232,10 @@ public class DeleteTreeProcess {
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
-
-            repository.getLowLevelApi().deleteObject(pid, !isCollection); //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
+            
+            if (repository.getLowLevelApi().objectExists(pid)) {
+                repository.getLowLevelApi().deleteObject(pid, !isCollection); //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
+            }
             if (tilesUrl != null) {
                 boolean deleteFromImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("delete.fromImageServer", false);
                 String imageDir = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory");

@@ -180,6 +180,7 @@ public abstract class AdminApiResource extends ApiResource {
         paramsList.add(objectPid);
         paramsList.add(Boolean.toString(ignoreInconsistentObjects));
         paramsList.add(title);
+        
         String processName = title != null
                 ? String.format("Reindexace %s (%s, typ %s)", title, objectPid, indexationType)
                 : String.format("Reindexace %s (typ %s)", objectPid, indexationType);

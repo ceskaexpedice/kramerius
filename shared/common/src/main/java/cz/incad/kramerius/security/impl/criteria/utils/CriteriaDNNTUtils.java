@@ -4,9 +4,13 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.*;
 import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.w3c.dom.Document;
 
+import com.maxmind.geoip2.DatabaseReader;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -15,12 +19,12 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class CriteriaDNNTUtils {
-
+    
     public static ThreadLocal<RightsReturnObject> currentThreadReturnObject = new ThreadLocal<>();
 
-
     public  static Logger LOGGER = Logger.getLogger(CriteriaDNNTUtils.class.getName());
-
+    
+    
 
 
     // check dnnt flag from solr

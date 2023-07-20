@@ -1,5 +1,7 @@
 package cz.incad.kramerius.solr;
 
+
+//TODO: Deprecated and remove
 public abstract class SolrFieldsMapping {
 
     // Generic fields

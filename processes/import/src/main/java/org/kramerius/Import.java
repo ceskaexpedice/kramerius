@@ -11,7 +11,7 @@ import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.processes.new_api.IndexationScheduler;
+import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -230,7 +230,7 @@ public class Import {
 
                         if (authToken != null) {
                             for (TitlePidTuple root : classicRoots) {
-                                IndexationScheduler.scheduleIndexation(root.pid, root.title, true, authToken);
+                                ProcessScheduler.scheduleIndexation(root.pid, root.title, true, authToken);
                             }
                             log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
                         } else {
@@ -251,7 +251,7 @@ public class Import {
 
                         if (authToken != null) {
                             for (TitlePidTuple convolute : convolutes) {
-                                IndexationScheduler.scheduleIndexation(convolute.pid, convolute.title, false, authToken);
+                                ProcessScheduler.scheduleIndexation(convolute.pid, convolute.title, false, authToken);
                             }
                             log.info("ALL CONVOLUTES SCHEDULED FOR INDEXING.");
                         } else {
@@ -457,7 +457,7 @@ public class Import {
                 if (updateExisting) {
                     log.info("Replacing existing object " + pid);
                     try {
-                        repo.deleteObject(pid);
+                        repo.deleteObject(pid, true, false);
                         log.info("purged old object " + pid);
                     } catch (Exception ex) {
                         log.severe("Cannot purge object " + pid + ", skipping: " + ex);

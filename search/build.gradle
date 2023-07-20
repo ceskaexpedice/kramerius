@@ -2,7 +2,7 @@ plugins {
     id 'com.google.cloud.tools.jib'
 }
 apply plugin: 'war'
-description "Admin web application"
+description "Core web application"
 
 
 sourceSets {
@@ -43,12 +43,14 @@ dependencies {
     api project(':processes:import')
 
     api project(':processes:import-mets')
-    api project(':processes:solr-migration')
-    api project(':processes:data-migration')
+    api project(':processes:solr-migration')     //TODO: Delete
+    api project(':processes:data-migration')     //TODO: Delete
 
-    api project(':processes:dnntflag')
-    api project(':processes:nkp-logs')
+    api project(':processes:dnntflag')           //TODO: Move licenses and dnnt delete
+    api project(':processes:nkp-logs')           //TODO: Move
+    api project(':processes:sdnnt')              //TODO: Move
 
+    api project(':processes:licenses')
 
     api 'javax.servlet:jstl:1.2'
     api 'taglibs:standard:1.1.2'
@@ -126,7 +128,8 @@ repositories {
 
 jib {
     from {
-        image = 'tomcat:9.0.67-jre11-temurin-jammy'
+        //image = 'tomcat:9.0.67-jre11-temurin-jammy'
+        image = 'bitnami/tomcat:9.0.75'
         platforms {
             platform {
                 architecture = 'amd64'
@@ -141,6 +144,10 @@ jib {
     to {
         image = "ceskaexpedice/kramerius:${version}"
     }
-    container.appRoot = '/usr/local/tomcat/webapps/search'
+    container {
+        //appRoot = '/usr/local/tomcat/webapps/search'
+        appRoot = '/opt/bitnami/tomcat/webapps/search'
+        user = '1001'
+    }
 }
 

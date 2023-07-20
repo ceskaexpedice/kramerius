@@ -155,8 +155,8 @@ public class SortingRightsUtils {
 
             @Override
             public int compare(Right o1, Right o2) {
-                int o1Priority = o1.getCriteriumWrapper() != null && o1.getCriteriumWrapper().getLabel() != null ? o1.getCriteriumWrapper().getLabel().getPriority() : -1;
-                int o2Priority = o2.getCriteriumWrapper() != null && o2.getCriteriumWrapper().getLabel() != null ? o2.getCriteriumWrapper().getLabel().getPriority() : -1;
+                int o1Priority = o1.getCriteriumWrapper() != null && o1.getCriteriumWrapper().getLicense() != null ? o1.getCriteriumWrapper().getLicense().getPriority() : -1;
+                int o2Priority = o2.getCriteriumWrapper() != null && o2.getCriteriumWrapper().getLicense() != null ? o2.getCriteriumWrapper().getLicense().getPriority() : -1;
 
                 return (o1Priority<o2Priority ? -1 : (o1Priority==o2Priority ? 0 : 1));
             }

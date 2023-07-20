@@ -160,6 +160,15 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
             throw new RepositoryException(e);
         } catch (ParserConfigurationException e) {
             throw new RepositoryException(e);
+        } finally {
+            try {
+                this.feeder.commit();
+                LOGGER.info("CALLED PROCESSING INDEX COMMIT");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (SolrServerException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

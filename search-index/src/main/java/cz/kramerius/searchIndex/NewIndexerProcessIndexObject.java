@@ -23,13 +23,25 @@ import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
 import cz.kramerius.adapters.impl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (new_indexer_index_object)
  */
 public class NewIndexerProcessIndexObject {
+
+    private static final String PIDLIST_FILE_PREFIX = "pidlist_file:";
 
     public static final Logger LOGGER = Logger.getLogger(NewIndexerProcessIndexObject.class.getName());
 
@@ -41,6 +53,7 @@ public class NewIndexerProcessIndexObject {
      * args[4...] - optional title
      */
     public static void main(String[] args) throws IOException {
+        LOGGER.info("Process parameters "+Arrays.asList(args));
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -54,7 +67,14 @@ public class NewIndexerProcessIndexObject {
         String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //process params
         String type = args[argsIndex++];
-        String pid = args[argsIndex++];
+        
+        // TODO: Support one pid or list of pids
+        String argument = args[argsIndex++];
+        List<String> pids = extractPids(argument);
+
+        //String pid = args[argsIndex++];
+
+        
         Boolean ignoreInconsistentObjects = Boolean.valueOf(args[argsIndex++]);
         //tady je problem v tom, ze pokud jeden z parametru obsahuje carku, tak Kramerius pri parsovani argumentu z pole v databazi to vyhodnoti jako vice argumentu.
         //napr.
@@ -65,10 +85,23 @@ public class NewIndexerProcessIndexObject {
 
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
-        ProcessStarter.updateName(title != null
-                ? String.format("Indexace %s (%s, typ %s)", title, pid, type)
-                : String.format("Indexace %s (typ %s)", pid, type)
-        );
+
+        if (argument.startsWith("pidlist_file")) {
+            
+            ProcessStarter.updateName(title != null
+                    ? String.format("Indexace %s (%s, typ %s)", title, argument.substring(PIDLIST_FILE_PREFIX.length()), type)
+                    : String.format("Indexace %s (typ %s)",argument.substring(PIDLIST_FILE_PREFIX.length()), type)
+            );
+            
+        } else {
+            ProcessStarter.updateName(title != null
+                    ? String.format("Indexace %s (%s, typ %s)", title, pids.toString(), type)
+                    : String.format("Indexace %s (typ %s)", pids.toString(), type)
+            );
+            
+        }
+
+        
 
         SolrConfig solrConfig = new SolrConfig();
 
@@ -91,22 +124,59 @@ public class NewIndexerProcessIndexObject {
 
         KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, processingIndex);
         Indexer indexer = new Indexer(krameriusRepositoryFascade, solrConfig, System.out, ignoreInconsistentObjects);
-        indexer.indexByObjectPid(pid, IndexationType.valueOf(type), new ProgressListener() {
-            @Override
-            public void onProgress(int processed) {
-                //log number of objects processed so far
-                if (processed < 100 && processed % 10 == 0 ||
-                        processed < 1000 && processed % 100 == 0 ||
-                        processed % 1000 == 0
-                ) {
-                    LOGGER.info("objects processed so far: " + processed);
-                }
-            }
 
-            @Override
-            public void onFinished(int processed) {
+        for (String pid : pids) {
+            indexer.indexByObjectPid(pid, IndexationType.valueOf(type), new ProgressListener() {
+                @Override
+                public void onProgress(int processed) {
+                    //log number of objects processed so far
+                    if (processed < 100 && processed % 10 == 0 ||
+                            processed < 1000 && processed % 100 == 0 ||
+                            processed % 1000 == 0
+                    ) {
+                        LOGGER.info("objects processed so far: " + processed);
+                    }
+                }
+
+                @Override
+                public void onFinished(int processed) {
+                }
+            });
+        }
+    }
+
+    private static List<String> extractPids(String argument) {
+        if (argument.startsWith("pid:")) {
+            String pid = argument.substring("pid:".length());
+            List<String> result = new ArrayList<>();
+            result.add(pid);
+            return result;
+        } else if (argument.startsWith("pidlist:")) {
+            List<String> pids = Arrays.stream(argument.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+            return pids;
+        } else if (argument.startsWith(PIDLIST_FILE_PREFIX)) {
+            String filePath  = argument.substring(PIDLIST_FILE_PREFIX.length());
+            File file = new File(filePath);
+            if (file.exists()) {
+                try {
+                    return IOUtils.readLines(new FileInputStream(file), Charset.forName("UTF-8"));
+                } catch (IOException e) {
+                    throw new RuntimeException("IOException " + e.getMessage());
+                }
+            } else {
+                throw new RuntimeException("file " + file.getAbsolutePath()+" doesnt exist ");
             }
-        });
+        } else {
+            // expecting list of pids tokenized by ;
+            List<String> tokens = new ArrayList<>();
+            StringTokenizer tokenizer = new StringTokenizer(argument,";");
+            while(tokenizer.hasMoreTokens()) {
+                String token = tokenizer.nextToken();
+                tokens.add(token);
+            }
+            return tokens;
+        }
+        
     }
 
     //FIXME: duplicate code (same method in NewIndexerProcessIndexObject, SetPolicyProcess), use abstract/utility class, but not before bigger cleanup in process scheduling

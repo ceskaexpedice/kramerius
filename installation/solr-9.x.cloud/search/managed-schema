@@ -47,6 +47,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
 
         <!-- hunspell analyzer; czech language; not stopwords -->
+		<!--
         <fieldType name="text_general_lemmatized_no_stopwords" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -70,8 +71,10 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
             </analyzer>
 
         </fieldType>
-
+		-->
+		
         <!-- hunspell analyzer; czech language -->
+		<!--
         <fieldType name="text_general_lemmatized" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -99,14 +102,13 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
             </analyzer>
 
         </fieldType>
-
+		-->
+		
         <!-- hunspell analyzer; czech language only ascii -->
+		<!--
         <fieldType name="text_general_lemmatized_ascii" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
-                <!-- in this example, we will only use synonyms at query time
-                <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
-                -->
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.ASCIIFoldingFilterFactory"/>
                 <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords_cz_ascii.txt"/>
@@ -127,9 +129,8 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
                 <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
 
             </analyzer>
-
         </fieldType>
-
+		-->
         <!-- general not lemmatized text with czech stop words  -->
         <fieldType name="text_general_not_lemmatized" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
@@ -671,11 +672,12 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!-- text ocr -->
         <field name="text_ocr" type="text_general_not_lemmatized" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
+		<!--
         <field name="text_ocr.lemmatized" type="text_general_lemmatized" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
         <field name="text_ocr.lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
         <field name="text_ocr.lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="false"
                storeOffsetsWithPositions="true"/>
-
+		-->
 
         <!-- licenses (formerly dnnt labels)-->
         <field name="licenses" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
@@ -685,6 +687,12 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!-- licences belonging to (own) ancestors-->
         <field name="licenses_of_ancestors" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
+		<!-- licenses facet field; contains data from licenenses, contains_licenses, licenses_of_ancestors -->
+        <field name="licenses.facet" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+        <copyField source="licenses_of_ancestors" dest="licenses.facet"/>
+        <copyField source="contains_licenses" dest="licenses.facet"/>
+        <copyField source="licenses" dest="licenses.facet"/>
 
 
         <!-- Lemmatized is disabled now

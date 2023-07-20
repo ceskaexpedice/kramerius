@@ -100,6 +100,7 @@ dependencies {
         exclude group: 'com.google.guava', module: 'guava-primitives'
         exclude group: 'com.google.guava', module: 'guava-base'
     }
+    
     api 'com.hazelcast:hazelcast-all:3.11.2'
     api'net.jcip:jcip-annotations:1.0'
 
@@ -107,6 +108,9 @@ dependencies {
             exclude group: 'org.slf4j'
             exclude group: 'xmlpull'
     }
+
+    
+    api "com.maxmind.geoip2:geoip2:4.0.1"
 
     //dom4j
     api 'jaxen:jaxen:1.2.0'

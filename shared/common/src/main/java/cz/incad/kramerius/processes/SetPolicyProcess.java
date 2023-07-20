@@ -6,7 +6,7 @@ import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.processes.new_api.IndexationScheduler;
+import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
@@ -73,7 +73,7 @@ public class SetPolicyProcess {
         }
         boolean includingDescendants = scope == Scope.TREE;
         boolean noErrors = setPolicy(policy, pid, includingDescendants, repository);
-        IndexationScheduler.scheduleIndexation(pid, title, includingDescendants, authToken);
+        ProcessScheduler.scheduleIndexation(pid, title, includingDescendants, authToken);
 
         if (!noErrors) {
             throw new WarningException("failed to set policy for some objects");

@@ -33,9 +33,9 @@ import static cz.kramerius.searchIndex.indexer.execution.Indexer.*;
 
 public class SolrIndexAccess {
 
-    private static final int MAX_TIME_WITHOUT_COMMIT_MS = 15000; //15 seconds
-    private static final int CONNECTION_TIMEOUT = 10000;
-    private static final int SOCKET_TIMEOUT = 60000;
+    public static final int MAX_TIME_WITHOUT_COMMIT_MS = 15000; //15 seconds
+    public static final int CONNECTION_TIMEOUT = 10000;
+    public static final int SOCKET_TIMEOUT = 60000;
 
     private final HttpSolrClient solrClient;
     private final String collection; //because solrClient is buggy and still requires explicit collection-name as a parameter for some operations even though it gets collection-name in the constructor
@@ -192,13 +192,22 @@ public class SolrIndexAccess {
         return result.size() > 0 ? result.get(0) : null;
     }
 
-    public SolrDocumentList searchInAllFields(String query, Long start, Integer rows, String outputFieldList) throws IOException, SolrServerException {
+    public String getCompositeIdByPid(String pid) throws SolrServerException, IOException {
+        String query = "pid:" + pid.replace(":", "\\:");
+        SolrDocumentList result = searchInAllFields(query, "compositeId");
+        if (result.size() > 0 ){
+            return (String) result.get(0).getFieldValue("compositeId");
+        }
+        return "";
+    }
+
+    public SolrDocumentList searchInAllFields(String query,  String outputFieldList) throws IOException, SolrServerException {
         Map<String, String> queryParamMap = new HashMap<>();
         queryParamMap.put("q", query);
-        queryParamMap.put("start", Long.toString(start));
-        if (rows != null) {
-            queryParamMap.put("rows", Integer.toString(rows));
-        }
+//        queryParamMap.put("start", Long.toString(start));
+//        if (rows != null) {
+//            queryParamMap.put("rows", Integer.toString(rows));
+//        }
         if (outputFieldList != null) {
             queryParamMap.put("fl", outputFieldList);
         }
@@ -236,7 +245,11 @@ public class SolrIndexAccess {
                 List<SolrInputDocument> inputDocs = new ArrayList<>();
                 for (String pid : pids) {
                     SolrInputDocument inputDoc = new SolrInputDocument();
-                    inputDoc.addField("pid", pid);
+                    if (useCompositeId()){
+                        inputDoc.addField("compositeId", getCompositeIdByPid(pid));
+                    }else {
+                        inputDoc.addField("pid", pid);
+                    }
                     Map<String, Object> updateData = new HashMap<>();
                     updateData.put("add-distinct", value == null ? null : value.toString());
                     inputDoc.addField(fieldName, updateData);
@@ -259,7 +272,11 @@ public class SolrIndexAccess {
                 List<SolrInputDocument> inputDocs = new ArrayList<>();
                 for (String pid : pids) {
                     SolrInputDocument inputDoc = new SolrInputDocument();
-                    inputDoc.addField("pid", pid);
+                    if (useCompositeId()){
+                        inputDoc.addField("compositeId", getCompositeIdByPid(pid));
+                    }else {
+                        inputDoc.addField("pid", pid);
+                    }
                     Map<String, Object> updateData = new HashMap<>();
                     updateData.put("removeregex", value == null ? null : value.toString()); //'remove' neodstranuje vsechny kopie stejne hodnoty (ac to tvrdi dokumentace)
                     inputDoc.addField(fieldName, updateData);

@@ -79,10 +79,10 @@ public interface RightCriteriumWrapper {
     public CriteriumType getCriteriumType();
 
 
-    public boolean isLabelAwareCriterium();
+    public boolean isLicenseAwareCriterium();
 
-    public License getLabel();
+    public License getLicense();
 
-    public void setLabel(License license);
+    public void setLicense(License license);
 
 }

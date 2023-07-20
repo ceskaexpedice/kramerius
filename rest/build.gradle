@@ -5,7 +5,12 @@ dependencies {
 
     api project(':shared:common')
     api project(':security:oauth')
-    api project(':search-index')
+	api project(':search-index')
+	
+	
+	// sdnnt 
+	api project(':processes:sdnnt')              //TODO: Move
+
 
     api name:"iiif-presentation-model-api-3.2.5"
     api name:"iiif-presentation-model-impl-3.2.5"

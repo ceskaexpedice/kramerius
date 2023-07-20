@@ -50,6 +50,8 @@ import java.util.stream.Collectors;
 @Path("/admin/v7.0/processes")
 public class ProcessResource extends AdminApiResource {
 
+    private static final int MAX_TITLE_LENGTH = 1024;
+
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
 
     private static final Integer GET_BATCHES_DEFAULT_OFFSET = 0;
@@ -59,12 +61,6 @@ public class ProcessResource extends AdminApiResource {
     private static final Integer GET_LOGS_DEFAULT_LIMIT = 10;
 
 
-    //TODO: prejmenovat role podle spravy uctu ??
-//    private static final String ROLE_SCHEDULE_PROCESSES = "kramerius_admin";
-//    private static final String ROLE_READ_PROCESSES = "kramerius_admin";
-//    private static final String ROLE_READ_PROCESS_OWNERS = "kramerius_admin";
-//    private static final String ROLE_DELETE_PROCESSES = "kramerius_admin";
-//    private static final String ROLE_CANCEL_OR_KILL_PROCESSES = "kramerius_admin";
 
     @Inject
     LRProcessManager lrProcessManager;
@@ -718,7 +714,8 @@ public class ProcessResource extends AdminApiResource {
                 paramsList.addAll(paramsToList(defid, params, (permitted) -> {
                     
                 }));
-                return scheduleProcess(defid, paramsList, userId, userName, batchToken, buildInitialProcessName(defid, paramsList));
+                String title = shortenIfTooLong(buildInitialProcessName(defid, paramsList), MAX_TITLE_LENGTH);
+                return scheduleProcess(defid, paramsList, userId, userName, batchToken, title);
             
             } else { //run by user (through web client)
                 AtomicBoolean pidPermitted = new AtomicBoolean(false);
@@ -740,7 +737,9 @@ public class ProcessResource extends AdminApiResource {
                     throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
                 }
 
-                return scheduleProcess(defid, paramsList, user.getLoginname(), user.getLoginname(), batchToken, buildInitialProcessName(defid, paramsList));
+                String title =  shortenIfTooLong(buildInitialProcessName(defid, paramsList), MAX_TITLE_LENGTH);
+                
+                return scheduleProcess(defid, paramsList, user.getLoginname(), user.getLoginname(), batchToken, title);
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -761,8 +760,6 @@ public class ProcessResource extends AdminApiResource {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("uuid", lrProcess.getUUID());
         
-        
-        
         jsonObject.put("pid", lrProcess.getPid()); //empty
         jsonObject.put("id", lrProcess.getDefinitionId());
         jsonObject.put("state", lrProcess.getProcessState().toString());
@@ -777,6 +774,7 @@ public class ProcessResource extends AdminApiResource {
         return jsonObject;
     }
 
+    //TODO: I18N
     private String buildInitialProcessName(String defId, List<String> params) {
         try {
             switch (defId) {
@@ -790,9 +788,11 @@ public class ProcessResource extends AdminApiResource {
                             ? String.format("Indexace %s (%s, typ %s)", title, pid, type)
                             : String.format("Indexace %s (typ %s)", pid, type);
                 }
+                
                 case "new_indexer_index_model": {
                     return String.format("Indexace %s (typ %s)", params.get(1), params.get(0));
                 }
+                
                 case "set_policy": {
                     String scope = params.get(0);
                     String policy = params.get(1);
@@ -802,7 +802,17 @@ public class ProcessResource extends AdminApiResource {
                             ? String.format("Změna viditelnosti %s (%s, %s, %s)", title, pid, policy, scope)
                             : String.format("Změna viditelnosti %s (%s, %s)", pid, policy, scope);
                 }
-                case "processing_rebuild":
+                
+                case "remove_policy": {
+                    String scope = params.get(0);
+                    String pid = params.get(1);
+                    String title = params.get(2);
+                    return title != null
+                            ? String.format("Odebrání příznaku viditelnosti %s (%s, %s)", title, pid, scope)
+                            : String.format("Odebrání příznaku viditelnosti %s (%s)", pid,  scope);
+               }
+               
+               case "processing_rebuild":
                     return "Přebudování Processing indexu";
                 case "processing_rebuild_for_object":
                     return String.format("Aktualizace Processing indexu z FOXML pro objekt %s", params.get(0));
@@ -818,8 +828,19 @@ public class ProcessResource extends AdminApiResource {
                 case "remove_license": {
                     return String.format("Odebrání licence '%s' pro %s", params.get(0), params.get(1));
                 }
+                case "flag_to_license": {
+                    if(params.get(0).equals("true")) {
+                        return String.format("Změna příznaku na licence a spuštění procesu mazání příznaku");
+                    } else {
+                        return String.format("Změna příznaku na licence");
+                    }
+                }
+                
                 case "nkplogs": {
                     return String.format("Generování NKP logů pro období %s - %s", params.get(0), params.get(1));
+                }
+                case "sdnnt-sync": {
+                    return "Synchronizace se SDNNT";
                 }
                 case "delete_tree": {
                     String pid = params.get(0);
@@ -837,6 +858,17 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+    
+    private static String shortenIfTooLong(String string, int maxLength) {
+        if (string == null || string.isEmpty() || string.length() <= maxLength) {
+            return string;
+        } else {
+            String suffix = "...";
+            return string.substring(0, maxLength - suffix.length()) + suffix;
+        }
+    }
+
+    
     private List<String> paramsToList(String id, JSONObject params, Consumer<Boolean> consumer) {
         switch (id) {
             case "new_process_api_test": {
@@ -856,13 +888,39 @@ public class ProcessResource extends AdminApiResource {
             }
             case "new_indexer_index_object": {
                 String type = extractMandatoryParamWithValueFromEnum(params, "type", IndexationType.class);
-                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                String pid = extractOptionalParamString(params, "pid", null);
+                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+
+                
+                String checkPidlistFile = extractOptionalParamString(params, "pidlist_file", null);
+                File pidlistFile = null;
+                if (checkPidlistFile != null && (new File(checkPidlistFile)).exists()) {
+                    pidlistFile = new File(checkPidlistFile);
+                } else {
+                    pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
+                }
+
+                
                 Boolean ignoreInconsistentObjects = extractOptionalParamBoolean(params, "ignoreInconsistentObjects", false);
                 String title = extractOptionalParamString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
                 result.add(type);//indexation type
-                result.add(pid);//indexation's root pid
+                
+                String target;
+                if (pid != null) {
+                    target = pid;
+                } else if (pidlist != null) {
+                    target = pidlist.stream().collect(Collectors.joining(";"));
+                } else if (pidlistFile != null) {
+                    target = "pidlist_file:" + pidlistFile.getAbsolutePath();
+
+                } else {
+                    throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist");
+                }
+                result.add(target);
+                
+ 
                 result.add(ignoreInconsistentObjects.toString());
                 result.add(title);//indexation's root title
                 consumer.accept(false);
@@ -912,6 +970,87 @@ public class ProcessResource extends AdminApiResource {
                 result.add(title);
                 return result;
             }
+            case "remove_policy": {
+                String scope = extractMandatoryParamWithValueFromEnum(params, "scope", SetPolicyProcess.Scope.class);
+                //String policy = extractMandatoryParamWithValueFromEnum(params, "policy", SetPolicyProcess.Policy.class);
+                //String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                String pid = extractOptionalParamString(params, "pid", null);
+                String title = extractOptionalParamString(params, "title", null);
+
+                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+
+                String checkPidlistFile = extractOptionalParamString(params, "pidlist_file", null);
+                File pidlistFile = null;
+                if (checkPidlistFile != null && (new File(checkPidlistFile)).exists()) {
+                    pidlistFile = new File(checkPidlistFile);
+                } else {
+                    pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
+                }
+
+                String target;
+                if (pid != null) {
+                    target = "pid:" + pid;
+                } else if (pidlist != null) {
+                    target = "pidlist:" + pidlist.stream().collect(Collectors.joining(";"));
+                } else if (pidlistFile != null) {
+                    target = "pidlist_file:" + pidlistFile.getAbsolutePath();
+
+                } else {
+                    throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist");
+                }
+
+                
+                if (pid != null) {
+                    try {
+                        ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
+                        User user = this.userProvider.get();
+                        LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("set_policy");
+                        boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
+                        consumer.accept(permit);
+                    } catch (IOException e) {
+                        consumer.accept(false);
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+                } else if (pidlist != null) {
+                    pidlist.stream().forEach(p-> {
+                        try {
+                            ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(p);
+                            User user = this.userProvider.get();
+                            LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("set_policy");
+                            boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, p, pidPaths);
+                            consumer.accept(permit);
+                        } catch (IOException e) {
+                            consumer.accept(false);
+                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        }
+                    });
+                } else {
+                    // musi mit prava pro cely repozitar
+                    ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+                            ObjectPidsPath.REPOSITORY_PATH
+                    };
+                    User user = this.userProvider.get();
+                    LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
+                    boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
+                    consumer.accept(permit);
+                }
+                
+                
+                List<String> result = new ArrayList<>();
+
+                result.add(scope);
+                
+                if (pid != null) {
+                    result.add(pid);
+                } else if (pidlist != null) {
+                    result.add(pidlist.stream().collect(Collectors.joining(";")));
+                } else {
+                    result.add(target);
+                }
+
+                result.add(title);
+                return result;
+            }
             case "processing_rebuild": {
                 consumer.accept(false);
                 return Collections.emptyList();
@@ -956,7 +1095,17 @@ public class ProcessResource extends AdminApiResource {
                 String license = extractMandatoryParamString(params, "license");
                 String pid = extractOptionalParamString(params, "pid", null);
                 List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
-                File pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
+
+                // TODO: Change it; not only files came from convert.directory
+                String checkPidlistFile = extractOptionalParamString(params, "pidlist_file", null);
+                File pidlistFile = null;
+                
+                if (checkPidlistFile != null && (new File(checkPidlistFile)).exists()) {
+                    pidlistFile = new File(checkPidlistFile);
+                } else {
+                    pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
+                }
+                
                 String target;
                 if (pid != null) {
                     target = "pid:" + pid;
@@ -979,19 +1128,29 @@ public class ProcessResource extends AdminApiResource {
                         consumer.accept(false);
                         LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     }
-                } else {
+                } else if (pidlist != null) {
                     pidlist.forEach(p-> {
                         try {
                             ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(p);
                             User user = this.userProvider.get();
                             LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
-                            boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
+                            boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, p, pidPaths);
                             consumer.accept(permit);
                         } catch (IOException e) {
                             consumer.accept(false);
                             LOGGER.log(Level.SEVERE,e.getMessage(),e);
                         }
                     });
+                    
+                } else {
+                    // musi mit prava pro cely repozitar
+                    ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+                            ObjectPidsPath.REPOSITORY_PATH
+                    };
+                    User user = this.userProvider.get();
+                    LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
+                    boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
+                    consumer.accept(permit);
                 }
 
                 List<String> result = new ArrayList<>();
@@ -999,6 +1158,29 @@ public class ProcessResource extends AdminApiResource {
                 result.add(target);
                 return result;
             }
+
+            case "flag_to_license": {
+                    
+                //String modelList = extractOptionalParamString(params, "modellist","monographunit;periodicalvolume");
+                boolean removePolicy = extractOptionalParamBoolean(params, "remove_policy",false);
+                
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+                    ObjectPidsPath.REPOSITORY_PATH
+                };
+                User user = this.userProvider.get();
+                LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
+                boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
+                consumer.accept(permit);
+
+                
+                List<String> result = new ArrayList<>();
+                //result.add(modelList);
+                result.add(""+removePolicy);
+                
+                return result;
+
+            }
+                
             case "nkplogs": { //TODO: rename to verb like "generate_nkp_logs"
 
                 String dateFrom = extractMandatoryParamString(params, "dateFrom");
@@ -1023,13 +1205,23 @@ public class ProcessResource extends AdminApiResource {
                 consumer.accept(false);
                 return result;
             }
+            case "sdnnt-sync": { //TODO: rename to verb like "generate_nkp_logs"
+                List<String> result = new ArrayList<>();
+                return result;
+            }
+            
             case "delete_tree": {
                 String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                Boolean ignoreIncostencies = extractOptionalParamBoolean(params, "ignoreIncosistencies", false);
+
                 String title = extractOptionalParamString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
                 result.add(pid);
                 result.add(title);
+                if (ignoreIncostencies) {
+                    result.add(ignoreIncostencies.toString());
+                }
                 
 
                 try {
@@ -1055,6 +1247,9 @@ public class ProcessResource extends AdminApiResource {
 
     private List<String> extractOptionalParamStringList(JSONObject params, String paramName, List<String> defaultValue) {
         if (params.has(paramName)) {
+            if (! (params.get(paramName) instanceof JSONArray)) {
+                throw new BadRequestException("mandatory parameter %s is not array", paramName);
+            }
             JSONArray jsonArray = params.getJSONArray(paramName);
             List<String> result = new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -1128,7 +1323,7 @@ public class ProcessResource extends AdminApiResource {
 
     private File extractFileContainedInADirFromParamValue(String paramValue, String paramName, File rootDir) {
         //sanitize against problematic characters
-        char[] forbiddenChars = new char[]{'~', '#', '%', '&', '{', '}', '<', '>', '*', '?', '$', '!', '\'', '"', ':', '@', '+', '`', '|', '=', ';', ' ', '\t', '\\'};
+        char[] forbiddenChars = new char[]{'~', '#', '%', '&', '{', '}', '<', '>', '*', '?', '$', '!',  '@', '+', '`', '|', '=', ';', ' ', '\t'};
         for (char forbiddenChar : forbiddenChars) {
             if (paramValue.indexOf(forbiddenChar) != -1) {
                 throw new BadRequestException("invalid value of %s (contains forbidden character '%s'): '%s'", paramName, forbiddenChar, paramValue);
@@ -1264,11 +1459,14 @@ public class ProcessResource extends AdminApiResource {
         batchJson.put("token", batchWithProcesses.token);
         batchJson.put("id", batchWithProcesses.firstProcessId);
         batchJson.put("state", toBatchStateName(batchWithProcesses.stateCode));
+        
         batchJson.put("planned", Utils.toFormattedStringOrNull(batchWithProcesses.planned));
         batchJson.put("started", Utils.toFormattedStringOrNull(batchWithProcesses.started));
         batchJson.put("finished", Utils.toFormattedStringOrNull(batchWithProcesses.finished));
         batchJson.put("owner_id", batchWithProcesses.ownerId);
         batchJson.put("owner_name", batchWithProcesses.ownerName);
+
+        
         json.put("batch", batchJson);
         //processes
         JSONArray processArray = new JSONArray();
@@ -1310,6 +1508,7 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+
     private String toBatchStateName(Integer batchStateCode) {
         switch (batchStateCode) {
             case 0:
@@ -1322,6 +1521,8 @@ public class ProcessResource extends AdminApiResource {
                 return "FAILED";
             case 4:
                 return "KILLED";
+            case 5:
+                return "WARNING";
             default:
                 return "UNKNOWN";
         }
@@ -1339,6 +1540,8 @@ public class ProcessResource extends AdminApiResource {
                 return 3;
             case "KILLED":
                 return 4;
+            case "WARNING":
+                return 5;
             default:
                 throw new BadRequestException("unknown state '%s'", batchStateName);
         }

@@ -16,6 +16,9 @@ import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.impl.criteria.Licenses;
+import cz.incad.kramerius.security.impl.criteria.LicensesGEOIPFiltered;
+import cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 
@@ -52,7 +55,11 @@ public class ProvidedLicensesUtils {
                     if (/*qName.equals(ReadDNNTFlag.class.getName()) ||
                             qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||*/
                             qName.equals(ReadDNNTLabels.class.getName()) ||
-                            qName.equals(ReadDNNTLabelsIPFiltered.class.getName())
+                            qName.equals(ReadDNNTLabelsIPFiltered.class.getName()) ||
+
+                            qName.equals(Licenses.class.getName()) ||
+                            qName.equals(LicensesIPFiltered.class.getName()) ||
+                            qName.equals(LicensesGEOIPFiltered.class.getName())
                     ) {
                         Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
                         if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {

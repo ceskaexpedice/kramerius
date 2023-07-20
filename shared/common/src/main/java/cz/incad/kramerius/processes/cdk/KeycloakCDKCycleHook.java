@@ -3,6 +3,7 @@ package cz.incad.kramerius.processes.cdk;
 import javax.inject.Inject;
 
 import cz.incad.kramerius.service.LifeCycleHook;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class KeycloakCDKCycleHook implements LifeCycleHook{
 
@@ -18,6 +19,9 @@ public class KeycloakCDKCycleHook implements LifeCycleHook{
     @Override
     public void startNotification() {
         cdkCache.init();
-        cdkCache.scheduleNextTask();
+        boolean channelEnabled  =  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel");
+        if (channelEnabled) {
+            cdkCache.scheduleNextTask();
+        }
     }
 }

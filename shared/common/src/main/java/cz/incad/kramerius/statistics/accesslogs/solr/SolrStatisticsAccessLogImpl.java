@@ -256,7 +256,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                                 }
                                 if (key.equals(CCNB_MODS_KEY)) {
                                     identifiers.get(CCNB_MODS_KEY).stream().forEach(ccnb-> {
-                                        logRecord.addISBN(ccnb);
+                                        logRecord.addCCNB(ccnb);
                                     });
                                 }
                                 

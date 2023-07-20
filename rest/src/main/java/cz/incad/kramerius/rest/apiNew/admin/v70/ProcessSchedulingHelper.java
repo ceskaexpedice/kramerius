@@ -50,18 +50,8 @@ public class ProcessSchedulingHelper {
         if (definition == null) {
             throw new BadRequestException("process definition for defid '%s' not found", defid);
         }
-        //String authToken = authToken(); //jen pro ilustraci, jak funguje stare api a jak se jmenovala hlavicka
-        //String groupToken = groupToken(); //jen pro ilustraci, jak funguje stare api a jak se jmenovala hlavicka
-        //groupToken = batchToken;
-        //System.out.println("groupToken: " + groupToken);
 
         LRProcess newProcess = definition.createNewProcess(null, batchToken);
-        //System.out.println("newProcess: " + newProcess);
-        //tohle vypada, ze se je k nicemu, ve vysledku se to jen uklada do databaze do processes.params_mapping a to ani ne vzdy
-        // select planned, params_mapping from processes where params_mapping!='' order by planned desc limit 10;
-        //newProcess.setLoggedUserKey(loggedUserKey);
-
-        //process auth token is passed as a param, because running process may need to schedule another process
         List<String> paramsWithAuthToken = new ArrayList<>();
         paramsWithAuthToken.add(newProcessAuthToken);
         for (String param : params) {
@@ -69,7 +59,6 @@ public class ProcessSchedulingHelper {
         }
 
         newProcess.setParameters(paramsWithAuthToken);
-        //newProcess.setUser(user);
         newProcess.setOwnerId(ownerId);
         newProcess.setOwnerName(ownerName);
         newProcess.setProcessName(procesName);

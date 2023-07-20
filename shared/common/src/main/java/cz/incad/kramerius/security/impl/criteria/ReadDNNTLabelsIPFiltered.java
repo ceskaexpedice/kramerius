@@ -79,7 +79,7 @@ public class ReadDNNTLabelsIPFiltered extends AbstractCriterium implements Right
     }
 
     @Override
-    public boolean isLabelAssignable() {
+    public boolean isLicenseAssignable() {
         return true;
     }
 

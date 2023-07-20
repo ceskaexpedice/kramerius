@@ -281,8 +281,9 @@ public class AkubraDOManager {
                     marshaller.marshal(object, stringWriter);
                 }
                 addOrReplaceObject(pid, new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
+
             } catch (Exception e) {
-                LOGGER.warning("Could not replace object in Akubra: " + e);
+                LOGGER.warning("Could not replace object in Akubra: " + e+", pid:'"+pid+"'");
             }
         } finally {
             invalidateCache(pid);

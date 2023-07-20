@@ -252,8 +252,8 @@ insertRightCriterium(criteriumWrapper, type) ::=<<
             '$criteriumWrapper.rightCriterium.qName$',
             $type$,
             $criteriumWrapper.criteriumParams.id$
-            $if(criteriumWrapper.labelAwareCriterium)$
-                $if(criteriumWrapper.label.id)$ , $criteriumWrapper.label.id$ $else$ , NULL $endif$
+            $if(criteriumWrapper.licenseAwareCriterium)$
+                $if(criteriumWrapper.license.id)$ , $criteriumWrapper.license.id$ $else$ , NULL $endif$
                 $else$ , NULL
             $endif$)
     $else$
@@ -261,8 +261,8 @@ insertRightCriterium(criteriumWrapper, type) ::=<<
         values(nextval('crit_id_sequence'),
             '$criteriumWrapper.rightCriterium.qName$',
             $type$
-            $if(criteriumWrapper.labelAwareCriterium)$
-                $if(criteriumWrapper.label.id)$ , $criteriumWrapper.label.id$ $else$ , NULL $endif$
+            $if(criteriumWrapper.licenseAwareCriterium)$
+                $if(criteriumWrapper.license.id)$ , $criteriumWrapper.license.id$ $else$ , NULL $endif$
                 $else$ , NULL
             $endif$)
     $endif$
@@ -274,7 +274,7 @@ updateRightCriterium(criteriumWrapper) ::=<<
     UPDATE rights_criterium_entity
         SET  qname='$criteriumWrapper.rightCriterium.qName$', 
         citeriumparam=$if(criteriumWrapper.criteriumParams)$ $criteriumWrapper.criteriumParams.id$ $else$ NULL $endif$
-        label_id = $if(criteriumWrapper.labelAwareCriterium)$ $criteriumWrapper.label.id$ $else$ NULL $endif$
+        label_id = $if(criteriumWrapper.licenseAwareCriterium)$ $criteriumWrapper.license.id$ $else$ NULL $endif$
      WHERE crit_id=$criteriumWrapper.id$;
 >>
 

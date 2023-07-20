@@ -45,7 +45,7 @@ public class ProcessingIndexImplByKrameriusNewApis extends ProcessingIndexImplAb
     @Override
     public String getModel(String pid) throws ResourceIndexException {
         JsonObject structure = getStructure(pid);
-        return structure.get("model").getAsString();
+        return (structure != null  && structure.has("model")) ? structure.get("model").getAsString() : null;
     }
     // strukturovane deti - pids o
     @Override
@@ -70,22 +70,24 @@ public class ProcessingIndexImplByKrameriusNewApis extends ProcessingIndexImplAb
     @Override
     public Pair<List<String>, List<String>> getPidsOfChildren(String pid) throws ResourceIndexException {
         JsonObject structure = getStructure(pid);
-        JsonObject childrenJson = structure.getAsJsonObject("children");
-        //own
-        JsonArray ownChildrenJson = childrenJson.getAsJsonArray("own");
-        List<String> ownChildren = new ArrayList<>();
-        Iterator<JsonElement> ownChildrenIt = ownChildrenJson.iterator();
-        while (ownChildrenIt.hasNext()) {
-            ownChildren.add(ownChildrenIt.next().getAsJsonObject().get("pid").getAsString());
-        }
-        //foster
-        JsonArray fosterChildrenJson = childrenJson.getAsJsonArray("foster");
-        List<String> fosterChildren = new ArrayList<>();
-        Iterator<JsonElement> fosterParentsIt = fosterChildrenJson.iterator();
-        while (fosterParentsIt.hasNext()) {
-            fosterChildren.add(fosterParentsIt.next().getAsJsonObject().get("pid").getAsString());
-        }
-        return new Pair<>(ownChildren, fosterChildren);
+        if (structure != null) {
+            JsonObject childrenJson = structure.getAsJsonObject("children");
+            //own
+            JsonArray ownChildrenJson = childrenJson.getAsJsonArray("own");
+            List<String> ownChildren = new ArrayList<>();
+            Iterator<JsonElement> ownChildrenIt = ownChildrenJson.iterator();
+            while (ownChildrenIt.hasNext()) {
+                ownChildren.add(ownChildrenIt.next().getAsJsonObject().get("pid").getAsString());
+            }
+            //foster
+            JsonArray fosterChildrenJson = childrenJson.getAsJsonArray("foster");
+            List<String> fosterChildren = new ArrayList<>();
+            Iterator<JsonElement> fosterParentsIt = fosterChildrenJson.iterator();
+            while (fosterParentsIt.hasNext()) {
+                fosterChildren.add(fosterParentsIt.next().getAsJsonObject().get("pid").getAsString());
+            }
+            return new Pair<>(ownChildren, fosterChildren);
+        } else return new Pair<>(new ArrayList<>(), new ArrayList<>());
     }
 
     

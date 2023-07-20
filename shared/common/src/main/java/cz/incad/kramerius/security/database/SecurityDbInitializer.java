@@ -25,14 +25,30 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 
 import cz.incad.kramerius.database.VersionService;
+import cz.incad.kramerius.security.impl.criteria.Licenses;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.security.licenses.impl.DatabaseLicensesManagerImpl;
+import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
+import cz.incad.kramerius.security.licenses.impl.embedded.sk.SlovakEmbeddedLicenses;
 import cz.incad.kramerius.users.database.LoggedUserDbHelper;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -42,10 +58,6 @@ import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 
 public class SecurityDbInitializer {
-
-    static List<String> EMBEDDED_LABELS = Arrays.asList(
-            "dnntt", "dnnto", "covid"
-    );
 
     static Logger LOGGER = Logger.getLogger(SecurityDbInitializer.class.getName());
 
@@ -235,31 +247,232 @@ public class SecurityDbInitializer {
     
     private static void checkLabelExists(Connection connection) {
 
-        EMBEDDED_LABELS.stream().forEach(label -> {
-                    List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
-                        @Override
-                        public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-                            returnsList.add(rs.getString("label_name"));
-                            return super.handleRow(rs, returnsList);
-                        }
-                    }.executeQuery("select * from labels_entity where label_name = ?", label);
-                    if (labels.isEmpty()) {
-                        try {
-                            JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
-                            template.setUseReturningKeys(false);
-                            template.executeUpdate(
-                                    "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
-                                            "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, '', (select coalesce(max(label_priority),0)+1 from labels_entity))",
-                                    label);
+        /** Czech global licenses **/
+        CzechEmbeddedLicenses.LICENSES.forEach(lic-> {
+            List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                    returnsList.add(rs.getString("label_name"));
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery("select * from labels_entity where label_name = ?", lic.getName());
+            if (labels.isEmpty()) {
+                try {
+                    JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                    template.setUseReturningKeys(false);
+                    template.executeUpdate(
+                            "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
+                                    "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, ?, (select coalesce(max(label_priority),0)+1 from labels_entity))",
+                            lic.getName(), lic.getDescription());
 
-                        } catch (SQLException e) {
-                            LOGGER.log(Level.SEVERE, String.format("Cannot create embedded label %s", label));
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, String.format("Cannot create embedded label %s", lic.getName()));
+                }
+            }
+        });
 
-                        }
+        
+        
+        
+        /** Slovak global licenses **/
+        /*
+        SlovakEmbeddedLicenses.LICENSES.forEach(lic-> {
+            List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                    returnsList.add(rs.getString("label_name"));
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery("select * from labels_entity where label_name = ?", lic.getName());
+            if (labels.isEmpty()) {
+                try {
+                    JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                    template.setUseReturningKeys(false);
+                    template.executeUpdate(
+                            "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
+                                    "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, ?, (select coalesce(max(label_priority),0)+1 from labels_entity))",
+                            lic.getName(), lic.getDescription());
+
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, String.format("Cannot create embedded label %s", lic.getName()));
+
+                }
+            }
+        });*/
+        
+        /** update group */
+        List<License> all = new ArrayList<>(CzechEmbeddedLicenses.LICENSES);
+        all.addAll(SlovakEmbeddedLicenses.LICENSES);
+        updateGlobalLicense(all, connection);
+    }
+    
+    
+    private static void updateGlobalLicense(List<License> globalLicenses, Connection conn) {
+
+        String condition = globalLicenses.stream().map( lic -> {
+            return "label_name='"+lic.getName()+"'";
+        }).collect(Collectors.joining(" OR "));
+        
+        
+        String query = "select * from labels_entity where  ("+condition+") AND label_group not like 'embedded%'";
+        List<Triple<String, Integer, Integer>> notGroupLicenses =new JDBCQueryTemplate<Triple<String, Integer, Integer>>(conn, false) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Triple<String, Integer, Integer>> returnsList) throws SQLException {
+                String labelName = rs.getString("label_name");
+                Integer labelPriority = rs.getInt("label_priority");
+                Integer labelId = rs.getInt("label_id");
+                returnsList.add(Triple.of( labelName, labelId, labelPriority));
+                return super.handleRow(rs, returnsList);
+            }
+        }.executeQuery(query);
+        
+        
+        List<JDBCCommand> commands = new ArrayList<>();
+        for (int i = 0; i < notGroupLicenses.size(); i++) {
+            int labelId = notGroupLicenses.get(i).getMiddle();
+            UpdateGroupCommand command = new UpdateGroupCommand(labelId, LicensesManager.GLOBAL_GROUP_NAME_EMBEDDED);
+            commands.add(command);
+        }
+        
+        
+        if (commands.size() > 0) {
+            try {
+                new JDBCTransactionTemplate(conn, false).updateWithTransaction(commands);
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            }
+        }
+    }
+    
+    //Automatic sort is disabled
+    private static void sortByHint(List<License> globalLicenses, Connection conn) {
+        globalLicenses.sort((left, right) -> {
+            int leftHint = left.getPriorityHint();
+            int rightHint = right.getPriorityHint();
+            return Integer.compare(leftHint, rightHint);
+        });
+        
+        
+        String condition = globalLicenses.stream().map( lic -> {
+            return "label_name='"+lic.getName()+"'";
+        }).collect(Collectors.joining(" OR "));
+        
+
+        List<Triple<String, Integer, Integer>> realLicenses =new JDBCQueryTemplate<Triple<String, Integer, Integer>>(conn, false) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Triple<String, Integer, Integer>> returnsList) throws SQLException {
+                String labelName = rs.getString("label_name");
+                Integer labelPriority = rs.getInt("label_priority");
+                Integer labelId = rs.getInt("label_id");
+                returnsList.add(Triple.of( labelName, labelId, labelPriority));
+                return super.handleRow(rs, returnsList);
+            }
+        }.executeQuery(String.format("select * from labels_entity where  %s order by label_priority asc", condition));
+        
+        
+        List<JDBCCommand> commands = new ArrayList<>();
+        
+        
+        if (realLicenses.size() == globalLicenses.size()) {
+            
+            for (int i = 0; i < globalLicenses.size(); i++) {
+                License globalLicense = globalLicenses.get(i);
+                String realLicenseName = realLicenses.get(i).getLeft();
+                if (!globalLicense.getName().equals(realLicenseName)) {
+                    int priority = realLicenses.get(i).getRight();
+                    
+                    Optional<Triple<String, Integer, Integer>> foundTripple = realLicenses.stream().filter(t-> {
+                        return t.getLeft().equals(globalLicense.getName());
+                    }).findAny();
+
+                    
+                    if (foundTripple.isPresent()) {
+                        commands.add(new UpdatePriorityCommand(foundTripple.get().getMiddle(), foundTripple.get().getRight()));
                     }
                 }
-        );
+            }
+            
+            if (commands.size() > 0) {
+                try {
+                    new JDBCTransactionTemplate(conn, false).updateWithTransaction(commands);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
+            }
+        } else {
+            // throw exception
+        }
+
+        
+//        // real priorities
+//        Map<String, License> realLienseMappings = new HashMap<>();
+//        realLicenses.forEach(lic-> {realLienseMappings.put(lic.getName(), lic); });
+//        
+//        List<JDBCCommand> commands = new ArrayList<>();
+//        for (int i = 0; i < globalLicenses.size(); i++) {
+//            License globalLicense = globalLicenses.get(i);
+//            int realPriority = realLicenses.get(i).getPriority();
+//            License realLicense = realLienseMappings.get(globalLicense.getName());
+//            commands.add(new  UpdatePriorityCommand(realLicense.getUpdatedPriorityLabel(realPriority)));
+//        }
+//
+//        try {
+//            new JDBCTransactionTemplate(conn, false).updateWithTransaction(commands);
+//        } catch (SQLException e) {
+//            throw new LicensesManagerException(e.getMessage(), e);
+//        }
+    
     }
+
+    
+    private static class UpdateGroupCommand extends JDBCCommand {
+
+        private int  licenseid;
+        private String group;
+        
+        public UpdateGroupCommand(int licenseId, String grp) {
+            this.licenseid = licenseId;
+            this.group = grp;
+        }
+
+        @Override
+        public Object executeJDBCCommand(Connection con) throws SQLException {
+            PreparedStatement prepareStatement = con
+                    .prepareStatement("update labels_entity set label_group = ? where label_id = ? ");
+
+            prepareStatement.setString(1, group);
+            prepareStatement.setInt(2, licenseid);
+
+            return prepareStatement.executeUpdate();
+        }
+    }
+
+    private static class UpdatePriorityCommand extends JDBCCommand {
+
+        private int  licenseid;
+        private int priority;
+        
+        public UpdatePriorityCommand(int licenseId, int priority) {
+            this.licenseid = licenseId;
+            this.priority = priority;
+        }
+
+        @Override
+        public Object executeJDBCCommand(Connection con) throws SQLException {
+            PreparedStatement prepareStatement = con
+                    .prepareStatement("update labels_entity set label_priority = ? where label_id = ? ");
+
+            if (licenseid == -1) {
+                prepareStatement.setNull(1, Types.INTEGER);
+            } else {
+                prepareStatement.setInt(1, priority);
+            }
+            prepareStatement.setInt(2, licenseid);
+
+            return prepareStatement.executeUpdate();
+        }
+    }
+
 
 
 //    /**

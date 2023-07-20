@@ -1,34 +1,29 @@
 package cz.incad.kramerius.repository;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.function.Consumer;
-
-import javax.xml.namespace.QName;
+import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
-import org.dom4j.Node;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.repository.RepositoryApi.Triplet;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.java.Pair;
 
 // helper utility used for extracting structure information 
 public class ExtractStructureHelper {
+    
+    public static final Logger LOGGER = Logger.getLogger(ExtractStructureHelper.class.getName());
     
     private ExtractStructureHelper() {}
 
@@ -46,7 +41,6 @@ public class ExtractStructureHelper {
         Pair<RepositoryApi.Triplet, List<RepositoryApi.Triplet>> parentsTpls = krameriusRepositoryApi.getParents(pid);
         if (parentsTpls.getFirst() != null) {
             parents.put("own", pidAndRelationToJson(parentsTpls.getFirst().source, parentsTpls.getFirst().relation));
-
         }
         JSONArray fosterParents = new JSONArray();
         for (RepositoryApi.Triplet fosterParentTpl : parentsTpls.getSecond()) {
@@ -54,10 +48,10 @@ public class ExtractStructureHelper {
         }
         parents.put("foster", fosterParents);
         structure.put("parents", parents);
-        //children
 
+        
         Document relsExt = krameriusRepositoryApi.getRelsExt(pid, true);
-
+        
         JSONObject children = new JSONObject();
         Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
         JSONArray ownChildren = new JSONArray();
@@ -65,7 +59,7 @@ public class ExtractStructureHelper {
         
         for (RepositoryApi.Triplet ownChildTpl : childrenTpls.getFirst()) {
             mapping.put(ownChildTpl.target, pidAndRelationToJson(ownChildTpl.target, ownChildTpl.relation));
-        }
+        }        
         
         
         exploreRelsExt(relsExt, (child)-> {
@@ -85,6 +79,10 @@ public class ExtractStructureHelper {
             }
         });
 
+        List<String> devList = new ArrayList<>();
+        for (int i = 0; i < ownChildren.length(); i++) { devList.add(ownChildren.get(i).toString()); }
+        LOGGER.fine(String.format("Pids sorted by RELS-EXT %s %s", pid, devList));
+
         
         children.put("own", ownChildren);
         JSONArray fosterChildren = new JSONArray();
@@ -92,10 +90,8 @@ public class ExtractStructureHelper {
             fosterChildren.put(pidAndRelationToJson(fosterChildTpl.target, fosterChildTpl.relation));
         }
         
-        
-        children.put("foster", fosterChildren);
         structure.put("children", children);
-
+        children.put("foster", fosterChildren);
         
         //model
         String model = krameriusRepositoryApi.getModel(pid);

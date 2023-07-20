@@ -4,6 +4,7 @@ apply plugin: 'application'
 
 dependencies {
     api project(':shared:common')
+    api project(':search-index')
 }
 
 

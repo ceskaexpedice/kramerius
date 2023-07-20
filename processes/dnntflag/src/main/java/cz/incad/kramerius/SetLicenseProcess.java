@@ -7,7 +7,7 @@ import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
-import cz.incad.kramerius.processes.new_api.IndexationScheduler;
+import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
@@ -22,13 +22,20 @@ import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -106,13 +113,23 @@ public class SetLicenseProcess {
             case ADD:
                 ProcessStarter.updateName(String.format("Přidání licence '%s' pro %s", license, target));
                 for (String pid : extractPids(target)) {
-                    addLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess);
+                    try {
+                        addLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess);
+                    } catch (Exception ex) {
+                        LOGGER.log(Level.SEVERE, ex.getMessage() ,ex);
+                        LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
+                    }
                 }
                 break;
             case REMOVE:
                 ProcessStarter.updateName(String.format("Odebrání licence '%s' pro %s", license, target));
                 for (String pid : extractPids(target)) {
-                    removeLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess, authToken);
+                    try {
+                        removeLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess, authToken);
+                    } catch(Exception ex) {
+                        LOGGER.log(Level.SEVERE, ex.getMessage() ,ex);
+                        LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
+                    }
                 }
                 break;
         }
@@ -128,9 +145,17 @@ public class SetLicenseProcess {
             List<String> pids = Arrays.stream(target.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
             return pids;
         } else if (target.startsWith("pidlist_file:")) {
-            //TODO: implement parsing PIDS from text file, also in ProcessResource change root dir from KConfiguration.getInstance().getProperty("convert.directory") to new location like pidlist.directory
-            //pidlist.directory will contain simple text files (each line containing only pid) for batch manipulations - like adding/removing license here, setting public/private with SetPolicyProcess, adding to collection etc.
-            throw new RuntimeException("target pidlist_file not supported yet");
+            String filePath  = target.substring("pidlist_file:".length());
+            File file = new File(filePath);
+            if (file.exists()) {
+                try {
+                    return IOUtils.readLines(new FileInputStream(file), Charset.forName("UTF-8"));
+                } catch (IOException e) {
+                    throw new RuntimeException("IOException " + e.getMessage());
+                }
+            } else {
+                throw new RuntimeException("file " + file.getAbsolutePath()+" doesnt exist ");
+            }
         } else {
             throw new RuntimeException("invalid target " + target);
         }
@@ -300,7 +325,7 @@ public class SetLicenseProcess {
 
             //6b. naplanuje se reindexace target, aby byly opraveny pripadne chyby zanasene v bode 6a
             //nekteri potomci mohli mit narok na licenci z jineho zdroje ve svem strome, coz nelze u odebirani licence nevlastniho predka efektivne zjistit
-            IndexationScheduler.scheduleIndexation(targetPid, null, true, authToken);
+            ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
         }
         //commit changes in index
         try {

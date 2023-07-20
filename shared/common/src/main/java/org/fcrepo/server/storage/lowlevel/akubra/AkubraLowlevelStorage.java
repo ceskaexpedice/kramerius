@@ -410,8 +410,12 @@ public class AkubraLowlevelStorage
         boolean successful = false;
         try {
             URI blobId = getBlobId(key);
+
             connection = getConnection(store, null);
             Blob blob = getBlob(connection, blobId, null);
+            String rawSchemeSpecificPart = blobId.getRawSchemeSpecificPart();
+            logger.debug(String.format("Blob %s for key %s, raw specific part %s", blob.getId().toString(),key, rawSchemeSpecificPart));
+            
             content = openInputStream(blob);
             successful = true;
             return new ConnectionClosingInputStream(connection, content);

@@ -85,6 +85,9 @@ public class ProcessDbInitializer {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
+                alterProcessTableParams(connection);
+                alterProcessTableParamsMapping(connection);
+                
             } else if (v.equals("5.1.0")) {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "FINISHED")) {
                     alterProcessTableFinished(connection);
@@ -99,6 +102,9 @@ public class ProcessDbInitializer {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
+                
+                alterProcessTableParams(connection);
+                alterProcessTableParamsMapping(connection);
             } else if (v.equals("5.2.0")) {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "TOKEN_ACTIVE")) {
                     alterProcessTableTokenActive(connection);
@@ -110,6 +116,9 @@ public class ProcessDbInitializer {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
+
+                alterProcessTableParams(connection);
+                alterProcessTableParamsMapping(connection);
             } else if (v.equals("5.3.0")) {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "AUTH_TOKEN")) {
                     alterProcessTableAuthToken(connection);
@@ -118,6 +127,10 @@ public class ProcessDbInitializer {
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
                 }
+
+                alterProcessTableParams(connection);
+                alterProcessTableParamsMapping(connection);
+
             } else if (versionCondition(v, ">", "5.3.0") && versionCondition(v, "<", "6.9.0")) { //(5.3.0 - 6.6.6) -> 6.8.2
                 if (!DatabaseUtils.columnExists(connection, "PROCESSES", "IP_ADDR")) {
                     alterProcessTableIPADDR(connection);
@@ -134,7 +147,16 @@ public class ProcessDbInitializer {
                 if (!DatabaseUtils.tableExists(connection, "CONFIG")) {
                     createConfigTable(connection);
                 }
+                alterProcessTableParams(connection);
+                alterProcessTableParamsMapping(connection);
+            
+            } else if (versionCondition(v, ">=", "6.9.0") && versionCondition(v, "<", "7.0.3")) { //(5.3.0 - 6.6.6) -> 6.8.2
+                //7.0.2
+                alterProcessTableParams(connection);
+                alterProcessTableParamsMapping(connection);
+                changeProcessBatchProcdeure(connection);
             } else { // >= 6.9.0
+
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -143,6 +165,27 @@ public class ProcessDbInitializer {
         }
     }
 
+    private static void alterProcessTableParams(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE PROCESSES ALTER PARAMS TYPE TEXT;");
+        try {
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+        } finally {
+            DatabaseUtils.tryClose(prepareStatement);
+        }
+    }
+    
+    private static void alterProcessTableParamsMapping(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE PROCESSES ALTER PARAMS_MAPPING TYPE TEXT;");
+        try {
+            int r = prepareStatement.executeUpdate();
+            LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);
+        } finally {
+            DatabaseUtils.tryClose(prepareStatement);
+        }
+    }
+
+    
     private static void alterProcessTableIPADDR(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE PROCESSES ADD COLUMN IP_ADDR VARCHAR(255);");
         try {
@@ -233,6 +276,22 @@ public class ProcessDbInitializer {
         template.executeUpdate(sqlScript);
     }
 
+    /**
+     * Deletes and creates table process_batch and related functions and triggers.
+     * Content of this table is derived from table processes, so this opertion is idempotent.
+     *
+     * @param connection
+     * @throws SQLException
+     * @throws IOException
+     */
+    private static void changeProcessBatchProcdeure(Connection connection) throws SQLException, IOException {
+        InputStream is = ProcessDbInitializer.class.getResourceAsStream("res/changeProcessBatchProcedure.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        String sqlScript = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        template.executeUpdate(sqlScript);
+    }
+
     private static void updateProcessOwner(Connection connection) throws SQLException, IOException {
         InputStream is = ProcessDbInitializer.class.getResourceAsStream("res/updateProcessOwner.sql");
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
@@ -273,7 +332,7 @@ public class ProcessDbInitializer {
                         "PLANNED timestamp, " +
                         "STATUS int, " +
                         "NAME VARCHAR(1024), " +
-                        "PARAMS VARCHAR(4096), " +
+                        "PARAMS TEXT, " +
                         "STARTEDBY INT)");
         int r = prepareStatement.executeUpdate();
         LOGGER.log(Level.FINEST, "CREATE TABLE: updated rows {0}", r);
@@ -303,7 +362,7 @@ public class ProcessDbInitializer {
 
     private static void alterProcessTableParamsMappingToken(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement(
-                "ALTER TABLE PROCESSES ADD COLUMN PARAMS_MAPPING VARCHAR(4096);");
+                "ALTER TABLE PROCESSES ADD COLUMN PARAMS_MAPPING TEXT;");
         try {
             int r = prepareStatement.executeUpdate();
             LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows {0}", r);

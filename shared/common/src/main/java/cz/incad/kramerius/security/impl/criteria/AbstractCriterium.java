@@ -84,7 +84,7 @@ public abstract class AbstractCriterium implements RightCriterium {
     }
 
     @Override
-    public boolean isLabelAssignable() {
+    public boolean isLicenseAssignable() {
         return false;
     }
 

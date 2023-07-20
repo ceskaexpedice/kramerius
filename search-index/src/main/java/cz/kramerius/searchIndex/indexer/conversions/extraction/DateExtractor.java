@@ -33,7 +33,6 @@ public class DateExtractor {
     private static final String REGEXP_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,4})\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.RRRR-MM.RRRR
     private static final String REGEXP_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.-MM.RRRR
 
-    /
     private static final String REGEXP_YEAR_RANGE = "\\[?(\\d{1,4})\\]?\\s*-\\s*(\\d{1,4})\\??\\]?"; //''1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938'
     private static final String REGEXP_YEAR_RANGE_VERBAL1 = "\\[?mezi\\s(\\d{4})\\??\\sa\\s(\\d{4})\\??\\]?"; //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]', '[mezi 1739? a 1750?]'
     private static final String REGEXP_YEAR_RANGE_VERBAL2 = "\\[?mezi\\s(\\d{4})\\??-(\\d{4})\\??\\]?"; //'[mezi 1897-1908]', '[mezi 1898-1914?]', '[mezi 1898?-1914]', '[mezi 1895-1919', 'mezi 1895-1919]'

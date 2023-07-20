@@ -23,11 +23,16 @@ import javax.ws.rs.core.Response;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils.*;
 
 @Path("/admin/v7.0/licenses")
 public class LicensesResource {
+    
+    public static final Logger LOGGER = Logger.getLogger(LicensesResource.class.getName()); 
+    
 
     @Inject
     LicensesManager licensesManager;
@@ -38,23 +43,52 @@ public class LicensesResource {
     @Inject
     Provider<User> userProvider;
 
-
+    /** All licenses */
     @GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response licenses() {
+    public Response allLicenses() {
         try {
-            return labelsAsResponse();
+            List<License> localLicenses = this.licensesManager.getAllLicenses();
+            return labelsAsResponse(localLicenses);
         } catch (JSONException | LicensesManagerException e) {
             throw new GenericApplicationException(e.getMessage(), e);
         }
     }
 
+    /** Global licenses */
     @GET
-    @Path("{id:[0-9]+}")
+    @Path("global")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    public Response globalLicenses() {
+        try {
+            List<License> localLicenses = this.licensesManager.getGlobalLicenses();
+            return labelsAsResponse(localLicenses);
+        } catch (JSONException | LicensesManagerException e) {
+            throw new GenericApplicationException(e.getMessage(), e);
+        }
+    }
+    
+    /** Local licenses */
+    @GET
+    @Path("local")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    public Response LocalLicenses() {
+        try {
+            List<License> localLicenses = this.licensesManager.getLocalLicenses();
+            return labelsAsResponse(localLicenses);
+        } catch (JSONException | LicensesManagerException e) {
+            throw new GenericApplicationException(e.getMessage(), e);
+        }
+    }
+    
+    
+
+    @GET
+    @Path("local/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response oneLicense(@PathParam("id")String id ) {
         try {
-            License licenseById = this.licensesManager.getLabelById(Integer.parseInt(id));
+            License licenseById = this.licensesManager.getLicenseById(Integer.parseInt(id));
             if (licenseById != null) {
                 return Response.ok().entity(LicenseUtils.licenseToJSON(licenseById).toString()).build();
             } else {
@@ -67,6 +101,7 @@ public class LicensesResource {
 
 
     @POST
+    @Path("local")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response insert(JSONObject json) {
@@ -75,9 +110,9 @@ public class LicensesResource {
                 if (json.has("name")) {
                     License l = licenseFromJSON(json);
                     if (l != null) {
-                        if (this.licensesManager.getLabelByName(l.getName()) == null) {
-                            this.licensesManager.addLocalLabel(l);
-                            Optional<License> any = this.licensesManager.getLabels().stream().filter(f -> {
+                        if (this.licensesManager.getLicenseByName(l.getName()) == null) {
+                            this.licensesManager.addLocalLicense(l);
+                            Optional<License> any = this.licensesManager.getLicenses().stream().filter(f -> {
                                 return f.getName().equals(l.getName());
                             }).findAny();
                             if (any.get() != null) {
@@ -103,23 +138,23 @@ public class LicensesResource {
 
 
     @PUT
-    @Path("{id:[0-9]+}")
+    @Path("local/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response update(@PathParam("id")String id, JSONObject jsonObject) {
         if (permit(this.userProvider.get())) {
             try {
                 int ident = Integer.parseInt(id);
-                if (this.licensesManager.getLabelById(ident) != null) {
+                if (this.licensesManager.getLicenseById(ident) != null) {
                     License l = LicenseUtils.licenseFromJSON(Integer.parseInt(id), jsonObject);
                     if (l != null ) {
                         try {
-                            License licenseByName = this.licensesManager.getLabelByName(l.getName());
+                            License licenseByName = this.licensesManager.getLicenseByName(l.getName());
                             if (licenseByName != null && l.getId() != licenseByName.getId()) {
                                 throw new CreateException(String.format("Licence %s already exists", l.getName()));
                             } else {
-                                this.licensesManager.updateLabel(l);
-                                License licenseById = this.licensesManager.getLabelById(l.getId());
+                                this.licensesManager.updateLocalLicense(l);
+                                License licenseById = this.licensesManager.getLicenseById(l.getId());
                                 if (licenseById != null) {
                                     return Response.ok().entity(licenseToJSON(licenseById).toString()).build();
                                 } else {
@@ -150,12 +185,12 @@ public class LicensesResource {
     public Response moveUp(@PathParam("id")String id) {
         if (permit(this.userProvider.get())) {
             try {
-                License license = this.licensesManager.getLabelById(Integer.parseInt(id));
+                License license = this.licensesManager.getLicenseById(Integer.parseInt(id));
                 if (license != null) {
                     int priority = license.getPriority();
                     if (priority >= 2) {
                         this.licensesManager.moveUp(license);
-                        return labelsAsResponse();
+                        return labelsAsResponse(this.licensesManager.getLocalLicenses());
                     } else {
                         throw new BadRequestException(String.format("cannot change priority for label %s", license.toString()));
                     }
@@ -175,7 +210,7 @@ public class LicensesResource {
     public Response moveDown(@PathParam("id")String id) {
         if (permit(this.userProvider.get())) {
             try {
-                License license = this.licensesManager.getLabelById(Integer.parseInt(id));
+                License license = this.licensesManager.getLicenseById(Integer.parseInt(id));
                 if (license != null) {
                     int priority = license.getPriority();
                     // TODO: synchronizzation
@@ -183,7 +218,7 @@ public class LicensesResource {
 
                     if (priority < minPriority) {
                         this.licensesManager.moveDown(license);
-                        return labelsAsResponse();
+                        return labelsAsResponse(this.licensesManager.getLocalLicenses());
                     } else {
                         throw new BadRequestException(String.format("cannot change priority for label %s", license.toString()));
                     }
@@ -197,8 +232,8 @@ public class LicensesResource {
     }
 
 
-    private Response labelsAsResponse() throws LicensesManagerException {
-        List<License> licenses = this.licensesManager.getLabels();
+    private Response labelsAsResponse(List<License> licenses) throws LicensesManagerException {
+        //List<License> licenses = this.licensesManager.getLicenses();
         licenses.sort(new Comparator<License>() {
             @Override
             public int compare(License o1, License o2) {
@@ -214,15 +249,15 @@ public class LicensesResource {
 
 
     @DELETE
-    @Path("{id:[0-9]+}")
+    @Path("local/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     public Response delete(@PathParam("id")String id) {
         if (permit(this.userProvider.get())) try {
             int id2 = Integer.parseInt(id);
-            License licenseById = this.licensesManager.getLabelById(id2);
+            License licenseById = this.licensesManager.getLicenseById(id2);
             if (licenseById != null) {
-                licensesManager.removeLocalLabel(licenseById);
-                License found = licensesManager.getLabelById(id2);
+                licensesManager.removeLocalLicense(licenseById);
+                License found = licensesManager.getLicenseById(id2);
                 if (found == null) {
                     return Response.status(Response.Status.NO_CONTENT).entity(new JSONObject().toString()).build();
                 } else {
@@ -232,6 +267,7 @@ public class LicensesResource {
                 throw new ObjectNotFound("cannot find label '" + id + "'");
             }
         } catch (NumberFormatException | LicensesManagerException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new GenericApplicationException(e.getMessage());
         }
         else throw new ActionNotAllowed("action is not allowed");

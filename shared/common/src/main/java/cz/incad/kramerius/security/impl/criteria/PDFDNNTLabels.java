@@ -80,7 +80,7 @@ public class PDFDNNTLabels extends AbstractCriterium implements RightCriteriumLa
 
 
     @Override
-    public boolean isLabelAssignable() {
+    public boolean isLicenseAssignable() {
         return true;
     }
 

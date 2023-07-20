@@ -61,7 +61,15 @@ public class RelsExtHelper {
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         XPathExpression expr = xpath.compile("//kramerius:tiles-url/text()");
         Object tiles = expr.evaluate(relsExt, XPathConstants.NODE);
-        if (tiles != null) return ((Text) tiles).getData().trim();
+        if (tiles != null) {
+            String data = ((Text) tiles).getData();
+            if (data != null) {
+                return data.trim();
+            } else {
+                LOGGER.fine(String.format("krameirus:tiles-url  == null for %s", uuid));
+                return null;
+            }
+        }
         else return null;
     }
 
@@ -71,7 +79,10 @@ public class RelsExtHelper {
         xpath.setNamespaceContext(new FedoraNamespaceContext());
         XPathExpression expr = xpath.compile("//kramerius:tiles-url/text()");
         Object tiles = expr.evaluate(reslExtDoc, XPathConstants.NODE);
-        if (tiles != null) return ((Text) tiles).getData().trim();
+        if (tiles != null) {
+            String data = ((Text) tiles).getData();
+            return data != null ? data.trim() : null;
+        }
         else return null;
     }
 

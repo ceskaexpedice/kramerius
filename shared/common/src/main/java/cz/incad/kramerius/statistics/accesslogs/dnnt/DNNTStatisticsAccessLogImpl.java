@@ -45,9 +45,14 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
     public static final String PUBLISHERS_KEY = "publishers";
     public static final String DNNT_LABELS_KEY = "dnnt-labels";
+    public static final String LICENSES_KEY = "licenses";
+    
     public static final String PIDS_PATH_KEY = "pids_path";
     public static final String DNNT_KEY = "dnnt";
+    
     public static final String PROVIDED_BY_DNNT_KEY = "providedByDnnt";
+    public static final String PROVIDED_BY_LICENSE = "providedByLicense";
+
     public static final String POLICY_KEY = "policy";
     public static final String MODELS_PATH_KEY = "models_path";
     public static final String ROOT_PID_KEY = "rootPid";
@@ -285,7 +290,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                                     ObjectPidsPath[] paths,
                                     ObjectModelsPath[] mpaths,
                                     Map<String, List<String>> identifiers,
-                                    List<String> labels
+                                    List<String> licenses
     ) throws IOException {
 
         LocalDateTime date = LocalDateTime.now();
@@ -309,6 +314,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         });
 
         jObject.put(PROVIDED_BY_DNNT_KEY, providedByDnnt);
+        //jObject.put(PROVIDED_BY_LICENSE, providedByDnnt);
         jObject.put(POLICY_KEY, policy);
 
 
@@ -339,13 +345,14 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             jObject.put(PUBLISHERS_KEY, publishersArray);
         }
 
-        if (!labels.isEmpty()) {
+        if (!licenses.isEmpty()) {
 
             JSONArray solrLabels = new JSONArray();
-            for (int i = 0, ll = labels.size(); i < ll; i++) {
-                solrLabels.put(labels.get(i));
+            for (int i = 0, ll = licenses.size(); i < ll; i++) {
+                solrLabels.put(licenses.get(i));
             }
             jObject.put(DNNT_LABELS_KEY, solrLabels);
+            jObject.put(LICENSES_KEY, solrLabels);
         }
 
         JSONArray pidsArray = new JSONArray();

@@ -51,7 +51,9 @@ import cz.incad.kramerius.utils.IPAddressUtils;
  * @author pavels
  */
 public class ProcessStarter {
-
+    
+    public static final int NAME_MAX_CHARS = 1024;
+    
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessStarter.class.getName());
 
     public static final String LOGGING_FILE_PROPERTY = "java.util.logging.config.file";
@@ -107,6 +109,8 @@ public class ProcessStarter {
                 }
             }));
 
+            LOGGER.info("STARTING PROCESS WITH USER HOME:"+System.getProperty("user.home"));
+            LOGGER.info("STARTING PROCESS WITH FILE ENCODING:"+System.getProperty("file.encoding"));
             Class<?> clz = Class.forName(mainClass);
 
             String pid = getPID();
@@ -227,6 +231,10 @@ public class ProcessStarter {
 
     public static void updateName(String name) throws IOException {
         try {
+            if (name.toCharArray().length >= NAME_MAX_CHARS) {
+                name = name.substring(0, NAME_MAX_CHARS-3)+"..";
+            }
+                
             NAME_UPDATED_BY_ME = ProcessUpdatingChannel.getChannel().updateName(name);
         } catch (ClassNotFoundException e) {
             throw new IOException(e);

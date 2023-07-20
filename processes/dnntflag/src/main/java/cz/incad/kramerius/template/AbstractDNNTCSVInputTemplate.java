@@ -72,7 +72,7 @@ public abstract  class AbstractDNNTCSVInputTemplate implements ProcessInputTempl
             template.setAttribute("process", process());
             template.setAttribute("labelProcess", labeledProcess());
 
-            template.setAttribute("allLabels", licensesManager.getLabels().stream().map(License::getName).collect(Collectors.toList()));
+            template.setAttribute("allLabels", licensesManager.getLicenses().stream().map(License::getName).collect(Collectors.toList()));
 
             writer.write(template.toString());
         } catch (LicensesManagerException e) {

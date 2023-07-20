@@ -3,12 +3,63 @@ package cz.incad.kramerius.security.impl.criteria.utils;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.impl.criteria.AbstractIPAddressFilter;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.logging.Logger;
+
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.exception.AddressNotFoundException;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
+import com.maxmind.geoip2.model.CountryResponse;
+import com.maxmind.geoip2.record.Country;
 
 public class CriteriaIPAddrUtils {
 
     public static final Logger LOGGER = Logger.getLogger(CriteriaIPAddrUtils.class.getName());
 
+    
+    
+    public static boolean matchGeolocationByIP(DatabaseReader reader, RightCriteriumContext ctx, Object[] objs) throws IOException, GeoIp2Exception {
+        String remoteAddr = ctx.getRemoteAddr();
+        return matchGeolocationByIP(reader, objs, remoteAddr);
+    }
+    
+    public static boolean matchGeolocationByIP(DatabaseReader reader,  Object[] objs, String remoteAddr) throws IOException, GeoIp2Exception {
+        
+        try {
+            InetAddress ipAddress = InetAddress.getByName(remoteAddr);
+            CountryResponse response = reader.country(ipAddress);
+            Country country = response.getCountry();
+            if (country == null){
+                LOGGER.fine("Country is null for remote Address: "+remoteAddr);
+                return false;
+            }
+            LOGGER.fine("\t detected country is  '"+country.getName()+", code:"+country.getIsoCode()+", confidence:"+country.getConfidence());
+            if (country.getIsoCode() == null){
+                LOGGER.fine("Country ISOCODE is null for remote Address: "+remoteAddr);
+                return false;
+            }
+            for (int i = 0; i < objs.length; i++) {
+                String obj = objs[i].toString().toUpperCase();
+                if (obj.equals(country.getIsoCode().toUpperCase())) {
+                    LOGGER.fine("\t  - ACCEPTING");
+                    return true;
+                } else {
+                    LOGGER.fine(String.format("\t  - NOT ACCEPTING(%s)", obj.toString()));
+                    
+                }
+            }
+        } catch (AddressNotFoundException e) {
+            // ok
+            LOGGER.fine(String.format("\t Address not found  is  %s",remoteAddr));
+        }
+        
+        return false;
+    }
+    
+    
     public static boolean matchIPAddresses(RightCriteriumContext ctx, Object[] objs) {
         String remoteAddr = ctx.getRemoteAddr();
         return matchIPAddresses(objs, remoteAddr);

@@ -58,36 +58,35 @@ public class ProcessingIndexRebuild {
 
 
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
-        ProcessStarter.updateName("Přebudování Processing indexu");
+        if (args.length>=1 && "REBUILDPROCESSING".equalsIgnoreCase(args[0])){
+            LOGGER.info("Přebudování Processing indexu");
+        } else {
+            ProcessStarter.updateName("Přebudování Processing indexu");
+        }
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         final ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        try {
-            long start = System.currentTimeMillis();
-            feeder.deleteProcessingIndex();
-            Path objectStoreRoot = null;
-            if (KConfiguration.getInstance().getConfiguration().getBoolean("legacyfs")) {
-                objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("object_store_base"));
-            } else {
-                objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("objectStore.path"));
-            }
-            Files.walk(objectStoreRoot, FileVisitOption.FOLLOW_LINKS).parallel().filter(Files::isRegularFile).forEach(path -> {
-                String filename = path.toString();
-                try {
-                    FileInputStream inputStream = new FileInputStream(path.toFile());
-                    DigitalObject digitalObject = createDigitalObject(inputStream);
-                    rebuildProcessingIndex(feeder, digitalObject);
-                } catch (Exception ex) {
-                    LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
-                }
-            });
-            LOGGER.info("Finished tree walk in " + (System.currentTimeMillis() - start) + " ms");
-        } finally {
-            if (feeder != null) {
-                feeder.commit();
-                LOGGER.info("Feeder commited.");
-            }
+
+        long start = System.currentTimeMillis();
+        feeder.deleteProcessingIndex();
+        Path objectStoreRoot = null;
+        if (KConfiguration.getInstance().getConfiguration().getBoolean("legacyfs")) {
+            objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("object_store_base"));
+        } else {
+            objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("objectStore.path"));
         }
+        Files.walk(objectStoreRoot, FileVisitOption.FOLLOW_LINKS).parallel().filter(Files::isRegularFile).forEach(path -> {
+            String filename = path.toString();
+            try {
+                FileInputStream inputStream = new FileInputStream(path.toFile());
+                DigitalObject digitalObject = createDigitalObject(inputStream);
+                rebuildProcessingIndex(feeder, digitalObject);
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
+            }
+        });
+        LOGGER.info("Finished tree walk in " + (System.currentTimeMillis() - start) + " ms");
+
         fa.shutdown();
     }
 
@@ -117,6 +116,18 @@ public class ProcessingIndexRebuild {
         } catch (Exception e) {
             throw new RepositoryException(e);
         }
+ //       finally {
+//            if (feeder != null) {
+//                try {
+//                    feeder.commit();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                } catch (SolrServerException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                LOGGER.info("Feeder commited.");
+//            }
+ //       }
     }
 
     private static void rebuildProcessingIndexImpl(AkubraObject akubraObject, InputStream content) throws RepositoryException {

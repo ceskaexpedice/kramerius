@@ -87,7 +87,7 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
 
 
     @Override
-    public boolean isLabelAssignable() {
+    public boolean isLicenseAssignable() {
         return true;
     }
 

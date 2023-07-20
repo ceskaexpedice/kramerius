@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexer.execution.Indexer;
 import org.json.JSONObject;
@@ -26,7 +27,7 @@ import java.util.logging.Logger;
 public class InfoResource extends ClientApiResource {
 
     public static Logger LOGGER = Logger.getLogger(InfoResource.class.getName());
-
+    
     private static HashMap<String, Locale> LOCALES = new HashMap<String, Locale>() {{
         put("en", Locale.ENGLISH);
         put("cs", new Locale("cs", "cz"));
@@ -42,6 +43,7 @@ public class InfoResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getItems(@QueryParam("language") String langCode) {
         try {
+            // TODO: Rebuild 
             JSONObject json = new JSONObject();
             json.put("pdfMaxRange", getPdfMaxRange());
             json.put("version", getVersion());
@@ -57,6 +59,26 @@ public class InfoResource extends ClientApiResource {
                 json.put("rightMsg", rightMsg);
             }
             json.put("indexerVersion", Indexer.INDEXER_VERSION);
+            
+            // Acronym & and info about instance 
+            String acronym = KConfiguration.getInstance().getConfiguration().getString("acronym","");
+            if (StringUtils.isAnyString(acronym)) {
+                JSONObject instance =  new JSONObject();
+
+                instance.put("acronym", acronym);
+                instance.put("registr", String.format("https://registr.digitalniknihovna.cz/library/%s", acronym));
+                
+                // client url 
+                String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
+                if (clientUrl != null) instance.put("client", clientUrl);
+
+                // contact
+                String contact = KConfiguration.getInstance().getConfiguration().getString("contact");
+                if (contact != null) instance.put("contact", contact);
+
+                json.put("instance", instance);
+            }
+            
             return Response.ok(json).build();
         } catch (WebApplicationException e) {
             throw e;

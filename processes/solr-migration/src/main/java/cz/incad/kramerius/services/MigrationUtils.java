@@ -223,7 +223,7 @@ public class MigrationUtils {
             }
         });
         String fieldlist = KConfiguration.getInstance().getConfiguration().getString(SOLR_MIGRATION_FIELD_LIST_KEY, DEFAULT_FIELDLIST);
-        String query =  IterationUtils.SELECT_ENDPOINT + "?q=pid:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8");
+        String query =  IterationUtils.Endpoint.select.name() + "?q=pid:(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8");
         return IterationUtils.executeQuery(client, url, query);
     }
 

@@ -2,12 +2,12 @@ package cz.kramerius.searchIndex.indexer.execution;
 
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
+import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 public class Indexer {
     private static final Logger LOGGER = Logger.getLogger(Indexer.class.getName());
 
-    public static final int INDEXER_VERSION = 16; //this should be updated after every change in logic, that affects full indexation
+    public static final int INDEXER_VERSION = 17; //this should be updated after every change in logic, that affects full indexation
 
     private final SolrConfig solrConfig;
     //only state variable
@@ -41,6 +41,8 @@ public class Indexer {
 
     private final SolrInputBuilder solrInputBuilder;
     private SolrIndexAccess solrIndexer = null;
+
+    private boolean ignoreInconsistentObjects=true;
 
     public static boolean useCompositeId() {
         return KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false);
@@ -69,6 +71,7 @@ public class Indexer {
         this.solrInputBuilder = new SolrInputBuilder();
         this.solrConfig = solrConfig;
         this.reportLogger = new ReportLogger(reportLoggerStream);
+        this.ignoreInconsistentObjects = ignoreInconsistentObjects;
         init();
     }
 
@@ -183,8 +186,10 @@ public class Indexer {
                 //protoze vysledkem tehle zmeny (neexistujici/falesne neexistujici objekty budou v indexu ponechany v dosavadnim stavu, namisto smazani) muze byt skryta zastaralost v indexu, napr.:
                 //monografie se muze jevit jako zaindexovana indexerem ve verzi třeba 15, ale obsahuje stranku, ktera preindexovana nebyla, nebyla ale ani zahozena a jeji zaznam v indexu je nenapadne zastaraly
                 //podobne pro periodikum, pokud by nebyl dostupny zaznam cisla, nebude preindexovano a ani jeji stranky
-                boolean ignoreObjectsMissingFromRepository = true;
-                if (ignoreObjectsMissingFromRepository) { //ignore missing objects
+
+                // Replaced ingoremissingFromRepository by ingore inconsistent object
+                //boolean ignoreObjectsMissingFromRepository = true;
+                if (this.ignoreInconsistentObjects) { //ignore missing objects
                     report("object not found in repository (or found in inconsistent state), ignoring: " + pid);
                     System.err.println("object not found in repository (or found in inconsistent state), ignoring: " + pid);
                     counters.incrementIgnored();
@@ -208,9 +213,16 @@ public class Indexer {
                 String imgFullMime = krameriusRepositoryFascade.getImgFullMimetype(pid);
 
                 Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid()) : null;
-                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
-                String solrInputStr = solrInput.getDocument().asXML();
-                solrIndexer.indexFromXmlString(solrInputStr, false);
+                try {
+                    SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
+                    String solrInputStr = solrInput.getDocument().asXML();
+                    solrIndexer.indexFromXmlString(solrInputStr, false);
+                } catch (DocumentException e) {  //try to reindex without ocr - TODO: hack, ocr should be properly escaped
+                    //typical root cause: Caused by: org.xml.sax.SAXParseException; lineNumber: 2; columnNumber: 2302; Character reference "&#6" is an invalid XML character.
+                    SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, "", repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
+                    String solrInputStr = solrInput.getDocument().asXML();
+                    solrIndexer.indexFromXmlString(solrInputStr, false);
+                }
                 counters.incrementIndexed();
                 report("");
                 if ("application/pdf".equals(imgFullMime)) {

@@ -95,11 +95,17 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
 
     @Override
     public String calculateUserName(HttpServletRequest req) {
+
         Map<String, String> map = attributes(req);
         String username = "not_defined";
-        if (map.containsKey("edupersonuniqueid")) {
-            username = map.get("edupersonuniqueid");
+        if (map.containsKey("eduPersonPrincipalName")) {
+            username = map.get("eduPersonPrincipalName");
+        } else if (map.containsKey("displayName")) {
+            username = map.get("displayName");
+        } else if (map.containsKey("remote_user")) {
+            username = map.get("remote_user");
         }
+        
         return "_cdk_"+username;
     }
 
@@ -118,14 +124,15 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
             map.keySet().forEach(key-> {
                 if(attributes.containsKey(key)) {
                     if (matchValue(map.get(key), attributes.get(key))) {
-                        LOGGER.info("Found match in attribute:"+key);
+                        LOGGER.info(String.format("Found match in attribute: %s",key));
                         resultOfGroup.add(grp);
                     }
                 }
             });
         });
         
-        LOGGER.info("Associated group with user is "+resultOfGroup);
+        LOGGER.info(String.format("Associated group with user is %s",resultOfGroup.stream().map(GroupRepresentation::getName).collect(Collectors.toList())));
+        
         Set<String> roles = new HashSet<>();
         resultOfGroup.stream().forEach(rg-> {
             roles.addAll(rg.getRealmRoles());
@@ -135,7 +142,6 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
         map.keySet().forEach(key-> {
             cdkUser.setProperty(key, map.get(key));
         });
-        
         
         Map<String,List<String>> userAttributes = new HashMap<>();
         map.keySet().forEach(key-> {
@@ -162,11 +168,19 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
     }
 
     private boolean matchValue(String expectedValue, List<String> groupAttrs) {
-        for (String grpAttr : groupAttrs) {
-            if (expectedValue.equals(grpAttr)) {
-                return true;
+        try {
+            for (String grpAttr : groupAttrs) {
+                if (expectedValue.equals(grpAttr)) {
+                    return true;
+                }
+                if (expectedValue.matches(grpAttr)) {
+                    return true;
+                }
             }
+            return false;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return false;
         }
-        return false;
     }
 }

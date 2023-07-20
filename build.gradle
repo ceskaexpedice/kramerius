@@ -84,7 +84,7 @@ allprojects {
 
 
     compileJava.options.encoding = 'UTF-8'
-
+	compileTestJava.options.encoding = 'UTF-8'
 
     ext.guiceversion ='4.2.2'
     ext.postgresversion = '42.3.1'
@@ -296,30 +296,31 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
     description "Create full distribution zip"
     baseName "kramerius"
     group "Distribution"
-    from {'search/build/libs'}
-    //from {'processes/migration/build/distributions'}
-    //from configurations.editors
-    from configurations.database
-    from {'build/installation'}
+	// core war 
+	from {'search/build/libs'}
+	// migration tool 
+    from {'processes/migration/build/distributions'}
+	// installation.zip
+    from {'build/installation/'}
     eachFile {
         it.path = it.path.replace('-5.1.0.war', '.war')
     }
 
     exclude "**.tar"
-    //from 'build/distributions/kramerius-javadoc.zip'
 }
 
+/*
 task distZipWOEditors(type: Zip, dependsOn: 'zipInstallDir') {
     description "Create  distributions zip without editors"
     baseName "kramerius"
     group "Distribution"
     from { 'search/build/libs' }
     from { 'build/installation' }
-}
+}*/
 
 /**
  * Patch distribution task
- */
+  // DISABLED	
 task distPatchZip(type:Zip) {
     description "Create patch distribution zip"
     baseName "kramerius-patch"
@@ -330,14 +331,19 @@ task distPatchZip(type:Zip) {
 
     exclude "**.tar"
 }
+ */
 
 
 // zip installaton directory
 task zipInstallDir(type:Zip) {
     description "Create zip from installation directory"
     baseName "installation"
-    from "installation"
+    from ("installation") {
+		include "solr-9*/**"
+		include "0eaa6730-9068-11dd-97de-000d606f5dc6.zip"
+	}
     destinationDir file('build/installation')
+	
 }
 
 
