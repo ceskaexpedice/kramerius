@@ -116,12 +116,22 @@ public class ProcessingIndexRebuild {
 
             @Override
             public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-                return FileVisitResult.TERMINATE;
+                LOGGER.log(Level.SEVERE, "Error processing file: " + file.toString(), exc);
+
+                // This will allow the execution to continue uninterrupted,
+                // even in the event of encountering permission errors.
+                return FileVisitResult.CONTINUE;
             }
 
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                return FileVisitResult.TERMINATE;
+                if (exc != null) {
+                    LOGGER.log(Level.SEVERE, "Error searching directory : " + dir.toString(), exc);
+                }
+
+                // This will allow the execution to continue uninterrupted,
+                // even in the event of encountering permission errors.
+                return FileVisitResult.CONTINUE;
             }
         });
 
