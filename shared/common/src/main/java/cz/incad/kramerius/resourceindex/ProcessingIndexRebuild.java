@@ -20,6 +20,7 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.checkerframework.checker.units.qual.C;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
@@ -28,11 +29,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -75,16 +76,66 @@ public class ProcessingIndexRebuild {
         } else {
             objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("objectStore.path"));
         }
-        Files.walk(objectStoreRoot, FileVisitOption.FOLLOW_LINKS).parallel().filter(Files::isRegularFile).forEach(path -> {
-            String filename = path.toString();
-            try {
-                FileInputStream inputStream = new FileInputStream(path.toFile());
-                DigitalObject digitalObject = createDigitalObject(inputStream);
-                rebuildProcessingIndex(feeder, digitalObject);
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
+
+        // ForkJoinPool is used to preserve parallelization.
+        // The default constructor of ForkJoinPool creates a pool with parallelism \
+        // equal to Runtime.availableProcessors(), same as parallel streams.
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+
+        // Files.walkFileTree() is used because it does not store any Paths in memory,
+        // which makes it a more efficient solution to the problem compared to Files.walk().
+        // ForkJoinPool.submit() does not allow running more threads than there are available processors.
+        Files.walkFileTree(objectStoreRoot,
+                Collections.singleton(FileVisitOption.FOLLOW_LINKS),
+                Integer.MAX_VALUE,
+                new FileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                if (!Files.isRegularFile(file)) {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                forkJoinPool.submit(() -> {
+                    String filename = file.toString();
+                    try {
+                        FileInputStream inputStream = new FileInputStream(file.toFile());
+                        DigitalObject digitalObject = createDigitalObject(inputStream);
+                        rebuildProcessingIndex(feeder, digitalObject);
+                    } catch (Exception ex) {
+                        LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
+                    }
+                });
+
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                return FileVisitResult.TERMINATE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                return FileVisitResult.TERMINATE;
             }
         });
+
+//        Files.walk(objectStoreRoot, FileVisitOption.FOLLOW_LINKS).parallel().filter(Files::isRegularFile).forEach(path -> {
+//            String filename = path.toString();
+//            try {
+//                FileInputStream inputStream = new FileInputStream(path.toFile());
+//                DigitalObject digitalObject = createDigitalObject(inputStream);
+//                rebuildProcessingIndex(feeder, digitalObject);
+//            } catch (Exception ex) {
+//                LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
+//            }
+//        });
+
         LOGGER.info("Finished tree walk in " + (System.currentTimeMillis() - start) + " ms");
 
         fa.shutdown();
