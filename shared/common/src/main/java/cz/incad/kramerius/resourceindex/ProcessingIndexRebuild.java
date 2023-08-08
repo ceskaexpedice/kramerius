@@ -84,7 +84,7 @@ public class ProcessingIndexRebuild {
 
         // Files.walkFileTree() is used because it does not store any Paths in memory,
         // which makes it a more efficient solution to the problem compared to Files.walk().
-        // ForkJoinPool.submit() does not allow running more threads than there are available processors.
+        // ForkJoinPool.execute() does not allow running more threads than there are available processors.
         Files.walkFileTree(objectStoreRoot,
                 Collections.singleton(FileVisitOption.FOLLOW_LINKS),
                 Integer.MAX_VALUE,
@@ -100,8 +100,14 @@ public class ProcessingIndexRebuild {
                     return FileVisitResult.CONTINUE;
                 }
 
-                forkJoinPool.submit(() -> {
+                forkJoinPool.execute(() -> {
                     String filename = file.toString();
+                    try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
+                        DigitalObject digitalObject = createDigitalObject(inputStream);
+                        rebuildProcessingIndex(feeder, digitalObject);
+                    } catch (Exception ex) {
+                        LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
+                    }
                     try {
                         FileInputStream inputStream = new FileInputStream(file.toFile());
                         DigitalObject digitalObject = createDigitalObject(inputStream);
