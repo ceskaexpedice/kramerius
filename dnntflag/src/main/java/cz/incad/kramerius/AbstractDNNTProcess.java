@@ -40,7 +40,7 @@ public abstract class AbstractDNNTProcess {
     }
 
     protected void initializeFromProperties() {
-        this.numberofThreads = KConfiguration.getInstance().getConfiguration().getInt(DNNT_THREADS,2);
+        this.numberofThreads = KConfiguration.getInstance().getConfiguration().getInt(DNNT_THREADS,1);
     }
 
     protected abstract DNNTWorker createWorker(String pid, FedoraAccess fedoraAccess, Client client, boolean flag);
