@@ -20,7 +20,6 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.checkerframework.checker.units.qual.C;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
@@ -29,10 +28,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,7 +76,7 @@ public class ProcessingIndexRebuild {
         }
 
         // ForkJoinPool is used to preserve parallelization.
-        // The default constructor of ForkJoinPool creates a pool with parallelism \
+        // The default constructor of ForkJoinPool creates a pool with parallelism
         // equal to Runtime.availableProcessors(), same as parallel streams.
         ForkJoinPool forkJoinPool = new ForkJoinPool();
 
