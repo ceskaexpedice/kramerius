@@ -41,6 +41,11 @@ import java.util.logging.Logger;
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (processing_rebuild)
  */
 public class ProcessingIndexRebuild {
+    // Could be any number between 100 and 500,000. Lower the number, lower memory usage.
+    // If it was too low, parallelization would be less effective.
+    // If it was too large, memory usage would slower overall execution, because of memory management.
+    private static final int MAX_QUEUED_SUBMITTED_TASKS = 10000;
+
     public static final Logger LOGGER = Logger.getLogger(ProcessingIndexCheck.class.getName());
 
     private static Unmarshaller unmarshaller = null;
@@ -84,7 +89,6 @@ public class ProcessingIndexRebuild {
 
         // Files.walkFileTree() is used because it does not store any Paths in memory,
         // which makes it a more efficient solution to the problem compared to Files.walk().
-        // ForkJoinPool.execute() does not allow running more threads than there are available processors.
         Files.walkFileTree(objectStoreRoot,
                 Collections.singleton(FileVisitOption.FOLLOW_LINKS),
                 Integer.MAX_VALUE,
@@ -100,7 +104,17 @@ public class ProcessingIndexRebuild {
                     return FileVisitResult.CONTINUE;
                 }
 
-                forkJoinPool.execute(() -> {
+                if (forkJoinPool.getQueuedSubmissionCount() < MAX_QUEUED_SUBMITTED_TASKS) {
+                    forkJoinPool.execute(() -> {
+                        String filename = file.toString();
+                        try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
+                            DigitalObject digitalObject = createDigitalObject(inputStream);
+                            rebuildProcessingIndex(feeder, digitalObject);
+                        } catch (Exception ex) {
+                            LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
+                        }
+                    });
+                } else {
                     String filename = file.toString();
                     try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                         DigitalObject digitalObject = createDigitalObject(inputStream);
@@ -108,14 +122,7 @@ public class ProcessingIndexRebuild {
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                     }
-                    try {
-                        FileInputStream inputStream = new FileInputStream(file.toFile());
-                        DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(feeder, digitalObject);
-                    } catch (Exception ex) {
-                        LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
-                    }
-                });
+                }
 
                 return FileVisitResult.CONTINUE;
             }
