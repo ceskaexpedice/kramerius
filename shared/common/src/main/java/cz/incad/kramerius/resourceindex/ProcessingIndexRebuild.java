@@ -43,22 +43,12 @@ import java.util.logging.Logger;
 public class ProcessingIndexRebuild {
     // Could be any number between 100 and 500,000. Lower the number, lower memory usage.
     // If it was too low, parallelization would be less effective.
-    // If it was too large, memory usage would slower overall execution, because of memory management.
+    // If it was too large, memory usage would slower overall execution, due to memory management.
     private static final int MAX_QUEUED_SUBMITTED_TASKS = 10000;
 
     public static final Logger LOGGER = Logger.getLogger(ProcessingIndexCheck.class.getName());
 
-    private static Unmarshaller unmarshaller = null;
-
-    static {
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
-            unmarshaller = jaxbContext.createUnmarshaller();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Cannot init JAXB", e);
-            throw new RuntimeException(e);
-        }
-    }
+    private static final Unmarshaller unmarshaller = initUnmarshaller();
 
     private volatile static long counter = 0;
 
@@ -219,6 +209,16 @@ public class ProcessingIndexRebuild {
             throw new RepositoryException(e);
         } catch (ParserConfigurationException e) {
             throw new RepositoryException(e);
+        }
+    }
+
+    private static Unmarshaller initUnmarshaller() {
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
+            return jaxbContext.createUnmarshaller();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Cannot init JAXB", e);
+            throw new RuntimeException(e);
         }
     }
 }
