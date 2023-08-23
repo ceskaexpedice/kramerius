@@ -428,6 +428,13 @@ findUsedRoles() ::=<<
     select distinct group_id from right_entity
 >>
 
+findUsedParams() ::=<<
+    select crp.crit_param_id from right_entity r 
+    join rights_criterium_entity cr on (r.rights_crit = cr.crit_id) 
+    join criterium_param_entity crp on (cr.citeriumparam= crp.crit_param_id)
+
+>>
+
 
 
 

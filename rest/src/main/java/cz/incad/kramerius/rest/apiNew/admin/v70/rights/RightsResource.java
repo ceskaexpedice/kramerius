@@ -41,6 +41,7 @@ import javax.ws.rs.core.UriBuilderException;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
+import cz.incad.kramerius.rest.api.exceptions.DeleteException;
 import cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.licenses.License;
@@ -294,13 +295,27 @@ public class RightsResource {
                 int id2 = Integer.parseInt(id);
                 RightCriteriumParams params = this.rightsManager.findParamById(id2);
                 if (params != null) {
-                    try {
-                        this.rightsManager.deleteRightCriteriumParams(id2);
-                        JSONObject jsonObject = paramToJSON(params);
-                        jsonObject.put("deleted", true);
-                        return Response.ok().entity(jsonObject.toString()).build();
-                    } catch (JSONException e) {
-                        throw new GenericApplicationException(e.getMessage(), e);
+
+                    boolean found = false;
+                    int[] usedParams = this.rightsManager.findUsedParamIDs();
+                    for (int i=0,ll=usedParams.length;i<ll;i++) {
+                        if (usedParams[i] == params.getId()) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        try {
+                            this.rightsManager.deleteRightCriteriumParams(id2);
+                            JSONObject jsonObject = paramToJSON(params);
+                            jsonObject.put("deleted", true);
+                            return Response.ok().entity(jsonObject.toString()).build();
+                        } catch (JSONException e) {
+                            throw new GenericApplicationException(e.getMessage(), e);
+                        }
+                    } else {
+                        throw new DeleteException(String.format("Cannot delete param %s", params.getShortDescription()));
+                        
                     }
                 } else {
                     throw new ObjectNotFound("cannot find param '" + id + "'");

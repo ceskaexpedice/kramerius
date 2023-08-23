@@ -17,13 +17,15 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.epub;
 
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 public enum EPubFileTypes {
     
+    
     opf("application/oebps-package+xml"),
     ncx("application/x-dtbncx+xml"),
-    htm("text/html"),
-    html("text/html"),
+    htm("application/xhtml+xml"),
+    html("application/xhtml+xml"),
     xhtml("application/xhtml+xml"),
     css("text/css"),
     jpg("image/jpeg"),
@@ -48,8 +50,8 @@ public enum EPubFileTypes {
     
     public static String findMimetype(String name) {
         if (name.contains(".")) {
-            String postfix = name.substring(name.lastIndexOf("."));
-            
+            String postfix = name.substring(name.lastIndexOf(".")+1);
+            //System.out.println(postfix);
             EPubFileTypes[] values = EPubFileTypes.values(); // postfix.toLowerCase()
             for (int i = 0; i < values.length; i++) {
                 EPubFileTypes ftype = values[i];
@@ -61,5 +63,8 @@ public enum EPubFileTypes {
         
         return EPubFileTypes.none.getMimeType();
     }
+ 
+    public static final Logger LOGGER = Logger.getLogger(EPubFileTypes.class.getName());
+
     
 }

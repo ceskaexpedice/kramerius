@@ -209,11 +209,26 @@ public interface RightsManager {
     
     
     /**
+     * Finds all used param identifiers
+     * @return
+     */
+    public int[] findUsedParamIDs();
+    
+    
+    /**
      * Find all pids which using given params (identified by prams identifier)
      * @param paramId Param identifier
      * @return Map that contains associtaion PID -> SecuredAction
      */
     public List<Map<String,String>> findObjectUsingParams(int paramId);
 
+    
+    
+    
+    /**
+     * Finds all object using given label id
+     * @param labelid Label id
+     * @return
+     */
     public List<Map<String,String>>  findObjectUsingLabel(int labelid);
 }

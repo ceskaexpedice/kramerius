@@ -780,6 +780,32 @@ public class DatabaseRightsManager implements RightsManager {
     }
 
 
+    
+    
+    
+    
+    @Override
+    public int[] findUsedParamIDs() {
+        StringTemplate template = SecurityDatabaseUtils.stGroup().getInstanceOf("findUsedParams");
+        List<Integer> ids = new JDBCQueryTemplate<Integer>(this.provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                int val = rs.getInt("crit_param_id");
+                if (val > 0) {
+                    returnsList.add(val);
+                }
+                return true;
+            }
+        }.executeQuery(template.toString());
+     
+        int[] retArray = new int[ids.size()];
+        for (int i = 0; i < retArray.length; i++) {
+            retArray[i] = ids.get(i);
+        }
+        return retArray;
+    }
+
+
     @Override
     public List<Map<String,String>> findObjectUsingParams(int paramId) {
 

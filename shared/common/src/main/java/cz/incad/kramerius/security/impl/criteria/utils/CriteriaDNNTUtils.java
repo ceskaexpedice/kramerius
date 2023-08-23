@@ -41,14 +41,18 @@ public class CriteriaDNNTUtils {
         }
     }
 
-    // allowed by dnntlabel right
-
-    public static boolean allowedByReadDNNTLabelsRight(RightsReturnObject obj, License license) {
+    // allowed by license
+    public static boolean allowedByReadLicenseRight(RightsReturnObject obj, License license) {
         if (obj.getRight() != null && obj.getRight().getCriteriumWrapper() != null) {
             if (obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabels.class.getName()) ||
                     obj.getRight().getCriteriumWrapper().getRightCriterium().getQName().equals(ReadDNNTLabelsIPFiltered.class.getName())) {
-                String s = obj.getEvaluateInfoMap().get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL);
-                return license != null && license.getName() != null && s != null && s.equals(license.getName());
+
+                String providedByLicense = obj.getEvaluateInfoMap().get(ReadDNNTLabels.PROVIDED_BY_DNNT_LICENSE);
+                if (providedByLicense == null) {
+                    providedByLicense = obj.getEvaluateInfoMap().get(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL);
+                }
+
+                return license != null && license.getName() != null && providedByLicense != null && providedByLicense.equals(license.getName());
             }
         }
         return false;
