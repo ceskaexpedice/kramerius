@@ -513,6 +513,79 @@ public class CollectionsResource extends AdminApiResource {
         return null;
     }
 
+
+//    @PUT
+//    @Path("{pid}/children_order")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response setChildrenOrder(@PathParam("pid") String pid, JSONObject newChildrenOrder) {
+
+    @PUT
+    @Path("{collectionPid}/items/delete_batch_items")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, JSONObject batch) {
+        synchronized (CollectionsResource.class) {
+            List<String> reindexCollection = new ArrayList<>();
+            checkSupportedObjectPid(collectionPid);
+            try {
+
+                User user1 = this.userProvider.get();
+                List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+                Document relsExt = krameriusRepositoryApi.getRelsExt(collectionPid, true);
+
+                for (int i = 0; i < batch.getJSONArray("pids").length(); i++) {
+                    String itemPid = batch.getJSONArray("pids").getString(i);
+
+                    checkSupportedObjectPid(itemPid);
+                    if (!permitCollectionEdit(this.rightsResolver, user1, collectionPid)) {
+                        throw new ForbiddenException(
+                                "user '%s' is not allowed to create collections (missing action '%s')",
+                                user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); // 403
+                    }
+
+                    if (!permitAbleToAdd(this.rightsResolver, user1, itemPid)) {
+                        throw new ForbiddenException(
+                                "user '%s' is not allowed to add item %s to collection (missing action '%s')",
+                                user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); // 403
+                    }
+                    checkObjectExists(collectionPid);
+                    checkObjectExists(itemPid);
+                    checkCanRemoveItemFromCollection(itemPid, collectionPid);
+                    // extract relsExt and update by removing relation
+                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt,
+                            KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+                    if (!removed) {
+                        throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
+                    } else {
+                        reindexCollection.add(itemPid);
+                    }
+                }
+
+                // save updated rels-ext
+                krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
+
+                reindexCollection.forEach(itemPid -> {
+                    // schedule reindexations - 1. item that was removed (whole tree and foster
+                    // trees), 2. no need to re-index collection
+                    // TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS
+                    // (neimplementovana)
+                    scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES",
+                            false, itemPid);
+
+                });
+
+            } catch (WebApplicationException e) {
+                throw e;
+            } catch (Throwable e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
+            }
+
+            return Response.status(Response.Status.OK).build();
+
+        }
+    }
+
+    
     /**
      * Removes single item from collection.
      *
