@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak3rdUser> {
 
+    private static final String EDU_PERSON_UNIQUE_ID = "eduPersonUniqueId";
     public static final Logger LOGGER = Logger.getLogger(KeycloakUserSupport.class.getName());
 
     @Override
@@ -117,8 +118,9 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
             if (request.getUserPrincipal() instanceof KeycloakPrincipal) {
                 AccessToken token = ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext()
                         .getToken();
-                if (token.getEmail() != null) {
-                    return token.getEmail();
+                // If the user is logged in via federation, the eduPersonUniqueId attribute is used; otherwise, the preferred_username attribute is used. 
+                if (token.getOtherClaims().containsKey(EDU_PERSON_UNIQUE_ID)) {
+                    return token.getOtherClaims().get(EDU_PERSON_UNIQUE_ID).toString();
                 } else {
                     return token.getPreferredUsername();
                 }

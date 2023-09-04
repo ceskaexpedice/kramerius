@@ -128,12 +128,15 @@ public interface LicensesManager {
      */
     public void updateLocalLicense(License license) throws LicensesManagerException;
     
+    public void changeOrdering(List<License> licenses ) throws LicensesManagerException;
+    
     /**
      * Change priority of the license; Increase priority
      * @param license
      * @throws LicensesManagerException
      */
     public void moveUp(License license) throws LicensesManagerException;
+
     
     /**
      * Change priority of the licensel; Decrease priority

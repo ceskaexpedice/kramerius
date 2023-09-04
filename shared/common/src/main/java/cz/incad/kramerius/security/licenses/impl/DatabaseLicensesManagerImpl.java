@@ -322,6 +322,20 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
             throw new LicensesManagerException(e.getMessage(), e);
         }
     }
+    
+    
+
+    @Override
+    public void changeOrdering(List<License> licenses) throws LicensesManagerException {
+        try {
+            UpdatePriorityCommand[] commands = licenses.stream().map(l -> {
+                return new UpdatePriorityCommand(l.getId(), l.getPriority());
+            }).toArray(UpdatePriorityCommand[]::new);
+            new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(commands);
+        } catch (SQLException e) {
+            throw new LicensesManagerException(e.getMessage(), e);
+        }
+    }
 
     @Override
     public void moveUp(License license) throws LicensesManagerException {

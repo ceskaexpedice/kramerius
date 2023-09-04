@@ -20,8 +20,13 @@ import org.json.JSONObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -178,6 +183,31 @@ public class LicensesResource {
         } else throw new ActionNotAllowed("action is not allowed");
     }
 
+    @PUT
+    @Path("changeOrdering")
+    @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
+    public Response changeOrdering(JSONObject jsonObject) {
+        if (permit(this.userProvider.get())) {
+            List<License> lics = new ArrayList<>();
+            JSONArray jsonLicenses = jsonObject.getJSONArray("licenses");
+            for (int i = 0; i < jsonLicenses.length(); i++) {
+                JSONObject jsonLic = jsonLicenses.getJSONObject(i);
+                lics.add(LicenseUtils.licenseFromJSON(jsonLic));
+            }
+            try {
+                this.licensesManager.changeOrdering(lics);
+
+                List<License> localLicenses = this.licensesManager.getAllLicenses();
+                return labelsAsResponse(localLicenses);
+            } catch (LicensesManagerException e) {
+                throw new GenericApplicationException(e.getMessage(), e);
+            }
+        } else throw new ActionNotAllowed("action is not allowed");
+    }
+    
+    
+    
     @PUT
     @Path("moveup/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
