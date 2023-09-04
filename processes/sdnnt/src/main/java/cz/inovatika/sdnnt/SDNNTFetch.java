@@ -222,8 +222,8 @@ public class SDNNTFetch {
                     SolrInputDocument in = allChanges.get(ident.toString());
 
                     Collection<Object> fieldValues = in.getFieldValues("real_kram_licenses");
-
-                    List<String> docLicenses = distinctValues(fieldValues);
+                    
+                    List<String> realKramLicenses = distinctValues(fieldValues);
                     
                     Collection<Object> syncMasterActions = in.getFieldValues("sync_actions");
                     List<String> masterActions = distinctValues(syncMasterActions);
@@ -238,10 +238,11 @@ public class SDNNTFetch {
                     if (rDocState!= null &&  rDocState.toString().equals("A")) {
                         // polozka granularity nebo samostatny titul
                         if (granularityItem || !hasGranularity) {
-                            Object license = rDoc.getFieldValue("license");
-                            if (license != null) {
-                                if (license.toString().equals("dnntt") && !docLicenses.contains("dnntt")) {
-                                    if (docLicenses.contains("dnnto")) {
+                            Object expectedLicense = rDoc.getFieldValue("license");
+                            if (expectedLicense != null) {
+                                if (expectedLicense.toString().equals("dnntt") && !realKramLicenses.contains("dnntt")) {
+                                    // ocekavana licence dnntt; kram licence dnnto -> zmena dnnto->dnntt
+                                    if (realKramLicenses.contains("dnnto")) {
                                         atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name(), "sync_actions");
                                         atomicOneValSet(in, SyncActionEnum.change_dnnto_dnntt.getValue(), "sync_sort");
                                         dirty = true;
@@ -252,10 +253,11 @@ public class SDNNTFetch {
                                     }
                                 }
 
-                                if (license.toString().equals("dnnto") && !docLicenses.contains("dnnto")) {
-                                    if (docLicenses.contains("dnntt")) {
-                                        atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name() /*"change_dnnto_dnntt"*/, "sync_actions");
-                                        atomicOneValSet(in, SyncActionEnum.change_dnnto_dnntt.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
+                                if (expectedLicense.toString().equals("dnnto") && !realKramLicenses.contains("dnnto")) {
+                                    // ocekavana licence dnnto; kram licence dnntt -> zmena dnntt->dnnto
+                                    if (realKramLicenses.contains("dnntt")) {
+                                        atomicAddDistinct(in, SyncActionEnum.change_dnntt_dnnto.name() /*"change_dnnto_dnntt"*/, "sync_actions");
+                                        atomicOneValSet(in, SyncActionEnum.change_dnntt_dnnto.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
                                         dirty = true;
                                     } else {
                                         atomicAddDistinct(in, SyncActionEnum.add_dnnto.name() /*"add_dnnto"*/, "sync_actions");
@@ -268,14 +270,14 @@ public class SDNNTFetch {
                     } else {
                         if (granularityItem || !hasGranularity) {
                             
-                            if (docLicenses.contains("dnntt")) {
+                            if (realKramLicenses.contains("dnntt")) {
                                 atomicAddDistinct(in, SyncActionEnum.remove_dnntt.name() /*"remove_dnntt"*/, "sync_actions");
                                 atomicOneValSet(in, SyncActionEnum.remove_dnntt.getValue() /*"remove_dnntt"*/, "sync_sort");
                                 dirty = true;
                             }
-                            if (docLicenses.contains("dnnto")) {
+                            if (realKramLicenses.contains("dnnto")) {
                                 atomicAddDistinct(in, SyncActionEnum.remove_dnnto.name() /*"remove_dnnto"*/, "sync_actions");
-                                if (!docLicenses.contains("dnntt")) {
+                                if (!realKramLicenses.contains("dnntt")) {
                                     atomicOneValSet(in, SyncActionEnum.remove_dnnto.getValue() /*"remove_dnnto"*/, "sync_sort");
                                 }
                                 dirty = true;

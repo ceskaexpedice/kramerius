@@ -93,10 +93,10 @@ public class SDNNTSyncResource {
         remove_dnntt(Arrays.asList("dnntt"), Arrays.asList("remove_license")),
         
         /** The title needs to be udpated by changing owning license from dnnto to dnntt */
-        change_dnnto_dnntt(Arrays.asList("dnnto", "dnntt"), Arrays.asList("add_license", "remove_license")),
+        change_dnnto_dnntt(Arrays.asList("dnntt","dnnto"), Arrays.asList("add_license", "remove_license")),
 
         /** The title needs to be udpated by changing owning license from dnntt to dnnto */
-        change_dnntt_dnnto(Arrays.asList("dnntt", "dnnto"), Arrays.asList("add_license", "remove_license"));
+        change_dnntt_dnnto(Arrays.asList("dnnto","dnntt"), Arrays.asList("add_license", "remove_license"));
         // partial_change(new ArrayList<String>(), new ArrayList<String>());
 
         private List<String> licenses;
