@@ -183,25 +183,17 @@ public class RolesResource {
                 try {
                     Role r = this.userManager.findRole(Integer.parseInt(id));
                     if (r != null) {
-
-                        boolean found = false;
-                        int[] usedRoleIDs = this.rightsManager.findUsedRoleIDs();
-                        for (int i=0,ll=usedRoleIDs.length;i<ll;i++) {
-                            if (usedRoleIDs[i] == r.getId()) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            this.userManager.removeRole(r);
-                            if (this.userManager.findRole(r.getId()) == null) {
-                                return Response.status(Response.Status.NO_CONTENT).entity(new JSONObject().toString()).build();
-                            } else {
-                                throw new GenericApplicationException(String.format("Cannot delete role %s", r.getName()));
-                            }
+                        // roles association
+                        this.userManager.removeAllRolesAssociation(r);
+                        // 
+                        this.userManager.removeRole(r);
+                        if (this.userManager.findRole(r.getId()) == null) {
+                            return Response.status(Response.Status.NO_CONTENT).entity(new JSONObject().toString()).build();
                         } else {
-                            throw new DeleteException(String.format("Cannot delete role %s", r.getName()));
+                            throw new GenericApplicationException(String.format("Cannot delete role %s", r.getName()));
                         }
+
+                        
                     } else throw new ObjectNotFound("cannot find role '"+id+"'");
                 } catch (SQLException e) {
                     throw new DeleteException(e.getMessage());

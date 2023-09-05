@@ -29,7 +29,6 @@ public class EndpointFolders {
     
     @Inject
     FolderDatabase db;
-    //Authenticator auth = new Authenticator();
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

@@ -30,6 +30,7 @@ import cz.incad.kramerius.security.User;
 //TODO: Check; might by possible that it is used only in client resource
 public class UsersUtils {
 
+    public static final String EMAIL = "email";
     public static final String LNAME = "lname";
     public static final String FIRSTNAME = "firstname";
     public static final String SURNAME = "surname";
@@ -72,6 +73,9 @@ public class UsersUtils {
         labels.stream().forEach(labelsArray::put);
         jsonObj.put(LICENSES, labelsArray);
         
+        if (user.getEmail() != null) {
+            jsonObj.put(EMAIL, user.getEmail());
+        }
 
         // session attributes - Question 
         if (enhanceBySessionAttributes) {

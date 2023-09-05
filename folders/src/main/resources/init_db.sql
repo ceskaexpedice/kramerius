@@ -36,13 +36,12 @@ BEGIN
         WHERE uuid = NEW.folder_uuid;
     END IF;
 
-    RETURN NEW;
+    RETURN NEW; 
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_folder_items_count_and_updated_at_trigger
-AFTER INSERT OR UPDATE OR DELETE ON folder_item
-FOR EACH ROW
-EXECUTE FUNCTION update_folder_items_count_and_updated_at();
+CREATE TRIGGER update_folder_items_count_and_updated_at_trigger 
+AFTER INSERT OR UPDATE OR DELETE ON folder_item 
+FOR EACH ROW EXECUTE PROCEDURE update_folder_items_count_and_updated_at();
 
 

@@ -534,6 +534,17 @@ disassociateRole() ::=<<
 	delete from group_user_assoc where user_id=? and group_id=?
 >>
 
+/** disassociate role for all users */
+disassociateRoleForAllUsers() ::=<<
+    delete from group_user_assoc where group_id=?
+>>
+
+/** disassociate role for all active users */
+disassociateRoleForAllActiveUsers() ::=<<
+    delete from active_users_2_roles where role_id=?
+>>
+
+
 /** disassociate role for user*/
 disassociateUserRole() ::=<<
 	delete from group_user_assoc where user_id=?

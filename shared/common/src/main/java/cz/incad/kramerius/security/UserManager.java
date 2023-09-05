@@ -264,6 +264,8 @@ public interface UserManager {
      */
     public void disAssociateRole(User user, Role role) throws SQLException;
     
+    public void removeAllRolesAssociation(Role role) throws SQLException;
+    
     /**
      * Change roles for given user
      * @param user User

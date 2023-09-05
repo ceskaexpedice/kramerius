@@ -1081,6 +1081,42 @@ public class DatabaseUserManager implements UserManager {
                 user.getId(), role.getId());
     }
 
+    
+    
+    @Override
+    public void removeAllRolesAssociation(Role role) throws SQLException {
+        // Connection connection = this.provider.get();
+        
+        List<JDBCCommand> cmds = new ArrayList<JDBCCommand>();
+        
+        cmds.add(new JDBCCommand() {
+            public Object executeJDBCCommand(Connection connection)
+                    throws SQLException {
+                StringTemplate template = ST_GROUP.getInstanceOf("disassociateRoleForAllUsers");
+                String sql = template.toString();
+                new JDBCUpdateTemplate(connection, false).executeUpdate(sql, role.getId());
+                return getPreviousResult();
+            }
+        });
+
+        cmds.add(new JDBCCommand() {
+            public Object executeJDBCCommand(Connection connection)
+                    throws SQLException {
+                StringTemplate template = ST_GROUP.getInstanceOf("disassociateRoleForAllActiveUsers");
+                String sql = template.toString();
+                new JDBCUpdateTemplate(connection, false).executeUpdate(sql, role.getId());
+                return getPreviousResult();
+            }
+        });
+
+        
+        // do in one transaction
+        final Connection connection = this.provider.get();
+        JDBCTransactionTemplate transaction = new JDBCTransactionTemplate(
+                connection, true);
+        transaction.updateWithTransaction(cmds);
+    }
+
     private User createUser(ResultSet rs) throws SQLException {
         User user = SecurityDBUtils.createUser(rs);
         ((UserImpl) user).setGroups(rolesForUser(user.getId()));
