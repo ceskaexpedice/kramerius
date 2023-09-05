@@ -41,6 +41,7 @@ import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.statistics.database.StatisticDbInitializer;
 import cz.incad.kramerius.users.database.LoggedUserDbHelper;
 import cz.incad.kramerius.utils.DatabaseUtils;
+import cz.inovatika.folders.db.FolderDatabaseInitializer;
 
 /**
  * Starting point for K4 application
@@ -94,6 +95,9 @@ public class StartupServlet extends GuiceServlet {
             // statistics tables
             StatisticDbInitializer.initDatabase(connection, versionService);
 
+            // folder database
+            FolderDatabaseInitializer.initDatabase(connection, versionService);
+            
             // delete session keys
             LoggedUserDbHelper.deleteAllSessionKeys(connection);
 

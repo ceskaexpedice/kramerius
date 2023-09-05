@@ -1,0 +1,14 @@
+dependencies {
+    implementation project(':shared:common')
+    implementation project(':processes:indexer')
+    implementation project(':processes:import')
+    implementation project(':processes:solr-migration')
+
+    //implementation project(':rest')
+
+    implementation "org.apache.commons:commons-csv:1.6"
+
+    //dom4j
+    implementation 'jaxen:jaxen:1.2.0'
+    implementation 'org.dom4j:dom4j:2.1.1'
+}

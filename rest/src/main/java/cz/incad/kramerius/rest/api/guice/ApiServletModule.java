@@ -51,6 +51,8 @@ import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.folders.db.FolderDatabase;
+import cz.inovatika.folders.jersey.EndpointFolders;
 import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
@@ -122,6 +124,10 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.sync.SDNNTSyncResource.class);
 
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.conf.Configurations.class);
+        
+        // Kramerius folders
+        bind(EndpointFolders.class);
+        bind(FolderDatabase.class);
         
         bind(KeycloakProxy.class);
 

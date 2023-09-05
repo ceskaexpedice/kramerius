@@ -3,6 +3,7 @@ include	'shared:common'
 //include	'shared:common-intest'
 include	'rest'
 include	'search'
+include 'folders'
 
 include	'processes:import'
 include	'processes:import-cmdtool'
