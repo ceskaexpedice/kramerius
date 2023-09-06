@@ -37,6 +37,7 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class CDKIIIFResource extends AbstractTileResource {
@@ -68,11 +69,10 @@ public class CDKIIIFResource extends AbstractTileResource {
     
     public Response iiifManifest(String pid) {
         try {
-            String requestURL = this.requestProvider.get().getRequestURL().toString();
-            String zoomUrl = disectZoom(requestURL);
-            StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
-
-            //unescape PID
+//            String requestURL = this.requestProvider.get().getRequestURL().toString();
+//            String zoomUrl = disectZoom(requestURL);
+//            zoomUrl = StringUtils.minus(zoomUrl, "v5.0/cdk/forward/iiif/");
+//            StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
             pid = URLDecoder.decode(pid, "UTF-8");
 
             ObjectPidsPath[] paths = solrAccess.getPath(pid);
@@ -84,28 +84,22 @@ public class CDKIIIFResource extends AbstractTileResource {
 
             if (permited) {
                 try {
-
                     reportAccess(aggregatedAccessLogs, pid);
                     String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
                     if (u != null) {
-                        StringBuilder url = new StringBuilder(u);
-                        while (tokenizer.hasMoreTokens()) {
-                            String nextToken = tokenizer.nextToken();
-                            url.append("/").append(nextToken);
-                            if ("info.json".equals(nextToken)) {
+                    	if (!u.endsWith("/")) { u = u+"/"; }
+                    	u = u +"info.json";
 
-                            	HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
-                                InputStream inputStream = con.getInputStream();
-                                String json = IOUtils.toString(inputStream, Charset.defaultCharset());
-                                JSONObject object = new JSONObject(json);
-                                HttpServletRequest req = this.requestProvider.get();
-                                String urlRequest = req.getRequestURL().toString();
-                                object.put("@id", urlRequest.substring(0, urlRequest.lastIndexOf('/')));
-                                
-                                return Response.ok().entity(object.toString()).build();
-                            }
-                        }
-                    	throw new BadRequestException("bad request");
+                    	HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(u, "", "");
+                        InputStream inputStream = con.getInputStream();
+                        String json = IOUtils.toString(inputStream, Charset.defaultCharset());
+                        JSONObject object = new JSONObject(json);
+                        HttpServletRequest req = this.requestProvider.get();
+                        String urlRequest = req.getRequestURL().toString();
+                        object.put("@id", urlRequest.substring(0, urlRequest.lastIndexOf('/')));
+                        
+                        return Response.ok().entity(object.toString()).build();
+
                     } else {
                     	throw new BadRequestException("bad request");
                     }
@@ -124,7 +118,6 @@ public class CDKIIIFResource extends AbstractTileResource {
 
 
     public static String disectZoom(String requestURL) {
-        // "dvju"
         try {
             StringBuffer buffer = new StringBuffer();
             URL url = new URL(requestURL);
@@ -149,11 +142,15 @@ public class CDKIIIFResource extends AbstractTileResource {
         }
     }
 
+	//0,0,1024,1024/256,/0/default.jpg
     public Response iiifTile(String pid, String region, String size, String rotation) throws IOException {
-        String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+    	String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
         if(u != null) {
-            StringBuilder url = new StringBuilder(u);
-            ResponseBuilder builder = Response.ok();
+        	StringBuilder url = new StringBuilder(u);
+        	if (!u.endsWith("/")) { url.append("/"); }
+        	url.append(String.format("%s/%s/%s/default.jpg", region, size, rotation));
+        	LOGGER.info(String.format("Copy tile from IIIF server %s", url.toString()));
+        	ResponseBuilder builder = Response.ok();
             copyFromImageServer(url.toString(),new ByteArrayOutputStream(), builder);
             return builder.build();
        } else {

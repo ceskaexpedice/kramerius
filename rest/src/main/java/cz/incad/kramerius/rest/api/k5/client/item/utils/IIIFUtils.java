@@ -26,7 +26,8 @@ public class IIIFUtils {
                     }
                 }
             }
-            return iiifEndpoint;
+            
+            return iiifEndpoint.trim();
         } catch (XPathExpressionException  e) {
             throw new IOException(e.getMessage());
         }
