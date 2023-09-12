@@ -36,7 +36,7 @@ import cz.incad.kramerius.security.licenses.License;
 
 public class PDFProtectedByLicense extends AbstractCriterium implements RightCriteriumLabelAware{
 
-    public transient  static final Logger LOGGER = Logger.getLogger(PDFDNNTLabels.class.getName());
+    public transient  static final Logger LOGGER = Logger.getLogger(PDFProtectedByLicense.class.getName());
 
     private License license;
 
