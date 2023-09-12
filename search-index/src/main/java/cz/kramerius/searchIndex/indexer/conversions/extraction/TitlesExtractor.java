@@ -2,11 +2,15 @@ package cz.kramerius.searchIndex.indexer.conversions.extraction;
 
 import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Title;
+
+import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TitlesExtractor {
 
@@ -20,12 +24,41 @@ public class TitlesExtractor {
                     return extractTitleFromPartPageNumber(modsEl);
                 }
             }
+            case "collection": {
+                Map<String, List<String>> extractLocalizedTitles = extractLocalizedTitles(modsEl, "collection");
+                //TODO: to configuration
+                if (extractLocalizedTitles.containsKey("cze")) {
+                    return new Title(extractLocalizedTitles.get("cze").get(0));
+                } else return extractTitleFromTitleInfos(modsEl);
+            }
             default: {
                 return extractTitleFromTitleInfos(modsEl);
             }
         }
     }
+    // Now used only in collection
+    public Map<String,List<String>> extractLocalizedTitles(Element modsEl, String model) {
+    //        <titleInfo lang="cze">
+    //        <title>Evropa</title>
+    //    </titleInfo>
+    //    <titleInfo lang="eng">
+    //        <title>Europe</title>
+    //    </titleInfo>
 
+        Map<String,List<String>> retval = new HashMap<>();
+        List<Node> titleInfoAllEls = Dom4jUtils.buildXpath("mods/titleInfo[@lang]").selectNodes(modsEl);
+        for (Node titleNode : titleInfoAllEls) {
+            Attribute langAttr = ((Element)titleNode).attribute("lang");
+            Element singleNode = (Element) titleNode.selectSingleNode("title");
+            if (!retval.containsKey(langAttr.getValue())) {
+                retval.put(langAttr.getValue(), new ArrayList<String>());
+            }
+            retval.get(langAttr.getValue()).add(singleNode.getTextTrim());
+        }
+        
+        return retval;
+    }
+    
     public List<Title> extractAllTitles(Element modsEl, String model) {
         switch (model) {
             case "page": {
@@ -43,6 +76,10 @@ public class TitlesExtractor {
                 }
                 return titles;
             }
+            case "collection": {
+                List<Node> titleInfoAllEls = Dom4jUtils.buildXpath("mods/titleInfo").selectNodes(modsEl);
+                
+            }
             default: {
                 List<Node> titleInfoAllEls = Dom4jUtils.buildXpath("mods/titleInfo").selectNodes(modsEl);
                 List<Title> titles = new ArrayList<>();
@@ -57,6 +94,7 @@ public class TitlesExtractor {
         }
     }
 
+    
     private Title extractTitleFromPartPageNumber(Element modsEl) {
         //pozor, DMF (alespon DMF Monografie 1.3.2+ umoznuje pouze verzi 'page number'
         Element pageNumber = (Element) Dom4jUtils.buildXpath("mods/part/detail[@type='pageNumber']/number|mods/part/detail[@type='page number']/number").selectSingleNode(modsEl);

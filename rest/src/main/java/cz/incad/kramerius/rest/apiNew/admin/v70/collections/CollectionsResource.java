@@ -19,7 +19,9 @@ import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.dom4j.Attribute;
 import org.dom4j.Document;
+import org.dom4j.Element;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,7 +81,7 @@ public class CollectionsResource extends AdminApiResource {
             }
 
             Collection collection = extractCollectionFromJson(collectionDefinition);
-            if ((collection.nameCz == null || collection.nameCz.isEmpty()) && (collection.nameEn == null || collection.nameEn.isEmpty())) {
+            if (collection.names.isEmpty()) {
                 throw new BadRequestException("name can't be empty");
             }
             collection.pid = "uuid:" + UUID.randomUUID().toString();
@@ -251,7 +253,7 @@ public class CollectionsResource extends AdminApiResource {
                 checkObjectExists(pid);
                 Collection current = fetchCollectionFromRepository(pid, true, false);
                 Collection updated = current.withUpdatedDataModifiableByClient(extractCollectionFromJson(collectionDefinition));
-                if ((updated.nameCz == null || updated.nameCz.isEmpty()) && (updated.nameEn == null || updated.nameEn.isEmpty())) {
+                if (updated.names.isEmpty()) {
                     throw new BadRequestException("name can't be empty");
                 }
                 if (!current.equalsInDataModifiableByClient(updated)) {
@@ -701,6 +703,7 @@ public class CollectionsResource extends AdminApiResource {
 
     private Collection fetchCollectionFromRepository(String pid, boolean withContent, boolean withItems) throws
             IOException, RepositoryException, SolrServerException {
+
         Collection collection = new Collection();
         collection.pid = pid;
         //timestamps from Foxml properties
@@ -710,33 +713,67 @@ public class CollectionsResource extends AdminApiResource {
 
         collection.created = krameriusRepositoryApi.getLowLevelApi().getPropertyCreated(pid);
         collection.modified = krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(pid);
+
         //data from MODS
         Document mods = krameriusRepositoryApi.getMods(pid, false);
-        collection.nameCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[@lang='cze']/title");
-        collection.nameEn = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[@lang='eng']/title");
-        if (collection.nameCz == null) { //fallback for older data without @lang
-            collection.nameCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[not(@lang)]/title");
+        collection.nameUndefined = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[not(@lang)]/title");
+        
+        Iso639Converter converter = new Iso639Converter();
+        // all other languages
+        List<Element> titlesByXPath = Dom4jUtils.elementsByXpath(mods.getRootElement(), "//mods/titleInfo[@lang]");
+        for (Element titleInfo : titlesByXPath) {
+            Attribute lang = titleInfo.attribute("lang");
+            String title = Dom4jUtils.stringOrNullFromFirstElementByXpath(titleInfo, "title");
+            collection.names.put(lang.getValue(), title);
+            
+            if(converter.isConvertable(lang.getValue())) {
+                List<String> converted = converter.convert(lang.getValue());
+                converted.forEach(cKey -> {
+                    collection.names.put(cKey, title);
+                });
+            }
         }
-        collection.descriptionCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract[@lang='cze']");
-        collection.descriptionEn = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract[@lang='eng']");
-        if (collection.descriptionCz == null) {//fallback for older data without @lang
-            collection.descriptionCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract[not(@lang)]");
+        
+        
+        
+        collection.descriptionUndefined = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/abstract[not(@lang)]");
+
+        List<Element> descriptionsByXPath = Dom4jUtils.elementsByXpath(mods.getRootElement(), "//mods/abstract[@lang]");
+        for (Element desc : descriptionsByXPath) {
+            Attribute lang = desc.attribute("lang");
+            String d = desc.getTextTrim();
+            collection.descriptions.put(lang.getValue(), d);
+
+            if(converter.isConvertable(lang.getValue())) {
+                List<String> converted = converter.convert(lang.getValue());
+                converted.forEach(cKey-> {
+                    collection.descriptions.put(cKey, d);
+                    
+                });
+            }
         }
+
         if (withContent) {
-            String contentHtmlEscapedCz = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[@lang='cze']");
-            if (contentHtmlEscapedCz != null) {
-                collection.contentCz = StringEscapeUtils.unescapeHtml(contentHtmlEscapedCz);
+            String contentHtmlCzEscapedNoLang = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[not(@lang)]");
+            if (contentHtmlCzEscapedNoLang != null) {
+                collection.contentUndefined = StringEscapeUtils.unescapeHtml(contentHtmlCzEscapedNoLang);
             }
-            String contentHtmlEscapedEn = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[@lang='eng']");
-            if (contentHtmlEscapedEn != null) {
-                collection.contentEn = StringEscapeUtils.unescapeHtml(contentHtmlEscapedEn);
-            }
-            if (collection.contentCz == null) { //fallback for older data without @lang
-                String contentHtmlCzEscapedNoLang = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/note[not(@lang)]");
-                if (contentHtmlCzEscapedNoLang != null) {
-                    collection.contentCz = StringEscapeUtils.unescapeHtml(contentHtmlCzEscapedNoLang);
+            
+            List<Element> notesByXPath = Dom4jUtils.elementsByXpath(mods.getRootElement(), "//mods/note[@lang]");
+            for (Element note : notesByXPath) {
+                Attribute lang = note.attribute("lang");
+                String d = note.getTextTrim();
+                String escaped = StringEscapeUtils.unescapeHtml(d);
+                collection.contents.put(lang.getValue(), escaped);
+
+                if(converter.isConvertable(lang.getValue())) {
+                    List<String> converted = converter.convert(lang.getValue());
+                    converted.forEach(cKey-> {
+                        collection.contents.put(cKey, escaped);
+                    });
                 }
             }
+
         }
         //data from RELS-EXT
         Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);

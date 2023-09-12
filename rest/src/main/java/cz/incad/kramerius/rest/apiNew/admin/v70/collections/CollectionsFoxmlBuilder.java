@@ -10,6 +10,8 @@ import org.dom4j.Element;
 import org.dom4j.QName;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CollectionsFoxmlBuilder extends FoxmlBuilder {
@@ -21,9 +23,9 @@ public class CollectionsFoxmlBuilder extends FoxmlBuilder {
         digitalObject.addAttribute(new QName("schemaLocation", NS_XSI), "info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
         Element objectProperties = addFoxmlElement(digitalObject, "objectProperties");
         //label
-        Element propertyLabel = addFoxmlElement(objectProperties, "property");
-        propertyLabel.addAttribute("NAME", "info:fedora/fedora-system:def/model#label");
-        propertyLabel.addAttribute("VALUE", collection.nameCz != null ? collection.nameCz : collection.nameEn);
+//        Element propertyLabel = addFoxmlElement(objectProperties, "property");
+//        propertyLabel.addAttribute("NAME", "info:fedora/fedora-system:def/model#label");
+//        propertyLabel.addAttribute("VALUE", collection.nameCz != null ? collection.nameCz : collection.nameEn);
         //state
         Element propertyState = addFoxmlElement(objectProperties, "property");
         propertyState.addAttribute("NAME", "info:fedora/fedora-system:def/model#state");
@@ -71,38 +73,36 @@ public class CollectionsFoxmlBuilder extends FoxmlBuilder {
         Element modsCollection = document.addElement(new QName("modsCollection", NS_MODS));
         Element mods = addModsElement(modsCollection, "mods");
         mods.addAttribute("version", "3.4");
-        if (collection.nameCz != null) {
-            Element tileInfo = addModsElement(mods, "titleInfo");
-            tileInfo.addAttribute("lang", "cze");
-            Element title = addModsElement(tileInfo, "title");
-            title.addText(collection.nameCz);
+        
+        if (collection.names.size() > 0) {
+            collection.names.keySet().forEach(key-> {
+
+                Element tileInfo = addModsElement(mods, "titleInfo");
+                tileInfo.addAttribute("lang", key);
+                Element title = addModsElement(tileInfo, "title");
+                title.addText(collection.names.get(key));
+            });
         }
-        if (collection.nameEn != null) {
-            Element tileInfo = addModsElement(mods, "titleInfo");
-            tileInfo.addAttribute("lang", "eng");
-            Element title = addModsElement(tileInfo, "title");
-            title.addText(collection.nameEn);
+        
+
+        if (collection.descriptions.size() > 0) {
+            collection.descriptions.keySet().forEach(key-> {
+                Element abstractEl = addModsElement(mods, "abstract");
+                abstractEl.addAttribute("lang", key);
+                abstractEl.addText(collection.descriptions.get(key));
+            });
         }
-        if (collection.descriptionCz != null) {
-            Element abstractEl = addModsElement(mods, "abstract");
-            abstractEl.addAttribute("lang", "cze");
-            abstractEl.addText(collection.descriptionCz);
+
+        
+
+        if (collection.contents.size() > 0) {
+            collection.contents.keySet().forEach(key-> {
+                Element note = addModsElement(mods, "note");
+                note.addAttribute("lang", key);
+                note.addText(StringEscapeUtils.escapeHtml(collection.contents.get(key)));
+            });
         }
-        if (collection.descriptionEn != null) {
-            Element abstractEl = addModsElement(mods, "abstract");
-            abstractEl.addAttribute("lang", "eng");
-            abstractEl.addText(collection.descriptionEn);
-        }
-        if (collection.contentCz != null) {
-            Element note = addModsElement(mods, "note");
-            note.addAttribute("lang", "cze");
-            note.addText(StringEscapeUtils.escapeHtml(collection.contentCz));
-        }
-        if (collection.contentEn != null) {
-            Element note = addModsElement(mods, "note");
-            note.addAttribute("lang", "eng");
-            note.addText(StringEscapeUtils.escapeHtml(collection.contentEn));
-        }
+
         return document;
     }
 

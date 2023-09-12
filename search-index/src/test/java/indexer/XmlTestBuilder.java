@@ -150,6 +150,11 @@ public class XmlTestBuilder {
                     "has_tiles",
                     "ds.img_full.mime",
                     "level");
+            
+            String tAsXML = test.getOutDoc().asXML();
+            String cAsXML = cleared.getDocument().asXML();
+            
+            
             assertEquals(test.getOutDoc().asXML(), cleared.getDocument().asXML());
         };
         return exec;
