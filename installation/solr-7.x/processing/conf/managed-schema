@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Solr managed schema - automatically generated - DO NOT EDIT -->
-<schema name="processing-schema" version="1.6">
+<schema name="processing-schema" version="7.0.28">
   <uniqueKey>pid</uniqueKey>
   <fieldType name="ancestor_path" class="solr.TextField">
     <analyzer type="index">

@@ -3,7 +3,7 @@
 <!--
 see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyTPeQsC2A
 -->
-<schema name="kramerius" version="1.4">
+<schema name="kramerius" version="18">
     <types>
         <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
         <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
@@ -509,6 +509,9 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!--hlavni nazev-->
         <field name="title.search" type="text_fgs" indexed="true" stored="true" multiValued="false" docValues="false"/>
+		<!-- localized collection titles -->
+		<dynamicField name="title.search_*" type="text_fgs" indexed="true"  stored="true" multiValued="true" docValues="true"/>
+
         <!--hlavni nazev (bez hodnoty nonSort)-->
         <field name="title.sort" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--vsechny nazvy (vcetne hlavniho)-->
@@ -663,6 +666,9 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--kratky popis sbirky-->
         <field name="collection.desc" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="collection.is_standalone" type="boolean" indexed="true" stored="true"/>
+
+		<!-- localized collection desc -->
+		<dynamicField name="collection.desc_*" type="text_general_not_lemmatized" indexed="true"  stored="true" multiValued="true" docValues="true"/>
 
         <!--OTHER-->
 

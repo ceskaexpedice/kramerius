@@ -3,7 +3,7 @@
 <!--
 see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyTPeQsC2A
 -->
-<schema name="kramerius" version="1.4">
+<schema name="kramerius" version="18">
     <types>
         <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
         <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
@@ -512,8 +512,8 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--hlavni nazev-->
         <field name="title.search" type="text_fgs" indexed="true" stored="true" multiValued="false" docValues="false"/>
 
-		<!-- localized collection desc -->
-		<dynamicField name="title.search_*" type="text_fgs" indexed="true"  stored="true" multiValued="false" docValues="true"/>
+		<!-- localized collection titles -->
+		<dynamicField name="title.search_*" type="text_fgs" indexed="true"  stored="true" multiValued="true" docValues="true"/>
 
 
         <!--hlavni nazev (bez hodnoty nonSort)-->
