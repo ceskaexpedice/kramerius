@@ -13,6 +13,8 @@ import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Resource;
+import nl.siegmann.epublib.domain.Spine;
+import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
 
 import org.apache.commons.io.FileUtils;
@@ -21,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
+import org.jsoup.Jsoup;
 import org.kramerius.alto.Alto;
 import org.kramerius.dc.ElementType;
 import org.kramerius.dc.OaiDcType;
@@ -51,6 +54,7 @@ import java.awt.image.ImageObserver;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -727,6 +731,15 @@ public abstract class BaseConvertor {
                                             addCheckedDataStream(foxmlObject, thumbnailEBook);
                                         }
                                     }
+                                    // TEXT_OCR stream for epub
+                                    String content = readTextFromEPUB(book);
+
+                                    org.jsoup.nodes.Document parsed = Jsoup.parse(content);
+                                    String wholeText = parsed.wholeText();
+
+                                    DatastreamType base64Stream = this.createOCRStream(wholeText.getBytes(Charset.forName("UTF-8")));
+                                    addCheckedDataStream(foxmlObject, base64Stream);
+                                    
                                 } catch (IOException e1) {
                                     log.error(e1.getMessage());
                                 }
@@ -795,6 +808,28 @@ public abstract class BaseConvertor {
                 }
             }
         }
+    }
+    
+    // EPUB indexace
+    public static String readTextFromEPUB(Book book) throws IOException  {
+        StringBuilder bookContent = new StringBuilder();
+        bookContent.append(book.getTitle()).append("\n");
+        
+        Spine spine = book.getSpine();
+        int size = spine.size();
+        for (int i = 0; i < size; i++) {
+            Resource resource = spine.getResource(i);
+            String encoding = resource.getInputEncoding();
+            
+            String title = resource.getTitle();
+            if (title != null) {
+                bookContent.append(title).append("\n");
+            }
+            byte[] data = resource.getData();
+            bookContent.append(new String(data, encoding)).append("\n");
+        }
+        
+        return bookContent.toString();
     }
     
     //TODO: Move to KrameriusImage support
@@ -964,6 +999,27 @@ public abstract class BaseConvertor {
         throw new ServiceException("Unknown fileGrp: " + filegrp);
     }
 
+    private DatastreamType createOCRStream(byte[] data) throws ServiceException {
+        //String streamType = KConfiguration.getInstance().getConfiguration().getString("convert.txt", "encoded");
+        DatastreamType stream = new DatastreamType();
+        stream.setID(STREAM_ID_TXT);
+        stream.setCONTROLGROUP("M");
+        stream.setVERSIONABLE(false);
+        stream.setSTATE(StateType.A);
+
+        DatastreamVersionType version = new DatastreamVersionType();
+        version.setCREATED(getCurrentXMLGregorianCalendar());
+        version.setID(STREAM_ID_TXT + STREAM_VERSION_SUFFIX);
+
+        version.setMIMETYPE("text/plain");
+
+        version.setBinaryContent(data);
+        stream.getDatastreamVersion().add(version);
+        
+        return stream;
+        
+    }    
+    
     /**
      * Vytvori datastream obsahujici base64 zakodovana binarni data
      *
