@@ -22,6 +22,8 @@ dependencies {
     api project(':processes:import-jaxb-mods')
     api project(':processes:import-jaxb-dc')
 
+    api 'org.jsoup:jsoup:1.16.1'
+
     api 'commons-codec:commons-codec:1.5'
     api 'org.safehaus.jug:jug:2.0.0:lgpl@jar'
 }
