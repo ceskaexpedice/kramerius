@@ -510,7 +510,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--hlavni nazev-->
         <field name="title.search" type="text_fgs" indexed="true" stored="true" multiValued="false" docValues="false"/>
 		<!-- localized collection titles -->
-		<dynamicField name="title.search_*" type="text_fgs" indexed="true"  stored="true" multiValued="true" docValues="true"/>
+		<dynamicField name="title.search_*" type="text_fgs" indexed="true"  stored="true" multiValued="true" docValues="false"/>
 
         <!--hlavni nazev (bez hodnoty nonSort)-->
         <field name="title.sort" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
@@ -668,7 +668,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="collection.is_standalone" type="boolean" indexed="true" stored="true"/>
 
 		<!-- localized collection desc -->
-		<dynamicField name="collection.desc_*" type="text_general_not_lemmatized" indexed="true"  stored="true" multiValued="true" docValues="true"/>
+		<dynamicField name="collection.desc_*" type="text_general_not_lemmatized" indexed="true"  stored="true" multiValued="true" docValues="false"/>
 
         <!--OTHER-->
 
