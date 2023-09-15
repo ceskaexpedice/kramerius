@@ -21,6 +21,7 @@ import cz.incad.kramerius.security.impl.criteria.LicensesGEOIPFiltered;
 import cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
+import cz.incad.kramerius.security.utils.LicensesCriteriaList;
 
 /**
  * Utility class for disecting <code>providedBy</code> information
@@ -54,12 +55,8 @@ public class ProvidedLicensesUtils {
                     String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
                     if (/*qName.equals(ReadDNNTFlag.class.getName()) ||
                             qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||*/
-                            qName.equals(ReadDNNTLabels.class.getName()) ||
-                            qName.equals(ReadDNNTLabelsIPFiltered.class.getName()) ||
-
-                            qName.equals(Licenses.class.getName()) ||
-                            qName.equals(LicensesIPFiltered.class.getName()) ||
-                            qName.equals(LicensesGEOIPFiltered.class.getName())
+                            
+                            LicensesCriteria(qName)
                     ) {
                         Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
                         if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
@@ -71,6 +68,10 @@ public class ProvidedLicensesUtils {
             }
         }
         return licenseArray;
+    }
+    
+    public static boolean LicensesCriteria(String qName) {
+        return LicensesCriteriaList.NAMES.contains(qName);
     }
 
 }
