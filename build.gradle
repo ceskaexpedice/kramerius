@@ -340,6 +340,7 @@ task zipInstallDir(type:Zip) {
     baseName "installation"
     from ("installation") {
 		include "solr-9*/**"
+		include "solr-7*/**"
 		include "0eaa6730-9068-11dd-97de-000d606f5dc6.zip"
 	}
     destinationDir file('build/installation')
