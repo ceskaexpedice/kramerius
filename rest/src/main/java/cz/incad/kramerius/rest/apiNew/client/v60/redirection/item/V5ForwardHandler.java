@@ -156,4 +156,36 @@ public class V5ForwardHandler extends V5RedirectHandler {
         return retVal;
     }
 
+
+    @Override
+    public Response iiifInfo(RequestMethodName method, String pid) throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/iiif/" + this.pid
+                + "/info.json";
+
+        if (method == RequestMethodName.head) {
+            return buildForwardResponseHEAD(url);
+        } else {
+            return buildForwardResponseGET(url);
+        }
+    }
+
+
+    @Override
+    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation)
+            throws ProxyHandlerException {
+
+        String baseurl = this.forwardUrl();
+        String  postfix =  String.format("/%s/%s/%s/default.jpg", region,size, rotation);
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/iiif/" + this.pid+postfix;
+
+        if (method == RequestMethodName.head) {
+            return buildForwardResponseHEAD(url);
+        } else {
+            return buildForwardResponseGET(url);
+        }
+    }
+
+    
+    
 }

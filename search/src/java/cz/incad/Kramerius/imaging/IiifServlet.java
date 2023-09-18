@@ -3,19 +3,31 @@ package cz.incad.Kramerius.imaging;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+import com.sun.jersey.api.client.Client;
+
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
+import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.rest.api.k5.client.item.utils.IIIFUtils;
+import cz.incad.kramerius.rest.apiNew.client.v60.ZoomifyHelper;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.incad.kramerius.utils.pid.LexerException;
+
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,12 +35,17 @@ import org.json.JSONObject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
@@ -38,11 +55,15 @@ import java.util.logging.Level;
 public class IiifServlet extends AbstractImageServlet {
 
     @Inject
-    @Named("cachedSolrAccess")
+    Provider<HttpServletRequest> requestProvider;
+
+    /**
+     * Because of rights and licenses
+     */
+    @Inject
+    @Named("new-index")
     private SolrAccess solrAccess;
 
-    @Inject
-    private RightsResolver rightsResolver;
 
     @Inject
     private Provider<User> userProvider;
@@ -51,6 +72,25 @@ public class IiifServlet extends AbstractImageServlet {
     @Named("cachedFedoraAccess")
     private transient FedoraAccess fedoraAccess;
 
+
+    @Inject
+    ZoomifyHelper zoomifyHelper;
+
+    @Inject
+    AudioStreamForwardingHelper audioHelper;
+
+    @Inject
+    @Named("forward-client")
+    Provider<Client> clientProvider;
+
+    
+
+    @Inject
+    RightsResolver rightsResolver;
+
+    @Inject
+    Instances instances;
+    
 
 //    @Inject
 //    @Named("database")
@@ -67,57 +107,16 @@ public class IiifServlet extends AbstractImageServlet {
 
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            String requestURL = req.getRequestURL().toString();
-            String zoomUrl = DeepZoomServlet.disectZoom(requestURL);
-            StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
-            String pid = tokenizer.nextToken();
-
-            //unescape PID
-            pid = URLDecoder.decode(pid, "UTF-8");
-
-
-            ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
-            boolean permited = false;
-            for (ObjectPidsPath pth : paths) {
-                permited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.A_READ.getFormalName(), pid, null, pth.injectRepository()).flag();
-                if (permited) break;
-            }
-
-            if (permited) {
-                try {
-                    String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
-                    StringBuilder url = new StringBuilder(u);
-                    while (tokenizer.hasMoreTokens()) {
-                        String nextToken = tokenizer.nextToken();
-                        url.append("/").append(nextToken);
-                        if ("info.json".equals(nextToken)) {
-                            reportAccess(pid);
-                            resp.setContentType("application/ld+json");
-                            resp.setCharacterEncoding("UTF-8");
-                            HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
-                            InputStream inputStream = con.getInputStream();
-                            String json = IOUtils.toString(inputStream, Charset.defaultCharset());
-                            JSONObject object = new JSONObject(json);
-                            String urlRequest = req.getRequestURL().toString();
-                            object.put("@id", urlRequest.substring(0, urlRequest.lastIndexOf('/')));
-                            PrintWriter out = resp.getWriter();
-                            out.print(object.toString());
-                            out.flush();
-                            return;
-                        }
-                    }
-                    copyFromImageServer(url.toString(),resp);
-                } catch (JSONException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage());
-                }
-            } else {
-                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-            }
+            String pathInfo = req.getPathInfo();
+            String redirectUrl = "/search/api/v7.0/client/items/iiif"+(!pathInfo.endsWith("/") ? "/":"") +pathInfo;
+            resp.sendRedirect(redirectUrl);
         } catch (IOException e) {
             LOGGER.severe(e.getMessage());
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+            
     }
 
     @Override
@@ -137,4 +136,7 @@ public class IiifServlet extends AbstractImageServlet {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
         }
     }
+    
+
+
 }

@@ -181,5 +181,23 @@ public class V7RedirectHandler extends ProxyItemHandler{
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/audio/wav";
         return buildRedirectResponse(url);
 	}
-    
+
+
+
+    @Override
+    public Response iiifInfo(RequestMethodName method, String pid) throws ProxyHandlerException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+
+    @Override
+    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation)
+            throws ProxyHandlerException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+ 
+	
 }

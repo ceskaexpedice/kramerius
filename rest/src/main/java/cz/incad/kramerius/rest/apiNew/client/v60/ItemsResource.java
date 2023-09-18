@@ -30,6 +30,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler.RequestMethodName;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.RightsResolver;
@@ -1200,6 +1201,94 @@ public class ItemsResource extends ClientApiResource {
             } else {
                 return Response.ok().build();
             }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    
+    @GET
+    @Path("iiif/{pid}/info.json")
+    @Produces("application/ld+json")
+    public Response iiiFManifest(@PathParam("pid") String pid) {
+        try {
+        ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.iiifInfo(RequestMethodName.get, pid);
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("iiif/{source}/{pid}/info.json")
+    @Produces("application/ld+json")
+    public Response iiiFManifest(@PathParam("pid") String pid,@PathParam("source") String source) {
+        try {
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+                return redirectHandler.iiifInfo(RequestMethodName.get, pid);
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    
+    
+    @GET
+    @Produces("image/jpeg")
+    @Path("iiif/{pid}/{region}/{size}/{rotation}/default.jpg")
+    public Response tile(@PathParam("pid") String pid, 
+            @PathParam("region") String region, 
+            @PathParam("size") String size,
+            @PathParam("rotation") String rotation) {
+
+        try {
+
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation);
+            } else {
+                return Response.ok().build();
+            }
+
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Produces("image/jpeg")
+    @Path("iiif/{source}/{pid}/{region}/{size}/{rotation}/default.jpg")
+    public Response tile(@PathParam("pid") String pid, 
+            @PathParam("region") String region, 
+            @PathParam("size") String size,
+            @PathParam("rotation") String rotation,@PathParam("source") String source) {
+        try {
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
+            if (redirectHandler != null) {
+                return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation);
+            } else {
+                return Response.ok().build();
+            }
+
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {

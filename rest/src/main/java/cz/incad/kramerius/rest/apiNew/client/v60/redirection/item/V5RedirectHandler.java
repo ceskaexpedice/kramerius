@@ -33,6 +33,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownRelations;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi.OwnRelationsMapping;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler.RequestMethodName;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -102,6 +103,25 @@ public class V5RedirectHandler extends ProxyItemHandler {
         String baseurl = baseUrl();
         String formatted = String.format("zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
+        return buildRedirectResponse(url);
+    }
+
+    
+    
+    @Override
+    public Response iiifInfo(RequestMethodName method, String pid) throws ProxyHandlerException {
+        String baseurl = baseUrl();
+        String formatted = String.format("iiif/%s/info.json", this.pid );
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
+        return buildRedirectResponse(url);
+    }
+
+    @Override
+    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation)
+            throws ProxyHandlerException {
+        String baseurl = baseUrl();
+        String postfix = String.format("%s/%s/%s/default.jpg", region, size, rotation);
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + postfix;
         return buildRedirectResponse(url);
     }
 
