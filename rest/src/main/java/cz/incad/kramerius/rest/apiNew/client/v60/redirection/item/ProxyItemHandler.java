@@ -49,7 +49,7 @@ public abstract class ProxyItemHandler extends ProxyHandlerSupport {
 
     
     public abstract Response iiifInfo(RequestMethodName method, String pid) throws ProxyHandlerException;
-    public abstract Response iiifTile(RequestMethodName method, String pid,  String region,  String size, String rotation) throws ProxyHandlerException;
+    public abstract Response iiifTile(RequestMethodName method, String pid,  String region,  String size, String rotation, String qf) throws ProxyHandlerException;
     
     
     public abstract Response zoomifyImageProperties(RequestMethodName method) throws ProxyHandlerException;

@@ -117,10 +117,10 @@ public class V5RedirectHandler extends ProxyItemHandler {
     }
 
     @Override
-    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation)
+    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation, String qf)
             throws ProxyHandlerException {
         String baseurl = baseUrl();
-        String postfix = String.format("%s/%s/%s/default.jpg", region, size, rotation);
+        String postfix = String.format("%s/%s/%s/%s", region, size, rotation, qf);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + postfix;
         return buildRedirectResponse(url);
     }

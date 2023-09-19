@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -166,26 +168,43 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url);
+            return buildForwardResponseGET(url, null);
         }
     }
 
+    
 
     @Override
-    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation)
+    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation, String qf)
             throws ProxyHandlerException {
 
-        String baseurl = this.forwardUrl();
-        String  postfix =  String.format("/%s/%s/%s/default.jpg", region,size, rotation);
-        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/iiif/" + this.pid+postfix;
+        String defaultMime = IIIF_SUPPORTED_MIMETYPES.get("jpg");
 
+        String baseurl = this.forwardUrl();
+        String  postfix =  String.format("/%s/%s/%s/%s", region,size, rotation,qf);
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/iiif/" + this.pid+postfix;
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url);
+            String mime = defaultMime;
+            String[] splited = qf.split("\\.");
+            if (splited.length > 1) {
+                mime =  IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? IIIF_SUPPORTED_MIMETYPES.get(splited[1]) :  defaultMime;
+            }
+            return buildForwardResponseGET(url, mime);
         }
     }
 
     
+    static Map<String, String> IIIF_SUPPORTED_MIMETYPES = new HashMap<>();
+    static  {
+        IIIF_SUPPORTED_MIMETYPES.put("jpg", "image/jpeg");
+        IIIF_SUPPORTED_MIMETYPES.put("tif", "image/tiff");
+        IIIF_SUPPORTED_MIMETYPES.put("png", "image/png");
+        IIIF_SUPPORTED_MIMETYPES.put("jp2", "image/jp2");
+        IIIF_SUPPORTED_MIMETYPES.put("pdf", "application/pdf");
+        IIIF_SUPPORTED_MIMETYPES.put("webp", "image/webp");
+    }
     
+
 }

@@ -8,10 +8,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -87,7 +91,11 @@ public abstract class ProxyHandlerSupport {
 		}
 	}
 	
-	public Response buildForwardResponseGET(String url) throws ProxyHandlerException {
+    public Response buildForwardResponseGET(String url) throws ProxyHandlerException {
+        return buildForwardResponseGET(url, null);
+    }
+
+    public Response buildForwardResponseGET(String url, String mimetype) throws ProxyHandlerException {
 		WebResource.Builder b = buidFowrardResponse(url);
 		ClientResponse response = b.get(ClientResponse.class);
 		if (response.getStatus() == 200) {
@@ -104,8 +112,13 @@ public abstract class ProxyHandlerSupport {
 					}
 				}
 			};
-
-			ResponseBuilder respEntity = Response.status(200).entity(stream);
+			ResponseBuilder respEntity = null;
+			if (mimetype != null) {
+                    //MimeType type = new MimeType(mimetype);
+                respEntity = Response.status(200).entity(stream).type(mimetype);
+			} else {
+		        respEntity = Response.status(200).entity(stream);
+			}
 			
 			/* Disable header forward 
 			headers.keySet().forEach(key -> {

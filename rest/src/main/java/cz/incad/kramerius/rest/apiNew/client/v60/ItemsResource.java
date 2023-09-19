@@ -1253,17 +1253,21 @@ public class ItemsResource extends ClientApiResource {
     
     @GET
     @Produces("image/jpeg")
-    @Path("iiif/{pid}/{region}/{size}/{rotation}/default.jpg")
+    @Path("iiif/{pid}/{region}/{size}/{rotation}/{qualityformat}")
     public Response tile(@PathParam("pid") String pid, 
             @PathParam("region") String region, 
             @PathParam("size") String size,
-            @PathParam("rotation") String rotation) {
+            @PathParam("rotation") String rotation,
+
+            @PathParam("qualityformat") String qf
+
+            ) {
 
         try {
 
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
-                return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation);
+                return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation,qf);
             } else {
                 return Response.ok().build();
             }
@@ -1278,15 +1282,17 @@ public class ItemsResource extends ClientApiResource {
 
     @GET
     @Produces("image/jpeg")
-    @Path("iiif/{source}/{pid}/{region}/{size}/{rotation}/default.jpg")
-    public Response tile(@PathParam("pid") String pid, 
+    @Path("iiif/{source}/{pid}/{region}/{size}/{rotation}/{qualityformat}")
+    public Response tile(@PathParam("source") String source,  @PathParam("pid") String pid, 
             @PathParam("region") String region, 
             @PathParam("size") String size,
-            @PathParam("rotation") String rotation,@PathParam("source") String source) {
+            @PathParam("rotation") String rotation, 
+            @PathParam("qualityformat") String qf
+            ) {
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
-                return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation);
+                return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation,qf);
             } else {
                 return Response.ok().build();
             }

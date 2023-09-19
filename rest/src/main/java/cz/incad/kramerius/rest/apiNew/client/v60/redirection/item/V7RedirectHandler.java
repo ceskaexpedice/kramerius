@@ -193,11 +193,14 @@ public class V7RedirectHandler extends ProxyItemHandler{
 
 
     @Override
-    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation)
-            throws ProxyHandlerException {
+    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation,
+            String qf) throws ProxyHandlerException {
         // TODO Auto-generated method stub
         return null;
     }
+
+
+
  
 	
 }
