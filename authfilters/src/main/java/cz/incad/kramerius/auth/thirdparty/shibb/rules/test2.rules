@@ -1,8 +1,0 @@
-match(header("AJP_uid"),"happy") {
-        user("firstname",header("AJP_uid"))
-        user("surname", header("AJP_uid"))
-
-        role("k4_admins")
-
-}
-

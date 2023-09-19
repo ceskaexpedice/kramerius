@@ -63,6 +63,10 @@ public abstract class AbstractTileResource {
 	}
 
 	protected void copyFromImageServer(String urlString, ByteArrayOutputStream bos, ResponseBuilder builder) throws IOException {
+		copyFromImageServer(urlString, bos, builder, null);
+	}
+
+	protected void copyFromImageServer(String urlString, ByteArrayOutputStream bos, ResponseBuilder builder, String mimetype) throws IOException {
 		c.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);        
         WebResource r = c.resource(urlString);
         ClientResponse clientResponse = r.accept(MediaType.MEDIA_TYPE_WILDCARD).get(ClientResponse.class);
@@ -87,7 +91,11 @@ public abstract class AbstractTileResource {
             }
         };
         builder.entity(stream);
-        
+
+		if (mimetype != null) {
+			builder.type(mimetype);
+		}
+
         builder.header("Access-Control-Allow-Origin", "*");
 		MultivaluedMap<String,String> headers = clientResponse.getHeaders();
 		if (headers.containsKey("Cache-Control")) {
@@ -96,6 +104,7 @@ public abstract class AbstractTileResource {
 		if (headers.containsKey("Last-Modified")) {
 			builder.header("Last-Modified", headers.getFirst("Last-Modified"));
 		}
+		
 	}
 	
 	

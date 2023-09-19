@@ -8,6 +8,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +46,16 @@ public class CDKIIIFResource extends AbstractTileResource {
 
 	public static final Logger LOGGER = Logger.getLogger(CDKIIIFResource.class.getName());
 	
+    static Map<String, String> IIIF_SUPPORTED_MIMETYPES = new HashMap<>();
+    static  {
+        IIIF_SUPPORTED_MIMETYPES.put("jpg", "image/jpeg");
+        IIIF_SUPPORTED_MIMETYPES.put("tif", "image/tiff");
+        IIIF_SUPPORTED_MIMETYPES.put("png", "image/png");
+        IIIF_SUPPORTED_MIMETYPES.put("jp2", "image/jp2");
+        IIIF_SUPPORTED_MIMETYPES.put("pdf", "application/pdf");
+        IIIF_SUPPORTED_MIMETYPES.put("webp", "image/webp");
+    }
+
 	
     @Inject
     @Named("cachedSolrAccess")
@@ -143,15 +155,24 @@ public class CDKIIIFResource extends AbstractTileResource {
     }
 
 	//0,0,1024,1024/256,/0/default.jpg
-    public Response iiifTile(String pid, String region, String size, String rotation) throws IOException {
+    public Response iiifTile(String pid, String region, String size, String rotation, String qf) throws IOException {
     	String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
         if(u != null) {
+
+            String defaultMime = IIIF_SUPPORTED_MIMETYPES.get("jpg");
+
         	StringBuilder url = new StringBuilder(u);
         	if (!u.endsWith("/")) { url.append("/"); }
-        	url.append(String.format("%s/%s/%s/default.jpg", region, size, rotation));
+        	url.append(String.format("%s/%s/%s/%s", region, size, rotation,qf));
+ 
+            String mime = defaultMime;
+            String[] splited = qf.split("\\.");
+            if (splited.length > 1) {
+                mime =  IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? IIIF_SUPPORTED_MIMETYPES.get(splited[1]) :  defaultMime;
+            }
         	LOGGER.info(String.format("Copy tile from IIIF server %s", url.toString()));
         	ResponseBuilder builder = Response.ok();
-            copyFromImageServer(url.toString(),new ByteArrayOutputStream(), builder);
+            copyFromImageServer(url.toString(),new ByteArrayOutputStream(), builder, mime);
             return builder.build();
        } else {
     	   throw new BadRequestException("bad request");
