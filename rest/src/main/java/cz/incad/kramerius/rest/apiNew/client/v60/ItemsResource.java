@@ -1215,7 +1215,8 @@ public class ItemsResource extends ClientApiResource {
     @Produces("application/ld+json")
     public Response iiiFManifest(@PathParam("pid") String pid) {
         try {
-        ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
+            LOGGER.info(String.format("Rendering  iiif info.json (%s)", pid));
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 return redirectHandler.iiifInfo(RequestMethodName.get, pid);
             } else {
@@ -1234,6 +1235,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces("application/ld+json")
     public Response iiiFManifest(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
+            LOGGER.info(String.format("Rendering  iiif info.json (%s,%s)", pid,source));
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 return redirectHandler.iiifInfo(RequestMethodName.get, pid);
