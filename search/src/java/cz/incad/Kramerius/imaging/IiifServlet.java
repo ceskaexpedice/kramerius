@@ -110,7 +110,7 @@ public class IiifServlet extends AbstractImageServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             String pathInfo = req.getPathInfo();
-            String redirectUrl = "/search/api/v7.0/client/items/iiif"+(!pathInfo.startsWith("/") ? "/":"") +pathInfo;
+            String redirectUrl = "/search/api/client/v7.0/items/iiif"+(!pathInfo.startsWith("/") ? "/":"") +pathInfo;
             resp.sendRedirect(redirectUrl);
         } catch (IOException e) {
             LOGGER.severe(e.getMessage());
