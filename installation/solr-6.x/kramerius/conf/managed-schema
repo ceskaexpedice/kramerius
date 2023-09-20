@@ -601,45 +601,57 @@
     <copyField source="text_ocr" dest="text"/>
 
     <!-- lemmatized fields; stop words -->
+	<!-- disabled lemmatization
     <copyField source="dc.title" dest="text_lemmatized"/>
     <copyField source="keywords" dest="text_lemmatized"/>
     <copyField source="dc.description" dest="text_lemmatized"/>
     <copyField source="dc.creator" dest="text_lemmatized"/>
     <copyField source="details" dest="text_lemmatized"/>
     <copyField source="text_ocr" dest="text_lemmatized"/>
-
+	-->
+	
     <!-- lemmatized ascii fields; stop words -->
+	<!-- disabled lemmatization
     <copyField source="dc.title" dest="text_lemmatized_ascii"/>
     <copyField source="keywords" dest="text_lemmatized_ascii"/>
     <copyField source="dc.description" dest="text_lemmatized_ascii"/>
     <copyField source="dc.creator" dest="text_lemmatized_ascii"/>
     <copyField source="details" dest="text_lemmatized_ascii"/>
     <copyField source="text_ocr" dest="text_lemmatized_ascii"/>
+	-->
 
     <!-- lemmatized  fields; text; no stopwords -->
+	<!-- disabled lemmatization
     <copyField source="dc.title" dest="text_lemmatized_nostopwords"/>
     <copyField source="keywords" dest="text_lemmatized_nostopwords"/>
     <copyField source="dc.description" dest="text_lemmatized_nostopwords"/>
     <copyField source="dc.creator" dest="text_lemmatized_nostopwords"/>
     <copyField source="details" dest="text_lemmatized_nostopwords"/>
     <copyField source="text_ocr" dest="text_lemmatized_nostopwords"/>
+	-->
 
 
     <!-- root title; lemmatized fields -->
+	<!-- disabled lemmatization
     <copyField source="root_title" dest="root_title_lemmatized"/>
     <copyField source="root_title" dest="root_title_lemmatized_ascii"/>
     <copyField source="root_title" dest="root_title_lemmatized_nostopwords"/>
+	-->
 
     <!-- title fields -->
     <copyField source="dc.title" dest="title"/>
+	<!-- disabled lemmatization
     <copyField source="dc.title" dest="title_lemmatized"/>
     <copyField source="dc.title" dest="title_lemmatized_ascii"/>
     <copyField source="dc.title" dest="title_lemmatized_nostopwords"/>
+	-->
 
     <!-- text_ocr -->
+	<!-- disabled lemmatization
     <copyField source="text_ocr" dest="text_ocr_lemmatized"/>
     <copyField source="text_ocr" dest="text_ocr_lemmatized_ascii"/>
     <copyField source="text_ocr" dest="text_ocr_lemmatized_nostopwords"/>
+	-->
 
 
     <copyField source="browse_title" dest="search_title"/>
