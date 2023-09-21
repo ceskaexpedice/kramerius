@@ -682,10 +682,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!-- text ocr -->
         <field name="text_ocr" type="text_general_not_lemmatized" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
-        <field name="text_ocr.lemmatized" type="text_general_lemmatized" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
-        <field name="text_ocr.lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
-        <field name="text_ocr.lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="false"
-               storeOffsetsWithPositions="true"/>
+		
 
 
         <!-- licenses (formerly dnnt labels)-->
@@ -704,13 +701,6 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <copyField source="licenses" dest="licenses.facet"/>
 			
 
-
-        <!-- Lemmatized is disabled now
-        <copyField source="text_ocr" dest="text_ocr.lemmatized"/>
-        <copyField source="text_ocr" dest="text_ocr.lemmatized_ascii"/>
-
-        <copyField source="text_ocr" dest="text_ocr.lemmatized_nostopwords"/>
-        -->
 
     </fields>
 
