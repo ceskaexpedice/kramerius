@@ -132,7 +132,7 @@ public class AkubraObject implements RepositoryObject {
         contentLocationType.setREF(url);
         datastreamType.getDatastreamVersion().get(0).setContentLocation(contentLocationType);
 
-        AkubraDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, AkubraDatastream.Type.INDIRECT);
+        RepositoryDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, RepositoryDatastream.Type.INDIRECT);
 
         try {
             manager.commit(digitalObject, streamId);
@@ -156,9 +156,9 @@ public class AkubraObject implements RepositoryObject {
 
     private AkubraDatastream.Type controlGroup2Type(String controlGroup) {
         if ("E".equals(controlGroup) || "R".equals(controlGroup)) {
-            return AkubraDatastream.Type.INDIRECT;
+            return RepositoryDatastream.Type.INDIRECT;
         } else {
-            return AkubraDatastream.Type.DIRECT;
+            return RepositoryDatastream.Type.DIRECT;
         }
     }
 
@@ -188,7 +188,7 @@ public class AkubraObject implements RepositoryObject {
         xmlContentType.getAny().add(elementFromInputStream(input));
         datastreamType.getDatastreamVersion().get(0).setXmlContent(xmlContentType);
 
-        AkubraDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, AkubraDatastream.Type.DIRECT);
+        RepositoryDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, RepositoryDatastream.Type.DIRECT);
 
         try {
             manager.commit(digitalObject, streamId);
@@ -238,7 +238,7 @@ public class AkubraObject implements RepositoryObject {
         try {
             datastreamType.getDatastreamVersion().get(0).setBinaryContent(IOUtils.toByteArray(input));
 
-            AkubraDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, AkubraDatastream.Type.DIRECT);
+            RepositoryDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, RepositoryDatastream.Type.DIRECT);
 
 
             manager.commit(digitalObject, streamId);

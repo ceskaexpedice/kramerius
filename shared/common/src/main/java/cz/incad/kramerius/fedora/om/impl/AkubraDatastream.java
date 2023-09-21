@@ -4,6 +4,7 @@ import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.om.NotFoundInRepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
+import cz.incad.kramerius.fedora.om.RepositoryDatastream.Type;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -25,11 +26,6 @@ import static cz.incad.kramerius.fedora.utils.Fedora4Utils.endpoint;
  * Created by pstastny on 10/13/2017.
  */
 public class AkubraDatastream implements RepositoryDatastream {
-
-    public static enum Type {
-        DIRECT,
-        INDIRECT;
-    }
 
     public static final Logger LOGGER = Logger.getLogger(AkubraDatastream.class.getName());
 
@@ -81,6 +77,11 @@ public class AkubraDatastream implements RepositoryDatastream {
     }
 
 
+
+    @Override
+    public Type getStreamType() throws RepositoryException {
+        return this.type;
+    }
 
     @Override
     public Date getLastModified() throws RepositoryException {

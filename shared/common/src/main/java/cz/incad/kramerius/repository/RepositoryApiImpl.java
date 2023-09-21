@@ -172,6 +172,21 @@ public class RepositoryApiImpl implements RepositoryApi {
         }
     }
 
+    public String getTypeOfDatastream(String pid, String dsId) throws RepositoryException, IOException {
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            RepositoryObject object = akubraRepository.getObject(pid);
+            if (object.streamExists(dsId)) {
+                RepositoryDatastream stream = object.getStream(dsId);
+                return stream.getStreamType().name();
+            } else {
+                return null;
+            }
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     @Override
     public InputStream getLatestVersionOfDatastream(String pid, String dsId) throws RepositoryException, IOException {
         Lock readLock = AkubraDOManager.getReadLock(pid);

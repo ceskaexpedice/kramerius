@@ -64,6 +64,11 @@ public interface RepositoryApi {
      */
     public Document getDatastreamXml(String pid, String dsId) throws RepositoryException, IOException;
 
+ 
+
+    public String getTypeOfDatastream(String pid, String dsId) throws RepositoryException, IOException;
+
+    
     public InputStream getLatestVersionOfDatastream(String pid, String dsId) throws RepositoryException, IOException;
 
     public Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId) throws RepositoryException, IOException;

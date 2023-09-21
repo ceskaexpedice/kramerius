@@ -10,6 +10,11 @@ import java.util.Date;
  */
 public interface RepositoryDatastream {
 
+    public static enum Type {
+        DIRECT,
+        INDIRECT;
+    }
+
     /**
      * Return name
      * @return
@@ -45,6 +50,9 @@ public interface RepositoryDatastream {
      */
     public Date getLastModified()throws RepositoryException;
 
+    public Type getStreamType() throws RepositoryException;
+    
+    
     /**
      * Update sparql properties
      * @param sparql

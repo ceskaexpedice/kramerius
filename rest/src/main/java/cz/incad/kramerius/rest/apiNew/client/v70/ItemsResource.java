@@ -696,7 +696,7 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
+            if (shouldUseAudioServer(pid, AudioFormat.MP3)) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.MP3);
                 Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
@@ -717,6 +717,16 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    private boolean shouldUseAudioServer(String pid, AudioFormat audioFormat) {
+        try {
+            String type = krameriusRepositoryApi.getLowLevelApi().getTypeOfDatastream(pid, audioFormat.name());
+            return type != null && type.equals("INDIRECT");
+        } catch (RepositoryException | IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return false;
+        }
+    }   
+
     /***
      * Vrací obsah datastreamu MP3 tohoto objektu
      */
@@ -729,15 +739,15 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
+            if (shouldUseAudioServer(pid, AudioFormat.MP3)) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.MP3);
                 Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
                 audioHelper.forwardHttpGET(audioStreamId, request, builder);
                 return builder.build();
             } else {
-                String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
-                InputStream is = krameriusRepositoryApi.getAudioWav(pid);
+                String mimeType = krameriusRepositoryApi.getAudioMp3Mimetype(pid);
+                InputStream is = krameriusRepositoryApi.getAudioMp3(pid);
                 return getAudioDataFromAkubra(mimeType, is, pid);
             }
         } catch (WebApplicationException e) {
@@ -800,7 +810,7 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
+            if (shouldUseAudioServer(pid, AudioFormat.OGG)) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.OGG);
                 Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
@@ -833,15 +843,15 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
+            if (shouldUseAudioServer(pid, AudioFormat.OGG)) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.OGG);
                 Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
                 audioHelper.forwardHttpGET(audioStreamId, request, builder);
                 return builder.build();
             } else {
-                String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
-                InputStream is = krameriusRepositoryApi.getAudioWav(pid);
+                String mimeType = krameriusRepositoryApi.getAudioOggMimetype(pid);
+                InputStream is = krameriusRepositoryApi.getAudioOgg(pid);
                 return getAudioDataFromAkubra(mimeType, is, pid);
             }
         } catch (WebApplicationException e) {
@@ -860,7 +870,7 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
+            if (shouldUseAudioServer(pid, AudioFormat.WAV)) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.WAV);
                 Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
@@ -893,7 +903,7 @@ public class ItemsResource extends ClientApiResource {
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            if (AUDIO_SERVE_WITH_FORWARDING) {
+            if (shouldUseAudioServer(pid, AudioFormat.WAV)) {
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.WAV);
                 Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
@@ -912,6 +922,10 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    
+    
+
+    
     
     // =========== EPub specific endpoints
 
