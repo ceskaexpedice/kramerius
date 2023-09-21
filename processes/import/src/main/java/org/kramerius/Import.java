@@ -517,8 +517,7 @@ public class Import {
             }
         }
 
-        try {
-            FileInputStream is = new FileInputStream(file);
+        try(FileInputStream is = new FileInputStream(file)) {
             ingest(repo, is, pid, sortRelations, roots, updateExisting);
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Ingestion error ", ex);

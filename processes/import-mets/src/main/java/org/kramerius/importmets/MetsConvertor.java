@@ -17,6 +17,8 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -142,6 +144,13 @@ public class MetsConvertor {
                 KConfiguration.getInstance().getProperty("ingest.user"),
                 KConfiguration.getInstance().getProperty("ingest.password"),
                 exportRoot, startIndexer, authToken);
+        
+        
+        if (deleteContractSubfolder()) {
+            File exportFolder = new File(exportRoot);
+            FileUtils.deleteDirectory(exportFolder);
+        }
+        
     }
 
     private void checkAndConvertDirectory(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
@@ -461,6 +470,10 @@ public class MetsConvertor {
             return suggestion;
         }
 
+    }
+
+    public static boolean deleteContractSubfolder() {
+        return System.getProperties().containsKey("convert.deleteContractSubfolders") ? new Boolean(System.getProperty("convert.deleteContractSubfolders")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.deleteContractSubfolders", true);
     }
 
     public static boolean useContractSubfolders() {
