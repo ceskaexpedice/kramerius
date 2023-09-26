@@ -1209,9 +1209,9 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    
     @GET
-    @Path("iiif/{pid}/info.json")
+    //@Path("iiif/{pid}/info.json")
+    @Path("{pid}/image/iiif/info.json")
     @Produces("application/ld+json")
     public Response iiiFManifest(@PathParam("pid") String pid) {
         try {
@@ -1231,7 +1231,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     @GET
-    @Path("iiif/{source}/{pid}/info.json")
+    @Path("{source}/{pid}/image/iiif/info.json")
     @Produces("application/ld+json")
     public Response iiiFManifest(@PathParam("pid") String pid,@PathParam("source") String source) {
         try {
@@ -1253,14 +1253,13 @@ public class ItemsResource extends ClientApiResource {
     
     @GET
     @Produces("image/jpeg")
-    @Path("iiif/{pid}/{region}/{size}/{rotation}/{qualityformat}")
+    //@Path("iiif/{pid}/{region}/{size}/{rotation}/{qualityformat}")
+    @Path("{pid}/image/iiif/{region}/{size}/{rotation}/{qualityformat}")
     public Response tile(@PathParam("pid") String pid, 
             @PathParam("region") String region, 
             @PathParam("size") String size,
             @PathParam("rotation") String rotation,
-
             @PathParam("qualityformat") String qf
-
             ) {
 
         try {
@@ -1282,7 +1281,8 @@ public class ItemsResource extends ClientApiResource {
 
     @GET
     @Produces("image/jpeg")
-    @Path("iiif/{source}/{pid}/{region}/{size}/{rotation}/{qualityformat}")
+    //@Path("iiif/{source}/{pid}/{region}/{size}/{rotation}/{qualityformat}")
+    @Path("{source}/{pid}/image/iiif/{region}/{size}/{rotation}/{qualityformat}")
     public Response tile(@PathParam("source") String source,  @PathParam("pid") String pid, 
             @PathParam("region") String region, 
             @PathParam("size") String size,
