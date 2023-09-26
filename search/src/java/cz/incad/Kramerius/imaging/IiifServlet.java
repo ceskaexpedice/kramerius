@@ -147,16 +147,6 @@ public class IiifServlet extends AbstractImageServlet {
             LOGGER.severe(e.getMessage());
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-
-        try {
-            String pathInfo = req.getPathInfo();
-            String redirectUrl = "/search/api/client/v7.0/items/iiif"+(!pathInfo.startsWith("/") ? "/":"") +pathInfo;
-            resp.sendRedirect(redirectUrl);
-        } catch (IOException e) {
-            LOGGER.severe(e.getMessage());
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-            
     }
 
     @Override
