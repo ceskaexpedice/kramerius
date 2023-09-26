@@ -109,44 +109,40 @@ public class IiifServlet extends AbstractImageServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         
-       // search/iiif 
-       // knav/uuid:xxxx 
-       // nebo 
-       // uuid:xxxx
-        
         try {
             String pathInfo = req.getPathInfo();
-            if (pathInfo.contains("search/iiif/")) {
-                String afterServlet = afterServlet(pathInfo);
-                String[] split = afterServlet.split("/");
+            if (pathInfo.startsWith("/")) {
+                pathInfo = pathInfo.substring(1);
+            }
+            String[] split = pathInfo.split("/");
+                
+            if (split.length >= 2) {
+                if (split[0].startsWith("uuid:")) {
+
+                    String startOfPid  = pathInfo.substring(pathInfo.indexOf("uuid:"));
+                    String pid = startOfPid.substring(0, startOfPid.indexOf("/"));
+                    String end = pathInfo.substring(pathInfo.indexOf(pid)+pid.length()+1);
+
+                    String redirectUrl = String.format("/search/api/client/v7.0/items/%s/image/iiif/%s", pid, end);
+                    resp.sendRedirect(redirectUrl);
                     
-                if (split.length >= 2) {
-                    if (split[0].startsWith("uuid:")) {
-
-                        String startOfPid  = pathInfo.substring(pathInfo.indexOf("uuid:"));
-                        String pid = startOfPid.substring(0, startOfPid.indexOf("/"));
-                        String end = pathInfo.substring(pathInfo.indexOf(pid)+pid.length()+1);
-
-                        String redirectUrl = String.format("/search/api/client/v7.0/items/%s/image/iiif/%s", pid, end);
-                        resp.sendRedirect(redirectUrl);
-                        
-                    } else {
-                        
-                        String startOfPid  = pathInfo.substring(pathInfo.indexOf("uuid:"));
-                        String pid = startOfPid.substring(0, startOfPid.indexOf("/"));
-                        String end = pathInfo.substring(pathInfo.indexOf(pid)+pid.length()+1);
-                        String redirectUrl = String.format("/search/api/client/v7.0/items/%s/%s/image/iiif/%s", split[0], pid, end);
-                        resp.sendRedirect(redirectUrl);
-
-                    }
                 } else {
-                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                    
+                    String startOfPid  = pathInfo.substring(pathInfo.indexOf("uuid:"));
+                    String pid = startOfPid.substring(0, startOfPid.indexOf("/"));
+                    String end = pathInfo.substring(pathInfo.indexOf(pid)+pid.length()+1);
+                    String redirectUrl = String.format("/search/api/client/v7.0/items/%s/%s/image/iiif/%s", split[0], pid, end);
+                    resp.sendRedirect(redirectUrl);
+
                 }
+            } else {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             }
         } catch (IOException e) {
             LOGGER.severe(e.getMessage());
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+
     }
 
     @Override
@@ -169,36 +165,36 @@ public class IiifServlet extends AbstractImageServlet {
 
     
     
-//    public static void main(String[] args) {
-//        String pathInfo = "http://localhost:8080/search/iiif/uuid:xxxx/info.json";
-//        String knavPathInfo = "http://localhost:8080/search/iiif/knav/uuid:xxxx/info.json";
-//     
-//        String afterServlet = afterServlet(knavPathInfo);
-//        System.out.println("AFTER SERVLET :"+afterServlet);
-//        String[] split = afterServlet.split("/");
-//        
-//        if (split[0].startsWith("uuid:")) {
-//
-//            String startOfPid  = pathInfo.substring(pathInfo.indexOf("uuid:"));
-//            String pid = startOfPid.substring(0, startOfPid.indexOf("/"));
-//            String end = pathInfo.substring(pathInfo.indexOf(pid)+pid.length()+1);
-//
-//            String redirectUrl = String.format("/search/api/client/v7.0/items/%s/image/iiif/%s", pid, end);
-//            System.out.println(redirectUrl);
-//            
-//            
-//        } else {
-//            
-//            String startOfPid  = pathInfo.substring(pathInfo.indexOf("uuid:"));
-//            String pid = startOfPid.substring(0, startOfPid.indexOf("/"));
-//            String end = pathInfo.substring(pathInfo.indexOf(pid)+pid.length()+1);
-//            String redirectUrl = String.format("/search/api/client/v7.0/items/%s/%s/image/iiif/%s", split[0], pid, end);
-//
-//            //resp.sendRedirect(redirectUrl);
-//            System.out.println(redirectUrl);
-//
-//        }
-//    }
+    public static void main(String[] args) {
+        String pathInfo = "iiif/knav/uuid:765f3df0-1345-4439-92f7-04344b73880a/info.json";
+        String knavPathInfo = "http://localhost:8080/search/iiif/knav/uuid:xxxx/info.json";
+     
+        String afterServlet = afterServlet(pathInfo);
+        System.out.println("AFTER SERVLET :"+afterServlet);
+        String[] split = afterServlet.split("/");
+        
+        if (split[0].startsWith("uuid:")) {
+
+            String startOfPid  = pathInfo.substring(pathInfo.indexOf("uuid:"));
+            String pid = startOfPid.substring(0, startOfPid.indexOf("/"));
+            String end = pathInfo.substring(pathInfo.indexOf(pid)+pid.length()+1);
+
+            String redirectUrl = String.format("/search/api/client/v7.0/items/%s/image/iiif/%s", pid, end);
+            System.out.println(redirectUrl);
+            
+            
+        } else {
+            
+            String startOfPid  = pathInfo.substring(pathInfo.indexOf("uuid:"));
+            String pid = startOfPid.substring(0, startOfPid.indexOf("/"));
+            String end = pathInfo.substring(pathInfo.indexOf(pid)+pid.length()+1);
+            String redirectUrl = String.format("/search/api/client/v7.0/items/%s/%s/image/iiif/%s", split[0], pid, end);
+
+            //resp.sendRedirect(redirectUrl);
+            System.out.println(redirectUrl);
+
+        }
+    }
 
     private static String afterServlet(String pathInfo) {
         String afterServlet = pathInfo.substring(pathInfo.indexOf("search/iiif/") + "search/iiif/".length());
