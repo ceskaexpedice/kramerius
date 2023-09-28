@@ -46,7 +46,7 @@ public class EndpointFolders {
                 folderJson.put("itemsCount", folder.itemsCount);
                 folderJson.put("updatedAt", folder.updatedAt);
                 JSONArray users = new JSONArray();
-                for (FolderDatabase.FolderUser user : filterFolderUsers(folder.users, userId)) {
+                for (FolderDatabase.FolderUser user : filterFolderUsersShowableToCurrentUser(folder.users, userId)) {
                     JSONObject userJson = new JSONObject();
                     userJson.put("userId", user.userId);
                     userJson.put("userRole", user.userRole);
@@ -80,7 +80,7 @@ public class EndpointFolders {
             folderJson.put("updatedAt", folder.updatedAt);
 
             JSONArray usersJson = new JSONArray();
-            for (FolderDatabase.FolderUser folderUser : filterFolderUsers(folder.users, luser != null ? luser.getLoginname() : null)) {
+            for (FolderDatabase.FolderUser folderUser : filterFolderUsersShowableToCurrentUser(folder.users, luser != null ? luser.getLoginname() : null)) {
                 JSONObject userJson = new JSONObject();
                 userJson.put("userId", folderUser.userId);
                 userJson.put("userRole", folderUser.userRole);
@@ -197,7 +197,7 @@ public class EndpointFolders {
             folderJson.put("updatedAt", folder.updatedAt);
 
             JSONArray usersJson = new JSONArray();
-            for (FolderDatabase.FolderUser folderUser : filterFolderUsers(folder.users, luser != null ? luser.getLoginname() : null)) {
+            for (FolderDatabase.FolderUser folderUser : filterFolderUsersShowableToCurrentUser(folder.users, luser != null ? luser.getLoginname() : null)) {
                 JSONObject userJson = new JSONObject();
                 userJson.put("userId", folderUser.userId);
                 userJson.put("userRole", folderUser.userRole);
@@ -214,11 +214,16 @@ public class EndpointFolders {
     }
 
     /**
-     * Filter folder users based on user role and user id
+     * Filter folder users based on user role and user id. To prevent leaking information about other followers.
      * <p>
-     * If I am owner, return all users; if I am not owner, return only owner and possibly me; If user id is null, return only owner
+     * Owner should get all users, even followers.
+     * Follower should get only themselves and owner.
+     * Anonymous user should get only owner.
+     * </p>
+     *
+     * @return If I am owner, return all users; if I am not owner, return only owner and possibly me; If user id is null, return only owner
      */
-    private List<FolderDatabase.FolderUser> filterFolderUsers(List<FolderDatabase.FolderUser> users, String userId) {
+    private List<FolderDatabase.FolderUser> filterFolderUsersShowableToCurrentUser(List<FolderDatabase.FolderUser> users, String currentUserId) {
         String ownerId = null;
         for (FolderDatabase.FolderUser user : users) {
             if (user.userRole.equals("owner")) {
@@ -226,13 +231,13 @@ public class EndpointFolders {
             }
         }
         final String finalOwnerId = ownerId;
-        if (userId == null) { //no user id, return only owner
+        if (currentUserId == null) { //no user id, return only owner
             return users.stream().filter(user -> user.userId.equals(finalOwnerId)).collect(Collectors.toList());
         }
-        if (userId.equals(ownerId)) { //I am owner, return all users
+        if (currentUserId.equals(ownerId)) { //I am owner, return all users
             return users;
         } else { //I am not owner, return only owner and possibly me
-            return users.stream().filter(user -> user.userId.equals(userId) || user.userId.equals(finalOwnerId)).collect(Collectors.toList());
+            return users.stream().filter(user -> user.userId.equals(currentUserId) || user.userId.equals(finalOwnerId)).collect(Collectors.toList());
         }
     }
 
