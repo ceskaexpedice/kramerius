@@ -9,6 +9,7 @@ import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -60,8 +61,8 @@ public class ZoomifyHelper {
     DeepZoomTileSupport tileSupport;
 
     @Inject
-    @Named("database") //TODO: je tohle spravne? jeste existuje AggregatedAccessLogs a DNNTStatisticsAccessLogImpl
-    StatisticsAccessLog accessLog;
+    AggregatedAccessLogs accessLog;
+    //@Named("database") //TODO: je tohle spravne? jeste existuje AggregatedAccessLogs a DNNTStatisticsAccessLogImpl
 
     @Inject
     MostDesirable mostDesirable;

@@ -20,6 +20,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
+import cz.incad.kramerius.rest.apiNew.admin.v70.files.GenerateDownloadLinks;
 import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
@@ -122,8 +123,10 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.ItemsResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.ServerFilesResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.sync.SDNNTSyncResource.class);
-
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.conf.Configurations.class);
+        
+        // Generated download links
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.files.GenerateDownloadLinks.class).asEagerSingleton();
         
         // Kramerius folders
         bind(EndpointFolders.class);

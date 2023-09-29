@@ -27,6 +27,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.utils.DisectZoom;
+import cz.incad.kramerius.rest.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
@@ -125,7 +126,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
             if (relsExtUrl != null) {
                 ResponseBuilder builder = Response.ok();
             	String formatted = String.format("%s/TileGroup0/%s-%s-%s.%s", relsExtUrl,slevel,x,y,ext);
-                copyFromImageServer( formatted, new ByteArrayOutputStream(), builder);
+                IIIFUtils.copyFromImageServer(getClient(), formatted, new ByteArrayOutputStream(), builder);
                 return builder.build();
             } else {
             	throw new BadRequestException("Bad request");
@@ -144,7 +145,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
             if (relsExtUrl != null) {
                 if (relsExtUrl.endsWith("/")) relsExtUrl = relsExtUrl.substring(0, relsExtUrl.length()-1);
                 ResponseBuilder builder = Response.ok();
-                copyFromImageServer(relsExtUrl.toString()+"/ImageProperties.xml",new ByteArrayOutputStream() , builder);
+                IIIFUtils.copyFromImageServer(getClient(), relsExtUrl.toString()+"/ImageProperties.xml",new ByteArrayOutputStream() , builder);
                 return builder.build();
             } else {
             	throw new BadRequestException("Bad request");

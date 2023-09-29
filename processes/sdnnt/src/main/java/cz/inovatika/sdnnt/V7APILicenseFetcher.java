@@ -56,7 +56,7 @@ public class V7APILicenseFetcher extends LicenseAPIFetcher{
                     "pid:(" + condition + ")", "UTF-8");
             
             
-            String encodedFieldList = URLEncoder.encode("pid licenses date.str model titles.search", "UTF-8");
+            String encodedFieldList = URLEncoder.encode("pid licenses date.str model titles.search  licenses_of_ancestors", "UTF-8");
             String url = baseUrl + (baseUrl.endsWith("/") ?  "":"/") +"search?q=" + encodedCondition + "&wt=json&rows=" + MAX_FETCHED_DOCS
                     + "&fl=" + encodedFieldList;
 
@@ -76,9 +76,17 @@ public class V7APILicenseFetcher extends LicenseAPIFetcher{
                 JSONObject oneItem = docs.getJSONObject(j);
                 String pid = oneItem.getString("pid");
                 List<String> licenses = new ArrayList<>();
+ 
                 JSONArray slicenses = oneItem.optJSONArray("licenses");
                 if (slicenses != null) {
                     for (int k = 0; k < slicenses.length(); k++) { licenses.add(slicenses.getString(k)); }
+                }
+                
+                
+                //TODO: Discuss 
+                JSONArray ancLicenses = oneItem.optJSONArray("licenses_of_ancestors");
+                if (ancLicenses != null) {
+                    for (int k = 0; k < ancLicenses.length(); k++) { licenses.add(ancLicenses.getString(k)); }
                 }
         
                 if (!result.containsKey(pid)) {

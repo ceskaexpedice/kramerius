@@ -31,6 +31,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class NKPLogProcess {
 
@@ -57,9 +59,10 @@ public class NKPLogProcess {
             String from = args[1];
             String to = args[2];
 
+            String defaultInst = KConfiguration.getInstance().getConfiguration().getString("acronym");
             String folder = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_FOLDER_KEY, System.getProperty("java.io.tmpdir"));
             String visibility = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_VISIBILITY_KEY, "ALL");
-            String institution = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_INSTITUTION_KEY, "-none-");
+            String institution = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_INSTITUTION_KEY, StringUtils.isAnyString(defaultInst) ? defaultInst :  "-none-");
             List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_ANONYMIZATION_KEY, 
                     DEFAULT_ANONYMIZATION_PROPERTIES);
 
@@ -74,13 +77,13 @@ public class NKPLogProcess {
                                String visibility,
                                List<Object> anonymization
     ) throws ParseException, IOException, NoSuchAlgorithmException {
-
+        List<String> logs = new ArrayList<>();
+        
+        //TODO: I18N
         ProcessStarter.updateName(String.format("Generování NKP logů pro období %s - %s", from, to));
 
         // folder, institution, visibility from configuration
         LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to, folder, institution, visibility, anonymization));
-        
-        
         
         List<String> annonymizationKeys = anonymization != null ? anonymization.stream().map(Objects::toString).collect(Collectors.toList()) : new ArrayList<>();
 
@@ -90,7 +93,6 @@ public class NKPLogProcess {
         Date end = StringUtils.isAnyString(to) ? StatisticReport.DATE_FORMAT.parse(to) : new Date();
 
         Date processingDate = start;
-
         while (processingDate.before(end)) {
 
             LocalDateTime localDateTime = processingDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
@@ -109,6 +111,7 @@ public class NKPLogProcess {
             if (outputFolder.exists()) {
 
                 File outputFile = new File(outputFolder, String.format("statistics-%s-%s.log", institution, StatisticReport.DATE_FORMAT.format(processingDate)));
+                logs.add(outputFile.getAbsolutePath());
                 FileOutputStream fos = new FileOutputStream(outputFile);
                 try (OutputStreamWriter fileWriter = new OutputStreamWriter(fos, "UTF-8")) {
 
@@ -153,15 +156,45 @@ public class NKPLogProcess {
                         }
                     }
                 }
-
                 LOGGER.info(String.format("Storing log to file %s", outputFile.getAbsolutePath()));
             }
             processingDate = nextDate;
-
         }
+        
+        
+        try {
+            File zipFile = new File(new File(folder), String.format("statistics-%s-%s.zip",  StatisticReport.DATE_FORMAT.format(start), StatisticReport.DATE_FORMAT.format(end)));
+            FileOutputStream fos = new FileOutputStream(zipFile);
+            ZipOutputStream zos = new ZipOutputStream(fos);
+            
+            for (String lF : logs) {
+                addFileToZip(String.format("statistics-%s-%s",  StatisticReport.DATE_FORMAT.format(start), StatisticReport.DATE_FORMAT.format(end)), lF, zos); 
+            }
+            
+            zos.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+    }
+
+    private static void addFileToZip(String path, String srcFile, ZipOutputStream zipOut) throws IOException {
+        File file = new File(srcFile);
+        FileInputStream fis = new FileInputStream(file);
+        ZipEntry zipEntry = new ZipEntry(path + "/" + file.getName());
+        zipOut.putNextEntry(zipEntry);
+
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0) {
+            zipOut.write(bytes, 0, length);
+        }
+        fis.close();
     }
 
 
+    
     public static String hashVal(String value) {
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");

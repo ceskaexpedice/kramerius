@@ -76,17 +76,20 @@ public class CDKForwardResource {
     }
 
     @GET
-    @Produces("image/jpeg")
-    @Path("iiif/{pid}/{region}/{size}/{rotation}/default.jpg")
+    //@Produces("image/jpeg")
+    @Path("iiif/{pid}/{region}/{size}/{rotation}/{qf}")
     public Response tile(@PathParam("pid") String pid, @PathParam("region") String region,
-            @PathParam("size") String size, @PathParam("rotation") String rotation) {
+            @PathParam("size") String size, @PathParam("rotation") String rotation,@PathParam("qf") String qf) {
         try {
-            return this.iiifResource.iiifTile(pid, region, size, rotation);
+            return this.iiifResource.iiifTile(pid, region, size, rotation, qf);
         } catch (IOException e) {
             throw new GenericApplicationException(e.getMessage());
         }
     }
 
+    
+    
+    
     @GET
     @Path("zoomify/{pid}/ImageProperties.xml")
     @Produces("application/xml")
