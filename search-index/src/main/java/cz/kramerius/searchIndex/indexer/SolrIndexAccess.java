@@ -247,9 +247,9 @@ public class SolrIndexAccess {
                     SolrInputDocument inputDoc = new SolrInputDocument();
                     if (useCompositeId()){
                         inputDoc.addField("compositeId", getCompositeIdByPid(pid));
-                    }else {
-                        inputDoc.addField("pid", pid);
                     }
+                    inputDoc.addField("pid", pid);
+
                     Map<String, Object> updateData = new HashMap<>();
                     updateData.put("add-distinct", value == null ? null : value.toString());
                     inputDoc.addField(fieldName, updateData);
@@ -274,9 +274,9 @@ public class SolrIndexAccess {
                     SolrInputDocument inputDoc = new SolrInputDocument();
                     if (useCompositeId()){
                         inputDoc.addField("compositeId", getCompositeIdByPid(pid));
-                    }else {
-                        inputDoc.addField("pid", pid);
                     }
+                    inputDoc.addField("pid", pid);
+
                     Map<String, Object> updateData = new HashMap<>();
                     updateData.put("removeregex", value == null ? null : value.toString()); //'remove' neodstranuje vsechny kopie stejne hodnoty (ac to tvrdi dokumentace)
                     inputDoc.addField(fieldName, updateData);
