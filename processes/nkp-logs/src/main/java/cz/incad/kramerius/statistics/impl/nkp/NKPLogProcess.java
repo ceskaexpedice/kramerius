@@ -8,6 +8,8 @@ import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.service.Mailer;
+import cz.incad.kramerius.service.impl.MailerImpl;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
@@ -18,10 +20,17 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONObject;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.ws.rs.core.MediaType;
 import java.io.*;
+import java.rmi.ServerException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -51,9 +60,17 @@ public class NKPLogProcess {
     private static final String NKP_LOGS_VISIBILITY_KEY = "nkp.logs.visibility";
     private static final String NKP_LOGS_INSTITUTION_KEY = "nkp.logs.institution";
     private static final String NKP_LOGS_ANONYMIZATION_KEY = "nkp.logs.anonymization";
+    
+    private static final String NKP_LOGS_EMAIL_NOTIFICATION = "nkp.logs.notification.enabled";
+    private static final String NKP_LOGS_EMAIL_FROM = "nkp.logs.notification.from";
+    private static final String NKP_LOGS_EMAIL_TEXT = "nkp.logs.notification.text";
+    private static final String NKP_LOGS_EMAIL_SUBJECT = "nkp.logs.notification.subject";
+    private static final String NKP_LOGS_EMAIL_RECIPIENTS = "nkp.logs.notification.recipients";
+    
+    
     public static Logger LOGGER = Logger.getLogger(NKPLogProcess.class.getName());
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, ParseException, IOException {
+    public static void main(String[] args) throws NoSuchAlgorithmException, ParseException, IOException, MessagingException {
         LOGGER.log(Level.INFO, "Process parameters: " + Arrays.asList(args).toString());
         if (args.length > 2) {
             String from = args[1];
@@ -67,7 +84,43 @@ public class NKPLogProcess {
                     DEFAULT_ANONYMIZATION_PROPERTIES);
 
             process(from, to, folder, institution, visibility, anonymization);
+
+            boolean  emailNotification = KConfiguration.getInstance().getConfiguration().getBoolean(NKP_LOGS_EMAIL_NOTIFICATION,  false);
+            if (args.length > 3) { emailNotification = Boolean.parseBoolean(args[3]); }
+            
+            if (emailNotification) {
+                String administratorEmail = KConfiguration.getInstance().getConfiguration().getString("administrator.email");
+                String emailFrom =   KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_EMAIL_FROM,  administratorEmail);
+                String text  = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_EMAIL_TEXT,  "NKP Logs notification");
+                String subject  = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_EMAIL_SUBJECT,  "NKP Logs notification");
+                List<Object> recipients  = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_EMAIL_RECIPIENTS,  new ArrayList<>());
+                if (recipients != null && recipients.size() > 0 && 
+                        StringUtils.isAnyString(emailFrom) && 
+                        StringUtils.isAnyString(text)  && 
+                        StringUtils.isAnyString(subject)) {
+                    
+                    sendEmailNotification(emailFrom, recipients, subject, text);
+                } else {
+                    LOGGER.warning("Warning: Recipients missing, unable to send email");
+                }
+
+            }
         }
+    }
+
+    public static void sendEmailNotification(String emailFrom, List<Object> recipients, String subject, String text) throws MessagingException {
+        Mailer mailer= new MailerImpl();
+        javax.mail.Session sess = mailer.getSession(null, null);
+        MimeMessage msg = new MimeMessage(sess);
+        
+        msg.setHeader("Content-Type", "text/plain; charset=UTF-8");
+        msg.setFrom(new InternetAddress(emailFrom));
+        for (Object recp : recipients) {
+            msg.addRecipient(Message.RecipientType.TO, new InternetAddress(recp.toString()));
+        }
+        msg.setSubject(subject, "UTF-8");
+        msg.setText(text,"UTF-8");
+        Transport.send(msg);
     }
 
     public static void process(String from,
@@ -76,6 +129,7 @@ public class NKPLogProcess {
                                String institution,
                                String visibility,
                                List<Object> anonymization
+                              
     ) throws ParseException, IOException, NoSuchAlgorithmException {
         List<String> logs = new ArrayList<>();
         
@@ -192,6 +246,7 @@ public class NKPLogProcess {
         }
         fis.close();
     }
+
 
 
     

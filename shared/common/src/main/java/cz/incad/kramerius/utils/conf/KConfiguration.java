@@ -87,7 +87,12 @@ public class KConfiguration {
                     }
                     // _ext_configuration_file_name
                     CompositeConfiguration constconf = new CompositeConfiguration();
-                    PropertiesConfiguration file = new PropertiesConfiguration(confFile);
+                    
+                    PropertiesConfiguration file = new PropertiesConfiguration();
+                    file.setEncoding("UTF-8");
+                    file.setFile(confFile);
+                    file.load();
+                    
                     file.setReloadingStrategy(new FileChangedReloadingStrategy());
                     constconf.addConfiguration(file);
                     constconf.addConfiguration(bundled);
