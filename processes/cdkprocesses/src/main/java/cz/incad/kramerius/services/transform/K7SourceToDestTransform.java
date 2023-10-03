@@ -361,7 +361,39 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                 DateInfo dateInfo = dateExtractor.extractFromString(textContent.toString(), pid);
                 appendDateFields(destDocument, destDocElem, dateInfo, consumer );
             }
+
+            
+            // Issue 42 / https://github.com/ceskaexpedice/ceska-digitalni-knihovna/issues/42
+            if (document.containsKey("model")) {
+                String model = document.get("model").get(0);
+                if (model.equals("page")) {
+                    Element details = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+                        @Override
+                        public boolean acceptElement(Element element) {
+                            String nodeName = element.getNodeName();
+                            if (nodeName.equals("arr")) {
+                                String nameAttr = element.getAttribute("name");
+                                if (nameAttr != null) return "details".equals(nameAttr);
+                            }
+                            return false;
+                        }
+                    });
+                    
+                    if (details != null) {
+                        List<Element> elements = XMLUtils.getElements(details);
+                        if (elements != null && elements.size() > 0) {
+                            String textContent = elements.get(0).getTextContent();
+                            String[] split = textContent.split("##");
+                            if (split.length> 1) {
+                                field(destDocument, destDocElem,split[0], "page.type",consumer);
+                            }
+                        }
+                    }
+                }
+            }
         }
+
+        
     }
 
     private void field(Document destDocument, Element destDocElem, String value, String targetName, CopyReplicateConsumer consumer) {
