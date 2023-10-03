@@ -238,7 +238,7 @@ public class ImportDuplicator {
 
             String pid = "";
             try {
-                Import.ingest(fedoraAccess.getInternalAPI(), new ByteArrayInputStream(bytes), null,null, null,false);
+                Import.ingest(fedoraAccess.getInternalAPI(), new ByteArrayInputStream(bytes),null,  null, null,false);
             } catch (SOAPFaultException sfex) {
 
                 if (sfex.getMessage().contains("ObjectExistsException")) {
