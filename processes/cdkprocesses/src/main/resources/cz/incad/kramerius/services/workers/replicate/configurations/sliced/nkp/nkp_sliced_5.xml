@@ -42,8 +42,8 @@
             <batchsize>88</batchsize>
 
 
-            <user>cdkmzk</user>
-            <pass>CCYeZPSe</pass>
+             <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
 
 
             <composite.id>true</composite.id>
