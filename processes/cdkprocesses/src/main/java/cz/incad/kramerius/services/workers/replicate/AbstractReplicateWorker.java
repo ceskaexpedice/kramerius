@@ -3,6 +3,7 @@ package cz.incad.kramerius.services.workers.replicate;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,15 +62,12 @@ public abstract class AbstractReplicateWorker extends Worker {
         String reduce = subpids.stream().map(it -> {
             return '"' + it + '"';
         }).collect(Collectors.joining(" OR "));
+        
 
-        // field list je pid + collection + rootpid + dalsi field list
-        //String fieldlist = this.transform.getField(idIdentifier) + " " + collectionField +" cdk.leader cdk.licenses cdk.collection";
-        String fieldlist = "pid " + collectionField +" cdk.leader cdk.licenses cdk.collection";
+        List<String> computedFields = Arrays.asList("cdk.licenses", "cdk.licenses_of_ancestors cdk.contains_licenses");
+        String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection "+computedFields.stream().collect(Collectors.joining(" "));
         if (compositeId) {
             fieldlist = fieldlist + " " + " root.pid compositeId";
-//            if (!idIdentifier.equals(childOfComposite)) {
-//                fieldlist = fieldlist + " " + this.transform.getField(this.childOfComposite);
-//            }
         }
 
         String query = "?q=" + "pid" + ":(" + URLEncoder.encode(reduce, "UTF-8")
@@ -82,16 +80,32 @@ public abstract class AbstractReplicateWorker extends Worker {
                 });
 
         List<Element> docs = XMLUtils.getElements(resultElem);
+
         List<Map<String, Object>> list = new ArrayList<>();
         docs.stream().forEach(d -> {
+            List<String> simpleFields = Arrays.asList("str","date","int");
             Map<String, Object> map = new HashMap<>();
-
-            Element pid = XMLUtils.findElement(d, e -> {
-                return e.getAttribute("name").equals("pid");
+            List<Element> fields = XMLUtils.getElements(d);
+            fields.stream().forEach(f-> {
+               if (simpleFields.contains(f.getNodeName())) {
+                   String name = f.getAttribute("name");
+                   map.put(name, f.getTextContent());
+               } else {
+                   String name = f.getAttribute("name");
+                   List<Element> elements = XMLUtils.getElements(f);
+                   List<String> contents = elements.stream().map(Element::getTextContent).collect(Collectors.toList());
+                   map.put(name, contents);
+               }
             });
-            if (pid != null) {
-                map.put("pid", pid.getTextContent());
-            }
+            
+            
+//            Element pid = XMLUtils.findElement(d, e -> {
+//                return e.getAttribute("name").equals("pid");
+//            });
+//            
+//            if (pid != null) {
+//                map.put("pid", pid.getTextContent());
+//            }
 
             Element collection = XMLUtils.findElement(d, e -> {
                 return e.getAttribute("name").equals(collectionField);
@@ -101,24 +115,16 @@ public abstract class AbstractReplicateWorker extends Worker {
                 map.put(collectionField, collection.getTextContent());
             }
 
-            Element cdkLeader = XMLUtils.findElement(d, e -> {
-                return e.getAttribute("name").equals("cdk.leader");
-            });
-
-            if (cdkLeader != null) {
-                map.put("cdk.leader", cdkLeader.getTextContent());
-            }
-
-            Element cdkLicenses = XMLUtils.findElement(d, e -> {
-                return e.getAttribute("name").equals("cdk.licenses");
-            });
+//            Element cdkLeader = XMLUtils.findElement(d, e -> {
+//                return e.getAttribute("name").equals("cdk.leader");
+//            });
+//
+//            if (cdkLeader != null) {
+//                map.put("cdk.leader", cdkLeader.getTextContent());
+//            }
             
-            if (cdkLicenses != null) {
-                List<String> licenses = XMLUtils.getElements(cdkLicenses).stream().map(Element::getTextContent).collect(Collectors.toList());
-                map.put("cdk.licenses", licenses);
-            }
-            
-            
+            // computed fields 
+            computedFields.stream().forEach(it-> computedField(d, map,it));
             
             if (compositeId) {
                 Element compositeRoot = XMLUtils.findElement(d, e -> {
@@ -150,6 +156,18 @@ public abstract class AbstractReplicateWorker extends Worker {
         });
 
         return new ReplicateContext(list, notindexed);
+    }
+
+    private void computedField(Element d, Map<String, Object> map, String fieldName) {
+        Element cdkLicenses = XMLUtils.findElement(d, e -> {
+            return e.getAttribute("name").equals(fieldName);
+            //return e.getAttribute("name").equals("cdk.licenses");
+        });
+        
+        if (cdkLicenses != null) {
+            List<String> licenses = XMLUtils.getElements(cdkLicenses).stream().map(Element::getTextContent).collect(Collectors.toList());
+            map.put(fieldName, licenses);
+        }
     }
 
     protected void config(Element workerElm) {

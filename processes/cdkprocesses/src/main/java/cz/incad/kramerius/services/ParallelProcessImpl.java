@@ -18,10 +18,20 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,7 +77,124 @@ public class ParallelProcessImpl {
     	return Client.create(cc);
     }	
 
-    private void startWorkers(List<Worker> worksWhasHasToBeDone) throws BrokenBarrierException, InterruptedException {
+    
+    public static boolean isInWorkingTime( String startTime, String endTime) {
+        try {
+            LocalDate now = LocalDate.now();
+            LocalDateTime current = LocalDateTime.now();
+
+            return isWorkingTimeImpl(startTime, endTime, now, current);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return false;
+        }
+    }
+
+    public static boolean isWorkingTimeImpl(String startTime,String endTime,  LocalDate now, LocalDateTime current) {
+
+        LocalTime startTimeLT = LocalTime.parse(startTime, DateTimeFormatter.ofPattern("H:mm"));
+        LocalDateTime startDateTimeLT = startTimeLT.atDate(now);
+        
+        LocalTime endTimeLT = LocalTime.parse(endTime, DateTimeFormatter.ofPattern("H:mm"));
+        LocalDateTime endDateTimeLT = endTimeLT.atDate(now);
+
+        if (startDateTimeLT.isAfter(endDateTimeLT)) {
+            if (current.isAfter(startDateTimeLT.minusDays(1)) && current.isBefore(endDateTimeLT)) {
+                return true;
+            } else  if (current.isAfter(startDateTimeLT) && current.isBefore(endDateTimeLT.plusDays(1))) {
+                return true;
+            }
+        } else {
+            if ( current.isAfter(startDateTimeLT) && current.isBefore(endDateTimeLT)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        
+        return false;
+    }
+    
+    public static void waitUntilStartWorkingTime(String startTime, String endTime) {
+        try {
+            LocalDate now = LocalDate.now();
+            LocalDateTime current = LocalDateTime.now();
+
+            long time =  waitUntilStartWorkingTimeImpl(startTime, endTime, now, current);
+            Thread.sleep(time);
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    public static long  waitUntilStartWorkingTimeImpl(String startTime, String endTime, LocalDate now,
+            LocalDateTime current) {
+        LocalTime startTimeLT = LocalTime.parse(startTime, DateTimeFormatter.ofPattern("H:mm"));
+        LocalDateTime startDateTimeLT = startTimeLT.atDate(now);
+        
+        LocalTime endTimeLT = LocalTime.parse(endTime, DateTimeFormatter.ofPattern("H:mm"));
+        LocalDateTime endDateTimeLT = endTimeLT.atDate(now);
+        
+        if (startDateTimeLT.isAfter(endDateTimeLT)) {
+            if (current.isAfter(startDateTimeLT.minusDays(1)) && current.isBefore(endDateTimeLT)) {
+                startDateTimeLT = startDateTimeLT.minusDays(1);
+            } else  if (current.isAfter(startDateTimeLT) && current.isBefore(endDateTimeLT.plusDays(1))) {
+                endDateTimeLT = endDateTimeLT.plusDays(1);
+            }
+        }
+
+        
+        
+        Duration duration = Duration.between(current, startDateTimeLT);
+        if (!duration.isNegative()) {
+            long millis = duration.toMillis();
+
+            waitingInfo(startDateTimeLT, millis);
+
+            return millis;
+            //Thread.sleep(millis);
+        } else {
+            startDateTimeLT = startDateTimeLT.plusDays(1);
+            endDateTimeLT = endDateTimeLT.plusDays(1);
+            LOGGER.info("I'm shifting day to :"+startDateTimeLT);
+            duration = Duration.between(current, startDateTimeLT);
+            long millis = duration.toMillis();
+
+            waitingInfo(startDateTimeLT, millis);
+            
+            return millis;
+            //Thread.sleep(millis);
+            
+            //LOGGER.log(Level.SEVERE, "Negative waiting");
+        }
+    }
+
+    private static void waitingInfo(LocalDateTime startDateTimeLT, long millis) {
+        long hours = millis / 3600000; // 3600000 ms v hodině
+        long minutes = (millis % 3600000) / 60000; // 60000 ms v minutě
+        long seconds = ((millis % 3600000) % 60000) / 1000; // 1000 ms v sekundě
+
+        LOGGER.info("The date is "+startDateTimeLT+". The calculated wait time is : " + hours + " hours, " + minutes + " minutes a " + seconds + " seconds.");
+    }
+    
+    private void startWorkers(List<Worker> worksWhasHasToBeDone, String workingtime) throws BrokenBarrierException, InterruptedException {
+        if (workingtime != null && workingtime.contains("-")) {
+            String[] intervalParts = workingtime.split("-");
+            String startTime = intervalParts[0];
+            String endTime = intervalParts[1];
+            
+            while (true) {
+                if (!isInWorkingTime( startTime, endTime)) {
+                    //LOGGER.info(String.format("No harvesting - waiting for end of interval %s", workingtime));
+                    waitUntilStartWorkingTime(startTime, endTime);
+                } else {
+                    break; 
+                }
+            }
+        }
+        
+        // check if sleep hours 
         CyclicBarrier barrier = new CyclicBarrier(worksWhasHasToBeDone.size()+1);
         worksWhasHasToBeDone.stream().forEach(th->{
             th.setBarrier(barrier);
@@ -87,6 +214,13 @@ public class ParallelProcessImpl {
         String timestamp = null;
         if (timestampElm != null) {
         	timestamp = timestampElm.getTextContent();
+        }
+
+        Element workingTimeElm = XMLUtils.findElement(document.getDocumentElement(),"workingtime");
+        final AtomicReference<String> workingTime = new AtomicReference<>();
+        if (workingTimeElm != null) {
+            workingTime.set(workingTimeElm.getTextContent());
+            //workingtime = workingTimeElm.getTextContent();
         }
 
         Element sourceNameElm = XMLUtils.findElement(document.getDocumentElement(), "source-name");
@@ -124,9 +258,9 @@ public class ParallelProcessImpl {
         final List<Worker>  worksWhatHasToBeDone = new ArrayList<>();
         try {
             this.iterator.iterate(this.client, (List<IterationItem> idents)->{
-                addNewWorkToWorkers(this.iterator, worksWhatHasToBeDone, idents);
+                addNewWorkToWorkers(this.iterator, worksWhatHasToBeDone, idents, workingTime.get());
             }, ()-> {
-                finishRestWorkers(worksWhatHasToBeDone);
+                finishRestWorkers(worksWhatHasToBeDone,workingTime.get());
             });
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -142,11 +276,11 @@ public class ParallelProcessImpl {
     }
 
     // musi zustat tady
-    private void addNewWorkToWorkers(ProcessIterator processIterator, List<Worker> worksWhatHasToBeDone, List<IterationItem> identifiers) {
+    private void addNewWorkToWorkers(ProcessIterator processIterator, List<Worker> worksWhatHasToBeDone, List<IterationItem> identifiers, String workingtime) {
         try {
             worksWhatHasToBeDone.add(createWorker(processIterator, this.workerElem, identifiers));
             if (worksWhatHasToBeDone.size() >= threads) {
-                startWorkers(worksWhatHasToBeDone);
+                startWorkers(worksWhatHasToBeDone, workingtime);
                 worksWhatHasToBeDone.clear();
             }
         } catch ( BrokenBarrierException | InterruptedException e) {
@@ -164,10 +298,10 @@ public class ParallelProcessImpl {
         }
     }
 
-    private void finishRestWorkers(List<Worker> worksWhatHasToBeDone) {
+    private void finishRestWorkers(List<Worker> worksWhatHasToBeDone,String workingtime) {
         try {
             if (!worksWhatHasToBeDone.isEmpty()) {
-                startWorkers(worksWhatHasToBeDone);
+                startWorkers(worksWhatHasToBeDone, workingtime);
             }
         } catch (BrokenBarrierException | InterruptedException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

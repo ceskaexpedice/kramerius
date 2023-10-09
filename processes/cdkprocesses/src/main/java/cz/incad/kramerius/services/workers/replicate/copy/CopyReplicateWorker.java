@@ -2,6 +2,7 @@ package cz.incad.kramerius.services.workers.replicate.copy;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.services.SupportedLibraries;
 import cz.incad.kramerius.services.Worker;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.utils.SolrUtils;
@@ -22,9 +23,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +39,9 @@ import java.util.stream.Collectors;
  */
 public class CopyReplicateWorker extends AbstractReplicateWorker {
 
+    //public static List<String> LIBRARIES = Arrays.asList("nkp","blbec_k5");
+    public static SupportedLibraries supportedLibraries = new SupportedLibraries();
+    
     public static Logger LOGGER = Logger.getLogger(CopyReplicateWorker.class.getName());
 
     public CopyReplicateWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids) {
@@ -73,25 +80,60 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                             
                             @Override
                             public void changeDocument(String rootPid, String pid,Element doc) {
-                                List<Element> foundElements = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+
+                                List<String> licensesOfAncestors = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                                    
+                                    @Override
+                                    public boolean acceptElement(Element element) {
+                                        String attribute = element.getAttribute("name");
+                                        return "licenses_of_ancestors".equals(attribute);
+                                    }
+                                }).stream().map(Element::getTextContent).collect(Collectors.toList());
+                                
+                                for (String licOfAncestors : licensesOfAncestors) {
+                                    Document document = doc.getOwnerDocument();
+                                    Element cdkLicenses = document.createElement("field");
+                                    cdkLicenses.setAttribute("name", "cdk.licenses_of_ancestors");
+                                    cdkLicenses.setTextContent(sourceName+"_"+ licOfAncestors);
+                                    doc.appendChild(cdkLicenses);
+                                }
+
+                                
+                                List<String> containsLicenses = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                                    
+                                    @Override
+                                    public boolean acceptElement(Element element) {
+                                        String attribute = element.getAttribute("name");
+                                        return "contains_licenses".equals(attribute);
+                                    }
+                                }).stream().map(Element::getTextContent).collect(Collectors.toList());
+                                
+                                for (String licOfAncestors : containsLicenses) {
+                                    Document document = doc.getOwnerDocument();
+                                    Element cdkLicenses = document.createElement("field");
+                                    cdkLicenses.setAttribute("name", "cdk.contains_licenses");
+                                    cdkLicenses.setTextContent(sourceName+"_"+ licOfAncestors);
+                                    doc.appendChild(cdkLicenses);
+                                }
+                                
+                                
+                                
+                                List<String> licenses = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
                                     
                                     @Override
                                     public boolean acceptElement(Element element) {
                                         String attribute = element.getAttribute("name");
                                         return "licenses".equals(attribute);
                                     }
-                                });
-                                
-                                if (!foundElements.isEmpty()) {
-                                    for (Element fElm : foundElements) {
-                                        Document document = fElm.getOwnerDocument();
-                                        Element cdkLicenses = document.createElement("field");
-                                        cdkLicenses.setAttribute("name", "cdk.licenses");
-                                        cdkLicenses.setTextContent(sourceName+"_"+ fElm.getTextContent());
-                                        
-                                        doc.appendChild(cdkLicenses);
-                                    }
+                                }).stream().map(Element::getTextContent).collect(Collectors.toList());
+                                for (String license : licenses) {
+                                    Document document = doc.getOwnerDocument();
+                                    Element cdkLicenses = document.createElement("field");
+                                    cdkLicenses.setAttribute("name", "cdk.licenses");
+                                    cdkLicenses.setTextContent(sourceName+"_"+ license);
+                                    doc.appendChild(cdkLicenses);
                                 }
+                                
                             }
                         });
 
@@ -150,9 +192,11 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
 
                                         List<String> deleteFields = Arrays.asList();
                                         List<String> addValues = Arrays.asList(
+                                                // toto musi byt pocitane pole
                                                 "licenses",
                                                 "licenses_of_ancestors",
                                                 "contains_licenses",
+                                                
                                                 "in_collections",
                                                 "in_collections.direct");
                                         
@@ -174,56 +218,86 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                     
                                     @Override
                                     public void changeDocument(String root, String pid, Element doc) {
+                                        // setreseni dat cdk.licenses 
                                         
-                                        // cdk dokument
+                                        List<Pair<String,String>> comparingFields = Arrays.asList(
+                                            Pair.of("licenses", "cdk.licenses"),
+                                            Pair.of("contains_licenses", "cdk.contains_licenses"),
+                                            Pair.of("licenses_of_ancestors", "cdk.licenses_of_ancestors")
+                                        );
+                                        
                                         Map<String, Object> cdkDoc = docs.get(pid);
-                                        
-                                        List<Element> newIndexedLicenses = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                                        for (Pair<String,String> cpField : comparingFields) {
                                             
-                                            @Override
-                                            public boolean acceptElement(Element element) {
-                                                String attribute = element.getAttribute("name");
-                                                return "licenses".equals(attribute);
-                                            }
-                                        });
-                                        
-
-                                        List<String> newCDKLicenses = new ArrayList<>();
-                                        newCDKLicenses =  newIndexedLicenses.stream().map(Element::getTextContent).map(lic-> {
-                                            return sourceName+"_"+lic;
-                                        }).collect(Collectors.toList());
-                                        
-                                        List<String> indexedCDKLicenses = (List<String>) cdkDoc.get("cdk.licenses");
-                                        if (indexedCDKLicenses == null) {
-                                            indexedCDKLicenses = new ArrayList<>();
-                                        }
-
-                                        List<String> toRemoveCDKLicenses = new ArrayList<>(indexedCDKLicenses);
-                                        toRemoveCDKLicenses.removeAll(newCDKLicenses);
-                                        
-                                        if (!newCDKLicenses.isEmpty()) {
-                                            for (Element fElm : newIndexedLicenses) {
-                                                Document document = fElm.getOwnerDocument();
-                                                Element cdkLicenses = document.createElement("field");
-                                                cdkLicenses.setAttribute("name", "cdk.licenses");
-                                                cdkLicenses.setTextContent(sourceName+"_"+fElm.getTextContent());
+                                            String sourceField = cpField.getLeft();
+                                            String specificCDKField = cpField.getRight();
+                                            
+                                            List<Element> newIndexedField = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                                                @Override
+                                                public boolean acceptElement(Element element) {
+                                                    String attribute = element.getAttribute("name");
+                                                    return sourceField.equals(attribute);
+                                                }
+                                            });
+                                            
+                                            Set<String> newCDKValues = new HashSet<>();
+                                            newCDKValues =  newIndexedField.stream().map(Element::getTextContent).map(cnt-> {
+                                                return sourceName+"_"+cnt;
+                                            }).collect(Collectors.toSet());
+                                            
+                                            
+                                            Set<String> indexedCDKLicenses = cdkDoc.get(specificCDKField) != null ?  new HashSet<String>((List<String>)cdkDoc.get(specificCDKField)) : new HashSet<>();
+                                            indexedCDKLicenses.removeIf(item -> !item.startsWith(sourceName + "_"));
+                                            if (!indexedCDKLicenses.equals(newCDKValues)) {
+                                                List<String> newList = new ArrayList<String>( cdkDoc.get(specificCDKField)  != null ?  (List<String>)cdkDoc.get(specificCDKField) : new ArrayList<>() );
+                                                // remove everything what is prefixed 
+                                                newList.removeIf(item -> item.startsWith(sourceName + "_"));
                                                 
-                                                cdkLicenses.setAttribute("update", "add-distinct");
-                                                doc.appendChild(cdkLicenses);
-                                            }
-                                        }
-                                        
-                                        if (toRemoveCDKLicenses!=null && toRemoveCDKLicenses.size() > 0) {
-                                            for (String remove : toRemoveCDKLicenses) {
+                                                // add new indexed values
+                                                newList.addAll(newCDKValues);
+
+//                                                // collect all libraries 
+//                                                Set<String> libraries = newList.stream().map(it-> {
+//                                                    int idx = it.indexOf("_");
+//                                                    if (idx > 0) {
+//                                                        return it.substring(0, idx);
+//                                                    } else {
+//                                                        return it;
+//                                                    }
+//                                                }).collect(Collectors.toSet());
+                                                
+                                                for (Element nIF : newIndexedField) {
+                                                    doc.removeChild(nIF);
+                                                }
+
+                                                Set<String> tempSet = new HashSet<>();
                                                 Document document = doc.getOwnerDocument();
-                                                Element cdkLicenses = document.createElement("field");
-                                                cdkLicenses.setAttribute("name", "cdk.licenses");
-                                                cdkLicenses.setTextContent(sourceName+"_"+remove);
-                                                cdkLicenses.setAttribute("update", "remove");
-                                                doc.appendChild(cdkLicenses);
+                                                newList.stream().forEach(lic-> {
+
+                                                    Element cdkSpecific = document.createElement("field");
+                                                    cdkSpecific.setAttribute("name", specificCDKField);
+                                                    cdkSpecific.setAttribute("update", "set");
+                                                    cdkSpecific.setTextContent(lic);
+                                                    doc.appendChild(cdkSpecific);
+
+                                                    Pair<String, String> divided = supportedLibraries.divideLibraryAndLicense(lic);
+                                                    if (divided != null) {
+                                                        
+                                                        String rv = divided.getRight();
+                                                        if (!tempSet.contains(rv)) {
+                                                            Element changedField = document.createElement("field");
+                                                            changedField.setAttribute("name", sourceField);
+                                                            changedField.setAttribute("update", "set");
+                                                            
+                                                            changedField.setTextContent(rv);
+                                                            doc.appendChild(changedField);
+                                                            
+                                                            tempSet.add(rv);
+                                                        }
+                                                    }
+                                                });
                                             }
                                         }
-                                        
                                     }
                                 });
                             } else {
@@ -298,7 +372,6 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
 		Element resultElem = XMLUtils.findElement(response, (elm) -> {
 		    return elm.getNodeName().equals("result");
 		});
-
 		// create batch
 		Document batch = BatchUtils.batch(resultElem, this.compositeId, this.rootOfComposite, this.childOfComposite, this.transform, consumer);
 		return batch;

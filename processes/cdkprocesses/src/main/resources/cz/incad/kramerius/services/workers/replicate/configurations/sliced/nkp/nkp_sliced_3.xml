@@ -1,8 +1,7 @@
-<!--  Defaultni sablona pro k5 -->
 <cdkprocess>
 
-    <source-name>$iteration.dl$</source-name>
-	<name>$iteration.dl$-full</name>
+    <source-name>nkp</source-name>
+	<name>nkp-full</name>
 	<type>full</type>
 	
 	<workingtime>$iteration.workingtime$</workingtime>
@@ -11,6 +10,7 @@
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         <url>$iteration.url$</url>
+        <fquery>modified_date:[2013-06-01T00:00:00.000Z TO 2014-01-01T00:00:00.000Z]</fquery>
         <endpoint>select</endpoint>
 
         <id>PID</id>
@@ -23,6 +23,12 @@
       	<!--  timestamp field  -->
         <timestamp_field>modified_date</timestamp_field>
         
+        
+        <endpoint>select</endpoint>
+        <id>pid</id>
+        <rows>4000</rows>
+        <type>CURSOR</type>
+        
     </iteration>
 
     <threads>1</threads>
@@ -31,26 +37,24 @@
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
     <worker>
         <request>
-
+          <url>$iteration.url$</url>
             <endpoint>select</endpoint>
-            
-            <batchsize>80</batchsize>
+            <batchsize>88</batchsize>
 
-            <url>$iteration.url$</url>
 
-            <user>$iteration.user$</user>
-            <pass>$iteration.pass$</pass>
+            <user>cdkmzk</user>
+            <pass>CCYeZPSe</pass>
 
 
             <composite.id>true</composite.id>
             <composite.root>root_pid</composite.root>
             <composite.child>PID</composite.child>
 
-
-            <checkUrl>$destination.url$</checkUrl>
-
+             <checkUrl>$destination.url$</checkUrl>
             <checkEndpoint>select</checkEndpoint>
-
+            <!--  
+			<checkEndpoint>search</checkEndpoint>
+			-->
             <!-- cdk source field -->
             <collection>cdk.collection</collection>
 
@@ -69,8 +73,8 @@
                 </remove.dest.field>
                 <!-- append to batch document -->
                 <update.dest.field>
-                    <field name="cdk.collection">$iteration.dl$</field>
-                    <field name="cdk.leader">$iteration.dl$</field>
+                    <field name="cdk.collection">nkp</field>
+                    <field name="cdk.leader">nkp</field>
 
                 </update.dest.field>
             </onindex>
@@ -80,11 +84,10 @@
             
                <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels dostupnost fedora.model</fieldlist>
                  <update.dest.field>
-                    <field name="cdk.collection" update="add-distinct">$iteration.dl$</field>
+                    <field name="cdk.collection" update="add-distinct">nkp</field>
                 </update.dest.field>
             </onupdate>
 
         </destination>
     </worker>
 </cdkprocess>
- 

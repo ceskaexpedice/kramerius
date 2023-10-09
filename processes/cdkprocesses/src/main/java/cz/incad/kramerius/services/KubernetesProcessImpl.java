@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 
+
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -39,6 +41,9 @@ public class KubernetesProcessImpl {
     public static final Logger LOGGER = Logger.getLogger(KubernetesProcessImpl.class.getName());
 
     public static void main(String[] args) throws IOException, MigrateSolrIndexException, IllegalAccessException, InstantiationException, SAXException, ParserConfigurationException, NoSuchMethodException, ClassNotFoundException {
+
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Prague"));
+        
         Map<String, String> env = System.getenv();
         if (env.containsKey(CONFIG_SOURCE) || args.length > 0) {
             String configSource = env.containsKey(CONFIG_SOURCE) ?  env.get(CONFIG_SOURCE) : args[0];

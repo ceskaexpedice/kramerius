@@ -5,7 +5,9 @@ import org.w3c.dom.Element;
 public interface CopyReplicateConsumer {
     
     public enum ModifyFieldResult {
-        edit,delete,none;
+        edit,delete,none,
+        
+        calculated;
     }
     
     public ModifyFieldResult modifyField(Element field);

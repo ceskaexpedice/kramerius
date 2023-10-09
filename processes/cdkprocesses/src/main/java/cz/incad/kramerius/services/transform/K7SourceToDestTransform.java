@@ -385,16 +385,42 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
                             String textContent = elements.get(0).getTextContent();
                             String[] split = textContent.split("##");
                             if (split.length> 1) {
-                                field(destDocument, destDocElem,split[0], "page.type",consumer);
+                                field(destDocument, destDocElem,split[1], "page.type",consumer);
                             }
                         }
                     }
                 }
             }
+            
+            if (document.containsKey("accessibility") && document.containsKey("model")) {
+                String accessibility = document.get("accessibility").get(0);
+                String model = document.get("model").get(0);
+                
+                translateAccessibilityToLicense(model, accessibility, destDocument, destDocElem, consumer);
+            }
         }
-
-        
     }
+
+    private void translateAccessibilityToLicense(String model, String accessibility, Document destDocument, Element destDocElem, CopyReplicateConsumer consumer) {
+        
+        String license = "public".equals(accessibility) ? "public" : "onsite";
+        
+        List<String> markContainsLicenses = Arrays.asList("monographunit","periodicalvolume");
+
+        List<String> licenses = Arrays.asList("monograph","monographunit", "periodicalvolume","map","sheetmusic");
+        List<String> licenses_of_ancestors = Arrays.asList("page","supplement","periodicalitem");
+        if (licenses.contains(model)) {
+            field(destDocument, destDocElem,license, "licenses",consumer);
+        } else if (licenses_of_ancestors.contains(model)) {
+            field(destDocument, destDocElem,license, "licenses_of_ancestors",consumer);
+        }
+        
+        if (markContainsLicenses.contains(model)) {
+            field(destDocument, destDocElem,license, "cdk.k5.marked_for_contains_licenses",consumer);
+        }
+        field(destDocument, destDocElem,license, "cdk.k5.license.translated",consumer);
+    }
+
 
     private void field(Document destDocument, Element destDocElem, String value, String targetName, CopyReplicateConsumer consumer) {
         Element strElm = destDocument.createElement("field");

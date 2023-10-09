@@ -36,15 +36,6 @@ public class BatchUtils {
                 return  (elm.getNodeName().equals("doc"));
             }
         });
-
-        StringWriter writer = new StringWriter();
-        try {
-            XMLUtils.print(resultElem, writer);
-        } catch (TransformerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         
         for (int i = 0; i < docs.size(); i++) {
             Element destDocElement = destBatch.createElement("doc");
@@ -53,15 +44,6 @@ public class BatchUtils {
             // basic transform
             srcTransform.transform(sourceDocElm, destBatch, destDocElement,consumer);
 
-            writer = new StringWriter();
-            try {
-                XMLUtils.print(destDocElement, writer);
-            } catch (TransformerException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            
             // composite id is not supported
             if (compositeId && root != null && child != null) {
 
@@ -98,14 +80,6 @@ public class BatchUtils {
                 }
             });
 
-            writer = new StringWriter();
-            try {
-                XMLUtils.print(destDocElement, writer);
-            } catch (TransformerException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
             consumer.changeDocument(rootPidElm.getTextContent(),pidElm.getTextContent(), destDocElement);
         }
         return destBatch;
