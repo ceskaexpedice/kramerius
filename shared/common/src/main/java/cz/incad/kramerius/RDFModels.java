@@ -19,19 +19,24 @@ public class RDFModels {
             return KrameriusModels.PAGE;
         } else if (rdf.contains("hasUnit")) {
             //return KrameriusModels.MONOGRAPHUNIT;
-            throw new RuntimeException("relation hasUnit doesn't uniquely determine target object"); //it can be: monograph -hasUnit-> monographUnit, but also: convolute -hasUnit-> monograph, or: convolute -hasUnit-> sheetmusic etc
+            //throw new RuntimeException("relation hasUnit doesn't uniquely determine target object"); //it can be: monograph -hasUnit-> monographUnit, but also: convolute -hasUnit-> monograph, or: convolute -hasUnit-> sheetmusic etc
+            return null;
         } else if (rdf.contains("hasVolume")) {
-            return KrameriusModels.PERIODICALVOLUME;
+            //return KrameriusModels.PERIODICALVOLUME;
+            return null;
         } else if (rdf.contains("hasItem")) {
             //return KrameriusModels.PERIODICALITEM;
-            throw new RuntimeException("relation hasItem doesn't uniquely determine target object"); //it can be: periodicalvolume -hasItem-> periodicalitem, but also: periodicalvolume -hasItem-> supplement etc
+            //throw new RuntimeException("relation hasItem doesn't uniquely determine target object"); //it can be: periodicalvolume -hasItem-> periodicalitem, but also: periodicalvolume -hasItem-> supplement etc
+            return null;
         } else if (rdf.contains("hasIntCompPart")) {
             //return KrameriusModels.INTERNALPART;
-            throw new RuntimeException("relation hasIntCompPart doesn't uniquely determine target object"); //it can be: periodicalitem -hasIntCompPart-> article, but also: periodicalitem -hasIntCompPart-> article
+            //throw new RuntimeException("relation hasIntCompPart doesn't uniquely determine target object"); //it can be: periodicalitem -hasIntCompPart-> article, but also: periodicalitem -hasIntCompPart-> article
+            return null;
         } else if (rdf.contains("isOnPage")) {
             return KrameriusModels.PAGE;
         } else if (rdf.contains("hasDonator")) {
-            return KrameriusModels.DONATOR;
+            //return KrameriusModels.DONATOR;
+            return null;
         } else {
             //System.out.println("Unsupported rdf: " + rdf);
             return null;
