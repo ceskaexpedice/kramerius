@@ -73,6 +73,7 @@ public class NKPLogProcess {
     public static void main(String[] args) throws NoSuchAlgorithmException, ParseException, IOException, MessagingException {
         LOGGER.log(Level.INFO, "Process parameters: " + Arrays.asList(args).toString());
         if (args.length > 2) {
+
             String from = args[1];
             String to = args[2];
 
@@ -103,7 +104,6 @@ public class NKPLogProcess {
                 } else {
                     LOGGER.warning("Warning: Recipients missing, unable to send email");
                 }
-
             }
         }
     }

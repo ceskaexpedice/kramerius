@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -76,11 +77,7 @@ public class ServerFilesResource extends AdminApiResource {
                     fileJson.put("name", f.getName());
                     fileJson.put("isDir", f.isDirectory());
                     
-                    java.nio.file.Path p = f.toPath();
-
-                    BasicFileAttributes attributes = Files.readAttributes(p, BasicFileAttributes.class);
-                    fileJson.put("lastModifiedTime", attributes.lastModifiedTime().toMillis());
-                    fileJson.put("lastAccessTime", attributes.lastAccessTime().toMillis());
+                    fileInfo(f, fileJson);
                     
                     if (downloadLinks) {
                         fileJson.put("downloadlink", genDownloadLinks.generateTmpLink(f));
@@ -94,6 +91,16 @@ public class ServerFilesResource extends AdminApiResource {
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+
+
+    private void fileInfo(File f, JSONObject fileJson) throws IOException {
+        java.nio.file.Path p = f.toPath();
+
+        BasicFileAttributes attributes = Files.readAttributes(p, BasicFileAttributes.class);
+        fileJson.put("lastModifiedTime", attributes.lastModifiedTime().toMillis());
+        fileJson.put("lastAccessTime", attributes.lastAccessTime().toMillis());
     }
     
     
@@ -193,6 +200,9 @@ public class ServerFilesResource extends AdminApiResource {
                 fileJson.put("name", file.getName());
                 fileJson.put("isDir", file.isDirectory());
                 filesJson.put(fileJson);
+
+                fileInfo(file, fileJson);
+
             }
 
             JSONObject json = new JSONObject();

@@ -1185,6 +1185,7 @@ public class ProcessResource extends AdminApiResource {
 
                 String dateFrom = extractMandatoryParamString(params, "dateFrom");
                 String dateTo = extractMandatoryParamString(params, "dateTo");
+                Boolean emailNotification = extractMandatoryParamBoolean(params, "emailNotification");
 
                 try {
                     StatisticReport.DATE_FORMAT.parse(dateFrom);
@@ -1201,6 +1202,13 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 result.add(dateFrom);
                 result.add(dateTo);
+                    
+                if (emailNotification != null) {
+                    result.add(emailNotification+"");
+                } else {
+                    result.add(Boolean.FALSE.toString());
+                }
+                
 
                 consumer.accept(false);
                 return result;
