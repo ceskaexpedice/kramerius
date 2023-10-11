@@ -8,6 +8,7 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -302,33 +304,38 @@ public class DeleteTreeProcess {
 
 
     private static boolean removeAnyRelsExtRelation(String srcPid, String targetPid, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isRelsExtAvailable(srcPid)) {
-            throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + srcPid);
-        }
-        Document relsExt = repository.getRelsExt(srcPid, true);
-        Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-        boolean relsExtNeedsToBeUpdated = false;
-
-        //remove relation if found
-        List<Node> relationEls = Dom4jUtils.buildXpath("rel:*/@rdf:resource").selectNodes(rootEl);
-        for (Node relationEl : relationEls) {
-            String content = relationEl.getText();
-            String relationElementName = relationEl.getParent().getName();
-            if (content.equals("info:fedora/" + targetPid)) {
-                LOGGER.info(String.format("removing relation '%s %s' from RELS-EXT of %s", relationElementName, targetPid, srcPid));
-                relationEl.detach();
-                relsExtNeedsToBeUpdated = true;
+        Lock writeLock = AkubraDOManager.getWriteLock(srcPid);
+        try {
+            if (!repository.isRelsExtAvailable(srcPid)) {
+                throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + srcPid);
             }
-        }
+            Document relsExt = repository.getRelsExt(srcPid, true);
+            Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
+            boolean relsExtNeedsToBeUpdated = false;
 
-        //update RELS-EXT in repository if there was a change
-        if (relsExtNeedsToBeUpdated) {
-            if (!DRY_RUN) {
-                repository.updateRelsExt(srcPid, relsExt);
+            //remove relation if found
+            List<Node> relationEls = Dom4jUtils.buildXpath("rel:*/@rdf:resource").selectNodes(rootEl);
+            for (Node relationEl : relationEls) {
+                String content = relationEl.getText();
+                String relationElementName = relationEl.getParent().getName();
+                if (content.equals("info:fedora/" + targetPid)) {
+                    LOGGER.info(String.format("removing relation '%s %s' from RELS-EXT of %s", relationElementName, targetPid, srcPid));
+                    relationEl.detach();
+                    relsExtNeedsToBeUpdated = true;
+                }
             }
-            LOGGER.info(String.format("RELS-EXT of %s has been updated", srcPid));
+
+            //update RELS-EXT in repository if there was a change
+            if (relsExtNeedsToBeUpdated) {
+                if (!DRY_RUN) {
+                    repository.updateRelsExt(srcPid, relsExt);
+                }
+                LOGGER.info(String.format("RELS-EXT of %s has been updated", srcPid));
+            }
+            return relsExtNeedsToBeUpdated;
+        } finally {
+            writeLock.unlock();
         }
-        return relsExtNeedsToBeUpdated;
     }
 
 }

@@ -1,6 +1,7 @@
 package cz.incad.kramerius;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.utils.Dom4jUtils;
@@ -12,6 +13,7 @@ import org.dom4j.Node;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
 
 public class LicenseHelper {
@@ -38,34 +40,39 @@ public class LicenseHelper {
     static String SOLR_FIELD_LICENSES_OF_ANCESTORS = "licenses_of_ancestors";
 
     static boolean removeRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isRelsExtAvailable(pid)) {
-            throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
-        }
-        Document relsExt = repository.getRelsExt(pid, true);
-        Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-        boolean relsExtNeedsToBeUpdated = false;
-
-        //normalize relations with deprecated/incorrect names, possibly including relation we want to remove
-        relsExtNeedsToBeUpdated |= normalizeIncorrectRelationNotation(wrongRelationNames, relationName, rootEl, pid);
-
-        //remove relation if found (even multiple times with same licence)
-        List<Node> relationEls = Dom4jUtils.buildXpath("rel:" + relationName).selectNodes(rootEl);
-        for (Node relationEl : relationEls) {
-            String content = relationEl.getText();
-            if (content.equals(value)) {
-                LOGGER.info(String.format("removing relation '%s' from RELS-EXT of %s", relationName, pid));
-                relationEl.detach();
-                relsExtNeedsToBeUpdated = true;
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            if (!repository.isRelsExtAvailable(pid)) {
+                throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-        }
+            Document relsExt = repository.getRelsExt(pid, true);
+            Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
+            boolean relsExtNeedsToBeUpdated = false;
 
-        //update RELS-EXT in repository if there was a change
-        if (relsExtNeedsToBeUpdated) {
-            //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
-            repository.updateRelsExt(pid, relsExt);
-            LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
+            //normalize relations with deprecated/incorrect names, possibly including relation we want to remove
+            relsExtNeedsToBeUpdated |= normalizeIncorrectRelationNotation(wrongRelationNames, relationName, rootEl, pid);
+
+            //remove relation if found (even multiple times with same licence)
+            List<Node> relationEls = Dom4jUtils.buildXpath("rel:" + relationName).selectNodes(rootEl);
+            for (Node relationEl : relationEls) {
+                String content = relationEl.getText();
+                if (content.equals(value)) {
+                    LOGGER.info(String.format("removing relation '%s' from RELS-EXT of %s", relationName, pid));
+                    relationEl.detach();
+                    relsExtNeedsToBeUpdated = true;
+                }
+            }
+
+            //update RELS-EXT in repository if there was a change
+            if (relsExtNeedsToBeUpdated) {
+                //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
+                repository.updateRelsExt(pid, relsExt);
+                LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
+            }
+            return relsExtNeedsToBeUpdated;
+        } finally {
+            writeLock.unlock();
         }
-        return relsExtNeedsToBeUpdated;
     }
 
     /*
@@ -88,85 +95,100 @@ public class LicenseHelper {
     }
 
     static boolean ownsLicenseByRelsExt(String pid, String license, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isRelsExtAvailable(pid)) {
-            throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
-        }
-        Document relsExt = repository.getRelsExt(pid, true);
-        Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-        //look for rels-ext:license
-        for (Node relationEl : Dom4jUtils.buildXpath("rel:" + RELS_EXT_RELATION_LICENSE).selectNodes(rootEl)) {
-            String content = relationEl.getText();
-            if (content.equals(license)) {
-                System.out.println("found rels-ext:license for " + pid);
-                return true;
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            if (!repository.isRelsExtAvailable(pid)) {
+                throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-        }
-        //look for rels-ext:license (deprecated notation)
-        for (String relation : RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED) {
-            for (Node relationEl : Dom4jUtils.buildXpath("rel:" + relation).selectNodes(rootEl)) {
-                LOGGER.warning(String.format("found depracated notation '%s' for %s, should be replaced with '%s'", relation, pid, RELS_EXT_RELATION_LICENSE));
+            Document relsExt = repository.getRelsExt(pid, true);
+            Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
+            //look for rels-ext:license
+            for (Node relationEl : Dom4jUtils.buildXpath("rel:" + RELS_EXT_RELATION_LICENSE).selectNodes(rootEl)) {
                 String content = relationEl.getText();
                 if (content.equals(license)) {
                     System.out.println("found rels-ext:license for " + pid);
                     return true;
                 }
             }
+            //look for rels-ext:license (deprecated notation)
+            for (String relation : RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED) {
+                for (Node relationEl : Dom4jUtils.buildXpath("rel:" + relation).selectNodes(rootEl)) {
+                    LOGGER.warning(String.format("found depracated notation '%s' for %s, should be replaced with '%s'", relation, pid, RELS_EXT_RELATION_LICENSE));
+                    String content = relationEl.getText();
+                    if (content.equals(license)) {
+                        System.out.println("found rels-ext:license for " + pid);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } finally {
+            readLock.unlock();
         }
-        return false;
     }
 
     static List<String> getLicensesByRelsExt(String pid, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isRelsExtAvailable(pid)) {
-            throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
-        }
-        Document relsExt = repository.getRelsExt(pid, true);
-        Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-        List<String> result = new ArrayList<>();
-        //look for rels-ext:license
-        for (Node relationEl : Dom4jUtils.buildXpath("rel:" + RELS_EXT_RELATION_LICENSE).selectNodes(rootEl)) {
-            String license = relationEl.getText();
-            result.add(license);
-            LOGGER.info("found rels-ext:license " + license);
-        }
-        //look for rels-ext:license (deprecated notation)
-        for (String relation : RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED) {
-            for (Node relationEl : Dom4jUtils.buildXpath("rel:" + relation).selectNodes(rootEl)) {
-                LOGGER.warning(String.format("found depracated notation '%s' for %s, should be replaced with '%s'", relation, pid, RELS_EXT_RELATION_LICENSE));
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            if (!repository.isRelsExtAvailable(pid)) {
+                throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
+            }
+            Document relsExt = repository.getRelsExt(pid, true);
+            Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
+            List<String> result = new ArrayList<>();
+            //look for rels-ext:license
+            for (Node relationEl : Dom4jUtils.buildXpath("rel:" + RELS_EXT_RELATION_LICENSE).selectNodes(rootEl)) {
                 String license = relationEl.getText();
                 result.add(license);
                 LOGGER.info("found rels-ext:license " + license);
             }
+            //look for rels-ext:license (deprecated notation)
+            for (String relation : RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED) {
+                for (Node relationEl : Dom4jUtils.buildXpath("rel:" + relation).selectNodes(rootEl)) {
+                    LOGGER.warning(String.format("found depracated notation '%s' for %s, should be replaced with '%s'", relation, pid, RELS_EXT_RELATION_LICENSE));
+                    String license = relationEl.getText();
+                    result.add(license);
+                    LOGGER.info("found rels-ext:license " + license);
+                }
+            }
+            return result;
+        } finally {
+            readLock.unlock();
         }
-        return result;
     }
 
     static boolean containsLicenseByRelsExt(String pid, String license, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isRelsExtAvailable(pid)) {
-            throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
-        }
-        Document relsExt = repository.getRelsExt(pid, true);
-        Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-
-        //look for rels-ext:containsLicense
-        for (Node relationEl : Dom4jUtils.buildXpath("rel:" + RELS_EXT_RELATION_CONTAINS_LICENSE).selectNodes(rootEl)) {
-            String content = relationEl.getText();
-            if (content.equals(license)) {
-                System.out.println("found rels-ext:containsLicense for " + pid);
-                return true;
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            if (!repository.isRelsExtAvailable(pid)) {
+                throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-        }
-        //look for rels-ext:containsLicense (deprecated notation)
-        for (String relation : RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED) {
-            for (Node relationEl : Dom4jUtils.buildXpath("rel:" + relation).selectNodes(rootEl)) {
-                LOGGER.warning(String.format("found depracated notation '%s' for %s, should be replaced with '%s'", relation, pid, RELS_EXT_RELATION_CONTAINS_LICENSE));
+            Document relsExt = repository.getRelsExt(pid, true);
+            Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
+
+            //look for rels-ext:containsLicense
+            for (Node relationEl : Dom4jUtils.buildXpath("rel:" + RELS_EXT_RELATION_CONTAINS_LICENSE).selectNodes(rootEl)) {
                 String content = relationEl.getText();
                 if (content.equals(license)) {
                     System.out.println("found rels-ext:containsLicense for " + pid);
                     return true;
                 }
             }
+            //look for rels-ext:containsLicense (deprecated notation)
+            for (String relation : RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED) {
+                for (Node relationEl : Dom4jUtils.buildXpath("rel:" + relation).selectNodes(rootEl)) {
+                    LOGGER.warning(String.format("found depracated notation '%s' for %s, should be replaced with '%s'", relation, pid, RELS_EXT_RELATION_CONTAINS_LICENSE));
+                    String content = relationEl.getText();
+                    if (content.equals(license)) {
+                        System.out.println("found rels-ext:containsLicense for " + pid);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } finally {
+            readLock.unlock();
         }
-        return false;
     }
 
     /**

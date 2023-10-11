@@ -6,6 +6,7 @@ import com.google.inject.Key;
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
@@ -35,6 +36,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -99,15 +101,15 @@ public class SetLicenseProcess {
         String license = args[argsIndex++];
         String target = args[argsIndex++];
 
-        
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),  new ResourceIndexModule());
+
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ResourceIndexModule());
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
-        
+
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
 
-       // IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(repository, ProcessUtils.getCoreBaseUrl());
-        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(repository,ProcessUtils.getCoreBaseUrl());
+        // IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(repository, ProcessUtils.getCoreBaseUrl());
+        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(repository, ProcessUtils.getCoreBaseUrl());
 
         switch (action) {
             case ADD:
@@ -116,7 +118,7 @@ public class SetLicenseProcess {
                     try {
                         addLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess);
                     } catch (Exception ex) {
-                        LOGGER.log(Level.SEVERE, ex.getMessage() ,ex);
+                        LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                         LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
                     }
                 }
@@ -126,8 +128,8 @@ public class SetLicenseProcess {
                 for (String pid : extractPids(target)) {
                     try {
                         removeLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess, authToken);
-                    } catch(Exception ex) {
-                        LOGGER.log(Level.SEVERE, ex.getMessage() ,ex);
+                    } catch (Exception ex) {
+                        LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                         LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
                     }
                 }
@@ -145,7 +147,7 @@ public class SetLicenseProcess {
             List<String> pids = Arrays.stream(target.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
             return pids;
         } else if (target.startsWith("pidlist_file:")) {
-            String filePath  = target.substring("pidlist_file:".length());
+            String filePath = target.substring("pidlist_file:".length());
             File file = new File(filePath);
             if (file.exists()) {
                 try {
@@ -154,7 +156,7 @@ public class SetLicenseProcess {
                     throw new RuntimeException("IOException " + e.getMessage());
                 }
             } else {
-                throw new RuntimeException("file " + file.getAbsolutePath()+" doesnt exist ");
+                throw new RuntimeException("file " + file.getAbsolutePath() + " doesnt exist ");
             }
         } else {
             throw new RuntimeException("invalid target " + target);
@@ -229,41 +231,46 @@ public class SetLicenseProcess {
     }*/
 
     private static boolean addRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isRelsExtAvailable(pid)) {
-            throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
-        }
-        Document relsExt = repository.getRelsExt(pid, true);
-        Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
-        boolean relsExtNeedsToBeUpdated = false;
-
-        //normalize relations with deprecated/incorrect name, possibly including relation we want to add
-        relsExtNeedsToBeUpdated |= LicenseHelper.normalizeIncorrectRelationNotation(wrongRelationNames, relationName, rootEl, pid);
-
-        //add new relation if not there already
-        List<Node> relationEls = Dom4jUtils.buildXpath("rel:" + relationName).selectNodes(rootEl);
-        boolean relationFound = false;
-        for (Node relationEl : relationEls) {
-            String content = relationEl.getText();
-            if (content.equals(value)) {
-                relationFound = true;
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            if (!repository.isRelsExtAvailable(pid)) {
+                throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-        }
-        if (!relationFound) {
-            Element newRelationEl = rootEl.addElement(relationName, Dom4jUtils.getNamespaceUri("rel"));
-            newRelationEl.addText(value);
-            relsExtNeedsToBeUpdated = true;
-            LOGGER.info(String.format("adding relation '%s' into RELS-EXT of %s", relationName, pid));
-        } else {
-            LOGGER.info(String.format("relation '%s' already found in RELS-EXT of %s", relationName, pid));
-        }
+            Document relsExt = repository.getRelsExt(pid, true);
+            Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
+            boolean relsExtNeedsToBeUpdated = false;
 
-        //update RELS-EXT in repository if there was a change
-        if (relsExtNeedsToBeUpdated) {
-            //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
-            repository.updateRelsExt(pid, relsExt);
-            LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
+            //normalize relations with deprecated/incorrect name, possibly including relation we want to add
+            relsExtNeedsToBeUpdated |= LicenseHelper.normalizeIncorrectRelationNotation(wrongRelationNames, relationName, rootEl, pid);
+
+            //add new relation if not there already
+            List<Node> relationEls = Dom4jUtils.buildXpath("rel:" + relationName).selectNodes(rootEl);
+            boolean relationFound = false;
+            for (Node relationEl : relationEls) {
+                String content = relationEl.getText();
+                if (content.equals(value)) {
+                    relationFound = true;
+                }
+            }
+            if (!relationFound) {
+                Element newRelationEl = rootEl.addElement(relationName, Dom4jUtils.getNamespaceUri("rel"));
+                newRelationEl.addText(value);
+                relsExtNeedsToBeUpdated = true;
+                LOGGER.info(String.format("adding relation '%s' into RELS-EXT of %s", relationName, pid));
+            } else {
+                LOGGER.info(String.format("relation '%s' already found in RELS-EXT of %s", relationName, pid));
+            }
+
+            //update RELS-EXT in repository if there was a change
+            if (relsExtNeedsToBeUpdated) {
+                //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
+                repository.updateRelsExt(pid, relsExt);
+                LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
+            }
+            return relsExtNeedsToBeUpdated;
+        } finally {
+            writeLock.unlock();
         }
-        return relsExtNeedsToBeUpdated;
     }
 
     private static void removeLicense(String license, String targetPid, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, SolrAccess searchIndex, SolrIndexAccess indexerAccess, String authToken) throws RepositoryException, IOException, ResourceIndexException {
