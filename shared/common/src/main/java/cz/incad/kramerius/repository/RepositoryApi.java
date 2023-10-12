@@ -97,6 +97,10 @@ public interface RepositoryApi {
 
     public List<Triplet> getTripletSources(String targetPid) throws RepositoryException, IOException, SolrServerException;
 
+    
+    public List<String> getDatastreamNames(String pid) throws RepositoryException, IOException, SolrServerException;
+    
+    
     //UPDATE
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException;
 

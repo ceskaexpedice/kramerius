@@ -33,10 +33,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class RepositoryApiImpl implements RepositoryApi {
 
+    public static final Logger LOGGER = Logger.getLogger(RepositoryApi.class.getName());
+    
     private static final Namespace NS_FOXML = new Namespace("foxml", "info:fedora/fedora-system:def/foxml#");
     private final AkubraRepository akubraRepository;
     private final Unmarshaller digitalObjectUnmarshaller;
@@ -111,6 +115,27 @@ public class RepositoryApiImpl implements RepositoryApi {
             }
         }
         return null;
+    }
+
+    
+    
+    @Override
+    public List<String> getDatastreamNames(String pid) throws RepositoryException, IOException, SolrServerException {
+        Lock readLock = AkubraDOManager.getReadLock(pid);
+        try {
+            RepositoryObject object = akubraRepository.getObject(pid);
+            List<RepositoryDatastream> streams = object.getStreams();
+            return streams.stream().map(it -> {
+                try {
+                    return it.getName();
+                } catch (RepositoryException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    return null;
+                }
+            }).collect(Collectors.toList());
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override

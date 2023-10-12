@@ -41,9 +41,12 @@ public interface KrameriusRepositoryApi {
         AUDIO_OGG("OGG"),
         AUDIO_WAV("WAV"),
 
+        // known but not used datastreams
         POLICY("POLICY"),
-
-        MIGRATION("MIGRATION");
+        MIGRATION("MIGRATION"),
+        IMG_FULL_ADM("IMG_FULL_ADM"),
+        AUDIT("AUDIT"),
+        TEXT_OCR_ADM("TEXT_OCR_ADM");
 
         private final String value;
 

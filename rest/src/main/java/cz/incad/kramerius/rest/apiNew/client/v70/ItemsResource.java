@@ -11,6 +11,8 @@ import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.ExtractStructureHelper;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownDatastreams;
+import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.apiNew.client.v70.epub.EPubFileTypes;
@@ -34,6 +36,8 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.codehaus.jettison.json.JSONArray;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -126,7 +130,9 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/audio/mp3
     // GET/HEAD {pid}/audio/ogg
     // GET/HEAD {pid}/audio/wav
-    // 
+
+    // pouze  vycet vsech streamu 
+    // GET      {pid}/introspect - pouze metadatove streamy 
 
     // Specificke endpointy; funguji pouze pro konkretni mimethype 
     // GET/HEAD {pid}/specific/epub
@@ -1019,7 +1025,74 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    @GET
+    @Path("{pid}/introspect")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response introspect(@PathParam("pid") String pid) {
+        try {
+            List<String> knownDataStreams = Arrays.stream(KrameriusRepositoryApi.KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
+            
+            RepositoryApi lowLevelApi = krameriusRepositoryApi.getLowLevelApi();
+            JSONArray result = new JSONArray();
+            
+            List<String> datastreamNames = lowLevelApi.getDatastreamNames(pid);
+            for (String dataStreamName : datastreamNames) {
+
+                String mimeType = lowLevelApi.getDatastreamMimetype(pid, dataStreamName);
+                boolean knownDatastream = knownDataStreams.contains(dataStreamName);
+                JSONObject val = new JSONObject();
+                val.put("name", dataStreamName);
+                val.put("mimetype", mimeType);
+                val.put("knowndatastream", knownDatastream);
+                
+                result.put(val);
+            }
+            return Response.ok().entity(result.toString()).build(); 
+        } catch (RepositoryException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        } catch (SolrServerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
     
+    
+    @GET
+    @Path("{pid}/introspect/{data}")
+    public Response introspect(@PathParam("pid") String pid,@PathParam("data") String data) {
+        try {
+            List<String> knownDataStreams = Arrays.stream(KrameriusRepositoryApi.KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
+            
+            RepositoryApi lowLevelApi = krameriusRepositoryApi.getLowLevelApi();
+            boolean knownDatastream = knownDataStreams.contains(data);
+
+            
+            if (knownDatastream) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            } else {
+                String mimeType = lowLevelApi.getDatastreamMimetype(pid, data);
+                InputStream dataStream = lowLevelApi.getLatestVersionOfDatastream(pid, data);
+                StreamingOutput stream = output -> {
+                    IOUtils.copy(dataStream, output);
+                    IOUtils.closeQuietly(dataStream);
+                };
+                return Response.ok().entity(stream).type(mimeType).build();
+            }
+            
+        } catch (RepositoryException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    
+
 
     
     
