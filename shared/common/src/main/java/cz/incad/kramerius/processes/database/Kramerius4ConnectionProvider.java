@@ -12,6 +12,7 @@ import java.util.logging.Level;
 
 /**
  * Provides connection to kramerius4 database
+ *
  * @author pavels
  */
 public class Kramerius4ConnectionProvider implements Provider<Connection> {
@@ -19,18 +20,18 @@ public class Kramerius4ConnectionProvider implements Provider<Connection> {
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Kramerius4ConnectionProvider.class.getName());
     private static DataSource dataSource = createDataSource();
 
-    private static DataSource createDataSource(){
-            HikariDataSource ds = new HikariDataSource();
-            ds.setDriverClassName("org.postgresql.Driver");
-            ds.setJdbcUrl(KConfiguration.getInstance().getJdbcUrl());
-            ds.setUsername(KConfiguration.getInstance().getJdbcUserName());
-            ds.setPassword(KConfiguration.getInstance().getJdbcUserPass());
-            ds.setLeakDetectionThreshold(KConfiguration.getInstance().getConfiguration().getInt("jdbcLeakDetectionThreshold"));
-            ds.setMaximumPoolSize(KConfiguration.getInstance().getConfiguration().getInt("jdbcMaximumPoolSize"));
-            ds.setConnectionTimeout(KConfiguration.getInstance().getConfiguration().getInt("jdbcConnectionTimeout"));
-            ds.addDataSourceProperty("socketTimeout", "30");
-            ds.setKeepaliveTime(120000);
-            return ds;
+    private static DataSource createDataSource() {
+        HikariDataSource ds = new HikariDataSource();
+        ds.setDriverClassName("org.postgresql.Driver");
+        ds.setJdbcUrl(KConfiguration.getInstance().getJdbcUrl());
+        ds.setUsername(KConfiguration.getInstance().getJdbcUserName());
+        ds.setPassword(KConfiguration.getInstance().getJdbcUserPass());
+        ds.setLeakDetectionThreshold(KConfiguration.getInstance().getConfiguration().getInt("jdbcLeakDetectionThreshold"));
+        ds.setMaximumPoolSize(KConfiguration.getInstance().getConfiguration().getInt("jdbcMaximumPoolSize"));
+        ds.setConnectionTimeout(KConfiguration.getInstance().getConfiguration().getInt("jdbcConnectionTimeout"));
+        ds.addDataSourceProperty("socketTimeout", "30");
+        ds.setKeepaliveTime(120000);
+        return ds;
     }
 
     @Inject
@@ -42,12 +43,9 @@ public class Kramerius4ConnectionProvider implements Provider<Connection> {
     public Connection get() {
         try {
             return dataSource.getConnection();
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return null;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return null;
+            throw new IllegalStateException("Cannot get database connection from the pool.", e);
         }
     }
 
