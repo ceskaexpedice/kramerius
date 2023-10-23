@@ -91,7 +91,8 @@ public class IIIFUtils {
             builder.type(mimetype);
         }
     
-        builder.header("Access-Control-Allow-Origin", "*");
+        // added by filter
+        //builder.header("Access-Control-Allow-Origin", "*");
         MultivaluedMap<String, String> headers = clientResponse.getHeaders();
         if (headers.containsKey("Cache-Control")) {
             builder.header("Cache-Control", headers.getFirst("Cache-Control"));
