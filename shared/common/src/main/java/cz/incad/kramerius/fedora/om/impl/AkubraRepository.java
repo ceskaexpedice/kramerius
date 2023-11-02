@@ -29,6 +29,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -100,11 +101,13 @@ public class AkubraRepository extends Repository {
             try {
                 AkubraObject obj = new AkubraObject(this.manager, ident, createEmptyDigitalObject(ident), this.feeder);
                 manager.commit(obj.digitalObject, null);
-                obj.deleteProcessingIndex();
+                try {
+                    obj.deleteProcessingIndex();
+                }catch (Throwable th) {
+                    LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ ident + " - reindex manually.", th);
+                }
                 return obj;
             } catch (IOException e) {
-                throw new RepositoryException(e);
-            } catch (SolrServerException e) {
                 throw new RepositoryException(e);
             }
         }
@@ -193,8 +196,8 @@ public class AkubraRepository extends Repository {
                 }
                 // delete this object's description
                 this.feeder.deleteDescriptionByPid(pid);
-            } catch (SolrServerException e) {
-                throw new RepositoryException("Cannot delete data from processing index for  " + pid + " please start processing index update");
+            } catch (Throwable th) {
+                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ pid + " - reindex manually.", th);
             }
         } catch (Exception e) {
             throw new RepositoryException(e);

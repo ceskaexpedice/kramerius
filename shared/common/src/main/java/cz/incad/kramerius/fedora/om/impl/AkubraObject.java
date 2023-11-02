@@ -170,8 +170,8 @@ public class AkubraObject implements RepositoryObject {
             if (streamId.equals(FedoraUtils.RELS_EXT_STREAM)) {
                 try {
                     this.feeder.deleteByRelationsForPid(this.getPid());
-                } catch (SolrServerException e) {
-                    throw new RepositoryException("Cannot delete relations for streamId " + streamId, e);
+                } catch (Throwable th) {
+                    LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ pid + " - reindex manually.", th);
                 }
             }
         } catch (IOException e) {
@@ -193,10 +193,14 @@ public class AkubraObject implements RepositoryObject {
         try {
             manager.commit(digitalObject, streamId);
             if (streamId.equals(FedoraUtils.RELS_EXT_STREAM)) {
-                // process rels-ext and create all children and relations
-                this.feeder.deleteByRelationsForPid(pid);
-                input.reset();
-                rebuildProcessingIndexImpl(input);
+                try {
+                    // process rels-ext and create all children and relations
+                    this.feeder.deleteByRelationsForPid(pid);
+                    input.reset();
+                    rebuildProcessingIndexImpl(input);
+                } catch (Throwable th) {
+                    LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ pid + " - reindex manually.", th);
+                }
             }
             return ds;
         } catch (Exception ex) {
@@ -285,18 +289,14 @@ public class AkubraObject implements RepositoryObject {
                 } else {
                     this.indexDescription(object, "");
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (SolrServerException e) {
-                throw new RuntimeException(e);
+            } catch (Throwable th) {
+                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ pid + " - reindex manually.", th);
             }
         } else {
             try {
                 this.indexRelation(localName, object);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (SolrServerException e) {
-                throw new RuntimeException(e);
+            } catch (Throwable th) {
+                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ pid + " - reindex manually.", th);
             }
         }
     }
