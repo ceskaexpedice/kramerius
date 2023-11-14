@@ -69,8 +69,10 @@
 			<str name="title.sort">6</str>
 			<str name="compositeId">uuid:e8686650-d81d-11ec-a96b-005056827e52!uuid:87f93b08-e35d-410c-a794-b8fe52cc6400
 			</str>
+			
 			<arr name="cdk.collection">
 				<str>mzk</str>
+				<str>nkp</str>
 				<str>knav</str>
 			</arr>
 			<str name="cdk.leader">mzk</str>

@@ -13,6 +13,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import com.google.gwt.dom.client.SourceElement;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.transform.SourceToDestTransform;
@@ -43,7 +44,8 @@ public class BatchUtils {
 
             // basic transform
             srcTransform.transform(sourceDocElm, destBatch, destDocElement,consumer);
-
+            
+            
             // composite id is not supported
             if (compositeId && root != null && child != null) {
 

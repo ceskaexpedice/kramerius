@@ -23,6 +23,7 @@ import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.apiNew.client.v60.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +37,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -71,6 +73,9 @@ public class SearchResource {
     @Inject
     ProxyFilter proxyFilter;
     
+    @javax.inject.Inject
+    Provider<User> userProvider;
+
     @GET
     public Response get(@Context UriInfo uriInfo, @QueryParam("wt") String wt) {
         try {

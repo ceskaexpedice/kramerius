@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,7 +45,7 @@ public class DefaultPropertiesInstances implements Instances {
         refreshingConfiguration();
     }
 
-    private void refreshingConfiguration() {
+    protected void refreshingConfiguration() {
         Configuration configuration = KConfiguration.getInstance().getConfiguration();
         Iterator<String> keys = configuration.getKeys("cdk.collections.sources");
         while (keys.hasNext()) {
@@ -54,16 +55,21 @@ public class DefaultPropertiesInstances implements Instances {
                 if (rest.lastIndexOf(".") > 0) {
                     String acronym = rest.substring(0, rest.lastIndexOf("."));
                     if (!names.contains(acronym)) {
-                        LOGGER.info(String.format("Adding library %s", acronym));
-                        names.add(acronym);
-                        DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(this, acronym);
-                        instances.add(di);
+                        addOneInstance(acronym);
                     }
                 }
             }
         }
     }
 
+    private void addOneInstance(String acronym) {
+        LOGGER.info(String.format("Adding library %s", acronym));
+        names.add(acronym);
+        DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(this, acronym);
+        instances.add(di);
+    }
+
+    
     @Override
     public List<OneInstance> allInstances() {
         this.refreshingConfiguration();
@@ -102,6 +108,20 @@ public class DefaultPropertiesInstances implements Instances {
             return collect.get(0);
         } else {
             return null;
+        }
+    }
+
+    
+    
+    
+    @Override
+    public boolean isEnabledInstance(String acronym) {
+        this.refreshingConfiguration();
+        Optional<OneInstance> found = instances.stream().filter(instance -> instance.getName().equals(acronym)).findFirst();
+        if (found.isPresent()) {
+            return found.get().isConnected();
+        } else {
+            return false;
         }
     }
 

@@ -16,4 +16,5 @@ public interface Instances {
 
     public void cronRefresh();
 
+    public boolean isEnabledInstance(String acronym);
 }

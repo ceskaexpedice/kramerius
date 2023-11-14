@@ -36,6 +36,8 @@ public class SolrUtils {
         try {
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
+            
+            
             WebResource r = client.resource(destSolr);
             ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
             if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {

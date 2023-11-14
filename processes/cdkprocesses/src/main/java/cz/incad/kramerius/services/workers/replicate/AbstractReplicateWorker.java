@@ -29,7 +29,7 @@ public abstract class AbstractReplicateWorker extends Worker {
             + "datum_str datum rok datum_begin datum_end datum_page issn mdt ddt dostupnost keywords "
             + "geographic_names collection sec model_path pid_path rels_ext_index level dc.title title_sort "
             + "title_sort dc.creator dc.identifier language dc.description details facet_title browse_title browse_autor img_full_mime viewable "
-            + "virtual location range mods.shelfLocator mods.physicalLocation text dnnt dnnt-labels";
+            + "virtual location range mods.shelfLocator mods.physicalLocation text dnnt dnnt-labels contains-dnnt-labels";
 
     public static final String DEFAULT_PID_FIELD = "PID";
     public static final String COLLECTION_FIELD = "collection";

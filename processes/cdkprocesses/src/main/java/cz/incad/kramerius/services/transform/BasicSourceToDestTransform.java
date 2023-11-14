@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
+import javax.xml.transform.TransformerException;
+
 
 //TODO: Change it in future; copied from K5 cdk download
 public class BasicSourceToDestTransform extends SourceToDestTransform{
@@ -36,24 +38,22 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
 
 
 
-    public static void simpleValue(String pid, Document feedDoc, Element feedDocElm, Node node, String derivedName, boolean dontCareAboutNonCopiingFields, CopyReplicateConsumer consumer) {
+    public static void simpleValue(String pid, Document feedDoc, Element feedDocElm, Node node, String derivedName,  CopyReplicateConsumer consumer) {
         //String attributeName = ((Element)node).getAttribute("name");
         String attributeName = derivedName != null ? derivedName : ((Element)node).getAttribute("name");
-        if (dontCareAboutNonCopiingFields) {
+ 
+        Element strElm = feedDoc.createElement("field");
+        strElm.setAttribute("name", attributeName);
+        String content = StringEscapeUtils.escapeXml(node.getTextContent());
+        // add to context to process
+        strElm.setTextContent(content);
 
-        	Element strElm = feedDoc.createElement("field");
-            strElm.setAttribute("name", attributeName);
-            String content = StringEscapeUtils.escapeXml(node.getTextContent());
-            // add to context to process
-            strElm.setTextContent(content);
-
-            ModifyFieldResult result = ModifyFieldResult.none;
-            if (consumer != null) {
-            	result = consumer.modifyField(strElm);
-            }
-            if (!result.equals(ModifyFieldResult.delete)) {
-                feedDocElm.appendChild(strElm);
-            }
+        ModifyFieldResult result = ModifyFieldResult.none;
+        if (consumer != null) {
+        	result = consumer.modifyField(strElm);
+        }
+        if (!result.equals(ModifyFieldResult.delete)) {
+            feedDocElm.appendChild(strElm);
         }
     }
 
@@ -64,7 +64,7 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
             Node n = childNodes.item(i);
             if (n.getNodeType() == Node.ELEMENT_NODE) {
                 //simpleValue(feedDoc,feedDocElement, n, false);
-                simpleValue(pid, feedDoc,feedDocElement, n, attributeName, false, consumer);
+                simpleValue(pid, feedDoc,feedDocElement, n, attributeName,  consumer);
             }
         }
     }
@@ -96,14 +96,107 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     List<String> primitiveVals = Arrays.asList("str","int","bool", "date");
                     if (primitiveVals.contains(node.getNodeName())) {
-                        simpleValue(pid, destDocument,destDocElem, node,null, false, consumer);
+                        simpleValue(pid, destDocument,destDocElem, node,null,  consumer);
                     } else {
                         arrayValue(pid,sourceDocElm, destDocument,destDocElem,node, consumer);
                     }
                 }
             }
         }
+//        try {
+//            
+//            XMLUtils.print(destDocElem, System.out);
+//        } catch (TransformerException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+        
     }
+
+    
+    // special not stored fields  browse_autor, browse_title
+    public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm)  {
+        try {
+            UTFSort utf_sort = new UTFSort();
+            //FedoraOperations operations = new FedoraOperations();
+
+            // browse author -- skip
+            Element browseAuthorInSource = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    return element.getAttribute("name").equals("browse_autor");
+                }
+            });
+            // browse title doens't exist
+            if (browseAuthorInSource == null) {
+                Element dcCreators = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+
+                    @Override
+                    public boolean acceptElement(Element e) {
+                        String attribute = e.getAttribute("name");
+                        return attribute.equals("dc.creator");
+                    }
+                });
+                if (dcCreators != null) {
+                    List<Element> dcCreatorsStrings = XMLUtils.getElements(dcCreators);
+                    for (Element author : dcCreatorsStrings) {
+                        //<xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
+                        String textContent = author.getTextContent();
+                        String prepared =  utf_sort.translate(textContent)+"##"+textContent;
+                        //String prepared = operations.prepareCzech(textContent)+"##"+textContent;
+                        Element strElm = ndoc.createElement("field");
+                        strElm.setAttribute("name", "browse_autor");
+                        docElm.appendChild(strElm);
+                        strElm.setTextContent(prepared);
+                    }
+                }
+
+            }
+
+
+            // browse author -- skip
+            Element browseTitleInSource = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    return element.getAttribute("name").equals("browse_title");
+               }
+            });
+
+            if (browseTitleInSource == null) {
+                Element model = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+
+                    @Override
+                    public boolean acceptElement(Element e) {
+                        String attribute = e.getAttribute("name");
+                        return attribute.equals("fedora.model");
+                    }
+                });
+
+
+                Element dcTitle = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+
+                    @Override
+                    public boolean acceptElement(Element e) {
+                        String attribute = e.getAttribute("name");
+                        return attribute.equals("dc.title");
+                    }
+                });
+
+                if (dcTitle != null && model != null &&  Arrays.asList(KConfiguration.getInstance().getConfiguration().getStringArray("indexer.browseModels")).contains(model.getTextContent().trim())) {
+                    Element strElm = ndoc.createElement("field");
+                    strElm.setAttribute("name", "browse_title");
+                    docElm.appendChild(strElm);
+                    String textContent = dcTitle.getTextContent();
+                    String prepared = utf_sort.translate(textContent)+"##"+textContent;
+                    strElm.setTextContent(prepared);
+                }
+            }
+        } catch (Exception e) {
+            BatchUtils.LOGGER.log(Level.SEVERE,e.getMessage(), e);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
 
 
     @Override
