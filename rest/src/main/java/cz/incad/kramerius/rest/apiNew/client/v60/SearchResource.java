@@ -263,7 +263,6 @@ public class SearchResource {
      */
     private JSONObject buildJsonFromRawSolrResponse(String rawString, String context, List<JSONDecorator> decs) throws UnsupportedEncodingException, JSONException {
         List<JSONArray> docsArrays = new ArrayList<JSONArray>();
-
         JSONObject resultJSONObject = new JSONObject(rawString);
         Stack<JSONObject> prcStack = new Stack<JSONObject>();
         prcStack.push(resultJSONObject);
@@ -300,7 +299,6 @@ public class SearchResource {
                 filterOutFieldsFromJSON(docJSON);
                 // decorators
                 applyDecorators(context, decs, docJSON);
-                
                 this.proxyFilter.filterValue(docJSON);
             }
         }

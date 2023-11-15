@@ -29,6 +29,7 @@ import com.google.inject.Inject;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.TypeOfChangedStatus;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.PhysicalLocationMap;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.Role;
@@ -76,6 +77,19 @@ public class ConnectedInfoResource {
         } else {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+    }
+    
+    // RESOLVED ?? 
+    
+    @GET
+    @Path("{library}/associations")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response assocations(@PathParam("library") String library) {
+        PhysicalLocationMap locationMap = new PhysicalLocationMap();
+        List<String> assocations = locationMap.getAssocations(library);
+        JSONArray restArr = new JSONArray();
+        assocations.stream().forEach(restArr::put);
+        return Response.ok(restArr).build();
     }
 
     @PUT

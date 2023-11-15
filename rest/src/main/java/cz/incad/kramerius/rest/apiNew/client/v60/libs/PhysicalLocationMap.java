@@ -1,5 +1,6 @@
 package cz.incad.kramerius.rest.apiNew.client.v60.libs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -78,5 +79,12 @@ public class PhysicalLocationMap {
         }
         return null;
     }
-    
+
+    public List<String> getAssocations(String acronym) {
+        if (MAPPING.containsKey(acronym)) {
+            return MAPPING.get(acronym);
+        } else {
+            return new ArrayList<>();
+        }
+    }
 }
