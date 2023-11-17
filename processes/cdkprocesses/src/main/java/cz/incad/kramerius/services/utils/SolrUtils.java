@@ -173,14 +173,14 @@ public class SolrUtils {
 
     public static Element executeQuery(Client client, String url, String query, String user, String pass) throws ParserConfigurationException, SAXException, IOException {
     	String u = url+(url.endsWith("/") ? "" : "/")+ query;
-        LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] url %s", u));
+        LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] url %s", u));
     	WebResource r = client.resource(u);
 
     	if (user != null && pass != null) {
             r.addFilter(new BasicAuthenticationClientFilter(user, pass));
         }
 
-        LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] processing %s", r.getURI().toString()));
+        LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] processing %s", r.getURI().toString()));
         String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
         Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
         Stack<Element> stack = new Stack<>();

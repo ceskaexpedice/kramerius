@@ -763,7 +763,7 @@ public class ProcessResource extends AdminApiResource {
         jsonObject.put("userSurname", lrProcess.getSurname()); //empty
         return jsonObject;
     }
-
+    //TODO: I18N
     private String buildInitialProcessName(String defId, List<String> params) {
         try {
             switch (defId) {
@@ -808,6 +808,10 @@ public class ProcessResource extends AdminApiResource {
                 case "nkplogs": {
                     return String.format("Generování NKP logů pro období %s - %s", params.get(0), params.get(1));
                 }
+                case "reharvest": {
+                    return String.format("Reharvest objektu %s", params.get(0));
+                }
+
                 case "delete_tree": {
                     String pid = params.get(0);
                     String title = params.get(1);
@@ -1008,6 +1012,27 @@ public class ProcessResource extends AdminApiResource {
                 result.add(dateTo);
 
                 consumer.accept(false);
+                return result;
+            }
+            case "reharvest": { //TODO: rename to verb like "generate_nkp_logs"
+
+                String pid = extractOptionalParamString(params, "pid", null);
+                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+                File pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
+                String target;
+                if (pid != null) {
+                    target = "pid:" + pid;
+                } else if (pidlist != null) {
+                    target = "pidlist:" + pidlist.stream().collect(Collectors.joining(";"));
+                } else if (pidlistFile != null) {
+                    target = "pidlist_file:" + pidlistFile.getAbsolutePath();
+                } else {
+                    throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist, pidlist_file");
+                }
+                
+
+                List<String> result = new ArrayList<>();
+                result.add(target);
                 return result;
             }
             case "delete_tree": {

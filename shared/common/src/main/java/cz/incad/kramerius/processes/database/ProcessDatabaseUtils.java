@@ -109,7 +109,8 @@ public class ProcessDatabaseUtils {
                             "auth_token," + //10
                             "ip_addr," + //11
                             "owner_id," + //12
-                            "owner_name" + //13
+                            "owner_name," + //13,
+                            "name" + //14
                             ")" +
                             "values " +
                             "  (" +
@@ -126,7 +127,9 @@ public class ProcessDatabaseUtils {
                             "    ?," + //10 AUTH_TOKEN
                             "    ?," + //11 IP_ADDR
                             "    ?," + //12 OWNER_ID
-                            "    ?" + //13 OWNER_NAME
+                            "    ?," + //13 OWNER_NAME
+                            "    ?" + //14 NAME
+                            
                             "  )");
             insertStatement.setString(1, lp.getDefinitionId());
             insertStatement.setString(2, lp.getUUID());
@@ -141,6 +144,7 @@ public class ProcessDatabaseUtils {
             insertStatement.setString(11, lp.getPlannedIPAddress());
             insertStatement.setString(12, lp.getOwnerId());
             insertStatement.setString(13, lp.getOwnerName());
+            insertStatement.setString(14, lp.getProcessName());
             insertStatement.executeUpdate();
 
             //get new process_id

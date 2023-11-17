@@ -748,6 +748,8 @@
         <!-- err vystup -->
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <securedaction>a_admin_read</securedaction>
+
     </process>
 
 </processes>
