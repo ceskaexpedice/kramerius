@@ -88,8 +88,18 @@ public class ConnectedInfoResource {
         PhysicalLocationMap locationMap = new PhysicalLocationMap();
         List<String> assocations = locationMap.getAssocations(library);
         JSONArray restArr = new JSONArray();
-        assocations.stream().forEach(restArr::put);
-        return Response.ok(restArr).build();
+
+        assocations.stream().forEach( sigla-> {
+            String desc = locationMap.getDescription(sigla);
+            JSONObject obj = new JSONObject();
+            obj.put("sigla", sigla);
+            if (desc == null) {
+                desc = "";
+            }
+            obj.put("description", desc);
+            restArr.put(obj);
+        });
+        return Response.ok(restArr.toString()).build();
     }
 
     @PUT
