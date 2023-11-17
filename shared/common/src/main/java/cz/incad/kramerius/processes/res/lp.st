@@ -737,4 +737,17 @@
         </templates>
     </process>
 
+	<!-- PID / reharvesting --> 
+    <process>
+        <id>reharvest</id>
+        <description>CDK / Reharvest pid </description>
+        <!-- spoustena trida -->
+        <mainClass>cz.incad.kramerius.ReharvestPids</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+    </process>
+
 </processes>

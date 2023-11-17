@@ -302,18 +302,21 @@ public class DefaultFilter implements ProxyFilter{
                 String leader = null;
                 rawDoc.put("cdk.collection.sorted", true);
                 
-                List<String> collectionFromIndex = new ArrayList<>();
-                for (int i = 0; i < col.length(); i++) { collectionFromIndex.add(col.getString(i)); }
+                List<String> processCollectionFromIndex = new ArrayList<>();
+                List<String> allCollections = new ArrayList<>();
+                for (int i = 0; i < col.length(); i++) { processCollectionFromIndex.add(col.getString(i)); allCollections.add(col.getString(i));}
                 
                 while(!acronymsSortedByPhysicalLocation.isEmpty()) {
                     String acronym = acronymsSortedByPhysicalLocation.remove(0);
-                    if (leader  == null) leader = acronym;
-                    nCol.put(acronym);
-                    collectionFromIndex.remove(acronym);
+                    if (allCollections.contains(acronym)) {
+                        if (leader  == null) leader = acronym;
+                        nCol.put(acronym);
+                        processCollectionFromIndex.remove(acronym);
+                    }
                 }
 
-                for (int i = 0; i < collectionFromIndex.size(); i++) { 
-                    if (!dInsts.contains(collectionFromIndex.get(i))) nCol.put(collectionFromIndex.get(i)); 
+                for (int i = 0; i < processCollectionFromIndex.size(); i++) { 
+                    if (!dInsts.contains(processCollectionFromIndex.get(i))) nCol.put(processCollectionFromIndex.get(i)); 
                 }
                 
                 if (leader != null) {

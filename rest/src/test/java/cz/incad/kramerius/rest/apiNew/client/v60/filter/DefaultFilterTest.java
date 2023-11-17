@@ -376,7 +376,7 @@ public class DefaultFilterTest {
   
         EasyMock.replay(inst); 
 
-        ProxyFilter pf = new DefaultFilter(inst);
+        ProxyFilter pf = new DefaultFilter(inst,null);
 
         InputStream stream = DefaultFilterTest.class.getResourceAsStream("filter_simple_physicalfacets.json");
         String json = IOUtils.toString(stream,"UTF-8");

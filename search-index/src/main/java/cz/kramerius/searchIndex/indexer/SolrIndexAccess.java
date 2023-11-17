@@ -152,6 +152,16 @@ public class SolrIndexAccess {
         return null;
     }
 
+//    public UpdateResponse deleteByRootPid(String rootPid) throws SolrServerException, IOException {
+//        //System.out.println("deleting all");
+//        UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "root.pid:\""+rootPid+"\"");
+//        //System.out.println("delete response: " + deleteResponse);
+//        UpdateResponse commitResponse = solrClient.commit(collection);
+//        //System.out.println("commit response: " + commitResponse);
+//        return null;
+//        
+//    }
+    
     public UpdateResponse deleteAll() throws IOException, SolrServerException {
         //System.out.println("deleting all");
         UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "*");

@@ -162,36 +162,37 @@ public class ClientUserResource {
     }
 
     private List<String> findLabels(User user) {
-    	
     	List<String> licenses = new ArrayList<>();
-    	
-    	Client client = this.clientProvider.get();
-    	String remoteAddress = IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration());
-    	
-    	List<OneInstance> userAggegations = new ArrayList<>();
-    	List<OneInstance> eInstances = this.instances.enabledInstances();
-    	eInstances.forEach(eI -> {
-    		if (eI.hasFullAccess()) {
-    			userAggegations.add(eI);
-    		}
-    	});
-    	
-    	for (OneInstance oneInstance : userAggegations) {
-			try {
-				ProxyUserHandler proxyUserHandler = oneInstance.createProxyUserHandler(user, client, solrAccess, oneInstance.getName(), remoteAddress);
-				Pair<User,List<String>> retval = proxyUserHandler.user();
-				if (retval != null) {
-					licenses.addAll(retval.getValue());
-					Map<String, String> sessionAttributes = retval.getKey().getSessionAttributes();
-					sessionAttributes.keySet().forEach(key-> {
-						user.addSessionAttribute(oneInstance.getName()+"_"+key, sessionAttributes.get(key));
-					});
-				
-				}
-			} catch (ProxyHandlerException e) {
-				LOGGER.log(Level.SEVERE,e.getMessage());
-			}
-    	}
+        boolean detectLabels = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.infer.licenses", true);
+        if (detectLabels) {
+            Client client = this.clientProvider.get();
+            String remoteAddress = IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration());
+            
+            List<OneInstance> userAggegations = new ArrayList<>();
+            List<OneInstance> eInstances = this.instances.enabledInstances();
+            eInstances.forEach(eI -> {
+                if (eI.hasFullAccess()) {
+                    userAggegations.add(eI);
+                }
+            });
+            
+            for (OneInstance oneInstance : userAggegations) {
+                try {
+                    ProxyUserHandler proxyUserHandler = oneInstance.createProxyUserHandler(user, client, solrAccess, oneInstance.getName(), remoteAddress);
+                    Pair<User,List<String>> retval = proxyUserHandler.user();
+                    if (retval != null) {
+                        licenses.addAll(retval.getValue());
+                        Map<String, String> sessionAttributes = retval.getKey().getSessionAttributes();
+                        sessionAttributes.keySet().forEach(key-> {
+                            user.addSessionAttribute(oneInstance.getName()+"_"+key, sessionAttributes.get(key));
+                        });
+                    
+                    }
+                } catch (ProxyHandlerException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage());
+                }
+            }
+        }
     	
     	return licenses;
     }
