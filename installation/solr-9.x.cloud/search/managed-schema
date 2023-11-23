@@ -47,7 +47,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
 
         <!-- hunspell analyzer; czech language; not stopwords -->
-		<!--
+        <!--
         <fieldType name="text_general_lemmatized_no_stopwords" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -71,10 +71,10 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
             </analyzer>
 
         </fieldType>
-		-->
-		
+        -->
+
         <!-- hunspell analyzer; czech language -->
-		<!--
+        <!--
         <fieldType name="text_general_lemmatized" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -102,10 +102,10 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
             </analyzer>
 
         </fieldType>
-		-->
-		
+        -->
+
         <!-- hunspell analyzer; czech language only ascii -->
-		<!--
+        <!--
         <fieldType name="text_general_lemmatized_ascii" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -130,7 +130,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
             </analyzer>
         </fieldType>
-		-->
+        -->
         <!-- general not lemmatized text with czech stop words  -->
         <fieldType name="text_general_not_lemmatized" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
@@ -440,7 +440,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!-- box field -->
         <fieldType name="bbox" class="solr.BBoxField" geo="true" numberType="_bbox_coord" storeSubFields="false" stored="true"/>
-        <fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="true" stored="false"/>
+        <fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="false" stored="false"/>
 
         <!--
          A Geohash is a compact representation of a latitude longitude pair in a single field.
@@ -474,7 +474,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--temporary field used for indexation processes, after (full) indexation is sucessfully finished, this field is cleared-->
         <field name="full_indexation_in_progress" type="boolean" indexed="true" stored="true"/>
 
-        <field name="compositeId" type="string"  indexed="true"  stored="true" required="true" />
+        <field name="compositeId" type="string" indexed="true" stored="true" required="true"/>
         <field name="pid" type="string" indexed="true" stored="true" required="true"/>
         <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
@@ -509,8 +509,8 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!--hlavni nazev-->
         <field name="title.search" type="text_fgs" indexed="true" stored="true" multiValued="false" docValues="false"/>
-		<!-- localized collection titles -->
-		<dynamicField name="title.search_*" type="text_fgs" indexed="true"  stored="true" multiValued="true" docValues="false"/>
+        <!-- localized collection titles -->
+        <dynamicField name="title.search_*" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
 
         <!--hlavni nazev (bez hodnoty nonSort)-->
         <field name="title.sort" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
@@ -636,7 +636,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!-- geo coordinates -->
         <!-- bounding box -->
-        <field name="coords.bbox" type="bbox"/>
+        <field name="coords.bbox" type="bbox" multiValued="false"/>
         <!-- center of the bounding box -->
         <field name="coords.bbox.center" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
         <!--south west corner of the bounding box-->
@@ -667,8 +667,8 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="collection.desc" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="collection.is_standalone" type="boolean" indexed="true" stored="true"/>
 
-		<!-- localized collection desc -->
-		<dynamicField name="collection.desc_*" type="text_general_not_lemmatized" indexed="true"  stored="true" multiValued="true" docValues="false"/>
+        <!-- localized collection desc -->
+        <dynamicField name="collection.desc_*" type="text_general_not_lemmatized" indexed="true" stored="true" multiValued="true" docValues="false"/>
 
         <!--OTHER-->
 
@@ -688,12 +688,11 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!-- licences belonging to (own) ancestors-->
         <field name="licenses_of_ancestors" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
 
-		<!-- licenses facet field; contains data from licenenses, contains_licenses, licenses_of_ancestors -->
+        <!-- licenses facet field; contains data from licenenses, contains_licenses, licenses_of_ancestors -->
         <field name="licenses.facet" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
         <copyField source="licenses_of_ancestors" dest="licenses.facet"/>
         <copyField source="contains_licenses" dest="licenses.facet"/>
         <copyField source="licenses" dest="licenses.facet"/>
-
 
 
     </fields>
@@ -702,7 +701,6 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
       Unless this field is marked with required="false", it will be a required field
     -->
     <uniqueKey>compositeId</uniqueKey>
-
 
 
 </schema>
