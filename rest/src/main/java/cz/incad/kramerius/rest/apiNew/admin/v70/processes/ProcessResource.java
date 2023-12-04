@@ -259,7 +259,6 @@ public class ProcessResource extends AdminApiResource {
     @GET
     @Path("by_process_uuid/{process_uuid}/logs/err")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-
     public Response getProcessLogsErrByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                    @DefaultValue("err.txt") @QueryParam("fileName") String fileName) {
         try {
@@ -776,6 +775,7 @@ public class ProcessResource extends AdminApiResource {
 
     //TODO: I18N
     private String buildInitialProcessName(String defId, List<String> params) {
+        
         try {
             switch (defId) {
                 case "new_process_api_test":
@@ -839,9 +839,22 @@ public class ProcessResource extends AdminApiResource {
                 case "nkplogs": {
                     return String.format("Generování NKP logů pro období %s - %s", params.get(0), params.get(1));
                 }
+                case "backup-collections": {
+                    return String.format("Vytváření zálohy '%s' pro %s", params.get(0), params.get(1));
+                }
+
+                case "restore-collections": {
+                    return String.format("Obnoveni ze  zálohy '%s'", params.get(0));
+                }
+
+                case "migrate-collections-from-k5": {
+                    return String.format("Migrace sbírek z K5 instance - ('%s')", params.get(0));
+                }
+
                 case "sdnnt-sync": {
                     return "Synchronizace se SDNNT";
                 }
+
                 case "delete_tree": {
                     String pid = params.get(0);
                     String title = params.get(1);
@@ -1064,6 +1077,7 @@ public class ProcessResource extends AdminApiResource {
                 return result;
             }
             case "import": {
+                // import directory
                 File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
 
@@ -1217,7 +1231,66 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 return result;
             }
-            
+
+            case "backup-collections": { 
+                String backupname = extractMandatoryParamString(params, "backupname");
+                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+                
+                String target  = "pidlist:" + pidlist.stream().collect(Collectors.joining(";"));
+                
+                if (pidlist != null) {
+                    pidlist.forEach(p-> {
+                        try {
+                            ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(p);
+                            User user = this.userProvider.get();
+                            LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
+                            boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, p, pidPaths);
+                            consumer.accept(permit);
+                        } catch (IOException e) {
+                            consumer.accept(false);
+                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        }
+                    });
+                }
+
+                List<String> result = new ArrayList<>();
+                result.add(target);
+                result.add(backupname);
+                return result;
+            }
+
+            case "restore-collections": { 
+                String backupname = extractMandatoryParamString(params, "backupname");
+                
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+                        ObjectPidsPath.REPOSITORY_PATH
+                };
+                User user = this.userProvider.get();
+                LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
+                boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
+                consumer.accept(permit);
+
+                List<String> result = new ArrayList<>();
+                result.add(backupname);
+                return result;
+            }
+
+            case "migrate-collections-from-k5": { 
+                String k5 = extractMandatoryParamString(params, "k5");
+                
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+                        ObjectPidsPath.REPOSITORY_PATH
+                };
+                User user = this.userProvider.get();
+                LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
+                boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
+                consumer.accept(permit);
+
+                List<String> result = new ArrayList<>();
+                result.add(k5);
+                return result;
+            }
+
             case "delete_tree": {
                 String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
                 Boolean ignoreIncostencies = extractOptionalParamBoolean(params, "ignoreIncosistencies", false);

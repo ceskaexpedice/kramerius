@@ -33,7 +33,7 @@ public class NextSchedulerTask extends TimerTask {
         try {
             definitionManager.load();
             List<LRProcess> plannedProcess = lrProcessManager.getPlannedProcess(allowRunningProcesses());
-            if (!plannedProcess.isEmpty()) {
+            if (!plannedProcess.isEmpty() && this.processScheduler.getApplicationLib() != null /* initalized */) {
                 List<LRProcess> longRunningProcesses = lrProcessManager.getLongRunningProcesses(States.RUNNING);
                 if (longRunningProcesses.size() < allowRunningProcesses()) {
                     LRProcess lrProcess = plannedProcess.get(0);
@@ -43,7 +43,11 @@ public class NextSchedulerTask extends TimerTask {
                     LOGGER.fine("the maximum number of running processes is reached");
                 }
             } else {
-                LOGGER.fine("no planned process found");
+                if (this.processScheduler.getApplicationLib() == null) {
+                    LOGGER.fine("scheduler is not initialized");
+                } else {
+                    LOGGER.fine("no planned process found ");
+                }
             }
             this.processScheduler.scheduleNextTask();
         } catch (Throwable e) {

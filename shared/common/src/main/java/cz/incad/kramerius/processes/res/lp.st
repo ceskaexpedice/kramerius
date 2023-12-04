@@ -674,4 +674,41 @@
         <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
         <securedaction>a_generate_nkplogs</securedaction>
     </process>
+
+    <process>
+        <id>backup-collections</id>
+        <description>Collection backup</description>
+        <mainClass>cz.inovatika.collections.Backup</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <securedaction>a_collections_edit</securedaction>
+    </process>
+
+    <process>
+        <id>restore-collections</id>
+        <description>Restore collections</description>
+        <mainClass>cz.inovatika.collections.Restore</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <securedaction>a_collections_edit</securedaction>
+    </process>
+
+    <process>
+        <id>migrate-collections-from-k5</id>
+        <description>Collections from K5 instance</description>
+        <mainClass>cz.inovatika.collections.migrations.FromK5Instance</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <securedaction>a_collections_edit</securedaction>
+    </process>
+
 </processes>

@@ -1,0 +1,11 @@
+description "Collections backup/restore"
+
+
+dependencies {
+    implementation project(':shared:common')
+    implementation project(':processes:import')
+
+    implementation 'org.json:json:20140107'
+
+}
+

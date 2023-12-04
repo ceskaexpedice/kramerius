@@ -13,6 +13,7 @@ dependencies {
 	// sdnnt 
 	api project(':processes:sdnnt')              //TODO: Move
 
+    api group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
 
     api name:"iiif-presentation-model-api-3.2.5"
     api name:"iiif-presentation-model-impl-3.2.5"

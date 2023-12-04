@@ -57,6 +57,17 @@ public class ProcessScheduler {
         
     }
     
+    
+    public static void scheduleImport(String folder,String parentProcessAuthToken) {
+        JSONObject data = new JSONObject();
+        data.put("defid", "import");
+        JSONObject params = new JSONObject();
+        params.put("inputDataDir", folder);
+        params.put("startIndexer", true);
+        data.put("params", params);
+        schedule(data.toString(), parentProcessAuthToken);
+    }
+    
     //TODO: cleanup
     public static void scheduleIndexation(String pid, String title, boolean includingDescendants, String parentProcessAuthToken) {
         JSONObject data = new JSONObject();

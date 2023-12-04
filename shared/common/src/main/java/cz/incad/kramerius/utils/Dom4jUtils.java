@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class Dom4jUtils {
 
-    private static Map<String, String> NAMESPACE_URIS = new HashMap<>();
+    public static Map<String, String> NAMESPACE_URIS = new HashMap<>();
 
     static {
         NAMESPACE_URIS.put("xsi", "http://www.w3.org/2001/XMLSchema-instance");

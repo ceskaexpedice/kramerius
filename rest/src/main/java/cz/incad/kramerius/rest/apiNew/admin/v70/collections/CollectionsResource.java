@@ -5,7 +5,12 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownDatastreams;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownXmlFormatUris;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.collections.Collection.ThumbnailbStateEnum;
+import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.SimpleIIIFGenerator;
+import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.ThumbsGenerator;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -15,9 +20,20 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.imgs.ImageMimeType;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileSystemUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.http.protocol.HTTP;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
@@ -26,21 +42,44 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+
 @Path("/admin/v7.0/collections")
 public class CollectionsResource extends AdminApiResource {
-
+    
+    // Stream name 
+    private static final String COLLECTION_CLIPS = "COLLECTION_CLIPS";
+    private static final List<ThumbsGenerator> THUMBS_GENERATOR = new ArrayList<>();
+    static {
+        THUMBS_GENERATOR.add(new SimpleIIIFGenerator());
+    }
+    
     public static final Logger LOGGER = Logger.getLogger(CollectionsResource.class.getName());
 
     private static final int MAX_BATCH_SIZE = 100;
@@ -58,6 +97,9 @@ public class CollectionsResource extends AdminApiResource {
 
     @Inject
     RightsResolver rightsResolver;
+    
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
 
     /**
      * Creates new collection and assigns a pid to it.
@@ -110,8 +152,6 @@ public class CollectionsResource extends AdminApiResource {
     public Response getCollection(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            //authentication
-            //AuthenticatedUser user = getAuthenticatedUserByOauth();
 
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
@@ -133,6 +173,8 @@ public class CollectionsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+
+    
 
     @GET
     @Path("/prefix")
@@ -191,7 +233,8 @@ public class CollectionsResource extends AdminApiResource {
                     !permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_READ); //403
             }
-
+            
+            // TODO: this kind of sync ??
             synchronized (CollectionsResource.class) {
                 List<String> pids = null;
                 if (itemPid != null) {
@@ -224,6 +267,64 @@ public class CollectionsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+    
+    @POST
+    @Path("{pid}/image/thumb")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadFile(@PathParam("pid") String pid, 
+            InputStream mimeTypeStream
+            ) {
+        try {
+                
+                HttpServletRequest req = this.requestProvider.get();
+                
+                DiskFileItemFactory factory = new DiskFileItemFactory();
+                ServletFileUpload upload = new ServletFileUpload(factory);
+                List<FileItem> fileItems = upload.parseRequest(req);
+                if (fileItems.size() == 1) {
+                    FileItem fileItem = fileItems.get(0);
+
+                    InputStream fileItemStream = fileItem.getInputStream();
+                    File tmpFile = File.createTempFile("image", "img");
+                    
+                    // Kopírování dat ze vstupního proudu do souboru
+                    try (OutputStream out = new FileOutputStream(tmpFile)) {
+                        IOUtils.copy(fileItemStream, out);
+                    }
+                    synchronized (CollectionsResource.class) {
+                        //Collection collection = fetchCollectionFromRepository(pid, false, false);
+                        
+                        BufferedImage read = ImageIO.read(new FileInputStream(tmpFile));
+                        
+                        // 127 height
+                        // calculate scale factor
+                        int height = read.getHeight();
+                        int width = read.getWidth();
+                        
+                        double factor =   127d / (double)height;
+                        double newHeight = ((double)height * factor);
+                        double newWidth = ((double)width * factor);
+                        
+                        
+                        BufferedImage scaled = KrameriusImageSupport.scale(read, (int)newWidth, (int)newHeight);
+                        
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        ImageIO.write(scaled, "png", bos);
+                            
+                        RepositoryApi repoApi = krameriusRepositoryApi.getLowLevelApi();
+                        repoApi.updateBinaryDatastream(pid, KnownDatastreams.IMG_THUMB.name(), "image/png", bos.toByteArray());
+
+                        Collection nCol = fetchCollectionFromRepository(pid, true, true);
+                        return Response.ok(nCol.toJson()).build();
+                    }
+                } else {
+                    return  Response.status(Response.Status.BAD_REQUEST).build();
+                }
+        } catch (RepositoryException | SolrServerException | IOException | FileUploadException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }    
 
     /**
      * Updates collections metadata, but not items that collection directly contains.
@@ -276,14 +377,6 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-   /* private void scheduleReindexation(String objectPid, String userid, String username, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
-        List<String> paramsList = new ArrayList<>();
-        paramsList.add(indexationType);
-        paramsList.add(objectPid);
-        paramsList.add(Boolean.toString(ignoreInconsistentObjects));
-        paramsList.add(title);
-        processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, userid, username, batchToken);
-    }*/
 
     /**
      * Sets items that the collection directly contains. I.e. removes all existing items and adds all items from method's data.
@@ -515,12 +608,6 @@ public class CollectionsResource extends AdminApiResource {
         return null;
     }
 
-
-//    @PUT
-//    @Path("{pid}/children_order")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Response setChildrenOrder(@PathParam("pid") String pid, JSONObject newChildrenOrder) {
-
     @PUT
     @Path("{collectionPid}/items/delete_batch_items")
     @Produces(MediaType.APPLICATION_JSON)
@@ -700,7 +787,220 @@ public class CollectionsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+    
 
+    @POST
+    @Path("{pid}/delete_clip_item")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removeClipItem(@PathParam("pid") String collectionPid, String itemJsonObj) { 
+        try {
+            JSONObject json = new JSONObject(itemJsonObj);
+            CutItem clipItem = CutItem.fromJSONObject(json);
+            if (clipItem == null) {
+                throw new BadRequestException("badREquest");
+            }
+            
+            //check collection
+            checkSupportedObjectPid(collectionPid);
+            if (!isModelCollection(collectionPid)) {
+                throw new ForbiddenException("not a collection: " + collectionPid);
+            }
+            User user = this.userProvider.get();
+            if (!permitCollectionEdit(this.rightsResolver, user, collectionPid)) {
+                throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
+            }
+
+            synchronized (CollectionsResource.class) {
+                
+                JSONArray jsonArray = new JSONArray();
+                if (krameriusRepositoryApi.getLowLevelApi().datastreamExists(collectionPid, COLLECTION_CLIPS)) {
+                    try(InputStream latestVersionOfDatastream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(collectionPid, COLLECTION_CLIPS)){
+                        jsonArray = new JSONArray( IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
+                    }
+                }
+
+                int index = -1;
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    CutItem rawCutItem = CutItem.fromJSONObject(jsonArray.getJSONObject(i));
+                    if (clipItem.equals(rawCutItem)) {
+                        index = i;
+                        break;
+                    }
+                }
+                
+                if (index > -1) {
+                    if (clipItem.getUrl() != null) {
+                        String thumbName = clipItem.getThumbnailmd5();
+                        if (this.krameriusRepositoryApi.getLowLevelApi().datastreamExists(collectionPid, thumbName)) {
+                            this.krameriusRepositoryApi.getLowLevelApi().deleteDatastream(collectionPid, thumbName);
+                        }
+                        
+                    }
+
+                    jsonArray.remove(index);
+                    
+                    krameriusRepositoryApi.getLowLevelApi().updateBinaryDatastream(collectionPid, COLLECTION_CLIPS, "application/json", jsonArray.toString().getBytes(Charset.forName("UTF-8")));
+                    Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
+                    return Response.ok(collection.toJson()).build();
+                    
+                } else {
+                    return Response.status(Response.Status.BAD_REQUEST).build();
+                }
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    
+    @PUT
+    @Path("{collectionPid}/delete_batch_clipitems")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removeClipItemsBatch(@PathParam("collectionPid") String collectionPid, String stringBatch) {
+        try {
+            JSONObject batch = new JSONObject(stringBatch);
+            JSONArray batchArray = batch.optJSONArray("clipitems");
+
+            checkSupportedObjectPid(collectionPid);
+            if (!isModelCollection(collectionPid)) {
+                throw new ForbiddenException("not a collection: " + collectionPid);
+            }
+            User user = this.userProvider.get();
+            if (!permitCollectionEdit(this.rightsResolver, user, collectionPid)) {
+                throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
+            }
+            if (batchArray != null && batchArray.length() > 0) {
+                synchronized (CollectionsResource.class) {
+                    boolean cuttingsModified = false;
+                    Set<String> thumbsToDelete = new LinkedHashSet<>();
+                    JSONArray fetchedJSONArray = new JSONArray();
+                    if (krameriusRepositoryApi.getLowLevelApi().datastreamExists(collectionPid, COLLECTION_CLIPS)) {
+                        try(InputStream latestVersionOfDatastream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(collectionPid, COLLECTION_CLIPS)){
+                            fetchedJSONArray = new JSONArray( IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
+                        }
+                    }
+
+                    for (int i = 0; i < batchArray.length(); i++) {
+                        CutItem toDelete = CutItem.fromJSONObject(batchArray.getJSONObject(i));
+                        if (toDelete == null) {
+                            throw new BadRequestException("badREquest");
+                        }
+
+                        int index = -1;
+                        for (int j = 0; j < fetchedJSONArray.length(); j++) {
+                            CutItem rawCutItem = CutItem.fromJSONObject(fetchedJSONArray.getJSONObject(j));
+                            if (toDelete.equals(rawCutItem)) {
+                                index = j;
+                                cuttingsModified = true;
+                                break;
+                            }
+                        }
+                        
+                        if (index > -1) {
+                            if (toDelete.getUrl() != null) {
+                                String thumbName = toDelete.getThumbnailmd5();
+                                thumbsToDelete.add(thumbName);
+                            }
+                            fetchedJSONArray.remove(index);
+                            
+                        } else {
+                            return Response.status(Response.Status.BAD_REQUEST).build();
+                        }
+                    }
+                    if (cuttingsModified) {
+                        krameriusRepositoryApi.getLowLevelApi().updateBinaryDatastream(collectionPid, COLLECTION_CLIPS, "application/json", fetchedJSONArray.toString().getBytes(Charset.forName("UTF-8")));
+                        for (String thumbName : thumbsToDelete) {
+                            if (this.krameriusRepositoryApi.getLowLevelApi().datastreamExists(collectionPid, thumbName)) {
+                                this.krameriusRepositoryApi.getLowLevelApi().deleteDatastream(collectionPid, thumbName);
+                            }
+                        }
+                    }
+                    
+                }
+                Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
+                return Response.ok(collection.toJson()).build();
+            } else {
+                throw new BadRequestException("badREquest");
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    
+    @POST
+    @Path("{pid}/add_clip_item")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addClipItem(@PathParam("pid") String collectionPid, String itemJsonObj) { 
+        try {
+            JSONObject json = new JSONObject(itemJsonObj);
+            CutItem clipItem = CutItem.fromJSONObject(json);
+            if (clipItem == null) {
+                throw new BadRequestException("badREquest");
+            }
+            
+            //check collection
+            checkSupportedObjectPid(collectionPid);
+            if (!isModelCollection(collectionPid)) {
+                throw new ForbiddenException("not a collection: " + collectionPid);
+            }
+            User user = this.userProvider.get();
+            if (!permitCollectionEdit(this.rightsResolver, user, collectionPid)) {
+                throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
+            }
+
+            synchronized (CollectionsResource.class) {
+                
+                JSONArray jsonArray = new JSONArray();
+                if (krameriusRepositoryApi.getLowLevelApi().datastreamExists(collectionPid, COLLECTION_CLIPS)) {
+                    try(InputStream latestVersionOfDatastream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(collectionPid, COLLECTION_CLIPS)){
+                        jsonArray = new JSONArray( IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
+                    }
+                }
+                
+                if (clipItem.getUrl() != null) {
+                    String url = clipItem.getUrl();
+                    String thumbName = clipItem.getThumbnailmd5();
+                    
+                    THUMBS_GENERATOR.forEach(gen-> {
+                        if (gen.acceptUrl(url)) {
+                            try {
+                                BufferedImage thumb =  gen.generateThumbnail(url);
+                                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                                ImageIO.write(thumb, "png", bos);
+                                
+                                krameriusRepositoryApi.getLowLevelApi().updateBinaryDatastream(collectionPid, thumbName, "image/png", bos.toByteArray());
+                            } catch (IOException | RepositoryException e) {
+                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                            }
+                        }
+                     });
+                }
+                jsonArray.put(json);
+                
+                krameriusRepositoryApi.getLowLevelApi().updateBinaryDatastream(collectionPid, COLLECTION_CLIPS, "application/json", jsonArray.toString().getBytes(Charset.forName("UTF-8")));
+                Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
+                return Response.ok(collection.toJson()).build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+    
+    
+    // Udelat castecne ulozene na CDK 
     private Collection fetchCollectionFromRepository(String pid, boolean withContent, boolean withItems) throws
             IOException, RepositoryException, SolrServerException {
 
@@ -711,6 +1011,8 @@ public class CollectionsResource extends AdminApiResource {
             // index + akubra synchronization problem
         }
 
+        
+        
         collection.created = krameriusRepositoryApi.getLowLevelApi().getPropertyCreated(pid);
         collection.modified = krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(pid);
 
@@ -773,14 +1075,62 @@ public class CollectionsResource extends AdminApiResource {
                     });
                 }
             }
-
         }
+        List<Element> subjectXPath = Dom4jUtils.elementsByXpath(mods.getRootElement(), "//mods/subject[@lang]");
+        for (Element s : subjectXPath) {
+            Attribute langAttr = s.attribute("lang");
+            List<Element> elms = s.elements();
+            List<String> texts = s.elements().stream().map(Element::getTextTrim).collect(Collectors.toList());
+            if (!collection.keywords.containsKey(langAttr.getStringValue())) {
+                collection.keywords.put(langAttr.getStringValue(), new ArrayList<>());
+            }
+            collection.keywords.get(langAttr.getStringValue()).addAll(texts);
+        }
+
+        
+        Element authorsXPath = Dom4jUtils.firstElementByXpath(mods.getRootElement(), "//mods/name[@type='personal']");
+        if (authorsXPath != null) {
+            String author = authorsXPath.elements().stream().map(Element::getTextTrim).collect(Collectors.joining(" "));
+            if (StringUtils.isAnyString(author)) {
+                collection.author = author;
+            }
+        }
+        
         //data from RELS-EXT
         Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
         collection.standalone = Boolean.valueOf(Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//standalone"));
-        //data from Processing index
+
+        List<String> items = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
         if (withItems) {
-            collection.items = krameriusRepositoryApi.getPidsOfItemsInCollection(pid);
+            collection.items = items;
+        }
+
+        List<String> streams = krameriusRepositoryApi.getLowLevelApi().getDatastreamNames(pid);
+        if (streams.contains(cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade.KnownDatastreams.IMG_THUMB)) {
+            collection.thumbnailInfo = ThumbnailbStateEnum.thumb;
+        } else if (items.size() >0) {
+            collection.thumbnailInfo = ThumbnailbStateEnum.content;
+        } else {
+            collection.thumbnailInfo = ThumbnailbStateEnum.none;
+        }
+        
+
+        
+        if (krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, COLLECTION_CLIPS)) {
+
+            try(InputStream latestVersionOfDatastream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, COLLECTION_CLIPS)) {
+                JSONArray jsonArray = new JSONArray( IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
+                collection.clippingItems =  CutItem.fromJSONArray(jsonArray);
+                collection.clippingItems.forEach(cl-> {
+                    try {
+                        cl.initGeneratedThumbnail(krameriusRepositoryApi.getLowLevelApi(), pid);
+                    } catch (NoSuchAlgorithmException | RepositoryException | IOException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+                });
+            }
+        } else {
+            collection.clippingItems = new ArrayList<>();
         }
         return collection;
     }

@@ -51,6 +51,7 @@ dependencies {
     api project(':processes:sdnnt')              //TODO: Move
 
     api project(':processes:licenses')
+    api project(':processes:collections-backup')
 
     api 'javax.servlet:jstl:1.2'
     api 'taglibs:standard:1.1.2'

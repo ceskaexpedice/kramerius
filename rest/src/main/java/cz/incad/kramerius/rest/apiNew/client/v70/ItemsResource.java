@@ -15,6 +15,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownDatastreams;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.apiNew.admin.v70.collections.CutItem;
 import cz.incad.kramerius.rest.apiNew.client.v70.epub.EPubFileTypes;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.ProvidedLicensesUtils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
@@ -26,21 +27,30 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.replication.FormatType;
+import cz.incad.kramerius.service.replication.ReplicationUtils;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.java.Pair;
+
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.codehaus.jettison.json.JSONArray;
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.Namespace;
 import org.dom4j.Node;
+import org.dom4j.QName;
+import org.dom4j.io.DOMWriter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
@@ -67,9 +77,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -551,15 +564,62 @@ public class ItemsResource extends ClientApiResource {
     public Response getFoxml(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            //authentication
-            // zrusit autentizaci a vratit k
             //checkUserIsAllowedToReadObject(pid); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             checkObjectExists(pid);
             Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
             
             // remove streams 
             Document modifiedFoxml = removeSecuredDatastreams(foxml);
+
+            
             if (modifiedFoxml != null) {
+                String model = model(modifiedFoxml);
+                if (StringUtils.isAnyString(model) && model.equals("info:fedora/model:collection")) {
+
+                    
+                    String streamName = "COLLECTION_CLIPS";
+                    String collectionClipsContent = null;
+                    // clipping_items 
+                    try(InputStream cutters = this.krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid,streamName)) {
+                        if (cutters != null) {
+                            byte[] content = replaceLocationByBinaryContent(modifiedFoxml, cutters, streamName);
+                            collectionClipsContent = new String(content, "UTF-8");
+                        }
+                    }
+                    // thumbs from cutters
+                    if (collectionClipsContent!= null) {
+                        org.json.JSONArray jsonArray = new org.json.JSONArray(collectionClipsContent);
+                        
+                        List<CutItem> cutItems = CutItem.fromJSONArray(jsonArray);
+                        for (CutItem cutItem : cutItems) {
+                            try {
+                                cutItem.initGeneratedThumbnail(krameriusRepositoryApi.getLowLevelApi(), pid);
+                            } catch (NoSuchAlgorithmException | RepositoryException | IOException e) {
+                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                            }
+                            
+                            if (cutItem.containsGeneratedThumbnail()) {
+                                String clipThumbName = cutItem.getThumbnailmd5();
+                                // clipThumbName 
+                                try(InputStream cutters = this.krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid,clipThumbName)) {
+                                    if (cutters != null) {
+                                       replaceLocationByBinaryContent(modifiedFoxml, cutters, clipThumbName);
+                                    }
+                                }
+                                
+                            }
+                        }
+                    }
+                    
+                    
+                    // thumb 
+                    try(InputStream imgThumb = this.krameriusRepositoryApi.getImgThumb(pid)) {
+                        if (imgThumb != null) {
+                            String streamThumbName = "IMG_THUMB";
+                            replaceLocationByBinaryContent(modifiedFoxml, imgThumb, streamThumbName);
+                        }
+                    }
+                }
                 return Response.ok().entity(modifiedFoxml.asXML()).build();
             } else {
                 throw new InternalErrorException("I cannot return the foxml object => Not all protected datastreams could be removed.");
@@ -572,6 +632,37 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+
+    private byte[] replaceLocationByBinaryContent(Document modifiedFoxml, InputStream imgThumb, String streamName)
+            throws IOException {
+        String datastreamXPath = String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']/foxml:datastreamVersion", streamName);
+        Node thumbNode = Dom4jUtils.buildXpath(datastreamXPath).selectSingleNode(modifiedFoxml.getRootElement());
+
+        byte[] bytes = IOUtils.toByteArray(imgThumb);
+        if (thumbNode != null) {
+            List<Node> contentLocation = Dom4jUtils.buildXpath("//foxml:contentLocation").selectNodes(thumbNode);
+            for (Node node : contentLocation) { node.detach(); }
+            Element thumbElement = (Element) thumbNode;
+            Element binaryContent = thumbElement.addElement("binaryContent", thumbElement.getNamespaceURI());
+            binaryContent.setText(new String(Base64.encodeBase64(bytes)));
+        }
+        return bytes;
+    }
+
+    private String model(Document modifiedFoxml) {
+        Element modelNode = (Element) Dom4jUtils.buildXpath("//model:hasModel").selectSingleNode(modifiedFoxml.getRootElement());
+        if (modelNode != null) {
+            Namespace ns = new Namespace("rdf", Dom4jUtils.NAMESPACE_URIS.get("rdf"));
+            QName qname = new QName("resource", ns);
+            Attribute attribute = modelNode.attribute(qname);
+            if (attribute != null) {
+                return attribute.getStringValue();
+            }
+        }
+        return null;
+    }
+
+    
 
     
     private static Document removeSecuredDatastreams(Document foxmlDoc) {
@@ -1107,9 +1198,73 @@ public class ItemsResource extends ClientApiResource {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid + ", stream name: " + streamName, e);
         }
     }
+    
+    // =========== Collection specific endpoints
 
+    @GET
+    @Path("{pid}/collection/cuttings")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getCollectionClips(@PathParam("pid") String pid) {
+            try {
+                checkSupportedObjectPid(pid);
+                checkObjectExists(pid);
+                if(!krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, "COLLECTION_CLIPS")) {
+                    throw new NotFoundException();
+                } else {
+                    String mimetype = krameriusRepositoryApi.getLowLevelApi().getDatastreamMimetype(pid, "COLLECTION_CLIPS");
+                    org.json.JSONArray outputValue = new org.json.JSONArray();
+                    try(InputStream istream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, "COLLECTION_CLIPS")) {
+                        org.json.JSONArray inputValue = new org.json.JSONArray(IOUtils.toString(istream, "UTF-8"));
+
+                        List<CutItem> cutItems = CutItem.fromJSONArray(inputValue);
+                        cutItems.forEach(cl-> {
+                            try {
+                                cl.initGeneratedThumbnail(krameriusRepositoryApi.getLowLevelApi(), pid);
+                            } catch (NoSuchAlgorithmException | RepositoryException | IOException e) {
+                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                            }
+                            outputValue.put(cl.toJSON());
+                        });
+                    }
+                    return Response.ok().entity(outputValue).type(mimetype).build();
+                }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{pid}/collection/cuttings/image/{thumb_id}")
+    public Response getCollectionThumb(@PathParam("pid") String pid, @PathParam("thumb_id") String thumbId) {
+            try {
+                checkSupportedObjectPid(pid);
+                checkObjectExists(pid);
+                if(!krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, thumbId)) {
+                    throw new NotFoundException("no image/thumb %s  available for object %s ", thumbId, pid);
+                } else {
+                    String mimetype = krameriusRepositoryApi.getLowLevelApi().getDatastreamMimetype(pid, thumbId);
+                    
+                    InputStream istream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, thumbId);
+                    StreamingOutput stream = output -> {
+                        IOUtils.copy(istream, output);
+                        IOUtils.closeQuietly(istream);
+                    };
+                    return Response.ok().entity(stream).type(mimetype).build();
+                }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    
+    
     // =========== EPub specific endpoints
-
     @HEAD
     @Path("{pid}/epub")
     public Response isEpubAvailable(@PathParam("pid") String pid) {
@@ -1143,6 +1298,9 @@ public class ItemsResource extends ClientApiResource {
         return epub;
     }
 
+    
+
+    
     @GET
     @Path("{pid}/epub/{path: .*}")
     public Response getPaths(@PathParam("pid") String pid, @PathParam("path") PathSegment pathSegment,@Context UriInfo info ) {

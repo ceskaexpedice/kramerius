@@ -6,6 +6,8 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.*;
 import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
@@ -26,6 +28,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.fcrepo.common.rdf.FedoraNamespace;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -167,9 +170,12 @@ public class Import {
 
             Set<TitlePidTuple> classicRoots = new HashSet<TitlePidTuple>();
             Set<TitlePidTuple> convolutes = new HashSet<TitlePidTuple>();
+
+            Set<TitlePidTuple> collections = new HashSet<TitlePidTuple>();
+
             Set<String> sortRelations = new HashSet<String>();
             if (importFile.isDirectory()) {
-                visitAllDirsAndFiles(fa, importFile, classicRoots, convolutes, sortRelations, updateExisting);
+                visitAllDirsAndFiles(fa, importFile, classicRoots, convolutes, collections, sortRelations, updateExisting);
             } else {
                 BufferedReader reader = null;
                 try {
@@ -193,7 +199,7 @@ public class Import {
                             continue;
                         }
                         log.info("Importing " + importItem.getAbsolutePath());
-                        visitAllDirsAndFiles(fa, importItem, classicRoots, convolutes, sortRelations, updateExisting);
+                        visitAllDirsAndFiles(fa, importItem, classicRoots, convolutes, collections, sortRelations, updateExisting);
                     }
                     reader.close();
                 } catch (IOException e) {
@@ -220,6 +226,31 @@ public class Import {
             }
 
             if (startIndexer) {
+                
+                if (collections.isEmpty()) {
+                    log.info("NO COLLECTIONS FOR INDEXING FOUND.");
+                } else {
+                    try {
+                        String waitIndexerProperty = System.getProperties().containsKey("ingest.startIndexer.wait") ? System.getProperty("ingest.startIndexer.wait") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer.wait", "1000");
+                        // should wait
+                        log.info("Waiting for soft commit :" + waitIndexerProperty + " s");
+                        Thread.sleep(Integer.parseInt(waitIndexerProperty));
+
+                        if (authToken != null) {
+                            for (TitlePidTuple col : collections) {
+                                
+                                ProcessScheduler.scheduleIndexation(col.pid, col.title, false, authToken);
+                            }
+                            log.info("ALL COLLECTIONS SCHEDULED FOR INDEXING.");
+                        } else {
+                            log.warning("cannot schedule indexation due to missing process credentials");
+                        }
+                    } catch (Exception e) {
+                        log.log(Level.WARNING, e.getMessage(), e);
+                    }
+                }
+
+                
                 if (classicRoots.isEmpty()) {
                     log.info("NO ROOT OBJECTS FOR INDEXING FOUND.");
                 } else {
@@ -231,7 +262,13 @@ public class Import {
 
                         if (authToken != null) {
                             for (TitlePidTuple root : classicRoots) {
-                                ProcessScheduler.scheduleIndexation(root.pid, root.title, true, authToken);
+
+                                if (fa.isObjectAvailable(root.pid)) {
+                                    ProcessScheduler.scheduleIndexation(root.pid, root.title, true, authToken);
+                                } else {
+                                    LOGGER.warning(String.format("Object '%s' does not exist in the repository. ", root.pid));
+                                }
+                                
                             }
                             log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
                         } else {
@@ -282,7 +319,11 @@ public class Import {
         of = new ObjectFactory();
     }
 
-    private static void visitAllDirsAndFiles(FedoraAccess fa, File importFile, Set<TitlePidTuple> classicRoots, Set<TitlePidTuple> convolutes, Set<String> sortRelations, boolean updateExisting) {
+    private static void visitAllDirsAndFiles(FedoraAccess fa, File importFile, Set<TitlePidTuple> classicRoots, 
+            Set<TitlePidTuple> convolutes, 
+            Set<TitlePidTuple> collections, 
+            
+            Set<String> sortRelations, boolean updateExisting) {
         if (importFile == null) {
             return;
         }
@@ -301,7 +342,7 @@ public class Import {
                 Arrays.sort(children);
             }
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(fa, children[i], classicRoots, convolutes, sortRelations, updateExisting);
+                visitAllDirsAndFiles(fa, children[i], classicRoots, convolutes, collections, sortRelations, updateExisting);
             }
         } else {
             DigitalObject dobj = null;
@@ -397,7 +438,7 @@ public class Import {
 
                     ingest(fa.getInternalAPI(), importFile, sortRelations, classicRoots, updateExisting);
                     checkModelIsClassicRoot(transactionDigitalObject, classicRoots);
-                    checkModelIsConvolute(transactionDigitalObject, convolutes);
+                    checkModelIsConvoluteOrCollection(transactionDigitalObject, convolutes, collections,classicRoots);
                 }
             } catch (Throwable t) {
                 log.severe("Error when ingesting PID: " + dobj.getPID() + ", " + t.getMessage());
@@ -670,9 +711,10 @@ public class Import {
      * PID to convolutes list. Objects in the convolutes list then will be submitted to
      * Indexer (object-only indexation)
      */
-    private static void checkModelIsConvolute(DigitalObject dobj, Set<TitlePidTuple> convolutes) {
+    private static void checkModelIsConvoluteOrCollection(DigitalObject dobj, Set<TitlePidTuple> convolutes,  Set<TitlePidTuple> collections, Set<TitlePidTuple> roots) {
         try {
             boolean isConvolute = false;
+            boolean isCollection = false;
             String title = "";
             for (DatastreamType ds : dobj.getDatastream()) {
                 if ("DC".equals(ds.getID())) {//obtain title from DC stream
@@ -702,6 +744,30 @@ public class Import {
                                 if (type.startsWith("info:fedora/model:")) {
                                     String model = type.substring(18);//get the string after info:fedora/model:
                                     isConvolute = "convolute".equals(model);
+                                    isCollection = "collection".equals(model);
+                                }
+                            }
+                        }
+                        //<rel:contains xmlns:rel="http://www.nsdl.org/ontologies/relationships#" rdf:resource="info:fedora/uuid:be0aa9c4-cbbb-4d3d-b552-e9533c9b4fed"/>
+                        XmlContentType xmlContent = v.getXmlContent();
+                        List<Element> any = xmlContent.getAny();
+                        for (Element elm : any) {
+                            List<Element> pids = XMLUtils.getElementsRecursive(elm, new XMLUtils.ElementsFilter() {
+                                @Override
+                                public boolean acceptElement(Element element) {
+                                    boolean equals = element.getLocalName().equals("contains");
+                                    return equals;
+                                }
+                            });
+                            for (int i = 0; i < pids.size();i++) {
+                                String attributeNS = pids.get(i).getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                                if (attributeNS.contains("info:fedora/")) {
+                                    String rootPid = attributeNS.substring("info:fedora/".length());
+                                    TitlePidTuple npt = new TitlePidTuple(rootPid, rootPid);
+
+                                    LOGGER.info(String.format("Adding contains relation from collection %s", rootPid));
+
+                                    roots.add(npt);
                                 }
                             }
                         }
@@ -714,6 +780,13 @@ public class Import {
                     convolutes.add(npt);
                     log.info("Found (convolute) object for indexing - " + npt);
                 }
+            } else if (isCollection) {
+                TitlePidTuple npt = new TitlePidTuple(title, dobj.getPID());
+                if (collections != null) {
+                    collections.add(npt);
+                    log.info("Found (collection) object for indexing - " + npt);
+                }
+                
             }
 
         } catch (Exception ex) {

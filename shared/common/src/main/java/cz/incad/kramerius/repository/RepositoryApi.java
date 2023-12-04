@@ -104,6 +104,11 @@ public interface RepositoryApi {
     //UPDATE
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException;
 
+    public void updateBinaryDatastream(String pid, String streamName, String mimeType, byte[] byteArray) throws RepositoryException;
+
+
+    public void deleteDatastream(String pid, String streamName) throws RepositoryException;
+
     /**
      * @param ds part of FOXML that contains definition of the datastream. I.e. root element datastream with subelement(s) datastreamVersion.
      */

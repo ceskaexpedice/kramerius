@@ -3,16 +3,21 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.admin.v70.FoxmlBuilder;
+import cz.incad.kramerius.utils.StringUtils;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.QName;
 
+import java.text.BreakIterator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class CollectionsFoxmlBuilder extends FoxmlBuilder {
     public Document buildFoxml(Collection collection, List<String> pidsOfItemsInCollection) {
@@ -102,7 +107,55 @@ public class CollectionsFoxmlBuilder extends FoxmlBuilder {
                 note.addText(StringEscapeUtils.escapeHtml(collection.contents.get(key)));
             });
         }
+        if (collection.keywords.size() > 0) {
+            collection.keywords.keySet().forEach(key-> {
+                List<String> keywords = collection.keywords.get(key);
+                for (String keyword : keywords) {
 
+                    Element subjectElm = addModsElement(mods, "subject");
+                    subjectElm.addAttribute("lang", key);
+                    
+                    Element topic = addModsElement(subjectElm, "topic");
+                    topic.addText(keyword);
+                }
+                
+            });
+        }
+
+        
+        if (collection.author != null && StringUtils.isAnyString(collection.author)) {
+            
+            List<String> authorParts = new ArrayList<>();
+            BreakIterator wordIterator =
+                    BreakIterator.getWordInstance(Locale.getDefault());
+
+            wordIterator.setText(collection.author);
+            
+            // Iterace přes jednotlivá slova
+            int start = wordIterator.first();
+            for (int end = wordIterator.next(); end != BreakIterator.DONE; start = end, end = wordIterator.next()) {
+                String word = collection.author.substring(start, end);
+                authorParts.add(word);
+            }
+            
+            if (authorParts.size() > 0) {
+
+                Element personalName = addModsElement(mods, "name");
+                personalName.addAttribute("type", "personal");
+                personalName.addAttribute("usage", "primary");
+                
+                Element personalNamePart1 = addModsElement(personalName, "namePart");
+                personalNamePart1.addAttribute("type", "family");
+                personalNamePart1.setText(authorParts.get(0));
+
+                Element personalNamePart2 = addModsElement(personalName, "namePart");
+                personalNamePart2.addAttribute("type", "given");
+                personalNamePart2.setText(authorParts.subList(1, authorParts.size()).stream().collect(Collectors.joining(" ")));
+                
+            }
+            
+        }
+        
         return document;
     }
 

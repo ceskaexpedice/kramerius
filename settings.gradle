@@ -30,6 +30,8 @@ include 'processes:nkp-logs'
 include 'processes:statistics'
 include 'processes:sdnnt'
 include 'processes:licenses'
+include 'processes:collections-backup'
+
 
 include 'security:authfilters'
 include 'security:oauth'

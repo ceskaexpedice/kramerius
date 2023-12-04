@@ -234,6 +234,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
                 resp.setStatus(statusCode);
                 if (statusCode == 200) {
                     resp.setContentType(response.getEntity().getContentType().getValue());
+                    LOGGER.fine(String.format("Set access-control-header %s ", "Access-Control-Allow-Origin *"));
                     resp.setHeader("Access-Control-Allow-Origin", "*");
                     Header cacheControl = response.getLastHeader("Cache-Control");
                     if (cacheControl != null) resp.setHeader(cacheControl.getName(), cacheControl.getValue());

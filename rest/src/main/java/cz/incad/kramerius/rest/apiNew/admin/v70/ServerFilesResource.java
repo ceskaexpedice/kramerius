@@ -53,6 +53,47 @@ public class ServerFilesResource extends AdminApiResource {
     GenerateDownloadLinks genDownloadLinks;
 
     @GET
+    @Path("/output-data-dir-for_collectionsbackup{path: (.+)?}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listFilesInOutputDataDirFor_collections_backup(@PathParam("path") String path,@QueryParam("generatedownloads") Boolean downloadLinks) {
+        try {
+            User user1 = this.userProvider.get();
+            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+            if (!permitNKPLogsFolders(user1)) {
+                throw new ForbiddenException("user '%s' is not allowed to list files on server (missing action '%s')", user1.getLoginname(), SecuredActions.A_IMPORT.getFormalName()); //403
+            }
+            
+            String collectionsFolder = KConfiguration.getInstance().getConfiguration().getString("collections.backup.folder");
+            if (collectionsFolder != null) {
+                File f = new File(collectionsFolder, path);
+                if (f.isDirectory()) {
+                    return listFilesInDir("collections.backup.folder", path, (file)->{
+                        return file.isFile() && file.getName().endsWith(".zip");
+                    },Comparator.comparing(File::lastModified).reversed(), -1);
+                } else {
+                    
+                    JSONObject fileJson = new JSONObject();
+                    fileJson.put("name", f.getName());
+                    fileJson.put("isDir", f.isDirectory());
+                    
+                    fileInfo(f, fileJson);
+                    
+                    if (downloadLinks) {
+                        fileJson.put("downloadlink", genDownloadLinks.generateTmpLink(f));
+                    }
+                    
+                    return Response.ok(fileJson).build();
+                }
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }    
+    
+    /** Output from nkplogs */
+    @GET
     @Path("/output-data-dir-for_nkplogs{path: (.+)?}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response listFilesInOutputDataDirFor_nkplogs(@PathParam("path") String path,@QueryParam("generatedownloads") Boolean downloadLinks) {

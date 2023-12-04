@@ -46,8 +46,11 @@ public interface KrameriusRepositoryApi {
         MIGRATION("MIGRATION"),
         IMG_FULL_ADM("IMG_FULL_ADM"),
         AUDIT("AUDIT"),
-        TEXT_OCR_ADM("TEXT_OCR_ADM");
+        TEXT_OCR_ADM("TEXT_OCR_ADM"),
 
+        COLLECTION_CLIPPINGS("COLLECTION_CLIPPINGS");
+        
+        
         private final String value;
 
         KnownDatastreams(String value) {

@@ -23,6 +23,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +49,8 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
  */
 public class ImageStreamsServlet extends AbstractImageServlet {
 
+    public static final Logger LOGGER = Logger.getLogger(ImageStreamsServlet.class.getName());
+    
     /**
      * Parameter for stream
      */
@@ -95,7 +98,9 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
     @Override
     protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        LOGGER.fine(String.format("Set access-control-header %s ", "Access-Control-Allow-Origin *"));
         resp.setHeader("Access-Control-Allow-Origin", "*");
+
         resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
         String pid = req.getParameter(UUID_PARAMETER);
         if (pid == null || pid.trim().equals("")) {
@@ -129,6 +134,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        LOGGER.fine(String.format("Set access-control-header %s ", "Access-Control-Allow-Origin *"));
         resp.setHeader("Access-Control-Allow-Origin", "*");
         resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
 

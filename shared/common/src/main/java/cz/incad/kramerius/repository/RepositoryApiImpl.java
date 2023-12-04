@@ -3,6 +3,9 @@ package cz.incad.kramerius.repository;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
@@ -411,27 +414,53 @@ public class RepositoryApiImpl implements RepositoryApi {
         });
         return triplets;
     }
+    
 
     @Override
     public void updateInlineXmlDatastream(String pid, String dsId, Document streamDoc, String formatUri) throws RepositoryException, IOException {
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
             RepositoryObject object = akubraRepository.getObject(pid);
-
+            
             object.deleteStream(dsId);
             object.createStream(dsId, "text/xml", new ByteArrayInputStream(streamDoc.asXML().getBytes(Charset.forName("UTF-8"))));
 
-//            appendNewInlineXmlDatastreamVersion(foxml, dsId, streamDoc, formatUri);
-//            updateLastModifiedTimestamp(foxml);
-//            DigitalObject updatedDigitalObject = foxmlDocToDigitalObject(foxml);
-//            akubraRepository.deleteObject(pid, false, false);
-//            akubraRepository.ingestObject(updatedDigitalObject);
-//            akubraRepository.commitTransaction();
         } finally {
             writeLock.unlock();
         }
     }
 
+    public void updateBinaryDatastream(String pid, String streamName, String mimeType, byte[] byteArray) throws RepositoryException {
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            RepositoryObject object = akubraRepository.getObject(pid);
+            if (object != null) {
+                if (object.streamExists(streamName)) {
+                    object.deleteStream(streamName);
+                }
+                ByteArrayInputStream bos = new ByteArrayInputStream(byteArray);
+                object.createManagedStream(streamName, mimeType, bos);
+            }
+        } finally {
+            writeLock.unlock();
+        }
+     }
+    
+    public void deleteDatastream(String pid, String streamName) throws RepositoryException {
+        Lock writeLock = AkubraDOManager.getWriteLock(pid);
+        try {
+            RepositoryObject object = akubraRepository.getObject(pid);
+            if (object != null) {
+                if (object.streamExists(streamName)) {
+                    object.deleteStream(streamName);
+                }
+            }
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    
+    
     @Override
     public void setDatastreamXml(String pid, String dsId, Document ds) throws RepositoryException, IOException {
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
