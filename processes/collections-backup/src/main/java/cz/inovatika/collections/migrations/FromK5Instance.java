@@ -134,6 +134,7 @@ public class FromK5Instance {
                 removeStream(foxml,"TEXT_cs");
                 removeStream(foxml,"TEXT_en");
                 addContainsRelations(foxml, pids);
+                setStandalone(foxml);
                 
                 File vcFile = new File(subdirectoryPath,  pid.replace(':', '_')+".xml");
                 try (FileOutputStream fos = new FileOutputStream(vcFile)) {
@@ -147,6 +148,36 @@ public class FromK5Instance {
         }  else {
             throw new IllegalArgumentException("");
         }
+    }
+
+    private static void setStandalone(Document foxml) {
+        Element relsExt = XMLUtils.findElement(foxml.getDocumentElement(), new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                String localName = element.getLocalName();
+                String attribute = element.getAttribute("ID");
+                return localName != null && localName.equals("datastream") && attribute != null && attribute.equals("RELS-EXT");
+            }
+        });
+        
+        if (relsExt != null) {
+            Element rdfDecription = XMLUtils.findElement(relsExt, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    String localName = element.getLocalName();
+                    String nameSpace = element.getNamespaceURI();
+                    return localName != null && localName.equals("Description") && nameSpace.equals(FedoraNamespaces.RDF_NAMESPACE_URI);
+                }
+            });
+
+            if (rdfDecription != null) {
+                Element contains = foxml.createElementNS(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI, "rel:standalone");
+                contains.setPrefix("rel");
+                contains.setTextContent("true");
+                rdfDecription.appendChild(contains);
+            }
+        }
+        
     }
 
     private static void addContainsRelations(Document foxml, List<String> pids) {

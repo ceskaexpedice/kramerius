@@ -18,9 +18,14 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class ThumbsGenerator {
     
+
     public abstract BufferedImage generateThumbnail(String url) throws IOException;
     
     public abstract boolean acceptUrl(String url);

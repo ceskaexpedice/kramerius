@@ -9,6 +9,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownDatastreams;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownXmlFormatUris;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.Collection.ThumbnailbStateEnum;
+import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.ClientIIIFGenerator;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.SimpleIIIFGenerator;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.ThumbsGenerator;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
@@ -78,6 +79,7 @@ public class CollectionsResource extends AdminApiResource {
     private static final List<ThumbsGenerator> THUMBS_GENERATOR = new ArrayList<>();
     static {
         THUMBS_GENERATOR.add(new SimpleIIIFGenerator());
+        THUMBS_GENERATOR.add(new ClientIIIFGenerator());
     }
     
     public static final Logger LOGGER = Logger.getLogger(CollectionsResource.class.getName());

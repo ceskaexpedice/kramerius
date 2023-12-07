@@ -208,7 +208,7 @@ public class Backup {
     }
     
     private static int head(Client client, String pid) {
-        String url = KConfiguration.getInstance().getConfiguration().getString("api.client.point") + (KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("items/%s/metadata/mods", pid);
+        String url = KConfiguration.getInstance().getConfiguration().getString("api.client.point") + (KConfiguration.getInstance().getConfiguration().getString("api.client.point").endsWith("/") ? "" : "/") + String.format("items/%s/metadata/mods", pid);
         LOGGER.info(String.format("Url %s", url));
         
         WebResource r = client.resource(url);
@@ -222,7 +222,7 @@ public class Backup {
 
     private static Document foxml(Client client, String processingPid)
             throws ParserConfigurationException, SAXException, IOException {
-        String url = KConfiguration.getInstance().getConfiguration().getString("api.client.point") + (KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("items/%s/foxml", processingPid);
+        String url = KConfiguration.getInstance().getConfiguration().getString("api.client.point") + (KConfiguration.getInstance().getConfiguration().getString("api.client.point").endsWith("/") ? "" : "/") + String.format("items/%s/foxml", processingPid);
         LOGGER.info(String.format( "Requesting url is %s", url));
         WebResource r = client.resource(url);
 

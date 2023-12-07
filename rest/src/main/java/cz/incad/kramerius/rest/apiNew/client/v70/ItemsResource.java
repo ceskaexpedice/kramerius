@@ -1086,11 +1086,15 @@ public class ItemsResource extends ClientApiResource {
             org.w3c.dom.Document relsExt = XMLUtils.parseDocument(stream, true);
             String u = IIIFUtils.iiifImageEndpoint(relsExt);
             if(u != null) {
-
+                // size can contain ^ or ! 
+                if (size.contains("^") || size.contains("!")) {
+                    size = URLEncoder.encode(size,"UTF-8");
+                }
                 String defaultMime = IIIF_SUPPORTED_MIMETYPES.get("jpg");
 
                 StringBuilder url = new StringBuilder(u);
                 if (!u.endsWith("/")) { url.append("/"); }
+                
                 url.append(String.format("%s/%s/%s/%s", region, size, rotation,qf));
      
                 String mime = defaultMime;
@@ -1226,7 +1230,7 @@ public class ItemsResource extends ClientApiResource {
                             outputValue.put(cl.toJSON());
                         });
                     }
-                    return Response.ok().entity(outputValue).type(mimetype).build();
+                    return Response.ok().entity(outputValue.toString()).type(mimetype).build();
                 }
         } catch (WebApplicationException e) {
             throw e;

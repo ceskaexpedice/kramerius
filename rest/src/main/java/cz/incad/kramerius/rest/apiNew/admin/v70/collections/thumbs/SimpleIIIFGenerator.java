@@ -52,13 +52,13 @@ public class SimpleIIIFGenerator  extends ThumbsGenerator {
     
     @Override
     public BufferedImage generateThumbnail(String url) throws IOException {
-        Pair<Pair<Integer,Integer>,Pair<Integer,Integer>> parseBoundingBox = parseBoundingBox(url);
+        Pair<Pair<Integer,Integer>,Pair<Integer,Integer>> parseBoundingBox = parseBoundingboxFromUrl(url);
         Pair<Integer,Integer> iiifInfo = getIIIFDescriptor(url);
         BufferedImage thumb = getThumb(url);
         double widthScaleFactor = (double) thumb.getWidth() / iiifInfo.getLeft();
         double heightScaleFactor = (double) thumb.getHeight() / iiifInfo.getRight();
         double scaleFactor = Math.min(widthScaleFactor, heightScaleFactor);
-        BufferedImage image = SimpleIIIFGenerator.createImate(thumb, scaleBoundingBox(parseBoundingBox, scaleFactor));
+        BufferedImage image = SimpleIIIFGenerator.createImate(thumb, IIFUtils.scaleBoundingBox(parseBoundingBox, scaleFactor));
         return image;
     }
 
@@ -118,32 +118,8 @@ public class SimpleIIIFGenerator  extends ThumbsGenerator {
         }
     }
 
-    public static Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> scaleBoundingBox(
-            Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> boundingBox, double scaleFactor) {
-    
-        // Extrahování hodnot z bounding boxu
-        int x = boundingBox.getKey().getKey();
-        int y = boundingBox.getKey().getValue();
-        int width = boundingBox.getValue().getKey();
-        int height = boundingBox.getValue().getValue();
-    
-    
-        int scaledX = (int) (x * scaleFactor);
-        int scaledY = (int) (y * scaleFactor);
-    
-        int scaledWidth = (int) (width * scaleFactor);
-        int scaledHeight = (int) (height * scaleFactor);
-    
-        Pair<Integer, Integer> scaledOrigin = Pair.of(scaledX, scaledY);
-        Pair<Integer, Integer> scaledSize = Pair.of(scaledWidth, scaledHeight);
-    
-        return Pair.of(scaledOrigin, scaledSize);
-    }
-
     public static Pair<Integer,Integer> getIIIFDescriptor(String url) throws IOException {
-    
         Pair<String,Boolean> baseUrl = SimpleIIIFGenerator.extractBaseUrl(url);
-        //String itemId = SimpleIIIFGenerator.extractItemId(url);
         String infoJsonUrl = SimpleIIIFGenerator.buildInfoJsonUrl(baseUrl);
 
         InputStream inputStream = RESTHelper.inputStream(infoJsonUrl, null, null);
@@ -156,26 +132,6 @@ public class SimpleIIIFGenerator  extends ThumbsGenerator {
         } else {
             throw new IllegalArgumentException();
         }
-    }
-
-    public static Pair<Pair<Integer,Integer>, Pair<Integer,Integer>> parseBoundingBox(String url) {
-        String regex = "/(\\d+),(\\d+),(\\d+),(\\d+)/";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(url);
-        if (matcher.find()) {
-            int x = Integer.parseInt(matcher.group(1));
-            int y = Integer.parseInt(matcher.group(2));
-            int w = Integer.parseInt(matcher.group(3));
-            int h = Integer.parseInt(matcher.group(4));
-    
-            Pair<Integer, Integer> firstPair = Pair.of(x, y);
-            Pair<Integer, Integer> secondPair = Pair.of(w, h);
-            Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> resultPair = Pair.of(firstPair, secondPair);
-            
-            return resultPair;
-        } else {
-            throw new IllegalArgumentException();
-        }    
     }
 
     public static BufferedImage createImate(BufferedImage puvodniObrazek, Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> range) {
@@ -230,5 +186,25 @@ public class SimpleIIIFGenerator  extends ThumbsGenerator {
     }
     
     
+    public static Pair<Pair<Integer,Integer>, Pair<Integer,Integer>> parseBoundingboxFromUrl(String url) {
+        String regex = "/(\\d+),(\\d+),(\\d+),(\\d+)/";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            int x = Integer.parseInt(matcher.group(1));
+            int y = Integer.parseInt(matcher.group(2));
+            int w = Integer.parseInt(matcher.group(3));
+            int h = Integer.parseInt(matcher.group(4));
+    
+            Pair<Integer, Integer> firstPair = Pair.of(x, y);
+            Pair<Integer, Integer> secondPair = Pair.of(w, h);
+            Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> resultPair = Pair.of(firstPair, secondPair);
+            
+            return resultPair;
+        } else {
+            throw new IllegalArgumentException();
+        }    
+    }
+
     
 }
