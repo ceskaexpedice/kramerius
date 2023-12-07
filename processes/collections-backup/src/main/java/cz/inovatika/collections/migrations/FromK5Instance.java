@@ -150,7 +150,7 @@ public class FromK5Instance {
         }
     }
 
-    private static void setStandalone(Document foxml) {
+    public static void setStandalone(Document foxml) {
         Element relsExt = XMLUtils.findElement(foxml.getDocumentElement(), new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
