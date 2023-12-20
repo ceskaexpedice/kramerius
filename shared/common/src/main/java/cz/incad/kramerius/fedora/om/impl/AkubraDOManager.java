@@ -331,7 +331,7 @@ public class AkubraDOManager {
                 addOrReplaceObject(object.getPID(), new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
 
             } catch (Exception e) {
-                LOGGER.warning("Could not replace object in Akubra: " + e);
+                LOGGER.severe("Could not replace object in Akubra: " + e);
             }
         } finally {
             invalidateCache(object.getPID());
