@@ -39,13 +39,16 @@ public class CzechEmbeddedLicenses {
     /** dnntt licenses **/
     public static License DNNTT_LICENSE = new LicenseImpl("dnntt", "DNNT terminal license", GLOBAL_GROUP_NAME_EMBEDDED, 2);
 
-    /** Generic licenses - on site **/
+    /** Global licenses - on site **/
     public static License ONSITE_LICENSE = new LicenseImpl("onsite", "Accessible only in library", GLOBAL_GROUP_NAME_EMBEDDED, 3);
 
-    /** Generic licenses - public **/
+    /** Global licenses - on site **/
+    public static License ORPHAN_LICENSE = new LicenseImpl("orphan", "Orphan works", GLOBAL_GROUP_NAME_EMBEDDED, 3);
+
+    /** Global licenses - public **/
     public static License PUBLIC_LICENSE = new LicenseImpl("public", "Public license", GLOBAL_GROUP_NAME_EMBEDDED, 4);
 
-    /** Generic licenses - public muo **/
+    /** Global licenses - public muo **/
     public static License PUBLIC_MUO_LICENSE = new LicenseImpl("public-muo", "Public license - sheetmusic Kroměříž ", GLOBAL_GROUP_NAME_EMBEDDED, 5);
     
     /** Public licenses - sheetmusic **/
@@ -56,6 +59,7 @@ public class CzechEmbeddedLicenses {
             DNNTT_LICENSE, 
             DNNTO_LICENSE, 
             ONSITE_LICENSE, 
+            ORPHAN_LICENSE,
             PUBLIC_LICENSE,
             PUBLIC_MUO_LICENSE,
             SHHETMUSIC_ONSITE_LICENSE
