@@ -255,8 +255,8 @@ public class SDNNTFetch {
 
                                 if (license.toString().equals("dnnto") && !docLicenses.contains("dnnto")) {
                                     if (docLicenses.contains("dnntt")) {
-                                        atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name() /*"change_dnnto_dnntt"*/, "sync_actions");
-                                        atomicOneValSet(in, SyncActionEnum.change_dnnto_dnntt.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
+                                        atomicAddDistinct(in, SyncActionEnum.change_dnntt_dnnto.name() /*"change_dnnto_dnntt"*/, "sync_actions");
+                                        atomicOneValSet(in, SyncActionEnum.change_dnntt_dnnto.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
                                         dirty = true;
                                     } else {
                                         atomicAddDistinct(in, SyncActionEnum.add_dnnto.name() /*"add_dnnto"*/, "sync_actions");

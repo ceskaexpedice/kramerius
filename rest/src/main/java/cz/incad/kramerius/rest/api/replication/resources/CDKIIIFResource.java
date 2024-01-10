@@ -170,7 +170,7 @@ public class CDKIIIFResource extends AbstractTileResource {
             if (splited.length > 1) {
                 mime =  IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? IIIF_SUPPORTED_MIMETYPES.get(splited[1]) :  defaultMime;
             }
-        	LOGGER.info(String.format("Copy tile from IIIF server %s", url.toString()));
+        	LOGGER.fine(String.format("Copy tile from IIIF server %s", url.toString()));
         	ResponseBuilder builder = Response.ok();
             copyFromImageServer(url.toString(),new ByteArrayOutputStream(), builder, mime);
             return builder.build();
