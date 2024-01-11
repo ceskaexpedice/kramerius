@@ -45,7 +45,9 @@ public class MailerImpl implements Mailer {
             }
             if (pass == null) {
                 pass = properties.getProperty("mail.smtp.pass");
-                properties.put("mail.smtp.password", pass);
+                if (pass != null) {
+                    properties.put("mail.smtp.password", pass);
+                }
             }
             Authenticator auth = new SMTPAuthenticator(name, pass);
             Session session = Session.getInstance(properties, auth);
