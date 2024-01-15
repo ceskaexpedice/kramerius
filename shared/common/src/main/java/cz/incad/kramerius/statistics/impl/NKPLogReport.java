@@ -327,7 +327,12 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         if (obj.has("user")) {
             map.put("username", obj.optString("user"));
         }
-        
+        if(obj.has("hrh_referer")){
+            map.put("hrh_referer", obj.optString("hrh_referer"));
+        }
+        if(obj.has("hrh_kramerius_client")){
+            map.put("hrh_kramerius_client", obj.optString("hrh_kramerius_client"));
+        }
         List<String> licenses = listString(obj, "licenses");
         map.put("dnnt", licenses.contains("dnntt") || licenses.contains("dnnto"));
         
