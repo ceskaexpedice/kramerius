@@ -4,10 +4,7 @@ import static org.apache.http.HttpStatus.SC_OK;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,7 +26,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -48,7 +44,6 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.pdf.utils.ModsUtils;
-import cz.incad.kramerius.processes.NotReadyException;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
@@ -61,15 +56,9 @@ import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.LogRecord;
 import cz.incad.kramerius.statistics.accesslogs.LogRecordDetail;
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl.InsertAuthor;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl.InsertDetail;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl.InsertPublisher;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl.InsertRecord;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.DCUtils;
-import cz.incad.kramerius.utils.DatabaseUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
@@ -200,6 +189,8 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 String sessionId = requestProvider.get().getSession().getId();
                 logRecord.setSessionToken(sessionId);
             }
+
+            logRecord.setFieldsFromHttpRequestHeaders(extractFieldsFromHttpRequestHeaders());
             
             for (int i = 0, ll = paths.length; i < ll; i++) {
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -289,6 +280,19 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
+    }
+
+    private Map<String, String> extractFieldsFromHttpRequestHeaders() {
+        Map<String, String> results = new HashMap<>();
+        String referer = requestProvider.get().getHeader("Referer");
+        if (referer != null) {
+            results.put("Referer", referer);
+        }
+        String headerKrameriusClient = requestProvider.get().getHeader("Kramerius-client");
+        if (headerKrameriusClient != null) {
+            results.put("Kramerius-client", headerKrameriusClient);
+        }
+        return results;
     }
     
     //TODO: Implement

@@ -165,5 +165,9 @@
   <copyField source="id_isbn" dest="all_identifiers"/>
   <copyField source="id_issn" dest="all_identifiers"/>
   <copyField source="id_ccnb" dest="all_identifiers"/>
-	
+
+  <!-- http request headers -->
+  <field name="hrh_referer" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+  <field name="hrh_kramerius_client" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+
 </schema>
