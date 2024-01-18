@@ -20,20 +20,21 @@ import java.io.IOException;
 public abstract class ClientApiResource extends ApiResource {
 
     @Inject
-    Provider<User> userProvider;
+    protected Provider<User> userProvider;
 
     // basic rights resolver  / images
     @Inject
-    RightsResolver rightsResolver;
+    protected RightsResolver rightsResolver;
 
     @Inject
     @Named("cachedRightsResolver")
-    RightsResolver cachedRightsResolver;
+    protected RightsResolver cachedRightsResolver;
 
     @Inject
     @Named("new-index")
-    SolrAccess solrAccess;
-
+    protected SolrAccess solrAccess;
+    
+    
     public void checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions action) {
         User user = this.userProvider.get();
         if (user == null || user.getLoginname().equals("not_logged")) {
