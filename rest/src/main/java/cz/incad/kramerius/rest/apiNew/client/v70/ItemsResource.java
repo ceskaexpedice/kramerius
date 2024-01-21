@@ -38,6 +38,7 @@ import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.java.Pair;
 
 import org.apache.commons.codec.binary.Base64;
@@ -55,6 +56,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
+import javax.imageio.ImageIO;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -67,6 +69,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -82,6 +85,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -364,8 +369,16 @@ public class ItemsResource extends ClientApiResource {
             if (imgFullMimetype == null) {
                 json.put("type", "none");
             } else {
-                //jpeg, pdf, etc.
-                json.put("type", imgFullMimetype);
+                if (ImageMimeType.JPEG2000.getValue().equals(imgFullMimetype)) {
+                    // convert to jpeg 
+                    json.put("type", ImageMimeType.JPEG.getValue());
+                } else  if (ImageMimeType.DJVU.getValue().equals(imgFullMimetype)) {
+                    json.put("type", ImageMimeType.JPEG.getValue());
+                } else {
+                    // transform jp2 or djvu
+                    //jpeg, pdf, etc.
+                    json.put("type", imgFullMimetype);
+                }
             }
         }
         return json;
@@ -544,12 +557,48 @@ public class ItemsResource extends ClientApiResource {
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
-            InputStream is = krameriusRepositoryApi.getImgFull(pid);
-            StreamingOutput stream = output -> {
-                IOUtils.copy(is, output);
-                IOUtils.closeQuietly(is);
-            };
-            return Response.ok().entity(stream).type(mimeType).build();
+            
+            if (ImageMimeType.JPEG2000.getValue().equals(mimeType)) {
+                
+                InputStream istream = krameriusRepositoryApi.getImgFull(pid);
+                ImageIO.setUseCache(true);
+                BufferedImage jpeg2000 = ImageIO.read(istream);
+                
+//                File tmpFile = File.createTempFile("jpeg2000", "jp2");
+//                ImageIO.write(jpeg2000, "jpg", tmpFile);
+//                FileInputStream fstream = new FileInputStream(tmpFile);
+                
+                StreamingOutput stream = output -> {
+                  ImageIO.write(jpeg2000, "jpg", output);
+//                    IOUtils.copy(fstream, output);
+//                    IOUtils.closeQuietly(fstream);
+                };
+                return Response.ok().entity(stream).type(mimeType).build();
+                
+            } else  if (ImageMimeType.DJVU.getValue().equals(mimeType)) {
+
+                File tmpFile = File.createTempFile("djvu", "djvu");
+                InputStream istream = krameriusRepositoryApi.getImgFull(pid);
+                Files.copy(istream, tmpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                
+                BufferedImage readImage = KrameriusImageSupport.readImage(tmpFile.toURI().toURL(), ImageMimeType.DJVU, -1);
+                StreamingOutput stream = output -> {
+                    ImageIO.write(readImage, "jpeg", output);
+                };
+                return Response.ok().entity(stream).type(mimeType).build();
+                
+                
+                
+            } else {
+                
+                InputStream is = krameriusRepositoryApi.getImgFull(pid);
+                StreamingOutput stream = output -> {
+                    IOUtils.copy(is, output);
+                    IOUtils.closeQuietly(is);
+                };
+                return Response.ok().entity(stream).type(mimeType).build();
+            }
+            
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
