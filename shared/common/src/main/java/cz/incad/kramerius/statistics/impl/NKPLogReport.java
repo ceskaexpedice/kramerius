@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -205,7 +206,6 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                 }).collect(Collectors.joining(" OR "));
                 
                 builder.append("&fq="+URLEncoder.encode("id:("+joinedIds+")", "UTF-8"));
-                //String encoded = URLEncoder.encode(builder.toString(), "UTF-8");
 
                 InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpoint, builder.toString(), "json");
                 String string = IOUtils.toString(iStream, "UTF-8");
@@ -226,82 +226,83 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
 
     void logReport(Map map,  StatisticsReportSupport sup) {
         String pid = map.get("pid").toString();
-        boolean disbleFedoraAccess = KConfiguration.getInstance().getConfiguration()
-                .getBoolean("nkp.logs.disablefedoraaccess", false);
-        //Map map = record.toMap();
-        Object dbversion = map.get("dbversion");
-        if (dbversion != null)
-            map.remove("dbversion");
-        if (dbversion == null || versionCondition(dbversion.toString(), "<", "6.6.6")) {
-            try {
-                if (!disbleFedoraAccess) {
-                    // only one place where we are connecting
-                    Document solrDoc = solrAccess.getSolrDataByPid(pid);
-                    if (solrDoc != null) {
-
-                        map.put(DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY,
-                                new YearLogFormat().format(SElemUtils.selem("str", "datum_str", solrDoc)));
-
-                        // fill publishers
-                        ObjectPidsPath[] paths = solrAccess.getPidPaths(null, solrDoc);
-                        List<String> dcPublishers = DNNTStatisticsAccessLogImpl.dcPublishers(paths, fedoraAccess);
-                        if (!dcPublishers.isEmpty()) {
-                            JSONArray publishersArray = new JSONArray();
-                            for (int i = 0, ll = dcPublishers.size(); i < ll; i++) {
-                                publishersArray.put(dcPublishers.get(i));
-                            }
-                            map.put(DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY, publishersArray);
-                        }
-
-                        // fill identifiers
-                        Map<String, List<String>> identifiers = DNNTStatisticsAccessLogImpl.identifiers(paths,
-                                fedoraAccess);
-                        identifiers.keySet().forEach(key -> map.put(key, identifiers.get(key)));
-
-                        List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
-                        map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
-
-                        String s = SolrUtils.disectDNNTFlag(solrDoc.getDocumentElement());
-                        if (s != null) {
-                            map.put(DNNTStatisticsAccessLogImpl.DNNT_KEY, Boolean.valueOf(s));
-                        }
-
-                        List<String> runtimeFileds = new ArrayList<>(Arrays.asList(
-                                DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY,
-                                DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY, DNNTStatisticsAccessLogImpl.DNNT_KEY,
-                                DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
-                                DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
-                        identifiers.keySet().forEach(runtimeFileds::add);
-
-                        //map.put(RUNTIME_ATTRS, runtimeFileds);
-                        //map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel"));
-                    }
-                } else {
-//                   map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel",
-//                            DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY, DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
-//                            DNNTStatisticsAccessLogImpl.DNNT_KEY, DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
-//                            DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
-
-                }
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
-        } else if (dbversion != null && versionCondition(dbversion.toString(), ">=", "6.6.6")) {
-            if (!disbleFedoraAccess) {
-                try {
-                    Document solrDoc = solrAccess.getSolrDataByPid(pid);
-                    if (solrDoc != null) {
-                        List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
-                        map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
-                        //map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            } else {
-                //map.put(MISSING_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
-            }
-        }
+//        boolean disbleFedoraAccess = KConfiguration.getInstance().getConfiguration()
+//                .getBoolean("nkp.logs.disablefedoraaccess", false);
+//        Object dbversion = map.get("dbversion");
+//        if (dbversion != null)
+//            map.remove("dbversion");
+//        if (dbversion == null || versionCondition(dbversion.toString(), "<", "6.6.6")) {
+//            //TODO: Delete
+//            try {
+//                if (!disbleFedoraAccess) {
+//                    // only one place where we are connecting
+//                    Document solrDoc = solrAccess.getSolrDataByPid(pid);
+//                    if (solrDoc != null) {
+//
+//                        map.put(DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY,
+//                                new YearLogFormat().format(SElemUtils.selem("str", "datum_str", solrDoc)));
+//
+//                        // fill publishers
+//                        ObjectPidsPath[] paths = solrAccess.getPidPaths(null, solrDoc);
+//                        List<String> dcPublishers = DNNTStatisticsAccessLogImpl.dcPublishers(paths, fedoraAccess);
+//                        if (!dcPublishers.isEmpty()) {
+//                            JSONArray publishersArray = new JSONArray();
+//                            for (int i = 0, ll = dcPublishers.size(); i < ll; i++) {
+//                                publishersArray.put(dcPublishers.get(i));
+//                            }
+//                            map.put(DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY, publishersArray);
+//                        }
+//
+//                        // fill identifiers
+//                        Map<String, List<String>> identifiers = DNNTStatisticsAccessLogImpl.identifiers(paths,
+//                                fedoraAccess);
+//                        identifiers.keySet().forEach(key -> map.put(key, identifiers.get(key)));
+//
+//                        List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
+//                        map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
+//
+//                        String s = SolrUtils.disectDNNTFlag(solrDoc.getDocumentElement());
+//                        if (s != null) {
+//                            map.put(DNNTStatisticsAccessLogImpl.DNNT_KEY, Boolean.valueOf(s));
+//                        }
+//
+//                        List<String> runtimeFileds = new ArrayList<>(Arrays.asList(
+//                                DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY,
+//                                DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY, DNNTStatisticsAccessLogImpl.DNNT_KEY,
+//                                DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
+//                                DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
+//                        identifiers.keySet().forEach(runtimeFileds::add);
+//
+//                        //map.put(RUNTIME_ATTRS, runtimeFileds);
+//                        //map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel"));
+//                    }
+//                } else {
+////                   map.put(MISSING_ATTRS, Arrays.asList("shibboleth", "providedByLabel",
+////                            DNNTStatisticsAccessLogImpl.SOLR_DATE_KEY, DNNTStatisticsAccessLogImpl.PUBLISHERS_KEY,
+////                            DNNTStatisticsAccessLogImpl.DNNT_KEY, DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY,
+////                            DNNTStatisticsAccessLogImpl.PROVIDED_BY_DNNT_KEY));
+//
+//                }
+//            } catch (IOException e) {
+//                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            }
+//        } else if (dbversion != null && versionCondition(dbversion.toString(), ">=", "6.6.6") && versionCondition(dbversion.toString(), "<=", "6.6.7")) {
+//            // TODO: Delete
+//            if (!disbleFedoraAccess) {
+//                try {
+//                    Document solrDoc = solrAccess.getSolrDataByPid(pid);
+//                    if (solrDoc != null) {
+//                        List<String> dnntLabels = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
+//                        map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, dnntLabels);
+//                        //map.put(RUNTIME_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+//                    }
+//                } catch (IOException e) {
+//                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//                }
+//            } else {
+//                //map.put(MISSING_ATTRS, Arrays.asList(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY));
+//            }
+//        }
         sup.processReportRecord(map);
     }
 
@@ -333,7 +334,8 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         if(obj.has("hrh_kramerius_client")){
             map.put("hrh_kramerius_client", obj.optString("hrh_kramerius_client"));
         }
-        List<String> licenses = listString(obj, "licenses");
+        // TODO: Bad name; rename it 
+        List<String> licenses = listString(obj, "licences");
         map.put("dnnt", licenses.contains("dnntt") || licenses.contains("dnnto"));
         
         if (obj.has("evaluated_map")) {
@@ -351,9 +353,12 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
             }
         }
         
-        if (!licenses.isEmpty()) { 
-            map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, licenses);
-        }            
+        //if (!licenses.isEmpty()) { 
+        JSONArray licJSONArray = new JSONArray();
+        licenses.stream().forEach(licJSONArray::put);
+        map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, licJSONArray);
+        map.put(DNNTStatisticsAccessLogImpl.LICENSES_KEY, licJSONArray);
+        //}            
         
         // root title 
         if (obj.has("root_title")) {
@@ -370,7 +375,26 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         // map.put("models_path", )
         map.put("models_path", obj.optString("own_model_path"));
         map.put("pids_path", obj.optString("own_pid_path"));
+        
+        // Issue #1038 / all_pids_paths, all_models
+        if (obj.has("pid_paths")) {
+            map.put("all_pids_paths", obj.optJSONArray("pid_paths"));
+        }
+        if (obj.has("all_models")) {
+            map.put("all_models", obj.optJSONArray("all_models"));
+        }
+        Set keys = obj.keySet();
+        for (Object key : keys) {
+            if (key.toString().startsWith("pids_")) {
+                JSONArray pidsModel = obj.optJSONArray(key.toString());
+                if (pidsModel != null) {
+                    map.put(key.toString(), pidsModel);
+                }
+            }
+        }
+        
 
+        
         //List<String> publishers = new ArrayList<>();
         List<String> publishers = listString(obj, "publishers");
         if (!publishers.isEmpty()) {
