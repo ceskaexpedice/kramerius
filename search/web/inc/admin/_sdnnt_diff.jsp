@@ -146,9 +146,6 @@
 					if (doc.sync_actions.includes('change_dnntt_dnnto')) {
 						td4 += '<strong>dnntt</strong><span class="ui-icon ui-icon-arrowthick-1-e"></span><strong>dnnto</strong>';
 					}
-					if (doc.sync_actions.includes('change_dnntt_dnnto')) {
-						td4 += '<strong>dnntt</strong><span class="ui-icon ui-icon-arrowthick-1-e"></span><strong>dnnto</strong>';
-					}
 					
 					if (doc.sync_actions.includes('partial_change')) {
 						var id = doc.id;
@@ -319,13 +316,8 @@
 								td4 += '<strong>dntto</strong><span class="ui-icon ui-icon-arrowthick-1-e"></span><strong>dnntt</strong>';
 							}
 							if (doc.sync_actions.includes('change_dnntt_dnnto')) {
-								td4 += '<strong>dnntt</strong><span class="ui-icon ui-icon-arrowthick-1-e"></span><strong>dnnto</strong>';
+								td4 +=  ' <strong>dnntt</strong><span class="ui-icon ui-icon-arrowthick-1-e"></span><strong>dnnto</strong>';
 							}
-							/*
-							if (doc.sync_actions.includes('change_dnntt_dnnto')) {
-								td4 += '<strong>dnntt</strong><span class="ui-icon ui-icon-arrowthick-1-e"></span><strong>dnnto</strong>';
-							}*/
-							
 				
 							td4 += '</div></td>';
 							
