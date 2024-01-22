@@ -353,12 +353,10 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
             }
         }
         
-        //if (!licenses.isEmpty()) { 
         JSONArray licJSONArray = new JSONArray();
         licenses.stream().forEach(licJSONArray::put);
         map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, licJSONArray);
         map.put(DNNTStatisticsAccessLogImpl.LICENSES_KEY, licJSONArray);
-        //}            
         
         // root title 
         if (obj.has("root_title")) {

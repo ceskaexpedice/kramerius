@@ -579,7 +579,7 @@ public class ItemsResource extends ClientApiResource {
                 InputStream istream = krameriusRepositoryApi.getImgFull(pid);
                 Files.copy(istream, tmpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 
-                BufferedImage djvu = KrameriusImageSupport.readImage(tmpFile.toURI().toURL(), ImageMimeType.DJVU, -1);
+                BufferedImage djvu = KrameriusImageSupport.readImage(tmpFile.toURI().toURL(), ImageMimeType.DJVU, 0);
                 StreamingOutput stream = output -> {
                     ImageIO.write(djvu, "jpeg", output);
                 };
