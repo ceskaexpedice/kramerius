@@ -335,7 +335,7 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
             map.put("hrh_kramerius_client", obj.optString("hrh_kramerius_client"));
         }
         // TODO: Bad name; rename it 
-        List<String> licenses = listString(obj, "licences");
+        List<String> licenses = licenses(obj);
         map.put("dnnt", licenses.contains("dnntt") || licenses.contains("dnnto"));
         
         if (obj.has("evaluated_map")) {
@@ -418,6 +418,14 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         }
 
         return map;
+    }
+
+    private static List<String> licenses(JSONObject obj) {
+        if (obj.has("licenses")) {
+            return listString(obj, "licenses");
+        } else if (obj.has("licences")) {
+            return listString(obj, "licences");
+        } else return new ArrayList<>();
     }
 
     private static List<String> listString(JSONObject obj, String key) {
