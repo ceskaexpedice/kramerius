@@ -25,14 +25,20 @@ import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
+import org.apache.commons.io.FileUtils;
 import org.fedora.api.*;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -89,16 +95,47 @@ public class Import {
         }
     }
 
+    
+    
     /**
      * @param args
      * @throws UnsupportedEncodingException 
      */
     public static void main(String[] args) throws UnsupportedEncodingException {
         String importDirectory = System.getProperties().containsKey("import.directory") ? System.getProperty("import.directory") : KConfiguration.getInstance().getProperty("import.directory");
+
         Import.ingest(KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory);
     }
     
 
+    private static final String DEFAULT_LIST_NAME = "update.list";
+    private static String prepareFile(File importDirectory, Boolean replaceDC, Boolean replaceMODs) throws IOException, SAXException, ParserConfigurationException {
+        StringBuilder builder = new StringBuilder();
+        File[] files = importDirectory.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (!f.getName().endsWith("xml")) continue;
+                Document document = XMLUtils.parseDocument(new FileInputStream(f), true);
+                String pid = document.getDocumentElement().getAttribute("PID");
+                builder.append(pid);
+                if (replaceDC) {
+                    builder.append(' ').append(FedoraUtils.DC_STREAM);
+                }
+                if (replaceMODs) {
+                    builder.append(' ').append(FedoraUtils.BIBLIO_MODS_STREAM);
+                }
+                builder.append('\n');
+            }
+        }
+        File f = new File(importDirectory, DEFAULT_LIST_NAME);
+        if (!f.exists()) {
+            f.createNewFile();
+        }
+        FileUtils.writeStringToFile(f, builder.toString());
+        return f.getAbsolutePath();
+    }
+
+    
     public static void ingest(final String url, final String user, final String pwd, String importRoot) throws UnsupportedEncodingException {
         log.finest("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
         Injector injector = Guice.createInjector(new ImportModule());
