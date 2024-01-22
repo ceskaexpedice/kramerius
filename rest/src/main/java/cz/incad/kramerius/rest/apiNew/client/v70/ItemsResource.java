@@ -372,7 +372,7 @@ public class ItemsResource extends ClientApiResource {
                 if (ImageMimeType.JPEG2000.getValue().equals(imgFullMimetype)) {
                     // convert to jpeg 
                     json.put("type", ImageMimeType.JPEG.getValue());
-                } else  if (ImageMimeType.DJVU.getValue().equals(imgFullMimetype)) {
+                } else  if (ImageMimeType.DJVU.getValue().equals(imgFullMimetype) || ImageMimeType.VNDDJVU.getValue().equals(imgFullMimetype) || ImageMimeType.XDJVU.getValue().equals(imgFullMimetype)) {
                     json.put("type", ImageMimeType.JPEG.getValue());
                 } else {
                     // transform jp2 or djvu
@@ -564,9 +564,6 @@ public class ItemsResource extends ClientApiResource {
                 ImageIO.setUseCache(true);
                 BufferedImage jpeg2000 = ImageIO.read(istream);
                 
-//                File tmpFile = File.createTempFile("jpeg2000", "jp2");
-//                ImageIO.write(jpeg2000, "jpg", tmpFile);
-//                FileInputStream fstream = new FileInputStream(tmpFile);
                 
                 StreamingOutput stream = output -> {
                   ImageIO.write(jpeg2000, "jpg", output);
@@ -575,19 +572,18 @@ public class ItemsResource extends ClientApiResource {
                 };
                 return Response.ok().entity(stream).type(mimeType).build();
                 
-            } else  if (ImageMimeType.DJVU.getValue().equals(mimeType)) {
+
+            } else  if (ImageMimeType.DJVU.getValue().equals(mimeType) || ImageMimeType.VNDDJVU.getValue().equals(mimeType) || ImageMimeType.XDJVU.getValue().equals(mimeType) ) {
 
                 File tmpFile = File.createTempFile("djvu", "djvu");
                 InputStream istream = krameriusRepositoryApi.getImgFull(pid);
                 Files.copy(istream, tmpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 
-                BufferedImage readImage = KrameriusImageSupport.readImage(tmpFile.toURI().toURL(), ImageMimeType.DJVU, -1);
+                BufferedImage djvu = KrameriusImageSupport.readImage(tmpFile.toURI().toURL(), ImageMimeType.DJVU, -1);
                 StreamingOutput stream = output -> {
-                    ImageIO.write(readImage, "jpeg", output);
+                    ImageIO.write(djvu, "jpeg", output);
                 };
                 return Response.ok().entity(stream).type(mimeType).build();
-                
-                
                 
             } else {
                 

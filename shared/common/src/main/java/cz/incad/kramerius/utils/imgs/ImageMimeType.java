@@ -12,6 +12,7 @@ public enum ImageMimeType {
 	XDJVU("image/x.djvu","djvu", false, true),
 	VNDDJVU("image/vnd.djvu","djvu", false, true),
 	DJVU("image/djvu","djvu", false, true),
+	
 	PDF("application/pdf","pdf",false, true),
 	
     EPUB("application/epub+zip","epub",false, true);
