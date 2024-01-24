@@ -100,7 +100,9 @@ public abstract class ProxyHandlerSupport {
 		ClientResponse response = b.get(ClientResponse.class);
 		if (response.getStatus() == 200) {
 
-			InputStream is = response.getEntityInputStream();
+		    String responseMimeType = response.getType().toString();
+		    
+		    InputStream is = response.getEntityInputStream();
 			MultivaluedMap<String, String> headers = response.getHeaders();
 
 			StreamingOutput stream = new StreamingOutput() {
@@ -114,8 +116,9 @@ public abstract class ProxyHandlerSupport {
 			};
 			ResponseBuilder respEntity = null;
 			if (mimetype != null) {
-                    //MimeType type = new MimeType(mimetype);
                 respEntity = Response.status(200).entity(stream).type(mimetype);
+			} else if (responseMimeType != null) {
+                respEntity = Response.status(200).entity(stream).type(responseMimeType);
 			} else {
 		        respEntity = Response.status(200).entity(stream);
 			}
@@ -188,7 +191,7 @@ public abstract class ProxyHandlerSupport {
 		if (this.remoteAddr != null) {
 			header = header + "|" + "header_ip_address=" + this.remoteAddr;
 		}
-		
+		//TODO: Source 
 		if (StringUtils.isAnyString(prefixHeaders)) {
 			header = prefixHeaders+header;
 		}

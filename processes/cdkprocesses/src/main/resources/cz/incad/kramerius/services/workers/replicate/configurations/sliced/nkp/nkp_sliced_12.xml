@@ -17,8 +17,8 @@
         <rows>5000</rows>
         <type>CURSOR</type>
 
-        <user>cdkmzk</user>
-        <pass>CCYeZPSe</pass>
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
 
       	<!--  timestamp field  -->
         <timestamp_field>modified_date</timestamp_field>

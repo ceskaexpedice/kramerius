@@ -19,6 +19,8 @@ include	'processes:import-jaxb-mets'
 include	'processes:import-jaxb-srwdc'
 include	'processes:import-mets'
 include 'processes:cdkprocesses'
+include 'processes:cdkreharvest'
+
 
 include 'processes:solr-migration' //dependencies
 

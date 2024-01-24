@@ -10,7 +10,7 @@
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         <url>$iteration.url$</url>
-        <fquery>modified_date:[2013-01-01T00:00:00.000Z TO 2013-06-01T00:00:00.000Z]</fquery>
+        <fquery>modified_date:[2018-06-01T00:00:00.000Z TO 2019-01-01T00:00:00.000Z]</fquery>
         <endpoint>select</endpoint>
 
         <id>PID</id>
@@ -43,7 +43,7 @@
 
 
             <user>$iteration.user$</user>
-        <pass>$iteration.pass$</pass>
+        	<pass>$iteration.pass$</pass>
 
 
             <composite.id>true</composite.id>
@@ -83,9 +83,9 @@
             <onupdate>
             
                <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels dostupnost fedora.model</fieldlist>
-                <update.dest.field>
-                   <field name="cdk.collection" update="add-distinct">nkp</field>
-               </update.dest.field>
+                 <update.dest.field>
+                    <field name="cdk.collection" update="add-distinct">nkp</field>
+                </update.dest.field>
             </onupdate>
 
         </destination>
