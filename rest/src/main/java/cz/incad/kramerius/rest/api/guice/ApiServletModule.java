@@ -123,6 +123,10 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.ItemsResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v10.ServerFilesResource.class);
 
+        
+        // OAI endpoint
+        bind(cz.incad.kramerius.rest.oai.OAIEndpoint.class);
+
         bind(KeycloakProxy.class);
 
         // debug resource

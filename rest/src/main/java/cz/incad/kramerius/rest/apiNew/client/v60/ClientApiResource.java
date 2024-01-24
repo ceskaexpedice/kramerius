@@ -33,6 +33,18 @@ public abstract class ClientApiResource extends ApiResource {
     @Named("new-index")
     SolrAccess solrAccess;
 
+    public SolrAccess getSolrAccess() {
+        return solrAccess;
+    }
+
+    public RightsResolver getRightsResolver() {
+        return rightsResolver;
+    }
+    
+    public Provider<User> getUserProvider() {
+        return userProvider;
+    }
+    
     public void checkCurrentUserByJsessionidIsAllowedToPerformGlobalSecuredAction(SecuredActions action) {
         User user = this.userProvider.get();
         if (user == null || user.getLoginname().equals("not_logged")) {
