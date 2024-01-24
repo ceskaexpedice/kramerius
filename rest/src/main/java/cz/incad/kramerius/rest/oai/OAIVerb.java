@@ -255,7 +255,7 @@ public enum OAIVerb {
                                 
                                 
                                 Element metadata = doc.createElement("metadata");
-                                metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata));
+                                metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata, selectedSet));
 
                                 record.appendChild(header);
                                 record.appendChild(metadata);
@@ -273,7 +273,7 @@ public enum OAIVerb {
                                 
                                 
                                 Element metadata = doc.createElement("metadata");
-                                metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata));
+                                metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata, selectedSet));
 
                                 record.appendChild(header);
                                 record.appendChild(metadata);
@@ -405,7 +405,7 @@ public enum OAIVerb {
                         
                         
                         Element metadata = doc.createElement("metadata");
-                        metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata));
+                        metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata, null));
 
                         record.appendChild(header);
                         record.appendChild(metadata);

@@ -119,7 +119,7 @@ public enum MetadataExport {
                 }
                 Element edmDataPrvovider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:dataProvider");
                 
-                String edmDataProvider = set.getAdditionalsInfo().get("edm:dataProvider");
+                String edmDataProvider = set != null && set.getAdditionalsInfo() != null ?  set.getAdditionalsInfo().get("edm:dataProvider") : null;
                 if (edmDataProvider != null) {
                     edmDataPrvovider.setTextContent(edmDataProvider);
                 } else {

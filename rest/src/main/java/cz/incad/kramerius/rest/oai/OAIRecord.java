@@ -21,6 +21,7 @@ import java.io.StringReader;
 import java.net.URLEncoder;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,8 @@ public class OAIRecord {
     private String identifier;
     private String solrIdentifier;
     
+//    private List<String> possibleSets = new ArrayList<>();
+    
     public OAIRecord(String solrIdentifier, String identifier) {
         super();
         this.solrIdentifier = solrIdentifier;
@@ -53,6 +56,14 @@ public class OAIRecord {
     public String getSolrIdentifier() {
         return solrIdentifier;
     }
+
+//    public List<String> getPossibleSets() {
+//        return possibleSets;
+//    }
+//    
+//    public void setPossibleSets(List<String> possibleSets) {
+//        this.possibleSets = possibleSets;
+//    }
     
     /** find oai record */
     public static OAIRecord findRecord(SolrAccess solrAccess,String oaiIdentifier) throws IOException, ParserConfigurationException, SAXException  {
@@ -90,8 +101,8 @@ public class OAIRecord {
     }
 
     /** render metadata */
-    public Element toMetadata(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export) {
-        return export.perform(request, fa, doc, identifier);
+    public Element toMetadata(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export, OAISet set) {
+        return export.perform(request, fa, doc, identifier, set);
     }
     
     /** render header */

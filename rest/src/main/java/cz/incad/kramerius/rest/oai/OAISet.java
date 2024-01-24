@@ -33,7 +33,6 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.apiNew.client.v70.SearchResource;
 import cz.incad.kramerius.solr.SolrFieldsMapping;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
