@@ -159,7 +159,7 @@ public enum MetadataExport {
             }
         }
         
-    },
+    };
     
     
     
@@ -228,7 +228,6 @@ public enum MetadataExport {
 //                }
 //    };
     
-    public static final Logger LOGGER = Logger.getLogger(MetadataExport.class.getName());
 
     
     private MetadataExport(String metadataPrefix, String schema, String metadataNamespace) {
@@ -265,6 +264,8 @@ public enum MetadataExport {
     
     public abstract Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier, OAISet set);
     
+    public static final Logger LOGGER = Logger.getLogger(MetadataExport.class.getName());
+
 //    public static final Logger LOGGER = Logger.getLogger(MetadataExport.class.getName());
     
 }
