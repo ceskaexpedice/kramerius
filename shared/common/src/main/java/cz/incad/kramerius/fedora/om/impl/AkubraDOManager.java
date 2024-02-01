@@ -252,7 +252,7 @@ public class AkubraDOManager {
             try {
                 storage.removeObject(pid);
             } catch (LowlevelStorageException e) {
-                LOGGER.warning("Could not remove object from Akubra: " + e);
+                LOGGER.severe("Could not remove object from Akubra: " + e);
             }
         } finally {
             invalidateCache(pid);
@@ -283,7 +283,7 @@ public class AkubraDOManager {
                 addOrReplaceObject(pid, new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
 
             } catch (Exception e) {
-                LOGGER.warning("Could not replace object in Akubra: " + e+", pid:'"+pid+"'");
+                LOGGER.severe("Could not replace object in Akubra: " + e+", pid:'"+pid+"'");
             }
         } finally {
             invalidateCache(pid);
@@ -298,7 +298,7 @@ public class AkubraDOManager {
                     try {
                         storage.removeDatastream(datastreamVersionType.getContentLocation().getREF());
                     } catch (LowlevelStorageException e) {
-                        LOGGER.warning("Could not remove managed datastream from Akubra: " + e);
+                        LOGGER.severe("Could not remove managed datastream from Akubra: " + e);
                     }
                 }
             }
@@ -347,7 +347,7 @@ public class AkubraDOManager {
             }
             return new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8"));
         } catch (Exception e) {
-            LOGGER.warning("Could not marshall object: " + e);
+            LOGGER.severe("Could not marshall object: " + e);
             throw new RuntimeException(e);
         }
     }
@@ -420,7 +420,7 @@ public class AkubraDOManager {
                         contentLocationType.setREF(ref);
                         datastreamVersion.setContentLocation(contentLocationType);
                     } catch (LowlevelStorageException e) {
-                        LOGGER.warning("Could not remove managed datastream from Akubra: " + e);
+                        LOGGER.severe("Could not remove managed datastream from Akubra: " + e);
                     }
                 }
             }
@@ -442,7 +442,7 @@ public class AkubraDOManager {
                     datastreamVersion.setBinaryContent(IOUtils.toByteArray(stream));
                     datastreamVersion.setContentLocation(null);
                 } catch (Exception ex) {
-                    LOGGER.warning("Could not resolve archive managed datastream: " + ex);
+                    LOGGER.severe("Could not resolve archive managed datastream: " + ex);
                 }
             }
         }
