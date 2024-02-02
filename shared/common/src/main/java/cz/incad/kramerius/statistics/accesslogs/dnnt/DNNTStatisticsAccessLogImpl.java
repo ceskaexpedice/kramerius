@@ -142,7 +142,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 try {
                     dc = fedoraAccess.getDC(detailPid);
                 } catch (IOException e) {
-                    LOGGER.warning("datastream DC not found for " + detailPid + ", ignoring statistics");
+                    LOGGER.fine("datastream DC not found for " + detailPid + ", ignoring statistics");
                 }
                 if (dc != null) {
                     List<String> collected = Arrays.stream(DCUtils.publishersFromDC(dc)).map(it -> {

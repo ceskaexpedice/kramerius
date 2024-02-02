@@ -153,8 +153,8 @@ public class Indexer {
         }
 
         if (alreadyInIndex) { // keep data from previous indexation in case this indexation fails during
-            solrIndexer.setSingleFieldValue(pid, repositoryNode, "full_indexation_in_progress", Boolean.TRUE.toString(), false);
-            solrIndexer.setSingleFieldValue(pid, repositoryNode, "indexer_version", String.valueOf(INDEXER_VERSION), false);
+            solrIndexer.setSingleFieldValue(pid, repositoryNode, "full_indexation_in_progress", Boolean.TRUE.toString(), true, false);
+            solrIndexer.setSingleFieldValue(pid, repositoryNode, "indexer_version", String.valueOf(INDEXER_VERSION), true, false);
         } else {
             try {
                 SolrInput solrInput = new SolrInput();
@@ -174,7 +174,7 @@ public class Indexer {
         report("clearing field full_indexation_in_progress for " + pid);
         //will not work for objects that are not stored and not docValues
         //see https://github.com/ceskaexpedice/kramerius/issues/782
-        solrIndexer.setSingleFieldValue(pid, repositoryNode, "full_indexation_in_progress", null, false);
+        solrIndexer.setSingleFieldValue(pid, repositoryNode, "full_indexation_in_progress", null, false, false);
     }
 
     private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean setFullIndexationInProgress, ProgressListener progressListener) {

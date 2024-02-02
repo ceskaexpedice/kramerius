@@ -179,24 +179,28 @@ public class SetLicenseProcess {
 
         //3. Aktualizuji se indexy vsech (vlastnich) predku (prida se contains_licenses=L) atomic updatem
         LOGGER.info("updating search index for all (own) ancestors");
-        indexerAccess.addSingleFieldValueForMultipleObjects(pidsOfAncestors, SOLR_FIELD_CONTAINS_LICENSES, license, false);
-
+        indexerAccess.addSingleFieldValueForMultipleObjects(pidsOfAncestors, SOLR_FIELD_CONTAINS_LICENSES, license, true, false);
+        
+        
         //4. Aktualizuje se index ciloveho objektu (prida se licenses=L) atomic updatem
         LOGGER.info("updating search index for the target object");
         List<String> targetPidOnly = new ArrayList<>();
         targetPidOnly.add(targetPid);
-        indexerAccess.addSingleFieldValueForMultipleObjects(targetPidOnly, SOLR_FIELD_LICENSES, license, false);
-
+        indexerAccess.addSingleFieldValueForMultipleObjects(targetPidOnly, SOLR_FIELD_LICENSES, license, true, false);
+        
+        
         //5. Aktualizuji se indexy vsech (vlastnich i nevlastnich) potomku (prida se licenses_of_ancestors=L) atomic updaty po davkach (muzou to byt az stovky tisic objektu)
         LOGGER.info("updating search index for all (own) descendants of target object");
         PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(targetPid, searchIndex, false);
         while (iterator.hasNext()) {
             List<String> pids = iterator.next();
-            indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, false);
+            indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, true, false);
             LOGGER.info(String.format("Indexed: %d/%d", iterator.getReturned(), iterator.getTotal()));
         }
 
-        //commit changes in index
+        //6. Zmena indextime
+        
+        //commit changes in index 
         try {
             indexerAccess.commit();
         } catch (IOException | SolrServerException e) {
@@ -291,13 +295,13 @@ public class SetLicenseProcess {
 
         //3. Aktualizuje se index predku, kteri nemaji jiny zdroj licence (odebere se contains_licenses=L) atomic updatem
         LOGGER.info("updating search index of all (own) ancestors without another source of license");
-        indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfAncestorsWithoutAnotherSourceOfLicense, SOLR_FIELD_CONTAINS_LICENSES, license, false);
+        indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfAncestorsWithoutAnotherSourceOfLicense, SOLR_FIELD_CONTAINS_LICENSES, license, true, false);
 
         //4. Aktualizuje se index ciloveho objektu (odebere se licenses=L) atomic updatem
         LOGGER.info("updating search index for the target object");
         List<String> targetPidOnly = new ArrayList<>();
         targetPidOnly.add(targetPid);
-        indexerAccess.removeSingleFieldValueFromMultipleObjects(targetPidOnly, SOLR_FIELD_LICENSES, license, false);
+        indexerAccess.removeSingleFieldValueFromMultipleObjects(targetPidOnly, SOLR_FIELD_LICENSES, license, true, false);
 
         //5. Pokud uz zadny z (vlastnich) predku ciloveho objektu nevlastni licenci, aktualizuji se indexy potomku ciloveho objektu (v opacnem pripade to neni treba)
         if (!hasAncestorThatOwnsLicense(targetPid, license, processingIndex, repository)) {
@@ -306,7 +310,7 @@ public class SetLicenseProcess {
             PidsOfDescendantsProducer descendantsIterator = new PidsOfDescendantsProducer(targetPid, searchIndex, true);
             while (descendantsIterator.hasNext()) {
                 List<String> pids = descendantsIterator.next();
-                indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, false);
+                indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, true, false);
                 LOGGER.info(String.format("Indexed: %d/%d", descendantsIterator.getReturned(), descendantsIterator.getTotal()));
             }
             //5b. Vsem potomkum ciloveho objektu, ktere take vlastni licenci, budou aktualizovany licence jejich potomku (prida se licenses_of_ancestors=L), protoze byly nepravem odebrany v kroku 5a.
@@ -315,7 +319,7 @@ public class SetLicenseProcess {
                 PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(pid, searchIndex, true);
                 while (iterator.hasNext()) {
                     List<String> pids = iterator.next();
-                    indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, false);
+                    indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, true, false);
                     LOGGER.info(String.format("Indexed: %d/%d", iterator.getReturned(), iterator.getTotal()));
                 }
             }
@@ -327,7 +331,7 @@ public class SetLicenseProcess {
             //6a. vsem potomkum (primi/neprimi, vlastni/nevlastni) budou aktualizovany licence (odebere se licenses_of_ancestors=L)
             PidsOfDescendantsProducer allDescendantsIterator = new PidsOfDescendantsProducer(targetPid, searchIndex, false);
             List<String> pids = allDescendantsIterator.next();
-            indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, false);
+            indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, true, false);
             LOGGER.info(String.format("Indexed: %d/%d", allDescendantsIterator.getReturned(), allDescendantsIterator.getTotal()));
 
             //6b. naplanuje se reindexace target, aby byly opraveny pripadne chyby zanasene v bode 6a

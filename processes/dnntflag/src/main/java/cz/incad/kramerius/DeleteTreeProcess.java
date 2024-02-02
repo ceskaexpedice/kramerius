@@ -188,7 +188,7 @@ public class DeleteTreeProcess {
             //Aktualizuje se index predku, kteri nemaji jiny zdroj licence (odebere se contains_licenses=L) atomic updatem
             LOGGER.info("updating search index of all (own) ancestors without another source of license");
             if (!DRY_RUN) {
-                indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfAncestorsWithoutAnotherSourceOfLicense, LicenseHelper.SOLR_FIELD_CONTAINS_LICENSES, license, false);
+                indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfAncestorsWithoutAnotherSourceOfLicense, LicenseHelper.SOLR_FIELD_CONTAINS_LICENSES, license,false, false);
             }
         }
     }
@@ -210,13 +210,14 @@ public class DeleteTreeProcess {
         //item itself
         List<String> itemInCollectionOnly = new ArrayList<>();
         itemInCollectionOnly.add(itemInCollection);
-        indexerAccess.removeSingleFieldValueFromMultipleObjects(itemInCollectionOnly, SOLR_FIELD_IN_COLLECTIONS, collectionPid, false);
-        indexerAccess.removeSingleFieldValueFromMultipleObjects(itemInCollectionOnly, SOLR_FIELD_IN_COLLECTIONS_DIRECT, collectionPid, false);
+        
+        indexerAccess.removeSingleFieldValueFromMultipleObjects(itemInCollectionOnly, SOLR_FIELD_IN_COLLECTIONS, collectionPid, false, false);
+        indexerAccess.removeSingleFieldValueFromMultipleObjects(itemInCollectionOnly, SOLR_FIELD_IN_COLLECTIONS_DIRECT, collectionPid, false, false);
         //rest of the tree
         PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(itemInCollection, searchIndex, false);
         while (iterator.hasNext()) {
             List<String> pids = iterator.next();
-            indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_IN_COLLECTIONS, collectionPid, false);
+            indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_IN_COLLECTIONS, collectionPid, false, false);
             LOGGER.info(String.format("removed from collection: %d/%d", iterator.getReturned() + 1, iterator.getTotal() + 1));
         }
     }

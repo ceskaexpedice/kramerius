@@ -24,7 +24,10 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
 import java.io.*;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,7 +223,7 @@ public class SolrIndexAccess {
         solrClient.commit(collection);
     }
 
-    public void setSingleFieldValue(String pid, RepositoryNode repositoryNode, String fieldName, Object value, boolean explicitCommit) {
+    public void setSingleFieldValue(String pid, RepositoryNode repositoryNode, String fieldName, Object value, boolean indexTime, boolean explicitCommit) {
         try {
             SolrInputDocument updateDoc = new SolrInputDocument();
             ensureCompositeId(updateDoc, repositoryNode, pid);
@@ -229,6 +232,13 @@ public class SolrIndexAccess {
             Map<String, Object> updateData = new HashMap<>();
             updateData.put("set", value == null ? null : value.toString());
             updateDoc.addField(fieldName, updateData);
+
+            if (indexTime) {
+                Map<String, Object> timestamp = new HashMap<>();
+                timestamp.put("set", ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
+                updateDoc.addField("indexed", timestamp);
+            }
+            
             solrClient.add(collection, updateDoc, MAX_TIME_WITHOUT_COMMIT_MS);
             if (explicitCommit) {
                 solrClient.commit(collection);
@@ -239,7 +249,7 @@ public class SolrIndexAccess {
         }
     }
 
-    public void addSingleFieldValueForMultipleObjects(List<String> pids, String fieldName, Object value, boolean explicitCommit) {
+    public void addSingleFieldValueForMultipleObjects(List<String> pids, String fieldName, Object value, boolean indexTime, boolean explicitCommit) {
         if (!pids.isEmpty()) {
             try {
                 List<SolrInputDocument> inputDocs = new ArrayList<>();
@@ -253,7 +263,15 @@ public class SolrIndexAccess {
                     Map<String, Object> updateData = new HashMap<>();
                     updateData.put("add-distinct", value == null ? null : value.toString());
                     inputDoc.addField(fieldName, updateData);
+
+                    if (indexTime) {
+                        Map<String, Object> timestamp = new HashMap<>();
+                        timestamp.put("set", ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
+                        inputDoc.addField("indexed", timestamp);
+                    }
                     inputDocs.add(inputDoc);
+                    
+                    
                 }
                 solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
                 if (explicitCommit) {
@@ -266,7 +284,7 @@ public class SolrIndexAccess {
         }
     }
 
-    public void removeSingleFieldValueFromMultipleObjects(List<String> pids, String fieldName, Object value, boolean explicitCommit) {
+    public void removeSingleFieldValueFromMultipleObjects(List<String> pids, String fieldName, Object value, boolean indexTime, boolean explicitCommit) {
         if (!pids.isEmpty()) {
             try {
                 List<SolrInputDocument> inputDocs = new ArrayList<>();
@@ -280,6 +298,13 @@ public class SolrIndexAccess {
                     Map<String, Object> updateData = new HashMap<>();
                     updateData.put("removeregex", value == null ? null : value.toString()); //'remove' neodstranuje vsechny kopie stejne hodnoty (ac to tvrdi dokumentace)
                     inputDoc.addField(fieldName, updateData);
+                    
+                    if (indexTime) {
+                        Map<String, Object> timestamp = new HashMap<>();
+                        timestamp.put("set", ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
+                        inputDoc.addField("indexed", timestamp);
+                    }
+
                     inputDocs.add(inputDoc);
                 }
                 solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
