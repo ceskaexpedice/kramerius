@@ -33,7 +33,6 @@ public class OAIResults {
         this.metadataPrerix = metadataPrefix;
     }
     
-    
     public int getCompleteListSize() {
         return completeListSize;
     }

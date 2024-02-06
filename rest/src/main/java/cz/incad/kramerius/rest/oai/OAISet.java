@@ -19,7 +19,9 @@ package cz.incad.kramerius.rest.oai;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.UriBuilder;
@@ -31,6 +33,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.SearchResource;
 import cz.incad.kramerius.solr.SolrFieldsMapping;
 import cz.incad.kramerius.utils.ApplicationURL;
@@ -40,21 +43,36 @@ import cz.incad.kramerius.utils.XMLUtils;
 public class OAISet {
     
     private String host;
-    
     private String setSpec;
     private String setName;
     private String setDescription;
     private String filterQuery;
 
+    private Map<String, String> additionalsInfo = new HashMap<>();
+    
+    public OAISet(
+            String host, 
+            String setSpec, 
+            String setName, 
+            String setDescription, 
+            String filterQuery) {
+        this(host, setSpec, setName, setDescription, filterQuery, new HashMap<>());
+    }
 
-    public OAISet(String host, String setSpec, String setName, String setDescription, String filterQuery) {
-        super();
+    public OAISet(
+            String host, 
+            String setSpec, 
+            String setName, 
+            String setDescription, 
+            String filterQuery, Map<String, String> map) {
         this.setSpec = setSpec;
         this.setName = setName;
         this.setDescription = setDescription;
         this.filterQuery = filterQuery;
         this.host = host;
+        this.additionalsInfo = map;
     }
+    
     
     protected OAISet(String host) {
         super();
@@ -100,12 +118,52 @@ public class OAISet {
         this.filterQuery = filterQuery;
     }
     
+    public Map<String, String> getAdditionalsInfo() {
+        return additionalsInfo;
+    }
+    
+    public void storeInitConfig(ConfigManager confMapanger) {
+    }
+    
     public boolean isMyResumptionToken(String resumptionToken) {
         String spec = OAITools.specFromResumptionToken(resumptionToken);
         return spec.equals(getSetSpec());
     }
     
+    public void initToConfig(ConfigManager configManager) {
 
+        String filter = String.format("oai.set.%s.filter", this.setSpec);
+        String name = String.format("oai.set.%s.name", this.setSpec);
+        String desc = String.format("oai.set.%s.description", this.setSpec);
+        
+        String property = configManager.getProperty(filter);
+        if (property == null) {
+            configManager.setProperty(filter, this.getFilterQuery());
+            configManager.setProperty(name, this.getSetName());
+            configManager.setProperty(desc, this.getSetDescription());
+        }
+    }
+    
+    
+    public int numberOfDoc(SolrAccess solrAccess) throws IOException, ParserConfigurationException, SAXException {
+        String query = String.format("q=%s&fl=pid&rows=%d&sort=pid+asc", this.filterQuery,  0);
+        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
+        Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
+        Element result = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                return element.getNodeName().equals("result");
+            }
+        });
+        
+        if (result != null) {
+            String number = result.getAttribute("numFound");
+            return Integer.parseInt(number);
+        }
+        
+        return -1;
+    }
+    
     public OAIResults findRecords(SolrAccess solrAccess,String cursor, String metadataPrefix, int rows) throws IOException, ParserConfigurationException, SAXException {
 
         String query = String.format("q=%s&cursorMark=%s&fl=pid&rows=%d&sort=pid+asc", this.filterQuery, cursor, rows);

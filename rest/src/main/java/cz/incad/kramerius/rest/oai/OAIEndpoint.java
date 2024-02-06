@@ -31,19 +31,23 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
+import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.oai.exceptions.OAIException;
+import cz.incad.kramerius.rest.oai.exceptions.OAIInfoException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -52,6 +56,7 @@ import cz.kramerius.searchIndex.indexer.execution.Indexer;
 
 import static cz.incad.kramerius.rest.oai.OAITools.*;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,7 +74,56 @@ public class OAIEndpoint extends ClientApiResource {
     @Inject
     Provider<HttpServletRequest> requestProvider;
     
+    @Inject
+    ConfigManager configManager;
+    
+    
+    
     public OAIEndpoint() {
+    }
+
+    @GET
+    @Path("info")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response info(
+            @QueryParam("set") String set
+            ) throws OAIException {
+        
+
+//        private String host;
+//        private String setSpec;
+//        private String setName;
+//        private String setDescription;
+//        private String filterQuery;
+
+        
+        OAISets sets = new OAISets(configManager,null);
+        OAISet found = sets.findBySet(set);
+        if (found != null) {
+            try {
+                int ndocs = found.numberOfDoc(solrAccess);
+                JSONObject object = new JSONObject();
+                object.put("setSpec", found.getSetSpec());
+                object.put("setName", found.getSetName());
+                object.put("setDescription", found.getSetDescription());
+                object.put("filterQuery", found.getFilterQuery());
+                object.put("numberDocs", ndocs);
+                
+                return Response.ok(object.toString()).type(MediaType.APPLICATION_JSON.toString()).build();
+            } catch (IOException e) {
+                throw new OAIInfoException(e.getMessage());
+            } catch (ParserConfigurationException e) {
+                throw new OAIInfoException(e.getMessage());
+            } catch (SAXException e) {
+                throw new OAIInfoException(e.getMessage());
+            }
+        } else {
+            if (set != null) {
+                throw new OAIInfoException(String.format("Set %s not found", set));
+            } else  {
+                throw new OAIInfoException("No default set found ");
+            }
+        }
     }
     
     
@@ -87,7 +141,7 @@ public class OAIEndpoint extends ClientApiResource {
                  OAIVerb oaiVerb = OAIVerb.valueOf(verb);
                  Document oai = createOAIDocument();
                  Element oaiRoot = oai.getDocumentElement();
-                 oaiVerb.perform(this.fedoraAccess, solrAccess, this.requestProvider.get(), oai, oaiRoot);
+                 oaiVerb.perform(configManager, this.fedoraAccess, solrAccess, this.requestProvider.get(), oai, oaiRoot);
                  StringWriter writer = new StringWriter();
                  XMLUtils.print(oai, writer);
                  return Response.ok(writer.toString()).build();

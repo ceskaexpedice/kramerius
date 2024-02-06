@@ -44,7 +44,7 @@ public enum MetadataExport {
             "http://www.openarchives.org/OAI/2.0/oai_dc/") {
        
         @Override
-                public Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier) {
+                public Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier,OAISet set) {
                     try {
                         String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
                         Document dc = fa.getDC(pid);
@@ -59,15 +59,120 @@ public enum MetadataExport {
                     }
                 }
     },
+
+    
+    edm("edm","http://www.europeana.eu/schemas/ese/","") {
+
+        @Override
+        public Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument,
+                String oaiIdentifier,OAISet set) {
+
+            try {
+                
+                String baseUrl = ApplicationURL.applicationURL(request);
+                //rdf:about="uuid:6b182ad3-b9e9-11e1-1726-001143e3f55c"
+                String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
+                Document dc = fa.getDC(pid);
+                Element dcElement = dc.getDocumentElement();
+            
+                Element metadata = owningDocument.createElement("metadata");
+                metadata.setAttribute("xmlns:europeana", "http://www.europeana.eu/schemas/ese/");
+                metadata.setAttribute("xmlns:ore", "http://www.openarchives.org/ore/terms/");
+                metadata.setAttribute("xmlns:edm", "http://www.europeana.eu/schemas/edm/");
+                metadata.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+                metadata.setAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                metadata.setAttribute("xmlns:rdaGr2", "http://rdvocab.info/ElementsGr2/");
+                metadata.setAttribute("xmlns:skos", "http://www.w3.org/2004/02/skos/core#");
+                metadata.setAttribute("xmlns:oai_dc", "http://www.openarchives.org/OAI/2.0/oai_dc/");
+                metadata.setAttribute("xmlns:dc", "http://purl.org/dc/elements/1.1/");
+                metadata.setAttribute("xmlns:dcterms", "http://purl.org/dc/terms/");
+                
+                Element rdf = owningDocument.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:RDF");
+                rdf.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",oaiIdentifier);
+                metadata.appendChild(rdf);
+
+                Element providedCHO = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:ProvidedCHO");
+                rdf.appendChild(providedCHO);
+                
+                List<Element> elements = XMLUtils.getElements(dcElement);
+                elements.stream().forEach(dcElm -> {
+                   owningDocument.adoptNode(dcElm);
+                   providedCHO.appendChild(dcElm);
+                });
+                
+                //rdf.appendChild(providedCHO);
+                
+                Element type = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:type");
+                providedCHO.appendChild(type);
+                type.setTextContent("TEXT");
+                
+                Element webresource = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:WebResource");
+                webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",String.format("%s/api/client/v7.0/items/%s/image", baseUrl, pid));
+                metadata.appendChild(webresource);
+                
+                Element edmAggregation = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:Aggregation");
+                String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
+                if (clientUrl != null) {
+                    edmAggregation.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
+                } else {
+                    edmAggregation.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
+                }
+                Element edmDataPrvovider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:dataProvider");
+                
+                // Data provider
+                String edmDataProvider = set.getAdditionalsInfo().get("edm:dataProvider");
+                if (edmDataProvider != null) {
+                    edmDataPrvovider.setTextContent(edmDataProvider);
+                } else {
+                    edmDataPrvovider.setTextContent("Academy of Sciences Library/Knihovna Akademie věd ČR");
+                }
+                edmAggregation.appendChild(edmDataPrvovider);
+                
+                // dodat dle setu 
+                Element shownAt = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:isShownAt");
+                if (clientUrl != null) {
+                    shownAt.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource",clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
+                } else {
+                    shownAt.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource",baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
+                }
+                edmAggregation.appendChild(shownAt);
+                
+                // mapovani na licence
+                Element edmRights = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:rights");
+                edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", "https://cdk.lib.cas.cz/uuid/"+pid);
+                edmAggregation.appendChild(edmRights);
+                
+                
+                Element edmObject = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:object");
+                edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/api/client/v7.0/items/%s/image", baseUrl, pid));
+                edmAggregation.appendChild(edmObject);
+                
+                
+                // ceska digitalni kniovna 
+                Element edmProvider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:provider");
+                edmProvider.setTextContent("Czech digital library/Česká digitální knihovna");
+                edmAggregation.appendChild(edmProvider);
+                
+                metadata.appendChild(edmAggregation);
+                
+                return metadata;
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+        
+    },
+    
+    
     
     ese("ese",
             "http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd",
             "http://www.europeana.eu/schemas/ese/") {
                 @Override
-                public Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier) {
+                public Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier,OAISet set) {
                     try {
                         String baseUrl = ApplicationURL.applicationURL(request);
-
                         String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
                         Document dc = fa.getDC(pid);
                         Element dcElement = dc.getDocumentElement();
@@ -81,8 +186,6 @@ public enum MetadataExport {
                             owningDocument.adoptNode(dcElm);
                             record.appendChild(dcElm);
                         });
-                        
-                        
                         
                         Element object = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "object");
                         String thumb = String.format(baseUrl+(baseUrl.endsWith("/")? "" : "/")+"api/client/v7.0/items/%s/image/thumb", pid);
@@ -100,7 +203,6 @@ public enum MetadataExport {
                         Element isShownAt = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "isShownAt");
                         String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
                         if (clientUrl != null) {
-                            
                             isShownAt.setTextContent(clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
                         } else {
                             isShownAt.setTextContent(baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
@@ -163,7 +265,7 @@ public enum MetadataExport {
     private String metadataNamespace;
     
     
-    public abstract Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier);
+    public abstract Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier, OAISet set);
     
 //    public static final Logger LOGGER = Logger.getLogger(MetadataExport.class.getName());
     

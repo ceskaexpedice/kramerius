@@ -90,8 +90,8 @@ public class OAIRecord {
     }
 
     /** render metadata */
-    public Element toMetadata(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export) {
-        return export.perform(request, fa, doc, identifier);
+    public Element toMetadata(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export, OAISet set) {
+        return export.perform(request, fa, doc, identifier, set);
     }
     
     /** render header */

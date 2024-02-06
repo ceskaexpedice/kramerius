@@ -35,6 +35,7 @@ import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.database.MostDesirableDbInitializer;
 import cz.incad.kramerius.processes.database.ProcessDbInitializer;
+import cz.incad.kramerius.rest.oai.db.OAIDBInitializer;
 import cz.incad.kramerius.security.database.SecurityDbInitializer;
 import cz.incad.kramerius.service.LifeCycleHookRegistry;
 import cz.incad.kramerius.service.TextsService;
@@ -97,10 +98,14 @@ public class StartupServlet extends GuiceServlet {
 
             // folder database
             FolderDatabaseInitializer.initDatabase(connection, versionService);
-            
+
+            // Default OAI sets initializer - configuration part
+            OAIDBInitializer.initDatabase(connection, versionService);
+
             // delete session keys
             LoggedUserDbHelper.deleteAllSessionKeys(connection);
 
+            
             // stores new db version to database if necessary
             versionService.updateVersionIfOutdated();
 

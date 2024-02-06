@@ -33,6 +33,7 @@ import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.oai.exceptions.OAIException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -42,7 +43,7 @@ public enum OAIVerb {
     // metadata formats 
     ListMetadataFormats {
         @Override
-        public void perform(FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void perform(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 
             Element requestElement = OAITools.requestElement(doc, OAIVerb.ListMetadataFormats,null,ApplicationURL.applicationURL(request),null);
             doc.getDocumentElement().appendChild(requestElement);
@@ -74,7 +75,7 @@ public enum OAIVerb {
     },
     ListSets {
         @Override
-        public void perform(FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void perform(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
             try {
                 Element requestElement = OAITools.requestElement(doc, OAIVerb.ListSets, null,ApplicationURL.applicationURL(request), null);
                 doc.getDocumentElement().appendChild(requestElement);
@@ -82,7 +83,7 @@ public enum OAIVerb {
                 String baseUrl = ApplicationURL.applicationURL(request);
                 URL urlObject = new URL(baseUrl);
 
-                OAISets sets = new OAISets(urlObject.getHost());
+                OAISets sets = new OAISets(configManager, urlObject.getHost());
 
                 Element listSets = doc.createElement("ListSets");
                 doc.getDocumentElement().appendChild(listSets);
@@ -119,7 +120,7 @@ public enum OAIVerb {
     Identify {
 
         @Override
-        public void perform(FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException {
+        public void perform(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException {
 
             try {
                 String url = ApplicationURL.applicationURL(request);
@@ -203,17 +204,16 @@ public enum OAIVerb {
     
     ListRecords {
         @Override
-        public void perform(FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void perform(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 
             OAISet selectedSet =  null;
             MetadataExport selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
-
-
                 URL urlObject = new URL(baseUrl);
-                OAISets sets = new OAISets(urlObject.getHost());
+                OAISets sets = new OAISets(configManager, urlObject.getHost());
                 String set = request.getParameter("set");
+
                 String resumptionToken = request.getParameter("resumptionToken");
                 String metadataPrefix = request.getParameter("metadataPrefix");
                 if (metadataPrefix != null || resumptionToken != null) {
@@ -222,12 +222,11 @@ public enum OAIVerb {
                         selectedSet = sets.findBySet(set);
                         if (selectedSet ==null) {
                             throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
-                            
                         }
                     } else if (resumptionToken != null){
                         selectedSet = sets.findByToken(resumptionToken);
                         metadataPrefix = OAITools.metadataFromResumptionToken(resumptionToken);
-                        if (selectedSet == null || metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
+                        if (metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         }
                     }
@@ -255,7 +254,7 @@ public enum OAIVerb {
                                 
                                 
                                 Element metadata = doc.createElement("metadata");
-                                metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata));
+                                metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,selectedSet));
 
                                 record.appendChild(header);
                                 record.appendChild(metadata);
@@ -273,7 +272,7 @@ public enum OAIVerb {
                                 
                                 
                                 Element metadata = doc.createElement("metadata");
-                                metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata));
+                                metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,selectedSet));
 
                                 record.appendChild(header);
                                 record.appendChild(metadata);
@@ -306,7 +305,7 @@ public enum OAIVerb {
     },
     ListIdentifiers {
         @Override
-        public void perform(FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void perform(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 
             OAISet selectedSet =  null;
             MetadataExport selectedMetadata = null;
@@ -315,19 +314,19 @@ public enum OAIVerb {
 
 
                 URL urlObject = new URL(baseUrl);
-                OAISets sets = new OAISets(urlObject.getHost());
+                OAISets sets = new OAISets(configManager, urlObject.getHost());
                 String set = request.getParameter("set");
                 String resumptionToken = request.getParameter("resumptionToken");
                 String metadataPrefix = request.getParameter("metadataPrefix");
                 if (metadataPrefix != null || resumptionToken != null) {
                     int rows = KConfiguration.getInstance().getConfiguration().getInt(REPOSITORY_ROWS_IN_RESULTS,600);
-
+                    
                     if (set != null) {
                         selectedSet = sets.findBySet(set);
                     } else if (resumptionToken != null){
                         selectedSet = sets.findByToken(resumptionToken);
                         metadataPrefix = OAITools.metadataFromResumptionToken(resumptionToken);
-                        if (selectedSet == null || metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
+                        if ( metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         }
                     }
@@ -377,7 +376,7 @@ public enum OAIVerb {
     },
     GetRecord {
         @Override
-        public void perform(FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void perform(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
             
             MetadataExport selectedMetadata = null;
             try {
@@ -405,7 +404,7 @@ public enum OAIVerb {
                         
                         
                         Element metadata = doc.createElement("metadata");
-                        metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata));
+                        metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,null));
 
                         record.appendChild(header);
                         record.appendChild(metadata);
@@ -433,7 +432,9 @@ public enum OAIVerb {
     private static final String REPOSITORY_NAME = "oai.repositoryName";
     private static final String REPOSITORY_ROWS_IN_RESULTS = "oai.rowsInResults";
 
-    public abstract void perform(FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws Exception;
+    public abstract void perform(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws Exception;
+    
+    
     
     public static Logger LOGGER = Logger.getLogger(OAIVerb.class.getName());
 }
