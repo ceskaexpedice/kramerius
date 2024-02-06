@@ -1,6 +1,6 @@
 -- Default filter
 insert into config("key","value") 
-  values('oai.set.DEFAULT.filter','*'); 
+  values('oai.set.DEFAULT.filter','model:(monograph+OR+periodical+OR+periodicalvolume+OR+periodicalitem+OR+manuscript+OR+graphic+OR+article+OR+suplement)'); 
 
 
 -- monograph

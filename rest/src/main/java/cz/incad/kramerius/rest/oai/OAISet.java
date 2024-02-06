@@ -42,6 +42,8 @@ import cz.incad.kramerius.utils.XMLUtils;
 
 public class OAISet {
     
+    public static final String DEFAULT_SET_KEYWORD = "DEFAULT";
+    
     private String host;
     private String setSpec;
     private String setName;

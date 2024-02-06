@@ -90,23 +90,25 @@ public enum OAIVerb {
                 List<OAISet> oaiSets = sets.getAOISets();
                 
                 for (OAISet oaiIterationSet : oaiSets) {
-                    Element setDefinition= doc.createElement("set");
+                    if (!oaiIterationSet.getSetSpec().equals(OAISet.DEFAULT_SET_KEYWORD)) {
+                        Element setDefinition= doc.createElement("set");
 
-                    Element setSpec = doc.createElement("setSpec");
-                    setSpec.setTextContent(oaiIterationSet.getSetSpec());
-                    setDefinition.appendChild(setSpec);
+                        Element setSpec = doc.createElement("setSpec");
+                        setSpec.setTextContent(oaiIterationSet.getSetSpec());
+                        setDefinition.appendChild(setSpec);
 
-                    Element setName = doc.createElement("setName");
-                    setName.setTextContent(oaiIterationSet.getSetName());
-                    setDefinition.appendChild(setName);
-                    
-                    Element setDescription = doc.createElement("setDescription");
-                    if (oaiIterationSet.getSetDescription() != null) {
-                        setDescription.setTextContent(oaiIterationSet.getSetDescription());
+                        Element setName = doc.createElement("setName");
+                        setName.setTextContent(oaiIterationSet.getSetName());
+                        setDefinition.appendChild(setName);
+                        
+                        Element setDescription = doc.createElement("setDescription");
+                        if (oaiIterationSet.getSetDescription() != null) {
+                            setDescription.setTextContent(oaiIterationSet.getSetDescription());
+                        }
+                        setDefinition.appendChild(setDescription);
+                        
+                        listSets.appendChild(setDefinition);
                     }
-                    setDefinition.appendChild(setDescription);
-                    
-                    listSets.appendChild(setDefinition);
                 }
                 
                 doc.getDocumentElement().appendChild(listSets);

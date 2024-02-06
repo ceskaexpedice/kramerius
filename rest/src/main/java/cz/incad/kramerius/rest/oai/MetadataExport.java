@@ -120,11 +120,10 @@ public enum MetadataExport {
                 Element edmDataPrvovider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:dataProvider");
                 
                 // Data provider
-                String edmDataProvider = set.getAdditionalsInfo().get("edm:dataProvider");
+                String acronym = KConfiguration.getInstance().getConfiguration().getString("acronym","");
+                String edmDataProvider = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.dataProvider",acronym);
                 if (edmDataProvider != null) {
                     edmDataPrvovider.setTextContent(edmDataProvider);
-                } else {
-                    edmDataPrvovider.setTextContent("Academy of Sciences Library/Knihovna Akademie věd ČR");
                 }
                 edmAggregation.appendChild(edmDataPrvovider);
                 
@@ -139,7 +138,14 @@ public enum MetadataExport {
                 
                 // mapovani na licence
                 Element edmRights = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:rights");
-                edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", "https://cdk.lib.cas.cz/uuid/"+pid);
+
+                if (clientUrl != null) {
+                    edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
+                } else {
+                    edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
+                }
+
+
                 edmAggregation.appendChild(edmRights);
                 
                 
@@ -150,7 +156,8 @@ public enum MetadataExport {
                 
                 // ceska digitalni kniovna 
                 Element edmProvider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:provider");
-                edmProvider.setTextContent("Czech digital library/Česká digitální knihovna");
+                String edmProviderText = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.provider",acronym);
+                edmProvider.setTextContent(  edmProviderText); //"Czech digital library/Česká digitální knihovna");
                 edmAggregation.appendChild(edmProvider);
                 
                 metadata.appendChild(edmAggregation);
