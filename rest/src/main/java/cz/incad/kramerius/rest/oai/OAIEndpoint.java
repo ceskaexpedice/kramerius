@@ -31,48 +31,113 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import com.google.inject.Provider;
+import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
-import cz.incad.kramerius.rest.apiNew.client.v60.ClientApiResource;
+import cz.incad.kramerius.rest.apiNew.ConfigManager;
+import cz.incad.kramerius.rest.apiNew.client.v60.filter.ProxyFilter;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.oai.exceptions.OAIException;
+import cz.incad.kramerius.rest.oai.exceptions.OAIInfoException;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-import cz.incad.kramerius.SolrAccess;
-
-
 import static cz.incad.kramerius.rest.oai.OAITools.*;
 
-
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("/harvest/v7.0")
-public class OAIEndpoint extends ClientApiResource {
+public class OAIEndpoint extends cz.incad.kramerius.rest.apiNew.client.v60.ClientApiResource {
     
     public static Logger LOGGER = Logger.getLogger(OAIEndpoint.class.getName());
     
 
-    @Inject
-    @Named("cachedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
+//    @Inject
+//    @Named("cachedFedoraAccess")
+//    private transient FedoraAccess fedoraAccess;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
     
+    @Inject
+    ConfigManager configManager;
+    
+    @Inject
+    @Named("forward-client")
+    Provider<Client> clientProvider;
+    
+    @Inject
+    Provider<User> userProvider;
+    
+    @Inject
+    Instances instances;
+
+    @Inject
+    ProxyFilter proxyFilter;
+
+    
     public OAIEndpoint() {
+    }
+
+    @GET
+    @Path("info")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response info(
+            @QueryParam("set") String set
+            ) throws OAIException {
+        
+
+//        private String host;
+//        private String setSpec;
+//        private String setName;
+//        private String setDescription;
+//        private String filterQuery;
+
+        
+        OAISets sets = new OAISets(configManager,null);
+        OAISet found = sets.findBySet(set);
+        if (found != null) {
+            try {
+                int ndocs = found.numberOfDoc(proxyFilter, solrAccess);
+                JSONObject object = new JSONObject();
+                object.put("setSpec", found.getSetSpec());
+                object.put("setName", found.getSetName());
+                object.put("setDescription", found.getSetDescription());
+                object.put("filterQuery", found.getFilterQuery());
+                object.put("numberDocs", ndocs);
+                
+                return Response.ok(object.toString()).type(MediaType.APPLICATION_JSON.toString()).build();
+            } catch (IOException e) {
+                throw new OAIInfoException(e.getMessage());
+            } catch (ParserConfigurationException e) {
+                throw new OAIInfoException(e.getMessage());
+            } catch (SAXException e) {
+                throw new OAIInfoException(e.getMessage());
+            }
+        } else {
+            if (set != null) {
+                throw new OAIInfoException(String.format("Set %s not found", set));
+            } else  {
+                throw new OAIInfoException("No default set found ");
+            }
+        }
     }
     
     
@@ -90,7 +155,8 @@ public class OAIEndpoint extends ClientApiResource {
                  OAIVerb oaiVerb = OAIVerb.valueOf(verb);
                  Document oai = createOAIDocument();
                  Element oaiRoot = oai.getDocumentElement();
-                 oaiVerb.perform(this.fedoraAccess, this.getSolrAccess(), this.requestProvider.get(), oai, oaiRoot);
+                 
+                 oaiVerb.perform(this.userProvider, clientProvider,  instances, configManager, this.proxyFilter, this.solrAccess, this.requestProvider.get(), oai, oaiRoot);
                  StringWriter writer = new StringWriter();
                  XMLUtils.print(oai, writer);
                  return Response.ok(writer.toString()).build();

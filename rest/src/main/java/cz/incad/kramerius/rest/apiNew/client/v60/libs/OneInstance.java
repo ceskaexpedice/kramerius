@@ -1,5 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.client.v60.libs;
 
+import java.util.Map;
+
 import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
@@ -13,6 +15,11 @@ import cz.incad.kramerius.security.User;
  */
 public interface OneInstance {
 		
+    public static final String NAME_CZE = "name_cze";
+    public static final String NAME_ENG = "name_eng";
+    
+    
+    
 	/** type of switch */
 	public static enum TypeOfChangedStatus {
 		user,  automat;
@@ -42,6 +49,13 @@ public interface OneInstance {
 	public ProxyItemHandler createProxyItemHandler(User user, Client client, SolrAccess solrAccess, String source, String pid,String remoteAddr);
 	
 	public ProxyUserHandler createProxyUserHandler(User user, Client client, SolrAccess solrAccess, String source, String remoteAddr);
+
+	
+	public Map<String, String> getRegistrInfo();
+	
+	public void setRegistrInfo(String key, String value);
+	
+	public void removeRegistrInfo(String key);
 	
 	//public ProxyHandler createNoPidProxyHandler(User user, Client client, SolrAccess solrAccess, String source, String remoteAddr);
 }

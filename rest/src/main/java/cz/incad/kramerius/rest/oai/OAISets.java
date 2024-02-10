@@ -25,16 +25,29 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class OAISets {
+    
+    public static final String DEFAULT_SET_KEY = "DEFAULT";
+    
     
     private OAISet defaultSet;
     private List<OAISet> sets = new ArrayList<>();
     
     public OAISets(String host) {
+        loadFromStandardConfiguration(host);
+    }
+    
+    public OAISets(ConfigManager manager, String host) {
+        loadFromConfigurationManager(manager, host);
+    }
 
-        /* Default sets are disabled
+    
+
+    /*
+    private void embeddedSets(String host) {
         sets.addAll(
             Arrays.asList(
                 
@@ -78,11 +91,59 @@ public class OAISets {
                     "Set of periodical supplements", 
                     "-", "model:supplement")
         ));
-        */
-        
-        
-        this.defaultSet =  this.sets.get(0);
-        // configuration for new sets
+    }*/
+
+    private void loadFromConfigurationManager(ConfigManager confManager, String host) {
+
+        Map<String, OAISet> configuredSets = new HashMap();
+        List<String> keys = confManager.getKeysByRegularExpression("^oai\\.set.*");
+        for (String key : keys) {
+            String rest = key.substring("oai.set.".length());
+            String[] values = rest.split("\\.");
+            if (values.length == 2) {
+                String spec = values[0];
+                OAISet pSet = null;
+                if (spec.equals(DEFAULT_SET_KEY))  {
+                    if(this.defaultSet == null) {
+                        this.defaultSet = new OAISet(host);
+                        this.defaultSet.setSetSpec(spec);
+                    }
+                    pSet = this.defaultSet;
+                } else {
+                    if (!configuredSets.containsKey(spec)) {
+                        configuredSets.put(spec, new OAISet(host));
+                        configuredSets.get(spec).setSetSpec(spec);
+                    }
+                    pSet = configuredSets.get(spec);
+                }
+                
+                String property = values[1];
+                switch(property) {
+                    case "name":{
+                        //OAISet set = configuredSets.get(spec);
+                        pSet.setSetName( confManager.getProperty(key));
+                    }
+                    break;
+                    case "desc":
+                    case "description":{
+                        pSet.setSetDescription(confManager.getProperty(key));
+                    }
+                    break;
+                    case "filter":{
+                        pSet.setFilterQuery(confManager.getProperty(key));
+                    }
+                    break;
+                    default: {
+                        pSet.getAdditionalsInfo().put(key, confManager.getProperty(key));
+                    }
+                    break;
+                }
+            }
+        }
+        configuredSets.values().stream().filter(oai -> oai.getFilterQuery() != null).forEach(sets::add);
+    }
+
+    private void loadFromStandardConfiguration(String host) {
         Map<String, OAISet> configuredSets = new HashMap();
         Iterator<String> keys = KConfiguration.getInstance().getConfiguration().getKeys("oai.set");
         while(keys.hasNext()) {
@@ -91,52 +152,75 @@ public class OAISets {
             String[] values = rest.split("\\.");
             if (values.length == 2) {
                 String spec = values[0];
-                if (!configuredSets.containsKey(spec)) {
-                    configuredSets.put(spec, new OAISet(host));
-                    configuredSets.get(spec).setSetSpec(spec);
-                }
-                String property = values[1];
-                switch(property) {
-                    case "name":{
-                        OAISet set = configuredSets.get(spec);
-                        set.setSetName(KConfiguration.getInstance().getProperty(key));
+                
+                if (!spec.equals(DEFAULT_SET_KEY))  {
+                    if (this.defaultSet == null) {
+                        this.defaultSet = new OAISet(host);
                     }
-                    break;
-                    case "desc":
-                    case "description":{
-                        OAISet set = configuredSets.get(spec);
-                        set.setSetDescription(KConfiguration.getInstance().getProperty(key));
+                    loadOAISetPropertiesFromConf(key, values, this.defaultSet);
+                } else {
+                    if (!configuredSets.containsKey(spec)) {
+                        configuredSets.put(spec, new OAISet(host));
+                        configuredSets.get(spec).setSetSpec(spec);
                     }
-                    break;
-                    case "filter":{
-                        OAISet set = configuredSets.get(spec);
-                        set.setFilterQuery(KConfiguration.getInstance().getProperty(key));
-                    }
-                    break;
-                    default: {
-                        OAISet set = configuredSets.get(spec);
-                        set.getAdditionalsInfo().put(key, KConfiguration.getInstance().getProperty(key));
-                    }
-                    break;
+                    OAISet pset = configuredSets.get(spec);
+                    loadOAISetPropertiesFromConf(key, values, pset);
                 }
             }
         }
+       
         configuredSets.values().stream().filter(oai -> oai.getFilterQuery() != null).forEach(sets::add);
-        LOGGER.info("OAI -> Configured sets :"+this.sets);
+        //LOGGER.info("OAI -> Configured sets");
+    }
+
+    private void loadOAISetPropertiesFromConf(String key, String[] values, OAISet pset) {
+        String property = values[1];
+        switch(property) {
+            case "name":{
+                //OAISet set = configuredSets.get(spec);
+                pset.setSetName(KConfiguration.getInstance().getProperty(key));
+            }
+            break;
+            case "desc":
+            case "description":{
+                //OAISet set = configuredSets.get(spec);
+                pset.setSetDescription(KConfiguration.getInstance().getProperty(key));
+            }
+            break;
+            case "filter":{
+                //OAISet set = configuredSets.get(spec);
+                pset.setFilterQuery(KConfiguration.getInstance().getProperty(key));
+            }
+            break;
+            default: {
+                //OAISet set = configuredSets.get(spec);
+                pset.getAdditionalsInfo().put(key, KConfiguration.getInstance().getProperty(key));
+            }
+            break;
+        }
     }
     
     public OAISet findBySet(String setName) {
-        Optional<OAISet> found = this.sets.stream()
-                .filter(oaiSet -> oaiSet.getSetSpec().equals(setName))
-                .findFirst();
-        return found.isPresent() ?  found.get() : null; 
+        if (setName != null && !setName.equals(DEFAULT_SET_KEY)) {
+            Optional<OAISet> found = this.sets.stream()
+                    .filter(oaiSet -> oaiSet.getSetSpec().equals(setName))
+                    .findFirst();
+            return found.isPresent() ?  found.get() : null; 
+        } else {
+            return this.defaultSet;        
+        }
     }
     
     public OAISet findByToken(String token) {
-        Optional<OAISet> found = this.sets.stream()
-                .filter(oaiSet -> oaiSet.isMyResumptionToken(token))
-                .findFirst();
-        return found.get();
+        if (this.defaultSet.isMyResumptionToken(token)) {
+            return this.defaultSet;
+        } else {
+            Optional<OAISet> found = this.sets.stream()
+                    .filter(oaiSet -> oaiSet.isMyResumptionToken(token))
+                    .findFirst();
+            
+            return found.get();
+        }
     }
     
     

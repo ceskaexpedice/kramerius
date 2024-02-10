@@ -66,7 +66,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
         plainValueFields.put("language",  Arrays.asList("languages.facet"));
         plainValueFields.put("datum_str",  Arrays.asList("date.str"));
         plainValueFields.put("dnnt-labels",  Arrays.asList("licenses"));
-        plainValueFields.put("contains-dnnt-labels",  Arrays.asList("contains-licenses"));
+        plainValueFields.put("contains-dnnt-labels",  Arrays.asList("contains_licenses"));
         plainValueFields.put("text_ocr",  Arrays.asList("text_ocr"));
         
         // all values but first

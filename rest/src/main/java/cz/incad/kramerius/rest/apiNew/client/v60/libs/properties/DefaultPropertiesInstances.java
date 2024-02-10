@@ -33,6 +33,10 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class DefaultPropertiesInstances implements Instances {
 
+    public static final String INFO_URL = "https://api.registr.digitalniknihovna.cz/api/libraries";
+    private static final String STATUS_URL = "https://api.registr.digitalniknihovna.cz/api/libraries?detail=status";
+
+    
     public static final Logger LOGGER = Logger.getLogger(DefaultPropertiesInstances.class.getName());
 
     private List<OneInstance> instances = new ArrayList<>();
@@ -129,9 +133,11 @@ public class DefaultPropertiesInstances implements Instances {
     public void cronRefresh() {
         this.refreshingConfiguration();
         try {
+            
+            
             Map<String, Boolean> statuses = new HashMap<>();
             Client client = Client.create();
-            String string = registerData(client);
+            String string = registerData(client, STATUS_URL);
             JSONArray jsonArray = new JSONArray(string);
             for (int i = 0, ll = jsonArray.length(); i < ll; i++) {
                 JSONObject oneObject = jsonArray.getJSONObject(i);
@@ -139,8 +145,28 @@ public class DefaultPropertiesInstances implements Instances {
                 Boolean status = oneObject.optBoolean("alive");
                 statuses.put(code, status);
             }
+            
+            Map<String,Map<String,String>> info = new HashMap<>();
+            String infoString = registerData(client, INFO_URL);
+            JSONArray infoArray = new JSONArray(infoString);
+            for (int i = 0, ll = infoArray.length(); i < ll; i++) {
+                JSONObject oneObject = infoArray.getJSONObject(i);
+                String czeName = oneObject.optString("name");
+                String engName = oneObject.optString("name_en");
+                String code =  oneObject.optString("code");
+                if (code != null) {
+                    if (!info.containsKey(code)) {
+                        info.put(code, new HashMap<>());
+                    }
+                    info.get(code).put(OneInstance.NAME_CZE, czeName);
+                    info.get(code).put(OneInstance.NAME_ENG, engName);
+                    
+                }
+            }            
+            
 
             for (OneInstance oneInstance : instances) {
+                // statuses
                 boolean isConnected = oneInstance.isConnected();
                 TypeOfChangedStatus type = oneInstance.getType();
                 if (type.equals(TypeOfChangedStatus.user) && !isConnected) {
@@ -153,16 +179,34 @@ public class DefaultPropertiesInstances implements Instances {
                         }
                     }
                 }
+                
+                if (info.containsKey(oneInstance.getName())) {
+                    Map<String, String> instInfo = info.get(oneInstance.getName());
+                    instInfo.keySet().forEach(key-> {
+                        oneInstance.setRegistrInfo(key, instInfo.get(key));
+                    });
+                }
+                
             }
         } catch (UniformInterfaceException | ClientHandlerException | JSONException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
-    protected String registerData(Client client) throws IOException {
-        WebResource r = client.resource("https://api.registr.digitalniknihovna.cz/api/libraries?detail=status");
+    
+    
+    
+    
+    
+    protected String registerData(Client client, String url) throws IOException {
+        WebResource r = client.resource(url);
         InputStream inputStream = r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
         String string = org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
         return string;
     }
+
+    
+    
 }
+
+

@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.client.v60.redirection.item;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -22,6 +23,7 @@ import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
@@ -98,6 +100,20 @@ public class V5RedirectHandler extends ProxyItemHandler {
         return buildRedirectResponse(url);
     }
 
+    
+    
+    @Override
+    public InputStream directStreamDC() throws ProxyHandlerException {
+        String baseurl = super.baseUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/DC";
+        WebResource.Builder b = buidFowrardResponse(url);
+        ClientResponse response = b.get(ClientResponse.class);
+        if (response.getStatus() == 200) {
+            InputStream is = response.getEntityInputStream();
+            return is;
+        } else return null;
+    }
+    
     @Override
     public Response zoomifyTile(String tileGroupStr, String tileStr) throws ProxyHandlerException {
         String baseurl = baseUrl();

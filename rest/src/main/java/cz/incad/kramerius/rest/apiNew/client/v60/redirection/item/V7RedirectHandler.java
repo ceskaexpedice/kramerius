@@ -1,5 +1,6 @@
 package cz.incad.kramerius.rest.apiNew.client.v60.redirection.item;
 
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -8,6 +9,8 @@ import java.util.logging.Logger;
 import javax.ws.rs.core.Response;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
@@ -181,6 +184,21 @@ public class V7RedirectHandler extends ProxyItemHandler{
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/audio/wav";
         return buildRedirectResponse(url);
 	}
+
+
+	
+
+    @Override
+    public InputStream directStreamDC() throws ProxyHandlerException {
+        String baseurl = baseUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/metadata/dc";
+        WebResource.Builder b = buidFowrardResponse(url);
+        ClientResponse response = b.get(ClientResponse.class);
+        if (response.getStatus() == 200) {
+            InputStream is = response.getEntityInputStream();
+            return is;
+        } else return null;
+    }
 
 
 

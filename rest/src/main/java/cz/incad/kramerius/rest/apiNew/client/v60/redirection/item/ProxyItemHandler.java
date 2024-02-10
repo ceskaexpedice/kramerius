@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.client.v60.redirection.item;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -71,6 +72,11 @@ public abstract class ProxyItemHandler extends ProxyHandlerSupport {
     public abstract Response audioMP3() throws ProxyHandlerException;
     public abstract Response audioOGG() throws ProxyHandlerException;
     public abstract Response audioWAV() throws ProxyHandlerException;
+
+    
+    // helper methods for direct access to dc stream
+    public abstract InputStream directStreamDC() throws ProxyHandlerException;
+    
     
 	public boolean imageThumbForceRedirection() {
 	    boolean redirection = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + this.source + ".thumb", false);

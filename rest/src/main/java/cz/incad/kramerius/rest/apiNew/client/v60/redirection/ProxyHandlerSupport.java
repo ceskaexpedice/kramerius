@@ -99,9 +99,7 @@ public abstract class ProxyHandlerSupport {
 		WebResource.Builder b = buidFowrardResponse(url);
 		ClientResponse response = b.get(ClientResponse.class);
 		if (response.getStatus() == 200) {
-
 		    String responseMimeType = response.getType().toString();
-		    
 		    InputStream is = response.getEntityInputStream();
 			MultivaluedMap<String, String> headers = response.getHeaders();
 

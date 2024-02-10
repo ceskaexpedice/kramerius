@@ -33,6 +33,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.ConfigManager;
+import cz.incad.kramerius.rest.apiNew.client.v60.filter.ProxyFilter;
 import cz.incad.kramerius.solr.SolrFieldsMapping;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
@@ -40,8 +42,9 @@ import cz.incad.kramerius.utils.XMLUtils;
 
 public class OAISet {
     
-    private String host;
+    public static final String DEFAULT_SET_KEYWORD = "DEFAULT";
     
+    private String host;
     private String setSpec;
     private String setName;
     private String setDescription;
@@ -71,8 +74,6 @@ public class OAISet {
         this.host = host;
         this.additionalsInfo = map;
     }
-    
-    
     
     
     protected OAISet(String host) {
@@ -123,15 +124,58 @@ public class OAISet {
         return additionalsInfo;
     }
     
+    public void storeInitConfig(ConfigManager confMapanger) {
+    }
+    
     public boolean isMyResumptionToken(String resumptionToken) {
         String spec = OAITools.specFromResumptionToken(resumptionToken);
         return spec.equals(getSetSpec());
     }
     
-    
-    public OAIResults findRecords(SolrAccess solrAccess,String cursor, String metadataPrefix, int rows) throws IOException, ParserConfigurationException, SAXException {
+    public void initToConfig(ConfigManager configManager) {
 
-        String query = String.format("q=%s&cursorMark=%s&fl=pid&rows=%d&sort=pid+asc", this.filterQuery, cursor, rows);
+        String filter = String.format("oai.set.%s.filter", this.setSpec);
+        String name = String.format("oai.set.%s.name", this.setSpec);
+        String desc = String.format("oai.set.%s.description", this.setSpec);
+        
+        String property = configManager.getProperty(filter);
+        if (property == null) {
+            configManager.setProperty(filter, this.getFilterQuery());
+            configManager.setProperty(name, this.getSetName());
+            configManager.setProperty(desc, this.getSetDescription());
+        }
+    }
+    
+    
+    public int numberOfDoc(ProxyFilter proxyFilter, SolrAccess solrAccess) throws IOException, ParserConfigurationException, SAXException {
+        String query = String.format("q=%s&fl=pid&rows=%d&sort=pid+asc", this.filterQuery,  0);
+        if (proxyFilter.newFilter() != null) {
+            query = query + String.format("&fq=%s", proxyFilter.newFilter());
+        }
+        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
+        Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
+        Element result = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                return element.getNodeName().equals("result");
+            }
+        });
+        
+        if (result != null) {
+            String number = result.getAttribute("numFound");
+            return Integer.parseInt(number);
+        }
+        
+        return -1;
+    }
+    
+    public OAIResults findRecords(ProxyFilter proxyFilter, SolrAccess solrAccess,String cursor, String metadataPrefix, int rows) throws IOException, ParserConfigurationException, SAXException {
+        String fq = proxyFilter.newFilter();
+        String query =  String.format("q=%s&cursorMark=%s&fl=pid+cdk.leaders+cdk.collection+cdk.leader&rows=%d&sort=compositeId+asc", this.filterQuery, cursor, rows);
+        if (fq != null) {
+            query = query + String.format("&fq=%s", fq);
+        }
+        
         String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
         Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
         
@@ -165,13 +209,35 @@ public class OAISet {
             });
 
             List<OAIRecord> records = docs.stream().map(doc-> {
-                Element pidElm = XMLUtils.findElement(doc, "str");
+                
+                Element pidElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("pid");
+                        
+                    }
+                });
+                
+                
+                List<Element> collections  = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("cdk.collection");
+                        
+                    }
+                });
+                List<String> cdkCollections = collections.stream().map(Element::getTextContent).collect(Collectors.toList());
                 String oaiIdentifier =  OAITools.oaiIdentfier(host, pidElm.getTextContent());
-                return new OAIRecord(pidElm.getTextContent(), oaiIdentifier);
+                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier);
+                oaiRecord.setCdkCollections(cdkCollections);
+                return oaiRecord;
             }).collect(Collectors.toList());
             
             String nextCursor = records.size() == rows && solrNextCursor != null ? solrNextCursor+":"+this.setSpec+":"+metadataPrefix : null; 
             OAIResults results = new OAIResults(Integer.parseInt(number), nextCursor, metadataPrefix, records);
+            
             return results;
         } else {
             return null;

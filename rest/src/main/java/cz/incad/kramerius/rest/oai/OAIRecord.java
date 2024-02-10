@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -32,16 +33,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import com.sun.jersey.api.client.Client;
+
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
 
 public class OAIRecord {
     
     private String identifier;
     private String solrIdentifier;
     
-//    private List<String> possibleSets = new ArrayList<>();
+    // CDK extension
+    
+    private List<String> cdkCollections = new ArrayList<>();
     
     public OAIRecord(String solrIdentifier, String identifier) {
         super();
@@ -56,15 +68,16 @@ public class OAIRecord {
     public String getSolrIdentifier() {
         return solrIdentifier;
     }
-
-//    public List<String> getPossibleSets() {
-//        return possibleSets;
-//    }
-//    
-//    public void setPossibleSets(List<String> possibleSets) {
-//        this.possibleSets = possibleSets;
-//    }
     
+    
+    public List<String> getCdkCollections() {
+        return cdkCollections;
+    }
+
+    public void setCdkCollections(List<String> cdkCollections) {
+        this.cdkCollections = cdkCollections;
+    }
+
     /** find oai record */
     public static OAIRecord findRecord(SolrAccess solrAccess,String oaiIdentifier) throws IOException, ParserConfigurationException, SAXException  {
         String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
@@ -90,8 +103,29 @@ public class OAIRecord {
             });
 
             if (docs.size() > 0) {
-                Element pidElm = XMLUtils.findElement(docs.get(0), "str");
-                return new OAIRecord(pidElm.getTextContent(), oaiIdentifier);
+                Element doc = docs.get(0);
+                
+                Element pidElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("pid");
+                        
+                    }
+                });
+                
+                List<Element> collections  = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("cdk.collection");
+                        
+                    }
+                });
+
+                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier);
+                oaiRecord.setCdkCollections(collections.stream().map(Element::getTextContent).collect(Collectors.toList()));
+                return oaiRecord;
                 
             } else return null;
         } else {
@@ -101,10 +135,10 @@ public class OAIRecord {
     }
 
     /** render metadata */
-    public Element toMetadata(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export, OAISet set) {
-        return export.perform(request, fa, doc, identifier, set);
+    public Element toMetadata(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,   Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set) {
+        return export.performOnCDKSide(solrAccess,userProvider,  clientProvider, instances, request,   owningDocument, this,  set);
     }
-    
+//    
     /** render header */
     public Element toHeader(Document doc, String setSpec) {
         Element header = doc.createElement("header");

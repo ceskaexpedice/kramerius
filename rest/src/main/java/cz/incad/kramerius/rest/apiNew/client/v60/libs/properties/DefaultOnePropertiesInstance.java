@@ -1,5 +1,8 @@
 package cz.incad.kramerius.rest.apiNew.client.v60.libs.properties;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
@@ -18,12 +21,14 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class DefaultOnePropertiesInstance implements OneInstance {
-
+    
     private Instances instances;
     private String instanceAcronym;
     private boolean connected = true;
     private TypeOfChangedStatus typeOfChangedStatus = TypeOfChangedStatus.automat;
-
+    
+    private Map<String, String> info = new HashMap<>();
+    
     public DefaultOnePropertiesInstance(Instances instances, String instanceAcronym) {
         super();
         this.instanceAcronym = instanceAcronym;
@@ -89,6 +94,24 @@ public class DefaultOnePropertiesInstance implements OneInstance {
         } else {
             throw new UnsupportedOperationException("supported only for full access");
         }
+    }
+    
+    
+    
+
+    @Override
+    public Map<String, String> getRegistrInfo() {
+        return this.info;
+    }
+
+    @Override
+    public void setRegistrInfo(String key, String value) {
+        this.info.put(key, value);
+    }
+
+    @Override
+    public void removeRegistrInfo(String key) {
+        this.info.remove(key);
     }
 
     @Override
