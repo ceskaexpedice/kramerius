@@ -94,6 +94,8 @@ public class SecurityDbInitializer {
 
                 // labels table
                 makeSureThatLabelsTable(connection);
+                makeSureThatRoleColumnExists(connection);
+                createNewActions(connection);
 
             } else {
                 String v = versionService.getVersion();
@@ -139,6 +141,9 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
+                    makeSureThatRoleColumnExists(connection);
+
+                    createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.3.0")) {
                     // right for criteria params manage
@@ -165,6 +170,9 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
+                    makeSureThatRoleColumnExists(connection);
+                    createNewActions(connection);
+
 
                 } else if (versionCondition(v, "=", "5.4.0")) {
                     // k4 replication rights
@@ -188,6 +196,9 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
+                    makeSureThatRoleColumnExists(connection);
+                    createNewActions(connection);
+
 
                 } else if (versionCondition(v, "=", "5.5.0")) {
                     // mets ndk import
@@ -206,6 +217,8 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
+                    makeSureThatRoleColumnExists(connection);
+                    createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.6.0")) {
                     // replikator k3
@@ -222,7 +235,8 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-
+                    makeSureThatRoleColumnExists(connection);
+                    createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.7.0")) {
                     // insert aggregate process right
@@ -237,6 +251,8 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
+                    makeSureThatRoleColumnExists(connection);
+                    createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "5.8.0")) {
                     // insert aggregate process right
@@ -248,6 +264,7 @@ public class SecurityDbInitializer {
                     insertPrintRight(connection);
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
+                    makeSureThatRoleColumnExists(connection);
 
                     // labels table
                     makeSureThatLabelsTable(connection);
@@ -263,6 +280,9 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
+                    makeSureThatRoleColumnExists(connection);
+                    createNewActions(connection);
+
 
                 } else if ((versionCondition(v, ">", "5.9.0")) && (versionCondition(v, "<", "6.3.0"))) {
                     //sort right
@@ -273,6 +293,9 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
+                    makeSureThatRoleColumnExists(connection);
+                    
+                    createNewActions(connection);
 
                 } else if (versionCondition(v, "=", "6.3.0")) {
                     insertPrintRight(connection);
@@ -281,6 +304,10 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
+                    makeSureThatRoleColumnExists(connection);
+                    
+                    createNewActions(connection);
+
 
                 } else if (versionCondition(v, "=", "6.6.0")) {
                     updateUserEntityTable(connection);
@@ -288,18 +315,27 @@ public class SecurityDbInitializer {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
+                    makeSureThatRoleColumnExists(connection);
+
+                    createNewActions(connection);
+
 
                 } else if (versionCondition(v, ">", "6.6.0") && versionCondition(v, "<=", "6.6.2")) {
                     updateShowItems(connection);
                     // labels table
                     makeSureThatLabelsTable(connection);
+                    makeSureThatRoleColumnExists(connection);
+                    createNewActions(connection);
+
 
                 } else if (versionCondition(v, ">", "6.6.2")) {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
-                }
+                    makeSureThatRoleColumnExists(connection);
+                    createNewActions(connection);
 
+                }
 
             }
 
@@ -311,6 +347,8 @@ public class SecurityDbInitializer {
             // labels table
             makeSureThatLabelsTable(connection);
 
+            updateExistingActions(connection);
+            
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
@@ -537,6 +575,23 @@ public class SecurityDbInitializer {
         LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
     }
 
+    private static void updateExistingActions(Connection connection) throws SQLException, IOException {
+        InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/rename_oldactions.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+    }
+
+    /** Premena na nove akce */
+    // vytvareni 
+    private static void createNewActions(Connection connection) throws SQLException, IOException {
+        InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/initsecdb_newactions.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+    }
+
+    
     public static void updateRolesFromRelations(Connection con) throws SQLException {
         String update = "UPDATE right_entity " +
                 "SET \"role\"=subquery.gname " +
