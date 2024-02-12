@@ -263,8 +263,13 @@ public enum OAIVerb {
                                 //  Instances instances, HttpServletRequest request,   Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set
                                 
                                 Element metadata = doc.createElement("metadata");
-                                metadata.appendChild(oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet));
-
+                                Element metadataElm = oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet);
+                                if (metadataElm != null) {
+                                    metadata.appendChild(metadataElm);
+                                } else {
+                                    record.setAttribute("deleted","true");
+                                }
+                                
                                 record.appendChild(header);
                                 record.appendChild(metadata);
                                 
@@ -413,7 +418,12 @@ public enum OAIVerb {
                         
                         
                         Element metadata = doc.createElement("metadata");
-                        metadata.appendChild(oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,null));
+                        Element metadataElm = oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,null);
+                        if (metadataElm != null) {
+                            metadata.appendChild(metadataElm);
+                        } else {
+                            record.setAttribute("deleted", "true");
+                        }
 
                         record.appendChild(header);
                         record.appendChild(metadata);
