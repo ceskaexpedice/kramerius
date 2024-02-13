@@ -328,7 +328,7 @@ public class SecurityDbInitializer {
                     createNewActions(connection);
 
 
-                } else if (versionCondition(v, ">", "6.6.2")) {
+                } else if (versionCondition(v, ">", "6.6.2") && versionCondition(v, "<", "7.0.2")) {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
