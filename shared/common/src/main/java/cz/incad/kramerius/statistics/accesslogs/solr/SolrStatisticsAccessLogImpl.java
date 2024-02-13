@@ -286,10 +286,12 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         Map<String, String> results = new HashMap<>();
         String referer = requestProvider.get().getHeader("Referer");
         if (referer != null) {
+            System.out.println("HEADER Referer: " + referer);
             results.put("Referer", referer);
         }
-        String headerKrameriusClient = requestProvider.get().getHeader("Kramerius-client");
+        String headerKrameriusClient = requestProvider.get().getHeader("client");
         if (headerKrameriusClient != null) {
+            System.out.println("HEADER client: " + headerKrameriusClient);
             results.put("Kramerius-client", headerKrameriusClient);
         }
         return results;

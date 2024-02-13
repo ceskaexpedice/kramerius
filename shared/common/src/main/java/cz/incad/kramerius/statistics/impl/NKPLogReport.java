@@ -318,8 +318,6 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         return list;
     }
 
-
-    
     private static Map toMap(JSONObject obj) {
         Map map = new HashMap();
         map.put("pid", obj.optString("pid"));
@@ -328,16 +326,28 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         if (obj.has("user")) {
             map.put("username", obj.optString("user"));
         }
-        if(obj.has("hrh_referer")){
-            map.put("hrh_referer", obj.optString("hrh_referer"));
+        if (obj.has("hrh_referer")) {
+            //v SOLR: "hrh_referer":["http://localhost:4321/"],
+            String hrhReferer = obj.optString("hrh_referer");
+            if (hrhReferer.startsWith("[\"") && hrhReferer.endsWith("\"]")) {
+                hrhReferer = hrhReferer.substring(2, hrhReferer.length() - 2);
+            }
+            map.put("hrh_referer", hrhReferer);
         }
-        if(obj.has("hrh_kramerius_client")){
-            map.put("hrh_kramerius_client", obj.optString("hrh_kramerius_client"));
+        if (obj.has("hrh_kramerius_client")) {
+            if (obj.has("hrh_kramerius_client")) {
+                //v SOLR: "hrh_kramerius_client":["kramerius.org"],
+                String hrhKrameriusClient = obj.optString("hrh_kramerius_client");
+                if (hrhKrameriusClient.startsWith("[\"") && hrhKrameriusClient.endsWith("\"]")) {
+                    hrhKrameriusClient = hrhKrameriusClient.substring(2, hrhKrameriusClient.length() - 2);
+                }
+                map.put("hrh_kramerius_client", hrhKrameriusClient);
+            }
         }
-        // TODO: Bad name; rename it 
+        // TODO: Bad name; rename it
         List<String> licenses = licenses(obj);
         map.put("dnnt", licenses.contains("dnntt") || licenses.contains("dnnto"));
-        
+
         if (obj.has("evaluated_map")) {
             String evaluatedMap = obj.getString("evaluated_map");
             JSONObject evaluatedMapJSON = new JSONObject(evaluatedMap);
@@ -352,13 +362,13 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                 map.put(key.toString(), userSessionAttributesJSON.get(key.toString()));
             }
         }
-        
+
         JSONArray licJSONArray = new JSONArray();
         licenses.stream().forEach(licJSONArray::put);
         map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, licJSONArray);
         map.put(DNNTStatisticsAccessLogImpl.LICENSES_KEY, licJSONArray);
-        
-        // root title 
+
+        // root title
         if (obj.has("root_title")) {
             map.put("rootTitle", obj.optString("root_title"));
         }
@@ -373,7 +383,7 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         // map.put("models_path", )
         map.put("models_path", obj.optString("own_model_path"));
         map.put("pids_path", obj.optString("own_pid_path"));
-        
+
         // Issue #1038 / all_pids_paths, all_models
         if (obj.has("pid_paths")) {
             map.put("all_pids_paths", obj.optJSONArray("pid_paths"));
@@ -390,14 +400,11 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                 }
             }
         }
-        
 
-        
         //List<String> publishers = new ArrayList<>();
         List<String> publishers = listString(obj, "publishers");
         if (!publishers.isEmpty()) {
             map.put("publishers", publishers);
-            
         }
         List<String> authors = listString(obj, "authors");
         if (!authors.isEmpty()) {
