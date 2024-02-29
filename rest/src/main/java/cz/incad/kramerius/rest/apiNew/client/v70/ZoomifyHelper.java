@@ -227,19 +227,58 @@ public class ZoomifyHelper {
 
     private void readFromImageServerBlocking(String url, Response.ResponseBuilder response) throws IOException {
         HttpGet httpGet = new HttpGet(url);
-        CloseableHttpClient client = HttpClients.createDefault();
-        try (CloseableHttpResponse imgServerResponse = client.execute(httpGet)) {
-            if (imgServerResponse.getStatusLine().getStatusCode() == SC_OK) {
-                HttpEntity entity = imgServerResponse.getEntity();
-                response.type(entity.getContentType().getValue());
-                try (InputStream imgSrvIn = entity.getContent()) {
-                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                    IOUtils.copy(imgSrvIn, buffer);
-                    ByteArrayInputStream bufferIn = new ByteArrayInputStream(buffer.toByteArray());
-                    StreamingOutput stream = output -> {
-                        IOUtils.copy(bufferIn, output);
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            try (CloseableHttpResponse imgServerResponse = client.execute(httpGet)) {
+                if (imgServerResponse.getStatusLine().getStatusCode() == SC_OK) {
+                    HttpEntity entity = imgServerResponse.getEntity();
+                    response.type(entity.getContentType().getValue());
+                    try (InputStream imgSrvIn = entity.getContent()) {
+                        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                        IOUtils.copy(imgSrvIn, buffer);
+                        ByteArrayInputStream bufferIn = new ByteArrayInputStream(buffer.toByteArray());
+                        StreamingOutput stream = output -> {
+                            IOUtils.copy(bufferIn, output);
+                        };
+                        response.entity(stream);
+                        //response.setHeader("Access-Control-Allow-Origin", "*");
+                        Header cacheControl = imgServerResponse.getLastHeader("Cache-Control");
+                        if (cacheControl != null) {
+                            response.header(cacheControl.getName(), cacheControl.getValue());
+                        }
+                        Header lastModified = imgServerResponse.getLastHeader("Last-Modified");
+                        if (lastModified != null) {
+                            response.header(lastModified.getName(), lastModified.getValue());
+                        }
+                    }
+                } else {
+                    throw new HttpResponseException(imgServerResponse.getStatusLine().getStatusCode(), imgServerResponse.getStatusLine().getReasonPhrase());
+                }
+            }
+        }
+    }
+
+    private void readFromImageServerNonblocking(String url, Response.ResponseBuilder response) throws IOException {
+        HttpGet httpGet = new HttpGet(url);
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            try (CloseableHttpResponse imgServerResponse = client.execute(httpGet)) {
+                if (imgServerResponse.getStatusLine().getStatusCode() == SC_OK) {
+                    HttpEntity entity = imgServerResponse.getEntity();
+                    response.type(entity.getContentType().getValue());
+                    StreamingOutput sout = new StreamingOutput() {
+                        @Override
+                        public void write(OutputStream os) throws IOException, WebApplicationException {
+                            try (InputStream io = entity.getContent()) {
+                                byte[] buff = new byte[16384];
+                                int count = 0;
+                                while ((count = io.read(buff, 0, buff.length)) != -1) {
+                                    os.write(buff, 0, count);
+                                }
+                            } finally {
+                                imgServerResponse.close();
+                            }
+                        }
                     };
-                    response.entity(stream);
+                    response.entity(sout);
                     //response.setHeader("Access-Control-Allow-Origin", "*");
                     Header cacheControl = imgServerResponse.getLastHeader("Cache-Control");
                     if (cacheControl != null) {
@@ -249,46 +288,10 @@ public class ZoomifyHelper {
                     if (lastModified != null) {
                         response.header(lastModified.getName(), lastModified.getValue());
                     }
+                } else {
+                    throw new HttpResponseException(imgServerResponse.getStatusLine().getStatusCode(), imgServerResponse.getStatusLine().getReasonPhrase());
                 }
-            } else {
-                throw new HttpResponseException(imgServerResponse.getStatusLine().getStatusCode(), imgServerResponse.getStatusLine().getReasonPhrase());
             }
-        }
-    }
-
-    private void readFromImageServerNonblocking(String url, Response.ResponseBuilder response) throws IOException {
-        HttpGet httpGet = new HttpGet(url);
-        CloseableHttpClient client = HttpClients.createDefault();
-        CloseableHttpResponse imgServerResponse = client.execute(httpGet);
-        if (imgServerResponse.getStatusLine().getStatusCode() == SC_OK) {
-            HttpEntity entity = imgServerResponse.getEntity();
-            response.type(entity.getContentType().getValue());
-            StreamingOutput sout = new StreamingOutput() {
-                @Override
-                public void write(OutputStream os) throws IOException, WebApplicationException {
-                    try (InputStream io = entity.getContent()) {
-                        byte[] buff = new byte[16384];
-                        int count = 0;
-                        while ((count = io.read(buff, 0, buff.length)) != -1) {
-                            os.write(buff, 0, count);
-                        }
-                    } finally {
-                        imgServerResponse.close();
-                    }
-                }
-            };
-            response.entity(sout);
-            //response.setHeader("Access-Control-Allow-Origin", "*");
-            Header cacheControl = imgServerResponse.getLastHeader("Cache-Control");
-            if (cacheControl != null) {
-                response.header(cacheControl.getName(), cacheControl.getValue());
-            }
-            Header lastModified = imgServerResponse.getLastHeader("Last-Modified");
-            if (lastModified != null) {
-                response.header(lastModified.getName(), lastModified.getValue());
-            }
-        } else {
-            throw new HttpResponseException(imgServerResponse.getStatusLine().getStatusCode(), imgServerResponse.getStatusLine().getReasonPhrase());
         }
     }
 

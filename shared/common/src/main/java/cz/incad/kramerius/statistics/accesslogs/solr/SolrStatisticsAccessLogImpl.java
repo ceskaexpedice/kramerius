@@ -344,15 +344,16 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         httpPost.setHeader("Content-type", "application/xml");
         httpPost.setEntity(entity);
         
-        CloseableHttpClient client = HttpClients.createDefault();
-        try (CloseableHttpResponse response = client.execute(httpPost)) {
-            if (response.getStatusLine().getStatusCode() == SC_OK) {
-                HttpEntity respEntity = response.getEntity();
-                InputStream content = respEntity.getContent();
-                String resp = IOUtils.toString(content, "UTF-8");
-                return 0;
-            } else {
-                throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            try (CloseableHttpResponse response = client.execute(httpPost)) {
+                if (response.getStatusLine().getStatusCode() == SC_OK) {
+                    HttpEntity respEntity = response.getEntity();
+                    InputStream content = respEntity.getContent();
+                    String resp = IOUtils.toString(content, "UTF-8");
+                    return 0;
+                } else {
+                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                }
             }
         }
     }

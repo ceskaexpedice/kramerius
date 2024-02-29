@@ -43,7 +43,9 @@ import javax.xml.xpath.XPathExpressionException;
 import cz.incad.kramerius.utils.RelsExtHelper;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.nio.client.HttpAsyncClient;
 import org.apache.pdfbox.io.IOUtils;
@@ -275,22 +277,27 @@ public class ReplicationsResource {
         String tilesUrl = RelsExtHelper.getRelsExtTilesUrl(fedoraAccess.getRelsExt(pid));
         if (tilesUrl == null) return Response.status(Response.Status.NOT_FOUND).build();
 
-        HttpClient httpclient = HttpClients.createDefault();
-        final HttpResponse httpResponse = httpclient.execute(new HttpGet(tilesUrl + "/original"));
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            try (final CloseableHttpResponse httpResponse = httpclient.execute(new HttpGet(tilesUrl + "/original"))) {
 
-        switch (httpResponse.getStatusLine().getStatusCode()) {
-            case 200: break;
-            case 404: return Response.status(Response.Status.NOT_FOUND).build();
-            default: return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
+                switch (httpResponse.getStatusLine().getStatusCode()) {
+                    case 200:
+                        break;
+                    case 404:
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    default:
+                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                }
 
-        StreamingOutput stream = new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                IOUtils.copy(httpResponse.getEntity().getContent(), output);
-                output.flush();
+                StreamingOutput stream = new StreamingOutput() {
+                    @Override
+                    public void write(OutputStream output) throws IOException, WebApplicationException {
+                        IOUtils.copy(httpResponse.getEntity().getContent(), output);
+                        output.flush();
+                    }
+                };
+                return Response.ok(stream).build();
             }
-        };
-        return Response.ok(stream).build();
+        }
     }
 }

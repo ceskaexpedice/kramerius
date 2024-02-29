@@ -496,12 +496,14 @@ public class SolrUtils   {
         	uri = uri+"wt="+format;
         }
         HttpGet httpGet = new HttpGet(uri);
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpResponse response = client.execute(httpGet);
-        if (response.getStatusLine().getStatusCode() == SC_OK) {
-            return response.getEntity().getContent();
-        } else {
-            throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            try (CloseableHttpResponse response = client.execute(httpGet)) {
+                if (response.getStatusLine().getStatusCode() == SC_OK) {
+                    return response.getEntity().getContent();
+                } else {
+                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                }
+            }
         }
     }
 
@@ -595,12 +597,13 @@ public class SolrUtils   {
     public static InputStream requestWithTermsReturningStream(String solrHost, String query, String type) throws IOException {
         String url = String.format("%s/terms?%s&wt=%s", solrHost, query, type);
         HttpGet httpGet = new HttpGet(url);
-        CloseableHttpClient client = HttpClients.createDefault();
-        try (CloseableHttpResponse response = client.execute(httpGet)) {
-            if (response.getStatusLine().getStatusCode() == SC_OK) {
-                return readContentAndProvideThroughBufferedStream(response.getEntity());
-            } else {
-                throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            try (CloseableHttpResponse response = client.execute(httpGet)) {
+                if (response.getStatusLine().getStatusCode() == SC_OK) {
+                    return readContentAndProvideThroughBufferedStream(response.getEntity());
+                } else {
+                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                }
             }
         }
     }
@@ -612,12 +615,13 @@ public class SolrUtils   {
     public static InputStream requestWithSelectReturningStream(String solrHost, String query, String type) throws IOException {
         String url = String.format("%s/select?%s&wt=%s", solrHost, query, type);
         HttpGet httpGet = new HttpGet(url);
-        CloseableHttpClient client = HttpClients.createDefault();
-        try (CloseableHttpResponse response = client.execute(httpGet)) {
-            if (response.getStatusLine().getStatusCode() == SC_OK) {
-                return readContentAndProvideThroughBufferedStream(response.getEntity());
-            } else {
-                throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            try (CloseableHttpResponse response = client.execute(httpGet)) {
+                if (response.getStatusLine().getStatusCode() == SC_OK) {
+                    return readContentAndProvideThroughBufferedStream(response.getEntity());
+                } else {
+                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                }
             }
         }
     }
