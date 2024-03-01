@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
@@ -94,15 +95,36 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
                 public Object executeJDBCCommand(Connection con) throws SQLException {
                     List<Integer> priorities = (List<Integer>) getPreviousResult();
                     Integer min = priorities.isEmpty() ? License.DEFAULT_PRIORITY : Collections.max(priorities) + 1;
-                    // id, group, name, description, priority
-                    PreparedStatement prepareStatement = con.prepareStatement(
-                            "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) values(nextval('LABEL_ID_SEQUENCE'), ?, ?, ?, ?)");
-                    prepareStatement.setString(1, license.getGroup());
-                    prepareStatement.setString(2, license.getName());
-                    prepareStatement.setString(3, license.getDescription());
-                    prepareStatement.setInt(4, min);
 
-                    return prepareStatement.executeUpdate();
+                    // id, group, name, description, priority
+                    if (license.exclusiveLockPresent()) {
+                        PreparedStatement prepareStatement = con.prepareStatement(
+                                "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority, lock, lock_maxreaders, lock_refreshinterval, lock_maxinterval) values(nextval('LABEL_ID_SEQUENCE'), ?, ?, ?, ?, ?, ?, ?, ?)");
+
+                        prepareStatement.setString(1, license.getGroup());
+                        prepareStatement.setString(2, license.getName());
+                        prepareStatement.setString(3, license.getDescription());
+                        prepareStatement.setInt(4, min);
+
+                        prepareStatement.setBoolean(5, true);
+                        prepareStatement.setInt(6, license.getExclusiveLock().getMaxReaders());
+                        prepareStatement.setInt(7, license.getExclusiveLock().getRefreshInterval());
+                        prepareStatement.setInt(8, license.getExclusiveLock().getMaxInterval());
+
+                        return prepareStatement.executeUpdate();
+
+                    } else {
+                        PreparedStatement prepareStatement = con.prepareStatement(
+                                "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) values(nextval('LABEL_ID_SEQUENCE'), ?, ?, ?, ?)");
+                        prepareStatement.setString(1, license.getGroup());
+                        prepareStatement.setString(2, license.getName());
+                        prepareStatement.setString(3, license.getDescription());
+                        prepareStatement.setInt(4, min);
+
+                        return prepareStatement.executeUpdate();
+                        
+                    }
+
 
                 }
             });
@@ -306,15 +328,43 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
             new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(new JDBCCommand() {
                 @Override
                 public Object executeJDBCCommand(Connection con) throws SQLException {
-                    PreparedStatement prepareStatement = con.prepareStatement(
-                            "update labels_entity  " + "set LABEL_NAME=? , LABEL_DESCRIPTION=? where label_id = ?");
+                    if (!license.exclusiveLockPresent()) {
+                        PreparedStatement prepareStatement = con.prepareStatement(
+                                "update labels_entity  " + "set LABEL_NAME=? , LABEL_DESCRIPTION=?, LOCK=false, lock_maxreaders=-1,lock_refreshinterval=-1, lock_maxinterval=-1"
+                                        + " where label_id = ?");
 
-                    prepareStatement.setString(1, license.getName());
-                    prepareStatement.setString(2, license.getDescription());
+                        prepareStatement.setString(1, license.getName());
+                        prepareStatement.setString(2, license.getDescription());
 
-                    prepareStatement.setInt(3, license.getId());
+                        prepareStatement.setInt(3, license.getId());
 
-                    return prepareStatement.executeUpdate();
+                        return prepareStatement.executeUpdate();
+                        
+                    } else {
+                        /**
+                         *  "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority, lock, lock_maxreaders, lock_refreshinterval, lock_maxinterval) values(nextval('LABEL_ID_SEQUENCE'), ?, ?, ?, ?, ?, ?, ?, ?)");
+                         */
+                        PreparedStatement prepareStatement = con.prepareStatement(
+                                "update labels_entity  " + "set LABEL_NAME=? , "
+                                        + " LABEL_DESCRIPTION=?, "
+                                        + " LOCK=true, "
+                                        + " lock_maxreaders=?, "
+                                        + " lock_refreshinterval=?, "
+                                        + " lock_maxinterval=? "
+                                        + " where label_id = ?");
+
+                        prepareStatement.setString(1, license.getName());
+                        prepareStatement.setString(2, license.getDescription());
+                        prepareStatement.setInt(3, license.getExclusiveLock().getMaxReaders());
+                        prepareStatement.setInt(4, license.getExclusiveLock().getRefreshInterval());
+                        prepareStatement.setInt(5, license.getExclusiveLock().getMaxInterval());
+
+                        
+                        prepareStatement.setInt(6, license.getId());
+
+                        return prepareStatement.executeUpdate();
+                        
+                    }
 
                 }
             });
@@ -432,7 +482,19 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
         String groupName = rs.getString("LABEL_GROUP");
         String description = rs.getString("LABEL_DESCRIPTION");
         int priority = rs.getInt("LABEL_PRIORITY");
-        return new LicenseImpl(labelId, name, description, groupName, priority);
+        
+        boolean lock = rs.getBoolean("LOCK");
+        int maxreaders = rs.getInt("LOCK_MAXREADERS");
+        int refreshinterval = rs.getInt("LOCK_REFRESHINTERVAL");
+        int maxinterval = rs.getInt("LOCK_MAXINTERVAL");
+        
+        LicenseImpl licenseImpl = new LicenseImpl(labelId, name, description, groupName, priority);
+        
+        if (lock) {
+            licenseImpl.initExclusiveLock(refreshinterval, maxinterval, maxreaders);
+        }
+
+        return licenseImpl;
     }
 
     @Override

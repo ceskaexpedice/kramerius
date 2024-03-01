@@ -76,6 +76,19 @@ public interface License {
      * @return
      */
     public License getUpdatedPriorityLabel(int priprity);
-
     
+    public boolean exclusiveLockPresent();
+
+    public ExclusiveLock getExclusiveLock();
+    
+    public void initExclusiveLock(int refresh, int max, int readers);
+        
+    public void deleteExclusiveLock();
+    
+//    public boolean exclusiveLockPresent();
+//    
+//    public int getExclusiveLockRefreshInterval();
+//    
+//    public int getExclusiveLockMaxInterval();
+
 }

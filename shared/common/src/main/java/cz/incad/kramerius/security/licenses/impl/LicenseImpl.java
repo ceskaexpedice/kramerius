@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.security.licenses.impl;
 
+import cz.incad.kramerius.security.licenses.ExclusiveLock;
 import cz.incad.kramerius.security.licenses.License;
 
 import java.io.Serializable;
@@ -30,6 +31,8 @@ public class LicenseImpl implements License, Serializable {
     private String group;
     private String description;
     private int labelPrirority = DEFAULT_PRIORITY;
+    
+    private ExclusiveLock exclusiveLock;
     
     
     public LicenseImpl(int id, String name, String description, String group, int labelPrirority) {
@@ -113,23 +116,36 @@ public class LicenseImpl implements License, Serializable {
     public int getPriorityHint() {
         return this.priorityHint;
     }
+    
+    
+
+    
+    @Override
+    public boolean exclusiveLockPresent() {
+        return this.exclusiveLock != null;
+    }
+
+    @Override
+    public ExclusiveLock getExclusiveLock() {
+        return this.exclusiveLock;
+    }
+
+    @Override
+    public void initExclusiveLock(int refresh, int max, int readers) {
+        this.exclusiveLock = new ExclusiveLockImpl(refresh, max, readers);
+    }
+    
+    @Override
+    public void deleteExclusiveLock() {
+        this.exclusiveLock = null;
+    }
 
     @Override
     public String toString() {
-        if (this.id != -1) {
-            return "LabelImpl{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    ", group='" + group + '\'' +
-                    ", labelPrirority=" + labelPrirority +
-                    '}';
-
-        } else {
-            return "LabelImpl{" +
-                    ", name='" + name + '\'' +
-                    ", group='" + group + '\'' +
-                    ", labelPrirority=" + labelPrirority +
-                    '}';
-        }
+        return "LicenseImpl [priorityHint=" + priorityHint + ", id=" + id + ", name=" + name + ", group=" + group
+                + ", description=" + description + ", labelPrirority=" + labelPrirority + ", exclusiveLock="
+                + exclusiveLock + "]";
     }
+
+    
 }

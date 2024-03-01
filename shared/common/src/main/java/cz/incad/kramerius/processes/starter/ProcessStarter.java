@@ -85,6 +85,9 @@ public class ProcessStarter {
         PrintStream errStream = null;
         try {
 
+            // default process encoding
+            System.setProperty("file.encoding", "UTF-8");
+            
             String mainClass = System.getProperty(MAIN_CLASS_KEY);
             //String forwardIP = System.getProperty(IPAddressUtils.X_IP_FORWARD);
 

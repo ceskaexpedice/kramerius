@@ -234,8 +234,13 @@ public class SecurityDbInitializer {
             // update role column from relations
             makeSureRolesInTable(connection);
             
+            // exclusive lock
+            makeSureThatLicensesTableContainsExclusiveLockColumns(connection);
+            
             updateExistingActions(connection);
             checkLabelExists(connection);
+            
+            
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
@@ -523,6 +528,9 @@ public class SecurityDbInitializer {
         template.setUseReturningKeys(false);
         return template.executeUpdate(sql);
     }
+    
+
+
 
 //    /**
 //     * @param connection
@@ -534,7 +542,6 @@ public class SecurityDbInitializer {
 //        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
 //        return template.executeUpdate(sql);
 //    }
-
 //    private static int insertRightK4ReplicationExport(Connection connection) throws SQLException {
 //        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_K4ReplicationExport").toString();
 //        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
@@ -552,7 +559,6 @@ public class SecurityDbInitializer {
 //        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
 //        return template.executeUpdate(sql);
 //    }
-
 //    private static int insertNDKMetsImport(Connection connection) throws SQLException {
 //        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_NDKMetsImport").toString();
 //        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
@@ -572,6 +578,41 @@ public class SecurityDbInitializer {
         }
     }
 
+    
+    private static void makeSureThatLicensesTableContainsExclusiveLockColumns(Connection connection )  throws SQLException, IOException {
+        if (!DatabaseUtils.columnExists(connection, "LABELS_ENTITY", "LOCK")) {
+            alterTableAddExclusiveLock(connection);
+            alterTableAddExclusiveLockMaxReaders(connection);
+            alterTableAddExclusiveLockRefreshInterval(connection);
+            alterTableAddExclusiveLockMaxInterval(connection);
+        }
+    }
+    
+    public static void alterTableAddExclusiveLock(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE LABELS_ENTITY ADD COLUMN LOCK BOOLEAN");
+        prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
+    }
+
+    public static void alterTableAddExclusiveLockMaxReaders(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE LABELS_ENTITY ADD COLUMN LOCK_MAXREADERS INTEGER");
+        prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
+    }
+
+    public static void alterTableAddExclusiveLockRefreshInterval(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE LABELS_ENTITY ADD COLUMN LOCK_REFRESHINTERVAL INTEGER");
+        prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
+    }
+
+    public static void alterTableAddExclusiveLockMaxInterval(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE LABELS_ENTITY ADD COLUMN LOCK_MAXINTERVAL INTEGER");
+        prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
+    }
+
+    
     private static void makeSurePublicRoleInserted(Connection conn) throws SQLException {
         List<Integer> result = new JDBCQueryTemplate<Integer>(conn, false) {
 
@@ -669,7 +710,6 @@ public class SecurityDbInitializer {
     
 //    // vytvareni 
 //    private static void createNewActions(Connection connection) throws SQLException, IOException {
-//        
 //        InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/initsecdb_newactions.sql");
 //        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
 //        template.setUseReturningKeys(false);
