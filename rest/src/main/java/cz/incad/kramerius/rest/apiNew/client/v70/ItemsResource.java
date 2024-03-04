@@ -156,6 +156,7 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/specific/epub
     
 
+    private static final int MAX_TIME_SIZE = 512;
     public static final Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
     /**
      * Serve audio data through proxy from Audio repository, not through Kramerius Repository (Akubra).
@@ -1127,6 +1128,22 @@ public class ItemsResource extends ClientApiResource {
             @PathParam("qualityformat") String qf
             ) {
         try {
+            if (region.toLowerCase().trim().equals("full") || region.toLowerCase().trim().equals("square") || region.toLowerCase().trim().contains("pct:")) {
+                checkUserIsAllowedToReadObject(pid);
+            } else {
+                if (size.toLowerCase().trim().contains("max") || size.toLowerCase().trim().contains("pct:")) {
+                    checkUserIsAllowedToReadObject(pid);
+                }
+                // max allowed size = 512 
+                String[] split = size.split(",");
+                if (split.length >= 2) {
+                    int width = Integer.parseInt(split[0]);
+                    int height = Integer.parseInt(split[1]);
+                    if (width > MAX_TIME_SIZE || height > MAX_TIME_SIZE) {
+                        checkUserIsAllowedToReadObject(pid);
+                    } 
+                }
+            }
             InputStream stream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, "RELS-EXT");
             org.w3c.dom.Document relsExt = XMLUtils.parseDocument(stream, true);
             String u = IIIFUtils.iiifImageEndpoint(relsExt);

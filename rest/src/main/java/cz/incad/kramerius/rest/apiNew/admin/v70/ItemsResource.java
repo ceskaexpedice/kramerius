@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
@@ -17,18 +18,22 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -567,19 +572,99 @@ public class ItemsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+    
 
+    
+    
+    
+    
+    @PUT
+    @Path("{pid}/akubra/updateManaged/{dsid}")
+    @Consumes({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN})
+    public Response streamHead(@PathParam("pid") String pid,
+                              @PathParam("dsid") String dsid,
+                              @QueryParam("namespace") String xmlnamespace,
+                              InputStream inputStream,
+                              @Context HttpHeaders headers) throws IOException {
+        
+        //authentication
+        User user = this.userProvider.get();
+
+        if (!userIsAllowedToReadOrObjectEdit(this.rightsResolver, user, pid)) {
+            // request doesnt contain user principal
+            throw new ForbiddenException("user '%s' is not allowed to do this (missing actions '%s', '%s')", user, SecuredActions.A_ADMIN_READ.name(), SecuredActions.A_OBJECT_EDIT.name()); //403
+        }
+
+        try {
+            List<String> requestHeader = headers.getRequestHeader("Content-Type");
+            if (requestHeader.size() > 0) {
+                String mimeType = requestHeader.get(0);
+                if (mimeType.equals(MediaType.APPLICATION_XML)) {
+                    RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
+                    
+                    Document dom4j = Utils.inputstreamToDocument(inputStream, true);
+                    lowLevelApi.updateInlineXmlDatastream(pid, dsid, dom4j, xmlnamespace);
+                    
+                    return Response.status(Response.Status.OK).build();
+                    
+                } else if (mimeType.equals(MediaType.APPLICATION_OCTET_STREAM)) {
+                    RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
+
+                    byte[] stream = IOUtils.toByteArray(inputStream);
+                    lowLevelApi.updateBinaryDatastream(pid, dsid, mimeType, stream);
+                    
+                    return Response.status(Response.Status.OK).build();
+                    
+                } else if (mimeType.equals(MediaType.APPLICATION_JSON)) {
+                    RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
+
+                    String string = IOUtils.toString(inputStream, "UTF-8");
+                    JSONObject obj = new JSONObject(string);
+
+                    byte[] stream = IOUtils.toByteArray(inputStream);
+                    lowLevelApi.updateBinaryDatastream(pid, dsid, mimeType, stream);
+
+                    return Response.status(Response.Status.OK).build();
+                } else {
+                    RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
+
+                    byte[] stream = IOUtils.toByteArray(inputStream);
+                    lowLevelApi.updateBinaryDatastream(pid, dsid, mimeType, stream);
+
+                    return Response.status(Response.Status.OK).build();
+                }
+            } else {
+                RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
+
+                byte[] stream = IOUtils.toByteArray(inputStream);
+                lowLevelApi.updateBinaryDatastream(pid, dsid, MediaType.APPLICATION_OCTET_STREAM.toString(), stream);
+
+                return Response.status(Response.Status.OK).build();
+                
+            }
+        } catch (JSONException e) {
+            throw new BadRequestException(e.getMessage()); 
+        } catch (IOException e) {
+            throw new BadRequestException(e.getMessage()); 
+        } catch (RepositoryException e) {
+            throw new BadRequestException(e.getMessage()); 
+        }
+    }
+    
+    
+    
+    
+    // TODO: Delete
     @PUT
     @Path("{pid}/streams/IMG_THUMB")
     public Response setImgThumb(@PathParam("pid") String targetPid, @QueryParam("srcPid") String sourcePid) {
         try {
             //authentication
             User user = this.userProvider.get();
-            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
             //authorization
-
-            if (!userIsAllowedToRead(this.rightsResolver, user, targetPid)) {
+            if (!userIsAllowedToReadOrObjectEdit(this.rightsResolver, user, targetPid)) {
                 // request doesnt contain user principal
-                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing actions '%s', '%s' )", user, SecuredActions.A_ADMIN_READ.name(), SecuredActions.A_OBJECT_EDIT.name()); //403
             }
 
             //check target object
@@ -643,14 +728,32 @@ public class ItemsResource extends AdminApiResource {
     }
 
 
+    private boolean userIsAllowedToReadOrObjectEdit(RightsResolver rightsResolver, User user, String pid) throws IOException {
+        checkSupportedObjectPid(pid);
+        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
+        if (paths.length == 0) {
+            throw new InternalErrorException("illegal state: no paths for object %s found in search index", pid);
+        }
+        for (int i = 0; i < paths.length; i++) {
+            ObjectPidsPath path = paths[i];
+            boolean adminReadResult = rightsResolver.isActionAllowed(user, SecuredActions.A_ADMIN_READ.getFormalName(), pid, null, path.injectRepository()).flag();
+            boolean objectEditResult = false;
+            if (!adminReadResult) {
+                objectEditResult = rightsResolver.isActionAllowed(user, SecuredActions.A_OBJECT_EDIT.getFormalName(), pid, null, path.injectRepository()).flag();
+            }
+            
+            if (adminReadResult || objectEditResult) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private boolean userIsAllowedToRead(RightsResolver rightsResolver, User user, String pid) throws IOException {
         checkSupportedObjectPid(pid);
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         if (paths.length == 0) {
             throw new InternalErrorException("illegal state: no paths for object %s found in search index", pid);
-            //or maybe build paths from resource/processing index
-            //but user should not access page before it is indexed anyway
-            //so eventual consistency vs. "API doesn't (at least seemingly) depend on search index"
         }
         for (int i = 0; i < paths.length; i++) {
             ObjectPidsPath path = paths[i];

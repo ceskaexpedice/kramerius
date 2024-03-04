@@ -106,8 +106,10 @@ public enum SecuredActions {
     A_ADMIN_READ("a_admin_read"),
 
     /** SDNNT synchronization */
-    A_SDNNT_SYNC("a_sdnnt_sync");
+    A_SDNNT_SYNC("a_sdnnt_sync"),
     
+    /** Object editation */
+    A_OBJECT_EDIT("a_object_edit");
     
     private String formalName;
     private boolean onlyGlobalAction;
