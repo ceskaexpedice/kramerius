@@ -105,4 +105,6 @@ public interface Right {
      */
     public int getFixedPriority();
 
+
 }
+

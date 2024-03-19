@@ -29,7 +29,10 @@ public enum EvaluatingResultState {
     FALSE(0),
     
     /** it cannot be resolved by this criterium - I don't know, must resolve any other right (or right+criteirum) defined on requesting object. */
-    NOT_APPLICABLE(3);
+    NOT_APPLICABLE(3),
+    
+    // should be 
+    NEED_LOCK(4);
 
     
     private EvaluatingResultState(int rawVal) {

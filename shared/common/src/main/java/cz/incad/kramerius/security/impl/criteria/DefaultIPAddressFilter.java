@@ -32,15 +32,15 @@ public class DefaultIPAddressFilter extends AbstractIPAddressFilter implements R
     static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultIPAddressFilter.class.getName());
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         EvaluatingResultState result = matchIPAddresses(super.getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
         LOGGER.fine("\t benevolent filter - "+result);
         return result ;
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
-        return evalute();
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        return evalute(null);
     }
 
     public EvaluatingResultState createResult(Calendar calFromMetadata, Calendar calFromConf) {

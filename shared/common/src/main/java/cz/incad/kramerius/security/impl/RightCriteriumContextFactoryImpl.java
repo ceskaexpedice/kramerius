@@ -22,12 +22,17 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 
 public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFactory {
     
     private FedoraAccess fedoraAccess;
     private SolrAccess solrAccessNewIndex;
     private UserManager userManager;
+    
+    private ExclusiveLockMaps lockMaps;
+    
     
     public RightCriteriumContextFactoryImpl() {
         super();
@@ -64,10 +69,20 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
     public static synchronized RightCriteriumContextFactoryImpl newFactory() {
         return new RightCriteriumContextFactoryImpl();
     }
+    
+    
+    @Inject
+    public void setLockMaps(ExclusiveLockMaps lockMaps) {
+        this.lockMaps = lockMaps;
+    }
+
+    public RightCriteriumContextFactoryImpl(ExclusiveLockMaps lockMaps) {
+        super();
+        this.lockMaps = lockMaps;
+    }
 
     @Override
-    public RightCriteriumContext create(String requestedPID, String requestedStream, User user, String remoteHost, String remoteAddr,  RightsResolver rightsResolver) {
-        //RightCriteriumContext ctx = new RightParamEvaluatingContextImpl(requestedPID, requestedStream, user, this.fedoraAccess, this.solrAccess, this.userManager, remoteHost, remoteAddr);
+    public RightCriteriumContext create(String requestedPID, String requestedStream, User user, String remoteHost, String remoteAddr,  RightsResolver rightsResolver, ExclusiveLockMaps exclusiveLocks) {
         RightCriteriumContext ctx = new RightParamEvaluatingContextImpl.Builder()
                                         .setRequestedPid(requestedPID)
                                         .setRequestedStream(requestedStream)
@@ -78,6 +93,7 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
                                         .setUserManager(this.userManager)
                                         .setRemoteHost(remoteHost)
                                         .setRemoteAddress(remoteAddr)
+                                        .setExclusiveLockMaps(exclusiveLocks)
                                         .setRightsResolver(rightsResolver).build();
         return ctx;
     }

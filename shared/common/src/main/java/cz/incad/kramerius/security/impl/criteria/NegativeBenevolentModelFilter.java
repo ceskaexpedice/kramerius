@@ -28,13 +28,13 @@ public class NegativeBenevolentModelFilter  extends AbstractCriterium implements
      * @see cz.incad.kramerius.security.RightCriterium#evaluate()
      */
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         EvaluatingResultState result = BenevolentModelFilter.evaluateInternal(getObjects(), getEvaluateContext());
         return result.equals(EvaluatingResultState.TRUE) ? EvaluatingResultState.NOT_APPLICABLE : EvaluatingResultState.TRUE;
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         switch (dataMockExpectation) {
             case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
             case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;

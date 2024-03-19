@@ -31,15 +31,15 @@ public class StrictIPAddresFilter extends AbstractIPAddressFilter implements Rig
     
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         EvaluatingResultState result = matchIPAddresses(getEvaluateContext(), getObjects()) ?  EvaluatingResultState.TRUE : EvaluatingResultState.FALSE;
         LOGGER.fine("\t strict filter - "+result);
         return result;
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
-        return evalute();
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        return evalute(null);
     }
 
     //    @Override

@@ -8,7 +8,7 @@ import cz.incad.kramerius.pdf.utils.ModsUtils;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
@@ -246,8 +246,8 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     public void log(String pid, String rootTitle, String dcTitle, String solrDate, String modsDate, String dnntFlag, String policy, List<String> dcPublishers, List<String> dcAuthors, ObjectPidsPath[] paths,
                     ObjectModelsPath[] mpaths, Map<String, List<String>> identifiers, List<String> labels) throws IOException {
         User user = this.userProvider.get();
-        RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
-        boolean providedByDnnt = rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
+        RightsReturnObject rightsReturnObject = CriteriaLicenseUtils.currentThreadReturnObject.get();
+        boolean providedByDnnt = rightsReturnObject != null ? CriteriaLicenseUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
 
         // store json object
         JSONObject jObject = toJSON(pid, rootTitle, dcTitle,

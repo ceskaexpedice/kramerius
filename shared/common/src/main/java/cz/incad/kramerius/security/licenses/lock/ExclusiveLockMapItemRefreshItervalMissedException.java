@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Feb 26, 2024 Pavel Stastny
+ * Copyright (C) Mar 11, 2024 Pavel Stastny
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security.licenses;
+package cz.incad.kramerius.security.licenses.lock;
 
-public interface ExclusiveLock {
-    
-    public int getRefreshInterval();
-    
-    public int getMaxInterval();
-    
-    public int getMaxReaders();
-    
+public class ExclusiveLockMapItemRefreshItervalMissedException extends ExclusiveMapException{
+
+    public ExclusiveLockMapItemRefreshItervalMissedException() {
+        super();
+    }
+
+    public ExclusiveLockMapItemRefreshItervalMissedException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ExclusiveLockMapItemRefreshItervalMissedException(String message) {
+        super(message);
+    }
+
+    public ExclusiveLockMapItemRefreshItervalMissedException(Throwable cause) {
+        super(cause);
+    }
 }

@@ -14,11 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security.licenses.impl;
+package cz.incad.kramerius.security.licenses.impl.lock;
 
-import cz.incad.kramerius.security.licenses.ExclusiveLock;
+import org.apache.commons.codec.digest.DigestUtils;
+
+import cz.incad.kramerius.security.Right;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
 
 public class ExclusiveLockImpl implements ExclusiveLock {
+    
+    private ExclusiveLockType type = ExclusiveLockType.INSTANCE;
     
     private int refresh;
     private int max;
@@ -31,6 +37,19 @@ public class ExclusiveLockImpl implements ExclusiveLock {
         this.max = max;
         this.readers = readers;
     }
+    
+    
+
+    
+    
+    public ExclusiveLockImpl(int refresh, int max, int readers, ExclusiveLockType type) {
+        super();
+        this.type = type;
+        this.refresh = refresh;
+        this.max = max;
+        this.readers = readers;
+    }
+
 
     @Override
     public int getRefreshInterval() {
@@ -48,9 +67,37 @@ public class ExclusiveLockImpl implements ExclusiveLock {
     }
 
     @Override
+    public ExclusiveLockType getType() {
+        return this.type;
+    }
+    
+    public void setType(ExclusiveLockType type) {
+        this.type = type;
+    }
+    
+    @Override
     public String toString() {
         return "ExclusiveLockImpl [refresh=" + refresh + ", max=" + max + ", readers=" + readers + "]";
     }
+    
+    
+    
 
+    @Override
+    public String createLockHash(License license, Right right, String pid) {
+        switch(this.type) {
+            case INSTANCE: 
+                String instanceHashName = String.format("%s_%s", license.getName(), pid);
+                return instanceHashName;
+                //return DigestUtils.md5Hex(instanceHashName);
+            case RULE: 
+                String ruleHashName = String.format("%s_%s_%d_%s", license.getName(), pid, right.getId(), right.getRole().getName());
+                return ruleHashName;
+                //return DigestUtils.md2Hex(ruleHashName);
+        }
+        return null;
+    }
+
+    
     
 }

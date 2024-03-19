@@ -585,6 +585,11 @@ public class SecurityDbInitializer {
             alterTableAddExclusiveLockMaxReaders(connection);
             alterTableAddExclusiveLockRefreshInterval(connection);
             alterTableAddExclusiveLockMaxInterval(connection);
+            alterTableAddExclusiveLockType(connection);
+        }
+        
+        if (!DatabaseUtils.columnExists(connection, "LABELS_ENTITY", "LOCK_TYPE")) {
+            alterTableAddExclusiveLockType(connection);
         }
     }
     
@@ -612,6 +617,11 @@ public class SecurityDbInitializer {
         LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
     }
 
+    public static void alterTableAddExclusiveLockType(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE LABELS_ENTITY ADD COLUMN LOCK_TYPE VARCHAR(255)");
+        prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
+    }
     
     private static void makeSurePublicRoleInserted(Connection conn) throws SQLException {
         List<Integer> result = new JDBCQueryTemplate<Integer>(conn, false) {

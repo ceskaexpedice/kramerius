@@ -52,19 +52,21 @@ public interface RightCriterium extends Serializable  {
     
     /**
      * Answer the question whether given user can access to requesting resource
+     * @param right TODO
      * @return Result of evaluation
      * @throws RightCriteriumException Something happen during evaluate
      */
-    public EvaluatingResultState evalute() throws RightCriteriumException;
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException;
 
 
     /**
      * Perfrom evaluation without accessing title
+     * @param right TODO
+     * @param dataMockExpectation
      * @return
      * @throws RightCriteriumException
-     * @param dataMockExpectation
      */
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException;
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException;
 
     /**
      * Returns criterium hint. 

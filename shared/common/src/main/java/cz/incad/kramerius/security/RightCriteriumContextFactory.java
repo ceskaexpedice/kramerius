@@ -16,6 +16,8 @@
  */
 package cz.incad.kramerius.security;
 
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
+
 /**
  * This factory creates evaluating context
  * @author pavels
@@ -30,5 +32,5 @@ public interface RightCriteriumContextFactory {
      * @param user Current logged user
      * @return
      */
-    public RightCriteriumContext create(String reqPID, String reqStream, User user, String remoteHost, String remoteAddr, RightsResolver rightsResolver);
+    public RightCriteriumContext create(String reqPID, String reqStream, User user, String remoteHost, String remoteAddr, RightsResolver rightsResolver, ExclusiveLockMaps exclusiveLocks);
 }

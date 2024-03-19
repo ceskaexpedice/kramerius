@@ -21,6 +21,7 @@ import java.util.logging.Level;
 
 import cz.incad.kramerius.security.DataMockExpectation;
 import cz.incad.kramerius.security.EvaluatingResultState;
+import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriteriumException;
 
 public class DefaultDomainFilter extends AbstractDomainFilter  {
@@ -28,7 +29,7 @@ public class DefaultDomainFilter extends AbstractDomainFilter  {
     static transient java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DefaultIPAddressFilter.class.getName());
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         try {
             EvaluatingResultState result = matchDomain(getObjects()) ? EvaluatingResultState.TRUE : EvaluatingResultState.NOT_APPLICABLE;
             LOGGER.fine("\t benevolent domain filter - "+result);
@@ -40,8 +41,8 @@ public class DefaultDomainFilter extends AbstractDomainFilter  {
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
-        return evalute();
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+        return evalute(null);
     }
 
 }

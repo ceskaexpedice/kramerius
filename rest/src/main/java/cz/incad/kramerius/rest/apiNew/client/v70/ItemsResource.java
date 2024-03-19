@@ -17,7 +17,8 @@ import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.CutItem;
 import cz.incad.kramerius.rest.apiNew.client.v70.epub.EPubFileTypes;
-import cz.incad.kramerius.rest.apiNew.client.v70.utils.ProvidedLicensesUtils;
+import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
+import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations.RuntimeInformation;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -27,6 +28,9 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.service.replication.ReplicationUtils;
@@ -194,6 +198,9 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     AggregatedAccessLogs accessLog;
     
+    @Inject
+    LicensesManager licensesManager;
+    
     
     private Client c;
 
@@ -242,7 +249,14 @@ public class ItemsResource extends ClientApiResource {
             
             //json.put("structure", extractStructureInfo(pid));
             json.put("image", extractImageSourceInfo(pid));
-            json.put(ProvidedLicensesUtils.PROVIDED_BY_LICENSES, ProvidedLicensesUtils.extractLicensesProvidingAccess(this.rightsResolver, this.solrAccess, pid));
+            
+            
+            RuntimeInformation extracrtedInformation = RightRuntimeInformations.extractInformations(this.rightsResolver, this.solrAccess, pid);
+            
+            json.put(RightRuntimeInformations.PROVIDED_BY_LICENSES, extracrtedInformation.getProvidingLicensesAsJSONArray());
+            json.put(RightRuntimeInformations.ACCESSIBLE_LOCSK, extracrtedInformation.getLockAsJSONArray());
+                       
+            
             return Response.ok(json).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -276,7 +290,8 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             JSONObject responseJson = new JSONObject();
-            responseJson.put("licenses", ProvidedLicensesUtils.extractLicensesProvidingAccess(this.rightsResolver,this.solrAccess,pid));
+            RuntimeInformation extracrtedInformation = RightRuntimeInformations.extractInformations(this.rightsResolver, this.solrAccess, pid);
+            responseJson.put("licenses", extracrtedInformation.getLockAsJSONArray());
             return Response.ok(responseJson).build();
         } catch (WebApplicationException e) {
             throw e;

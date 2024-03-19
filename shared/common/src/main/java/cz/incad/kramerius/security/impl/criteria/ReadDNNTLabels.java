@@ -2,7 +2,7 @@ package cz.incad.kramerius.security.impl.criteria;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.security.licenses.License;
 import org.w3c.dom.Document;
 
@@ -15,16 +15,16 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
 
     
     // backward compatibility
-    public static final String PROVIDED_BY_DNNT_LABEL = "providedByLabel";
+    public static final String PROVIDED_BY_LABEL = "providedByLabel";
 
-    public static final String PROVIDED_BY_DNNT_LICENSE = "providedByLicense";
+    public static final String PROVIDED_BY_LICENSE = "providedByLicense";
 
     public transient static final Logger LOGGER = Logger.getLogger(ReadDNNTLabels.class.getName());
 
     private License license;
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         try {
             RightCriteriumContext ctx =  getEvaluateContext();
             String pid = ctx.getRequestedPid();
@@ -35,11 +35,11 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
                     SolrAccess solrAccess = ctx.getSolrAccessNewIndex();
                     Document doc = solrAccess.getSolrDataByPid(pid);
 
-                    boolean applied =  CriteriaDNNTUtils.matchLicense(doc, getLicense());
+                    boolean applied =  CriteriaLicenseUtils.matchLicense(doc, getLicense());
                     if (applied) {
                         // select label
-                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, getLicense().getName());
-                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LICENSE, getLicense().getName());
+                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LABEL, getLicense().getName());
+                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LICENSE, getLicense().getName());
                         return EvaluatingResultState.TRUE;
                     }
                 }
@@ -52,7 +52,7 @@ public class ReadDNNTLabels extends AbstractCriterium implements RightCriteriumL
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         switch (dataMockExpectation) {
             case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
             case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;

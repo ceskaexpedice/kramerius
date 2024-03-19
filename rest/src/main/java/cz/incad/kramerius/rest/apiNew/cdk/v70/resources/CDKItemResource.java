@@ -32,7 +32,8 @@ import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
-import cz.incad.kramerius.rest.apiNew.client.v70.utils.ProvidedLicensesUtils;
+import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
+import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations.RuntimeInformation;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SecuredActions;
@@ -66,10 +67,12 @@ public class CDKItemResource {
 
     public Response providedBy(String pid) {
         try {
-
+            RuntimeInformation extractInformations = RightRuntimeInformations.extractInformations(this.actionAllowed, this.solrAccess, pid);
+            JSONArray providingLicenses = extractInformations.getProvidingLicensesAsJSONArray();
+            
             JSONObject responseJson = new JSONObject();
             responseJson.put("licenses",
-                    ProvidedLicensesUtils.extractLicensesProvidingAccess(this.actionAllowed, this.solrAccess, pid));
+                    providingLicenses);
             return Response.ok(responseJson).type("application/json").build();
 
         } catch (IOException | RepositoryException e) {

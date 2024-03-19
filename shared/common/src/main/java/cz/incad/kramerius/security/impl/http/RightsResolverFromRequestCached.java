@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ehcache.Cache;
@@ -18,7 +19,7 @@ import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.*;
+import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils.*;
 
 
 /**
@@ -68,8 +69,8 @@ public class RightsResolverFromRequestCached extends RightsResolverFromRequest {
     @Inject
     public RightsResolverFromRequestCached(Logger logger, Provider<HttpServletRequest> provider,
                                            RightsManager rightsManager, RightCriteriumContextFactory contextFactory,
-                                           Provider<User> currentUserProvider, CacheManager cacheManager) {
-        super(logger, provider, rightsManager, contextFactory, currentUserProvider);
+                                           Provider<User> currentUserProvider, CacheManager cacheManager, ExclusiveLockMaps maps) {
+        super(logger, provider, rightsManager, contextFactory, currentUserProvider, maps);
 
         this.provider = provider;
 

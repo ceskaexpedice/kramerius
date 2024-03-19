@@ -38,7 +38,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     ).stream().map(String::toLowerCase).collect(Collectors.toList());
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         try {
             FedoraAccess fedoraAccess = getEvaluateContext().getFedoraAccess();
             //getEvaluateContext().getSolrAccess();
@@ -106,7 +106,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         switch (dataMockExpectation) {
             case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
             case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;

@@ -26,7 +26,7 @@ import cz.incad.kramerius.security.*;
 public class Abonents extends AbstractCriterium implements RightCriterium {
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         Object[] groups = this.getCriteriumParamValues();
         for (Object oneGroup : groups) {
             if (isUserInGroup(oneGroup.toString())) return EvaluatingResultState.TRUE;
@@ -35,7 +35,7 @@ public class Abonents extends AbstractCriterium implements RightCriterium {
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         Object[] groups = this.getCriteriumParamValues();
         for (Object oneGroup : groups) {
             if (isUserInGroup(oneGroup.toString())) return EvaluatingResultState.TRUE;

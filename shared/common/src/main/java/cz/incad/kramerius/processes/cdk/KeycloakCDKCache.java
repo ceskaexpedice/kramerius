@@ -107,6 +107,7 @@ public class KeycloakCDKCache {
     public static class KeycloakCDKCacheTask extends TimerTask {
 
         private static final String CDK = "cdk";
+
         KeycloakCDKCache cache;
         
         public KeycloakCDKCacheTask(KeycloakCDKCache cache) {

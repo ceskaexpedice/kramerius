@@ -17,7 +17,7 @@ public class ConProvider4T implements Provider<Connection> {
 
     public static Connection openLocalConnection() throws ClassNotFoundException, SQLException {
         Class.forName("org.postgresql.Driver");
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost/kramerius4", "fedoraAdmin",
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost/kramerius7.2.1", "fedoraAdmin",
                 "fedoraAdmin");
         return con;
     }

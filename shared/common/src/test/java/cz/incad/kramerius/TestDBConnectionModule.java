@@ -19,12 +19,25 @@ package cz.incad.kramerius;
 import java.sql.Connection;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 import com.google.inject.name.Names;
+
+import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.impl.DatabaseLicensesManagerImpl;
+import cz.incad.kramerius.security.licenses.impl.lock.ExclusiveLockMapsImpl;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 
 public class TestDBConnectionModule extends AbstractModule {
 
     @Override
     protected void configure() {
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(ConProvider4T.class);
+        //move
+        bind(SolrAccess.class).annotatedWith(Names.named("new-index")).to(SolrAccessImplNewIndex.class).in(Scopes.SINGLETON);
+
+        bind(LicensesManager.class).to(DatabaseLicensesManagerImpl.class);
+        bind(ExclusiveLockMaps.class).to(ExclusiveLockMapsImpl.class).asEagerSingleton();
+
     }
 }

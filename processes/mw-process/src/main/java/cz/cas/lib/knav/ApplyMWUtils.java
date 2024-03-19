@@ -208,7 +208,7 @@ public class ApplyMWUtils {
         }
         ApplyMovingWall.LOGGER.info("Used value is: " + wall);
         mw.setCriteriumParamValues(new Object[] { "" + wall, mode, firstModel, firstPid });
-        EvaluatingResultState result = mw.evalute();
+        EvaluatingResultState result = mw.evalute(null);
         String flagFromRELSEXT = ApplyMWUtils.disectFlagFromRELSEXT(onePid, fa);
         if (result == EvaluatingResultState.TRUE) {
             ApplyMovingWall.LOGGER.info("Set policy flag for '" + onePid + "' to value true ");

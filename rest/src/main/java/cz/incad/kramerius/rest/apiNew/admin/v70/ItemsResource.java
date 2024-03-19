@@ -618,9 +618,6 @@ public class ItemsResource extends AdminApiResource {
                 } else if (mimeType.equals(MediaType.APPLICATION_JSON)) {
                     RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
 
-                    String string = IOUtils.toString(inputStream, "UTF-8");
-                    JSONObject obj = new JSONObject(string);
-
                     byte[] stream = IOUtils.toByteArray(inputStream);
                     lowLevelApi.updateBinaryDatastream(pid, dsid, mimeType, stream);
 
@@ -643,10 +640,13 @@ public class ItemsResource extends AdminApiResource {
                 
             }
         } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new BadRequestException(e.getMessage()); 
         } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new BadRequestException(e.getMessage()); 
         } catch (RepositoryException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new BadRequestException(e.getMessage()); 
         }
     }

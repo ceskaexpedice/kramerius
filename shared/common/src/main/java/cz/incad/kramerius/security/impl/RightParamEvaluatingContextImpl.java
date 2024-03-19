@@ -21,13 +21,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cz.incad.kramerius.security.*;
-
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 
 public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
 
+    private ExclusiveLockMaps exclusiveLockMaps;
+    
     private String requestedPID;
     private String requestedStream;
     private String associatedPID;
@@ -39,6 +41,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private UserManager userManager;
     private String remoteHost;
     private String remoteAddr;    
+    
 
     private Map<String, String> map = new HashMap<>();
 
@@ -53,13 +56,15 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         this.requestedStream = builder.requestedStream;
         this.user = builder.user;
         this.fedoraAccess = builder.fedoraAccess;
-//        this.solrAccess = builder.solrAccess;
         this.solrAccessNewIndex = builder.solrAccessNewIndex;
         this.remoteHost = builder.remoteHost;
         this.remoteAddr = builder.remoteAddr;
         this.userManager = builder. userManager;
         this.action = builder.action;
         this.rightsResolver = builder.rightsResolver;
+        
+        
+        this.exclusiveLockMaps = builder.exclusiveLockMaps;
     }
 
     @Override
@@ -139,8 +144,16 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     public Map<String, String> getEvaluateInfoMap() {
         return this.map;
     }
+    
+    @Override
+    public ExclusiveLockMaps getExclusiveLockMaps() {
+        return exclusiveLockMaps;
+    }
 
     public static class Builder {
+        
+        protected ExclusiveLockMaps exclusiveLockMaps;
+        
         protected String requestedPID;
         protected String requestedStream;
 
@@ -221,6 +234,13 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         public RightParamEvaluatingContextImpl build() {
             return new RightParamEvaluatingContextImpl(this);
         }
+
+        public Builder setExclusiveLockMaps(ExclusiveLockMaps exclusiveLockMaps) {
+            this.exclusiveLockMaps = exclusiveLockMaps;
+            return this;
+        }
+        
+        
 
     }
 }

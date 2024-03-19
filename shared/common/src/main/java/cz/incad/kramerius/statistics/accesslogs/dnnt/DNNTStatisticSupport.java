@@ -5,7 +5,7 @@ import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.date.DNNTStatisticsDateFormat;
 import cz.incad.kramerius.utils.IPAddressUtils;
@@ -38,8 +38,8 @@ public class DNNTStatisticSupport {
 
     public void log(String pid, String rootTitle, String dcTitle, String solrDate, String modsDate, String dnntFlag, String policy, List<String> dcPublishers, List<String> dcAuthors, ObjectPidsPath[] paths, ObjectModelsPath[] mpaths) throws IOException {
         User user = this.userProvider.get();
-        RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
-        boolean providedByDnnt =  rightsReturnObject != null ? CriteriaDNNTUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
+        RightsReturnObject rightsReturnObject = CriteriaLicenseUtils.currentThreadReturnObject.get();
+        boolean providedByDnnt =  rightsReturnObject != null ? CriteriaLicenseUtils.allowedByReadDNNTFlagRight(rightsReturnObject) : false;
 
         // store json object
         JSONObject jObject = toJSON(pid, rootTitle, dcTitle,

@@ -84,7 +84,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     }
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         int wallFromConf = Integer.parseInt((String) getObjects()[0]);
 
         // for criterium rights, only one parameter -> value of the wall
@@ -222,7 +222,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         switch (dataMockExpectation) {
             case EXPECT_DATA_VAUE_EXISTS:
                 return EvaluatingResultState.TRUE;

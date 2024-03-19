@@ -7,12 +7,13 @@ import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.CreateException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.security.licenses.utils.LicenseTOJSONSupport;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +21,8 @@ import org.json.JSONObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import static cz.incad.kramerius.security.licenses.utils.LicenseTOJSONSupport.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,8 +33,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils.*;
 
 @Path("/admin/v7.0/licenses")
 public class LicensesResource {
@@ -95,7 +96,7 @@ public class LicensesResource {
         try {
             License licenseById = this.licensesManager.getLicenseById(Integer.parseInt(id));
             if (licenseById != null) {
-                return Response.ok().entity(LicenseUtils.licenseToJSON(licenseById).toString()).build();
+                return Response.ok().entity(LicenseTOJSONSupport.licenseToJSON(licenseById).toString()).build();
             } else {
                 throw new ObjectNotFound(String.format("cannot find licenses %s", id));
             }
@@ -121,7 +122,7 @@ public class LicensesResource {
                                 return f.getName().equals(l.getName());
                             }).findAny();
                             if (any.get() != null) {
-                                return Response.ok().entity(LicenseUtils.licenseToJSON(any.get()).toString()).build();
+                                return Response.ok().entity(LicenseTOJSONSupport.licenseToJSON(any.get()).toString()).build();
                             } else {
                                 return Response.ok().entity(new JSONObject().toString()).build();
                             }
@@ -151,7 +152,7 @@ public class LicensesResource {
             try {
                 int ident = Integer.parseInt(id);
                 if (this.licensesManager.getLicenseById(ident) != null) {
-                    License l = LicenseUtils.licenseFromJSON(Integer.parseInt(id), jsonObject);
+                    License l = LicenseTOJSONSupport.licenseFromJSON(Integer.parseInt(id), jsonObject);
                     if (l != null ) {
                         try {
                             License licenseByName = this.licensesManager.getLicenseByName(l.getName());
@@ -193,7 +194,7 @@ public class LicensesResource {
             JSONArray jsonLicenses = jsonObject.getJSONArray("licenses");
             for (int i = 0; i < jsonLicenses.length(); i++) {
                 JSONObject jsonLic = jsonLicenses.getJSONObject(i);
-                lics.add(LicenseUtils.licenseFromJSON(jsonLic));
+                lics.add(LicenseTOJSONSupport.licenseFromJSON(jsonLic));
             }
             try {
                 this.licensesManager.changeOrdering(lics);
@@ -272,7 +273,7 @@ public class LicensesResource {
         });
 
         JSONArray jsonArray = new JSONArray();
-        licenses.stream().map(LicenseUtils::licenseToJSON)
+        licenses.stream().map(LicenseTOJSONSupport::licenseToJSON)
                 .forEach(jsonArray::put);
         return Response.ok().entity(jsonArray.toString()).build();
     }

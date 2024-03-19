@@ -37,12 +37,12 @@ public class BenevolentModelFilter  extends AbstractCriterium implements RightCr
      * @see cz.incad.kramerius.security.RightCriterium#evaluate()
      */
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         return evaluateInternal(getObjects(), getEvaluateContext());
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         switch (dataMockExpectation) {
             case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
             case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;

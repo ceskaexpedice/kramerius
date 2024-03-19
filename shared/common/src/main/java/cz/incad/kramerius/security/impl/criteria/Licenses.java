@@ -9,6 +9,7 @@ import org.w3c.dom.Document;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.DataMockExpectation;
 import cz.incad.kramerius.security.EvaluatingResultState;
+import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumLabelAware;
@@ -16,11 +17,10 @@ import cz.incad.kramerius.security.RightCriteriumPriorityHint;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.security.licenses.License;
 
 public class Licenses extends AbstractCriterium implements RightCriteriumLabelAware{
-
     
     // backward compatibility
     public static final String PROVIDED_BY_DNNT_LABEL = "providedByLabel";
@@ -32,7 +32,7 @@ public class Licenses extends AbstractCriterium implements RightCriteriumLabelAw
     private License license;
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         try {
             RightCriteriumContext ctx =  getEvaluateContext();
             String pid = ctx.getRequestedPid();
@@ -42,13 +42,16 @@ public class Licenses extends AbstractCriterium implements RightCriteriumLabelAw
                 if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                     SolrAccess solrAccess = ctx.getSolrAccessNewIndex();
                     Document doc = solrAccess.getSolrDataByPid(pid);
-
-                    boolean applied =  CriteriaDNNTUtils.matchLicense(doc, getLicense());
+                    License lic = getLicense();
+                    boolean applied =  CriteriaLicenseUtils.matchLicense(doc, lic);
                     if (applied) {
-                        // select label
-                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL, getLicense().getName());
-                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_DNNT_LICENSE, getLicense().getName());
-                        return EvaluatingResultState.TRUE;
+                        if (lic.exclusiveLockPresent()) {
+                            return CriteriaLicenseUtils.licenseLock(right, ctx, pid, lic);
+                        } else {
+                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LABEL, getLicense().getName());
+                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LICENSE, getLicense().getName());
+                            return EvaluatingResultState.TRUE;
+                        }
                     }
                 }
             }
@@ -60,7 +63,7 @@ public class Licenses extends AbstractCriterium implements RightCriteriumLabelAw
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         switch (dataMockExpectation) {
             case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
             case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;

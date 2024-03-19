@@ -48,7 +48,7 @@ import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
@@ -154,17 +154,17 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             User user = this.userProvider.get();
             logRecord.setUser(user.getLoginname());
             
-            RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
+            RightsReturnObject rightsReturnObject = CriteriaLicenseUtils.currentThreadReturnObject.get();
             Map<String, String> evaluateInfoMap = rightsReturnObject != null ? rightsReturnObject.getEvaluateInfoMap() : new HashMap<>();
             if (evaluateInfoMap != null) {
                 try {
                     JSONObject evaluateMap =   new JSONObject(evaluateInfoMap);
                     logRecord.setEvaluatedMap(evaluateMap.toString());
                     String providedByLicense = null;
-                    if (evaluateMap.has(ReadDNNTLabels.PROVIDED_BY_DNNT_LICENSE)) {
-                        providedByLicense = evaluateMap.getString(ReadDNNTLabels.PROVIDED_BY_DNNT_LICENSE);
-                    } else if (evaluateMap.has(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL)) {
-                        providedByLicense = evaluateMap.getString(ReadDNNTLabels.PROVIDED_BY_DNNT_LABEL);
+                    if (evaluateMap.has(ReadDNNTLabels.PROVIDED_BY_LICENSE)) {
+                        providedByLicense = evaluateMap.getString(ReadDNNTLabels.PROVIDED_BY_LICENSE);
+                    } else if (evaluateMap.has(ReadDNNTLabels.PROVIDED_BY_LABEL)) {
+                        providedByLicense = evaluateMap.getString(ReadDNNTLabels.PROVIDED_BY_LABEL);
                     }
                     if (providedByLicense != null) {
                         logRecord.setProvidedByLicense(providedByLicense);

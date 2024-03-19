@@ -84,7 +84,7 @@ public class RightImpl implements Right, Serializable {
     @Override
     public void setCriteriumWrapper(RightCriteriumWrapper rightCriterium) {
         if (rightCriterium.getRightCriterium().isRootLevelCriterum()) {
-            if (!this.pid.equals(SpecialObjects.REPOSITORY)) {
+            if (!this.pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                 throw new IllegalArgumentException("criterium must be associated only with "+SpecialObjects.REPOSITORY);
             }
         }
@@ -115,7 +115,7 @@ public class RightImpl implements Right, Serializable {
 
             checkPrecondition(rightsManager, rCrit);
 
-            EvaluatingResultState result = rCrit.evalute();
+            EvaluatingResultState result = rCrit.evalute(this);
             rCrit.setEvaluateContext(null);
             rCrit.setCriteriumParamValues(new Object[] {});
             return result;
@@ -134,7 +134,7 @@ public class RightImpl implements Right, Serializable {
 
             checkPrecondition(rightsManager, rCrit);
 
-            EvaluatingResultState result = rCrit.mockEvaluate(dataExpectation);
+            EvaluatingResultState result = rCrit.mockEvaluate(this, dataExpectation);
             rCrit.setEvaluateContext(null);
             rCrit.setCriteriumParamValues(new Object[] {});
             return result;

@@ -46,7 +46,7 @@ public class Window extends AbstractCriterium implements RightCriterium {
     }
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         if (getObjects().length >= 2) {
             int firstVal = Integer.parseInt((String) getObjects()[0]);
             int secondVal = Integer.parseInt((String) getObjects()[1]);
@@ -99,7 +99,7 @@ public class Window extends AbstractCriterium implements RightCriterium {
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         switch (dataMockExpectation) {
             case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
             case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;

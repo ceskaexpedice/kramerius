@@ -52,7 +52,7 @@ public class BenevolentMovingWall extends AbstractCriterium implements RightCrit
     }};
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         int configWall = Integer.parseInt((String) getObjects()[0]);
         ObjectPidsPath[] pathsToRoot = getEvaluateContext().getPathsToRoot();
         for (ObjectPidsPath pth : pathsToRoot) {
@@ -108,7 +108,7 @@ public class BenevolentMovingWall extends AbstractCriterium implements RightCrit
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         switch (dataMockExpectation) {
             case EXPECT_DATA_VAUE_EXISTS: return EvaluatingResultState.TRUE;
             case EXPECT_DATA_VALUE_DOESNTEXIST: return EvaluatingResultState.NOT_APPLICABLE;

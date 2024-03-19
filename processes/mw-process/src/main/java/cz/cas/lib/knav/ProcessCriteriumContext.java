@@ -8,6 +8,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 
 /**
  * Context for process
@@ -100,5 +101,10 @@ public class ProcessCriteriumContext implements RightCriteriumContext {
     @Override
     public Map<String, String> getEvaluateInfoMap() {
         return this.map;
+    }
+
+    @Override
+    public ExclusiveLockMaps getExclusiveLockMaps() {
+        throw new UnsupportedOperationException("unsupported for this context");
     }
 }

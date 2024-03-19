@@ -41,7 +41,7 @@ import javax.xml.xpath.*;
 import cz.incad.kramerius.*;
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.security.RightsReturnObject;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
 import cz.incad.kramerius.statistics.database.StatisticDbInitializer;
@@ -141,7 +141,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
 
             User user = this.userProvider.get();
-            RightsReturnObject rightsReturnObject = CriteriaDNNTUtils.currentThreadReturnObject.get();
+            RightsReturnObject rightsReturnObject = CriteriaLicenseUtils.currentThreadReturnObject.get();
             Map<String, String> evaluateInfoMap = rightsReturnObject != null ? rightsReturnObject.getEvaluateInfoMap() : new HashMap<>();
 
             // insert standardni zaznam 

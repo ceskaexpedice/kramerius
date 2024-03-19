@@ -36,6 +36,7 @@ import cz.incad.kramerius.security.impl.DatabaseRightsManager;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 import cz.incad.kramerius.users.UserProfileManager;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -77,6 +78,9 @@ public class CDKUsersResource {
     @Inject
     LicensesManager licensesManager;
 
+    @Inject
+    ExclusiveLockMaps exclusiveLockMaps;
+    
 	public Response user() {
         try {
             User user = this.userProvider.get();
@@ -106,7 +110,7 @@ public class CDKUsersResource {
         );
         // mock evaluate this criteria
         List<String> evaluatedObjects = new ArrayList<>();
-        RightCriteriumContext ctx = this.ctxFactory.create(SpecialObjects.REPOSITORY.getPid(), ImageStreams.IMG_FULL.name(), user, this.provider.get().getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get()), null);
+        RightCriteriumContext ctx = this.ctxFactory.create(SpecialObjects.REPOSITORY.getPid(), ImageStreams.IMG_FULL.name(), user, this.provider.get().getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get()), null, this.exclusiveLockMaps);
         Arrays.stream(rightsAsssignedWithLabels).forEach(right -> {
             try {
                 EvaluatingResultState result = right.mockEvaluate(ctx, this.databaseRightsManager, DataMockExpectation.EXPECT_DATA_VAUE_EXISTS);

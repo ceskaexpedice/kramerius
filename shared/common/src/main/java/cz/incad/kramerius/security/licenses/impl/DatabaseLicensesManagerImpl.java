@@ -22,6 +22,8 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCCommand;
@@ -38,13 +40,16 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
     private SolrAccess solrAccess;
 
     private String acronym;
-
+    
+    private ExclusiveLockMaps maps;
+    
     @Inject
     public DatabaseLicensesManagerImpl(@Named("kramerius4") Provider<Connection> provider,
-            @Named("new-index") SolrAccess solrAccess) {
+            @Named("new-index") SolrAccess solrAccess, ExclusiveLockMaps maps) {
         this.provider = provider;
         this.solrAccess = solrAccess;
         this.acronym = KConfiguration.getInstance().getConfiguration().getString(ACRONYM_LIBRARY_KEY, "");
+        this.maps = maps;
     }
 
     @Override
@@ -325,6 +330,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
     @Override
     public void updateLocalLicense(License license) throws LicensesManagerException {
         try {
+            
             new JDBCTransactionTemplate(provider.get(), true).updateWithTransaction(new JDBCCommand() {
                 @Override
                 public Object executeJDBCCommand(Connection con) throws SQLException {
@@ -350,7 +356,8 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
                                         + " LOCK=true, "
                                         + " lock_maxreaders=?, "
                                         + " lock_refreshinterval=?, "
-                                        + " lock_maxinterval=? "
+                                        + " lock_maxinterval=?,"
+                                        + " lock_type=? "
                                         + " where label_id = ?");
 
                         prepareStatement.setString(1, license.getName());
@@ -359,11 +366,13 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
                         prepareStatement.setInt(4, license.getExclusiveLock().getRefreshInterval());
                         prepareStatement.setInt(5, license.getExclusiveLock().getMaxInterval());
 
+                        prepareStatement.setString(6, license.getExclusiveLock().getType().name());
                         
-                        prepareStatement.setInt(6, license.getId());
+                        prepareStatement.setInt(7, license.getId());
 
-                        return prepareStatement.executeUpdate();
-                        
+                        int executeUpdate = prepareStatement.executeUpdate();
+                        maps.refreshLicense(license);
+                        return executeUpdate;
                     }
 
                 }
@@ -487,11 +496,15 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
         int maxreaders = rs.getInt("LOCK_MAXREADERS");
         int refreshinterval = rs.getInt("LOCK_REFRESHINTERVAL");
         int maxinterval = rs.getInt("LOCK_MAXINTERVAL");
+        String lockTypeStr = rs.getString("LOCK_TYPE");
+
+        //ExclusiveLockType.findByType(lockTypeStr);
+        
         
         LicenseImpl licenseImpl = new LicenseImpl(labelId, name, description, groupName, priority);
         
         if (lock) {
-            licenseImpl.initExclusiveLock(refreshinterval, maxinterval, maxreaders);
+            licenseImpl.initExclusiveLock(refreshinterval, maxinterval, maxreaders,ExclusiveLockType.findByType(lockTypeStr));
         }
 
         return licenseImpl;

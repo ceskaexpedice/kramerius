@@ -18,6 +18,9 @@ package cz.incad.kramerius.security.licenses;
 
 import java.util.regex.Pattern;
 
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+
 /**
  * Represents a license object
  * @author happy
@@ -81,7 +84,7 @@ public interface License {
 
     public ExclusiveLock getExclusiveLock();
     
-    public void initExclusiveLock(int refresh, int max, int readers);
+    public void initExclusiveLock(int refresh, int max, int readers, ExclusiveLockType type);
         
     public void deleteExclusiveLock();
     

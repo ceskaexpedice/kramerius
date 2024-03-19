@@ -21,12 +21,12 @@ import cz.incad.kramerius.security.*;
 public class SecuredStreams extends AbstractCriterium implements RightCriterium {
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         return EvaluatingResultState.TRUE;
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         return EvaluatingResultState.TRUE;
     }
 

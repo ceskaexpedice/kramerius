@@ -24,6 +24,7 @@ import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
 
 public class RightsDBUtils {
 
@@ -55,6 +56,17 @@ public class RightsDBUtils {
             RightCriteriumWrapper rightCriteriumWrapper = factory.loadExistingWrapper(type, qname, criteriumId, createCriteriumParams(rs));
             if (rightCriteriumWrapper.isLicenseAwareCriterium()) {
                 License licenseImpl = new LicenseImpl(rs.getInt("label_id"), rs.getString("label_name"),  rs.getString("label_description"),rs.getString("label_group"),rs.getInt("label_priority"));
+
+                boolean lock = rs.getBoolean("LOCK");
+                int maxreaders = rs.getInt("LOCK_MAXREADERS");
+                int refreshinterval = rs.getInt("LOCK_REFRESHINTERVAL");
+                int maxinterval = rs.getInt("LOCK_MAXINTERVAL");
+                String lockTypeStr = rs.getString("LOCK_TYPE");
+                
+                if (lock) {
+                    licenseImpl.initExclusiveLock(refreshinterval, maxinterval, maxreaders,ExclusiveLockType.findByType(lockTypeStr));
+                }
+                
                 rightCriteriumWrapper.setLicense(licenseImpl);
             }
             return rightCriteriumWrapper;

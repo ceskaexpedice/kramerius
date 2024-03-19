@@ -31,6 +31,8 @@ import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 import cz.incad.kramerius.security.impl.RightCriteriumWrapperFactoryImpl;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.impl.DatabaseLicensesManagerImpl;
+import cz.incad.kramerius.security.licenses.impl.lock.ExclusiveLockMapsImpl;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 
 /**
  * Base abstract module for security in K4
@@ -45,6 +47,8 @@ public class GuiceSecurityModule extends AbstractModule {
         bind(RightCriteriumContextFactory.class).to(RightCriteriumContextFactoryImpl.class);
         bind(LicensesManager.class).to(DatabaseLicensesManagerImpl.class);
 
+        bind(ExclusiveLockMaps.class).to(ExclusiveLockMapsImpl.class).asEagerSingleton();
+        
 
         // bind criterium loaders
         Multibinder<RightCriteriumLoader> criteriumLoders = Multibinder.newSetBinder(binder(), RightCriteriumLoader.class);

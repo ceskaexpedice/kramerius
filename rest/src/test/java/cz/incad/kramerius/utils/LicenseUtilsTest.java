@@ -19,9 +19,9 @@ package cz.incad.kramerius.utils;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
+import cz.incad.kramerius.security.licenses.utils.LicenseTOJSONSupport;
 import io.smallrye.common.constraint.Assert;
 
 public class LicenseUtilsTest {
@@ -30,11 +30,11 @@ public class LicenseUtilsTest {
     public void testLicenseToJSON() {
         JSONObject mobj =new JSONObject("{\"name\":\"inovatika_test\",\"description\":\"desc\",\"id\":-1,\"priority\":1,\"group\":\"group\"}");
         License plainLicense = new LicenseImpl("inovatika_test", "desc", "group");
-        Assert.assertTrue(mobj.toString().equals(LicenseUtils.licenseToJSON(plainLicense).toString()));
+        Assert.assertTrue(mobj.toString().equals(LicenseTOJSONSupport.licenseToJSON(plainLicense).toString()));
         
         JSONObject exclusivemobj = new JSONObject("{\"name\":\"inovatika_exclusive_test\",\"description\":\"desc\",\"exclusive\":false,\"maxreaders\":1,\"id\":-1,\"refreshinterval\":100,\"priority\":1,\"maxinterval\":1000,\"group\":\"group\"}");
         License exclusiveLicense = new LicenseImpl("inovatika_exclusive_test", "desc", "group");
-        exclusiveLicense.initExclusiveLock(100, 1000, 1);
-        System.out.println(exclusivemobj.toString().equals(LicenseUtils.licenseToJSON(exclusiveLicense).toString()));
+        exclusiveLicense.initExclusiveLock(100, 1000, 1, null);
+        System.out.println(exclusivemobj.toString().equals(LicenseTOJSONSupport.licenseToJSON(exclusiveLicense).toString()));
     }
 }

@@ -42,11 +42,11 @@ import javax.ws.rs.core.UriBuilderException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.DeleteException;
-import cz.incad.kramerius.rest.api.k5.admin.utils.LicenseUtils;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.security.licenses.utils.LicenseTOJSONSupport;
 import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -489,7 +489,7 @@ public class RightsResource {
                 List<License> licenses = this.licensesManager.getLicenses();
                 JSONArray jsonArray = new JSONArray();
                 licenses.stream().forEach(l -> {
-                    JSONObject labelObject = LicenseUtils.licenseToJSON(l);
+                    JSONObject labelObject = LicenseTOJSONSupport.licenseToJSON(l);
                     jsonArray.put(labelObject);
                 });
                 return Response.ok().entity(jsonArray.toString()).build();

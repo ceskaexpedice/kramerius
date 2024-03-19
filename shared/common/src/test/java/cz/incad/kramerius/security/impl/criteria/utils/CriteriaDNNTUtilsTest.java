@@ -27,14 +27,14 @@ public class CriteriaDNNTUtilsTest extends TestCase  {
     @Test
     public void testCriteriaDNNTUtilsTest() throws LexerException, ParserConfigurationException, SAXException, RightCriteriumException, IOException {
         RightCriteriumContext ctx = ctx("uuid:aaa","solr_dnnt.xml");
-        EvaluatingResultState evaluatingResultState = CriteriaDNNTUtils.checkDnnt(ctx);
+        EvaluatingResultState evaluatingResultState = CriteriaLicenseUtils.checkDnnt(ctx);
         Assert.assertTrue(evaluatingResultState.equals(EvaluatingResultState.TRUE));
     }
 
     @Test
     public void testCriteriaDNNTUtilsTest_2() throws LexerException, ParserConfigurationException, SAXException, RightCriteriumException, IOException {
         RightCriteriumContext ctx = ctx("uuid:aaa","solr_wo_dnnt.xml");
-        EvaluatingResultState evaluatingResultState = CriteriaDNNTUtils.checkDnnt(ctx);
+        EvaluatingResultState evaluatingResultState = CriteriaLicenseUtils.checkDnnt(ctx);
         Assert.assertTrue(evaluatingResultState.equals(EvaluatingResultState.NOT_APPLICABLE));
     }
 
@@ -48,7 +48,7 @@ public class CriteriaDNNTUtilsTest extends TestCase  {
         RightCriteriumContextFactoryImpl contextFactory = new RightCriteriumContextFactoryImpl();
         contextFactory.setSolrAccessNewIndex(solrAccess);
 
-        RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1", null);
+        RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1", null, null);
         return context;
 
     }

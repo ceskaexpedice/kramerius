@@ -89,13 +89,13 @@ public class WindowTest {
         contextFactory.setFedoraAccess(fa4);
         contextFactory.setSolrAccessNewIndex(solrAccess);
 
-        RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1", null);
+        RightCriteriumContext context = contextFactory.create(requestedPID, null, null, "localhost", "127.0.0.1", null, null);
 
         Window window = new Window();
         window.setCriteriumParamValues(new Object[] {firstYearFromGUI,secondYearFromGUI});
         window.setEvaluateContext(context);
 
-        EvaluatingResultState evaluated = window.evalute();
+        EvaluatingResultState evaluated = window.evalute(null);
         return evaluated;
     }
 

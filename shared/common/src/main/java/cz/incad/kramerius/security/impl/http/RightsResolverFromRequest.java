@@ -26,10 +26,11 @@ import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils.currentThreadReturnObject;
+import static cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils.currentThreadReturnObject;
 
 public class RightsResolverFromRequest implements RightsResolver {
 
@@ -41,16 +42,19 @@ public class RightsResolverFromRequest implements RightsResolver {
     private RightsManager rightsManager;
     private RightCriteriumContextFactory ctxFactory;
     private Provider<User> currentLoggedUser;
+    
+    private ExclusiveLockMaps exclusiveLockMaps;
 
 
     @Inject
-    public RightsResolverFromRequest(Logger logger, Provider<HttpServletRequest> provider, RightsManager rightsManager, RightCriteriumContextFactory contextFactory, Provider<User> currentUserProvider) {
+    public RightsResolverFromRequest(Logger logger, Provider<HttpServletRequest> provider, RightsManager rightsManager, RightCriteriumContextFactory contextFactory, Provider<User> currentUserProvider, ExclusiveLockMaps maps) {
         super();
         this.logger = logger;
         this.provider = provider;
         this.rightsManager = rightsManager;
         this.ctxFactory = contextFactory;
         this.currentLoggedUser = currentUserProvider;
+        this.exclusiveLockMaps  = maps;
     }
 
     @Override
@@ -77,7 +81,7 @@ public class RightsResolverFromRequest implements RightsResolver {
     public RightsReturnObject[] isActionAllowedForAllPath(String actionName, String pid, String stream, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
-            RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get()), this);
+            RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get()), this, this.exclusiveLockMaps);
             return this.rightsManager.resolveAllPath(ctx, pid, path, actionName, user);
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
@@ -95,7 +99,7 @@ public class RightsResolverFromRequest implements RightsResolver {
     }
 
     public RightsReturnObject isAllowedInternalForFedoraDocuments(String actionName, String pid, String stream, ObjectPidsPath path, User user) throws RightCriteriumException {
-        RightCriteriumContext ctx = this.ctxFactory.create(pid, stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get()), this);
+        RightCriteriumContext ctx = this.ctxFactory.create(pid, stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get()), this, this.exclusiveLockMaps);
         RightsReturnObject resolved = this.rightsManager.resolve(ctx, pid, path, actionName, user);
         // TODO: Change it in future
         currentThreadReturnObject.set(resolved);

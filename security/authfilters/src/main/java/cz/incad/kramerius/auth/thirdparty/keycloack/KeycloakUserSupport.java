@@ -7,6 +7,7 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
+import cz.incad.kramerius.auth.thirdparty.keycloack.dnnt.StandardDNNTUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.keycloack.utils.BaseUsersFunctions;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 import cz.incad.kramerius.security.Role;
@@ -34,6 +35,8 @@ import java.util.stream.Collectors;
 
 public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak3rdUser> {
 
+    
+    
     private static final String EDU_PERSON_UNIQUE_ID = "eduPersonUniqueId";
     public static final Logger LOGGER = Logger.getLogger(KeycloakUserSupport.class.getName());
 
@@ -74,8 +77,9 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
         String name = req.getUserPrincipal().getName();
         // keycloak introspection
         KeycloakAccount kAcc = (KeycloakAccount) req.getAttribute(KeycloakAccount.class.getName());
+        //  role dle 
         Set<String> roleSet = new HashSet<>(kAcc.getRoles());
-
+        
         Keycloak3rdUser keycloack3rdUser = new Keycloak3rdUser(calculateUserName(req));
 
         AccessToken token = ((KeycloakPrincipal<KeycloakSecurityContext>) req.getUserPrincipal()).getKeycloakSecurityContext().getToken();
@@ -107,7 +111,9 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
                 keycloack3rdUser.setProperty(key, object.toString());
             }
         });
-
+        
+        /** standard dnnt user role */
+        StandardDNNTUsersSupport.makeSureDNNTUsersRole(keycloack3rdUser);
         
         return keycloack3rdUser;
     }

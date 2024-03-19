@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.DataMockExpectation;
 import cz.incad.kramerius.security.EvaluatingResultState;
+import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.RightCriteriumLabelAware;
 import cz.incad.kramerius.security.RightCriteriumPriorityHint;
@@ -31,7 +32,7 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaDNNTUtils;
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.security.licenses.License;
 
 public class PDFProtectedByLicense extends AbstractCriterium implements RightCriteriumLabelAware{
@@ -41,7 +42,7 @@ public class PDFProtectedByLicense extends AbstractCriterium implements RightCri
     private License license;
 
     @Override
-    public EvaluatingResultState evalute() throws RightCriteriumException {
+    public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         String requestedPid = null;
         try {
             requestedPid = this.getEvaluateContext().getRequestedPid();
@@ -50,7 +51,7 @@ public class PDFProtectedByLicense extends AbstractCriterium implements RightCri
                 ObjectPidsPath[] paths = this.getEvaluateContext().getSolrAccessNewIndex().getPidPaths(requestedPid);
                 for (ObjectPidsPath path : paths) {
                     RightsReturnObject obj = rightsResolver.isActionAllowed(SecuredActions.A_READ.getFormalName(), requestedPid, null, path);
-                    if (CriteriaDNNTUtils.allowedByReadLicenseRight(obj, getLicense())) return EvaluatingResultState.FALSE;
+                    if (CriteriaLicenseUtils.allowedByReadLicenseRight(obj, getLicense())) return EvaluatingResultState.FALSE;
                 }
             }
         } catch (IOException e) {
@@ -72,7 +73,7 @@ public class PDFProtectedByLicense extends AbstractCriterium implements RightCri
     }
 
     @Override
-    public EvaluatingResultState mockEvaluate(DataMockExpectation dataMockExpectation) throws RightCriteriumException {
+    public EvaluatingResultState mockEvaluate(Right right, DataMockExpectation dataMockExpectation) throws RightCriteriumException {
         return  EvaluatingResultState.NOT_APPLICABLE;
     }
 

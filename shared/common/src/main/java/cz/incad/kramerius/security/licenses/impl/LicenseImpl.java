@@ -16,8 +16,10 @@
  */
 package cz.incad.kramerius.security.licenses.impl;
 
-import cz.incad.kramerius.security.licenses.ExclusiveLock;
 import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.impl.lock.ExclusiveLockImpl;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
 
 import java.io.Serializable;
 
@@ -131,8 +133,12 @@ public class LicenseImpl implements License, Serializable {
     }
 
     @Override
-    public void initExclusiveLock(int refresh, int max, int readers) {
-        this.exclusiveLock = new ExclusiveLockImpl(refresh, max, readers);
+    public void initExclusiveLock(int refresh, int max, int readers, ExclusiveLockType type) {
+        if (type != null) {
+            this.exclusiveLock = new ExclusiveLockImpl(refresh, max, readers, type);
+        } else {
+            this.exclusiveLock = new ExclusiveLockImpl(refresh, max, readers);
+        }
     }
     
     @Override

@@ -101,7 +101,7 @@ public class CoverAndContentFilterTest {
 
 		  EasyMock.replay( acLog, feeder,fa4,ca,solrAccess, ctx);
 		  
-		  return ca.evalute();
+		  return ca.evalute(null);
 	  }
 
 	  private class TestFA extends FedoraAccessAkubraImpl {
