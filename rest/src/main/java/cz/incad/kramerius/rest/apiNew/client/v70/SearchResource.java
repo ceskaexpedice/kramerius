@@ -22,6 +22,9 @@ import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -47,6 +50,7 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 
@@ -60,6 +64,9 @@ public class SearchResource {
     private static final int DEFAULT_FRAG_SIZE = 20; //see api.search.highlight.defaultfragsize for old index
     private static final int MAX_FRAG_SIZE = 120; //see api.search.highlight.maxfragsize for old index
 
+    @Inject
+    private LicensesManager licensesManager;
+    
     @Inject
     @Named("new-index")
     private SolrAccess solrAccess;
@@ -246,7 +253,14 @@ public class SearchResource {
      * @param rawString SOLR response
      */
     private JSONObject buildJsonFromRawSolrResponse(String rawString, String context, List<JSONDecorator> decs) throws UnsupportedEncodingException, JSONException {
-        //List<JSONDecorator> decs = this.jsonDecoratorAggregates.getDecorators();
+        List<String> sortedLicenses = new ArrayList<>();
+        try {
+            List<License> allLicenses = this.licensesManager.getAllLicenses();
+            sortedLicenses =  allLicenses.stream().map(License::getName).collect(Collectors.toList());
+        } catch (LicensesManagerException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+        
         List<JSONArray> docsArrays = new ArrayList<JSONArray>();
 
         JSONObject resultJSONObject = new JSONObject(rawString);
@@ -283,13 +297,48 @@ public class SearchResource {
                 JSONObject docJSON = (JSONObject) docs.get(i);
                 // fiter protected fields
                 filterOutFieldsFromJSON(docJSON);
-                // decorators
+                // decorators TODO: Delete, unused
                 applyDecorators(context, decs, docJSON);
+                // sort keys: licenses_of_ancestors, licenses,  contains_licenses
+                if (sortedLicenses.size() > 0) {
+                    List<String> keys = Arrays.asList("licenses_of_ancestors","licenses","contains_licenses");
+                    for (String key : keys) {
+                        if (docJSON.has(key)) {
+                            JSONArray licArray = docJSON.getJSONArray(key);
+                            List<String> notSortedSubLicenses = toStringList(licArray);
+                            List<String> sortedSubLicenses = resortLicenses(sortedLicenses, notSortedSubLicenses);
+                            docJSON.put(key, toJSONArray(sortedSubLicenses));
+                        }
+                    }
+                }
             }
         }
         return resultJSONObject;
     }
+    
+    private List<String> resortLicenses(List<String> sortedLicenses, List<String> notSortedLicenses) {
+        List<String> sortedNotSorted = new ArrayList<>();
+        for (String license : sortedLicenses) {
+            if (notSortedLicenses.contains(license)) {
+                sortedNotSorted.add(license);
+            }
+        }
+        return sortedNotSorted;
+    }
+    private List<String> toStringList(JSONArray licArray) {
+        List<String> licArrayValues = new ArrayList<>();
+        for (int j = 0; j < licArray.length(); j++) { licArrayValues.add(licArray.getString(j)); }
+        return licArrayValues;
+    }
 
+    private JSONArray toJSONArray(List<String> stringList) {
+        JSONArray jsonArray = new JSONArray();
+        for (String str : stringList) {
+            jsonArray.put(str);
+        }
+        return jsonArray;
+    }
+    
     private void applyDecorators(String context, List<JSONDecorator> decs, JSONObject docJSON) throws JSONException {
         // decorators
         Map<String, Object> runtimeCtx = new HashMap<String, Object>();
