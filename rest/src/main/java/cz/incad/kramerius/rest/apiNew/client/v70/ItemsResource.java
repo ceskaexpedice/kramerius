@@ -64,6 +64,7 @@ import javax.imageio.ImageIO;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.PathSegment;
@@ -207,6 +208,8 @@ public class ItemsResource extends ClientApiResource {
     public ItemsResource() {
         super();
         this.c = Client.create();
+        this.c.setConnectTimeout(5000);
+        this.c.setReadTimeout(10000);
     }
 
     
