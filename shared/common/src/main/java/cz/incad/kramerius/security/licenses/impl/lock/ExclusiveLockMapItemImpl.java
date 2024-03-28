@@ -36,20 +36,29 @@ public class ExclusiveLockMapItemImpl implements ExclusiveLockMapItem {
     private Instant createdTime;
     private Instant refreshedTime;
     private Instant maxTime;
-    
+    private String userId;
 
         
     public ExclusiveLockMapItemImpl(String tokenId, int refreshInterval, Instant createdTime, Instant refreshedTime,
-            Instant maxTime/*, String pid*/) {
+            Instant maxTime/*, String pid*/, String userName) {
         super();
         this.tokenId = tokenId;
         this.refreshInterval = refreshInterval;
         this.createdTime = createdTime;
         this.refreshedTime = refreshedTime;
         this.maxTime = maxTime;
+        this.userId = userName;
     }
 
+
     
+
+
+
+    @Override
+    public String getUserId() {
+        return this.userId;
+    }
 
 
 
@@ -107,6 +116,7 @@ public class ExclusiveLockMapItemImpl implements ExclusiveLockMapItem {
     @Override
     public JSONObject toJSONObject() {
         JSONObject retval = new JSONObject();
+        retval.put("username", this.userId);
         retval.put("tokenId", this.tokenId);
         retval.put("refreshInterval", this.refreshInterval);
         retval.put("createdTime", DateTimeFormatter.ISO_INSTANT.format(this.createdTime));
@@ -114,8 +124,6 @@ public class ExclusiveLockMapItemImpl implements ExclusiveLockMapItem {
         retval.put("maxTime", DateTimeFormatter.ISO_INSTANT.format(this.maxTime));
         return retval;
     }
-
-
 
     @Override
     public int hashCode() {

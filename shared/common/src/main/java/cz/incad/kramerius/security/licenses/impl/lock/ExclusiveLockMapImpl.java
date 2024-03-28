@@ -34,6 +34,7 @@ import cz.incad.kramerius.security.licenses.utils.LicenseTOJSONSupport;
 
 public class ExclusiveLockMapImpl implements ExclusiveLockMap {
 
+    private String formattedName;
     private String pid;
     private License license;
     private String hash;
@@ -42,11 +43,18 @@ public class ExclusiveLockMapImpl implements ExclusiveLockMap {
     private Map<String, ExclusiveLockMapItem> itemsMap = new HashMap<>();
     private List<ExclusiveLockMapItem> items = new ArrayList<>();
 
-    public ExclusiveLockMapImpl(License license, String pid)  {
+    public ExclusiveLockMapImpl(License license, String pid, String hash,String fmtName)  {
         super();
         this.license = license;
         this.pid = pid;
+        this.formattedName = fmtName;
+        this.hash = hash;
         this.refereshLicense(license);
+    }
+    
+    @Override
+    public String getFormatedName() {
+        return this.formattedName;
     }
 
     @Override
@@ -148,6 +156,7 @@ public class ExclusiveLockMapImpl implements ExclusiveLockMap {
     @Override
     public JSONObject toJSONHeaderObject() {
         JSONObject obj = new JSONObject();
+        obj.put("formattedName", this.formattedName);
         obj.put("hash", this.hash);
         obj.put("pid", this.pid);
         obj.put("maxItems", this.maxItemsForPid);

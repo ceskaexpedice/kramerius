@@ -22,7 +22,7 @@ import cz.incad.kramerius.security.licenses.License;
 
 public interface ExclusiveLockMaps {
     
-    public ExclusiveLockMap findOrCreateByHash(String hash, License license, String pid);
+    public ExclusiveLockMap findOrCreateByHash(String hash, License license, String pid, String fmtName);
     
     public ExclusiveLockMap findHash(String hash);
     

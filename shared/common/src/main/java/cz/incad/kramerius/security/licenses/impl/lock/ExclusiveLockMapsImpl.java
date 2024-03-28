@@ -32,9 +32,9 @@ public class ExclusiveLockMapsImpl implements ExclusiveLockMaps {
     
     
     @Override
-    public synchronized ExclusiveLockMap findOrCreateByHash(String hash, License l, String pid) {
+    public synchronized ExclusiveLockMap findOrCreateByHash(String hash, License l, String pid, String fmtName) {
         if (!this.maps.containsKey(hash)) {
-            this.maps.put(hash, new ExclusiveLockMapImpl(l,pid));
+            this.maps.put(hash, new ExclusiveLockMapImpl(l,pid, hash, fmtName));
         }
         return this.maps.get(hash);
     }

@@ -88,12 +88,12 @@ public class ExclusiveLockImpl implements ExclusiveLock {
         switch(this.type) {
             case INSTANCE: 
                 String instanceHashName = String.format("%s_%s", license.getName(), pid);
-                return instanceHashName;
-                //return DigestUtils.md5Hex(instanceHashName);
+                //return instanceHashName;
+                return DigestUtils.md5Hex(instanceHashName);
             case RULE: 
                 String ruleHashName = String.format("%s_%s_%d_%s", license.getName(), pid, right.getId(), right.getRole().getName());
-                return ruleHashName;
-                //return DigestUtils.md2Hex(ruleHashName);
+                //return ruleHashName;
+                return DigestUtils.md2Hex(ruleHashName);
         }
         return null;
     }

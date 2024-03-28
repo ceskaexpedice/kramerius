@@ -22,6 +22,7 @@ import org.json.JSONObject;
 
 public interface ExclusiveLockMapItem {
     
+    public String getUserId();
     
     public String getTokenId();
     

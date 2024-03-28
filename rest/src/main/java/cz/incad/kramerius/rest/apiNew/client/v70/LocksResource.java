@@ -76,15 +76,17 @@ public class LocksResource extends ClientApiResource {
                             JSONObject jsonObject = item.toJSONObject();
                             return Response.ok(jsonObject.toString()).type(MediaType.APPLICATION_JSON).build();
                         } else {
+                            LOGGER.log(Level.SEVERE,"Item is not valid!");
                             lockMap.deregisterItem(item);
                             return Response.status(Status.NOT_FOUND).build();
                         }
-                        
                     } else {
+                        LOGGER.log(Level.SEVERE,"Item by token id is not found");
                         return Response.status(Status.NOT_FOUND).build();
                     }
                 }
             } else {
+                LOGGER.log(Level.SEVERE,"Exclusive map not found ");
                 return Response.status(Status.NOT_FOUND).build();
             }
         } catch (WebApplicationException e) {
@@ -117,18 +119,20 @@ public class LocksResource extends ClientApiResource {
                             if (lockMap.checkAvailabitlity()) {
                                 ExclusiveLock lock = lockMap.getAssociatedExcelusiveLock();
                                 Instant now = Instant.now();
-                                ExclusiveLockMapItem nitem = new ExclusiveLockMapItemImpl(tokenId, lock.getRefreshInterval(), now, now, now.plusSeconds(lock.getMaxInterval()));
+                                ExclusiveLockMapItem nitem = new ExclusiveLockMapItemImpl(tokenId, lock.getRefreshInterval(), now, now, now.plusSeconds(lock.getMaxInterval()), user.getLoginname());
                                 lockMap.registerItem(nitem);
                                 return Response.ok(nitem.toJSONObject().toString()).type(MediaType.APPLICATION_JSON).build();
                             } else {
-                                return Response.status(Status.NOT_FOUND).type(MediaType.APPLICATION_JSON).build();
+                                return Response.status(429).type(MediaType.APPLICATION_JSON).build();
                             }
                         }
                     }
                 } else {
+                    LOGGER.log(Level.SEVERE,"Token id not found!");
                     return Response.status(Status.NOT_FOUND).type(MediaType.APPLICATION_JSON).build();
                 }
             } else {
+                LOGGER.log(Level.SEVERE,"Hash table not found!");
                 return Response.status(Status.NOT_FOUND).build();
             }
         } catch (WebApplicationException e) {

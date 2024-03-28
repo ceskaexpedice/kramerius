@@ -148,7 +148,7 @@ public class CriteriaLicenseUtils {
             }
             
             String lockHash = exclusiveLock.createLockHash(lic, right, licensesPid);
-            ExclusiveLockMap lockMap = ctx.getExclusiveLockMaps().findOrCreateByHash(lockHash, lic, licensesPid);
+            ExclusiveLockMap lockMap = ctx.getExclusiveLockMaps().findOrCreateByHash(lockHash, lic, licensesPid, createFormattedName(right));
             synchronized (INTERNAL_SYNC_LOCK) {
                 ExclusiveLockMapItem item = lockMap.findByTokenId(tokenId);
                 if (item != null) {
@@ -179,6 +179,18 @@ public class CriteriaLicenseUtils {
             // }
         } else {
             return EvaluatingResultState.NOT_APPLICABLE;
+        }
+    }
+    
+    public static String createFormattedName(Right r) {
+        if (r.getCriteriumWrapper() != null) {
+            if (r.getCriteriumWrapper().getCriteriumParams() != null ) {
+                return String.format("%s | %s | %s", r.getRole().getName(), r.getCriteriumWrapper().getLicense().getName(), r.getCriteriumWrapper().getCriteriumParams().getShortDescription());
+            } else {
+                return String.format("%s | %s", r.getRole().getName(), r.getCriteriumWrapper().getLicense().getName());
+            }
+        } else {
+            return String.format("%s", r.getRole());
         }
     }
 }

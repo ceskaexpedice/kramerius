@@ -19,6 +19,7 @@ import org.keycloak.representations.idm.GroupRepresentation;
 
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
+import cz.incad.kramerius.auth.thirdparty.keycloack.dnnt.StandardDNNTUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.keycloack.utils.BaseUsersFunctions;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 import cz.incad.kramerius.processes.cdk.KeycloakCDKCache;
@@ -149,6 +150,9 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
         });
         this.cache.registerUser(userName, userName, userName, userAttributes, groups.stream().map(GroupRepresentation::getName).collect(Collectors.toList()));
         
+        /** standard dnnt user role */
+        StandardDNNTUsersSupport.makeSureDNNTUsersRole(cdkUser);
+
         return cdkUser;
     }
 

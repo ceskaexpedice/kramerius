@@ -80,6 +80,33 @@ public class AdminLockResource extends AdminApiResource {
     }
     
 
+    
+    @GET
+    @Path("license/{license}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getLocksByLicense(@PathParam("license") String license) {
+        if (permit(this.userProvider.get()))  {
+            try {
+                JSONArray jsonArray = new JSONArray();
+                List<String> allHashes = this.exclusiveLockMaps.getAllHashes();
+                for (String h : allHashes) {
+                    ExclusiveLockMap lockMap = this.exclusiveLockMaps.findHash(h);
+                    if (lockMap.getAssociatedLicense().getName().equals(license)) {
+                        jsonArray.put(lockMap.toJSONHeaderObject());
+                    }
+                }
+                return Response.ok(jsonArray.toString()).build();
+            } catch (WebApplicationException e) {
+                throw e;
+            } catch (Throwable e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
+            }
+        } else {
+            throw new ActionNotAllowed("action is not allowed");
+        }
+    }
+    
     @GET
     @Path("{hash}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")

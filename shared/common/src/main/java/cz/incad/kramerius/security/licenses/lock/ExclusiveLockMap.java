@@ -28,7 +28,10 @@ public interface ExclusiveLockMap {
     
     public String LOCK_HASH = "lockHash";
     public String LOCK_TYPE = "lockType";
-
+    
+    public String getFormatedName();
+    
+    
     public String getPid();
 
     public License getAssociatedLicense();
