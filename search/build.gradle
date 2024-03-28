@@ -129,8 +129,8 @@ repositories {
 
 jib {
     from {
-        //image = 'tomcat:9.0.67-jre11-temurin-jammy'
-        image = 'bitnami/tomcat:9.0.75'
+        image = 'tomcat:9.0.87-jre11-temurin-jammy'
+        //image = 'bitnami/tomcat:9.0.75'
         platforms {
             platform {
                 architecture = 'amd64'
@@ -146,9 +146,9 @@ jib {
         image = "ceskaexpedice/kramerius:${version}"
     }
     container {
-        //appRoot = '/usr/local/tomcat/webapps/search'
-        appRoot = '/opt/bitnami/tomcat/webapps/search'
-        user = '1001'
+        appRoot = '/usr/local/tomcat/webapps/search'
+        //appRoot = '/opt/bitnami/tomcat/webapps/search'
+        user = '0'
     }
 }
 
