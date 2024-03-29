@@ -1,5 +1,6 @@
 package cz.kramerius.searchIndex.indexer;
 
+import cz.incad.kramerius.utils.IterationUtils;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.shared.Dom4jUtils;
 import org.apache.http.auth.AuthScope;
@@ -27,7 +28,6 @@ import java.io.*;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -142,7 +142,7 @@ public class SolrIndexAccess {
 
     public UpdateResponse deleteById(String id) throws IOException, SolrServerException {
         //System.out.println("deleting " + id);
-        if (useCompositeId()) {
+        if (IterationUtils.useCompositeId()) {
             UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:" + id.replace(":", "\\:"));
         } else {
             UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
@@ -156,7 +156,7 @@ public class SolrIndexAccess {
     public UpdateResponse deleteByIds(List<String> ids) throws IOException, SolrServerException {
         //System.out.println("deleting " + id);
         for (String id : ids) {
-            if (useCompositeId()) {
+            if (IterationUtils.useCompositeId()) {
                 UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:" + id.replace(":", "\\:"));
             } else {
                 UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
@@ -255,7 +255,7 @@ public class SolrIndexAccess {
                 List<SolrInputDocument> inputDocs = new ArrayList<>();
                 for (String pid : pids) {
                     SolrInputDocument inputDoc = new SolrInputDocument();
-                    if (useCompositeId()){
+                    if (IterationUtils.useCompositeId()){
                         inputDoc.addField("compositeId", getCompositeIdByPid(pid));
                     }
                     inputDoc.addField("pid", pid);
@@ -290,7 +290,7 @@ public class SolrIndexAccess {
                 List<SolrInputDocument> inputDocs = new ArrayList<>();
                 for (String pid : pids) {
                     SolrInputDocument inputDoc = new SolrInputDocument();
-                    if (useCompositeId()){
+                    if (IterationUtils.useCompositeId()){
                         inputDoc.addField("compositeId", getCompositeIdByPid(pid));
                     }
                     inputDoc.addField("pid", pid);

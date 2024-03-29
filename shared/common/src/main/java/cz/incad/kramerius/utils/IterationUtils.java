@@ -26,15 +26,24 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Generic iteration utils
- * @author happy
  *
+ * @author happy
  */
 public class IterationUtils {
 
-    /** Default fields for iteration  */
-    public static final FieldsProvider DEFAULT_FIELDS_PROVIDER = new FieldsProvider("pid", Arrays.asList("pid","own_pid_path", "licenses", "licenses_of_ancestors","contains_licenses"));
-    
-    
+    /**
+     * Default fields for iteration
+     */
+    public static final FieldsProvider DEFAULT_FIELDS_PROVIDER = new FieldsProvider(getSortField(), Arrays.asList("pid", "own_pid_path", "licenses", "licenses_of_ancestors", "contains_licenses"));
+
+    public static String getSortField() {
+        return useCompositeId() ? "compositeId" : "pid";
+    }
+
+    public static boolean useCompositeId() {
+        return KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false);
+    }
+
     public static enum Endpoint {
         select, search
     }
@@ -61,7 +70,7 @@ public class IterationUtils {
 
     /**
      * Iteration by cursor
-     * 
+     *
      * @param client      Client
      * @param address     Solr address
      * @param masterQuery Master query
@@ -75,7 +84,7 @@ public class IterationUtils {
      * @throws BrokenBarrierException
      */
     public static void cursorIteration(Client client, String address, String masterQuery, IterationCallback callback,
-            IterationEndCallback endCallback) throws ParserConfigurationException, SAXException, IOException,
+                                       IterationEndCallback endCallback) throws ParserConfigurationException, SAXException, IOException,
             InterruptedException, BrokenBarrierException {
         String cursorMark = null;
         String queryCursorMark = null;
@@ -91,7 +100,7 @@ public class IterationUtils {
 
     /**
      * Iteration by cursor
-     * 
+     *
      * @param client      Client
      * @param address     Solr address
      * @param masterQuery Master query
@@ -104,13 +113,13 @@ public class IterationUtils {
      * @throws InterruptedException
      * @throws BrokenBarrierException
      */
-    public static void cursorIteration(FieldsProvider fieldsProvider,Endpoint endpoint, Client client, String address, String masterQuery,
-            IterationCallback callback, IterationEndCallback endCallback) throws ParserConfigurationException,
+    public static void cursorIteration(FieldsProvider fieldsProvider, Endpoint endpoint, Client client, String address, String masterQuery,
+                                       IterationCallback callback, IterationEndCallback endCallback) throws ParserConfigurationException,
             SAXException, IOException, InterruptedException, BrokenBarrierException {
         String cursorMark = null;
         String queryCursorMark = null;
         do {
-            Element element = pidsCursorQuery(fieldsProvider,endpoint, client, address, masterQuery, cursorMark);
+            Element element = pidsCursorQuery(fieldsProvider, endpoint, client, address, masterQuery, cursorMark);
             cursorMark = findCursorMark(element);
             queryCursorMark = findQueryCursorMark(element);
             if (callback != null) callback.call(element, cursorMark);
@@ -121,7 +130,7 @@ public class IterationUtils {
 
     /**
      * Iteration by filter
-     * 
+     *
      * @param client
      * @param address
      * @param masterQuery
@@ -135,7 +144,7 @@ public class IterationUtils {
      * @throws InterruptedException
      */
     public static void queryFilterIteration(Client client, String address, String masterQuery,
-            IterationCallback callback, IterationEndCallback endCallback) throws MigrateSolrIndexException, IOException,
+                                            IterationCallback callback, IterationEndCallback endCallback) throws MigrateSolrIndexException, IOException,
             SAXException, ParserConfigurationException, BrokenBarrierException, InterruptedException {
         String lastPid = null;
         String previousPid = null;
@@ -150,7 +159,7 @@ public class IterationUtils {
     }
 
     public static void queryPaginationIteration(Client client, String address, String masterQuery,
-            IterationCallback callback, IterationEndCallback endCallback) throws MigrateSolrIndexException, IOException,
+                                                IterationCallback callback, IterationEndCallback endCallback) throws MigrateSolrIndexException, IOException,
             SAXException, ParserConfigurationException, BrokenBarrierException, InterruptedException {
         int offset = 0;
         int numberOfResult = Integer.MAX_VALUE;
@@ -167,7 +176,7 @@ public class IterationUtils {
         endCallback.end();
     }
 
-    public static Element pidsFilterQuery(FieldsProvider fieldsProvider,Endpoint endpoint,  Client client, String url, String mq, String lastPid)
+    public static Element pidsFilterQuery(FieldsProvider fieldsProvider, Endpoint endpoint, Client client, String url, String mq, String lastPid)
             throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
         int rows = configuredRowsSize();
         String fq = filterQuery();
@@ -175,20 +184,20 @@ public class IterationUtils {
         if (StringUtils.isAnyString(fq)) {
             fullQuery = (lastPid != null
                     ? String.format("&rows=%d&fq=pid:%s", rows,
-                            URLEncoder.encode("[\"" + lastPid + "\" TO *] AND " + fq, "UTF-8"))
+                    URLEncoder.encode("[\"" + lastPid + "\" TO *] AND " + fq, "UTF-8"))
                     : String.format("&rows=%d&fq=%s", rows, URLEncoder.encode(fq, "UTF-8")));
         } else {
             fullQuery = (lastPid != null
                     ? String.format("&rows=%d&fq=pid:%s", rows,
-                            URLEncoder.encode("[\"" + lastPid + "\" TO *]", "UTF-8"))
+                    URLEncoder.encode("[\"" + lastPid + "\" TO *]", "UTF-8"))
                     : String.format("&rows=%d", rows));
         }
 
         String query = endpoint.name() + "?q=" + mq + fullQuery + "&sort=" + URLEncoder.encode(
-                String.format(DEFAULT_SORT_FIELD, fieldsProvider.getIdentifier()), "UTF-8") 
+                String.format(DEFAULT_SORT_FIELD, fieldsProvider.getIdentifier()), "UTF-8")
                 + "&fl=" + URLEncoder.encode(fieldsProvider.getFields().stream().collect(Collectors.joining(" ")), "UTF-8");
 
-                ;
+        ;
         return executeQuery(client, url, query);
     }
 
@@ -212,12 +221,12 @@ public class IterationUtils {
         int rows = configuredRowsSize();
         String query = endpoint.name() + "?q=" + mq
                 + (cursor != null ? String.format("&rows=%d&cursorMark=%s", rows, cursor)
-                        : String.format("&rows=%d&cursorMark=*", rows))
+                : String.format("&rows=%d&cursorMark=*", rows))
                 + "&sort="
                 + URLEncoder.encode(String.format(DEFAULT_SORT_FIELD, fieldsProvider.getIdentifier()),
-                        "UTF-8")
-                + "&fl=" + 
-                        URLEncoder.encode(fieldsProvider.getFields().stream().collect(Collectors.joining(" ")), "UTF-8");
+                "UTF-8")
+                + "&fl=" +
+                URLEncoder.encode(fieldsProvider.getFields().stream().collect(Collectors.joining(" ")), "UTF-8");
 
         return IterationUtils.executeQuery(client, url, query);
     }
@@ -369,30 +378,30 @@ public class IterationUtils {
         } else
             return new ArrayList<>();
     }
-    
-    
+
 
     public static class FieldsProvider {
-        
+
         private String identifier;
         private List<String> fields;
-        
-        
+
+
         public FieldsProvider(String identifier, List<String> fields) {
             super();
             this.identifier = identifier;
             this.fields = fields;
         }
 
-        public FieldsProvider(String identifier, String ...fields) {
+        public FieldsProvider(String identifier, String... fields) {
             super();
             this.identifier = identifier;
             this.fields = Arrays.asList(fields);
         }
+
         public String getIdentifier() {
             return identifier;
         }
-        
+
         public List<String> getFields() {
             return fields;
         }

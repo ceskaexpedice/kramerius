@@ -378,7 +378,7 @@ public class FromK5Instance {
 
     static Element pidsCursorQuery(Client client, String url, String mq,  String cursor)  throws ParserConfigurationException, SAXException, IOException{
         int rows = 1000;
-        String query = "search" + "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode("PID desc", "UTF-8")+"&fl=PID";
+        String query = "search" + "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(getSortField()+" desc", "UTF-8")+"&fl=pid";
         return IterationUtils.executeQuery(client, url, query);
     }
 

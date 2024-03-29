@@ -10,7 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static cz.kramerius.searchIndex.indexer.execution.Indexer.useCompositeId;
+import static cz.incad.kramerius.utils.IterationUtils.getSortField;
+import static cz.incad.kramerius.utils.IterationUtils.useCompositeId;
 
 public class ProcessHelper {
 
@@ -85,11 +86,7 @@ public class ProcessHelper {
             try {
                 List<String> result = new ArrayList<>();
                 cursorMark = nextCursorMark;
-                String sortField = "pid";
-                if (useCompositeId()){
-                    sortField = "compositeId";
-                }
-                String query = String.format("fl=pid&sort="+sortField+"+asc&rows=%d&q=%s&cursorMark=%s", BATCH_SIZE, URLEncoder.encode(q, "UTF-8"), cursorMark);
+                String query = String.format("fl=pid&sort="+getSortField()+"+asc&rows=%d&q=%s&cursorMark=%s", BATCH_SIZE, URLEncoder.encode(q, "UTF-8"), cursorMark);
                 JSONObject jsonObject = searchIndex.requestWithSelectReturningJson(query);
                 JSONObject response = jsonObject.getJSONObject("response");
                 nextCursorMark = jsonObject.getString("nextCursorMark");

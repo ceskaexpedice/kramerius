@@ -40,6 +40,8 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
+import static cz.incad.kramerius.utils.IterationUtils.getSortField;
+
 public class OAISet {
     
     public static final String DEFAULT_SET_KEYWORD = "DEFAULT";
@@ -168,7 +170,7 @@ public class OAISet {
     
     public OAIResults findRecords(SolrAccess solrAccess,String cursor, String metadataPrefix, int rows) throws IOException, ParserConfigurationException, SAXException {
 
-        String query = String.format("q=%s&cursorMark=%s&fl=pid&rows=%d&sort=pid+asc", this.filterQuery, cursor, rows);
+        String query = String.format("q=%s&cursorMark=%s&fl=pid&rows=%d&sort="+getSortField()+"+asc", this.filterQuery, cursor, rows);
         String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
         Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
         

@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static cz.incad.kramerius.utils.IterationUtils.getSortField;
+
 public class IterateThroughIndexPhase extends  AbstractPhase {
 
     public static final Logger LOGGER = Logger.getLogger(IterateThroughIndexPhase.class.getName());
@@ -130,10 +132,10 @@ public class IterateThroughIndexPhase extends  AbstractPhase {
     }
 
     private static String pagingUrl(String surl,int rows,String pid) throws UnsupportedEncodingException {
-        return surl + (surl.endsWith("/") ? "" : "/") + POSTFIX+"&fl=PID&sort=PID+asc&rows="+rows+(pid != null ? "&fq="+URLEncoder.encode("PID:{\"" + pid + "\" TO *]", "UTF-8") : "")+"&wt=xml";
+        return surl + (surl.endsWith("/") ? "" : "/") + POSTFIX+"&fl=PID&sort="+getSortField()+"+asc&rows="+rows+(pid != null ? "&fq="+URLEncoder.encode("PID:{\"" + pid + "\" TO *]", "UTF-8") : "")+"&wt=xml";
     }
     private static String cursorUrl(String surl, int rows, String cursorMark) {
-        return surl + (surl.endsWith("/") ? "" : "/") + POSTFIX+"&rows="+rows+"&sort=PID+asc&cursorMark="+cursorMark+"&wt=xml&fl=PID";
+        return surl + (surl.endsWith("/") ? "" : "/") + POSTFIX+"&rows="+rows+"&sort="+getSortField()+"+asc&cursorMark="+cursorMark+"&wt=xml&fl=PID";
     }
 
     private static int numFound(Document doc) {

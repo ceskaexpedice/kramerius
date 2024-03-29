@@ -1,7 +1,7 @@
 package cz.kramerius.searchIndex.indexer.execution;
 
 
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.IterationUtils;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
@@ -44,23 +44,19 @@ public class Indexer {
 
     private boolean ignoreInconsistentObjects=true;
 
-    public static boolean useCompositeId() {
-        return KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false);
-    }
-
     public static String getCompositeId(RepositoryNode repositoryNode, String pid) {
         String rootPid = (repositoryNode != null) ? repositoryNode.getRootPid() : "null";
         return rootPid + "!" + pid;
     }
 
     public static void ensureCompositeId(SolrInput solrInput, RepositoryNode repositoryNode, String pid) {
-        if (useCompositeId()) {
+        if (IterationUtils.useCompositeId()) {
             solrInput.addField("compositeId", getCompositeId(repositoryNode, pid));
         }
     }
 
     public static void ensureCompositeId(SolrInputDocument solrInput, RepositoryNode repositoryNode, String pid) {
-        if (useCompositeId()) {
+        if (IterationUtils.useCompositeId()) {
             solrInput.addField("compositeId", getCompositeId(repositoryNode, pid));
         }
     }
