@@ -46,6 +46,8 @@ import cz.incad.kramerius.utils.IterationUtils.Endpoint;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+import static cz.incad.kramerius.utils.IterationUtils.getSortField;
+
 /**
  * Transforming accesibility flag to license 
  * <ul>
@@ -123,7 +125,7 @@ public class FlagToLicenseProcess {
         List<String> privatePids = new ArrayList<>();
         
         
-        IterationUtils.cursorIteration(new IterationUtils.FieldsProvider("pid", "pid","root.pid","accessibility","model"), Endpoint.select, client, KConfiguration.getInstance().getSolrSearchHost() , encodedQ, (elm, iter)-> {
+        IterationUtils.cursorIteration(new IterationUtils.FieldsProvider(getSortField(), "pid","root.pid","accessibility","model"), Endpoint.select, client, KConfiguration.getInstance().getSolrSearchHost() , encodedQ, (elm, iter)-> {
             try {
                 List<Element> docs = XMLUtils.getElementsRecursive(elm, new XMLUtils.ElementsFilter() {
                     
