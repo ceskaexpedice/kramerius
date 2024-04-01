@@ -11,6 +11,7 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
+import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilder;
 import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilderImpl;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
@@ -60,6 +61,9 @@ public class ProcessingIndexRebuild {
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
         if (args.length>=1 && "REBUILDPROCESSING".equalsIgnoreCase(args[0])){
             LOGGER.info("Přebudování Processing indexu");
+            if (args.length >= 2 &&  "RUNHAZELCAST".equalsIgnoreCase(args[1])) {
+                HazelcastServerNode.ensureHazelcastNode();
+            }
         } else {
             ProcessStarter.updateName("Přebudování Processing indexu");
         }

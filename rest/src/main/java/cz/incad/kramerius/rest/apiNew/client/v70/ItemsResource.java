@@ -1152,14 +1152,41 @@ public class ItemsResource extends ClientApiResource {
                 if (size.toLowerCase().trim().contains("max") || size.toLowerCase().trim().contains("pct:")) {
                     checkUserIsAllowedToReadObject(pid);
                 }
-                // max allowed size = 512 
+                
                 String[] split = size.split(",");
+                /**
+                 * Support all options for size 
+                 * 
+                 * <ul>
+                 *  <li><code>w,</code> 
+                 * <li><code>^w,</code>
+                 * <li><code>,h<code>
+                 * <li><code>^,h</code>
+                 * <li><code>^w,h</code>
+                 * <li><code>!w,h</code>
+                 * <li><code>^!w,h</code>
+                 * </code>
+                 */
                 if (split.length >= 2) {
-                    int width = Integer.parseInt(split[0]);
-                    int height = Integer.parseInt(split[1]);
-                    if (width > MAX_TIME_SIZE || height > MAX_TIME_SIZE) {
-                        checkUserIsAllowedToReadObject(pid);
-                    } 
+                    String firstVal = split[0];
+                    String secondVal = split[1];
+                    
+                    if (firstVal.startsWith("^")) {
+                        firstVal = firstVal.substring(1);
+                    }
+                    
+                    if (firstVal.startsWith("!")) {
+                        firstVal = firstVal.substring(1);
+                    }
+                    try {
+                        int width = Integer.parseInt(firstVal);
+                        int height = Integer.parseInt(secondVal);
+                        if (width > MAX_TIME_SIZE || height > MAX_TIME_SIZE) {
+                            checkUserIsAllowedToReadObject(pid);
+                        } 
+                    } catch(Exception e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
                 }
             }
             InputStream stream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, "RELS-EXT");
