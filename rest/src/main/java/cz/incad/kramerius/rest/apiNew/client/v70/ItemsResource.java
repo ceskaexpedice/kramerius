@@ -1171,16 +1171,12 @@ public class ItemsResource extends ClientApiResource {
                     String firstVal = split[0];
                     String secondVal = split[1];
                     
-                    if (firstVal.startsWith("^")) {
-                        firstVal = firstVal.substring(1);
-                    }
+                    firstVal = iiifPrefix(firstVal);
+                    secondVal = iiifPrefix(secondVal);
                     
-                    if (firstVal.startsWith("!")) {
-                        firstVal = firstVal.substring(1);
-                    }
                     try {
-                        int width = Integer.parseInt(firstVal);
-                        int height = Integer.parseInt(secondVal);
+                        int width = StringUtils.isAnyString(firstVal)  ? Integer.parseInt(firstVal) : 0;
+                        int height = StringUtils.isAnyString(secondVal) ? Integer.parseInt(secondVal) :0;
                         if (width > MAX_TIME_SIZE || height > MAX_TIME_SIZE) {
                             checkUserIsAllowedToReadObject(pid);
                         } 
@@ -1225,6 +1221,17 @@ public class ItemsResource extends ClientApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    private String iiifPrefix(String firstVal) {
+        if (firstVal.startsWith("^")) {
+            firstVal = firstVal.substring(1);
+        }
+        
+        if (firstVal.startsWith("!")) {
+            firstVal = firstVal.substring(1);
+        }
+        return firstVal;
     }
 
     @GET
