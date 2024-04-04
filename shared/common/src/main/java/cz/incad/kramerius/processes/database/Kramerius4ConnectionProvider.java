@@ -42,7 +42,9 @@ public class Kramerius4ConnectionProvider implements Provider<Connection> {
     @Override
     public Connection get() {
         try {
-            return dataSource.getConnection();
+            Connection connection = dataSource.getConnection();
+            connection.setTransactionIsolation(KConfiguration.getInstance().getConfiguration().getInt("jdbcDefaultTransactionIsolationLevel",Connection.TRANSACTION_READ_COMMITTED));  //reset the default level (Process Manager sets it to SERIALIZABLE)
+            return connection;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IllegalStateException("Cannot get database connection from the pool.", e);

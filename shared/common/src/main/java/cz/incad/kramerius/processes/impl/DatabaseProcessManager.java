@@ -36,6 +36,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.FileUtils;
 
 import com.google.inject.Inject;
@@ -93,6 +94,11 @@ public class DatabaseProcessManager implements LRProcessManager {
         Connection connection = connectionProvider.get();
         if (connection == null) {
             throw new NotReadyException("connection not ready");
+        }
+        try {
+            connection.setTransactionIsolation(KConfiguration.getInstance().getConfiguration().getInt("jdbcProcessTransactionIsolationLevel",Connection.TRANSACTION_SERIALIZABLE));
+        } catch (SQLException e) {
+            throw new NotReadyException("connection not ready - "+e);
         }
         return connection;
     }
