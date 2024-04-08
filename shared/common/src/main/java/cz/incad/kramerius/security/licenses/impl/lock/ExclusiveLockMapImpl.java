@@ -27,6 +27,7 @@ import org.json.JSONObject;
 
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMapItem;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveMapException;
@@ -34,11 +35,15 @@ import cz.incad.kramerius.security.licenses.utils.LicenseTOJSONSupport;
 
 public class ExclusiveLockMapImpl implements ExclusiveLockMap {
 
+    
+    
     private String formattedName;
     private String pid;
     private License license;
+    
     private String hash;
     private int maxItemsForPid;
+    private ExclusiveLockType lockType;
     
     private Map<String, ExclusiveLockMapItem> itemsMap = new HashMap<>();
     private List<ExclusiveLockMapItem> items = new ArrayList<>();
@@ -49,6 +54,8 @@ public class ExclusiveLockMapImpl implements ExclusiveLockMap {
         this.pid = pid;
         this.formattedName = fmtName;
         this.hash = hash;
+        
+        
         this.refereshLicense(license);
     }
     
@@ -75,6 +82,11 @@ public class ExclusiveLockMapImpl implements ExclusiveLockMap {
     @Override
     public int getMaximumItems() {
         return this.maxItemsForPid;
+    }
+    
+    @Override
+    public ExclusiveLockType getLockType() {
+        return this.lockType;
     }
 
     @Override
@@ -148,6 +160,7 @@ public class ExclusiveLockMapImpl implements ExclusiveLockMap {
     public void refereshLicense(License l)  {
         if (l.getName().equals(this.license.getName())) {
             this.license = l;
+            this.lockType = license.exclusiveLockPresent() ? license.getExclusiveLock().getType() : null;
             this.maxItemsForPid = license.exclusiveLockPresent() ? license.getExclusiveLock().getMaxReaders() : 0;
             this.checkItems(Instant.now());
         }

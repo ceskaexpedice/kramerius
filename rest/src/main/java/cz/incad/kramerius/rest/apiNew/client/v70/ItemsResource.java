@@ -41,6 +41,7 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.java.Pair;
@@ -161,7 +162,9 @@ public class ItemsResource extends ClientApiResource {
     // GET/HEAD {pid}/specific/epub
     
 
-    private static final int MAX_TIME_SIZE = 512;
+    //private static final int MAX_TIME_SIZE = KConfiguration.getInstance().getConfiguration().getInt("iiif.tile.maxsize",512);
+    
+    
     public static final Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
     /**
      * Serve audio data through proxy from Audio repository, not through Kramerius Repository (Akubra).
@@ -1151,38 +1154,9 @@ public class ItemsResource extends ClientApiResource {
             } else {
                 if (size.toLowerCase().trim().contains("max") || size.toLowerCase().trim().contains("pct:")) {
                     checkUserIsAllowedToReadObject(pid);
-                }
-                
-                String[] split = size.split(",");
-                /**
-                 * Support all options for size 
-                 * 
-                 * <ul>
-                 *  <li><code>w,</code> 
-                 * <li><code>^w,</code>
-                 * <li><code>,h<code>
-                 * <li><code>^,h</code>
-                 * <li><code>^w,h</code>
-                 * <li><code>!w,h</code>
-                 * <li><code>^!w,h</code>
-                 * </code>
-                 */
-                if (split.length >= 2) {
-                    String firstVal = split[0];
-                    String secondVal = split[1];
-                    
-                    firstVal = iiifPrefix(firstVal);
-                    secondVal = iiifPrefix(secondVal);
-                    
-                    try {
-                        int width = StringUtils.isAnyString(firstVal)  ? Integer.parseInt(firstVal) : 0;
-                        int height = StringUtils.isAnyString(secondVal) ? Integer.parseInt(secondVal) :0;
-                        if (width > MAX_TIME_SIZE || height > MAX_TIME_SIZE) {
-                            checkUserIsAllowedToReadObject(pid);
-                        } 
-                    } catch(Exception e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    }
+                } else {
+                    // check if size is greater then 512 pixels
+                    checkIIIFSize(pid, size);
                 }
             }
             InputStream stream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, "RELS-EXT");
@@ -1222,17 +1196,56 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+    
+    
+    private void checkIIIFSize(String pid, String size) {
+     
+        org.apache.commons.lang3.tuple.Pair<String, String> iiifValues = iiifValues(size);
+        if (iiifValues != null) {
+            int maxSize = KConfiguration.getInstance().getConfiguration().getInt("iiif.tile.maxsize",512);
+            
+            int width = StringUtils.isAnyString(iiifValues.getLeft())  ? Integer.parseInt(iiifValues.getLeft()) : 0;
+            int height = StringUtils.isAnyString(iiifValues.getRight()) ? Integer.parseInt(iiifValues.getRight()) :0;
 
-    private String iiifPrefix(String firstVal) {
-        if (firstVal.startsWith("^")) {
-            firstVal = firstVal.substring(1);
+            if (width > maxSize || height > maxSize) {
+                checkUserIsAllowedToReadObject(pid);
+            }
+        }
+    }
+
+    static String iiifVal(String val) {
+        String retval = val;
+        if (retval.contains("^")) {
+            retval = retval.replace("^","");
         }
         
-        if (firstVal.startsWith("!")) {
-            firstVal = firstVal.substring(1);
+        if (retval.contains("!")) {
+            retval = retval.replace("!","");
         }
-        return firstVal;
+        return retval;
     }
+    
+    static org.apache.commons.lang3.tuple.Pair<String,String> iiifValues(String val) {
+        String[] split = val.split(",");
+        if (split.length >=2) {
+
+            String firstVal = split[0];
+            String secondVal = split[1];
+            
+            firstVal = ItemsResource.iiifVal(firstVal);
+            secondVal = ItemsResource.iiifVal(secondVal);
+            return org.apache.commons.lang3.tuple.Pair.of(firstVal, secondVal);
+            
+        } else  if (split.length >= 1) {
+
+            String firstVal = split[0];
+            firstVal = ItemsResource.iiifVal(firstVal);
+
+            return org.apache.commons.lang3.tuple.Pair.of(firstVal, null);
+        }
+        return null;
+      }
+
 
     @GET
     @Path("{pid}/introspect")

@@ -76,12 +76,12 @@ public class LocksResource extends ClientApiResource {
                             JSONObject jsonObject = item.toJSONObject();
                             return Response.ok(jsonObject.toString()).type(MediaType.APPLICATION_JSON).build();
                         } else {
-                            LOGGER.log(Level.SEVERE,"Item is not valid!");
+                            LOGGER.log(Level.SEVERE, String.format("Item  %s is not valid!, Deregistering ", item.toJSONObject().toString()));
                             lockMap.deregisterItem(item);
                             return Response.status(Status.NOT_FOUND).build();
                         }
                     } else {
-                        LOGGER.log(Level.SEVERE,"Item by token id is not found");
+                        LOGGER.log(Level.SEVERE,String.format("Item by token id is not found %s", tokenId));
                         return Response.status(Status.NOT_FOUND).build();
                     }
                 }
@@ -123,7 +123,7 @@ public class LocksResource extends ClientApiResource {
                                 lockMap.registerItem(nitem);
                                 return Response.ok(nitem.toJSONObject().toString()).type(MediaType.APPLICATION_JSON).build();
                             } else {
-                                return Response.status(429).type(MediaType.APPLICATION_JSON).build();
+                                return Response.status(409).type(MediaType.APPLICATION_JSON).build();
                             }
                         }
                     }

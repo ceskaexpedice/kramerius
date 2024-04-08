@@ -37,10 +37,14 @@ import com.google.inject.Inject;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMapItem;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
@@ -54,6 +58,9 @@ public class AdminLockResource extends AdminApiResource {
 
     @Inject
     Provider<User> userProvider;
+
+    @Inject
+    LicensesManager licensesManager;
 
     
     @GET
@@ -87,15 +94,23 @@ public class AdminLockResource extends AdminApiResource {
     public Response getLocksByLicense(@PathParam("license") String license) {
         if (permit(this.userProvider.get()))  {
             try {
-                JSONArray jsonArray = new JSONArray();
-                List<String> allHashes = this.exclusiveLockMaps.getAllHashes();
-                for (String h : allHashes) {
-                    ExclusiveLockMap lockMap = this.exclusiveLockMaps.findHash(h);
-                    if (lockMap.getAssociatedLicense().getName().equals(license)) {
-                        jsonArray.put(lockMap.toJSONHeaderObject());
+                License lic = this.licensesManager.getLicenseByName(license);
+                if (lic != null && lic.exclusiveLockPresent()) {
+                    JSONArray jsonArray = new JSONArray();
+                    List<String> allHashes = this.exclusiveLockMaps.getAllHashes();
+                    for (String h : allHashes) {
+                        ExclusiveLockMap lockMap = this.exclusiveLockMaps.findHash(h);
+                        if (lockMap.getAssociatedLicense().getName().equals(license)) {
+                            ExclusiveLockType lockType = lockMap.getLockType();
+                            if (lic.getExclusiveLock().getType().equals(lockType)) {
+                                jsonArray.put(lockMap.toJSONHeaderObject());
+                            }
+                        }
                     }
+                    return Response.ok(jsonArray.toString()).build();
+                } else {
+                    throw new NotFoundException();
                 }
-                return Response.ok(jsonArray.toString()).build();
             } catch (WebApplicationException e) {
                 throw e;
             } catch (Throwable e) {

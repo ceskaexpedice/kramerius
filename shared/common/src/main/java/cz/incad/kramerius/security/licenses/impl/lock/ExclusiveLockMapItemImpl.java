@@ -19,6 +19,7 @@ package cz.incad.kramerius.security.licenses.impl.lock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 import org.json.JSONObject;
 
@@ -29,7 +30,7 @@ import cz.incad.kramerius.security.licenses.lock.ExclusiveMapItemAfterMaxTimeExc
 
 public class ExclusiveLockMapItemImpl implements ExclusiveLockMapItem {
     
-    //private String pid;
+    public static final Logger LOGGER = Logger.getLogger(ExclusiveLockMapItemImpl.class.getName());
     
     private String tokenId;
     private int refreshInterval;
@@ -49,10 +50,6 @@ public class ExclusiveLockMapItemImpl implements ExclusiveLockMapItem {
         this.maxTime = maxTime;
         this.userId = userName;
     }
-
-
-    
-
 
 
     @Override
@@ -101,11 +98,13 @@ public class ExclusiveLockMapItemImpl implements ExclusiveLockMapItem {
     @Override
     public boolean isValid(Instant instant) {
         Instant thresholdInstant = this.refreshedTime.plusSeconds(this.refreshInterval);
-        if (instant.isBefore(thresholdInstant) && thresholdInstant.isBefore(this.getMaxTime())) {
+        if (instant.isBefore(thresholdInstant) && instant.isBefore(this.getMaxTime())) {
             return true;
         } else if (instant.isAfter(thresholdInstant)) {
+            LOGGER.info(String.format("Not refreshed lock %s", this.tokenId));
             return false;
         } else if (thresholdInstant.isAfter(this.getMaxTime())) {
+            LOGGER.info(String.format("After maxtime in lock %s", this.tokenId));
             return false;
         }
         return false;

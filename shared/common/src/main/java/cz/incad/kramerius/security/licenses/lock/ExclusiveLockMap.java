@@ -22,6 +22,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
 
 // one lock map
 public interface ExclusiveLockMap {
@@ -41,6 +42,9 @@ public interface ExclusiveLockMap {
     public String getIdenityHash();
 
     public int getMaximumItems();
+    
+    public ExclusiveLockType getLockType();
+    
     
     public List<ExclusiveLockMapItem> getLockItems();
 

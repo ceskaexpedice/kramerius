@@ -86,7 +86,7 @@ public class IIIFUtils {
             }
         };
         builder.entity(stream);
-    
+        
         if (mimetype != null) {
             builder.type(mimetype);
         }
