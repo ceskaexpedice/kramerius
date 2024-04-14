@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.services.Worker;
+import cz.incad.kramerius.services.WorkerFinisher;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.transform.SourceToDestTransform;
 import cz.incad.kramerius.services.utils.SolrUtils;
@@ -50,8 +51,8 @@ public abstract class AbstractReplicateWorker extends Worker {
     protected String checkEndpoint = null;
     protected SourceToDestTransform transform;
 
-    public AbstractReplicateWorker(String sourceName, Element workerElm, Client client, List<IterationItem> items) {
-        super(sourceName, workerElm, client, items);
+    public AbstractReplicateWorker(String sourceName, Element workerElm, Client client, List<IterationItem> items, WorkerFinisher finisher) {
+        super(sourceName, workerElm, client, items, finisher);
     }
 
     // zjistuje, ziskava vsechny pidy, ktere jsou naindexovane 

@@ -4,6 +4,10 @@
     <source-name>$iteration.dl$</source-name>
 	<name>$iteration.dl$-full</name>
 	<type>full</type>
+	
+	<workingtime>$iteration.workingtime$</workingtime>
+	<timestamp>$timestamp.url$</timestamp>
+	
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
@@ -18,7 +22,7 @@
         
     </iteration>
 
-    <threads>2</threads>
+    <threads>1</threads>
 
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
     <worker>

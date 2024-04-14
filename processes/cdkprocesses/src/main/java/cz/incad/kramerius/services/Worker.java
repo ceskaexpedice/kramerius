@@ -41,7 +41,8 @@ public abstract class Worker implements Runnable {
 
     protected String user;
     protected String pass;
-
+    
+    protected WorkerFinisher finisher;
 
     static AtomicBoolean _LOGGER_INITIALIZED = new AtomicBoolean(false);
     static  ReentrantLock _LOCK = new ReentrantLock();
@@ -73,8 +74,9 @@ public abstract class Worker implements Runnable {
 
 
 
-    public Worker(String sourceName, Element workerElm, Client client, List<IterationItem> items) {
+    public Worker(String sourceName, Element workerElm, Client client, List<IterationItem> items, WorkerFinisher finisher) {
         super();
+        this.finisher = finisher;
         this.client = client;
         this.itemsToBeProcessed = items;
         this.pidsToBeProcessed = items.stream().map(IterationItem::getPid).collect(Collectors.toList());

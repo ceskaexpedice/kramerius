@@ -22,7 +22,7 @@ public class CheckIndexWorkerFactory extends WorkerFactory {
     }
 
     @Override
-    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element base, Client client, List<IterationItem> items) {
+    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element base, Client client, List<IterationItem> items, WorkerFinisher finisher) {
         return new CheckIndexWorker(sourceName,base, client, items);
     }
 }

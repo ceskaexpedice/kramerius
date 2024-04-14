@@ -6,6 +6,7 @@
 	<type>full</type>
 	
 	<workingtime>$iteration.workingtime$</workingtime>
+	<timestamp>$timestamp.url$</timestamp>
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
@@ -19,6 +20,8 @@
 
         <user>$iteration.user$</user>
         <pass>$iteration.pass$</pass>
+
+        <fquery>$iteration.fquery$</fquery>
 
       	<!--  timestamp field  -->
         <timestamp_field>modified_date</timestamp_field>

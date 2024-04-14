@@ -15,7 +15,7 @@ import java.util.List;
 
 public class UpdateOCRFromSolrWorkerFactory extends WorkerFactory {
     @Override
-    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> pids) {
+    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> pids, WorkerFinisher finisher) {
         return new UpdateOCRFromSolrWorker(sourceName, worker, client, pids);
     }
 

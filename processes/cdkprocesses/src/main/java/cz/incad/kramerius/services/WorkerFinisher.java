@@ -31,6 +31,12 @@ public abstract class WorkerFinisher {
 
     }
 
+    
+    public void exceptionDuringCrawl(Exception ex) {}
+    
+    //public void finishSuccessCrawl() {}
+    
+    // inform about finish crawl
     public abstract  void finish();
 
     public CyclicBarrier getBarrier() {

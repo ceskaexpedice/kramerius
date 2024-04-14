@@ -4,6 +4,7 @@ import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.SupportedLibraries;
 import cz.incad.kramerius.services.Worker;
+import cz.incad.kramerius.services.WorkerFinisher;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.services.workers.replicate.AbstractReplicateWorker;
@@ -39,13 +40,12 @@ import java.util.stream.Collectors;
  */
 public class CopyReplicateWorker extends AbstractReplicateWorker {
 
-    //public static List<String> LIBRARIES = Arrays.asList("nkp","blbec_k5");
     public static SupportedLibraries supportedLibraries = new SupportedLibraries();
     
     public static Logger LOGGER = Logger.getLogger(CopyReplicateWorker.class.getName());
 
-    public CopyReplicateWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids) {
-        super(sourceName, workerElm, client, pids);
+    public CopyReplicateWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids, WorkerFinisher finisher) {
+        super(sourceName, workerElm, client, pids, finisher);
         config(workerElm);
     }
 
@@ -334,22 +334,34 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                             onUpdateEvent(addDocument);
                             ReplicateFinisher.UPDATED.addAndGet(XMLUtils.getElements(addDocument).size());
                             String s = SolrUtils.sendToDest(this.destinationUrl, this.client, destBatch);
-                            LOGGER.info(s);
+                            //LOGGER.info(s);
                         } else {
                             LOGGER.info("No update element ");
                         }
                     }
 
                 } catch (ParserConfigurationException e) {
+                    LOGGER.log(Level.SEVERE,"Informing about exception");
+                    finisher.exceptionDuringCrawl(e);
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (SAXException e) {
+                    LOGGER.log(Level.SEVERE,"Informing about exception");
+                    finisher.exceptionDuringCrawl(e);
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE,"Informing about exception");
+                    finisher.exceptionDuringCrawl(e);
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                } catch (MigrateSolrIndexException e) {
+                    LOGGER.log(Level.SEVERE,"Informing about exception");
+                    finisher.exceptionDuringCrawl(e);
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
             }
+        } catch(Exception ex) {
+            LOGGER.log(Level.SEVERE,"Informing about exception");
+            finisher.exceptionDuringCrawl(ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
         } finally {
             try {
                 this.barrier.await();

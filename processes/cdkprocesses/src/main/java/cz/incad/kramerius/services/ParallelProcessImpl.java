@@ -186,7 +186,6 @@ public class ParallelProcessImpl {
             
             while (true) {
                 if (!isInWorkingTime( startTime, endTime)) {
-                    //LOGGER.info(String.format("No harvesting - waiting for end of interval %s", workingtime));
                     waitUntilStartWorkingTime(startTime, endTime);
                 } else {
                     break; 
@@ -262,11 +261,14 @@ public class ParallelProcessImpl {
             }, ()-> {
                 finishRestWorkers(worksWhatHasToBeDone,workingTime.get());
             });
+            
         } catch (Exception e) {
+            this.finisher.exceptionDuringCrawl(e);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new MigrateSolrIndexException(e);
         } finally {
-                if (finisher != null)  this.finisher.finish();
+            // stop process 
+            if (finisher != null)  this.finisher.finish();
         }
     }
 
@@ -275,7 +277,6 @@ public class ParallelProcessImpl {
         this.threads = threadsElm != null ? Integer.parseInt(threadsElm.getTextContent()) : 2;
     }
 
-    // musi zustat tady
     private void addNewWorkToWorkers(ProcessIterator processIterator, List<Worker> worksWhatHasToBeDone, List<IterationItem> identifiers, String workingtime) {
         try {
             worksWhatHasToBeDone.add(createWorker(processIterator, this.workerElem, identifiers));
@@ -292,7 +293,7 @@ public class ParallelProcessImpl {
 
     private Worker createWorker(ProcessIterator iteratorInstance, Element workerElm, List<IterationItem> identifiers) {
         try {
-            return this.workerFactory.createWorker(this.sourceName, iteratorInstance, workerElm, this.client,identifiers);
+            return this.workerFactory.createWorker(this.sourceName, iteratorInstance, workerElm, this.client,identifiers, this.finisher);
         } catch ( IllegalStateException  e ) {
             throw new RuntimeException("Cannot create worker instance "+e.getMessage());
         }

@@ -28,7 +28,7 @@ public class ExistsWorkerFactory extends WorkerFactory {
     }
 
     @Override
-    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items) {
+    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items, WorkerFinisher finisher) {
         Element requestElm = XMLUtils.findElement(worker, "request");
         if (requestElm == null) throw new IllegalStateException("cannot find element request");
         Element localKrameriusElm = XMLUtils.findElement(requestElm, "local.kramerius");

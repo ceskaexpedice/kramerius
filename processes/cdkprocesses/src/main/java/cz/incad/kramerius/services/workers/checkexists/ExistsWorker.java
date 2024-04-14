@@ -41,7 +41,7 @@ public class ExistsWorker extends Worker {
     private LogExistsCondition typeOfLogging = LogExistsCondition.BOTH;
 
     public ExistsWorker(String sourceName, Element workerElm, Client client, List<IterationItem> items, Map<String, String> cols) {
-        super(sourceName, workerElm, client, items);
+        super(sourceName,workerElm, client, items, null);
 
         this.collections = cols;
 

@@ -17,7 +17,7 @@ public class NullWorkerFactory extends WorkerFactory {
     public static int COUNTER = 0;
 
     @Override
-    public Worker createWorker(String name, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items) {
+    public Worker createWorker(String name, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items, WorkerFinisher finisher) {
         return new NullWorker(name, worker, client, items);
     }
 

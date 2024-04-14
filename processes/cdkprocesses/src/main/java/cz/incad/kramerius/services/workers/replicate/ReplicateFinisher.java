@@ -9,9 +9,13 @@ import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
+import org.apache.commons.collections4.list.FixedSizeList;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -37,6 +41,11 @@ public class ReplicateFinisher   extends WorkerFinisher {
     // not indexed - composite id
     public static AtomicInteger NOT_INDEXED_COMPOSITEID = new AtomicInteger(0);
     public static AtomicInteger NOT_INDEXED_SKIPPED = new AtomicInteger(0);
+    
+    // uknown exception during crawl
+    public static final int EXCEPTION_DURING_CRAWL_LIMIT = 10000;
+    public static List<Exception> EXCEPTION_DURING_CRAWL = new ArrayList<>();
+    
     
     long start = System.currentTimeMillis();
 
@@ -67,13 +76,22 @@ public class ReplicateFinisher   extends WorkerFinisher {
         LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] url %s", timestampUrl));
     	WebResource r = client.resource(timestampUrl);
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(jsonObject.toString()).put(String.class);
-
         return new JSONObject(t);
 	}
 
+	
+    @Override
+    public void exceptionDuringCrawl(Exception ex) {
+        if (EXCEPTION_DURING_CRAWL.size() < EXCEPTION_DURING_CRAWL_LIMIT) {
+            EXCEPTION_DURING_CRAWL.add(ex);
+            LOGGER.info("Exception during crawl :"+EXCEPTION_DURING_CRAWL);
+        }
+    }
+
+
     @Override
     public void finish() {
-    	if (StringUtils.isAnyString(timestampUrl)) {
+        if (StringUtils.isAnyString(timestampUrl) && EXCEPTION_DURING_CRAWL.isEmpty()) {
     		storeTimestamp();
     	}
     	SolrUtils.commit(this.client, this.destinationUrl);

@@ -23,7 +23,7 @@ public class NullWorker extends Worker {
 
 
     public NullWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids) {
-        super(sourceName, workerElm, client, pids);
+        super(sourceName,workerElm, client, pids, null);
 
     }
 

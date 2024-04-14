@@ -19,6 +19,7 @@ import org.xml.sax.SAXException;
 
 import com.sun.jersey.api.client.Client;
 
+import cz.incad.kramerius.services.WorkerFinisher;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.services.workers.replicate.AbstractReplicateWorker;
@@ -31,8 +32,8 @@ public class UpdateFieldWorker extends AbstractReplicateWorker {
     private String updateField = null;
     private String updateOperation = null;
 
-    public UpdateFieldWorker(String sourceName, Element worker, Client client, List<IterationItem> items) {
-        super(sourceName, worker, client, items);
+    public UpdateFieldWorker(String sourceName, Element worker, Client client, List<IterationItem> items, WorkerFinisher finisher) {
+        super(sourceName, worker, client, items, finisher);
 
         config(workerElm);
 

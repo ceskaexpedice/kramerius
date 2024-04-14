@@ -19,8 +19,8 @@ public class UpdateFieldWorkerFactory extends WorkerFactory {
 
 
     @Override
-    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element base, Client client, List<IterationItem> items) {
-        return new UpdateFieldWorker(sourceName,base, client, items);
+    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element base, Client client, List<IterationItem> items, WorkerFinisher finisher) {
+        return new UpdateFieldWorker(sourceName,base, client, items, finisher);
     }
 
     @Override

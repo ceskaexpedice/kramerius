@@ -22,7 +22,7 @@ public class UpdateOCRFromCDKEndpointWorkerFactory extends WorkerFactory {
     }
 
     @Override
-    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items) {
+    public Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> items, WorkerFinisher finihser) {
         return new UpdateOCRFromCDKEndpointWorker(sourceName, worker, client, items);
     }
 }

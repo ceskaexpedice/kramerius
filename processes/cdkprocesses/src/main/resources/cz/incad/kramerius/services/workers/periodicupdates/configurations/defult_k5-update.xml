@@ -76,7 +76,7 @@
             <!-- on update -->
             <onupdate>
             
-               <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels dostupnost fedora.model</fieldlist>
+               <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels dostupnost fedora.model dc.title search_autor facet_autor</fieldlist>
                  <update.dest.field>
                     <field name="cdk.collection" update="add-distinct">$iteration.dl$</field>
                 </update.dest.field>

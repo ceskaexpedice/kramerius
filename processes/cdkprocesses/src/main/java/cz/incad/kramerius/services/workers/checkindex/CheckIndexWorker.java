@@ -33,7 +33,7 @@ public class CheckIndexWorker extends Worker {
     private String checkingIndexType;
 
     public CheckIndexWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids) {
-        super(sourceName, workerElm, client, pids);
+        super(sourceName,workerElm, client, pids, null);
 
         Element destinationElm = XMLUtils.findElement(workerElm, "destination");
         if (destinationElm != null) {

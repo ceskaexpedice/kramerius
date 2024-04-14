@@ -2,6 +2,7 @@ package cz.incad.kramerius.services.workers.update_dep;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.Worker;
+import cz.incad.kramerius.services.WorkerFinisher;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.utils.SolrUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -23,8 +24,8 @@ public class UpdateWorker extends Worker {
 
     private List<Element> updateElements = new ArrayList<>();
 
-    public UpdateWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids) {
-        super(sourceName, workerElm, client, pids);
+    public UpdateWorker(String sourceName, Element workerElm, Client client, List<IterationItem> pids, WorkerFinisher finisher) {
+        super(sourceName, workerElm, client, pids, finisher);
         Element destinationElm = XMLUtils.findElement(workerElm, "destination");
         if (destinationElm != null) {
             Element updateFieldElement = XMLUtils.findElement(destinationElm, "update.dest.field");
