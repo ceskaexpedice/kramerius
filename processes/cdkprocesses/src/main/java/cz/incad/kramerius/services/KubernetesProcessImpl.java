@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -48,8 +49,11 @@ public class KubernetesProcessImpl {
         if (env.containsKey(CONFIG_SOURCE) || args.length > 0) {
             String configSource = env.containsKey(CONFIG_SOURCE) ?  env.get(CONFIG_SOURCE) : args[0];
             InputStream stream = KubernetesProcessImpl.class.getResourceAsStream(configSource);
+            if (configSource.trim().startsWith("file:///")) {
+                URL fileUrl = new URL(configSource);
+                stream = fileUrl.openStream();
+            } 
             if (stream != null) {
-
                 
                 Map<String, String> iteration = new HashMap<>();
                 prefixVariables(env, iteration, ITERATION_PREFIX);
