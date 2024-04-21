@@ -117,7 +117,10 @@ public class ReharvestPids {
                     XMLUtils.print(deleteByQuery, writer);
                     LOGGER.info("Delete by query "+writer.toString());
                 } else {
-                    String s = SolrUtils.sendToDest(getDestinationUpdateUrl(), parallelProcess.getClient(), deleteByQuery);
+                    StringWriter writer = new StringWriter();
+                    XMLUtils.print(deleteByQuery, writer);
+                    LOGGER.info("Delete by query; only show query and number off docs :"+writer.toString());
+                    //String s = SolrUtils.sendToDest(getDestinationUpdateUrl(), parallelProcess.getClient(), deleteByQuery);
                 }
                 
                 collections.remove(leader);
@@ -192,6 +195,7 @@ public class ReharvestPids {
                 } else {
                     ParallelProcessImpl reharvest = new ParallelProcessImpl();
                     String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
+                    LOGGER.info(String.format("Configuration %s" ,config));
                     reharvest.migrate(harvestFile);
                 }
                 
@@ -272,10 +276,11 @@ public class ReharvestPids {
     private static String query(SolrAccess sAccess, String pid) throws IOException {
         String query = String.format("root.pid:\"%s\"",pid);
         if (query.startsWith("root.pid:\"uuid")) {
-            int threshold = KConfiguration.getInstance().getConfiguration().getInt("cdk.reharvest.items.threshold",300);
-
+            
+            int threshold = KConfiguration.getInstance().getConfiguration().getInt("cdk.reharvest.items.threshold",30000);
             Document doc = sAccess.requestWithSelectReturningXml("q="+URLEncoder.encode( query, "UTF-8"));
             int numFound = numFound(doc);
+            LOGGER.info(String.format( "Number of found documents %d", numFound));
             if (numFound > threshold) {
                 throw new IllegalStateException("Too many items to reharvest");
             }
