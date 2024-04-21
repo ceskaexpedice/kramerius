@@ -9,6 +9,7 @@ import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
 import cz.incad.kramerius.services.iterators.ProcessIteratorFactory;
 import cz.incad.kramerius.timestamps.TimestampStore;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -212,7 +213,7 @@ public class ParallelProcessImpl {
         Element timestampElm = XMLUtils.findElement(document.getDocumentElement(),"timestamp");
         String timestamp = null;
         if (timestampElm != null) {
-        	timestamp = timestampElm.getTextContent();
+            timestamp = StringUtils.isAnyString(timestampElm.getTextContent().trim()) ? timestampElm.getTextContent() : null ;
         }
 
         Element workingTimeElm = XMLUtils.findElement(document.getDocumentElement(),"workingtime");
@@ -230,6 +231,8 @@ public class ParallelProcessImpl {
                     timestamp = timestamp+(timestamp.endsWith("/") ? "" : "/")+String.format("%s/timestamp",this.sourceName);
                 }
             }
+        } else {
+            throw new IllegalStateException("expecting source name !! ");
         }
 
         // Iterator factory
@@ -239,7 +242,8 @@ public class ParallelProcessImpl {
 
         // Iterator instance
         Element iterationElm = XMLUtils.findElement(document.getDocumentElement(), "iteration");
-    	this.iterator =processIteratorFactory.createProcessIterator(timestamp, iterationElm, this.client);
+
+        this.iterator =processIteratorFactory.createProcessIterator(timestamp, iterationElm, this.client);
 
         Element workerFactory = XMLUtils.findElement(document.getDocumentElement(),"workerFactory");
         String workerClass = workerFactory.getAttribute("class");

@@ -282,6 +282,7 @@ public abstract class AbstractReplicateWorker extends Worker {
         });
         String query = "?q=" + idIdentifier + ":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl="
                 + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + pids.size();
+
         return SolrUtils.executeQuery(client, this.requestUrl, query, this.user, this.pass);
     }
 }

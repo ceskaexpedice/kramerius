@@ -1,6 +1,9 @@
 <cdkprocess>
 
     <!-- Iteration part -->
+    <source-name>mkp</source-name>
+	<name>mkp-full</name>
+    
     
     <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
    <iteration>
@@ -22,15 +25,14 @@
             <checkUrl>http://10.19.6.10:8983/solr/k7_5</checkUrl>
             <checkEndpoint>select</checkEndpoint>
 
-            <!-- toto vyresit lip -->
-            <collections.url>
 
-				<elem>
-                    <key>vc:d4b466de-5435-4b76-bff7-2838bbae747b</key>
-                    <value>http://kramerius4.mlp.cz/search</value>
-                </elem>
 
-            </collections.url>
+            <composite.id>true</composite.id>
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
+
+            <trasfrom>K7</trasfrom>
+
         </request>
 
         <destination>
@@ -49,9 +51,12 @@
             </onindex>
             <!-- on update -->
             <onupdate>
-                <update.dest.field>
-                    <field name="collection" update="add-distinct">added-collection</field>
+           <onupdate>
+               <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels dostupnost fedora.model</fieldlist>
+               <update.dest.field>
+                    <field name="cdk.collection" update="add-distinct">knav</field>
                 </update.dest.field>
+            </onupdate>
             </onupdate>
 
         </destination>

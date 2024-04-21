@@ -3,6 +3,14 @@
     <!-- Iteration part -->
     
     <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
+
+    <source-name>mlp</source-name>
+	<name>mlp-full</name>
+	<type>full</type>
+	
+    <workingtime></workingtime>
+    <timestamp></timestamp>
+	
    <iteration>
 	<url>%s</url>
     </iteration>
@@ -61,8 +69,9 @@
             </onindex>
             <!-- on update -->
             <onupdate>
+            	<fieldlist>PID root_pid dnnt-labels contains-dnnt-labels dostupnost fedora.model dc.title search_autor facet_autor</fieldlist>
                 <update.dest.field>
-                    <field name="collection" update="add-distinct">added-collection</field>
+                    <field name="collection" update="add-distinct">knav</field>
                 </update.dest.field>
             </onupdate>
 

@@ -21,9 +21,13 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +85,20 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                             @Override
                             public void changeDocument(String rootPid, String pid,Element doc) {
 
+                                List<Element> indexed = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                                    @Override
+                                    public boolean acceptElement(Element element) {
+                                        String attribute = element.getAttribute("name");
+                                        return "indexed".equals(attribute);
+                                    }
+                                }).stream().collect(Collectors.toList());
+                                
+
+                                if (indexed.size() > 0) {
+                                  Instant instant = new Date().toInstant();
+                                  indexed.get(0).setTextContent(DateTimeFormatter.ISO_INSTANT.format(instant));
+                                }
+                                
                                 List<String> licensesOfAncestors = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
                                     
                                     @Override
@@ -133,6 +151,8 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                     cdkLicenses.setTextContent(sourceName+"_"+ license);
                                     doc.appendChild(cdkLicenses);
                                 }
+                                
+                                
                                 
                             }
                         });
@@ -192,13 +212,20 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
 
                                         List<String> deleteFields = Arrays.asList();
                                         List<String> addValues = Arrays.asList(
-                                                // toto musi byt pocitane pole
                                                 "licenses",
                                                 "licenses_of_ancestors",
                                                 "contains_licenses",
                                                 
                                                 "in_collections",
-                                                "in_collections.direct");
+                                                "in_collections.direct",
+
+                                                "titles.search",
+                                                "authors",
+                                                "authors.search",
+                                                "authors.facet",
+                                                
+                                                "cdk.k5.license.translated",
+                                                "cdk.licenses");
                                         
                                         String name = field.getAttribute("name");
                                         if (deleteFields.contains(name)) {
@@ -220,18 +247,30 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                     public void changeDocument(String root, String pid, Element doc) {
                                         // setreseni dat cdk.licenses 
                                         
+                                        //<field name="indexed" update="set">2023-06-26T12:56:07.400Z</field>
+                                        
+
+                                        Instant instant = new Date().toInstant();
+                                        //DateTimeFormatter.ISO_INSTANT.format(instant);
+                                        Element fieldDate = doc.getOwnerDocument().createElement("field");
+                                        fieldDate.setAttribute("name", "indexed");
+                                        fieldDate.setAttribute("update", "set");
+                                        fieldDate.setTextContent(DateTimeFormatter.ISO_INSTANT.format(instant));
+                                        doc.appendChild(fieldDate);
+                                        
+                                        
                                         List<Pair<String,String>> comparingFields = Arrays.asList(
                                             Pair.of("licenses", "cdk.licenses"),
                                             Pair.of("contains_licenses", "cdk.contains_licenses"),
                                             Pair.of("licenses_of_ancestors", "cdk.licenses_of_ancestors")
                                         );
                                         
+                                        //System.out.println("Docs for pid "+pid);
                                         Map<String, Object> cdkDoc = docs.get(pid);
                                         for (Pair<String,String> cpField : comparingFields) {
                                             
                                             String sourceField = cpField.getLeft();
                                             String specificCDKField = cpField.getRight();
-                                            
                                             List<Element> newIndexedField = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
                                                 @Override
                                                 public boolean acceptElement(Element element) {
@@ -256,15 +295,6 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                                 // add new indexed values
                                                 newList.addAll(newCDKValues);
 
-//                                                // collect all libraries 
-//                                                Set<String> libraries = newList.stream().map(it-> {
-//                                                    int idx = it.indexOf("_");
-//                                                    if (idx > 0) {
-//                                                        return it.substring(0, idx);
-//                                                    } else {
-//                                                        return it;
-//                                                    }
-//                                                }).collect(Collectors.toSet());
                                                 
                                                 for (Element nIF : newIndexedField) {
                                                     doc.removeChild(nIF);
@@ -272,30 +302,48 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
 
                                                 Set<String> tempSet = new HashSet<>();
                                                 Document document = doc.getOwnerDocument();
-                                                newList.stream().forEach(lic-> {
+                                                if (newList.size() > 0) {
+                                                    newList.stream().forEach(lic-> {
+
+                                                        Element cdkSpecific = document.createElement("field");
+                                                        cdkSpecific.setAttribute("name", specificCDKField);
+                                                        cdkSpecific.setAttribute("update", "set");
+                                                        cdkSpecific.setTextContent(lic);
+                                                        doc.appendChild(cdkSpecific);
+
+                                                        Pair<String, String> divided = supportedLibraries.divideLibraryAndLicense(lic);
+                                                        if (divided != null) {
+                                                            
+                                                            String rv = divided.getRight();
+                                                            if (!tempSet.contains(rv)) {
+                                                                Element changedField = document.createElement("field");
+                                                                changedField.setAttribute("name", sourceField);
+                                                                changedField.setAttribute("update", "set");
+                                                                
+                                                                changedField.setTextContent(rv);
+                                                                doc.appendChild(changedField);
+                                                                
+                                                                tempSet.add(rv);
+                                                            }
+                                                        }
+                                                    });
+                                                    
+                                                } else {
+                                                    
 
                                                     Element cdkSpecific = document.createElement("field");
                                                     cdkSpecific.setAttribute("name", specificCDKField);
                                                     cdkSpecific.setAttribute("update", "set");
-                                                    cdkSpecific.setTextContent(lic);
+                                                    cdkSpecific.setAttribute("null", "true");
                                                     doc.appendChild(cdkSpecific);
+ 
+                                                    Element changedField = document.createElement("field");
+                                                    changedField.setAttribute("name", sourceField);
+                                                    changedField.setAttribute("update", "set");
+                                                    changedField.setAttribute("null", "true");
+                                                    doc.appendChild(changedField);
 
-                                                    Pair<String, String> divided = supportedLibraries.divideLibraryAndLicense(lic);
-                                                    if (divided != null) {
-                                                        
-                                                        String rv = divided.getRight();
-                                                        if (!tempSet.contains(rv)) {
-                                                            Element changedField = document.createElement("field");
-                                                            changedField.setAttribute("name", sourceField);
-                                                            changedField.setAttribute("update", "set");
-                                                            
-                                                            changedField.setTextContent(rv);
-                                                            doc.appendChild(changedField);
-                                                            
-                                                            tempSet.add(rv);
-                                                        }
-                                                    }
-                                                });
+                                                }
                                             }
                                         }
                                     }
@@ -306,7 +354,7 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                                     Element doc = db.createElement("doc");
                                     Element field = db.createElement("field");
                                     if (compositeId) {
-                                        String compositeId = pair.get("compositeId").toString();
+                                        //String compositeId = pair.get("compositeId").toString();
 
                                         String root = pair.get(transform.getField(rootOfComposite)).toString();
                                         String child = pair.get(transform.getField(childOfComposite)).toString();
@@ -333,6 +381,7 @@ public class CopyReplicateWorker extends AbstractReplicateWorker {
                             Element addDocument = destBatch.getDocumentElement();
                             onUpdateEvent(addDocument);
                             ReplicateFinisher.UPDATED.addAndGet(XMLUtils.getElements(addDocument).size());
+                            
                             String s = SolrUtils.sendToDest(this.destinationUrl, this.client, destBatch);
                             //LOGGER.info(s);
                         } else {

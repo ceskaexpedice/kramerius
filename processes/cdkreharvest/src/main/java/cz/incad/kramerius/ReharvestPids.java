@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.properties.DefaultPropertiesInstances;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -80,85 +83,121 @@ public class ReharvestPids {
 //        //params from lp.st
         String authToken = args[argsIndex++];
         String target = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+        String onlyShowConfiguration = null;
+        if (args.length>=3) {
+            onlyShowConfiguration =  args[argsIndex++];
+        }
+
         List<String> extractPids = extractPids(target);
-        for (String pid : extractPids) { reharvestPID(pid); }
+        for (String pid : extractPids) { reharvestPID(pid, onlyShowConfiguration); }
     }
 
-    private static void reharvestPID(String pid)
+    private static void reharvestPID(String pid, String onlyShowConfiguration)
             throws IOException, TransformerException, MigrateSolrIndexException, ParserConfigurationException {
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ResourceIndexModule());
         
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
         Document document = searchIndex.getSolrDataByPid(pid);
-        int nf = numFound(document);
-        if (nf > 0) {
-            
-            String msg = String.format("reharvesting pid %s ", pid);
-            LOGGER.info(msg);
-            String leader = leader(document);
-            List<String> collections = collections(document);
-            
-            ParallelProcessImpl parallelProcess = new ParallelProcessImpl();
-            Document deleteByQuery = deleteRootPid(searchIndex, pid);
-                        
-            String s = SolrUtils.sendToDest(getDestinationUpdateUrl(), parallelProcess.getClient(), deleteByQuery);
-            
-            List<File> harvestFiles = new ArrayList<>();
+        
+        if (document != null) {
+            // nalezen v solru 
+            int nf = numFound(document);
+            if (nf > 0) {
+                
+                String msg = String.format("Reharvesting pid %s ", pid);
+                LOGGER.info(msg);
 
-            // leader must be first
-            collections.remove(leader);
-            collections.add(0, leader);
-            
-            for (String ac : collections) {
-                try {
-                    String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + ac + ".api");
-
-                    Pair<String,Boolean> iterationUrl = iterationUrl(ac);
-
-                    Map<String,String> iteration = new HashMap<>();
-                    iteration.put("url", iterationUrl.getKey());
-                    iteration.put("dl", ac);
-                    iteration.put("fquery", fq(api, pid));
-                    
-                    
-                    if (iterationUrl.getRight()) {
-                        String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + ac + ".username");
-                        String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + ac + ".pswd");
-
-                        iteration.put("user", username);
-                        iteration.put("pass", password);
-                    }
-                    
-                    // destination
-                    Map<String,String> destination = new HashMap<>();
-                    destination.put("url",  KConfiguration.getInstance().getSolrSearchHost());
-                    
-                    boolean publicEndpoint = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + ac + ".public") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + ac + ".public") : false;
-
-                    String configuration = renderTemplate(publicEndpoint, api, iteration, destination);
-                    File tmpFile = File.createTempFile(String.format("%s",  ac), "reharvest");
-                    
-                    Files.write(configuration.getBytes("UTF-8"), tmpFile);
-                    harvestFiles.add(tmpFile);
-                    
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                String leader = leader(document);
+                List<String> collections = collections(document);
+                
+                ParallelProcessImpl parallelProcess = new ParallelProcessImpl();
+                Document deleteByQuery = deleteRootPid(searchIndex, pid);
+                if (isOnlyShowConfiguration(onlyShowConfiguration)) {
+                    StringWriter writer = new StringWriter();
+                    XMLUtils.print(deleteByQuery, writer);
+                    LOGGER.info("Delete by query "+writer.toString());
+                } else {
+                    String s = SolrUtils.sendToDest(getDestinationUpdateUrl(), parallelProcess.getClient(), deleteByQuery);
                 }
+                
+                collections.remove(leader);
+                collections.add(0, leader);
+                
+                reharvestPIDFromGivenCollections(pid, collections, onlyShowConfiguration);
+            } else {
+                DefaultPropertiesInstances props = new DefaultPropertiesInstances();   
+                List<OneInstance> enabledInstances = props.enabledInstances();
+                reharvestPIDFromGivenCollections(pid, enabledInstances.stream().map(OneInstance::getName).collect(Collectors.toList()), onlyShowConfiguration);
             }
-            
-            for (File harvestFile : harvestFiles) {
-                try {
+        }
+    }
+
+    
+    private static boolean isOnlyShowConfiguration(String onlyShowConfiguration) {
+        if (onlyShowConfiguration != null && ("onlyshowconfiguration".equals(onlyShowConfiguration.toLowerCase()) || "true".equals(onlyShowConfiguration))) {
+            return true;
+        }
+        return true;
+    }
+
+    private static void reharvestPIDFromGivenCollections(String pid, List<String> collections, String onlyShowConfiguration) {
+        List<File> harvestFiles = new ArrayList<>();
+        for (String ac : collections) {
+            try {
+                String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + ac + ".api");
+                if (api == null) {
+                    LOGGER.warning(String.format("Skipping instance %s", ac));
+                    continue;
+                }
+                
+                
+                Pair<String,Boolean> iterationUrl = iterationUrl(ac);
+
+                Map<String,String> iteration = new HashMap<>();
+                iteration.put("url", iterationUrl.getKey());
+                iteration.put("dl", ac);
+                iteration.put("fquery", fq(api, pid));
+                
+                
+                if (iterationUrl.getRight()) {
+                    String username = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + ac + ".username");
+                    String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + ac + ".pswd");
+
+                    iteration.put("user", username);
+                    iteration.put("pass", password);
+                }
+                
+                // destination
+                Map<String,String> destination = new HashMap<>();
+                destination.put("url",  KConfiguration.getInstance().getSolrSearchHost());
+                
+                boolean publicEndpoint = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + ac + ".public") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + ac + ".public") : false;
+
+                String configuration = renderTemplate(publicEndpoint, api, iteration, destination);
+                File tmpFile = File.createTempFile(String.format("%s",  ac), "reharvest");
+                
+                Files.write(configuration.getBytes("UTF-8"), tmpFile);
+                harvestFiles.add(tmpFile);
+                
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            }
+        }
+        
+        for (File harvestFile : harvestFiles) {
+            try {
+                if (isOnlyShowConfiguration(onlyShowConfiguration)) {
+                    String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
+                    LOGGER.info(String.format("Configuration %s" ,config));
+                } else {
                     ParallelProcessImpl reharvest = new ParallelProcessImpl();
                     String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
                     reharvest.migrate(harvestFile);
-                    
-                } catch (IOException | MigrateSolrIndexException | IllegalAccessException | InstantiationException | ClassNotFoundException | NoSuchMethodException | ParserConfigurationException | SAXException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
+                
+            } catch (IOException | MigrateSolrIndexException | IllegalAccessException | InstantiationException | ClassNotFoundException | NoSuchMethodException | ParserConfigurationException | SAXException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
             }
-        } else {
-            String msg = String.format("pid %s not found", pid);
-            LOGGER.warning( msg);
         }
     }
 
@@ -205,7 +244,7 @@ public class ReharvestPids {
                 String retval = channel + (channel.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/sync/solr";
                 return Pair.of(retval, false);
             } else {
-                String retval = channel + (channel.endsWith("/") ? "" : "/") + "api/v7.0/cdk/forward/sync/solr";
+                String retval = channel + (channel.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/sync/solr";
                 return Pair.of(retval, false);
             }
         } else {
@@ -233,7 +272,7 @@ public class ReharvestPids {
     private static String query(SolrAccess sAccess, String pid) throws IOException {
         String query = String.format("root.pid:\"%s\"",pid);
         if (query.startsWith("root.pid:\"uuid")) {
-            int threshold = KConfiguration.getInstance().getConfiguration().getInt("cdk.reharvest.items.threshold",80000);
+            int threshold = KConfiguration.getInstance().getConfiguration().getInt("cdk.reharvest.items.threshold",300);
 
             Document doc = sAccess.requestWithSelectReturningXml("q="+URLEncoder.encode( query, "UTF-8"));
             int numFound = numFound(doc);

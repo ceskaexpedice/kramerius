@@ -403,12 +403,14 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
 
     private void translateAccessibilityToLicense(String model, String accessibility, Document destDocument, Element destDocElem, CopyReplicateConsumer consumer) {
         
+        // Translate accessibility to license
         String license = "public".equals(accessibility) ? "public" : "onsite";
         
         List<String> markContainsLicenses = Arrays.asList("monographunit","periodicalvolume");
 
         List<String> licenses = Arrays.asList("monograph","monographunit", "periodicalvolume","map","sheetmusic");
         List<String> licenses_of_ancestors = Arrays.asList("page","supplement","periodicalitem");
+
         if (licenses.contains(model)) {
             field(destDocument, destDocElem,license, "licenses",consumer);
         } else if (licenses_of_ancestors.contains(model)) {
