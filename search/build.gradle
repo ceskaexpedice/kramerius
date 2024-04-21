@@ -50,6 +50,8 @@ dependencies {
     //api project(':processes:dnntflag')
     //api project(':processes:nkp-logs')
 
+    api project(':processes:cdkreharvest')
+
 
     api 'javax.servlet:jstl:1.1.2'   
     api 'taglibs:standard:1.1.2'   
