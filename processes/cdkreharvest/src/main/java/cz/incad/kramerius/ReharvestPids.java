@@ -120,7 +120,7 @@ public class ReharvestPids {
                     StringWriter writer = new StringWriter();
                     XMLUtils.print(deleteByQuery, writer);
                     LOGGER.info("Delete by query; only show query and number off docs :"+writer.toString());
-                    //String s = SolrUtils.sendToDest(getDestinationUpdateUrl(), parallelProcess.getClient(), deleteByQuery);
+                    String s = SolrUtils.sendToDest(getDestinationUpdateUrl(), parallelProcess.getClient(), deleteByQuery);
                 }
                 
                 collections.remove(leader);
@@ -140,7 +140,7 @@ public class ReharvestPids {
         if (onlyShowConfiguration != null && ("onlyshowconfiguration".equals(onlyShowConfiguration.toLowerCase()) || "true".equals(onlyShowConfiguration))) {
             return true;
         }
-        return true;
+        return false;
     }
 
     private static void reharvestPIDFromGivenCollections(String pid, List<String> collections, String onlyShowConfiguration) {
