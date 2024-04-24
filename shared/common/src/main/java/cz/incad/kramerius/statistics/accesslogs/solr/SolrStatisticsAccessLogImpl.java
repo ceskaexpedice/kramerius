@@ -22,6 +22,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import cz.incad.kramerius.utils.IPAddressUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpResponseException;
@@ -127,6 +128,13 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
         String requestedUrl = requestProvider.get().getRequestURL().toString();
         logRecord.setRequestedUrl(requestedUrl);
+
+        logRecord.setIpAddress(IPAddressUtils.getRemoteAddress(requestProvider.get()));
+        //logRecord.setIpAddress(requestProvider.get().getRemoteAddr());
+        /*if(requestProvider.get().getHeader("X-Forwarded-For")!=null){
+            String remoteIp = requestProvider.get().getHeader("X-Forwarded-For");
+            logRecord.setIpAddress(remoteIp);
+        }*/
         
         logRecord.setPidsPaths(Arrays.stream(paths).map(ObjectPidsPath::getPathFromRootToLeaf).map(array-> {
             return Arrays.stream(array).collect(Collectors.joining("/"));
