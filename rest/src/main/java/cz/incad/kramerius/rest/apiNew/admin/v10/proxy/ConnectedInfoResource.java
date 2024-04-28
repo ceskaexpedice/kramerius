@@ -37,6 +37,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.timestamps.Timestamp;
 import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.timestamps.impl.SolrTimestamp;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 @Path("/admin/v7.0/connected")
 public class ConnectedInfoResource {
@@ -160,6 +161,22 @@ public class ConnectedInfoResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GET
+    @Path("{library}/config")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response config(@PathParam("library") String library) {
+        JSONObject config = new JSONObject();
+        String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".baseurl");
+        String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api");
+        boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
+        String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
+        config.put("baseurl", baseurl);
+        config.put("api", api);
+        config.put("licenses", channelAccess);
+        config.put("forwardurl", channel);
+        return Response.ok(config.toString()).build();
     }
 
     @PUT
