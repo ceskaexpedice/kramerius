@@ -13,6 +13,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -93,8 +94,8 @@ public class ReharvestResource {
   @GET
   @Path("top")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getTopHarvest() {
-      ReharvestItem topItem = this.reharvestManager.getTopItem();
+  public Response getTopHarvest(@QueryParam("state")String state) {
+      ReharvestItem topItem = this.reharvestManager.getTopItem(state);
       if (topItem != null) {
           return Response.ok(topItem.toJSON().toString()).build();
       } else {
@@ -102,19 +103,19 @@ public class ReharvestResource {
       }
   }
 
-  //
-//  
-//  @PUT
-//  @Path("{id}/state")
-//  @Produces(MediaType.APPLICATION_JSON)
-//  public Response getTopHarvest(@PathParam("id") String id, @QueryParam("status") String status) {
-//      ReharvestItem itemById = reharvestManager.getItemById(id);
-//      if (itemById != null) {
-//          itemById.setState(status);
-//          return Response.ok(itemById.toJSON().toString()).build();
-//      } else {
-//          return Response.status(Response.Status.NOT_FOUND).build();
-//      }
-//  }
+  
+  
+  @PUT
+  @Path("{id}/state")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getTopHarvest(@PathParam("id") String id, @QueryParam("state") String state) {
+      ReharvestItem itemById = reharvestManager.getItemById(id);
+      if (itemById != null) {
+          itemById.setState(state);
+          return Response.ok(itemById.toJSON().toString()).build();
+      } else {
+          return Response.status(Response.Status.NOT_FOUND).build();
+      }
+  }
 
 }

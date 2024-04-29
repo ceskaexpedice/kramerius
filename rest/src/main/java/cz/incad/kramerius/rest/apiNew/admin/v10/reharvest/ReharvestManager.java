@@ -8,7 +8,7 @@ public interface ReharvestManager {
     
     public List<ReharvestItem> getItems();
     
-    public ReharvestItem getTopItem();
+    public ReharvestItem getTopItem(String status);
     
 
     public ReharvestItem getItemById(String id);

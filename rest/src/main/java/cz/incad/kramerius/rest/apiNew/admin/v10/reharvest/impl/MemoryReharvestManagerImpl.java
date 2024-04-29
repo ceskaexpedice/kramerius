@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
@@ -35,9 +36,10 @@ public class MemoryReharvestManagerImpl implements ReharvestManager {
         });
     }
     
-    public ReharvestItem getTopItem() {
+    public ReharvestItem getTopItem(String status) {
         sortItems();
-        return this.items.size() > 0 ? this.items.get(0) : null;
+        List<ReharvestItem> listWithStatus = this.items.stream().filter(x -> x.getState() != null && x.getState().equals(status)).collect(Collectors.toList());
+        return listWithStatus.size() > 0 ? listWithStatus.get(0) : null;
     }
 
     public ReharvestItem getItemById(String id) {
