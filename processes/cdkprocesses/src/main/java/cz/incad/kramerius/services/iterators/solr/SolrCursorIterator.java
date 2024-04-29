@@ -28,7 +28,7 @@ public class SolrCursorIterator extends AbstractSolrIterator{
         super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
     }
 
-    static Element pidsCursorQuery( Client client, String url, String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting, String user, String pass)  throws ParserConfigurationException, SAXException, IOException {
+    public static Element pidsCursorQuery( Client client, String url, String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting, String user, String pass)  throws ParserConfigurationException, SAXException, IOException {
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
             fullQuery = "?q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(sorting, "UTF-8")+"&fl="+identifierField+"&fq=" + URLEncoder.encode(fq,"UTF-8");
@@ -41,7 +41,7 @@ public class SolrCursorIterator extends AbstractSolrIterator{
     }
 
     
-    static String findCursorMark(Element elm) {
+    public static String findCursorMark(Element elm) {
         Element element = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
@@ -53,7 +53,7 @@ public class SolrCursorIterator extends AbstractSolrIterator{
         return element != null ? element.getTextContent() : null;
     }
 
-    static String findQueryCursorMark(Element elm) {
+    public static String findQueryCursorMark(Element elm) {
         Element queryParams = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {

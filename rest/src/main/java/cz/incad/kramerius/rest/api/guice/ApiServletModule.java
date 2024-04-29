@@ -32,6 +32,9 @@ import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 //import cz.incad.kramerius.keycloak.KeycloakProxy;
 import cz.incad.kramerius.rest.apiNew.admin.v10.license.LicensesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.proxy.ConnectedInfoResource;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestResource;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.impl.MemoryReharvestManagerImpl;
 import cz.incad.kramerius.rest.apiNew.admin.v10.rights.RightsResource;
 import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.apiNew.admin.v10.rights.RolesResource;
@@ -146,9 +149,12 @@ public class ApiServletModule extends JerseyServletModule {
         // cdk
         bind(TimestampStore.class).to(SolrTimestampStore.class).asEagerSingleton();
         bind(Instances.class).to(DefaultPropertiesInstances.class).asEagerSingleton();
+        bind(ReharvestManager.class).to(MemoryReharvestManagerImpl.class).asEagerSingleton();
         bind(ProxyFilter.class).to(DefaultFilter.class);
-        bind(ConnectedInfoResource.class);
         
+        bind(ConnectedInfoResource.class);
+        //bind(ReharvestResource.class);
+        bind(ReharvestResource.class);
         
         // api
         Map<String, String> parameters = new HashMap<String, String>();

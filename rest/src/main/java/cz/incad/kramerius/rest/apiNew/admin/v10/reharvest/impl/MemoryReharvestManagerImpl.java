@@ -1,0 +1,55 @@
+package cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
+
+
+public class MemoryReharvestManagerImpl implements ReharvestManager {
+
+    private List<ReharvestItem> items = new ArrayList<>();
+    private Map<String, ReharvestItem> mapper = new HashMap<>();
+    
+    public MemoryReharvestManagerImpl() {
+        super();
+    }
+
+    public void register(ReharvestItem item) {
+        this.items.add(item);
+        sortItems();
+        this.mapper.put(item.getId(), item);
+    }
+    
+    public List<ReharvestItem> getItems() {
+        sortItems();
+        return this.items;
+    }
+
+    private void sortItems() {
+        this.items.sort((item1, item2)-> {
+            return item1.getTimestamp().compareTo(item2.getTimestamp());
+        });
+    }
+    
+    public ReharvestItem getTopItem() {
+        sortItems();
+        return this.items.size() > 0 ? this.items.get(0) : null;
+    }
+
+    public ReharvestItem getItemById(String id) {
+        return this.mapper.get(id);
+    }
+    
+    public void deregister(String id) {
+        ReharvestItem ritem = this.mapper.get(id);
+        if (ritem != null) {
+            this.mapper.remove(id);
+            this.items.remove(ritem);
+        }
+    }
+
+}

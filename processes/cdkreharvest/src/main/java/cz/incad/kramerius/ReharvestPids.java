@@ -63,17 +63,6 @@ public class ReharvestPids {
     public static final Logger LOGGER = Logger.getLogger(ReharvestPids.class.getName());
 
     
-    /**
-     * args[0] - action (ADD/REMOVE), from lp.st process/parameters
-     * args[1] - authToken
-     * args[2] - target (pid:uuid:123, or pidlist:uuid:123;uuid:345;uuid:789, or pidlist_file:/home/kramerius/.kramerius/import-dnnt/grafiky.txt
-     * In case of pidlist pids must be separated with ';'. Convenient separator ',' won't work due to way how params are stored in database and transferred to process.
-     * <p>
-     * args[3] - licence ('dnnt', 'dnnto', 'public_domain', etc.)
-     * @throws TransformerException 
-     * @throws ParserConfigurationException 
-     * @throws MigrateSolrIndexException 
-     */
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException, ResourceIndexException, TransformerException, ParserConfigurationException, MigrateSolrIndexException {
         if (args.length < 2) {
             throw new RuntimeException("Not enough arguments.");
@@ -125,7 +114,6 @@ public class ReharvestPids {
                 
                 collections.remove(leader);
                 collections.add(0, leader);
-                
                 reharvestPIDFromGivenCollections(pid, collections, onlyShowConfiguration);
             } else {
                 DefaultPropertiesInstances props = new DefaultPropertiesInstances();   
@@ -153,9 +141,7 @@ public class ReharvestPids {
                     continue;
                 }
                 
-                
                 Pair<String,Boolean> iterationUrl = iterationUrl(ac);
-
                 Map<String,String> iteration = new HashMap<>();
                 iteration.put("url", iterationUrl.getKey());
                 iteration.put("dl", ac);
@@ -193,6 +179,7 @@ public class ReharvestPids {
                     String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
                     LOGGER.info(String.format("Configuration %s" ,config));
                 } else {
+                    // safra ?? 
                     ParallelProcessImpl reharvest = new ParallelProcessImpl();
                     String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
                     LOGGER.info(String.format("Configuration %s" ,config));

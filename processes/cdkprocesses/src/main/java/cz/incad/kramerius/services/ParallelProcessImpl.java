@@ -144,8 +144,6 @@ public class ParallelProcessImpl {
                 endDateTimeLT = endDateTimeLT.plusDays(1);
             }
         }
-
-        
         
         Duration duration = Duration.between(current, startDateTimeLT);
         if (!duration.isNegative()) {
