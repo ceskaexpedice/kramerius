@@ -101,14 +101,14 @@ public class ReharvestUtils {
                     cursorMark = findCursorMark(element);
                     queryCursorMark = findQueryCursorMark(element);
                     
-                    try {
-                        StringWriter wrt = new StringWriter();
-                        XMLUtils.print(element, wrt);
-                        System.out.println(wrt);
-                    } catch (TransformerException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        StringWriter wrt = new StringWriter();
+//                        XMLUtils.print(element, wrt);
+//                        System.out.println(wrt);
+//                    } catch (TransformerException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    }
                     
                     List<Element> docs = XMLUtils.getElementsRecursive(element, new XMLUtils.ElementsFilter() {
                         

@@ -62,7 +62,7 @@ public class KubernetesReharvestProcess {
             }
             
             // Top item 
-            WebResource topWebResource = client.resource(wurl + "top");
+            WebResource topWebResource = client.resource(wurl + "top?state=open");
             ClientResponse topItemFrom = topWebResource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
             if (topItemFrom.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
 
