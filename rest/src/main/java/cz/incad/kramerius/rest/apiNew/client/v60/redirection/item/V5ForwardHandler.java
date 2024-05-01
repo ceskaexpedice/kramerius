@@ -70,7 +70,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url, null);
         }
     }
 
@@ -121,7 +121,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url,null);
         }
     }
 
@@ -134,7 +134,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url, null);
         }
     }
 

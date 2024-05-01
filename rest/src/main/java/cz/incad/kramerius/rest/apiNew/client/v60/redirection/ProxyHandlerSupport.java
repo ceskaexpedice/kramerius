@@ -151,7 +151,7 @@ public abstract class ProxyHandlerSupport {
 		} else {
             // event for reharvest
 		    if (response.getStatus() == 404) {
-		        if (reharvestManager != null) {
+		        if (reharvestManager != null && pid != null) {
 	                try {
 	                    Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
 	                    Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
@@ -180,7 +180,7 @@ public abstract class ProxyHandlerSupport {
 	                    LOGGER.log(Level.SEVERE,e.getMessage());
 	                }
 		        } else {
-		            LOGGER.log(Level.SEVERE,"No reharvest manager");
+		            LOGGER.log(Level.SEVERE,"No reharvest manager or pid ");
 		        }
 	        }
 			return Response.status(response.getStatus()).build();

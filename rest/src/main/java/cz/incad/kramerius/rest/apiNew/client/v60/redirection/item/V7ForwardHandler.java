@@ -109,7 +109,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url, null);
         }
     }
 
@@ -158,7 +158,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url, null);
         }
     }
 
@@ -170,7 +170,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url, null);
         }
     }
 
