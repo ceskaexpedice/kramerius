@@ -14,22 +14,38 @@ import org.json.JSONObject;
 
 import cz.incad.kramerius.utils.StringUtils;
 
+/** 
+ * Represents new Reharvest item
+ * @author happy
+ */
 public class ReharvestItem {
     
 //    static enum ReharvestItemState {
 //        open, closed;
 //    }
-    
+
     //public static FastDateFormat FORMAT =  FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", TimeZone.getTimeZone("UTC"));    
     
     
+    private static final String TIMESTAMP_KEYWORD = "timestamp";
+    private static final String PIDS_KEYWORD = "pids";
+    private static final String TYPE_KEYWORD = "type";
+    private static final String STATE_KEYWORD = "state";
+    private static final String NAME_KEYWORD = "name";
+    private static final String ID_KEYWORD = "id";
+    private static final String POD_NAME_KEYWORD = "pod";
+    
+    // unique identifier 
     private String id;
     private String name;
     private String state;
     private String type;
     private List<String> pids= new ArrayList<>();
     private Instant timestamp = Instant.now();
-
+    private String podname;
+    
+    private List<String> libraries = new ArrayList<>();
+    
     
     public ReharvestItem(String id, String name, String state, List<String> pids) {
         super();
@@ -71,7 +87,15 @@ public class ReharvestItem {
     public void setPids(List<String> pids) {
         this.pids = pids;
     }
-
+    
+    public List<String> getLibraries() {
+        return libraries;
+    }
+    
+    public void setLibraries(List<String> libraries) {
+        this.libraries = libraries;
+    }
+    
     public Instant getTimestamp() {
         return timestamp;
     }
@@ -88,37 +112,56 @@ public class ReharvestItem {
         this.type = type;
     }
     
+    
+    public void setPodname(String podname) {
+        this.podname = podname;
+    }
+    
+    public String getPodname() {
+        return podname;
+    }
+    
+    
     public JSONObject toJSON() {
         JSONObject obj  = new JSONObject();
-        obj.put("id", this.id);
-        obj.put("name", this.name);
+        obj.put(ID_KEYWORD, this.id);
+        obj.put(NAME_KEYWORD, this.name);
         if (this.state != null) {
-            obj.put("state", this.state);
+            obj.put(STATE_KEYWORD, this.state);
         }
         if (this.type != null) {
-            obj.put("type", this.type);
+            obj.put(TYPE_KEYWORD, this.type);
         }
         
         JSONArray jsonArray = new JSONArray();
         this.pids.forEach(jsonArray::put);
-        obj.put("pids", jsonArray);
+        obj.put(PIDS_KEYWORD, jsonArray);
         
-        obj.put("timestamp",DateTimeFormatter.ISO_INSTANT.format(this.timestamp));
+        if (!this.libraries.isEmpty()) {
+            JSONArray libsArray = new JSONArray();
+            this.libraries.forEach(libsArray::put);
+        }
+        
+        if (this.podname != null) {
+            obj.put(POD_NAME_KEYWORD, this.podname);
+        }
+        
+        obj.put(TIMESTAMP_KEYWORD,DateTimeFormatter.ISO_INSTANT.format(this.timestamp));
 
         return obj;
     }
     
     public static ReharvestItem fromJSON(JSONObject json) throws ParseException {
-        String id = json.getString("id");
-        String name= json.getString("name");
-        JSONArray array= json.getJSONArray("pids");
+        String id = json.getString(ID_KEYWORD);
+        String name= json.getString(NAME_KEYWORD);
+        JSONArray array= json.getJSONArray(PIDS_KEYWORD);
         List<String> pids = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             pids.add(array.getString(i));
         }
 
-        String state = json.optString("state");
-        String type = json.optString("type");
+        String state = json.optString(STATE_KEYWORD);
+        String type = json.optString(TYPE_KEYWORD);
         ReharvestItem item = new ReharvestItem(id);
         item.setName(name);
         item.setPids(pids);
@@ -126,9 +169,13 @@ public class ReharvestItem {
         item.setState(StringUtils.isAnyString(state) ? state : "open");
         item.setType(StringUtils.isAnyString(type) ? type : "root.pid");
         
-        if (json.has("timestamp")) {
-            String timestamp = json.getString("timestamp");
+        if (json.has(TIMESTAMP_KEYWORD)) {
+            String timestamp = json.getString(TIMESTAMP_KEYWORD);
             item.setTimestamp( Instant.from(DateTimeFormatter.ISO_INSTANT.parse(timestamp)));
+        }
+        
+        if (json.has(POD_NAME_KEYWORD)) {
+            item.setPodname(json.getString(POD_NAME_KEYWORD));
         }
         
         return item;

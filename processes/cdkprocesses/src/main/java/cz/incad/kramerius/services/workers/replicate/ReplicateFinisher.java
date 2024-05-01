@@ -63,11 +63,17 @@ public class ReplicateFinisher   extends WorkerFinisher {
     }
 
 	private JSONObject storeTimestamp() {
-		JSONObject jsonObject = new JSONObject();
+	    
+	    String hostname = System.getenv("HOSTNAME");
+	    
+	    
+	    JSONObject jsonObject = new JSONObject();
 		jsonObject.put("workers", WORKERS.get());
 		jsonObject.put("batches", BATCHES.get());
 		jsonObject.put("indexed", NEWINDEXED);
 		jsonObject.put("updated", UPDATED);
+		jsonObject.put("hostname", hostname);
+		
 		
 		if (typeOfCrawl != null) {
 	        jsonObject.put("type", typeOfCrawl);

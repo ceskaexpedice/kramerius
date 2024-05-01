@@ -49,7 +49,7 @@ public class ReharvestUtils {
     /** Delete all given pids */
     public static void deleteAllGivenPids(Client client,Map<String, String> destinationMap, List<Pair<String,String>> allPidsList, boolean onlyShowConfig)
             throws ParserConfigurationException {
-        int batchSize = 42;
+        int batchSize = 1000;
         int batches = allPidsList.size() / batchSize;
         if (allPidsList.size() % batchSize > 0) {
             batches = batches + 1;
@@ -65,10 +65,9 @@ public class ReharvestUtils {
                 idElm.setTextContent(pid.getRight().trim());
                 deleteBatch.getDocumentElement().appendChild(idElm);
             });
-    
             try {
-                
                 if (!onlyShowConfig) {
+                    LOGGER.info("Deleting identifiers:"+batchPids);
                     String destinationUrl = destinationMap.get("url")+"/update?commit=true";
                     String s = SolrUtils.sendToDest(destinationUrl, client, deleteBatch);
                 } else {
@@ -90,25 +89,18 @@ public class ReharvestUtils {
             String pid = pids.getString(i);
             //allPids.add(pid);
             String iterationUrl = iterationMap.get("url");
+            
             String masterQuery = "*:*";
             String filterQuery = "root.pid:\"" + pid + "\"";
             try {
                 String cursorMark = null;
                 String queryCursorMark = null;
                 do {
-                    Element element = pidsCursorQuery(client, iterationUrl, masterQuery, cursorMark, 100,
+                    
+                    Element element = pidsCursorQuery(client, iterationUrl, masterQuery, cursorMark, 3000,
                             filterQuery, "select", "compositeId+pid", "compositeId asc", "", "");
                     cursorMark = findCursorMark(element);
                     queryCursorMark = findQueryCursorMark(element);
-                    
-//                    try {
-//                        StringWriter wrt = new StringWriter();
-//                        XMLUtils.print(element, wrt);
-//                        System.out.println(wrt);
-//                    } catch (TransformerException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    }
                     
                     List<Element> docs = XMLUtils.getElementsRecursive(element, new XMLUtils.ElementsFilter() {
                         
@@ -144,6 +136,8 @@ public class ReharvestUtils {
                     }).filter(x -> x != null).collect(Collectors.toList());
                     
                     allPids.addAll(pairs);
+                    LOGGER.info(String.format( "Collected pids to delete %d", allPids.size()));
+                    
                 } while ((cursorMark != null && queryCursorMark != null)
                         && !cursorMark.equals(queryCursorMark));
             } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -190,9 +184,22 @@ public class ReharvestUtils {
                     continue;
                 }
                 String channel = colObject.optString("forwardurl");
+
                 
                 Map<String,String> iteration = new HashMap<>();
-                iteration.put("url", channel);
+                //http://mzk-tunnel.cdk-proxy.svc.cluster.local/search"
+                //http://knav-tunnel.cdk-proxy.svc.cluster.local/search/api/v5.0/cdk/forward/sync/solr
+                //v7.0
+                //search/api/cdk/v7.0/forward/sync/solr/
+                if (apiVersion.toLowerCase().equals("v5")) {
+                    //channel = 
+                    iteration.put("url", channel+(channel.endsWith("/") ? "" : "/")+"api/v5.0/cdk/forward/sync/solr");
+                } else {
+                    iteration.put("url", channel+(channel.endsWith("/") ? "" : "/")+"api/cdk/v7.0/forward/sync/solr");
+                }
+                
+                
+                
                 iteration.put("dl", ac);
                 iteration.put("fquery", fq(apiVersion, pid));
     
@@ -213,12 +220,17 @@ public class ReharvestUtils {
                 LOGGER.info(String.format("Configuration %s" ,config));
             } else {
                 // safra ?? 
-                ParallelProcessImpl reharvest = new ParallelProcessImpl();
-                String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
-                LOGGER.info(String.format("Configuration %s" ,config));
-                reharvest.migrate(harvestFile);
+                try {
+                    ParallelProcessImpl reharvest = new ParallelProcessImpl();
+                    String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
+                    LOGGER.info(String.format("Configuration %s" ,config));
+                    reharvest.migrate(harvestFile);
+                } catch (IllegalAccessException | InstantiationException | ClassNotFoundException
+                        | NoSuchMethodException | MigrateSolrIndexException | IOException | ParserConfigurationException
+                        | SAXException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
             }
-            
         }
     }
 

@@ -108,7 +108,7 @@ public class ReharvestResource {
   @PUT
   @Path("{id}/state")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getTopHarvest(@PathParam("id") String id, @QueryParam("state") String state) {
+  public Response changeState(@PathParam("id") String id, @QueryParam("state") String state) {
       ReharvestItem itemById = reharvestManager.getItemById(id);
       if (itemById != null) {
           itemById.setState(state);
@@ -118,4 +118,17 @@ public class ReharvestResource {
       }
   }
 
+  @PUT
+  @Path("{id}/pod")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response changePod(@PathParam("id") String id, @QueryParam("pod") String pod) {
+      ReharvestItem itemById = reharvestManager.getItemById(id);
+      if (itemById != null) {
+          itemById.setPodname(pod);
+          return Response.ok(itemById.toJSON().toString()).build();
+      } else {
+          return Response.status(Response.Status.NOT_FOUND).build();
+      }
+  }
+  
 }

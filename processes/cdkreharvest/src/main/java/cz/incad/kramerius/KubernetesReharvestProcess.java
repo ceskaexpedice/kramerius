@@ -8,8 +8,13 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,6 +29,7 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.json.JSONConfiguration;
 
+import antlr.StringUtils;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.utils.kubernetes.KubernetesEnvSupport;
 import cz.incad.kramerius.utils.ReharvestUtils;
@@ -71,6 +77,15 @@ public class KubernetesReharvestProcess {
                 JSONObject itemObject = new JSONObject(t);
                 String id = itemObject.getString("id");
                 JSONArray pids = itemObject.getJSONArray("pids");
+
+                if (!onlyShowConfiguration) {
+                    changeState(client, wurl, id,"running");
+                    String podname = System.getProperty("HOSTNAME");
+                    if (cz.incad.kramerius.utils.StringUtils.isAnyString(podname)) {
+                        changePodname(client, wurl, id, podname);
+                    }
+                }
+
                 // find all pids 
                 List<Pair<String,String>> allPidsList = ReharvestUtils.findAllPidsByGivenRootPid(iterationMap, client, pids);
                 // delete all pids 
@@ -90,12 +105,7 @@ public class KubernetesReharvestProcess {
                     }
                     
                     if (!onlyShowConfiguration) {
-                        //  @Path("{id}/state")
-                        WebResource deleteWebResource = client.resource(wurl + id+"/state?state=closed");
-                        ClientResponse deleteResponse = deleteWebResource.accept(MediaType.APPLICATION_JSON).put(ClientResponse.class);
-                        if (deleteResponse.getStatus() ==  ClientResponse.Status.OK.getStatusCode()) {
-                            LOGGER.info("Reharvest item finished");
-                        }
+                        changeState(client, wurl, id,"closed");
                     }
                 } else {
                     LOGGER.severe("No proxy configuration");
@@ -108,6 +118,29 @@ public class KubernetesReharvestProcess {
         }
     }
 
+    private static void changeState(Client client, String wurl, String id, String changeState) {
+        //String changeState = "closed";
+        WebResource deleteWebResource = client.resource(wurl + id+"/state?state="+changeState);
+        ClientResponse deleteResponse = deleteWebResource.accept(MediaType.APPLICATION_JSON).put(ClientResponse.class);
+        if (deleteResponse.getStatus() ==  ClientResponse.Status.OK.getStatusCode()) {
+            LOGGER.info("Reharvest item finished");
+        }
+    }
+
+//    @PUT
+//    @Path("{id}/pod")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response changePod(@PathParam("id") String id, @QueryParam("pod") String pod) {
+
+    private static void changePodname(Client client, String wurl, String id, String podname) {
+        //String changeState = "closed";
+        WebResource deleteWebResource = client.resource(wurl + id+"/pod?pod="+podname);
+        ClientResponse deleteResponse = deleteWebResource.accept(MediaType.APPLICATION_JSON).put(ClientResponse.class);
+        if (deleteResponse.getStatus() ==  ClientResponse.Status.OK.getStatusCode()) {
+            LOGGER.info("Reharvest item finished");
+        }
+    }
+    
     public static Map<String, JSONObject> libraryConfigurations(Client client, String proxyURl) {
         Map<String, JSONObject> configurations = new HashMap<>();
         WebResource proxyWebResource = client.resource(proxyURl);
@@ -118,7 +151,7 @@ public class KubernetesReharvestProcess {
             JSONObject responseAllConnectedObject = new JSONObject(responseAllConnected);
             for (Object key : responseAllConnectedObject.keySet()) {
                 JSONObject lib = responseAllConnectedObject.getJSONObject(key.toString());
-                if (lib.has("status")) {
+                if (lib.has("status") && lib.getBoolean("status")) {
                     String configURl = proxyURl;
                     if (!configURl.endsWith("/")) {
                         configURl += "/";
