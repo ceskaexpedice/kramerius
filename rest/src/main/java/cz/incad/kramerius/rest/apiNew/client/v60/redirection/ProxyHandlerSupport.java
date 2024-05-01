@@ -166,7 +166,7 @@ public abstract class ProxyHandlerSupport {
 	                    });
 	                    if (rootPid != null) {
 	                        try {
-                                ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Reharvest from CDK Core","open", new ArrayList<>(Arrays.asList(rootPid.getTextContent().trim())));
+                                ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", new ArrayList<>(Arrays.asList(rootPid.getTextContent().trim())));
                                 this.reharvestManager.register(reharvestItem);
                             } catch (DOMException e) {
                                 LOGGER.log(Level.SEVERE,e.getMessage(),e);

@@ -80,7 +80,7 @@ public class KubernetesReharvestProcess {
 
                 if (!onlyShowConfiguration) {
                     changeState(client, wurl, id,"running");
-                    String podname = System.getProperty("HOSTNAME");
+                    String podname = env.get("HOSTNAME");
                     if (cz.incad.kramerius.utils.StringUtils.isAnyString(podname)) {
                         changePodname(client, wurl, id, podname);
                     }
@@ -134,8 +134,8 @@ public class KubernetesReharvestProcess {
 
     private static void changePodname(Client client, String wurl, String id, String podname) {
         //String changeState = "closed";
-        WebResource deleteWebResource = client.resource(wurl + id+"/pod?pod="+podname);
-        ClientResponse deleteResponse = deleteWebResource.accept(MediaType.APPLICATION_JSON).put(ClientResponse.class);
+        WebResource changePodname = client.resource(wurl + id+"/pod?pod="+podname);
+        ClientResponse deleteResponse = changePodname.accept(MediaType.APPLICATION_JSON).put(ClientResponse.class);
         if (deleteResponse.getStatus() ==  ClientResponse.Status.OK.getStatusCode()) {
             LOGGER.info(String.format("Change podname for %s -> %s ", id, podname));
         }
