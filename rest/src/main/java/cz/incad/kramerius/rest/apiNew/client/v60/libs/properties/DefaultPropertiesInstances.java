@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.configuration.Configuration;
@@ -26,6 +27,7 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.TypeOfChangedStatus;
@@ -41,10 +43,12 @@ public class DefaultPropertiesInstances implements Instances {
 
     private List<OneInstance> instances = new ArrayList<>();
     private Set<String> names = new HashSet<>();
+    private ReharvestManager reharvestManager;
     
-    public DefaultPropertiesInstances() {
+    @Inject
+    public DefaultPropertiesInstances(ReharvestManager reharvestManager) {
         super();
-
+        this.reharvestManager = reharvestManager;
         LOGGER.info("Refreshing configuration ");
         refreshingConfiguration();
     }
@@ -69,10 +73,9 @@ public class DefaultPropertiesInstances implements Instances {
     private void addOneInstance(String acronym) {
         LOGGER.info(String.format("Adding library %s", acronym));
         names.add(acronym);
-        DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(this, acronym);
+        DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(this.reharvestManager, this, acronym);
         instances.add(di);
     }
-
     
     @Override
     public List<OneInstance> allInstances() {

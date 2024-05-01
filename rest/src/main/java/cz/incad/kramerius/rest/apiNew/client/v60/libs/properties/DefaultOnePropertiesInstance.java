@@ -6,6 +6,7 @@ import java.util.Map;
 import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.TypeOfChangedStatus;
@@ -23,14 +24,16 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class DefaultOnePropertiesInstance implements OneInstance {
     
     private Instances instances;
+    private ReharvestManager reharvestManager;
     private String instanceAcronym;
     private boolean connected = true;
     private TypeOfChangedStatus typeOfChangedStatus = TypeOfChangedStatus.automat;
     
     private Map<String, String> info = new HashMap<>();
     
-    public DefaultOnePropertiesInstance(Instances instances, String instanceAcronym) {
+    public DefaultOnePropertiesInstance(ReharvestManager reharvestManager, Instances instances, String instanceAcronym) {
         super();
+        this.reharvestManager = reharvestManager;
         this.instanceAcronym = instanceAcronym;
         this.instances = instances;
     }
@@ -61,19 +64,19 @@ public class DefaultOnePropertiesInstance implements OneInstance {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5ForwardHandler(this.instances, user, client, solrAccess, source, pid, remoteAddr);
+                return new V5ForwardHandler(this.reharvestManager, this.instances, user, client, solrAccess, source, pid, remoteAddr);
             default:
-                return new V7ForwardHandler(this.instances, user, client, solrAccess, source, pid, remoteAddr);
+                return new V7ForwardHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, pid, remoteAddr);
             }
         } else {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5RedirectHandler(this.instances, user, client, solrAccess, source, pid, remoteAddr);
+                return new V5RedirectHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, pid, remoteAddr);
             case V7:
-                return new V7RedirectHandler(this.instances, user, client, solrAccess, source, pid, remoteAddr);
+                return new V7RedirectHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, pid, remoteAddr);
             default:
-                return new V5RedirectHandler(this.instances, user, client, solrAccess, source, pid, remoteAddr);
+                return new V5RedirectHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, pid, remoteAddr);
             }
 
         }
@@ -86,9 +89,9 @@ public class DefaultOnePropertiesInstance implements OneInstance {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5ForwardUserHandler(this.instances, user, client, solrAccess, source, remoteAddr);
+                return new V5ForwardUserHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, remoteAddr);
             default:
-                return new V7ForwardUserHandler(this.instances, user, client, solrAccess, source, remoteAddr);
+                return new V7ForwardUserHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, remoteAddr);
             }
 
         } else {

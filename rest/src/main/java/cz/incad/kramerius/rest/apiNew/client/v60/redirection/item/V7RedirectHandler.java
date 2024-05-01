@@ -13,6 +13,8 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler.RequestMethodName;
@@ -23,8 +25,8 @@ public class V7RedirectHandler extends ProxyItemHandler{
 
 	public static final Logger LOGGER = Logger.getLogger(V7RedirectHandler.class.getName());
     
-    public V7RedirectHandler(Instances instances, User user, Client client, SolrAccess solrAccess, String source, String pid,String remoteAddr) {
-		super(instances, user,client, solrAccess, source, pid, remoteAddr);
+    public V7RedirectHandler(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source, String pid,String remoteAddr) {
+		super(reharvestManager, instances, user,client, solrAccess, source, pid, remoteAddr);
 	}
 
 

@@ -14,6 +14,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
 import cz.incad.kramerius.security.Role;
@@ -31,9 +32,9 @@ public class V7ForwardUserHandler extends ProxyUserHandler {
     private static final String AUTHENTICATED_KEY = "authenticated";
     private static final String UID_KEY = "uid";
 
-    public V7ForwardUserHandler(Instances instances, User user, Client client, SolrAccess solrAccess, String source,
+    public V7ForwardUserHandler(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source,
             String remoteAddr) {
-        super(instances, user, client, solrAccess, source, remoteAddr);
+        super(reharvestManager, instances, user, client, solrAccess, source, remoteAddr);
     }
 
     protected String forwardUrl() {

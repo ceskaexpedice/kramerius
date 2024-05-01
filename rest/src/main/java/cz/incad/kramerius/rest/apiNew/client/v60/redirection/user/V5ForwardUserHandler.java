@@ -16,6 +16,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
 import cz.incad.kramerius.security.Role;
@@ -26,9 +27,9 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class V5ForwardUserHandler extends ProxyUserHandler {
 
-    public V5ForwardUserHandler(Instances instances, User user, Client client, SolrAccess solrAccess, String source,
+    public V5ForwardUserHandler(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source,
             String remoteAddr) {
-        super(instances, user, client, solrAccess, source, remoteAddr);
+        super(reharvestManager,instances, user, client, solrAccess, source, remoteAddr);
     }
 
     protected String forwardUrl() {

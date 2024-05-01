@@ -123,7 +123,7 @@ public class KubernetesReharvestProcess {
         WebResource deleteWebResource = client.resource(wurl + id+"/state?state="+changeState);
         ClientResponse deleteResponse = deleteWebResource.accept(MediaType.APPLICATION_JSON).put(ClientResponse.class);
         if (deleteResponse.getStatus() ==  ClientResponse.Status.OK.getStatusCode()) {
-            LOGGER.info("Reharvest item finished");
+            LOGGER.info(String.format("Change state for %s -> %s ", id, changeState));
         }
     }
 
@@ -137,7 +137,7 @@ public class KubernetesReharvestProcess {
         WebResource deleteWebResource = client.resource(wurl + id+"/pod?pod="+podname);
         ClientResponse deleteResponse = deleteWebResource.accept(MediaType.APPLICATION_JSON).put(ClientResponse.class);
         if (deleteResponse.getStatus() ==  ClientResponse.Status.OK.getStatusCode()) {
-            LOGGER.info("Reharvest item finished");
+            LOGGER.info(String.format("Change podname for %s -> %s ", id, podname));
         }
     }
     

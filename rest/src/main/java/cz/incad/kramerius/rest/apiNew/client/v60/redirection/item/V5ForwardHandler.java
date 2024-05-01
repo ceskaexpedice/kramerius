@@ -23,6 +23,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
@@ -43,9 +44,9 @@ public class V5ForwardHandler extends V5RedirectHandler {
     }
 
     
-    public V5ForwardHandler(Instances instances, User user, Client client, SolrAccess solrAccess, String source,
+    public V5ForwardHandler(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source,
             String pid, String remoteAddr) {
-        super(instances, user, client, solrAccess, source, pid, remoteAddr);
+        super(reharvestManager, instances, user, client, solrAccess, source, pid, remoteAddr);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url);
+            return buildForwardResponseGET(url, this.pid);
         }
     }
 
@@ -69,7 +70,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url);
+            return buildForwardResponseGET(url, this.pid);
         }
     }
 
@@ -86,7 +87,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
                     + "/streams/BIBLIO_MODS";
             // String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/"
             // + this.pid + "/streams/BIBLIO_MODS";
-            return buildForwardResponseGET(url);
+            return buildForwardResponseGET(url, this.pid);
         }
     }
 
@@ -99,7 +100,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url);
+            return buildForwardResponseGET(url, this.pid);
         }
     }
 
@@ -108,7 +109,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         String baseurl = this.forwardUrl();
         String formatted = String.format("api/v5.0/cdk/forward/zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
-        return buildForwardResponseGET(url);
+        return buildForwardResponseGET(url, this.pid);
     }
 
     @Override
@@ -120,7 +121,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url);
+            return buildForwardResponseGET(url, this.pid);
         }
     }
 
@@ -133,7 +134,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url);
+            return buildForwardResponseGET(url, this.pid);
         }
     }
 

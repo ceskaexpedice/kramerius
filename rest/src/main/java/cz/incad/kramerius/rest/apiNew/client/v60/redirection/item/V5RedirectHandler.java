@@ -33,6 +33,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi.FosterRelationsMapping;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownRelations;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi.OwnRelationsMapping;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler.RequestMethodName;
@@ -44,9 +45,9 @@ public class V5RedirectHandler extends ProxyItemHandler {
 
     public static final Logger LOGGER = Logger.getLogger(V5RedirectHandler.class.getName());
 
-    public V5RedirectHandler(Instances instances, User user, Client client, SolrAccess solrAccess, String source,
+    public V5RedirectHandler(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source,
             String pid, String remoteAddr) {
-        super(instances, user, client, solrAccess, source, pid, remoteAddr);
+        super(reharvestManager, instances, user, client, solrAccess, source, pid, remoteAddr);
     }
 
     @Override

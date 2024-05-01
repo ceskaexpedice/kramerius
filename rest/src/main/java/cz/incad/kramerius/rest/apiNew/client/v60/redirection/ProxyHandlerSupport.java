@@ -6,8 +6,11 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -22,15 +25,20 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public abstract class ProxyHandlerSupport {
@@ -45,9 +53,11 @@ public abstract class ProxyHandlerSupport {
 	protected User user;
 	protected String remoteAddr;
 	protected Instances instances;
+	protected ReharvestManager reharvestManager;
 
-	public ProxyHandlerSupport(Instances instances, User user, Client client, SolrAccess solrAccess, String source,
+	public ProxyHandlerSupport(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source,
 			String remoteAddr) {
+	    this.reharvestManager = reharvestManager;
 		this.source = source;
 		this.client = client;
 		this.solrAccess = solrAccess;
@@ -92,10 +102,15 @@ public abstract class ProxyHandlerSupport {
 	}
 	
     public Response buildForwardResponseGET(String url) throws ProxyHandlerException {
-        return buildForwardResponseGET(url, null);
+        return buildForwardResponseGET(url, null, null);
     }
+    
+    public Response buildForwardResponseGET(String url, String pid) throws ProxyHandlerException {
+        return buildForwardResponseGET(url, null, pid);
+    }
+    
 
-    public Response buildForwardResponseGET(String url, String mimetype) throws ProxyHandlerException {
+    public Response buildForwardResponseGET(String url, String mimetype, String pid) throws ProxyHandlerException {
 		WebResource.Builder b = buidFowrardResponse(url);
 		ClientResponse response = b.get(ClientResponse.class);
 		if (response.getStatus() == 200) {
@@ -132,6 +147,30 @@ public abstract class ProxyHandlerSupport {
 			
 			return respEntity.build();
 		} else {
+            // event for reharvest
+		    if (response.getStatus() == 404) {
+		        if (reharvestManager != null) {
+	                try {
+	                    Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
+	                    Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
+	                        @Override
+	                        public boolean acceptElement(Element element) {
+	                            if (element.getNodeName().equals("src")) {
+	                                String fieldName = element.getAttribute("name");
+	                                return fieldName.equals("root.pid");
+	                            }
+	                            return false;
+	                        }
+	                    });
+	                    if (rootPid != null) {
+	                        ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Reharvest from CDK Core","open", new ArrayList<>(Arrays.asList(rootPid.getTextContent().trim())));
+	                        this.reharvestManager.register(reharvestItem);
+	                    }
+	                } catch (IOException e) {
+	                    LOGGER.log(Level.SEVERE,e.getMessage());
+	                }
+		        }
+	        }
 			return Response.status(response.getStatus()).build();
 		}
 	}

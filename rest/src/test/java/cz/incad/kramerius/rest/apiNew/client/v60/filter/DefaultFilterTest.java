@@ -27,6 +27,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.impl.MemoryReharvestManagerImpl;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.TypeOfChangedStatus;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.properties.DefaultOnePropertiesInstance;
@@ -336,8 +338,12 @@ public class DefaultFilterTest {
     
     @Test
     public void testValueDocWithPhysicalLocationJSON() throws IOException {
+        
+        
+        ReharvestManager reharvest = new MemoryReharvestManagerImpl();
+        
         DefaultPropertiesInstances inst = createMockBuilder(DefaultPropertiesInstances.class)
-                .withConstructor()
+                .withConstructor(reharvest)
                 .addMockedMethod("allInstances")
                 .addMockedMethod("enabledInstances")
                 .addMockedMethod("disabledInstances")
@@ -346,9 +352,9 @@ public class DefaultFilterTest {
                 .createMock();
 
         
-        DefaultOnePropertiesInstance mzk = new DefaultOnePropertiesInstance(inst,"mzk");
-        DefaultOnePropertiesInstance nkp = new DefaultOnePropertiesInstance(inst,"nkp");
-        DefaultOnePropertiesInstance knav = new DefaultOnePropertiesInstance(inst,"knav");
+        DefaultOnePropertiesInstance mzk = new DefaultOnePropertiesInstance(null, inst,"mzk");
+        DefaultOnePropertiesInstance nkp = new DefaultOnePropertiesInstance(null, inst,"nkp");
+        DefaultOnePropertiesInstance knav = new DefaultOnePropertiesInstance(null,inst,"knav");
         knav.setConnected(false, TypeOfChangedStatus.user);
         
         

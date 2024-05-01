@@ -14,6 +14,7 @@ import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerSupport;
@@ -38,8 +39,8 @@ public abstract class ProxyItemHandler extends ProxyHandlerSupport {
 	
     protected String pid;
 
-    public ProxyItemHandler(Instances instances, User user, Client client, SolrAccess solrAccess, String source, String pid, String remoteAddr) {
-    	super(instances,user,client,solrAccess,source, remoteAddr);
+    public ProxyItemHandler(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source, String pid, String remoteAddr) {
+    	super(reharvestManager, instances,user,client,solrAccess,source, remoteAddr);
     	this.source = source;
         this.pid = pid;
     }
