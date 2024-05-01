@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.AlreadyRegistedPidsException;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 
@@ -19,10 +20,19 @@ public class MemoryReharvestManagerImpl implements ReharvestManager {
         super();
     }
 
-    public void register(ReharvestItem item) {
-        this.items.add(item);
-        sortItems();
-        this.mapper.put(item.getId(), item);
+    public void register(ReharvestItem item) throws AlreadyRegistedPidsException {
+        List<String> alreadyRegistredPids = this.items.stream().filter(x -> x.getState() != null && x.getState().equals("open")).map(ReharvestItem::getPids).flatMap(List::stream).collect(Collectors.toList());
+        List<String> intersection = new ArrayList<>(item.getPids());
+        intersection.retainAll(alreadyRegistredPids);
+        
+        if (intersection.isEmpty()) {
+            this.items.add(item);
+            sortItems();
+            this.mapper.put(item.getId(), item);
+        } else {
+            throw new AlreadyRegistedPidsException(intersection);
+        }
+        
     }
     
     public List<ReharvestItem> getItems() {

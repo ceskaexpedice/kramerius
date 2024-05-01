@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -33,6 +34,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.AlreadyRegistedPidsException;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
@@ -163,8 +165,14 @@ public abstract class ProxyHandlerSupport {
 	                        }
 	                    });
 	                    if (rootPid != null) {
-	                        ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Reharvest from CDK Core","open", new ArrayList<>(Arrays.asList(rootPid.getTextContent().trim())));
-	                        this.reharvestManager.register(reharvestItem);
+	                        try {
+                                ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Reharvest from CDK Core","open", new ArrayList<>(Arrays.asList(rootPid.getTextContent().trim())));
+                                this.reharvestManager.register(reharvestItem);
+                            } catch (DOMException e) {
+                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                            } catch (AlreadyRegistedPidsException e) {
+                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                            }
 	                    }
 	                } catch (IOException e) {
 	                    LOGGER.log(Level.SEVERE,e.getMessage());

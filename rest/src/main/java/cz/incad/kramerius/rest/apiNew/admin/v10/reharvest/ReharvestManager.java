@@ -4,15 +4,13 @@ import java.util.List;
 
 public interface ReharvestManager {
 
-    public void register(ReharvestItem item);
+    public void register(ReharvestItem item) throws AlreadyRegistedPidsException;
     
     public List<ReharvestItem> getItems();
     
     public ReharvestItem getTopItem(String status);
-    
 
     public ReharvestItem getItemById(String id);
-    
     
     public void deregister(String id);
 }

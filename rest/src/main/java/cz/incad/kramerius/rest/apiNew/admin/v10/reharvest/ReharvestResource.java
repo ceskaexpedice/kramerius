@@ -23,6 +23,8 @@ import org.json.JSONObject;
 
 import com.google.inject.Inject;
 
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+
 @Path("/admin/v7.0/reharvest")
 public class ReharvestResource {
 
@@ -86,6 +88,8 @@ public class ReharvestResource {
         } catch (JSONException | ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } catch(AlreadyRegistedPidsException e) {
+            throw new BadRequestException(" Request contains already registered pids "+e.getPids());
         }
     }
   
