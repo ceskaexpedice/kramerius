@@ -157,7 +157,7 @@ public abstract class ProxyHandlerSupport {
 	                    Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
 	                        @Override
 	                        public boolean acceptElement(Element element) {
-	                            if (element.getNodeName().equals("src")) {
+	                            if (element.getNodeName().equals("str")) {
 	                                String fieldName = element.getAttribute("name");
 	                                return fieldName.equals("root.pid");
 	                            }
@@ -173,10 +173,14 @@ public abstract class ProxyHandlerSupport {
                             } catch (AlreadyRegistedPidsException e) {
                                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                             }
+	                    } else {
+	                        LOGGER.log(Level.SEVERE, "Cannot find root.pid element");
 	                    }
 	                } catch (IOException e) {
 	                    LOGGER.log(Level.SEVERE,e.getMessage());
 	                }
+		        } else {
+		            LOGGER.log(Level.SEVERE,"No reharvest manager");
 		        }
 	        }
 			return Response.status(response.getStatus()).build();

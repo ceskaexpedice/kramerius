@@ -49,7 +49,7 @@ public class DefaultPropertiesInstances implements Instances {
     public DefaultPropertiesInstances(ReharvestManager reharvestManager) {
         super();
         this.reharvestManager = reharvestManager;
-        LOGGER.info("Refreshing configuration ");
+        LOGGER.info("Refreshing configuration with reharvestManager "+this.reharvestManager);
         refreshingConfiguration();
     }
 
@@ -71,7 +71,7 @@ public class DefaultPropertiesInstances implements Instances {
     }
 
     private void addOneInstance(String acronym) {
-        LOGGER.info(String.format("Adding library %s", acronym));
+        LOGGER.info(String.format("Adding library %s with reharvestManager %s", acronym, reharvestManager.toString()));
         names.add(acronym);
         DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(this.reharvestManager, this, acronym);
         instances.add(di);
