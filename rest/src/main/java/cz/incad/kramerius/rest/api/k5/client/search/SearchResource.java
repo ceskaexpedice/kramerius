@@ -131,7 +131,7 @@ public class SearchResource {
             return strWriter.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.SEVERE, String.format("Bad Request (api request = %s,\n solr request %s", uriInfo.getRequestUri(), queryRef.get()));
+                LOGGER.log(Level.SEVERE, String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get()));
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
@@ -195,6 +195,7 @@ public class SearchResource {
     }
 
     private String getEntityJSON(UriInfo uriInfo) {
+        AtomicReference<String> queryRef = new AtomicReference<>();
         try {
 
             MultivaluedMap<String, String> queryParameters = uriInfo
@@ -212,6 +213,8 @@ public class SearchResource {
                     builder.append("&");
                 }
             }
+            queryRef.set(builder.toString());
+            
             InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), "json");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -225,7 +228,9 @@ public class SearchResource {
             return jsonObject.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                //LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                LOGGER.log(Level.SEVERE, String.format("Bad Request (api request = %s,\n solr request %s"), uriInfo.getRequestUri(), queryRef.get()));
+
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
