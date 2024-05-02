@@ -107,10 +107,12 @@ public class SearchResource {
             return jsonObject.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-
+                String reasonPhrase = e.getReasonPhrase();
+                
                 String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
                 LOGGER.log(Level.SEVERE, message);
-
+                LOGGER.log(Level.SEVERE, String.format("Reason phrase %s", reasonPhrase));
+                
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
