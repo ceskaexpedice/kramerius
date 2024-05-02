@@ -68,12 +68,9 @@ public class DefaultFilter implements ProxyFilter{
             // List<String> eInsts =
             // libraries.enabledInstances().stream().map(OneInstance::getName)::getName).;
             String enabled = eInsts.stream().collect(Collectors.joining(" OR "));
-            try {
-                return "cdk.collection:(" + URLEncoder.encode(enabled,"UTF-8") + ")";
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                return "cdk.collection:(" + enabled + ")";
-            }
+            String created =  "cdk.collection:(" + enabled + ")";
+            LOGGER.info(String.format("Created filter %s", enabled));
+            return created;
         } else {
             return null;
         }
@@ -82,13 +79,9 @@ public class DefaultFilter implements ProxyFilter{
     @Override
     public String enhancedFilter(String f) {
         if (this.libraries.isAnyDisabled()) {
-            try {
-                String retval  = f + URLEncoder.encode(" AND ","UTF-8")  + filter();
-                return retval;
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                return  f + " AND "  + filter();
-            }
+            String retval = f + " AND "  + filter();
+            LOGGER.info(String.format("Enhanced filter %s", retval));
+            return retval;
         } else
             return f;
     }	
