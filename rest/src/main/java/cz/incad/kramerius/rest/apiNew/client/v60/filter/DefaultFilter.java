@@ -67,7 +67,7 @@ public class DefaultFilter implements ProxyFilter{
                     .collect(Collectors.toList());
             // List<String> eInsts =
             // libraries.enabledInstances().stream().map(OneInstance::getName)::getName).;
-            String enabled = eInsts.stream().collect(Collectors.joining(" OR "));
+            String enabled = eInsts.stream().collect(Collectors.joining("+OR+"));
             return "cdk.collection:(" + enabled + ")";
         } else {
             return null;
@@ -77,7 +77,7 @@ public class DefaultFilter implements ProxyFilter{
     @Override
     public String enhancedFilter(String f) {
         if (this.libraries.isAnyDisabled()) {
-            return f + " AND " + filter();
+            return f + "+AND+" + filter();
         } else
             return f;
     }	
