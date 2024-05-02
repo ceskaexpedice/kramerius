@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -96,6 +97,7 @@ public class SearchResource {
     }
 
     private String getEntityXML(UriInfo uriInfo) {
+        AtomicReference<String> queryRef = new AtomicReference<>();
         try {
             MultivaluedMap<String, String> queryParameters = uriInfo
                     .getQueryParameters();
@@ -112,6 +114,7 @@ public class SearchResource {
                     builder.append("&");
                 }
             }
+            queryRef.set(builder.toString());
             InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), "xml");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -128,7 +131,7 @@ public class SearchResource {
             return strWriter.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                LOGGER.log(Level.SEVERE, String.format("Bad Request (api request = %s,\n solr request %s", uriInfo.getRequestUri(), queryRef.get()));
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
