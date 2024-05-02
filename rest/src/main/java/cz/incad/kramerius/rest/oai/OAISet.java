@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.oai;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +151,7 @@ public class OAISet {
     public int numberOfDoc(ProxyFilter proxyFilter, SolrAccess solrAccess) throws IOException, ParserConfigurationException, SAXException {
         String query = String.format("q=%s&fl=pid&rows=%d&sort=pid+asc", this.filterQuery,  0);
         if (proxyFilter.newFilter() != null) {
-            query = query + String.format("&fq=%s", proxyFilter.newFilter());
+            query = query + String.format("&fq=%s",  URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
         }
         String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
         Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
