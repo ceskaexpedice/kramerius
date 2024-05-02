@@ -131,7 +131,8 @@ public class SearchResource {
             return strWriter.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.SEVERE, String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get()));
+                String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
+                LOGGER.log(Level.SEVERE, message);
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
@@ -229,7 +230,8 @@ public class SearchResource {
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
                 //LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
-                LOGGER.log(Level.SEVERE, String.format("Bad Request (api request = %s,\n solr request %s"), uriInfo.getRequestUri(), queryRef.get()));
+                String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
+                LOGGER.log(Level.SEVERE, message);
 
                 throw new BadRequestException(e.getMessage());
             } else {
