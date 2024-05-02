@@ -363,6 +363,13 @@ public class SolrAccessImplNewIndex implements SolrAccess {
                 if (response.getStatusLine().getStatusCode() == SC_OK) {
                     return readContentAndProvideThroughBufferedStream(response.getEntity());
                 } else {
+                    
+                    HttpEntity entity = response.getEntity();
+                    if (entity != null) {
+                        InputStream stream = readContentAndProvideThroughBufferedStream(entity);
+                        String strEntity = IOUtils.toString(stream, "UTF-8");
+                        LOGGER.log(Level.SEVERE,  String.format("Error entity %s", strEntity));
+                    }
                     throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
                 }
             }
