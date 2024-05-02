@@ -48,6 +48,7 @@ import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -95,8 +96,10 @@ public class SearchResource {
     }
 
     private String buildSearchResponseJson(UriInfo uriInfo) {
+        AtomicReference<String> queryRef = new AtomicReference<>();
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
+            queryRef.set(solrQuery);
             // filter
             String solrResponseJson = this.solrAccess.requestWithSelectReturningString(solrQuery, "json");
             String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
@@ -104,7 +107,10 @@ public class SearchResource {
             return jsonObject.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+
+                String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
+                LOGGER.log(Level.SEVERE, message);
+
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
@@ -120,8 +126,11 @@ public class SearchResource {
     }
 
     private String buildSearchResponseXml(UriInfo uriInfo) {
+        AtomicReference<String> queryRef = new AtomicReference<>();
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
+            queryRef.set(solrQuery);
+
             String solrResponseXml = this.solrAccess.requestWithSelectReturningString(solrQuery, "xml");
             Document domObject = buildXmlFromRawSolrResponse(solrResponseXml);
             StringWriter strWriter = new StringWriter();
@@ -129,7 +138,11 @@ public class SearchResource {
             return strWriter.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                //LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+
+                String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
+                LOGGER.log(Level.SEVERE, message);
+
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
