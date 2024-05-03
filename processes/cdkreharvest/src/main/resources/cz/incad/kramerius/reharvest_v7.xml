@@ -25,7 +25,7 @@
         <request>
             <url>$iteration.url$</url>
             <endpoint>select</endpoint>
-            <batchsize>80</batchsize>
+            <batchsize>$iteration.batch$</batchsize>
 
             <id>pid</id>
 

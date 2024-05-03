@@ -32,7 +32,7 @@
 
             <endpoint>select</endpoint>
             
-            <batchsize>80</batchsize>
+            <batchsize>$iteration.batch$</batchsize>
 
             <url>$iteration.url$</url>
 

@@ -151,41 +151,46 @@ public abstract class ProxyHandlerSupport {
 		} else {
             // event for reharvest
 		    if (response.getStatus() == 404) {
-		        if (reharvestManager != null && pid != null) {
-	                try {
-	                    Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
-	                    Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
-	                        @Override
-	                        public boolean acceptElement(Element element) {
-	                            if (element.getNodeName().equals("str")) {
-	                                String fieldName = element.getAttribute("name");
-	                                return fieldName.equals("root.pid");
-	                            }
-	                            return false;
-	                        }
-	                    });
-	                    if (rootPid != null) {
-	                        try {
-                                ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", new ArrayList<>(Arrays.asList(rootPid.getTextContent().trim())));
-                                this.reharvestManager.register(reharvestItem);
-                            } catch (DOMException e) {
-                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                            } catch (AlreadyRegistedPidsException e) {
-                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                            }
-	                    } else {
-	                        LOGGER.log(Level.SEVERE, "Cannot find root.pid element");
-	                    }
-	                } catch (IOException e) {
-	                    LOGGER.log(Level.SEVERE,e.getMessage());
-	                }
-		        } else {
-		            LOGGER.log(Level.SEVERE,"No reharvest manager or pid ");
-		        }
+		        deleteTriggeToReharvest(pid);
 	        }
 			return Response.status(response.getStatus()).build();
 		}
 	}
+
+    protected void deleteTriggeToReharvest(String pid) {
+        if (reharvestManager != null && pid != null) {
+            try {
+                Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
+                Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        if (element.getNodeName().equals("str")) {
+                            String fieldName = element.getAttribute("name");
+                            return fieldName.equals("root.pid");
+                        }
+                        return false;
+                    }
+                });
+                if (rootPid != null) {
+                    try {
+                        ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", new ArrayList<>(Arrays.asList(rootPid.getTextContent().trim())));
+                        reharvestItem.setState("waiting_for_approve");
+                        this.reharvestManager.register(reharvestItem);
+                    } catch (DOMException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    } catch (AlreadyRegistedPidsException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+                } else {
+                    LOGGER.log(Level.SEVERE, "Cannot find root.pid element");
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage());
+            }
+        } else {
+            LOGGER.log(Level.SEVERE,"No reharvest manager or pid ");
+        }
+    }
 
 	protected void mockSession() {
 		if (!user.getSessionAttributes().containsKey("shib-session-id")) {

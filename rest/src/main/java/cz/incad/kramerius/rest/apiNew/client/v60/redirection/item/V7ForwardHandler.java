@@ -82,6 +82,9 @@ public class V7ForwardHandler extends V7RedirectHandler {
             
             return respEntity.build();
         } else {
+            if (response.getStatus() == 404) {
+                this.deleteTriggeToReharvest(this.pid);
+            }
             return Response.status(response.getStatus()).build();
         }
 
@@ -96,7 +99,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url, null);
         }
     }
 
@@ -134,7 +137,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
             String baseurl = forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/zoomify/" + this.pid
                     + "/ImageProperties.xml";
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url, null);
         }
     }
     
@@ -145,7 +148,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String baseurl = forwardUrl();
         String formatted = String.format("api/cdk/v7.0/forward/zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
-        return buildForwardResponseGET(url, this.pid);
+        return buildForwardResponseGET(url, null);
     }
 
     

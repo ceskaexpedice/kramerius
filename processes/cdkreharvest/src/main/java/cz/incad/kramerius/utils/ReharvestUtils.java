@@ -173,7 +173,7 @@ public class ReharvestUtils {
         return "root_pid:\""+pid+"\""; 
     }
 
-    public static void reharvestPIDFromGivenCollections(String pid, Map<String,JSONObject> collectionConfigurations, String onlyShowConfiguration, Map<String, String> destinationMap) throws IllegalAccessException, InstantiationException, ClassNotFoundException, NoSuchMethodException, MigrateSolrIndexException, IOException, ParserConfigurationException, SAXException {
+    public static void reharvestPIDFromGivenCollections(String pid, Map<String,JSONObject> collectionConfigurations, String onlyShowConfiguration, Map<String, String> destinationMap, Map<String,String> iterationMap) throws IllegalAccessException, InstantiationException, ClassNotFoundException, NoSuchMethodException, MigrateSolrIndexException, IOException, ParserConfigurationException, SAXException {
         List<File> harvestFiles = new ArrayList<>();
         for (String ac : collectionConfigurations.keySet()) {
             try {
@@ -186,7 +186,7 @@ public class ReharvestUtils {
                 String channel = colObject.optString("forwardurl");
 
                 
-                Map<String,String> iteration = new HashMap<>();
+                Map<String,String> iteration = new HashMap<>(iterationMap);
                 //http://mzk-tunnel.cdk-proxy.svc.cluster.local/search"
                 //http://knav-tunnel.cdk-proxy.svc.cluster.local/search/api/v5.0/cdk/forward/sync/solr
                 //v7.0
@@ -197,7 +197,6 @@ public class ReharvestUtils {
                 } else {
                     iteration.put("url", channel+(channel.endsWith("/") ? "" : "/")+"api/cdk/v7.0/forward/sync/solr");
                 }
-                
                 
                 
                 iteration.put("dl", ac);

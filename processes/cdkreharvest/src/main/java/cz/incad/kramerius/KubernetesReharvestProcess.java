@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import javax.ws.rs.PUT;
@@ -36,7 +37,10 @@ import cz.incad.kramerius.utils.ReharvestUtils;
 
 public class KubernetesReharvestProcess {
 
+    public static final int DEFAULT_MAX_ITEMS_TO_DELETE = 10000;
+    
     public static final String ONLY_SHOW_CONFIGURATION = "ONLY_SHOW_CONFIGURATION";
+    public static final String MAX_ITEMS_TO_DELETE = "MAX_ITEMS_TO_DELETE";
 
     public static final Logger LOGGER = Logger.getLogger(KubernetesReharvestProcess.class.getName());
 
@@ -49,73 +53,104 @@ public class KubernetesReharvestProcess {
     }
 
     public static void main(String[] args) throws ParserConfigurationException, IllegalAccessException, InstantiationException, ClassNotFoundException, NoSuchMethodException, MigrateSolrIndexException, IOException, SAXException {
-
+        
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Prague"));
 
         Map<String, String> env = System.getenv();
         Map<String, String> iterationMap = KubernetesEnvSupport.iterationMap(env);
+        if (!iterationMap.containsKey("batch")) {
+            iterationMap.put("batch", "45");
+        }
         Map<String, String> reharvestMap = KubernetesEnvSupport.reharvestMap(env);
         Map<String, String> destinationMap = KubernetesEnvSupport.destinationMap(env);
         Map<String, String> proxyMap = KubernetesEnvSupport.proxyMap(env);
         boolean onlyShowConfiguration = env.containsKey(ONLY_SHOW_CONFIGURATION);
+        int maxItemsToDelete = env.containsKey(MAX_ITEMS_TO_DELETE) ? Integer.parseInt(env.get(MAX_ITEMS_TO_DELETE)) : DEFAULT_MAX_ITEMS_TO_DELETE;
 
+        AtomicReference<String> idReference = new AtomicReference<>();
         
-        if (reharvestMap.containsKey("url") && proxyMap.containsKey("url")) {
-            Client client = buildClient();
-            String wurl = reharvestMap.get("url");
-            if (!wurl.endsWith("/")) {
-                wurl = wurl + "/";
+        try {
+            
+            
+            if (reharvestMap.containsKey("url") && proxyMap.containsKey("url")) {
+                Client client = buildClient();
+                String wurl = reharvestMap.get("url");
+                if (!wurl.endsWith("/")) {
+                    wurl = wurl + "/";
+                }
+                
+                // Top item 
+                WebResource topWebResource = client.resource(wurl + "top?state=open");
+                ClientResponse topItemFrom = topWebResource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+                if (topItemFrom.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
+
+                    String t = topItemFrom.getEntity(String.class);
+
+                    JSONObject itemObject = new JSONObject(t);
+                    
+                    String id = itemObject.getString("id");
+                    idReference.set(id);
+                    
+                    JSONArray pids = itemObject.getJSONArray("pids");
+
+                    if (!onlyShowConfiguration) {
+                        changeState(client, wurl, id,"running");
+                        String podname = env.get("HOSTNAME");
+                        if (cz.incad.kramerius.utils.StringUtils.isAnyString(podname)) {
+                            changePodname(client, wurl, id, podname);
+                        }
+                    }
+
+                    // find all pids 
+                    List<Pair<String,String>> allPidsList = ReharvestUtils.findAllPidsByGivenRootPid(iterationMap, client, pids);
+                    // check size; if size > 10000 - fail state
+                    if (allPidsList.size() <  maxItemsToDelete) {
+                        // delete all pids 
+                        ReharvestUtils.deleteAllGivenPids(client, destinationMap, allPidsList, onlyShowConfiguration);
+
+                        // List<String> acronyms = new ArrayList<String>();
+                        // https://api.val.ceskadigitalniknihovna.cz/search/api/admin/v7.0/connected/
+                        String proxyURl = proxyMap.get("url");
+                        if (proxyURl != null) {
+                            Map<String, JSONObject> configurations = libraryConfigurations(client, proxyURl);
+                            
+                            
+                            for (int i = 0; i < pids.length(); i++) {
+                                String p  = pids.getString(i);
+                                // reharvesting 
+                                ReharvestUtils.reharvestPIDFromGivenCollections(p, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap);
+                            }
+                            
+                            if (!onlyShowConfiguration) {
+                                changeState(client, wurl, id,"closed");
+                            }
+                        } else {
+                            LOGGER.severe("No proxy configuration");
+                        }
+                    } else {
+                        changeState(client, wurl, id,"too_big");
+                        String compare = String.format("delete.size()  %d >=  maxItemstoDelete %d", allPidsList.size(), maxItemsToDelete);
+                        LOGGER.severe(String.format( "Too big to reharvest (%s)  -> manual change ", compare));
+                    }
+                }  else if (topItemFrom.getStatus() == ClientResponse.Status.NOT_FOUND.getStatusCode()) {
+                    LOGGER.info("No item to harvest");
+                }
+            } else {
+                LOGGER.severe("No proxy or reharvest configuration");
             }
             
-            // Top item 
-            WebResource topWebResource = client.resource(wurl + "top?state=open");
-            ClientResponse topItemFrom = topWebResource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
-            if (topItemFrom.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-
-                String t = topItemFrom.getEntity(String.class);
-
-                JSONObject itemObject = new JSONObject(t);
-                String id = itemObject.getString("id");
-                JSONArray pids = itemObject.getJSONArray("pids");
-
-                if (!onlyShowConfiguration) {
-                    changeState(client, wurl, id,"running");
-                    String podname = env.get("HOSTNAME");
-                    if (cz.incad.kramerius.utils.StringUtils.isAnyString(podname)) {
-                        changePodname(client, wurl, id, podname);
-                    }
+        } catch (Throwable thr) {
+            if (idReference.get() != null) {
+                Client client = buildClient();
+                String wurl = reharvestMap.get("url");
+                if (!wurl.endsWith("/")) {
+                    wurl = wurl + "/";
                 }
-
-                // find all pids 
-                List<Pair<String,String>> allPidsList = ReharvestUtils.findAllPidsByGivenRootPid(iterationMap, client, pids);
-                // delete all pids 
-                ReharvestUtils.deleteAllGivenPids(client, destinationMap, allPidsList, onlyShowConfiguration);
-
-                // List<String> acronyms = new ArrayList<String>();
-                // https://api.val.ceskadigitalniknihovna.cz/search/api/admin/v7.0/connected/
-                String proxyURl = proxyMap.get("url");
-                if (proxyURl != null) {
-                    Map<String, JSONObject> configurations = libraryConfigurations(client, proxyURl);
-                    
-                    
-                    for (int i = 0; i < pids.length(); i++) {
-                        String p  = pids.getString(i);
-                        // reharvesting 
-                        ReharvestUtils.reharvestPIDFromGivenCollections(p, configurations, ""+onlyShowConfiguration, destinationMap);
-                    }
-                    
-                    if (!onlyShowConfiguration) {
-                        changeState(client, wurl, id,"closed");
-                    }
-                } else {
-                    LOGGER.severe("No proxy configuration");
-                }
-            }  else if (topItemFrom.getStatus() == ClientResponse.Status.NOT_FOUND.getStatusCode()) {
-                LOGGER.info("No item to harvest");
+                changeState(client, wurl, idReference.get(),"failed");
             }
-        } else {
-            LOGGER.severe("No proxy or reharvest configuration");
+            LOGGER.severe("Exception ex" + thr.getMessage());
         }
+        
     }
 
     private static void changeState(Client client, String wurl, String id, String changeState) {
@@ -126,11 +161,6 @@ public class KubernetesReharvestProcess {
             LOGGER.info(String.format("Change state for %s -> %s ", id, changeState));
         }
     }
-
-//    @PUT
-//    @Path("{id}/pod")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Response changePod(@PathParam("id") String id, @QueryParam("pod") String pod) {
 
     private static void changePodname(Client client, String wurl, String id, String podname) {
         //String changeState = "closed";
@@ -152,6 +182,7 @@ public class KubernetesReharvestProcess {
             for (Object key : responseAllConnectedObject.keySet()) {
                 JSONObject lib = responseAllConnectedObject.getJSONObject(key.toString());
                 if (lib.has("status") && lib.getBoolean("status")) {
+                    
                     String configURl = proxyURl;
                     if (!configURl.endsWith("/")) {
                         configURl += "/";
@@ -162,6 +193,7 @@ public class KubernetesReharvestProcess {
                     ClientResponse configReourceStatus = configResource.accept(MediaType.APPLICATION_JSON)
                             .get(ClientResponse.class);
                     if (configReourceStatus.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
+                        
                         configurations.put(key.toString(),
                                 new JSONObject(configReourceStatus.getEntity(String.class)));
                     }

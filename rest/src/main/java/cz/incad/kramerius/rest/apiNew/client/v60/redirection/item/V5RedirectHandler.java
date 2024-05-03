@@ -179,22 +179,27 @@ public class V5RedirectHandler extends ProxyItemHandler {
     @Override
     public Response info() throws ProxyHandlerException {
         try {
-            JSONObject streams = new JSONObject(retrieveStreams());
-            JSONObject info = new JSONObject(retrieveInfo());
             JSONObject basicDoc = retrieveBasicDoc(this.pid);
+            if (basicDoc != null) {
+                JSONObject streams = new JSONObject(retrieveStreams());
+                JSONObject info = new JSONObject(retrieveInfo());
+                JSONObject data = extractAvailableDataInfo(streams);
+                JSONObject image = extractImageSourceInfo(info, streams, basicDoc);
+                JSONObject struct = extractStructureInfo(this.source, info, basicDoc);
 
-            JSONObject data = extractAvailableDataInfo(streams);
-            JSONObject image = extractImageSourceInfo(info, streams, basicDoc);
-            JSONObject struct = extractStructureInfo(this.source, info, basicDoc);
-
-            JSONObject json = new JSONObject();
-            json.put("data", data);
-            json.put("structure", struct);
-            json.put("image", image);
-            // TODO: providedByLicenses
-            json.put("providedByLicenses", providedByLicense());
-
-            return Response.ok(json).build();
+                JSONObject json = new JSONObject();
+                json.put("data", data);
+                json.put("structure", struct);
+                json.put("image", image);
+                // TODO: providedByLicenses
+                json.put("providedByLicenses", providedByLicense());
+                return Response.ok(json).build();
+            } else {
+                this.deleteTriggeToReharvest(this.pid);
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            
+ 
         } catch (JSONException | LexerException | IOException | RepositoryException e) {
             throw new ProxyHandlerException(e);
         }

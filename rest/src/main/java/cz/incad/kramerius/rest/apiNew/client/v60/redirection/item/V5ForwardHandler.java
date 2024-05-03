@@ -57,7 +57,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url, null);
         }
     }
 
@@ -100,7 +100,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url, null);
         }
     }
 
@@ -109,7 +109,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         String baseurl = this.forwardUrl();
         String formatted = String.format("api/v5.0/cdk/forward/zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
-        return buildForwardResponseGET(url, this.pid);
+        return buildForwardResponseGET(url, null);
     }
 
     @Override
@@ -192,7 +192,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
             if (splited.length > 1) {
                 mime =  IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? IIIF_SUPPORTED_MIMETYPES.get(splited[1]) :  defaultMime;
             }
-            return buildForwardResponseGET(url, mime);
+            return buildForwardResponseGET(url, null, mime);
         }
     }
 
