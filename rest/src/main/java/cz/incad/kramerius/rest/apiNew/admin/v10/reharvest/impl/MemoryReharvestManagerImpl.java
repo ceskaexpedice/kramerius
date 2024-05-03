@@ -21,7 +21,7 @@ public class MemoryReharvestManagerImpl implements ReharvestManager {
     }
 
     public void register(ReharvestItem item) throws AlreadyRegistedPidsException {
-        List<String> alreadyRegistredPids = this.items.stream().filter(x -> x.getState() != null && x.getState().equals("open")).map(ReharvestItem::getPids).flatMap(List::stream).collect(Collectors.toList());
+        List<String> alreadyRegistredPids = this.items.stream().filter(x -> x.getState() != null && (x.getState().equals("open") || x.getState().startsWith("waiting_for"))).map(ReharvestItem::getPids).flatMap(List::stream).collect(Collectors.toList());
         List<String> intersection = new ArrayList<>(item.getPids());
         intersection.retainAll(alreadyRegistredPids);
         
