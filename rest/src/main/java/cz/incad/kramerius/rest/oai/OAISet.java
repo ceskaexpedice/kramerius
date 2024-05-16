@@ -174,7 +174,8 @@ public class OAISet {
         String fq = proxyFilter.newFilter();
         String query =  String.format("q=%s&cursorMark=%s&fl=pid+cdk.leaders+cdk.collection+cdk.leader&rows=%d&sort=compositeId+asc", this.filterQuery, cursor, rows);
         if (fq != null) {
-            query = query + String.format("&fq=%s", fq);
+            String encodedFq =  URLEncoder.encode(fq, "UTF-8");
+            query = query + String.format("&fq=%s", encodedFq);
         }
         
         String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
