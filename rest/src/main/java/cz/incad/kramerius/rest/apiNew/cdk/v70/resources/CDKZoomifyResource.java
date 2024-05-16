@@ -24,10 +24,10 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.IIPImagesSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.utils.DisectZoom;
-import cz.incad.kramerius.rest.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
@@ -48,6 +48,10 @@ public class CDKZoomifyResource extends AbstractTileResource {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
+    
+    @Inject
+    Provider<HttpServletResponse> responseProvider;
+    
 
     @Inject
     @Named("cachedFedoraAccess")
@@ -85,10 +89,10 @@ public class CDKZoomifyResource extends AbstractTileResource {
                 } catch (XPathExpressionException e) {
                     LOGGER.severe(e.getMessage());
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-				} catch (SQLException e) {
+                } catch (SQLException e) {
                     LOGGER.severe(e.getMessage());
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-				}
+                }
             } else {
                 throw new ActionNotAllowed("not allowed");
             }
@@ -125,9 +129,11 @@ public class CDKZoomifyResource extends AbstractTileResource {
         	String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
             if (relsExtUrl != null) {
                 ResponseBuilder builder = Response.ok();
-            	String formatted = String.format("%s/TileGroup0/%s-%s-%s.%s", relsExtUrl,slevel,x,y,ext);
-                IIIFUtils.copyFromImageServer(getClient(), formatted, new ByteArrayOutputStream(), builder);
+                String formatted = String.format("%s/TileGroup0/%s-%s-%s.%s", relsExtUrl,slevel,x,y,ext);
+                // forward; 
+                IIPImagesSupport.blockingCopyFromImageServer(getClient(), formatted, new ByteArrayOutputStream(), builder);
                 return builder.build();
+                
             } else {
             	throw new BadRequestException("Bad request");
             }
@@ -145,7 +151,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
             if (relsExtUrl != null) {
                 if (relsExtUrl.endsWith("/")) relsExtUrl = relsExtUrl.substring(0, relsExtUrl.length()-1);
                 ResponseBuilder builder = Response.ok();
-                IIIFUtils.copyFromImageServer(getClient(), relsExtUrl.toString()+"/ImageProperties.xml",new ByteArrayOutputStream() , builder);
+                IIPImagesSupport.blockingCopyFromImageServer(getClient(), relsExtUrl.toString()+"/ImageProperties.xml",new ByteArrayOutputStream() , builder);
                 return builder.build();
             } else {
             	throw new BadRequestException("Bad request");

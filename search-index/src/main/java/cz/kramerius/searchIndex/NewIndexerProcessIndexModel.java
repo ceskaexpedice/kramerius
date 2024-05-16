@@ -161,7 +161,7 @@ public class NewIndexerProcessIndexModel {
 
                         @Override
                         public void onFinished(int processed) {
-
+                            
                         }
                     });
                     nowIndexed++;
@@ -182,6 +182,11 @@ public class NewIndexerProcessIndexModel {
         report(" Top-level objects erroneous:   " + nowErrors);
         report("     Total objects processed:   " + totalObjectProcessed[0]);
         report("===========================================");
+        
+        if (nowErrors > 0) {
+            throw new IllegalStateException("Indexation finished with errors; see error log");
+        }
+        
     }
 
     private static List<Pair<String, String>> filter(SolrAccess solrAccess, List<Pair<String, String>> titlePidPairs, Filters filters) throws IOException {

@@ -220,8 +220,8 @@ public class ZoomifyHelper {
             tilesUrl = tilesUrl.substring(0, tilesUrl.length() - 1);
         }
         String imagePropertiesUrl = tilesUrl + "/ImageProperties.xml";
-        readFromImageServerNonblocking(imagePropertiesUrl, resp);
-        //readFromImageServerBlocking(finalUrl, resp);
+        //readFromImageServerNonblocking(imagePropertiesUrl, resp);
+        readFromImageServerBlocking(imagePropertiesUrl, resp);
         return resp.build();
     }
 

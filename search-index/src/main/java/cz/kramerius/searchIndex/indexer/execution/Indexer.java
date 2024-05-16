@@ -73,12 +73,14 @@ public class Indexer {
 
     private void report(String message) {
         reportLogger.report(message);
+        LOGGER.log(Level.SEVERE,message);
     }
 
     private void report(String message, Throwable e) {
         reportLogger.report(message, e);
+        LOGGER.log(Level.SEVERE,e.getMessage(), e);
     }
-
+    
     private void init() {
         report("Parameters");
         report("==============================");
@@ -136,6 +138,7 @@ public class Indexer {
             if (progressListener != null) {
                 progressListener.onFinished(counters.getProcessed());
             }
+            
         }
     }
 

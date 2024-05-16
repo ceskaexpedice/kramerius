@@ -69,19 +69,53 @@ public class IiifServlet extends AbstractImageServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            String pathInfo = req.getPathInfo();
-            if (pathInfo.indexOf("uuid:")>0) {
-                String startOfPid  = pathInfo.substring(pathInfo.indexOf("uuid:"));
-                String pid = startOfPid.substring(0, startOfPid.indexOf("/"));
-                String end = pathInfo.substring(pathInfo.indexOf(pid)+pid.length()+1);
-                String redirectUrl = String.format("/search/api/client/v7.0/items/%s/image/iiif/%s", pid, end);
-                resp.sendRedirect(redirectUrl);
+            String requestURL = req.getRequestURL().toString();
+            String zoomUrl = DeepZoomServlet.disectZoom(requestURL);
+            StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
+            String pid = tokenizer.nextToken();
+
+            //unescape PID
+            pid = URLDecoder.decode(pid, "UTF-8");
+
+            ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
+            boolean permited = false;
+            for (ObjectPidsPath pth : paths) {
+                permited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.A_READ.getFormalName(), pid, null, pth.injectRepository()).flag();
+                if (permited) break;
+            }
+
+            if (permited) {
+                try {
+                    String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+                    StringBuilder url = new StringBuilder(u);
+                    while (tokenizer.hasMoreTokens()) {
+                        String nextToken = tokenizer.nextToken();
+                        url.append("/").append(nextToken);
+                        if ("info.json".equals(nextToken)) {
+                            reportAccess(pid);
+                            resp.setContentType("application/ld+json");
+                            resp.setCharacterEncoding("UTF-8");
+                            HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
+                            InputStream inputStream = con.getInputStream();
+                            String json = IOUtils.toString(inputStream, Charset.defaultCharset());
+                            JSONObject object = new JSONObject(json);
+                            String urlRequest = req.getRequestURL().toString();
+                            object.put("@id", urlRequest.substring(0, urlRequest.lastIndexOf('/')));
+                            PrintWriter out = resp.getWriter();
+                            out.print(object.toString());
+                            out.flush();
+                            return;
+                        }
+                    }
+                    copyFromImageServer(url.toString(),resp);
+                } catch (JSONException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage());
+                }
             } else {
-                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         } catch (IOException e) {
             LOGGER.severe(e.getMessage());
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 

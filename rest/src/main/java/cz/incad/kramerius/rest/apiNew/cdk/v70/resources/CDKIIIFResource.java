@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
@@ -31,8 +32,10 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
+import cz.incad.kramerius.rest.IIPImagesSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
+import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.IIFUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
 import cz.incad.kramerius.rest.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
@@ -63,6 +66,9 @@ public class CDKIIIFResource extends AbstractTileResource {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
+    
+    @Inject
+    Provider<HttpServletResponse> responseProvider;
 
     @Inject
     @Named("cachedFedoraAccess")
@@ -71,6 +77,9 @@ public class CDKIIIFResource extends AbstractTileResource {
 
     @Inject
     AggregatedAccessLogs aggregatedAccessLogs;
+
+    @Inject
+    protected transient HttpAsyncClient client;
 
     
     public Response iiifManifest(String pid) {
@@ -147,7 +156,7 @@ public class CDKIIIFResource extends AbstractTileResource {
         }
     }
 
-    public Response iiifTile(String pid, String region, String size, String rotation,String qf) throws IOException {
+    public void iiifTile(String pid, String region, String size, String rotation,String qf) throws IOException {
         String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
         if(u != null) {
 
@@ -164,8 +173,8 @@ public class CDKIIIFResource extends AbstractTileResource {
             }
             LOGGER.fine(String.format("Copy tile from IIIF server %s", url.toString()));
             ResponseBuilder builder = Response.ok();
-            IIIFUtils.copyFromImageServer(this.getClient(), url.toString(),new ByteArrayOutputStream(), builder, mime);
-            return builder.build();
+
+            IIPImagesSupport.blockingCopyFromImageServer(this.getClient(), url.toString(),new ByteArrayOutputStream(), builder, mime);
        } else {
            throw new BadRequestException("bad request");
        }

@@ -14,6 +14,7 @@ import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownDatastreams;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
+import cz.incad.kramerius.rest.IIPImagesSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.CutItem;
 import cz.incad.kramerius.rest.apiNew.client.v70.epub.EPubFileTypes;
@@ -48,6 +49,7 @@ import cz.incad.kramerius.utils.java.Pair;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.nio.client.HttpAsyncClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.codehaus.jettison.json.JSONArray;
 import org.dom4j.Attribute;
@@ -63,7 +65,9 @@ import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.inject.Named;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
@@ -141,7 +145,7 @@ public class ItemsResource extends ClientApiResource {
     // GET      {pid}/info/structure
     // GET      {pid}/info/data
     // GET      {pid}/info/image
-    // GET      {pid}/info/providedByLicenses              - information about licenses that allow access in current setting (network, user, etc)
+    // GET      {pid}/info/providedByiLicenses              - information about licenses that allow access in current setting (network, user, etc)
     // GET/HEAD {pid}/metadata/mods
     // GET/HEAD {pid}/metadata/dc
     // GET/HEAD {pid}/ocr/text
@@ -184,6 +188,9 @@ public class ItemsResource extends ClientApiResource {
     Provider<HttpServletRequest> requestProvider;
 
     @Inject
+    Provider<HttpServletResponse> responseProvider;
+
+    @Inject
     ZoomifyHelper zoomifyHelper;
 
     @Inject
@@ -205,6 +212,9 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     LicensesManager licensesManager;
     
+    @Inject
+    protected transient HttpAsyncClient client;
+
     
     private Client c;
 
@@ -377,12 +387,17 @@ public class ItemsResource extends ClientApiResource {
 
     
 
+    static boolean isChacheDirDisabledAndFromCache(boolean chacheDirDisable, String tilesUrl) {
+        return chacheDirDisable && "kramerius4://deepZoomCache".equals(tilesUrl);
+    }
+
 
     private Object extractImageSourceInfo(String pid) throws IOException, RepositoryException {
         JSONObject json = new JSONObject();
         Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
         String tilesUrl = Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//tiles-url");
-        if (tilesUrl != null) {
+        boolean chacheDirDisable = KConfiguration.getInstance().getConfiguration().getBoolean("deepZoom.cachedir.disable", false);
+        if (tilesUrl != null && (!isChacheDirDisabledAndFromCache(chacheDirDisable, tilesUrl))) {
             json.put("type", "tiles");
         } else if (!krameriusRepositoryApi.isImgFullAvailable(pid)) {
             json.put("type", "none");
@@ -762,13 +777,17 @@ public class ItemsResource extends ClientApiResource {
     @SuppressWarnings("JavadocReference")
     @GET
     @Path("{pid}/image/zoomify/ImageProperties.xml")
-    public Response getZoomifyImageProperties(@PathParam("pid") String pid) {
+    public void getZoomifyImageProperties(@PathParam("pid") String pid /*@Context HttpServletResponse resp*/) {
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId);
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            return zoomifyHelper.buildImagePropertiesResponse(pid, requestProvider.get());
+
+
+            RequestDispatcher requestDispatcher = this.requestProvider.get().getRequestDispatcher(String.format("/zoomify/%s/ImageProperties.xml", pid));
+            requestDispatcher.forward(this.requestProvider.get(), this.responseProvider.get());
+
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -785,7 +804,7 @@ public class ItemsResource extends ClientApiResource {
     @SuppressWarnings("JavadocReference")
     @GET
     @Path("{pid}/image/zoomify/{tileGroup}/{tile}")
-    public Response getZoomifyTile(@PathParam("pid") String pid, @PathParam("tileGroup") String tileGroupStr, @PathParam("tile") String tileStr) {
+    public void getZoomifyTile(@PathParam("pid") String pid, @PathParam("tileGroup") String tileGroupStr, @PathParam("tile") String tileStr /*@Context HttpServletResponse resp*/) {
         try {
             checkSupportedObjectPid(pid);
             if (!tileGroupStr.matches("TileGroup[0-9]+")) {
@@ -801,7 +820,9 @@ public class ItemsResource extends ClientApiResource {
             //checkUserByJsessionidIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             checkUserByJsessionidIsAllowedToReadIIPTile(pid);
 
-            return zoomifyHelper.buildTileResponse(pid, requestProvider.get(), tileGroup, Integer.valueOf(tileTokens[0]), Integer.valueOf(tileTokens[1]), Integer.valueOf(tileTokens[2]));
+            RequestDispatcher requestDispatcher = this.requestProvider.get().getRequestDispatcher(String.format("/zoomify/%s/%s/%s", pid, tileGroupStr, tileStr));
+            requestDispatcher.forward(this.requestProvider.get(), this.responseProvider.get());
+
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1139,26 +1160,29 @@ public class ItemsResource extends ClientApiResource {
         }
     }
     
+    
     @GET
     @Produces("image/jpeg")
     @Path("{pid}/image/iiif/{region}/{size}/{rotation}/{qualityformat}")
-    public Response tile(@PathParam("pid") String pid, 
+    public void tile(
+            @PathParam("pid") String pid, 
             @PathParam("region") String region, 
             @PathParam("size") String size,
             @PathParam("rotation") String rotation,
             @PathParam("qualityformat") String qf
-            ) {
+            /*,@Context HttpServletResponse response*/) throws IOException {
         try {
+            
             if (region.toLowerCase().trim().equals("full") || region.toLowerCase().trim().equals("square") || region.toLowerCase().trim().contains("pct:")) {
                 checkUserIsAllowedToReadObject(pid);
             } else {
                 if (size.toLowerCase().trim().contains("max") || size.toLowerCase().trim().contains("pct:")) {
                     checkUserIsAllowedToReadObject(pid);
                 } else {
-                    // check if size is greater then 512 pixels
                     checkIIIFSize(pid, size);
                 }
             }
+            
             InputStream stream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, "RELS-EXT");
             org.w3c.dom.Document relsExt = XMLUtils.parseDocument(stream, true);
             String u = IIIFUtils.iiifImageEndpoint(relsExt);
@@ -1180,11 +1204,10 @@ public class ItemsResource extends ClientApiResource {
                     mime =  IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? IIIF_SUPPORTED_MIMETYPES.get(splited[1]) :  defaultMime;
                 }
                 LOGGER.fine(String.format("Copy tile from IIIF server %s", url.toString()));
-                ResponseBuilder builder = Response.ok();
-              
-                IIIFUtils.copyFromImageServer(this.c, url.toString(),new ByteArrayOutputStream(), builder, mime);
                 
-                return builder.build();
+                RequestDispatcher requestDispatcher = this.requestProvider.get().getRequestDispatcher(String.format("/iiif/%s/%s/%s/%s/%s", pid, region, size, rotation, qf));
+                requestDispatcher.forward(this.requestProvider.get(), this.responseProvider.get());
+                
            } else {
                throw new BadRequestException("bad request");
            }
@@ -1196,6 +1219,65 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+    
+//    @GET
+//    @Produces("image/jpeg")
+//    @Path("{pid}/image/iiif/{region}/{size}/{rotation}/{qualityformat}")
+//    public Response tile(
+//            @PathParam("pid") String pid, 
+//            @PathParam("region") String region, 
+//            @PathParam("size") String size,
+//            @PathParam("rotation") String rotation,
+//            @PathParam("qualityformat") String qf
+//            ) {
+//        try {
+//            if (region.toLowerCase().trim().equals("full") || region.toLowerCase().trim().equals("square") || region.toLowerCase().trim().contains("pct:")) {
+//                checkUserIsAllowedToReadObject(pid);
+//            } else {
+//                if (size.toLowerCase().trim().contains("max") || size.toLowerCase().trim().contains("pct:")) {
+//                    checkUserIsAllowedToReadObject(pid);
+//                } else {
+//                    // check if size is greater then 512 pixels
+//                    checkIIIFSize(pid, size);
+//                }
+//            }
+//            InputStream stream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, "RELS-EXT");
+//            org.w3c.dom.Document relsExt = XMLUtils.parseDocument(stream, true);
+//            String u = IIIFUtils.iiifImageEndpoint(relsExt);
+//            if(u != null) {
+//                // size can contain ^ or ! 
+//                if (size.contains("^") || size.contains("!")) {
+//                    size = URLEncoder.encode(size,"UTF-8");
+//                }
+//                String defaultMime = IIIF_SUPPORTED_MIMETYPES.get("jpg");
+//
+//                StringBuilder url = new StringBuilder(u);
+//                if (!u.endsWith("/")) { url.append("/"); }
+//                
+//                url.append(String.format("%s/%s/%s/%s", region, size, rotation,qf));
+//     
+//                String mime = defaultMime;
+//                String[] splited = qf.split("\\.");
+//                if (splited.length > 1) {
+//                    mime =  IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? IIIF_SUPPORTED_MIMETYPES.get(splited[1]) :  defaultMime;
+//                }
+//                LOGGER.fine(String.format("Copy tile from IIIF server %s", url.toString()));
+//                ResponseBuilder builder = Response.ok();
+//              
+//                IIIFUtils.blockingCopyFromImageServer(this.c, url.toString(),new ByteArrayOutputStream(), builder, mime);
+//                
+//                return builder.build();
+//           } else {
+//               throw new BadRequestException("bad request");
+//           }
+//
+//        } catch (WebApplicationException e) {
+//            throw e;
+//        } catch (Throwable e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            throw new InternalErrorException(e.getMessage());
+//        }
+//    }
     
     
     private void checkIIIFSize(String pid, String size) {
@@ -1576,8 +1658,5 @@ public class ItemsResource extends ClientApiResource {
         return null;
     }
 
-    
-    
-    
 
 }

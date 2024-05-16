@@ -78,10 +78,10 @@ public class CDKForwardResource {
     @GET
     //@Produces("image/jpeg")
     @Path("iiif/{pid}/{region}/{size}/{rotation}/{qf}")
-    public Response tile(@PathParam("pid") String pid, @PathParam("region") String region,
+    public void tile(@PathParam("pid") String pid, @PathParam("region") String region,
             @PathParam("size") String size, @PathParam("rotation") String rotation,@PathParam("qf") String qf) {
         try {
-            return this.iiifResource.iiifTile(pid, region, size, rotation, qf);
+            this.iiifResource.iiifTile(pid, region, size, rotation, qf);
         } catch (IOException e) {
             throw new GenericApplicationException(e.getMessage());
         }

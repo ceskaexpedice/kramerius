@@ -208,7 +208,7 @@ public class ItemsResource extends AdminApiResource {
             //authentication
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-            if (!userIsAllowedToRead(this.rightsResolver, user, pid)) {
+            if (!userIsAllowedToReadOrObjectEdit(this.rightsResolver, user, pid)) {
                 // request doesnt contain user principal
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }

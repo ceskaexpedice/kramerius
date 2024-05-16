@@ -72,6 +72,13 @@ jobs:
         echo "Found ZIP file: $ZIP_FILE"
       id: find_zip
 
+    - name: Find ZIP file in build/instalations directory
+      run: |
+        ZIP_INSTALLATION_FILE=$(find build/installation -name "*.zip" -type f -print -quit)
+        echo "ZIP_INSTALLATION_FILE=$ZIP_INSTALLATION_FILE" >> "$GITHUB_OUTPUT"
+        echo "Found ZIP file: $ZIP_INSTALLATION_FILE"
+      id: find_installation_zip
+
     - name: Echo zip file
       env:
         ZIP_FILE: ${{ steps.find_zip.outputs.ZIP_FILE }}
@@ -88,6 +95,16 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{ steps.find_zip.outputs.ZIP_FILE }}
-        asset_name: kramerius.zip
+        asset_name: kramerius-core.zip
         asset_content_type: application/zip
        
+    - name: Upload Additional Release Asset
+      id: upload-additional-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ steps.find_zip.outputs.ZIP_INSTALLATION_FILE }}
+        asset_name: installation.zip
+        asset_content_type: application/zip
