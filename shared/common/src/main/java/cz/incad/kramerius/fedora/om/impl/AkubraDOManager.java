@@ -110,13 +110,15 @@ public class AkubraDOManager {
     public AkubraDOManager( CacheManager cacheManager) throws IOException {
         try {
             this.storage = initLowLevelStorage();
-            objectCache = cacheManager.getCache(DIGITALOBJECT_CACHE_ALIAS, String.class, DigitalObject.class);
-            if (objectCache == null) {
-                objectCache = cacheManager.createCache(DIGITALOBJECT_CACHE_ALIAS,
-                        CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, DigitalObject.class,
-                                ResourcePoolsBuilder.heap(3000))
-                                .withExpiry(Expirations.timeToLiveExpiration(
-                                        Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
+            if (cacheManager != null) {
+                objectCache = cacheManager.getCache(DIGITALOBJECT_CACHE_ALIAS, String.class, DigitalObject.class);
+                if (objectCache == null) {
+                    objectCache = cacheManager.createCache(DIGITALOBJECT_CACHE_ALIAS,
+                            CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, DigitalObject.class,
+                                    ResourcePoolsBuilder.heap(3000))
+                                    .withExpiry(Expirations.timeToLiveExpiration(
+                                            Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
+                }
             }
         } catch (Exception ex) {
             throw new IOException(ex);

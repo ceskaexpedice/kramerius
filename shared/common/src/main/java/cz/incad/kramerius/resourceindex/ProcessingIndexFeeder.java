@@ -2,6 +2,9 @@ package cz.incad.kramerius.resourceindex;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -49,6 +52,9 @@ public class ProcessingIndexFeeder {
     }
 
     public UpdateResponse feedDescriptionDocument(String sourcePid, String model, String title, String ref, Date date, TitleType ttype) throws IOException, SolrServerException {
+
+        //String processingSolrHost = KConfiguration.getInstance().getSolrProcessingHost();
+
         SolrInputDocument sdoc = new SolrInputDocument();
         sdoc.addField("source", sourcePid);
         sdoc.addField("type", TYPE_DESC);
@@ -245,7 +251,9 @@ public class ProcessingIndexFeeder {
     // commit to solr
     public void commit() throws IOException, SolrServerException {
         this.solrClient.commit();
+        LOGGER.info("Processing index commit ");
     }
+
 
 
 }

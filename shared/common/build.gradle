@@ -22,8 +22,8 @@ dependencies {
     api 'org.bouncycastle:bcprov-jdk15on:1.68'
     api 'org.bouncycastle:bcmail-jdk15on:1.68'
 
-    //api 'org.apache.solr:solr-solrj:6.2.1'
-    api 'org.apache.solr:solr-solrj:9.5.0'
+    api 'org.apache.solr:solr-solrj:6.2.1'
+    //api 'org.apache.solr:solr-solrj:9.5.0'
 
     //java 11
     api 'com.zaxxer:HikariCP:5.0.1'

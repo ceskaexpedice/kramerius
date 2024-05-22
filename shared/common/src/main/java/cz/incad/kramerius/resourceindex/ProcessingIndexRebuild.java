@@ -39,6 +39,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,6 +80,9 @@ public class ProcessingIndexRebuild {
         } else {
             objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("objectStore.path"));
         }
+        
+        boolean exclusiveCommit = KConfiguration.getInstance().getConfiguration().getBoolean("processingIndex.commit", false);
+        
 
         // ForkJoinPool is used to preserve parallelization.
         // The default constructor of ForkJoinPool creates a pool with parallelism
@@ -107,7 +111,7 @@ public class ProcessingIndexRebuild {
                         String filename = file.toString();
                         try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                             DigitalObject digitalObject = createDigitalObject(inputStream);
-                            rebuildProcessingIndex(feeder, digitalObject);
+                            rebuildProcessingIndex(feeder, digitalObject, exclusiveCommit);
                         } catch (Exception ex) {
                             LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                         }
@@ -116,7 +120,7 @@ public class ProcessingIndexRebuild {
                     String filename = file.toString();
                     try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                         DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(feeder, digitalObject);
+                        rebuildProcessingIndex(feeder, digitalObject, exclusiveCommit);
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                     }
@@ -157,8 +161,20 @@ public class ProcessingIndexRebuild {
 //            }
 //        });
 
+        // Wait for all tasks to finish
+        forkJoinPool.shutdown();
+        try {
+            if (!forkJoinPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)) {
+                LOGGER.severe("ForkJoinPool did not terminate.");
+            }
+        } catch (InterruptedException e) {
+            LOGGER.log(Level.SEVERE, "Interrupted while waiting for ForkJoinPool to terminate", e);
+            Thread.currentThread().interrupt();
+        }
+
         LOGGER.info("Finished tree walk in " + (System.currentTimeMillis() - start) + " ms");
 
+        feeder.commit();
         fa.shutdown();
     }
 
@@ -175,7 +191,7 @@ public class ProcessingIndexRebuild {
     }
 
 
-    public static void rebuildProcessingIndex(ProcessingIndexFeeder feeder, DigitalObject digitalObject) throws RepositoryException {
+    public static void rebuildProcessingIndex(ProcessingIndexFeeder feeder, DigitalObject digitalObject, boolean commitAfteringest ) throws RepositoryException {
         try {
             List<DatastreamType> datastreamList = digitalObject.getDatastream();
             for (DatastreamType datastreamType : datastreamList) {
@@ -187,19 +203,18 @@ public class ProcessingIndexRebuild {
             }
         } catch (Exception e) {
             throw new RepositoryException(e);
+        } finally {
+            if (feeder != null && commitAfteringest) {
+                try {
+                    feeder.commit();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (SolrServerException e) {
+                    throw new RuntimeException(e);
+                }
+                LOGGER.info("Feeder commited.");
+            }
         }
- //       finally {
-//            if (feeder != null) {
-//                try {
-//                    feeder.commit();
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                } catch (SolrServerException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                LOGGER.info("Feeder commited.");
-//            }
- //       }
     }
 
     private static void rebuildProcessingIndexImpl(AkubraObject akubraObject, InputStream content) throws RepositoryException {

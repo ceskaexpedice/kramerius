@@ -263,6 +263,7 @@ public class AkubraObject implements RepositoryObject {
                 boolean modsStreamExists = this.streamExists(FedoraUtils.BIBLIO_MODS_STREAM);
                 if (dcStreamExists || modsStreamExists) {
                     try {
+                        //LOGGER.info("DC or BIBLIOMODS exists");
                         if (dcStreamExists) {
                             List<String> dcTList = dcTitle();
                             if (dcTList != null && !dcTList.isEmpty()) {
@@ -287,6 +288,7 @@ public class AkubraObject implements RepositoryObject {
                         this.indexDescription(object, "");
                     }
                 } else {
+                    LOGGER.info("Index description without dc or mods");
                     this.indexDescription(object, "");
                 }
             } catch (Throwable th) {
@@ -770,6 +772,7 @@ public class AkubraObject implements RepositoryObject {
             throw new RepositoryException(e);
         } finally {
             try {
+                LOGGER.info("IS ABOUT CALL COMMIT");
                 this.feeder.commit();
                 LOGGER.info("CALLED PROCESSING INDEX COMMIT");
             } catch (IOException e) {

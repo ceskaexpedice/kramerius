@@ -73,10 +73,15 @@ public class Indexer {
 
     private void report(String message) {
         reportLogger.report(message);
+        LOGGER.log(Level.INFO,message);
+    }
+
+    private void reportError(String message) {
+        reportLogger.report(message);
         LOGGER.log(Level.SEVERE,message);
     }
 
-    private void report(String message, Throwable e) {
+    private void reportError(String message, Throwable e) {
         reportLogger.report(message, e);
         LOGGER.log(Level.SEVERE,e.getMessage(), e);
     }
@@ -93,7 +98,7 @@ public class Indexer {
             solrIndexer = new SolrIndexAccess(solrConfig);
             report("SOLR API connector initialized");
         } catch (Throwable e) {
-            report("Initialization error: TemplateException: " + e.getMessage());
+            reportError("Initialization error: TemplateException: " + e.getMessage());
             LOGGER.log(Level.SEVERE, "Initialization error", e);
             throw e;
         }
@@ -230,16 +235,16 @@ public class Indexer {
             }
         } catch (DocumentException e) {
             counters.incrementErrors();
-            report(" Document error", e);
+            reportError(" Document error", e);
         } catch (IOException e) {
             counters.incrementErrors();
-            report(" I/O error", e);
+            reportError(" I/O error", e);
         } catch (SolrServerException e) {
             counters.incrementErrors();
-            report(" Solr server error", e);
+            reportError(" Solr server error", e);
         } catch (SolrException e) {
             counters.incrementErrors();
-            report(" Solr error", e);
+            reportError(" Solr error", e);
         } finally {
             if (progressListener != null) {
                 progressListener.onProgress(counters.getProcessed());
@@ -385,10 +390,10 @@ public class Indexer {
             solrIndexer.commit();
         } catch (IOException e) {
             counters.incrementErrors();
-            report(" I/O error", e);
+            reportError(" I/O error", e);
         } catch (SolrServerException e) {
             counters.incrementErrors();
-            report(" Solr server error", e);
+            reportError(" Solr server error", e);
         }
     }
 
@@ -438,16 +443,16 @@ public class Indexer {
             counters.incrementIndexed();
         } catch (IOException e) {
             counters.incrementErrors();
-            report(" I/O error", e);
+            reportError(" I/O error", e);
         } catch (SolrServerException e) {
             counters.incrementErrors();
-            report(" Solr server error", e);
+            reportError(" Solr server error", e);
         } catch (SolrException e) {
             counters.incrementErrors();
-            report(" Solr error", e);
+            reportError(" Solr error", e);
         } catch (DocumentException e) {
             counters.incrementErrors();
-            report(" Document error", e);
+            reportError(" Document error", e);
         }
         if (progressListener != null) {
             progressListener.onProgress(counters.getProcessed());

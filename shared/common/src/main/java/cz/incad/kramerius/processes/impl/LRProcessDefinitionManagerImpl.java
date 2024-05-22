@@ -30,7 +30,6 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
@@ -41,118 +40,106 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 
+    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+            .getLogger(LRProcessDefinitionManagerImpl.class.getName());
+    private KConfiguration configuration = KConfiguration.getInstance();
+    private LRProcessManager processManager;
 
-	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(LRProcessDefinitionManagerImpl.class.getName());
-	private KConfiguration configuration = KConfiguration.getInstance();
-	private LRProcessManager processManager;
+    @Inject
+    public LRProcessDefinitionManagerImpl(LRProcessManager processManager, @Named("LIBS") String defaultLibsdir// ,
+    /* String configFile */) {
+        super();
+        this.processManager = processManager;
+        LOGGER.fine("loading configuration ...");
+        this.load();
 
-	
-	@Inject
-	public LRProcessDefinitionManagerImpl(
-			LRProcessManager processManager, 
-			@Named("LIBS")String defaultLibsdir//, 
-			/*String configFile*/) {
-		super();
-		this.processManager = processManager;
-		LOGGER.fine("loading configuration ...");
-		this.load();
-		
-	}
+    }
 
+    private HashMap<String, LRProcessDefinition> definitions = new HashMap<String, LRProcessDefinition>();
 
-	private HashMap<String, LRProcessDefinition> definitions = new HashMap<String, LRProcessDefinition>();
+    @Override
+    public LRProcessDefinition getLongRunningProcessDefinition(String id) {
+        return definitions.get(id);
+    }
 
+    @Override
+    public synchronized void load() {
+        try {
+            File defaultWorkDir = new File(DEFAULT_LP_WORKDIR);
+            if (!defaultWorkDir.exists()) {
+                boolean created = defaultWorkDir.mkdirs();
+                if (!created)
+                    throw new RuntimeException("cannot create directory '" + defaultWorkDir + "'");
+            }
 
-	@Override
-	public LRProcessDefinition getLongRunningProcessDefinition(String id) {
-		return definitions.get(id);
-	}
+            LOGGER.fine("Loading configuration from jar ");
+            byte[] bytes = defaultLPXML().getBytes(Charset.forName("UTF-8"));
+            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+            try {
+                loadFromStream(bis);
+            } finally {
+                if (bis != null)
+                    bis.close();
+            }
 
+            String parsingSource = CONFIGURATION_FILE;
+            File file = new File(parsingSource);
+            if (file.exists()) {
+                LOGGER.fine("Loading file from '" + CONFIGURATION_FILE + "'");
+                FileInputStream fis = new FileInputStream(file);
+                try {
+                    loadFromStream(fis);
+                } finally {
+                    if (fis != null)
+                        fis.close();
+                }
+            }
 
-	@Override
-	public synchronized void load() {
-		try {
-			File defaultWorkDir = new File(DEFAULT_LP_WORKDIR);
-			if (!defaultWorkDir.exists()) {
-				boolean created = defaultWorkDir.mkdirs();
-				if (!created) throw new RuntimeException("cannot create directory '"+defaultWorkDir+"'");
-			}
-			
-			LOGGER.fine("Loading configuration from jar ");
-			byte[] bytes = defaultLPXML().getBytes(Charset.forName("UTF-8"));
-			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-			try {
-				loadFromStream(bis);
-			} finally {
-				if (bis !=null) bis.close();
-			}
-			
-			
-			String parsingSource = CONFIGURATION_FILE;
-			File file = new File(parsingSource);
-			if (file.exists()) {
-				LOGGER.fine("Loading file from '"+CONFIGURATION_FILE+"'");
-				FileInputStream fis = new FileInputStream(file);
-				try {
-					loadFromStream(fis);
-				} finally {
-					if (fis !=null) fis.close();
-				}
-			}
-			
-		} catch (ParserConfigurationException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SAXException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		}
-	}
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SAXException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
 
+    private String defaultLPXML() throws Exception {
+        StringTemplateGroup grp = new StringTemplateGroup("m");
+        StringTemplate template = grp.getInstanceOf("cz/incad/kramerius/processes/res/lp");
+        template.setAttribute("user_home", System.getProperties().getProperty("user.home"));
+        template.setAttribute("default_lp_work_dir", DEFAULT_LP_WORKDIR);
+        String string = template.toString();
+        return string;
+    }
 
-	private String defaultLPXML() throws Exception{
-		StringTemplateGroup grp = new StringTemplateGroup("m");
-		StringTemplate template = grp.getInstanceOf("cz/incad/kramerius/processes/res/lp");
-		template.setAttribute("user_home", System.getProperties().getProperty("user.home"));
-		template.setAttribute("default_lp_work_dir", DEFAULT_LP_WORKDIR);
-		String string = template.toString();
-		return string;
-	}
+    private void loadFromStream(InputStream fis) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document parsed = builder.parse(fis);
+        NodeList childNodes = parsed.getDocumentElement().getChildNodes();
+        for (int i = 0, ll = childNodes.getLength(); i < ll; i++) {
+            Node item = childNodes.item(i);
+            if (item.getNodeType() == Node.ELEMENT_NODE) {
+                LRProcessDefinitionImpl def = new LRProcessDefinitionImpl(this.processManager);
+                def.loadFromXml((Element) item);
+                this.definitions.put(def.getId(), def);
+            }
+        }
+    }
 
+    @Override
+    public List<LRProcessDefinition> getLongRunningProcessDefinitions() {
+        return new ArrayList<LRProcessDefinition>(definitions.values());
+    }
 
-	private void loadFromStream(InputStream fis)
-			throws ParserConfigurationException, SAXException, IOException {
-		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document parsed = builder.parse(fis);
-		NodeList childNodes = parsed.getDocumentElement().getChildNodes();
-		for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
-			Node item = childNodes.item(i);
-			if (item.getNodeType() == Node.ELEMENT_NODE) {
-				LRProcessDefinitionImpl def = new LRProcessDefinitionImpl(this.processManager);
-				def.loadFromXml((Element) item);
-				this.definitions.put(def.getId(), def);
-			}
-		}
-	}
+    public LRProcessManager getProcessManager() {
+        return processManager;
+    }
 
-	
-	@Override
-	public List<LRProcessDefinition> getLongRunningProcessDefinitions() {
-		return new ArrayList<LRProcessDefinition>(definitions.values());
-	}
-
-
-
-	public LRProcessManager getProcessManager() {
-		return processManager;
-	}
-
-
-	public void setProcessManager(LRProcessManager processManager) {
-		this.processManager = processManager;
-	}
+    public void setProcessManager(LRProcessManager processManager) {
+        this.processManager = processManager;
+    }
 
 }

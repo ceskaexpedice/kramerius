@@ -84,7 +84,7 @@ public enum LegacyMigrationParts {
                     try {
                         FileInputStream inputStream = new FileInputStream(f);
                         DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(feeder, digitalObject);
+                        rebuildProcessingIndex(feeder, digitalObject,false);
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
                     }

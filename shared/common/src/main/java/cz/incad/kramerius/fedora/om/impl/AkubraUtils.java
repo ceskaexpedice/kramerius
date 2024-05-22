@@ -137,6 +137,10 @@ public class AkubraUtils {
             return "";
         }
         String objectPattern = KConfiguration.getInstance().getProperty("objectStore.pattern");
+        return getAkubraInternalIdWitPattern(pid, objectPattern);
+    }
+
+    public  static String getAkubraInternalIdWitPattern(String pid, String objectPattern) {
         IdMapper mapper = new HashPathIdMapper(objectPattern);
         URI extUri = null;
         try {
