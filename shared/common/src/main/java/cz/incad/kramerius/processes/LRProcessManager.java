@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.processes;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
@@ -244,4 +245,5 @@ public interface LRProcessManager {
      */
     public Lock getSynchronizingLock();
 
+    public Connection getConnection();
 }

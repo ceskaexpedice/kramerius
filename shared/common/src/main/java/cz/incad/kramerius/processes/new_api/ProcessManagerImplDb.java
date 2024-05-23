@@ -1,5 +1,6 @@
 package cz.incad.kramerius.processes.new_api;
 
+import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.NotReadyException;
 import cz.incad.kramerius.processes.ProcessManagerException;
 import cz.incad.kramerius.utils.DatabaseUtils;
@@ -10,6 +11,7 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,17 +20,17 @@ public class ProcessManagerImplDb implements ProcessManager {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessManagerImplDb.class.getName());
 
+//    @Inject
+//    @Named("kramerius4")
+//    private Provider<Connection> connectionProvider;
+
     @Inject
-    @Named("kramerius4")
-    private Provider<Connection> connectionProvider;
+    LRProcessManager lrProcessManager;  //for obtaining common synchronization lock and database connection TODO: merge ProcessManagerImplDb and DatabaseProcessManager
 
     @Override
     public Integer getBatchesCount(Filter filter) {
-        Connection connection = connectionProvider.get();
-        if (connection == null) {
-            throw new NotReadyException("connection not ready");
-        }
-        try {
+        lrProcessManager.getSynchronizingLock().lock();
+        try (Connection connection = lrProcessManager.getConnection()) {
             String query = "SELECT count(*) FROM process_batch AS batch" + buildFilterClause(filter);
             //System.out.println(query);
             List<Integer> list = new JDBCQueryTemplate<Integer>(connection, false) {
@@ -38,8 +40,11 @@ public class ProcessManagerImplDb implements ProcessManager {
                 }
             }.executeQuery(query);
             return list.get(0);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return 0;
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
@@ -92,11 +97,8 @@ public class ProcessManagerImplDb implements ProcessManager {
 
     @Override
     public List<ProcessInBatch> getProcessesInBatches(Filter filter, int offset, int limit) {
-        Connection connection = connectionProvider.get();
-        if (connection == null) {
-            throw new NotReadyException("connection not ready");
-        }
-        try {
+        lrProcessManager.getSynchronizingLock().lock();
+        try (Connection connection = lrProcessManager.getConnection()) {
             String filteredBatchQuery = String.format("SELECT * FROM process_batch AS batch %s order by first_process_id desc OFFSET %d LIMIT %d", buildFilterClause(filter), offset, limit);
             //System.out.println(filteredBatchQuery);
             String joinQuery =
@@ -156,20 +158,19 @@ public class ProcessManagerImplDb implements ProcessManager {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(joinQuery);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Collections.emptyList();
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
     @Override
     public List<ProcessInBatch> getProcessesInBatchByFirstProcessId(int firstProcessId) {
-        Connection connection = connectionProvider.get();
-        if (connection == null) {
-            throw new NotReadyException("connection not ready");
-        }
-        try {
+        lrProcessManager.getSynchronizingLock().lock();
+        try (Connection connection = lrProcessManager.getConnection()) {
             String filteredBatchQuery = String.format("SELECT * FROM process_batch AS batch WHERE first_process_id=%d", firstProcessId);
-            //System.out.println(filteredBatchQuery);
             String joinQuery =
                     "SELECT " +
                             "batch.batch_token AS batch_token," +
@@ -227,18 +228,18 @@ public class ProcessManagerImplDb implements ProcessManager {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery(joinQuery);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Collections.emptyList();
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
     @Override
     public List<ProcessOwner> getProcessesOwners() {
-        Connection connection = connectionProvider.get();
-        if (connection == null) {
-            throw new NotReadyException("connection not ready");
-        }
-        try {
+        lrProcessManager.getSynchronizingLock().lock();
+        try (Connection connection = lrProcessManager.getConnection()) {
             return new JDBCQueryTemplate<ProcessOwner>(connection) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<ProcessOwner> returnsList) throws SQLException {
@@ -249,18 +250,18 @@ public class ProcessManagerImplDb implements ProcessManager {
                     return super.handleRow(rs, returnsList);
                 }
             }.executeQuery("SELECT DISTINCT owner_id, owner_name FROM processes ORDER BY owner_name ASC");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Collections.emptyList();
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
     @Override
     public Batch getBatchByFirstProcessId(int firstProcessId) {
-        Connection connection = connectionProvider.get();
-        if (connection == null) {
-            throw new NotReadyException("connection not ready");
-        }
-        try {
+        lrProcessManager.getSynchronizingLock().lock();
+        try (Connection connection = lrProcessManager.getConnection()) {
             String sql = "SELECT * FROM process_batch AS batch WHERE first_process_id = ?";
             List<Batch> batches = new JDBCQueryTemplate<Batch>(connection) {
                 @Override
@@ -279,18 +280,18 @@ public class ProcessManagerImplDb implements ProcessManager {
                 }
             }.executeQuery(sql, firstProcessId);
             return !batches.isEmpty() ? batches.get(0) : null;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return null;
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
-    
+
     @Override
     public ProcessInBatch getProcessInBatchByProcessUUid(String processUuid) {
-        Connection connection = connectionProvider.get();
-        if (connection == null) {
-            throw new NotReadyException("connection not ready");
-        }
-        try {
+        lrProcessManager.getSynchronizingLock().lock();
+        try (Connection connection = lrProcessManager.getConnection()) {
             String sql = "SELECT" +
                     "  batch.batch_token AS batch_token," +
                     "  batch.first_process_id AS batch_id," +
@@ -344,20 +345,19 @@ public class ProcessManagerImplDb implements ProcessManager {
                 }
             }.executeQuery(sql, processUuid);
             return !processes.isEmpty() ? processes.get(0) : null;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return null;
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
 
-
     @Override
     public ProcessInBatch getProcessInBatchByProcessId(int processId) {
-        Connection connection = connectionProvider.get();
-        if (connection == null) {
-            throw new NotReadyException("connection not ready");
-        }
-        try {
+        lrProcessManager.getSynchronizingLock().lock();
+        try (Connection connection = lrProcessManager.getConnection()) {
             String sql = "SELECT" +
                     "  batch.batch_token AS batch_token," +
                     "  batch.first_process_id AS batch_id," +
@@ -411,18 +411,18 @@ public class ProcessManagerImplDb implements ProcessManager {
                 }
             }.executeQuery(sql, processId);
             return !processes.isEmpty() ? processes.get(0) : null;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return null;
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
     @Override
     public int deleteBatchByBatchToken(String batchToken) {
-        Connection connection = connectionProvider.get();
-        if (connection == null) {
-            throw new NotReadyException("connection not ready");
-        }
-        try {
+        lrProcessManager.getSynchronizingLock().lock();
+        try (Connection connection = lrProcessManager.getConnection()) {
             PreparedStatement prepareStatement = connection.prepareStatement("DELETE FROM processes WHERE token = ?");
             prepareStatement.setString(1, batchToken);
             int deleted = prepareStatement.executeUpdate();
@@ -431,17 +431,14 @@ public class ProcessManagerImplDb implements ProcessManager {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new ProcessManagerException(e);
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
     @Override
     public void setProcessAuthToken(int processId, String processAuthToken) {
-        Connection connection = connectionProvider.get();
-        if (connection == null) {
-            throw new NotReadyException("connection not ready");
-        }
-        try {
+        lrProcessManager.getSynchronizingLock().lock();
+        try (Connection connection = lrProcessManager.getConnection()) {
             PreparedStatement prepareStatement = connection.prepareStatement("INSERT INTO process_auth_token (process_id, auth_token) VALUES (?,?);");
             prepareStatement.setInt(1, processId);
             prepareStatement.setString(2, processAuthToken);
@@ -450,17 +447,14 @@ public class ProcessManagerImplDb implements ProcessManager {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new ProcessManagerException(e);
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
     @Override
     public ProcessAboutToScheduleSibling getProcessAboutToScheduleSiblingByAuthToken(String processAuthToken) {
-        Connection connection = connectionProvider.get();
-        if (connection == null) {
-            throw new NotReadyException("connection not ready");
-        }
-        try {
+        lrProcessManager.getSynchronizingLock().lock();
+        try (Connection connection = lrProcessManager.getConnection()) {
             String sql = "" +
                     " SELECT" +
                     "  process.process_id AS process_id," +
@@ -487,8 +481,11 @@ public class ProcessManagerImplDb implements ProcessManager {
                 }
             }.executeQuery(sql, processAuthToken);
             return !processes.isEmpty() ? processes.get(0) : null;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return null;
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 

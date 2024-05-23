@@ -28,10 +28,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -56,7 +53,6 @@ import cz.incad.kramerius.processes.database.ProcessDatabaseUtils;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCTransactionTemplate;
@@ -84,50 +80,58 @@ public class DatabaseProcessManager implements LRProcessManager {
     @Inject
     private LoggedUsersSingleton loggedUsersSingleton;
 
-    private final Lock reentrantLock = new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
 
     public DatabaseProcessManager() {
         super();
     }
 
-    private Connection getConnectionOrThrowNotReadyException() {
+    @Override
+    public Connection getConnection() {
         Connection connection = connectionProvider.get();
         if (connection == null) {
             throw new NotReadyException("connection not ready");
         }
         try {
-            connection.setTransactionIsolation(KConfiguration.getInstance().getConfiguration().getInt("jdbcProcessTransactionIsolationLevel",Connection.TRANSACTION_SERIALIZABLE));
+            connection.setTransactionIsolation(KConfiguration.getInstance().getConfiguration().getInt("jdbcProcessTransactionIsolationLevel", Connection.TRANSACTION_READ_COMMITTED));
         } catch (SQLException e) {
-            throw new NotReadyException("connection not ready - "+e);
+            throw new NotReadyException("connection not ready - " + e);
         }
         return connection;
     }
 
     @Override
     public LRProcess getLongRunningProcess(String uuid) {
-        Connection connection = getConnectionOrThrowNotReadyException();
-        String sql = "select " + ProcessDatabaseUtils.printQueryProcessColumns() + " from PROCESSES p where UUID = ?";
-        List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
-                LRProcess lrProcess = processFromResultSet(rs);
-                if (lrProcess != null) {
-                    returnsList.add(lrProcess);
-                    return super.handleRow(rs, returnsList);
-                } else {
-                    return true; //continue with other rows after ignoring this one
+        lock.lock();
+        try (Connection connection = getConnection()) {
+            String sql = "select " + ProcessDatabaseUtils.printQueryProcessColumns() + " from PROCESSES p where UUID = ?";
+            List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
+                    LRProcess lrProcess = processFromResultSet(rs);
+                    if (lrProcess != null) {
+                        returnsList.add(lrProcess);
+                        return super.handleRow(rs, returnsList);
+                    } else {
+                        return true; //continue with other rows after ignoring this one
+                    }
                 }
-            }
-        }.executeQuery(sql, uuid);
-        return !processes.isEmpty() ? processes.get(0) : null;
+            }.executeQuery(sql, uuid);
+            return !processes.isEmpty() ? processes.get(0) : null;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return null;
+        } finally {
+            lock.unlock();
+        }
     }
 
 
     @Override
     public Integer registerLongRunningProcess(LRProcess lp, String loggedUserKey, Properties parametersMapping) {
-        Connection connection = null;
-        try {
-            connection = getConnectionOrThrowNotReadyException();
+        lock.lock();
+        try (Connection connection = getConnection()) {
+
             if (lp.getUser() == null) {
                 return registerProcess(connection, lp, PropertiesStoreUtils.storeProperties(parametersMapping));
             } else {
@@ -137,36 +141,31 @@ public class DatabaseProcessManager implements LRProcessManager {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return null;
         } finally {
-            if (connection != null) {
-                try {
-                    connection.setAutoCommit(true);
-                    connection.close();
-                } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
+            lock.unlock();
         }
     }
 
     public void updateLongRunningProcessPID(LRProcess lrProcess) {
-        Connection connection = null;
-        try {
-            connection = getConnectionOrThrowNotReadyException();
+        lock.lock();
+        try (Connection connection = getConnection()) {
             int pid = Integer.parseInt(lrProcess.getPid());
             new JDBCUpdateTemplate(connection).executeUpdate("update processes set PID = ? where UUID = ?", pid, lrProcess.getUUID());
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public void updateLongRunningProcessName(LRProcess lrProcess) {
-        Connection connection = null;
-        try {
-            connection = getConnectionOrThrowNotReadyException();
+        lock.lock();
+        try (Connection connection = getConnection()) {
             new JDBCUpdateTemplate(connection).executeUpdate("update processes set NAME = ? where UUID = ?", shortenIfTooLong(lrProcess.getProcessName(), 512), lrProcess.getUUID());
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -181,10 +180,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 
     @Override
     public void deleteBatchLongRunningProcess(LRProcess longRunningProcess) {
-
-        Connection connection = null;
-        try {
-            connection = getConnectionOrThrowNotReadyException();
+        lock.lock();
+        try (Connection connection = getConnection()) {
             if (longRunningProcess.getProcessState().equals(States.RUNNING)) {
                 throw new ProcessManagerException("cannot delete process with state '" + longRunningProcess.getProcessState() + "'");
             }
@@ -268,23 +265,14 @@ public class DatabaseProcessManager implements LRProcessManager {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new ProcessManagerException(e);
         } finally {
-            try {
-                if (connection != null && (!connection.isClosed())) {
-                    DatabaseUtils.tryClose(connection);
-                }
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                throw new ProcessManagerException(e);
-            }
+            lock.unlock();
         }
     }
 
     @Override
     public void deleteLongRunningProcess(final LRProcess lrProcess) {
-        Connection connection = null;
-        try {
-            connection = getConnectionOrThrowNotReadyException();
-
+        lock.lock();
+        try (Connection connection = getConnection()) {
             if (lrProcess.getProcessState().equals(States.RUNNING)) {
                 throw new ProcessManagerException("cannot delete process with state '" + lrProcess.getProcessState() + "'");
             }
@@ -335,99 +323,117 @@ public class DatabaseProcessManager implements LRProcessManager {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new ProcessManagerException(e);
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lock.unlock();
         }
 
     }
 
     public void updateLongRunningProcessStartedDate(LRProcess lrProcess) {
-        Connection connection = null;
-        try {
-            connection = getConnectionOrThrowNotReadyException();
+        lock.lock();
+        try (Connection connection = getConnection()) {
             new JDBCUpdateTemplate(connection).executeUpdate("update processes set STARTED = ? where UUID = ?", new Timestamp(lrProcess.getStartTime()), lrProcess.getUUID());
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            lock.unlock();
         }
     }
 
 
     public void updateLongRunningProcessFinishedDate(LRProcess lrProcess) {
-        Connection connection = null;
-        try {
-            connection = getConnectionOrThrowNotReadyException();
+        lock.lock();
+        try (Connection connection = getConnection()) {
             new JDBCUpdateTemplate(connection).executeUpdate("update processes set FINISHED = ? where UUID = ?", new Timestamp(lrProcess.getFinishedTime()), lrProcess.getUUID());
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            lock.unlock();
         }
     }
 
 
     @Override
     public void updateLongRunningProcessState(LRProcess lrProcess) {
-        try {
-            Connection connection = getConnectionOrThrowNotReadyException();
+        lock.lock();
+        try (Connection connection = getConnection()) {
             int val = lrProcess.getProcessState().getVal();
             String processUuid = lrProcess.getUUID();
             LOGGER.fine("params is " + val + "," + processUuid);
             new JDBCUpdateTemplate(connection).executeUpdate("update processes set STATUS = ? where UUID = ?", val, processUuid);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            lock.unlock();
         }
     }
 
 
     @Override
     public void updateLongRunninngProcessBatchState(LRProcess lrProcess) {
-        try {
-            Connection connection = getConnectionOrThrowNotReadyException();
+        lock.lock();
+        try (Connection connection = getConnection()) {
             int val = lrProcess.getBatchState().getVal();
             String processUuid = lrProcess.getUUID();
             LOGGER.fine("params is " + val + "," + processUuid);
             new JDBCUpdateTemplate(connection).executeUpdate("update processes set BATCH_STATUS = ? where UUID = ?", val, processUuid);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            lock.unlock();
         }
-
     }
 
+    @Override
     public List<LRProcess> getPlannedProcess(int howMany) {
-        Connection connection = getConnectionOrThrowNotReadyException();
-        StringBuffer buffer = new StringBuffer("select " + ProcessDatabaseUtils.printQueryProcessColumns() + " from processes p where status = ? ORDER BY PLANNED LIMIT ? ");
-        List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
-                LRProcess processFromResultSet = processFromResultSet(rs);
-                if (processFromResultSet != null) {
-                    returnsList.add(processFromResultSet);
-                    return super.handleRow(rs, returnsList);
-                } else {
-                    return true; //continue with other rows after ignoring this one
+        lock.lock();
+        try (Connection connection = getConnection()) {
+            StringBuffer buffer = new StringBuffer("select " + ProcessDatabaseUtils.printQueryProcessColumns() + " from processes p where status = ? ORDER BY PLANNED LIMIT ? ");
+            List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
+                    LRProcess processFromResultSet = processFromResultSet(rs);
+                    if (processFromResultSet != null) {
+                        returnsList.add(processFromResultSet);
+                        return super.handleRow(rs, returnsList);
+                    } else {
+                        return true; //continue with other rows after ignoring this one
+                    }
                 }
-            }
-        }.executeQuery(buffer.toString(), States.PLANNED.getVal(), howMany);
-        return processes;
+            }.executeQuery(buffer.toString(), States.PLANNED.getVal(), howMany);
+            return processes;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Collections.EMPTY_LIST;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public int getNumberOfLongRunningProcesses(SQLFilter filter) {
-        Connection connection = getConnectionOrThrowNotReadyException();
+        try (Connection connection = getConnection()) {
+            StringBuilder builder = new StringBuilder("select count(*) from processes p "
+                    + " join process_grouped_view v on (p.process_id=v.process_id) ");
 
-        StringBuilder builder = new StringBuilder("select count(*) from processes p "
-                + " join process_grouped_view v on (p.process_id=v.process_id) ");
-
-        if (filter != null) {
-            builder.append(filter.getSQLOffset());
-        }
-
-        List<Integer> countList = new JDBCQueryTemplate<Integer>(connection) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
-                returnsList.add(rs.getInt(1));
-                return super.handleRow(rs, returnsList);
+            if (filter != null) {
+                builder.append(filter.getSQLOffset());
             }
-        }.executeQuery(builder.toString(), filter != null ? filter.getObjectsToPreparedStm().toArray() : new Object[]{});
 
-        return !countList.isEmpty() ? countList.get(0) : 0;
+            List<Integer> countList = new JDBCQueryTemplate<Integer>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                    returnsList.add(rs.getInt(1));
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery(builder.toString(), filter != null ? filter.getObjectsToPreparedStm().toArray() : new Object[]{});
+
+            return !countList.isEmpty() ? countList.get(0) : 0;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return 0;
+        } finally {
+            lock.unlock();
+        }
     }
 
 
@@ -495,8 +501,8 @@ public class DatabaseProcessManager implements LRProcessManager {
 
     @Override
     public List<LRProcess> getLongRunningProcessesByGroupToken(String token) {
-        try {
-            Connection connection = getConnectionOrThrowNotReadyException();
+        lock.lock();
+        try (Connection connection = getConnection()) {
             List<LRProcess> lpList = new JDBCQueryTemplate<LRProcess>(connection) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
@@ -512,101 +518,124 @@ public class DatabaseProcessManager implements LRProcessManager {
             return lpList;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return new ArrayList<LRProcess>();
+            return Collections.EMPTY_LIST;
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public List<LRProcess> getLongRunningProcesses(States state) {
-        Connection connection = getConnectionOrThrowNotReadyException();
-        List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
-                LRProcess lrProcess = processFromResultSet(rs);
-                if (lrProcess != null) {
-                    returnsList.add(lrProcess);
-                    return super.handleRow(rs, returnsList);
-                } else {
-                    return true; //continue with other rows after ignoring this one
+        lock.lock();
+        try (Connection connection = getConnection()) {
+            List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
+                    LRProcess lrProcess = processFromResultSet(rs);
+                    if (lrProcess != null) {
+                        returnsList.add(lrProcess);
+                        return super.handleRow(rs, returnsList);
+                    } else {
+                        return true; //continue with other rows after ignoring this one
+                    }
                 }
-            }
-        }.executeQuery("select " + ProcessDatabaseUtils.printQueryProcessColumns() + " from PROCESSES p  where STATUS = ?",
-                state.getVal());
-        return processes;
+            }.executeQuery("select " + ProcessDatabaseUtils.printQueryProcessColumns() + " from PROCESSES p  where STATUS = ?",
+                    state.getVal());
+            return processes;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Collections.EMPTY_LIST;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public List<LRProcess> getLongRunningProcessesAsFlat(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, Offset offset) {
-        Connection connection = getConnectionOrThrowNotReadyException();
-        StringBuffer buffer = new StringBuffer("select " + ProcessDatabaseUtils.printQueryProcessColumns() + " from processes p ");
-        if (ordering != null) {
-            buffer.append(" order by ");
-            ordering(ordering, typeOfOrdering, buffer);
-            if (ordering != LRProcessOrdering.PLANNED) {
-                buffer.append(',');
-                ordering(LRProcessOrdering.PLANNED, typeOfOrdering, buffer);
-            }
-        }
-        if (offset != null) {
-            buffer.append(offset.getSQLOffset());
-        }
-        List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
-                LRProcess lrProcess = processFromResultSet(rs);
-                if (lrProcess != null) {
-                    returnsList.add(lrProcess);
-                    return super.handleRow(rs, returnsList);
-                } else {
-                    return true; //continue with other rows after ignoring this one
+        lock.lock();
+        try (Connection connection = getConnection()) {
+            StringBuffer buffer = new StringBuffer("select " + ProcessDatabaseUtils.printQueryProcessColumns() + " from processes p ");
+            if (ordering != null) {
+                buffer.append(" order by ");
+                ordering(ordering, typeOfOrdering, buffer);
+                if (ordering != LRProcessOrdering.PLANNED) {
+                    buffer.append(',');
+                    ordering(LRProcessOrdering.PLANNED, typeOfOrdering, buffer);
                 }
             }
-        }.executeQuery(buffer.toString());
-        return processes;
+            if (offset != null) {
+                buffer.append(offset.getSQLOffset());
+            }
+            List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
+                    LRProcess lrProcess = processFromResultSet(rs);
+                    if (lrProcess != null) {
+                        returnsList.add(lrProcess);
+                        return super.handleRow(rs, returnsList);
+                    } else {
+                        return true; //continue with other rows after ignoring this one
+                    }
+                }
+            }.executeQuery(buffer.toString());
+            return processes;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Collections.EMPTY_LIST;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public List<LRProcess> getLongRunningProcessesAsGrouped(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, Offset offset, SQLFilter filter) {
-        Connection connection = getConnectionOrThrowNotReadyException();
-        StringBuffer buffer = new StringBuffer("select " + ProcessDatabaseUtils.printQueryProcessColumns() + ",v.pcount as pcount from processes p "
-                + " join process_grouped_view v on (p.process_id=v.process_id)");
+        lock.lock();
+        try (Connection connection = getConnection()) {
+            StringBuffer buffer = new StringBuffer("select " + ProcessDatabaseUtils.printQueryProcessColumns() + ",v.pcount as pcount from processes p "
+                    + " join process_grouped_view v on (p.process_id=v.process_id)");
 
-        if (filter != null) {
-            buffer.append(filter.getSQLOffset());
-        }
-
-        if (ordering != null) {
-            buffer.append(" order by ");
-            ordering(ordering, typeOfOrdering, buffer);
-            if (ordering != LRProcessOrdering.PLANNED) {
-                buffer.append(',');
-                ordering(LRProcessOrdering.PLANNED, typeOfOrdering, buffer);
+            if (filter != null) {
+                buffer.append(filter.getSQLOffset());
             }
-        }
 
-        if (offset != null) {
-            buffer.append(offset.getSQLOffset());
-        }
-
-        List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
-            @Override
-            public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
-                LRProcess lrProcess = processFromResultSet(rs);
-                if (lrProcess != null) {
-                    returnsList.add(lrProcess);
-                    int processCount = rs.getInt("pcount");
-                    lrProcess.setMasterProcess(processCount > 1);
-                    return super.handleRow(rs, returnsList);
-                } else {
-                    return true; //continue with other rows after ignoring this one
+            if (ordering != null) {
+                buffer.append(" order by ");
+                ordering(ordering, typeOfOrdering, buffer);
+                if (ordering != LRProcessOrdering.PLANNED) {
+                    buffer.append(',');
+                    ordering(LRProcessOrdering.PLANNED, typeOfOrdering, buffer);
                 }
             }
-        }.executeQuery(buffer.toString(), filter != null ? filter.getObjectsToPreparedStm().toArray() : new Object[]{});
 
-        return processes;
+            if (offset != null) {
+                buffer.append(offset.getSQLOffset());
+            }
+
+            List<LRProcess> processes = new JDBCQueryTemplate<LRProcess>(connection) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<LRProcess> returnsList) throws SQLException {
+                    LRProcess lrProcess = processFromResultSet(rs);
+                    if (lrProcess != null) {
+                        returnsList.add(lrProcess);
+                        int processCount = rs.getInt("pcount");
+                        lrProcess.setMasterProcess(processCount > 1);
+                        return super.handleRow(rs, returnsList);
+                    } else {
+                        return true; //continue with other rows after ignoring this one
+                    }
+                }
+            }.executeQuery(buffer.toString(), filter != null ? filter.getObjectsToPreparedStm().toArray() : new Object[]{});
+
+            return processes;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Collections.EMPTY_LIST;
+        } finally {
+            lock.unlock();
+        }
     }
 
-    public void ordering(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, StringBuffer buffer) {
+    private void ordering(LRProcessOrdering ordering, TypeOfOrdering typeOfOrdering, StringBuffer buffer) {
         if (ordering != null) {
             buffer.append(ordering.getOrdering()).append(' ');
         }
@@ -622,54 +651,68 @@ public class DatabaseProcessManager implements LRProcessManager {
         }
     }
 
+    @Override
     public boolean isSessionKeyAssociatedWithProcess(String sessionKey) {
-        Connection connection = getConnectionOrThrowNotReadyException();
-        try {
+        lock.lock();
+        try (Connection connection = getConnection()) {
             List<String> list = ProcessDatabaseUtils.getAssociatedTokens(sessionKey, connection);
             return !list.isEmpty();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return false;
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lock.unlock();
         }
     }
 
 
     @Override
     public void closeAuthToken(String authToken) {
-        Connection connection = getConnectionOrThrowNotReadyException();
-        ProcessDatabaseUtils.updateTokenActive(connection, authToken, false);
+        lock.lock();
+        try (Connection connection = getConnection()) {
+            ProcessDatabaseUtils.updateTokenActive(connection, authToken, false);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            lock.unlock();
+        }
     }
 
 
     @Override
     public boolean isAuthTokenClosed(String authToken) {
-        Connection connection = getConnectionOrThrowNotReadyException();
-        List<Boolean> flags = new JDBCQueryTemplate<Boolean>(connection) {
+        lock.lock();
+        try (Connection connection = getConnection()) {
+            List<Boolean> flags = new JDBCQueryTemplate<Boolean>(connection) {
 
-            @Override
-            public boolean handleRow(ResultSet rs, List<Boolean> returnsList) throws SQLException {
-                returnsList.add(rs.getBoolean("token_active"));
-                return super.handleRow(rs, returnsList);
+                @Override
+                public boolean handleRow(ResultSet rs, List<Boolean> returnsList) throws SQLException {
+                    returnsList.add(rs.getBoolean("token_active"));
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery("select token_active from processes where auth_token=?", authToken);
+
+            // no flags
+            if (flags.isEmpty()) return true;
+
+            for (Boolean flag : flags) {
+                if (!flag.booleanValue()) return true;
             }
-        }.executeQuery("select token_active from processes where auth_token=?", authToken);
-
-        // no flags
-        if (flags.isEmpty()) return true;
-
-        for (Boolean flag : flags) {
-            if (!flag.booleanValue()) return true;
+            return false;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return true;
+        } finally {
+            lock.unlock();
         }
-        return false;
     }
 
 
     @Override
     public Properties loadParametersMapping(LRProcess lrProcess) {
         Properties properties = new Properties();
-        try {
-            Connection connection = getConnectionOrThrowNotReadyException();
+        lock.lock();
+        try (Connection connection = getConnection()){
             List<String> params = new JDBCQueryTemplate<String>(connection, true) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
@@ -683,8 +726,10 @@ public class DatabaseProcessManager implements LRProcessManager {
             if (params.isEmpty()) {
                 properties.load(new StringReader(params.get(0)));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            lock.unlock();
         }
         return properties;
 
@@ -693,30 +738,32 @@ public class DatabaseProcessManager implements LRProcessManager {
 
     @Override
     public String getSessionKey(String authToken) {
-        Connection connection = getConnectionOrThrowNotReadyException();
-        try {
+        lock.lock();
+        try (Connection connection = getConnection()){
             List<String> list = ProcessDatabaseUtils.getAssociatedSessionKeys(authToken, connection);
             return !list.isEmpty() ? list.get(0) : null;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return null;
         } finally {
-            DatabaseUtils.tryClose(connection);
+            lock.unlock();
         }
     }
 
     @Override
     public void updateAuthTokenMapping(LRProcess lrProcess, String sessionKey) {
-        try {
+        lock.lock();
+        try (Connection connection = getConnection()){
             int sessionKeyId = this.loggedUsersSingleton.getSessionKeyId(sessionKey);
             if (sessionKeyId > -1) {
-                Connection connection = getConnectionOrThrowNotReadyException();
                 ProcessDatabaseUtils.updateAuthTokenMapping(lrProcess, connection, sessionKeyId);
             } else {
                 throw new ProcessManagerException("cannot find session associated with sessionKey '" + sessionKey + "'");
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -727,7 +774,7 @@ public class DatabaseProcessManager implements LRProcessManager {
 
     @Override
     public Lock getSynchronizingLock() {
-        return this.reentrantLock;
+        return this.lock;
     }
 
 }
