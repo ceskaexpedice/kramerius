@@ -149,6 +149,7 @@ public class ProcessResource extends AdminApiResource {
     @Path("by_process_id/{process_id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProcessByProcessId(@PathParam("process_id") String processId) {
+        lrProcessManager.getSynchronizingLock().lock();
         try {
             //authentication
             //AuthenticatedUser user = getAuthenticatedUserByOauth();
@@ -188,6 +189,8 @@ public class ProcessResource extends AdminApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
@@ -195,6 +198,7 @@ public class ProcessResource extends AdminApiResource {
     @Path("by_process_uuid/{process_uuid}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProcessByProcessUuid(@PathParam("process_uuid") String processUuid) {
+        lrProcessManager.getSynchronizingLock().lock();
         try {
             //authentication
             //AuthenticatedUser user = getAuthenticatedUserByOauth();
@@ -227,6 +231,8 @@ public class ProcessResource extends AdminApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
@@ -334,59 +340,64 @@ public class ProcessResource extends AdminApiResource {
     }
 
     private Response getProcessLogsLinesByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
-        //authentication
-        User user = this.userProvider.get();
-        List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-        
+        lrProcessManager.getSynchronizingLock().lock();
+        try {
+            //authentication
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-        LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processUuid);
-        boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
-                            SecurityProcessUtils.permitReader(rightsResolver, user) ||
-                            SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user,  SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
 
-        if (!permitted) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
-        }
-        
-        //offset & limit
-        long offset = GET_LOGS_DEFAULT_OFFSET;
-        if (StringUtils.isAnyString(offsetStr)) {
-            try {
-                offset = Long.valueOf(offsetStr);
-                if (offset < 0) {
-                    throw new BadRequestException("offset must be zero or a positive number, '%s' is not", offsetStr);
-                }
-            } catch (NumberFormatException e) {
-                throw new BadRequestException("offset must be a number, '%s' is not", offsetStr);
+            LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processUuid);
+            boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
+                    SecurityProcessUtils.permitReader(rightsResolver, user) ||
+                    SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
+
+            if (!permitted) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
-        }
-        long limit = GET_LOGS_DEFAULT_LIMIT;
-        if (StringUtils.isAnyString(limitStr)) {
-            try {
-                limit = Long.valueOf(limitStr);
-                if (limit < 1) {
-                    throw new BadRequestException("limit must be a positive number, '%s' is not", limitStr);
+
+            //offset & limit
+            long offset = GET_LOGS_DEFAULT_OFFSET;
+            if (StringUtils.isAnyString(offsetStr)) {
+                try {
+                    offset = Long.valueOf(offsetStr);
+                    if (offset < 0) {
+                        throw new BadRequestException("offset must be zero or a positive number, '%s' is not", offsetStr);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("offset must be a number, '%s' is not", offsetStr);
                 }
-            } catch (NumberFormatException e) {
-                throw new BadRequestException("limit must be a number, '%s' is not", limitStr);
             }
+            long limit = GET_LOGS_DEFAULT_LIMIT;
+            if (StringUtils.isAnyString(limitStr)) {
+                try {
+                    limit = Long.valueOf(limitStr);
+                    if (limit < 1) {
+                        throw new BadRequestException("limit must be a positive number, '%s' is not", limitStr);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("limit must be a number, '%s' is not", limitStr);
+                }
+            }
+            //access to process data
+            LRProcess lrProces = lrProcessManager.getLongRunningProcess(processUuid);
+            if (lrProces == null) {
+                throw new BadRequestException("process with uuid " + processUuid + " not found");
+            }
+            ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces);
+            //result
+            JSONObject result = new JSONObject();
+            result.put("total_size", processLogsHelper.getLogsFileSize(logType));
+            JSONArray linesJson = new JSONArray();
+            List<String> lines = processLogsHelper.getLogsFileData(logType, offset, limit);
+            for (String line : lines) {
+                linesJson.put(line);
+            }
+            result.put("lines", linesJson);
+            return Response.ok().entity(result.toString()).build();
+        }finally{
+            lrProcessManager.getSynchronizingLock().unlock();
         }
-        //access to process data
-        LRProcess lrProces = lrProcessManager.getLongRunningProcess(processUuid);
-        if (lrProces == null) {
-            throw new BadRequestException("process with uuid " + processUuid + " not found");
-        }
-        ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces);
-        //result
-        JSONObject result = new JSONObject();
-        result.put("total_size", processLogsHelper.getLogsFileSize(logType));
-        JSONArray linesJson = new JSONArray();
-        List<String> lines = processLogsHelper.getLogsFileData(logType, offset, limit);
-        for (String line : lines) {
-            linesJson.put(line);
-        }
-        result.put("lines", linesJson);
-        return Response.ok().entity(result.toString()).build();
     }
 
     private JSONObject processInBatchToJson(ProcessInBatch processInBatch) {
@@ -422,6 +433,7 @@ public class ProcessResource extends AdminApiResource {
     @Path("batches/by_first_process_id/{process_id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response deleteBatch(@PathParam("process_id") String processId) {
+        lrProcessManager.getSynchronizingLock().lock();
         try {
             //authentication
             User user = this.userProvider.get();
@@ -497,6 +509,8 @@ public class ProcessResource extends AdminApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
@@ -504,6 +518,7 @@ public class ProcessResource extends AdminApiResource {
     @Path("batches/by_first_process_id/{process_id}/execution")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response killBatch(@PathParam("process_id") String processId) {
+        lrProcessManager.getSynchronizingLock().lock();
         try {
             //authentication
             //AuthenticatedUser user = getAuthenticatedUserByOauth();
@@ -560,6 +575,8 @@ public class ProcessResource extends AdminApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
@@ -585,6 +602,7 @@ public class ProcessResource extends AdminApiResource {
             @QueryParam("until") String filterUntil,
             @QueryParam("state") String filterState
     ) {
+        lrProcessManager.getSynchronizingLock().lock();
         try {
             //access control with basic access authentication (deprecated)
             //checkAccessControlByBasicAccessAuth();
@@ -660,6 +678,8 @@ public class ProcessResource extends AdminApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 

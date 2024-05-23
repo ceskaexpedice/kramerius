@@ -3,6 +3,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
+import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -36,6 +37,10 @@ public class ProcessSchedulingHelper {
     @Inject
     ProcessManager processManager;
 
+    @Inject
+    LRProcessManager lrProcessManager;  //for obtaining common synchronization lock and database connection
+    // TODO: merge ProcessManagerImplDb and DatabaseProcessManager
+
     /**
      * @param defid
      * @param params
@@ -45,34 +50,40 @@ public class ProcessSchedulingHelper {
      * @return
      */
     public LRProcess scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken, String procesName) {
-        String newProcessAuthToken = UUID.randomUUID().toString();
-        LRProcessDefinition definition = processDefinition(defid);
-        if (definition == null) {
-            throw new BadRequestException("process definition for defid '%s' not found", defid);
+        lrProcessManager.getSynchronizingLock().lock();
+        try {
+            String newProcessAuthToken = UUID.randomUUID().toString();
+            LRProcessDefinition definition = processDefinition(defid);
+            if (definition == null) {
+                throw new BadRequestException("process definition for defid '%s' not found", defid);
+            }
+
+            LRProcess newProcess = definition.createNewProcess(null, batchToken);
+            List<String> paramsWithAuthToken = new ArrayList<>();
+            paramsWithAuthToken.add(newProcessAuthToken);
+            for (String param : params) {
+                paramsWithAuthToken.add(param);
+            }
+
+            newProcess.setParameters(paramsWithAuthToken);
+            newProcess.setOwnerId(ownerId);
+            newProcess.setOwnerName(ownerName);
+            newProcess.setProcessName(procesName);
+
+            Properties properties = definition.isInputTemplateDefined()
+                    ? new Properties() //'plain' process
+                    : extractPropertiesForParametrizedProcess(); //'parametrized' process
+            Integer processId = newProcess.planMe(properties, getRemoteAddress());
+            if (processId == null) {
+                throw new InternalErrorException("error scheduling new process");
+            }
+            processManager.setProcessAuthToken(processId, newProcessAuthToken); //TODO: nestaci to u definition.createNewProcess?
+            //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+            return newProcess;
+        } finally {
+            lrProcessManager.getSynchronizingLock().unlock();
         }
 
-        LRProcess newProcess = definition.createNewProcess(null, batchToken);
-        List<String> paramsWithAuthToken = new ArrayList<>();
-        paramsWithAuthToken.add(newProcessAuthToken);
-        for (String param : params) {
-            paramsWithAuthToken.add(param);
-        }
-
-        newProcess.setParameters(paramsWithAuthToken);
-        newProcess.setOwnerId(ownerId);
-        newProcess.setOwnerName(ownerName);
-        newProcess.setProcessName(procesName);
-
-        Properties properties = definition.isInputTemplateDefined()
-                ? new Properties() //'plain' process
-                : extractPropertiesForParametrizedProcess(); //'parametrized' process
-        Integer processId = newProcess.planMe(properties, getRemoteAddress());
-        if (processId == null) {
-            throw new InternalErrorException("error scheduling new process");
-        }
-        processManager.setProcessAuthToken(processId, newProcessAuthToken); //TODO: nestaci to u definition.createNewProcess?
-        //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
-        return newProcess;
     }
 
     private Properties extractPropertiesForParametrizedProcess() {

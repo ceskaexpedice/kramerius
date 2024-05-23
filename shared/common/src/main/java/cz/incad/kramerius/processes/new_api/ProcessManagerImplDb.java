@@ -20,12 +20,9 @@ public class ProcessManagerImplDb implements ProcessManager {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessManagerImplDb.class.getName());
 
-//    @Inject
-//    @Named("kramerius4")
-//    private Provider<Connection> connectionProvider;
-
     @Inject
-    LRProcessManager lrProcessManager;  //for obtaining common synchronization lock and database connection TODO: merge ProcessManagerImplDb and DatabaseProcessManager
+    LRProcessManager lrProcessManager;  //for obtaining common synchronization lock and database connection
+    // TODO: merge ProcessManagerImplDb and DatabaseProcessManager
 
     @Override
     public Integer getBatchesCount(Filter filter) {
