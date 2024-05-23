@@ -35,6 +35,11 @@ public class LogRecord {
     private String ownPidpath;
     private String ownModelPath;
 
+    private String dateStr;
+    private String dateRangeStart;
+    private String dateRangeEnd;
+
+    
     private Set<String> licenses = new LinkedHashSet<>();
     private Set<String> issueDates = new LinkedHashSet<>();
     private Set<String> langs = new LinkedHashSet<>();
@@ -198,18 +203,31 @@ public class LogRecord {
     public Set<String> getSolrDates() {
         return solrDates;
     }
-
-    public void setSolrDates(Set<String> solrDates) {
-        this.solrDates = solrDates;
+    
+    public void setDateStr(String dateStr) {
+        this.dateStr = dateStr;
     }
-
-    public void addSolrDate(String sDate) {
-        this.solrDates.add(sDate);
+    
+    public String getDateStr() {
+        return dateStr;
     }
-
-    public void removeSolrDate(String sDate) {
-        this.solrDates.remove(sDate);
+    
+    public void setDateRangeStart(String dateRangeStart) {
+        this.dateRangeStart = dateRangeStart;
     }
+    
+    public String getDateRangeStart() {
+        return dateRangeStart;
+    }
+    
+    public void setDateRangeEnd(String dateRangeEnd) {
+        this.dateRangeEnd = dateRangeEnd;
+    }
+    
+    public String getDateRangeEnd() {
+        return dateRangeEnd;
+    }
+    
 
     public Set<String> getAuthors() {
         return authors;
@@ -417,7 +435,28 @@ public class LogRecord {
         requestedUrl.setAttribute("name", "requested_url");
         requestedUrl.setTextContent(this.requestedUrl);
         docElm.appendChild(requestedUrl);
+        
+        if (this.dateStr != null) {
+            Element dateStrField = doc.createElement("field");
+            requestedUrl.setAttribute("name", "date.str");
+            requestedUrl.setTextContent(this.dateStr);
+            docElm.appendChild(dateStrField);
+        }
 
+        if (this.dateRangeStart != null) {
+            Element dateStrField = doc.createElement("field");
+            requestedUrl.setAttribute("name", "date_range_start.year");
+            requestedUrl.setTextContent(this.dateRangeStart);
+            docElm.appendChild(dateStrField);
+        }
+        
+        if (this.dateRangeEnd != null) {
+            Element dateStrField = doc.createElement("field");
+            requestedUrl.setAttribute("name", "date_range_end.year");
+            requestedUrl.setTextContent(this.dateRangeEnd);
+            docElm.appendChild(dateStrField);
+        }
+        
         if (this.rootTitle != null) {
             Element rootTitleElm = doc.createElement("field");
             rootTitleElm.setAttribute("name", "root_title");

@@ -326,6 +326,20 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         if (obj.has("user")) {
             map.put("username", obj.optString("user"));
         }
+        
+        
+        if (obj.has("date.str")) {
+            map.put("date.str", obj.getString("date.str"));
+            
+            int start = obj.getInt("date_range_start.year");
+            int end = obj.getInt("date_range_end.year");
+            //Issue #1046
+            if (start >-1 && start == end ) {
+                map.put("date.pulication_year", start);
+            }
+            
+        }
+
         if (obj.has("hrh_referer")) {
             //v SOLR: "hrh_referer":["http://localhost:4321/"],
             String hrhReferer = obj.optString("hrh_referer");

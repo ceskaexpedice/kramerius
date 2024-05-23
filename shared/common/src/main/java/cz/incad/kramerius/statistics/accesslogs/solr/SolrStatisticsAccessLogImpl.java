@@ -112,6 +112,9 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
         Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
+        
+        
+        
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(solrDoc);
         ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(solrDoc);
         ObjectPidsPath[] ownPidPaths = this.solrAccess.getOwnPidPaths(solrDoc);
@@ -198,7 +201,18 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 logRecord.setSessionToken(sessionId);
             }
 
+            // Issue #1046
+            Object dateFromSolr = SElemUtils.selem("str", "date.str", solrDoc);
+            if (dateFromSolr!= null) logRecord.setDateStr(dateFromSolr.toString());
+            
+            Object dateRangeEnd = SElemUtils.selem("int", "date_range_end.year", solrDoc);
+            if (dateRangeEnd != null) logRecord.setDateRangeEnd(dateRangeEnd.toString());
+            
+            Object dateRangeStart = SElemUtils.selem("int", "date_range_start.year", solrDoc);
+            if (dateRangeStart != null) logRecord.setDateRangeStart(dateRangeStart.toString());
+            
             logRecord.setFieldsFromHttpRequestHeaders(extractFieldsFromHttpRequestHeaders());
+
             
             for (int i = 0, ll = paths.length; i < ll; i++) {
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -222,11 +236,6 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                             logRecord.addIssueDate(dateFromDC.toString());
                         }
                         
-                        Object dateFromSolr = SElemUtils.selem("str", "datum_str", solrDoc);
-                        dateFromSolr = dateFromSolr != null ? dateFromSolr : null;
-                        if (dateFromSolr != null) {
-                            logRecord.addSolrDate(dateFromSolr.toString());
-                        }
                         
                         Object languageFromDc = DCUtils.languageFromDC(dc);
                         if (languageFromDc != null) {
