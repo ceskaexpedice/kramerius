@@ -253,6 +253,7 @@ public abstract class AbstractFedoraAccess implements FedoraAccess {
     @Override
     public String getKrameriusModelName(Document relsExt) throws IOException {
         try {
+            //TODO: Duplicate code in RelsExt helper -> mn
             Element foundElement = XMLUtils.findElement(relsExt.getDocumentElement(), "hasModel", FedoraNamespaces.FEDORA_MODELS_URI);
             if (foundElement != null) {
                 String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");

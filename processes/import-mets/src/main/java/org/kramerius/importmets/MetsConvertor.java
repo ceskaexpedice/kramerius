@@ -11,12 +11,14 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.BOMInputStream;
@@ -37,8 +39,12 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import javax.xml.bind.*;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.xpath.XPathExpressionException;
+
 import java.io.*;
+import java.util.logging.Level;
 
 
 /**
@@ -78,7 +84,7 @@ public class MetsConvertor {
             boolean policyPublic = Boolean.parseBoolean(args[argsIndex++]);
             String importRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.directory");
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
-            new MetsConvertor().run(importRoot, exportRoot, policyPublic, false, null);
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, false, null, null);
         } else { // as a process
             if (args.length < 2) {
                 throw new RuntimeException("Not enough arguments.");
@@ -92,7 +98,6 @@ public class MetsConvertor {
             String importRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.directory");
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
             boolean startIndexer = Boolean.valueOf(args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
-
             
             if (args.length > argsIndex) {
                 String arg = args[argsIndex++] ;
@@ -101,12 +106,15 @@ public class MetsConvertor {
                 log.info(String.format("convert.useImageServer %s", arg));
             }
             
+            String license = null;
+            if (startIndexer) { license = args.length > argsIndex ? args[argsIndex++] : null; }
+            
             try {
                 ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
-            new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken);
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken, license);
         }
     }
 
@@ -129,7 +137,7 @@ public class MetsConvertor {
         }
     }
 
-    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
+    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken, String license) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
         checkAndConvertDirectory(importRoot, exportRoot, policyPublic);
         if (!foundvalidPSP) {
             throw new RuntimeException("No valid PSP found.");
@@ -138,7 +146,19 @@ public class MetsConvertor {
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
+        FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
 
+        
+        if (license != null && startIndexer) {
+            log.info(String.format("Applying license to %s", license));
+            try {
+                foxmlService.appendLicense(exportRoot, license);
+            } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException
+                    | LexerException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        
         Import.run(fa, feeder, sortingServiceLocal,
                 KConfiguration.getInstance().getProperty("ingest.url"),
                 KConfiguration.getInstance().getProperty("ingest.user"),

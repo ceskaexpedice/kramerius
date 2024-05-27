@@ -17,8 +17,10 @@
 package cz.incad.kramerius.utils;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -42,9 +44,56 @@ public class RelsExtHelper {
     public static final Logger LOGGER = Logger.getLogger(RelsExtHelper.class.getName());
 
     
+    private RelsExtHelper() {}
     
+    
+    public static Element getRELSEXTFromGivenFOXML(Element foxmlElement) {
+        List<Element> elms = XMLUtils.getElementsRecursive(foxmlElement, (elm)->{
+            if (elm.getLocalName().equals("datastream")) {
+                String id = elm.getAttribute("ID");
+                return id.equals(FedoraUtils.RELS_EXT_STREAM);
+            } return false;
+        });
+        if (elms.size() == 1) {
+            return elms.get(0);
+        } else return null;
+    }
+    
+
+    /** Get model 
+     * @throws LexerException */
+    public static String getModel(Element relsExt) throws XPathExpressionException, LexerException {
+        //<hasModel xmlns="
+        Element foundElement = XMLUtils.findElement(relsExt, "hasModel", FedoraNamespaces.FEDORA_MODELS_URI);
+        if (foundElement != null) {
+            String sform = foundElement.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+            PIDParser pidParser = new PIDParser(sform);
+            pidParser.disseminationURI();
+            return pidParser.getObjectId();
+        } else {
+            throw new IllegalArgumentException("cannot find model of given document");
+        }
+    }
+    
+
+    
+    public static Element getRDFDescriptionElement(Element relsExt) throws XPathExpressionException, LexerException {
+        Element foundElement = XMLUtils.findElement(relsExt, "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
+        return foundElement;
+    }
+    
+    
+    
+
+    
+    /** Returns replicatedFrom url from given  RELS-EXT element*/
     public static String getReplicatedFromUrl(String uuid, FedoraAccess fedoraAccess) throws IOException, XPathExpressionException {
         Document relsExt = fedoraAccess.getRelsExt(uuid);
+        return getReplicatedFromUrl(relsExt);
+    }
+
+    /** Returns replicatedFrom url from given  RELS-EXT element */
+    private static String getReplicatedFromUrl(Document relsExt) throws XPathExpressionException {
         XPathFactory xpfactory = XPathFactory.newInstance();
         XPath xpath = xpfactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
@@ -54,26 +103,15 @@ public class RelsExtHelper {
         else return null;
     }
 
+    /** Returns replicatedFrom url from given  RELS-EXT element */
     public static String getRelsExtTilesUrl(String uuid, FedoraAccess fedoraAccess) throws IOException, XPathExpressionException {
         Document relsExt = fedoraAccess.getRelsExt(uuid);
-        XPathFactory xpfactory = XPathFactory.newInstance();
-        XPath xpath = xpfactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
-        XPathExpression expr = xpath.compile("//kramerius:tiles-url/text()");
-        Object tiles = expr.evaluate(relsExt, XPathConstants.NODE);
-        if (tiles != null) {
-            String data = ((Text) tiles).getData();
-            if (data != null) {
-                return data.trim();
-            } else {
-                LOGGER.fine(String.format("krameirus:tiles-url  == null for %s", uuid));
-                return null;
-            }
-        }
-        else return null;
+        return getRelsExtTilesUrl(relsExt.getDocumentElement());
     }
 
-    public static String getRelsExtTilesUrl(Document reslExtDoc) throws IOException, XPathExpressionException {
+
+    /** Returns tiles url  from given RELS-EXT element */
+    public static String getRelsExtTilesUrl(Element reslExtDoc) throws IOException, XPathExpressionException {
         XPathFactory xpfactory = XPathFactory.newInstance();
         XPath xpath = xpfactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
@@ -86,7 +124,16 @@ public class RelsExtHelper {
         else return null;
     }
 
+    public static String getRelsExtTilesUrl(Document reslExtDoc) throws IOException, XPathExpressionException {
+        return getRelsExtTilesUrl(reslExtDoc.getDocumentElement());
+    }
+
     public static String getDonator(Document reslExtDoc) throws IOException, XPathExpressionException {
+        return getDonator(reslExtDoc.getDocumentElement());
+    }
+    
+    /** Returns donator label  from given RELS-EXT element */
+    public static String getDonator(Element reslExtDoc) throws IOException, XPathExpressionException {
         XPathFactory xpfactory = XPathFactory.newInstance();
         XPath xpath = xpfactory.newXPath();
         xpath.setNamespaceContext(new FedoraNamespaceContext());
@@ -108,8 +155,40 @@ public class RelsExtHelper {
         } else return null;
     }
 
-
     public static final String CACHE_RELS_EXT_LITERAL = "kramerius4://deepZoomCache";
     
     
+    
+    //  private static String RELS_EXT_RELATION_LICENSE = "license";
+    //  private static String RELS_EXT_RELATION_CONTAINS_LICENSE = "containsLicense";
+
+    public static List<String> getLicenses(Element relsExt) throws XPathExpressionException, LexerException {
+        List<Element> elms = XMLUtils.getElementsRecursive(relsExt, (elm)->{
+            return (elm.getLocalName().equals("license"));
+        });
+        List<String> collect = elms.stream().map(Element::getTextContent).collect(Collectors.toList());
+        return collect;
+    }    
+
+    public static List<String> getContainsLicenses(Element relsExt) throws XPathExpressionException, LexerException {
+        List<Element> elms = XMLUtils.getElementsRecursive(relsExt, (elm)->{
+            return (elm.getLocalName().equals("containsLicense"));
+        });
+        List<String> collect = elms.stream().map(Element::getTextContent).collect(Collectors.toList());
+        return collect;
+    }    
+
+
+    public synchronized static void addRDFLiteral(Element relsExt, String license, String elmName)
+            throws XPathExpressionException, LexerException {
+        Element rdfDescriptionElement = getRDFDescriptionElement(relsExt);
+        if (rdfDescriptionElement != null) {
+            Document document = rdfDescriptionElement.getOwnerDocument();
+            Element containsLicense = document.createElementNS(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI, elmName);
+            containsLicense.setTextContent(license);
+            rdfDescriptionElement.appendChild(containsLicense);
+        }
+    }
+    
+
 }

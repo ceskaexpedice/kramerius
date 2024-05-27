@@ -35,12 +35,12 @@ public class FedoraNamespaceContext implements NamespaceContext {
         MAP_PREFIX2URI.put("mods", BIBILO_MODS_URI);
         MAP_PREFIX2URI.put("dc", DC_NAMESPACE_URI);
         MAP_PREFIX2URI.put("oai_dc", OAI_DC_NAMESPACE_URI);
-        //MAP_PREFIX2URI.put("fedora-models", FEDORA_MODELS_URI);
+        //MAP_PREFIX2URI.put("fedora_models", FEDORA_MODELS_URI);
         MAP_PREFIX2URI.put("kramerius", KRAMERIUS_URI);
         MAP_PREFIX2URI.put("rdf", RDF_NAMESPACE_URI);
         MAP_PREFIX2URI.put("oai", OAI_NAMESPACE_URI);
         MAP_PREFIX2URI.put("sparql", SPARQL_NAMESPACE_URI);
-        //MAP_PREFIX2URI.put("apia", FEDORA_ACCESS_NAMESPACE_URI);
+        MAP_PREFIX2URI.put("apia", FEDORA_ACCESS_NAMESPACE_URI);
         MAP_PREFIX2URI.put("apim", FEDORA_MANAGEMENT_NAMESPACE_URI);
 
         // fedora4 mappings

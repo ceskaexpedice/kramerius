@@ -18,6 +18,7 @@ import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -27,15 +28,19 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.fcrepo.common.rdf.FedoraNamespace;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -45,6 +50,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathExpressionException;
+
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -110,11 +117,20 @@ public class Import {
         //process params
         String importDirFromArgs = args.length > argsIndex ? args[argsIndex++] : null;
         Boolean startIndexerFromArgs = args.length > argsIndex ? Boolean.valueOf(args[argsIndex++]) : null;
+        
+        String license = null;
+        if (startIndexerFromArgs) { license = args.length > argsIndex ? args[argsIndex++] : null; }
+        
 
+        //Boolean startIndexerFromArgs = args.length > argsIndex ? Boolean.valueOf(args[argsIndex++]) : null;
+        
+        
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
-
+        FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
+        
+        
         //priority: 1. args, 2. System property, 3. KConfiguration, 4. explicit defalut value
         String importDirectory = KConfiguration.getInstance().getProperty("import.directory");
         if (importDirFromArgs != null) {
@@ -122,6 +138,7 @@ public class Import {
         } else if (System.getProperties().containsKey("import.directory")) {
             importDirectory = System.getProperty("import.directory");
         }
+        
         Boolean startIndexer = Boolean.valueOf(KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
         if (startIndexerFromArgs != null) {
             startIndexer = startIndexerFromArgs;
@@ -129,12 +146,45 @@ public class Import {
             startIndexer = Boolean.valueOf(System.getProperty("ingest.startIndexer"));
         }
 
-        ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
-        log.info("import dir: " + importDirectory);
-        log.info("start indexer: " + startIndexer);
 
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken);
+        
+        if (license != null) {
+
+            File importFolder = new File(importDirectory);
+            File importParentFolder = importFolder.getParentFile();
+            File licensesImportFile = new File(importParentFolder, importFolder.getName()+"-"+license);
+            licensesImportFile.mkdirs();
+            log.info(String.format("Copy data from  %s to %s", importFolder.getAbsolutePath(), licensesImportFile.getAbsolutePath()));
+            FileUtils.copyDirectory(importFolder, licensesImportFile);
+
+
+            log.info(String.format("Applying license %s", license));
+            try {
+                foxmlService.appendLicense(licensesImportFile.getAbsolutePath(), license);
+            } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException | LexerException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            }
+
+            ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
+            log.info("import dir: " + licensesImportFile);
+            log.info("start indexer: " + startIndexer);
+            log.info("license : " + license);
+            
+            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken);
+            
+            log.info( String.format("Deleting import folder %s", licensesImportFile));
+            FileUtils.deleteDirectory(licensesImportFile);
+            
+        } else {
+
+            ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
+            log.info("import dir: " + importDirectory);
+            log.info("start indexer: " + startIndexer);
+
+            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken);
+            
+        }
     }
 
     public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {

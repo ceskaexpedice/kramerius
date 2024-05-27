@@ -772,9 +772,7 @@ public class AkubraObject implements RepositoryObject {
             throw new RepositoryException(e);
         } finally {
             try {
-                LOGGER.info("IS ABOUT CALL COMMIT");
                 this.feeder.commit();
-                LOGGER.info("CALLED PROCESSING INDEX COMMIT");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (SolrServerException e) {

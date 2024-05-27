@@ -1101,9 +1101,15 @@ public class ProcessResource extends AdminApiResource {
                 File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
 
+                String license = extractOptionalParamString(params, "license", null);
+
                 List<String> result = new ArrayList<>();
                 result.add(inputDataDir.getPath());
                 result.add(startIndexer.toString());
+                if (license != null) {
+                    result.add(license.toString());
+                }
+
                 consumer.accept(false);
                 return result;
             }
@@ -1115,12 +1121,20 @@ public class ProcessResource extends AdminApiResource {
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
                 Boolean useIIPServer = extractMandatoryParamBoolean(params, "useIIPServer");
 
+                String license = extractOptionalParamString(params, "license", null);
+
                 List<String> result = new ArrayList<>();
                 result.add(policy);
                 result.add(inputDataDir.getPath());
                 result.add(convertedDataDir.getPath());
                 result.add(startIndexer.toString());
                 result.add(useIIPServer.toString());
+
+                if (license != null) {
+                    result.add(license.toString());
+                    
+                }
+                
                 consumer.accept(false);
                 return result;
             }
