@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -167,6 +168,7 @@ public class NewIndexerProcessIndexModel {
                     nowIndexed++;
                 } catch (Throwable e) {
                     e.printStackTrace();
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     nowErrors++;
                 }
             }
@@ -183,7 +185,7 @@ public class NewIndexerProcessIndexModel {
         report("     Total objects processed:   " + totalObjectProcessed[0]);
         report("===========================================");
         
-        if (nowErrors > 0) {
+        if (nowErrors > 0 || nowIgnored >0) {
             throw new IllegalStateException("Indexation finished with errors; see error log");
         }
         

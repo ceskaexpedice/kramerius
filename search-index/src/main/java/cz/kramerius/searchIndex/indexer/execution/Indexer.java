@@ -140,9 +140,15 @@ public class Indexer {
             report(" records processing duration: " + formatTime(System.currentTimeMillis() - start));
             report("=======================================");
             report("");
+
+            if (counters.getErrors() > 0 || counters.getIgnored() >0) {
+                throw new IllegalStateException("Indexation finished with errors; see error log");
+            }
+            
             if (progressListener != null) {
                 progressListener.onFinished(counters.getProcessed());
             }
+            
             
         }
     }
@@ -194,12 +200,12 @@ public class Indexer {
                 // Replaced ingoremissingFromRepository by ingore inconsistent object
                 //boolean ignoreObjectsMissingFromRepository = true;
                 if (this.ignoreInconsistentObjects) { //ignore missing objects
-                    report("object not found in repository (or found in inconsistent state), ignoring: " + pid);
-                    System.err.println("object not found in repository (or found in inconsistent state), ignoring: " + pid);
+                    reportError("object not found in repository (or found in inconsistent state), ignoring: " + pid);
+                    //System.err.println("object not found in repository (or found in inconsistent state), ignoring: " + pid);
                     counters.incrementIgnored();
                 } else { //remove missing objects from index
-                    report("object not found in repository (or found in inconsistent state), removing from index: " + pid);
-                    System.err.println("object not found in repository (or found in inconsistent state), removing from index: " + pid);
+                    reportError("object not found in repository (or found in inconsistent state), removing from index: " + pid);
+                    //System.err.println("object not found in repository (or found in inconsistent state), removing from index: " + pid);
                     solrIndexer.deleteById(pid);
                     counters.incrementRemoved();
                 }

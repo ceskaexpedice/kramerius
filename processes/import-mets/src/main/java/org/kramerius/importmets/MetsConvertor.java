@@ -44,6 +44,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.logging.Level;
 
 
@@ -74,6 +75,10 @@ public class MetsConvertor {
         /*for (int i = 0; i < args.length; i++) {
             System.out.println("arg " + i + ": " + args[i]);
         }*/
+
+        log.info(String.format("Arguments :%s", Arrays.asList(args).toString()));
+        
+
         if (args.length < 2 || args[0].equalsIgnoreCase("true") || args[0].equalsIgnoreCase("false")) { //through CLI with 0-3 args
             System.out.println("ANL METS to FOXML conversion tool.\n");
             System.out.println("Usage: conversion-tool policyPublic <input-folder> <output-folder>");
@@ -89,9 +94,12 @@ public class MetsConvertor {
             if (args.length < 2) {
                 throw new RuntimeException("Not enough arguments.");
             }
+            
             int argsIndex = 0;
             //token for keeping possible following processes in same batch
             String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+
+            
             //process params
             String policy = args[argsIndex++];
             boolean policyPublic = "PUBLIC".equals(policy);
@@ -107,7 +115,7 @@ public class MetsConvertor {
             }
             
             String license = null;
-            if (startIndexer) { license = args.length > argsIndex ? args[argsIndex++] : null; }
+            license = args.length > argsIndex ? args[argsIndex++] : null; 
             
             try {
                 ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
@@ -149,7 +157,7 @@ public class MetsConvertor {
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
 
         
-        if (license != null && startIndexer) {
+        if (license != null) {
             log.info(String.format("Applying license to %s", license));
             try {
                 foxmlService.appendLicense(exportRoot, license);

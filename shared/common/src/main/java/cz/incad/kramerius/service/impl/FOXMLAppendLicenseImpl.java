@@ -142,8 +142,8 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
                 .getList(LICENSE_RULES, Arrays.asList("monograph->monographunit", "periodical->periodicalvolume"))
                 .stream().map(Object::toString).collect(Collectors.toList());
         for (String rule : rules) {
-            String[] split = rule.split("=>");
-            if (split.length > 0) {
+            String[] split = rule.split("->");
+            if (split.length > 1) {
                 String leftSide = split[0];
                 String rightSide = split[1];
                 if (modelsMapping.containsKey(leftSide) && modelsMapping.containsKey(rightSide)) {
