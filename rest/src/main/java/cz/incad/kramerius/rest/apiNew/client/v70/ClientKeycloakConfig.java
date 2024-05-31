@@ -3,6 +3,7 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 import org.json.JSONObject;
 
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ClientKeycloakConfig {
     
@@ -36,7 +37,12 @@ public class ClientKeycloakConfig {
         return secret;
     }
 
-    public String loginKeycloak(String redirectUrl) {
+    public String loginKeycloak(String redirectUrl, String type) {
+        
+        if (type == null || !StringUtils.isAnyString(type)) {
+            type = KConfiguration.getInstance().getConfiguration().getString("default.eduid.type","all");;
+        }
+        
         StringBuilder builder = new StringBuilder();
         builder.append(this.authServer);
         if (!builder.toString().endsWith("/")) builder.append("/");
@@ -47,6 +53,11 @@ public class ClientKeycloakConfig {
             builder.append("&redirect_uri="+redirectUrl);
         }
         builder.append("&response_type=code");
+        
+        if (type!= null) {
+            builder.append("#"+type);
+        }
+        
         return builder.toString();
     }
 

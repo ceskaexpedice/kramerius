@@ -371,12 +371,13 @@ public class ClientUserResource {
     
     @GET
     @Path("auth/login")
-    public Response login(@QueryParam("redirect_uri") String redirectUri) {
+    
+    public Response login(@QueryParam("redirect_uri") String redirectUri, @QueryParam("type") String type) {
         try {
             String path = WORKING_DIR + "/keycloak.json";
             String str = IOUtils.toString(new FileInputStream(path),"UTF-8");
             ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
-            URI uri = URI.create(cnf.loginKeycloak(redirectUri));
+            URI uri = URI.create(cnf.loginKeycloak(redirectUri, type));
             return Response.temporaryRedirect(uri).build();
         } catch (IOException e) {
             throw new GenericApplicationException(e.getMessage());
