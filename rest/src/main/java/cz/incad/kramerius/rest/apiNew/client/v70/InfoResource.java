@@ -21,7 +21,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * @see cz.incad.kramerius.rest.api.k5.client.info.InfoResource
+ * Resource providing basic info:
+ * <ul>
+ *   <li>version: Kramerius version</li>
+ *   <li>hash: latest commit in this version (hash)</li>
+ *   <li>indexerVersion: the version of the indexer</li>
+ *   <li>instance.acronym: Instance acronym</li>
+ *   <li>instance.registr: Link to the Register application</li>
+ *   <li>instance.client: link to the Client application</li>
+ * </ul>
+ *
  */
 @Path("/client/v7.0/info")
 public class InfoResource extends ClientApiResource {
@@ -43,12 +52,10 @@ public class InfoResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getItems(@QueryParam("language") String langCode) {
         try {
-            // TODO: Rebuild 
             JSONObject json = new JSONObject();
             json.put("pdfMaxRange", getPdfMaxRange());
             json.put("version", getVersion());
             json.put("hash", getHash());
-            //TODO: tohle asi vyhodit, uz resime v ConfigResource
             if (langCode != null && LOCALES.containsKey(langCode)) {
                 json.put("rightMsg", getRightMsg(LOCALES.get(langCode)));
             } else {
@@ -117,7 +124,8 @@ public class InfoResource extends ClientApiResource {
             return "";
         }
     }
-    @Deprecated //TODO: replace with database (table CONFIG with columns KEY and VALUE)
+
+    @Deprecated
     private String getRightMsg(Locale locale) throws IOException {
         String key = "rightMsg";
         if (textService.isAvailable(key, locale)) {
