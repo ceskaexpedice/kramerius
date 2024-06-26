@@ -240,7 +240,7 @@ allprojects {
 allprojects {
     task sourcesJar(type: Jar) { //workaround for setting duplicatesStrategy for subsequent withSourcesJar call
         duplicatesStrategy = 'include'
-        classifier = 'sources'
+        archiveClassifier = 'sources'
         from sourceSets.main.allSource
     }
 
@@ -294,7 +294,7 @@ allprojects {
  */
 task distZip(type:Zip, dependsOn: 'zipInstallDir') {
     description "Create full distribution zip"
-    baseName "kramerius"
+    archiveBaseName.set('kramerius')
     group "Distribution"
 	// core war 
 	from {'search/build/libs'}
@@ -337,14 +337,13 @@ task distPatchZip(type:Zip) {
 // zip installaton directory
 task zipInstallDir(type:Zip) {
     description "Create zip from installation directory"
-    baseName "installation"
+    archiveBaseName.set('installation')
     from ("installation") {
 		include "solr-9*/**"
 		include "solr-7*/**"
 		include "0eaa6730-9068-11dd-97de-000d606f5dc6.zip"
 	}
-    destinationDir file('build/installation')
-	
+    destinationDirectory.set(file('build/installation'))
 }
 
 
@@ -352,7 +351,7 @@ task zipInstallDir(type:Zip) {
 task zipAllJavadocs(type: Zip) {
     String[] _spr = ["shared:common","rest","search"];
     description "create javadocs for ${_spr} and zip it"
-    baseName "kramerius-javadoc"
+    archiveBaseName.set('kramerius-javadoc')
     for(String project in _spr) {
         dependsOn(":${project}:javadoc")
         into(project) {

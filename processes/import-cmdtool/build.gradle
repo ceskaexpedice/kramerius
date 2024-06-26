@@ -1,14 +1,13 @@
-description "Import tools" 
+description "Import tools"
 
-
+def osName = System.getProperty('os.name').toLowerCase()
+def compilerName = osName.contains('win') ? 'javac.exe' : 'javac'
 compileJava {
     // This only works when forking and passing 'javac' as an executable
     options.compilerArgs << '-XDignore.symbol.file'    
     options.fork = true
-    options.forkOptions.executable = 'javac'
+    options.forkOptions.executable = "${System.properties['java.home']}/bin/${compilerName}"
 }
- 
-
 
 dependencies {
     api project(':shared:common')

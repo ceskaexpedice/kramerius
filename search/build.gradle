@@ -111,14 +111,9 @@ task infofile(dependsOn: gitcall) {
 //war.dependsOn infofile
 
 war {
-    baseName = 'search'
-    archiveName = 'search.war'
-
-
+    archiveBaseName.set('search')
+    archiveFileName.set('search.war')
     from 'web'
-
-    //expand(project.properties)
-
     dependsOn 'infofile'
 }
 
