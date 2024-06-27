@@ -108,7 +108,7 @@ public class KubernetesReharvestProcess {
                         if (proxyURl != null) {
                             Map<String, JSONObject> configurations = libraryConfigurations(client, proxyURl);
 
-                            ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap);
+                            ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, ReharvestItem.fromJSON(itemObject));
 
                             if (!onlyShowConfiguration) {
                                 changeState(client, wurl, id,"closed");

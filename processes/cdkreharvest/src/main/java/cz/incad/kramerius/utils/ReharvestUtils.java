@@ -176,15 +176,37 @@ public class ReharvestUtils {
         return configuration;
     }
 
-    public static String fq(String api, String pid) {
-        switch(api) {
-            case "v7": return "root.pid:\""+pid+"\""; 
-            case "v5": return "root_pid:\""+pid+"\""; 
+    public static String fq(String api, String pid, ReharvestItem item) throws UnsupportedEncodingException {
+        switch(item.getTypeOfReharvest()) {
+            case root: 
+                switch(api) {
+                    case "v7": return "root.pid:\""+pid+"\""; 
+                    case "v5": return "root_pid:\""+pid+"\""; 
+                }
+                return "root_pid:\""+pid+"\""; 
+
+            case children: 
+
+                switch(api) {
+                case "v7": {
+                    String ownPidPath =  item.getOwnPidPath().replaceAll(":", "\\\\:")+"/*";
+                    String fq  = String.format("own_pid_path:%s", ownPidPath);
+                    return fq; 
+                }
+                case "v5": {
+                    String pidPath =  item.getOwnPidPath().replaceAll(":", "\\\\:")+"/*";
+                    String fq  = String.format("pid_path:%s", pidPath);
+                    return fq; 
+                }
+            }
+            return "root_pid:\""+pid+"\""; 
+
+                
         }
         return "root_pid:\""+pid+"\""; 
     }
 
-    public static void reharvestPIDFromGivenCollections(String pid, Map<String,JSONObject> collectionConfigurations, String onlyShowConfiguration, Map<String, String> destinationMap, Map<String,String> iterationMap) throws IllegalAccessException, InstantiationException, ClassNotFoundException, NoSuchMethodException, MigrateSolrIndexException, IOException, ParserConfigurationException, SAXException {
+    public static void reharvestPIDFromGivenCollections(String pid, Map<String,JSONObject> collectionConfigurations, String onlyShowConfiguration, Map<String, String> destinationMap, Map<String,String> iterationMap, ReharvestItem item) throws IllegalAccessException, InstantiationException, ClassNotFoundException, NoSuchMethodException, MigrateSolrIndexException, IOException, ParserConfigurationException, SAXException {
         List<File> harvestFiles = new ArrayList<>();
         for (String ac : collectionConfigurations.keySet()) {
             try {
@@ -211,7 +233,7 @@ public class ReharvestUtils {
                 
                 
                 iteration.put("dl", ac);
-                iteration.put("fquery", fq(apiVersion, pid));
+                iteration.put("fquery", fq(apiVersion, pid, item));
     
                 String configuration = renderTemplate( apiVersion, iteration, destinationMap);
                 File tmpFile = File.createTempFile(String.format("%s",  ac), "reharvest");
@@ -249,6 +271,13 @@ public class ReharvestUtils {
             return true;
         }
         return false;
+    }
+    
+    
+    public static void main(String[] args) {
+        //uuid:440337bd-5625-11e1-9505-005056a60003/uuid:014d9bc6-f65b-4aca-9d69-daf842e20f0f/uuid:1a5a3fb5-e86b-43c1-b22c-91f31b4c9637
+        Client client = Client.create();
+        
     }
     
     

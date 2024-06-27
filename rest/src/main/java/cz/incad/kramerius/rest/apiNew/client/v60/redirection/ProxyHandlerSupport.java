@@ -172,6 +172,7 @@ public abstract class ProxyHandlerSupport {
                         return false;
                     }
                 });
+                
                 Element ownPidPath = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
                     @Override
                     public boolean acceptElement(Element element) {
@@ -197,8 +198,18 @@ public abstract class ProxyHandlerSupport {
                 
                 
                 if (rootPid != null && ownPidPath != null && ownParentPid != null) {
+                    String pidPath = ownPidPath.getTextContent().trim();
+                    //String pidPath = ownPidPath.getTextContent().trim();
+                    String ownParentPidText = ownParentPid.getTextContent().trim();
+
+                    int index = pidPath.indexOf(ownParentPidText);
+                    if (index >= 0) {
+                        pidPath = pidPath.substring(0, index + ownParentPidText.length()).trim();
+                    }
+
+                    
                     try {
-                        ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", ownParentPid.getTextContent().trim(), ownPidPath.getTextContent().trim());
+                        ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", ownParentPid.getTextContent().trim(), pidPath.getTextContent().trim());
                         // children
                         reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
                         reharvestItem.setState("waiting_for_approve");
