@@ -199,17 +199,13 @@ public abstract class ProxyHandlerSupport {
                 
                 if (rootPid != null && ownPidPath != null && ownParentPid != null) {
                     String pidPath = ownPidPath.getTextContent().trim();
-                    //String pidPath = ownPidPath.getTextContent().trim();
                     String ownParentPidText = ownParentPid.getTextContent().trim();
-
                     int index = pidPath.indexOf(ownParentPidText);
                     if (index >= 0) {
                         pidPath = pidPath.substring(0, index + ownParentPidText.length()).trim();
                     }
-
-                    
                     try {
-                        ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", ownParentPid.getTextContent().trim(), pidPath.getTextContent().trim());
+                        ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", ownParentPid.getTextContent().trim(), pidPath);
                         // children
                         reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
                         reharvestItem.setState("waiting_for_approve");
