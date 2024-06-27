@@ -1,11 +1,15 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.json.JSONException;
 
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.AlreadyRegistedPidsException;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
@@ -57,6 +61,12 @@ public class MemoryReharvestManagerImpl implements ReharvestManager {
         return this.mapper.get(id);
     }
     
+    
+    @Override
+    public ReharvestItem update(ReharvestItem item) throws UnsupportedEncodingException, JSONException, ParseException {
+        return item;
+    }
+
     public void deregister(String id) {
         ReharvestItem ritem = this.mapper.get(id);
         if (ritem != null) {
