@@ -31,6 +31,7 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.json.JSONConfiguration;
 
 import antlr.StringUtils;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.utils.kubernetes.KubernetesEnvSupport;
 import cz.incad.kramerius.utils.ReharvestUtils;
@@ -68,10 +69,8 @@ public class KubernetesReharvestProcess {
         int maxItemsToDelete = env.containsKey(MAX_ITEMS_TO_DELETE) ? Integer.parseInt(env.get(MAX_ITEMS_TO_DELETE)) : DEFAULT_MAX_ITEMS_TO_DELETE;
 
         AtomicReference<String> idReference = new AtomicReference<>();
-        
         try {
-            
-            
+
             if (reharvestMap.containsKey("url") && proxyMap.containsKey("url")) {
                 Client client = buildClient();
                 String wurl = reharvestMap.get("url");
@@ -83,16 +82,11 @@ public class KubernetesReharvestProcess {
                 WebResource topWebResource = client.resource(wurl + "top?state=open");
                 ClientResponse topItemFrom = topWebResource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
                 if (topItemFrom.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-
                     String t = topItemFrom.getEntity(String.class);
-
                     JSONObject itemObject = new JSONObject(t);
-                    
                     String id = itemObject.getString("id");
                     idReference.set(id);
-                    
-                    JSONArray pids = itemObject.getJSONArray("pids");
-
+                    String pid = itemObject.getString("pid");
                     if (!onlyShowConfiguration) {
                         changeState(client, wurl, id,"running");
                         String podname = env.get("HOSTNAME");
@@ -102,7 +96,7 @@ public class KubernetesReharvestProcess {
                     }
 
                     // find all pids 
-                    List<Pair<String,String>> allPidsList = ReharvestUtils.findAllPidsByGivenRootPid(iterationMap, client, pids);
+                    List<Pair<String,String>> allPidsList = ReharvestUtils.findPidByType(iterationMap, client, ReharvestItem.fromJSON(itemObject));
                     // check size; if size > 10000 - fail state
                     if (allPidsList.size() <  maxItemsToDelete) {
                         // delete all pids 
@@ -113,14 +107,9 @@ public class KubernetesReharvestProcess {
                         String proxyURl = proxyMap.get("url");
                         if (proxyURl != null) {
                             Map<String, JSONObject> configurations = libraryConfigurations(client, proxyURl);
-                            
-                            
-                            for (int i = 0; i < pids.length(); i++) {
-                                String p  = pids.getString(i);
-                                // reharvesting 
-                                ReharvestUtils.reharvestPIDFromGivenCollections(p, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap);
-                            }
-                            
+
+                            ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap);
+
                             if (!onlyShowConfiguration) {
                                 changeState(client, wurl, id,"closed");
                             }

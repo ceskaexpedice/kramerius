@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,8 @@ public class MemoryReharvestManagerImpl implements ReharvestManager {
     }
 
     public void register(ReharvestItem item) throws AlreadyRegistedPidsException {
-        List<String> alreadyRegistredPids = this.items.stream().filter(x -> x.getState() != null && (x.getState().equals("open") || x.getState().startsWith("waiting_for"))).map(ReharvestItem::getPids).flatMap(List::stream).collect(Collectors.toList());
-        List<String> intersection = new ArrayList<>(item.getPids());
+        List<String> alreadyRegistredPids = this.items.stream().filter(x -> x.getState() != null && (x.getState().equals("open") || x.getState().startsWith("waiting_for"))).map(ReharvestItem::getPid).collect(Collectors.toList());
+        List<String> intersection = Arrays.asList(item.getPid());
         intersection.retainAll(alreadyRegistredPids);
         
         if (intersection.isEmpty()) {

@@ -1,11 +1,15 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.reharvest;
 
+import java.io.IOException;
 import java.text.ParseException;
+
+
 import java.time.Instant;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.inject.Named;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,10 +24,16 @@ import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+import cz.incad.kramerius.utils.XMLUtils;
+
+import static cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem.*;
 
 @Path("/admin/v7.0/reharvest")
 public class ReharvestResource {
@@ -33,6 +43,11 @@ public class ReharvestResource {
     @Inject
     private ReharvestManager reharvestManager;
 
+    @Inject
+    @Named("new-index")
+    private SolrAccess solrAccess;
+
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHarvests() {
@@ -73,10 +88,45 @@ public class ReharvestResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response register(String json) {
         try {
+            
             JSONObject jsonObj = new JSONObject(json);
-            if (!jsonObj.has("id")) {
-                jsonObj.put("id", UUID.randomUUID().toString());
+            if (!jsonObj.has(ID_KEYWORD)) {
+                jsonObj.put(ID_KEYWORD, UUID.randomUUID().toString());
             }
+            if (!jsonObj.has(PID_KEYWORD)) {
+                throw new BadRequestException(" Request must contain pid ");
+                
+            }
+            if (!jsonObj.has(OWN_PID_PATH) || !jsonObj.has(ROOT_PID)) { 
+
+                Document solrDataByPid = this.solrAccess.getSolrDataByPid(jsonObj.getString(PID_KEYWORD));
+                Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        if (element.getNodeName().equals("str")) {
+                            String fieldName = element.getAttribute("name");
+                            return fieldName.equals("root.pid");
+                        }
+                        return false;
+                    }
+                });
+                Element ownPidPath = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        if (element.getNodeName().equals("str")) {
+                            String fieldName = element.getAttribute("name");
+                            return fieldName.equals("own_pid_path");
+                        }
+                        return false;
+                    }
+                });
+                
+                jsonObj.put(ROOT_PID, rootPid.getTextContent());
+                jsonObj.put(OWN_PID_PATH, ownPidPath.getTextContent());
+                
+            }
+
+            
             ReharvestItem item = ReharvestItem.fromJSON(jsonObj);
             if (item != null) {
                 item.setTimestamp(Instant.now());
@@ -90,6 +140,9 @@ public class ReharvestResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } catch(AlreadyRegistedPidsException e) {
             throw new BadRequestException(" Request contains already registered pids "+e.getPids());
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
   
@@ -107,7 +160,6 @@ public class ReharvestResource {
       }
   }
 
-  
   
   @PUT
   @Path("{id}/state")

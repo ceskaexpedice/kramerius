@@ -20,39 +20,51 @@ import cz.incad.kramerius.utils.StringUtils;
  */
 public class ReharvestItem {
     
+    public static enum TypeOfReharvset {
+        root, children;
+    }
+    
 //    static enum ReharvestItemState {
 //        open, closed;
 //    }
-
-    //public static FastDateFormat FORMAT =  FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", TimeZone.getTimeZone("UTC"));    
+//    public static FastDateFormat FORMAT =  FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", TimeZone.getTimeZone("UTC"));    
     
     
-    private static final String TIMESTAMP_KEYWORD = "timestamp";
-    private static final String PIDS_KEYWORD = "pids";
-    private static final String TYPE_KEYWORD = "type";
-    private static final String STATE_KEYWORD = "state";
-    private static final String NAME_KEYWORD = "name";
-    private static final String ID_KEYWORD = "id";
-    private static final String POD_NAME_KEYWORD = "pod";
+    public static final String TIMESTAMP_KEYWORD = "indexed";
+    public static final String PID_KEYWORD = "pid";
+    public static final String OWN_PID_PATH = "own_pid_path";
+    public static final String ROOT_PID = "root.pid";
+    public static final String TYPE_KEYWORD = "type";
+    
+    public static final String STATE_KEYWORD = "state";
+    public static final String NAME_KEYWORD = "name";
+    public static final String ID_KEYWORD = "id";
+    public static final String POD_NAME_KEYWORD = "pod";
     
     // unique identifier 
     private String id;
     private String name;
     private String state;
-    private String type;
-    private List<String> pids= new ArrayList<>();
+    //private String type;
+    private String pid;
+    private String rootPid;
+    private String ownPidPath;
+    private TypeOfReharvset typeOfReharvest = TypeOfReharvset.root;
+    
+    
     private Instant timestamp = Instant.now();
     private String podname;
     
     private List<String> libraries = new ArrayList<>();
     
     
-    public ReharvestItem(String id, String name, String state, List<String> pids) {
+    public ReharvestItem(String id, String name, String state, String pid, String ownPidPath) {
         super();
         this.id = id;
         this.name = name;
         this.state = state;
-        this.pids = pids;
+        this.pid = pid;
+        this.ownPidPath = ownPidPath;
     }
 
     public ReharvestItem(String id) {
@@ -80,12 +92,13 @@ public class ReharvestItem {
         this.state = state;
     }
     
-    public List<String> getPids() {
-        return pids;
+    public String getPid() {
+        return this.pid;
     }
     
-    public void setPids(List<String> pids) {
-        this.pids = pids;
+    
+    public void setPid(String pid) {
+        this.pid = pid;
     }
     
     public List<String> getLibraries() {
@@ -104,14 +117,6 @@ public class ReharvestItem {
         this.timestamp = timestamp;
     }
     
-    public String getType() {
-        return type;
-    }
-    
-    public void setType(String type) {
-        this.type = type;
-    }
-    
     
     public void setPodname(String podname) {
         this.podname = podname;
@@ -119,6 +124,32 @@ public class ReharvestItem {
     
     public String getPodname() {
         return podname;
+    }
+    
+    public String getOwnPidPath() {
+        return ownPidPath;
+    }
+    
+    public void setOwnPidPath(String ownPidPath) {
+        this.ownPidPath = ownPidPath;
+    }
+    
+    public TypeOfReharvset getTypeOfReharvest() {
+        return typeOfReharvest;
+    }
+    
+    
+    public void setTypeOfReharvest(TypeOfReharvset typeOfReharvest) {
+        this.typeOfReharvest = typeOfReharvest;
+    }
+    
+    
+    public String getRootPid() {
+        return rootPid;
+    }
+    
+    public void setRootPid(String rootPid) {
+        this.rootPid = rootPid;
     }
     
     
@@ -129,13 +160,7 @@ public class ReharvestItem {
         if (this.state != null) {
             obj.put(STATE_KEYWORD, this.state);
         }
-        if (this.type != null) {
-            obj.put(TYPE_KEYWORD, this.type);
-        }
-        
-        JSONArray jsonArray = new JSONArray();
-        this.pids.forEach(jsonArray::put);
-        obj.put(PIDS_KEYWORD, jsonArray);
+        obj.put(PID_KEYWORD, this.pid);
         
         if (!this.libraries.isEmpty()) {
             JSONArray libsArray = new JSONArray();
@@ -146,6 +171,15 @@ public class ReharvestItem {
             obj.put(POD_NAME_KEYWORD, this.podname);
         }
         
+        if (this.ownPidPath != null) {
+            obj.put(OWN_PID_PATH, this.ownPidPath);
+        }
+        
+        if (this.rootPid != null) {
+            obj.put(ROOT_PID, this.rootPid);
+        }
+        
+        obj.put(TYPE_KEYWORD, this.typeOfReharvest.name());
         obj.put(TIMESTAMP_KEYWORD,DateTimeFormatter.ISO_INSTANT.format(this.timestamp));
 
         return obj;
@@ -154,20 +188,21 @@ public class ReharvestItem {
     public static ReharvestItem fromJSON(JSONObject json) throws ParseException {
         String id = json.getString(ID_KEYWORD);
         String name= json.getString(NAME_KEYWORD);
-        JSONArray array= json.getJSONArray(PIDS_KEYWORD);
-        List<String> pids = new ArrayList<>();
-        for (int i = 0; i < array.length(); i++) {
-            pids.add(array.getString(i));
-        }
-
+        String pid =  json.getString(PID_KEYWORD);
+        String ownPidPath = json.optString(OWN_PID_PATH);
+        String rootPid = json.optString(ROOT_PID);
+        
         String state = json.optString(STATE_KEYWORD);
-        String type = json.optString(TYPE_KEYWORD);
+        //String type = json.optString(TYPE_KEYWORD);
         ReharvestItem item = new ReharvestItem(id);
         item.setName(name);
-        item.setPids(pids);
+        item.setPid(pid);
+        item.setOwnPidPath(ownPidPath);
+        item.setRootPid(rootPid);
+        
         
         item.setState(StringUtils.isAnyString(state) ? state : "open");
-        item.setType(StringUtils.isAnyString(type) ? type : "root.pid");
+        //item.setType(StringUtils.isAnyString(type) ? type : "root.pid");
         
         if (json.has(TIMESTAMP_KEYWORD)) {
             String timestamp = json.getString(TIMESTAMP_KEYWORD);
@@ -176,6 +211,11 @@ public class ReharvestItem {
         
         if (json.has(POD_NAME_KEYWORD)) {
             item.setPodname(json.getString(POD_NAME_KEYWORD));
+        }
+        
+        if (json.has(TYPE_KEYWORD)) {
+            String tt = json.getString(TYPE_KEYWORD);
+            item.setTypeOfReharvest(TypeOfReharvset.root.name().equals(tt) ? TypeOfReharvset.root : TypeOfReharvset.children);
         }
         
         return item;

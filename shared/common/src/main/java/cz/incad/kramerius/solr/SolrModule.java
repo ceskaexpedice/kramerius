@@ -41,4 +41,12 @@ public class SolrModule extends AbstractModule {
         String processingSolrHost = KConfiguration.getInstance().getSolrUpdatesHost();
         return new ConcurrentUpdateSolrClient.Builder(processingSolrHost).withQueueSize(100).build();
     }
+
+//    @Provides
+//    @Named("proxyReharvest")
+//    @Singleton
+//    public SolrClient proxyReharvestClient() {
+//        String processingSolrHost = KConfiguration.getInstance().getSolrReharvestHost();
+//        return new ConcurrentUpdateSolrClient.Builder(processingSolrHost).withQueueSize(100).build();
+//    }
 }

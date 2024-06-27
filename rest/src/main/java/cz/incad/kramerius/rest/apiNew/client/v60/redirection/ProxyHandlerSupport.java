@@ -36,6 +36,7 @@ import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.AlreadyRegistedPidsException;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem.TypeOfReharvset;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.security.User;
@@ -171,9 +172,35 @@ public abstract class ProxyHandlerSupport {
                         return false;
                     }
                 });
-                if (rootPid != null) {
+                Element ownPidPath = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        if (element.getNodeName().equals("str")) {
+                            String fieldName = element.getAttribute("name");
+                            return fieldName.equals("own_pid_path");
+                        }
+                        return false;
+                    }
+                });
+                
+                Element ownPidPath = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        if (element.getNodeName().equals("str")) {
+                            String fieldName = element.getAttribute("name");
+                            return fieldName.equals("own_pid_path");
+                        }
+                        return false;
+                    }
+                });
+                
+                
+                
+                if (rootPid != null && ownPidPath != null) {
                     try {
-                        ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", new ArrayList<>(Arrays.asList(rootPid.getTextContent().trim())));
+                        ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", rootPid.getTextContent().trim(), ownPidPath.getTextContent().trim());
+                        // children
+                        reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
                         reharvestItem.setState("waiting_for_approve");
                         this.reharvestManager.register(reharvestItem);
                     } catch (DOMException e) {

@@ -10,6 +10,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -36,6 +38,7 @@ import com.google.common.io.Files;
 import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.KubernetesReharvestProcess;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.ParallelProcessImpl;
 import cz.incad.kramerius.services.utils.SolrUtils;
@@ -83,66 +86,74 @@ public class ReharvestUtils {
     }
     
     /** Find all pids by given root.pid */
-    public static List<Pair<String,String>> findAllPidsByGivenRootPid(Map<String, String> iterationMap, Client client, JSONArray pids) {
+    public static List<Pair<String,String>> findPidByType(Map<String, String> iterationMap, Client client, ReharvestItem item) {
         LinkedHashSet<Pair<String,String>> allPids = new LinkedHashSet<>();
-        for (int i = 0; i < pids.length(); i++) {
-            String pid = pids.getString(i);
-            //allPids.add(pid);
-            String iterationUrl = iterationMap.get("url");
-            
-            String masterQuery = "*:*";
-            String filterQuery = "root.pid:\"" + pid + "\"";
-            try {
-                String cursorMark = null;
-                String queryCursorMark = null;
-                do {
+        String iterationUrl = iterationMap.get("url");
+
+        String masterQuery = "*:*";
+        String filterQuery = "none";
+        switch(item.getTypeOfReharvest()) {
+            case root:
+                filterQuery = "root.pid:\"" + item.getRootPid() + "\"";
+            break;
+            case children:
+                String ownPidPath = item.getOwnPidPath();
+                ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"/*";
+                filterQuery = String.format("own_pid_path:%s", ownPidPath);;
+            break;
+        }
+
+        
+        try {
+            String cursorMark = null;
+            String queryCursorMark = null;
+            do {
+                
+                Element element = pidsCursorQuery(client, iterationUrl, masterQuery, cursorMark, 3000,
+                        filterQuery, "select", "compositeId+pid", "compositeId asc", "", "");
+                cursorMark = findCursorMark(element);
+                queryCursorMark = findQueryCursorMark(element);
+                
+                List<Element> docs = XMLUtils.getElementsRecursive(element, new XMLUtils.ElementsFilter() {
                     
-                    Element element = pidsCursorQuery(client, iterationUrl, masterQuery, cursorMark, 3000,
-                            filterQuery, "select", "compositeId+pid", "compositeId asc", "", "");
-                    cursorMark = findCursorMark(element);
-                    queryCursorMark = findQueryCursorMark(element);
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        return element.getNodeName().equals("doc");
+                    }
+                });
+                
+                List<Pair<String,String>> pairs = docs.stream().map(doc-> {
                     
-                    List<Element> docs = XMLUtils.getElementsRecursive(element, new XMLUtils.ElementsFilter() {
+                    Element pidElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
                         
                         @Override
                         public boolean acceptElement(Element element) {
-                            return element.getNodeName().equals("doc");
+                            String name = element.getAttribute("name");
+                            return (name != null && name.equals("pid"));
+                        }
+                    });
+
+                    Element compositeIdElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
+                        @Override
+                        public boolean acceptElement(Element element) {
+                            String name = element.getAttribute("name");
+                            return (name != null && name.equals("compositeId"));
                         }
                     });
                     
-                    List<Pair<String,String>> pairs = docs.stream().map(doc-> {
-                        
-                        Element pidElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
-                            
-                            @Override
-                            public boolean acceptElement(Element element) {
-                                String name = element.getAttribute("name");
-                                return (name != null && name.equals("pid"));
-                            }
-                        });
-
-                        Element compositeIdElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
-                            @Override
-                            public boolean acceptElement(Element element) {
-                                String name = element.getAttribute("name");
-                                return (name != null && name.equals("compositeId"));
-                            }
-                        });
-                        
-                        
-                        if (pidElm != null && compositeIdElm != null ) {
-                            return Pair.of(pidElm.getTextContent(), compositeIdElm.getTextContent());
-                        } else return null;
-                    }).filter(x -> x != null).collect(Collectors.toList());
                     
-                    allPids.addAll(pairs);
-                    LOGGER.info(String.format( "Collected pids to delete %d", allPids.size()));
-                    
-                } while ((cursorMark != null && queryCursorMark != null)
-                        && !cursorMark.equals(queryCursorMark));
-            } catch (ParserConfigurationException | SAXException | IOException e) {
-                throw new RuntimeException(e);
-            }
+                    if (pidElm != null && compositeIdElm != null ) {
+                        return Pair.of(pidElm.getTextContent(), compositeIdElm.getTextContent());
+                    } else return null;
+                }).filter(x -> x != null).collect(Collectors.toList());
+                
+                allPids.addAll(pairs);
+                LOGGER.info(String.format( "Collected pids to delete %d", allPids.size()));
+                
+            } while ((cursorMark != null && queryCursorMark != null)
+                    && !cursorMark.equals(queryCursorMark));
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new RuntimeException(e);
         }
         return  new ArrayList<Pair<String,String>>(allPids);
     }
@@ -240,5 +251,23 @@ public class ReharvestUtils {
         return false;
     }
     
+    
+//    public static void main(String[] args) throws UnsupportedEncodingException {
+//
+//        Client client = Client.create();
+//        Map<String,String> iterationMap = new HashMap<>();
+//        iterationMap.put("url", "https://api.ceskadigitalniknihovna.cz/search/api/client/v7.0/");
+//        JSONArray array = new JSONArray();
+//        array.put("uuid:d0ca97a4-d9a3-4c9c-b171-d0625c2d3a7c");
+//        findAllPidsByGivenRootPid(iterationMap, client, array, null);
+//        
+//        client.resource("https://api.ceskadigitalniknihovna.cz/search/api/client/v7.0/search?q=*:*")
+//        String ownPidPath = "uuid\\:661bcc57-349e-47d8-a708-32fb8a93e793/*";
+//        
+//        String fq = "root.pid:\"" + "uuid:xxxxx" + "\"";
+//        String encode = URLEncoder.encode(fq,"UTF-8");
+//        System.out.println(encode);
+//        
+//    }
     
 }
