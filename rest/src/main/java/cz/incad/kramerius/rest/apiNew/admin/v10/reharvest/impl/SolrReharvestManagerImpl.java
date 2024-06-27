@@ -63,6 +63,36 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
         }
     }
 
+    
+    
+    
+    @Override
+    public ReharvestItem update(ReharvestItem item) {
+        try {
+            String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
+            WebResource updateResource = this.client.resource(reharvest + "/update/json/docs?split=/&commit=true");
+            String updated = updateResource.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON)
+                    .entity(item.toJSON().toString(), MediaType.APPLICATION_JSON).post(String.class);
+            return findItem(item.getId());
+        } catch (UniformInterfaceException | ClientHandlerException | UnsupportedEncodingException | JSONException
+                | ParseException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return null;
+    }
+    
+    private ReharvestItem findItem(String id) throws UnsupportedEncodingException, JSONException, ParseException {
+        String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
+        List<String> pids = new ArrayList<>();
+        String query = URLEncoder.encode("state:(%s)", "UTF-8");
+        String fullUrl = String.format("%s/select?q=id:%ss&rows=1", reharvest, id);
+        String t = solrGet(fullUrl);
+        JSONArray docs = solrDocs(new JSONObject(t));
+        if (docs.length() > 0) {
+            return ReharvestItem.fromJSON(docs.getJSONObject(0));
+        } else return null;
+    }
+    
     private List<String> findAllRegistredPids(String reharvest) throws UnsupportedEncodingException {
         List<String> pids = new ArrayList<>();
         String query = URLEncoder.encode("state:(open OR waiting_for)", "UTF-8");

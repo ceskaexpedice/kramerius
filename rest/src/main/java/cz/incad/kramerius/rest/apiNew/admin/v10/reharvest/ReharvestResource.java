@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.reharvest;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 
 
@@ -165,26 +166,38 @@ public class ReharvestResource {
   @Path("{id}/state")
   @Produces(MediaType.APPLICATION_JSON)
   public Response changeState(@PathParam("id") String id, @QueryParam("state") String state) {
-      ReharvestItem itemById = reharvestManager.getItemById(id);
-      if (itemById != null) {
-          itemById.setState(state);
-          return Response.ok(itemById.toJSON().toString()).build();
-      } else {
-          return Response.status(Response.Status.NOT_FOUND).build();
-      }
+      try {
+        ReharvestItem itemById = reharvestManager.getItemById(id);
+          if (itemById != null) {
+              itemById.setState(state);
+              this.reharvestManager.update(itemById);
+              return Response.ok(itemById.toJSON().toString()).build();
+          } else {
+              return Response.status(Response.Status.NOT_FOUND).build();
+          }
+    } catch (UnsupportedEncodingException | JSONException | ParseException e) {
+        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   @PUT
   @Path("{id}/pod")
   @Produces(MediaType.APPLICATION_JSON)
   public Response changePod(@PathParam("id") String id, @QueryParam("pod") String pod) {
-      ReharvestItem itemById = reharvestManager.getItemById(id);
-      if (itemById != null) {
-          itemById.setPodname(pod);
-          return Response.ok(itemById.toJSON().toString()).build();
-      } else {
-          return Response.status(Response.Status.NOT_FOUND).build();
-      }
+      try {
+        ReharvestItem itemById = reharvestManager.getItemById(id);
+          if (itemById != null) {
+              itemById.setPodname(pod);
+              this.reharvestManager.update(itemById);
+              return Response.ok(itemById.toJSON().toString()).build();
+          } else {
+              return Response.status(Response.Status.NOT_FOUND).build();
+          }
+    } catch (UnsupportedEncodingException | JSONException | ParseException e) {
+        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
   }
   
 }
