@@ -98,7 +98,8 @@ public class ReharvestUtils {
             break;
             case children:
                 String ownPidPath = item.getOwnPidPath();
-                ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"/*";
+                //ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"/*";
+                ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"*";
                 filterQuery = String.format("own_pid_path:%s", ownPidPath);;
             break;
         }
@@ -189,12 +190,12 @@ public class ReharvestUtils {
 
                 switch(api) {
                 case "v7": {
-                    String ownPidPath =  item.getOwnPidPath().replaceAll(":", "\\\\:")+"/*";
+                    String ownPidPath =  item.getOwnPidPath().replaceAll(":", "\\\\:")+"*";
                     String fq  = String.format("own_pid_path:%s", ownPidPath);
                     return fq; 
                 }
                 case "v5": {
-                    String pidPath =  item.getOwnPidPath().replaceAll(":", "\\\\:")+"/*";
+                    String pidPath =  item.getOwnPidPath().replaceAll(":", "\\\\:")+"*";
                     String fq  = String.format("pid_path:%s", pidPath);
                     return fq; 
                 }

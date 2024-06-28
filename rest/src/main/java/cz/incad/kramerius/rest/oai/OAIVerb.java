@@ -229,12 +229,14 @@ public enum OAIVerb {
                     if (set != null) {
                         selectedSet = sets.findBySet(set);
                         if (selectedSet ==null) {
+                            LOGGER.severe(String.format("Cannot find set %s",set));
                             throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         }
                     } else if (resumptionToken != null){
                         selectedSet = sets.findByToken(resumptionToken);
                         metadataPrefix = OAITools.metadataFromResumptionToken(resumptionToken);
                         if (metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
+                            LOGGER.severe(String.format("Bad resumption token %s",resumptionToken));
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         }
                     }
@@ -246,7 +248,7 @@ public enum OAIVerb {
                             selectedSet =  sets.getDefaultSet();
                         }
 
-                        Element requestElement = OAITools.requestElement(doc, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
+                        Element requestElement = OAITools.requestElement(doc, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         doc.getDocumentElement().appendChild(requestElement);
 
                         Element identify = doc.createElement("ListRecords");
