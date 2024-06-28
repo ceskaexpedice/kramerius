@@ -286,9 +286,13 @@ public enum OAIVerb {
                                 Element record= doc.createElement("record");
                                 Element header = oaiRec.toHeader(doc, selectedSet.getSetSpec());
                                 
-                                
                                 Element metadata = doc.createElement("metadata");
-                                metadata.appendChild(oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet));
+                                Element metadataElm = oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet);
+                                if (metadataElm != null) {
+                                    metadata.appendChild(metadataElm);
+                                } else {
+                                    record.setAttribute("deleted","true");
+                                }
 
                                 record.appendChild(header);
                                 record.appendChild(metadata);
