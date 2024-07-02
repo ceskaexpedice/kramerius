@@ -99,6 +99,9 @@ public class ReharvestUtils {
             break;
             case children:
                 String ownPidPath = item.getOwnPidPath();
+                if (!StringUtils.isAnyString(ownPidPath)) {
+                    throw new IllegalArgumentException("own pid path is null string");
+                }
                 //ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"/*";
                 ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"*";
                 filterQuery = String.format("own_pid_path:%s", ownPidPath);;
