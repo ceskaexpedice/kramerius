@@ -53,7 +53,7 @@ public class KubernetesReharvestProcess {
         return Client.create(cc);
     }
 
-    public static void main(String[] args) throws ParserConfigurationException, IllegalAccessException, InstantiationException, ClassNotFoundException, NoSuchMethodException, MigrateSolrIndexException, IOException, SAXException {
+    public static void main(String[] args)  {
         
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Prague"));
 

@@ -45,6 +45,7 @@ import cz.incad.kramerius.services.utils.SolrUtils;
 
 public class ReharvestUtils {
     
+    private static final String ITERATION_ROWS_STRING_VALUE = "300";
     public static final Logger LOGGER = Logger.getLogger(ReharvestUtils.class.getName());
     
     private ReharvestUtils() {}
@@ -110,7 +111,9 @@ public class ReharvestUtils {
             String queryCursorMark = null;
             do {
                 
-                Element element = pidsCursorQuery(client, iterationUrl, masterQuery, cursorMark, 3000,
+                String sRows = iterationMap.containsKey("rows")   ? iterationMap.get("rows")  : ITERATION_ROWS_STRING_VALUE  ;
+                LOGGER.info( String.format("Number of iteration rows %s", sRows));
+                Element element = pidsCursorQuery(client, iterationUrl, masterQuery, cursorMark, Integer.parseInt(sRows),
                         filterQuery, "select", "compositeId+pid", "compositeId asc", "", "");
                 cursorMark = findCursorMark(element);
                 queryCursorMark = findQueryCursorMark(element);
@@ -244,6 +247,7 @@ public class ReharvestUtils {
                 
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new RuntimeException(e);
             }
         }
         
@@ -262,7 +266,8 @@ public class ReharvestUtils {
                         | NoSuchMethodException | MigrateSolrIndexException | IOException | ParserConfigurationException
                         | SAXException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                }
+                    throw new RuntimeException(e);
+                 }
             }
         }
     }

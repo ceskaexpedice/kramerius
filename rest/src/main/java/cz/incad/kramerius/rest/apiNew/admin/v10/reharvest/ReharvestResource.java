@@ -122,9 +122,12 @@ public class ReharvestResource {
                     }
                 });
                 
-                jsonObj.put(ROOT_PID, rootPid.getTextContent());
-                jsonObj.put(OWN_PID_PATH, ownPidPath.getTextContent());
-                
+                if (rootPid != null) {
+                    jsonObj.put(ROOT_PID, rootPid.getTextContent());
+                }
+                if (ownPidPath != null) {
+                    jsonObj.put(OWN_PID_PATH, ownPidPath.getTextContent());
+                }
             }
 
             
