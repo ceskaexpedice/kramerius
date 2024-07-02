@@ -99,7 +99,8 @@ public class ReharvestResource {
                 
             }
             if (!jsonObj.has(OWN_PID_PATH) || !jsonObj.has(ROOT_PID)) { 
-
+                
+                
                 Document solrDataByPid = this.solrAccess.getSolrDataByPid(jsonObj.getString(PID_KEYWORD));
                 Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
                     @Override
@@ -135,9 +136,13 @@ public class ReharvestResource {
             
             ReharvestItem item = ReharvestItem.fromJSON(jsonObj);
             if (item != null) {
-                item.setTimestamp(Instant.now());
-                this.reharvestManager.register(item);
-                return Response.ok(item.toJSON().toString()).build();
+                if (item.getTypeOfReharvest().equals(ReharvestItem.TypeOfReharvset.children) && !jsonObj.has(OWN_PID_PATH)) {
+                    return Response.status(Response.Status.BAD_REQUEST).build();
+                } else {
+                    item.setTimestamp(Instant.now());
+                    this.reharvestManager.register(item);
+                    return Response.ok(item.toJSON().toString()).build();
+                }
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
