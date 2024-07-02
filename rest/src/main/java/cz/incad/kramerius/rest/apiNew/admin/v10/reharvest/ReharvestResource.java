@@ -124,6 +124,8 @@ public class ReharvestResource {
                 
                 if (rootPid != null) {
                     jsonObj.put(ROOT_PID, rootPid.getTextContent());
+                } else {
+                    jsonObj.put(ROOT_PID, jsonObj.getString(PID_KEYWORD));
                 }
                 if (ownPidPath != null) {
                     jsonObj.put(OWN_PID_PATH, ownPidPath.getTextContent());
