@@ -21,13 +21,14 @@ import cz.incad.kramerius.utils.StringUtils;
 public class ReharvestItem {
     
     public static enum TypeOfReharvset {
-        root, children;
+        
+        root, // kompletni reharvest celeho titulu
+        children, // reharvest titulu a potomku
+        
+        fix_children, // dilo v cdk smazano a je potreba stahnout z krameriu informace o detech a titulu a pak pomoci own_pid_path 
+        fix_root; // dilo je v cdk smazano a je potreba stahnot z krameriu informace o korenovem dile
     }
     
-//    static enum ReharvestItemState {
-//        open, closed;
-//    }
-//    public static FastDateFormat FORMAT =  FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", TimeZone.getTimeZone("UTC"));    
     
     
     public static final String TIMESTAMP_KEYWORD = "indexed";

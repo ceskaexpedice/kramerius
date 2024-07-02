@@ -32,6 +32,7 @@ import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 import static cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem.*;
@@ -89,7 +90,7 @@ public class ReharvestResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response register(String json) {
         try {
-            
+            // switch reharvest vs new harvest
             JSONObject jsonObj = new JSONObject(json);
             if (!jsonObj.has(ID_KEYWORD)) {
                 jsonObj.put(ID_KEYWORD, UUID.randomUUID().toString());
@@ -125,26 +126,20 @@ public class ReharvestResource {
                 
                 if (rootPid != null) {
                     jsonObj.put(ROOT_PID, rootPid.getTextContent());
-                } else {
-                    jsonObj.put(ROOT_PID, jsonObj.getString(PID_KEYWORD));
                 }
                 if (ownPidPath != null) {
                     jsonObj.put(OWN_PID_PATH, ownPidPath.getTextContent());
                 }
             }
 
-            
+            // nasel to v indexu (pro polozky, ktere nejsou v indexu je potreba novy typ harvestu
             ReharvestItem item = ReharvestItem.fromJSON(jsonObj);
-            if (item != null) {
-                if (item.getTypeOfReharvest().equals(ReharvestItem.TypeOfReharvset.children) && !jsonObj.has(OWN_PID_PATH)) {
-                    return Response.status(Response.Status.BAD_REQUEST).build();
-                } else {
-                    item.setTimestamp(Instant.now());
-                    this.reharvestManager.register(item);
-                    return Response.ok(item.toJSON().toString()).build();
-                }
+            if (item != null && StringUtils.isAnyString(item.getRootPid()) && StringUtils.isAnyString(item.getOwnPidPath())) {
+                item.setTimestamp(Instant.now());
+                this.reharvestManager.register(item);
+                return Response.ok(item.toJSON().toString()).build();
             } else {
-                return Response.status(Response.Status.NOT_FOUND).build();
+                return Response.status(Response.Status.BAD_REQUEST).build();
             }
         } catch (JSONException | ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
