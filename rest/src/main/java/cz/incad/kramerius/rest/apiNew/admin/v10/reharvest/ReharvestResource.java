@@ -6,9 +6,11 @@ import java.text.ParseException;
 
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.inject.Named;
 import javax.ws.rs.Consumes;
@@ -84,6 +86,8 @@ public class ReharvestResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
+    
+    
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
@@ -97,11 +101,8 @@ public class ReharvestResource {
             }
             if (!jsonObj.has(PID_KEYWORD)) {
                 throw new BadRequestException(" Request must contain pid ");
-                
             }
             if (!jsonObj.has(OWN_PID_PATH) || !jsonObj.has(ROOT_PID)) { 
-                
-                
                 Document solrDataByPid = this.solrAccess.getSolrDataByPid(jsonObj.getString(PID_KEYWORD));
                 Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
                     @Override
@@ -123,6 +124,18 @@ public class ReharvestResource {
                         return false;
                     }
                 });
+
+                Element cdkCollection = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        if (element.getNodeName().equals("arr")) {
+                            String fieldName = element.getAttribute("name");
+                            return fieldName.equals("collection");
+                        }
+                        return false;
+                    }
+                });
+
                 
                 if (rootPid != null) {
                     jsonObj.put(ROOT_PID, rootPid.getTextContent());
@@ -130,16 +143,26 @@ public class ReharvestResource {
                 if (ownPidPath != null) {
                     jsonObj.put(OWN_PID_PATH, ownPidPath.getTextContent());
                 }
+                
+                if (cdkCollection != null) {
+                    List<String> collections = XMLUtils.getElements(cdkCollection).stream().map(Element::getTextContent).collect(Collectors.toList());
+                    JSONArray jsonArr = new JSONArray();
+                    collections.forEach(jsonArr::put);
+                    jsonObj.put(LIBRARIES_KEYWORD, jsonArr);
+                }
             }
 
             // nasel to v indexu (pro polozky, ktere nejsou v indexu je potreba novy typ harvestu
             ReharvestItem item = ReharvestItem.fromJSON(jsonObj);
+            // check 
             if (item != null && StringUtils.isAnyString(item.getRootPid()) && StringUtils.isAnyString(item.getOwnPidPath())) {
                 item.setTimestamp(Instant.now());
                 this.reharvestManager.register(item);
                 return Response.ok(item.toJSON().toString()).build();
             } else {
-                return Response.status(Response.Status.BAD_REQUEST).build();
+                JSONObject errorObject = new JSONObject();
+                errorObject.put("error", "No root pid or own_pid_path");
+                return Response.status(Response.Status.BAD_REQUEST).entity(errorObject.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
             }
         } catch (JSONException | ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

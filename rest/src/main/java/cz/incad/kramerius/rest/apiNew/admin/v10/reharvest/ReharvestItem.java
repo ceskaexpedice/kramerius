@@ -25,11 +25,10 @@ public class ReharvestItem {
         root, // kompletni reharvest celeho titulu
         children, // reharvest titulu a potomku
         
-        fix_children, // dilo v cdk smazano a je potreba stahnout z krameriu informace o detech a titulu a pak pomoci own_pid_path 
-        fix_root; // dilo je v cdk smazano a je potreba stahnot z krameriu informace o korenovem dile
+        new_children, // dilo v cdk smazano a je potreba stahnout z krameriu informace o detech a titulu a pak pomoci own_pid_path 
+        new_root; // dilo je v cdk smazano a je potreba stahnot z krameriu informace o korenovem dile
     }
-    
-    
+
     
     public static final String TIMESTAMP_KEYWORD = "indexed";
     public static final String PID_KEYWORD = "pid";
@@ -41,6 +40,9 @@ public class ReharvestItem {
     public static final String NAME_KEYWORD = "name";
     public static final String ID_KEYWORD = "id";
     public static final String POD_NAME_KEYWORD = "pod";
+    
+    public static final String LIBRARIES_KEYWORD = "libraries";
+    public static final String ERROR_MESSAGE_KEYWORD="error";
     
     // unique identifier 
     private String id;
@@ -108,8 +110,8 @@ public class ReharvestItem {
     
     public void setLibraries(List<String> libraries) {
         this.libraries = libraries;
+        
     }
-    
     public Instant getTimestamp() {
         return timestamp;
     }
@@ -180,6 +182,12 @@ public class ReharvestItem {
             obj.put(ROOT_PID, this.rootPid);
         }
         
+        if (this.libraries != null && !this.libraries.isEmpty()) {
+            JSONArray jsonArray = new JSONArray();
+            this.libraries.forEach(jsonArray::put);
+            obj.put(LIBRARIES_KEYWORD, jsonArray);
+        }
+        
         obj.put(TYPE_KEYWORD, this.typeOfReharvest.name());
         obj.put(TIMESTAMP_KEYWORD,DateTimeFormatter.ISO_INSTANT.format(this.timestamp));
 
@@ -194,7 +202,6 @@ public class ReharvestItem {
         String rootPid = json.optString(ROOT_PID);
         
         String state = json.optString(STATE_KEYWORD);
-        //String type = json.optString(TYPE_KEYWORD);
         ReharvestItem item = new ReharvestItem(id);
         item.setName(name);
         item.setPid(pid);
@@ -217,6 +224,13 @@ public class ReharvestItem {
         if (json.has(TYPE_KEYWORD)) {
             String tt = json.getString(TYPE_KEYWORD);
             item.setTypeOfReharvest(TypeOfReharvset.root.name().equals(tt) ? TypeOfReharvset.root : TypeOfReharvset.children);
+        }
+
+        if (json.has(LIBRARIES_KEYWORD)) {
+            JSONArray libsArray = json.getJSONArray(LIBRARIES_KEYWORD);
+            List<String> libs = new ArrayList<>();
+            for (int i = 0; i < libsArray.length(); i++) { libs.add(libsArray.getString(i));}
+            item.setLibraries(libs);
         }
         
         return item;

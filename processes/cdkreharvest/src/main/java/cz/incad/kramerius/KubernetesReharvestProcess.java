@@ -106,9 +106,10 @@ public class KubernetesReharvestProcess {
                         // https://api.val.ceskadigitalniknihovna.cz/search/api/admin/v7.0/connected/
                         String proxyURl = proxyMap.get("url");
                         if (proxyURl != null) {
-                            Map<String, JSONObject> configurations = libraryConfigurations(client, proxyURl);
+                            ReharvestItem reharvestItem = ReharvestItem.fromJSON(itemObject);
 
-                            ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, ReharvestItem.fromJSON(itemObject));
+                            Map<String, JSONObject> configurations = libraryConfigurations(client, proxyURl,reharvestItem);
+                            ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, reharvestItem);
 
                             if (!onlyShowConfiguration) {
                                 changeState(client, wurl, id,"closed");
@@ -160,7 +161,7 @@ public class KubernetesReharvestProcess {
         }
     }
     
-    public static Map<String, JSONObject> libraryConfigurations(Client client, String proxyURl) {
+    public static Map<String, JSONObject> libraryConfigurations(Client client, String proxyURl, ReharvestItem reharvestItem) {
         Map<String, JSONObject> configurations = new HashMap<>();
         WebResource proxyWebResource = client.resource(proxyURl);
         ClientResponse allConnectedItems = proxyWebResource.accept(MediaType.APPLICATION_JSON)
@@ -171,6 +172,7 @@ public class KubernetesReharvestProcess {
             for (Object key : responseAllConnectedObject.keySet()) {
                 JSONObject lib = responseAllConnectedObject.getJSONObject(key.toString());
                 if (lib.has("status") && lib.getBoolean("status")) {
+
                     
                     String configURl = proxyURl;
                     if (!configURl.endsWith("/")) {
@@ -182,9 +184,14 @@ public class KubernetesReharvestProcess {
                     ClientResponse configReourceStatus = configResource.accept(MediaType.APPLICATION_JSON)
                             .get(ClientResponse.class);
                     if (configReourceStatus.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-                        
-                        configurations.put(key.toString(),
-                                new JSONObject(configReourceStatus.getEntity(String.class)));
+                        boolean add = true;
+                        if (reharvestItem.getLibraries() != null & !reharvestItem.getLibraries().isEmpty()) {
+                            add = reharvestItem.getLibraries().contains(key.toString());
+                        }
+                        if (add) {
+                            configurations.put(key.toString(),
+                                    new JSONObject(configReourceStatus.getEntity(String.class)));
+                        }
                     }
                 }
             }
