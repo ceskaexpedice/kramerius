@@ -99,16 +99,17 @@ public class KubernetesReharvestProcess {
                     List<Pair<String,String>> allPidsList = ReharvestUtils.findPidByType(iterationMap, client, ReharvestItem.fromJSON(itemObject));
                     // check size; if size > 10000 - fail state
                     if (allPidsList.size() <  maxItemsToDelete) {
-                        // delete all pids 
-                        ReharvestUtils.deleteAllGivenPids(client, destinationMap, allPidsList, onlyShowConfiguration);
 
-                        // List<String> acronyms = new ArrayList<String>();
-                        // https://api.val.ceskadigitalniknihovna.cz/search/api/admin/v7.0/connected/
                         String proxyURl = proxyMap.get("url");
                         if (proxyURl != null) {
                             ReharvestItem reharvestItem = ReharvestItem.fromJSON(itemObject);
 
                             Map<String, JSONObject> configurations = libraryConfigurations(client, proxyURl,reharvestItem);
+                            // check channels before delete
+                            ReharvestUtils.checkChannelsBeforeDelete(client, configurations);
+                            // delete all asociated pids from index 
+                            ReharvestUtils.deleteAllGivenPids(client, destinationMap, allPidsList, onlyShowConfiguration);
+                            // reindex pids
                             ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, reharvestItem);
 
                             if (!onlyShowConfiguration) {

@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -36,6 +37,8 @@ import org.xml.sax.SAXException;
 
 import com.google.common.io.Files;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.KubernetesReharvestProcess;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
@@ -213,31 +216,43 @@ public class ReharvestUtils {
         return "root_pid:\""+pid+"\""; 
     }
 
+    public static void checkChannelsBeforeDelete(Client client, Map<String,JSONObject> collectionConfigurations) {
+        for (String ac : collectionConfigurations.keySet()) {
+            JSONObject colObject = collectionConfigurations.get(ac);
+            String apiVersion = colObject.optString("api","v5");
+            if (!colObject.has("forwardurl")) {
+                LOGGER.severe(String.format("Skipping %s", ac));
+                continue;
+            }
+            String channel = colObject.optString("forwardurl");
+            String fullChannelUrl = solrChannelUrl(apiVersion, channel);
+            
+            WebResource configResource = client.resource(fullChannelUrl+"/select?q=*&rows=0&wt=json");
+            ClientResponse configReourceStatus = configResource.accept(MediaType.APPLICATION_JSON)
+                    .get(ClientResponse.class);
+            if (configReourceStatus.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
+                // ok - live channel
+            } else throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, channel));
+        }
+    }
+    
     public static void reharvestPIDFromGivenCollections(String pid, Map<String,JSONObject> collectionConfigurations, String onlyShowConfiguration, Map<String, String> destinationMap, Map<String,String> iterationMap, ReharvestItem item) throws IllegalAccessException, InstantiationException, ClassNotFoundException, NoSuchMethodException, MigrateSolrIndexException, IOException, ParserConfigurationException, SAXException {
         List<File> harvestFiles = new ArrayList<>();
         for (String ac : collectionConfigurations.keySet()) {
             try {
                 JSONObject colObject = collectionConfigurations.get(ac);
+
                 String apiVersion = colObject.optString("api","v5");
                 if (!colObject.has("forwardurl")) {
                     LOGGER.severe(String.format("Skipping %s", ac));
                     continue;
                 }
+                Map<String,String> iteration = new HashMap<>(iterationMap);
                 String channel = colObject.optString("forwardurl");
 
+                String fullChannelUrl = solrChannelUrl(apiVersion, channel);
                 
-                Map<String,String> iteration = new HashMap<>(iterationMap);
-                //http://mzk-tunnel.cdk-proxy.svc.cluster.local/search"
-                //http://knav-tunnel.cdk-proxy.svc.cluster.local/search/api/v5.0/cdk/forward/sync/solr
-                //v7.0
-                //search/api/cdk/v7.0/forward/sync/solr/
-                if (apiVersion.toLowerCase().equals("v5")) {
-                    //channel = 
-                    iteration.put("url", channel+(channel.endsWith("/") ? "" : "/")+"api/v5.0/cdk/forward/sync/solr");
-                } else {
-                    iteration.put("url", channel+(channel.endsWith("/") ? "" : "/")+"api/cdk/v7.0/forward/sync/solr");
-                }
-                
+                iteration.put("url",  fullChannelUrl); 
                 
                 iteration.put("dl", ac);
                 iteration.put("fquery", fq(apiVersion, pid, item));
@@ -273,6 +288,19 @@ public class ReharvestUtils {
                  }
             }
         }
+    }
+
+    private static String solrChannelUrl(String apiVersion, String channel) {
+        String fullChannelUrl = null;
+        if (apiVersion.toLowerCase().equals("v5")) {
+            //channel = 
+            fullChannelUrl = channel+(channel.endsWith("/") ? "" : "/")+"api/v5.0/cdk/forward/sync/solr";
+            // channel+(channel.endsWith("/") ? "" : "/")+"api/v5.0/cdk/forward/sync/solr");
+        } else {
+            fullChannelUrl = channel+(channel.endsWith("/") ? "" : "/")+"api/cdk/v7.0/forward/sync/solr";
+            //channel+(channel.endsWith("/") ? "" : "/")+"api/cdk/v7.0/forward/sync/solr");
+        }
+        return fullChannelUrl;
     }
 
     public static boolean isOnlyShowConfiguration(String onlyShowConfiguration) {

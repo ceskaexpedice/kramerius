@@ -130,7 +130,7 @@ public class ReharvestResource {
                     public boolean acceptElement(Element element) {
                         if (element.getNodeName().equals("arr")) {
                             String fieldName = element.getAttribute("name");
-                            return fieldName.equals("collection");
+                            return fieldName.equals("cdk.collection");
                         }
                         return false;
                     }
