@@ -40,7 +40,13 @@ include 'security:oauth'
 //include 'authfilters'
 //include 'solr-migration'
 
-
+gradle.settingsEvaluated { settings ->
+	settings.buildCache {
+		local {
+			enabled = true
+		}
+	}
+}
 
 // filter property -DremoveProjs=projectA,projectB,..
 rootProject.children.removeAll { project ->

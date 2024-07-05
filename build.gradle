@@ -27,8 +27,6 @@ buildScan {
     licenseAgree = 'yes'
 }*/
 
-
-
 plugins {
     id 'com.google.cloud.tools.jib' version '3.3.1' apply false
 }
@@ -63,19 +61,24 @@ dependencies {
     //editors group: "cz.incad.kramerius", name: "rightseditor", version: "5.1.1", ext: "war"
 }
 
-
-
 repositories {
     mavenLocal()
 }
-
-
-
 
 /**
  * Inject to all subprojects
  */
 allprojects {
+    /*
+    configurations.all {
+        resolutionStrategy {
+            // Set timeout for dependency resolution
+            eachDependency { DependencyResolveDetails details ->
+                details.useVersion details.requested.version
+            }
+            cacheChangingModulesFor 0, 'seconds'
+        }
+    }*/
 
     apply plugin:'java'
     apply plugin:'java-library'
@@ -238,6 +241,9 @@ allprojects {
 }
 
 allprojects {
+
+
+
     task sourcesJar(type: Jar) { //workaround for setting duplicatesStrategy for subsequent withSourcesJar call
         duplicatesStrategy = 'include'
         archiveClassifier = 'sources'
@@ -360,4 +366,3 @@ task zipAllJavadocs(type: Zip) {
 
     }
 }
-
