@@ -412,29 +412,29 @@ public class ItemsResource extends ClientApiResource {
     }
     
     //
-    @GET
-    @Path("{pid}/metadata/deletetrig")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteTrigger(@PathParam("pid") String pid) {
-        try {
-            // redirect
-            checkSupportedObjectPid(pid);
-            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
-            if (redirectHandler != null) {
-                JSONObject obj = new JSONObject();
-                obj.put("msg",String.format("Delete trigger for %s", pid));
-                redirectHandler.deleteTriggeToReharvest(pid);
-                return Response.ok(obj.toString()).type(MediaType.APPLICATION_JSON).build();
-            } else {
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
+//    @GET
+//    @Path("{pid}/metadata/deletetrig")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response deleteTrigger(@PathParam("pid") String pid) {
+//        try {
+//            // redirect
+//            checkSupportedObjectPid(pid);
+//            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
+//            if (redirectHandler != null) {
+//                JSONObject obj = new JSONObject();
+//                obj.put("msg",String.format("Delete trigger for %s", pid));
+//                redirectHandler.deleteTriggeToReharvest(pid);
+//                return Response.ok(obj.toString()).type(MediaType.APPLICATION_JSON).build();
+//            } else {
+//                return Response.status(Response.Status.BAD_REQUEST).build();
+//            }
+//        } catch (WebApplicationException e) {
+//            throw e;
+//        } catch (Throwable e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            throw new InternalErrorException(e.getMessage());
+//        }
+//    }
 
 
     @GET
