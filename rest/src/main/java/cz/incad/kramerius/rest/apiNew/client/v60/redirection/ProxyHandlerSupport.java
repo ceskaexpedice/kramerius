@@ -160,6 +160,7 @@ public abstract class ProxyHandlerSupport {
 
     public void deleteTriggeToReharvest(String pid) {
         if (reharvestManager != null && pid != null) {
+            
             try {
                 Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
                 Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
@@ -206,9 +207,11 @@ public abstract class ProxyHandlerSupport {
                     }
                     try {
                         ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", ownParentPid.getTextContent().trim(), pidPath);
-                        // children
                         reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
                         reharvestItem.setState("waiting_for_approve");
+
+                        LOGGER.info(String.format("Registering item %s", reharvestItem.toJSON().toString());
+
                         this.reharvestManager.register(reharvestItem);
                     } catch (DOMException e) {
                         LOGGER.log(Level.SEVERE,e.getMessage(),e);

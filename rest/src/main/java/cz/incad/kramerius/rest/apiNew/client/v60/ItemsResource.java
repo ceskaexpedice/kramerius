@@ -19,6 +19,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.json.JSONObject;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.sun.jersey.api.client.Client;
@@ -412,15 +414,17 @@ public class ItemsResource extends ClientApiResource {
     //
     @GET
     @Path("{pid}/metadata/deletetrig")
-    @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteTrigger(@PathParam("pid") String pid) {
         try {
             // redirect
             checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                JSONObject obj = new JSONObject();
+                obj.put("msg",String.format("Delete trigger for %s", pid));
                 redirectHandler.deleteTriggeToReharvest(pid);
-                return Response.ok().build();
+                return Response.ok(obj.toString()).type(MediaType.APPLICATION_JSON).build();
             } else {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
