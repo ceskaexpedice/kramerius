@@ -210,7 +210,7 @@ public abstract class ProxyHandlerSupport {
                         reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
                         reharvestItem.setState("waiting_for_approve");
 
-                        LOGGER.info(String.format("Registering item %s", reharvestItem.toJSON().toString());
+                        LOGGER.info(String.format("Registering item %s", reharvestItem.toJSON().toString()));
 
                         this.reharvestManager.register(reharvestItem);
                     } catch (DOMException e) {
