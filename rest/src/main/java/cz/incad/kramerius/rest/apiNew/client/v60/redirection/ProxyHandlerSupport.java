@@ -160,7 +160,7 @@ public abstract class ProxyHandlerSupport {
 
     public void deleteTriggeToReharvest(String pid) {
         if (reharvestManager != null && pid != null) {
-            
+            LOGGER.info(String.format("Registering pid %s",pid));
             try {
                 Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
                 Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
