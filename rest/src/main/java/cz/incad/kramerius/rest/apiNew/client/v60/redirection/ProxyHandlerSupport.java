@@ -1,5 +1,9 @@
 package cz.incad.kramerius.rest.apiNew.client.v60.redirection;
 
+import static cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem.LIBRARIES_KEYWORD;
+import static cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem.OWN_PID_PATH;
+import static cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem.ROOT_PID;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,6 +29,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -197,6 +202,19 @@ public abstract class ProxyHandlerSupport {
                 });
                 
                 
+                Element cdkCollection = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        if (element.getNodeName().equals("arr")) {
+                            String fieldName = element.getAttribute("name");
+                            return fieldName.equals("cdk.collection");
+                        }
+                        return false;
+                    }
+                });
+
+                
+                
                 
                 if (rootPid != null && ownPidPath != null && ownParentPid != null) {
                     String pidPath = ownPidPath.getTextContent().trim();
@@ -209,6 +227,12 @@ public abstract class ProxyHandlerSupport {
                         ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", ownParentPid.getTextContent().trim(), pidPath);
                         reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
                         reharvestItem.setState("waiting_for_approve");
+                            
+                        if (cdkCollection != null) {
+                            List<String> collections = XMLUtils.getElements(cdkCollection).stream().map(Element::getTextContent).collect(Collectors.toList());
+                            reharvestItem.setLibraries(collections);
+                        }
+                        
 
                         LOGGER.info(String.format("Registering item %s", reharvestItem.toJSON().toString()));
 
