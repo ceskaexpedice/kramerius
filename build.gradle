@@ -159,10 +159,10 @@ allprojects {
         mavenCentral()
 
 
-
+		/*
         maven {
             url "https://m2.duraspace.org/content/repositories/releases"
-        }
+        }*/
 
         maven {
             url "https://maven.java.net/content/repositories/snapshots/"
