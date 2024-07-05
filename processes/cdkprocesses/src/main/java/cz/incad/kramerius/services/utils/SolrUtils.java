@@ -156,7 +156,9 @@ public class SolrUtils {
             });
 
             return elements.stream().map(item -> {
-                        Element str = XMLUtils.findElement(item, new XMLUtils.ElementsFilter() {
+                
+                //LOGGER.info("Item")
+                Element str = XMLUtils.findElement(item, new XMLUtils.ElementsFilter() {
                                     @Override
                                     public boolean acceptElement(Element element) {
                                         return element.getNodeName().equals("str");

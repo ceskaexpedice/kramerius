@@ -158,7 +158,7 @@ public abstract class ProxyHandlerSupport {
 		}
 	}
 
-    protected void deleteTriggeToReharvest(String pid) {
+    public void deleteTriggeToReharvest(String pid) {
         if (reharvestManager != null && pid != null) {
             try {
                 Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);

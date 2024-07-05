@@ -41,9 +41,16 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.KubernetesReharvestProcess;
+import cz.incad.kramerius.TooBigException;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.ParallelProcessImpl;
+import cz.incad.kramerius.services.iterators.IterationItem;
+import cz.incad.kramerius.services.iterators.ProcessIterator;
+import cz.incad.kramerius.services.iterators.solr.SolrCursorIterator;
+import cz.incad.kramerius.services.iterators.solr.SolrFilterQueryIterator;
+import cz.incad.kramerius.services.iterators.solr.SolrPageIterator;
+import cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory.TypeOfIteration;
 import cz.incad.kramerius.services.utils.SolrUtils;
 
 public class ReharvestUtils {
@@ -90,82 +97,66 @@ public class ReharvestUtils {
     }
     
     /** Find all pids by given root.pid */
-    public static List<Pair<String,String>> findPidByType(Map<String, String> iterationMap, Client client, ReharvestItem item) {
-        LinkedHashSet<Pair<String,String>> allPids = new LinkedHashSet<>();
-        String iterationUrl = iterationMap.get("url");
-
-        String masterQuery = "*:*";
-        String filterQuery = "none";
-        switch(item.getTypeOfReharvest()) {
-            case root:
-                filterQuery = "root.pid:\"" + item.getRootPid() + "\"";
-            break;
-            case children:
-                String ownPidPath = item.getOwnPidPath();
-                if (!StringUtils.isAnyString(ownPidPath)) {
-                    throw new IllegalArgumentException("own pid path is null string");
-                }
-                //ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"/*";
-                ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"*";
-                filterQuery = String.format("own_pid_path:%s", ownPidPath);;
-            break;
-        }
-
-        
+    public static List<Pair<String,String>> findPidByType(Map<String, String> iterationMap, Client client, ReharvestItem item, int maxItems) {
         try {
-            String cursorMark = null;
-            String queryCursorMark = null;
-            do {
-                
-                String sRows = iterationMap.containsKey("rows")   ? iterationMap.get("rows")  : ITERATION_ROWS_STRING_VALUE  ;
-                LOGGER.info( String.format("Number of iteration rows %s", sRows));
-                Element element = pidsCursorQuery(client, iterationUrl, masterQuery, cursorMark, Integer.parseInt(sRows),
-                        filterQuery, "select", "compositeId+pid", "compositeId asc", "", "");
-                cursorMark = findCursorMark(element);
-                queryCursorMark = findQueryCursorMark(element);
-                
-                List<Element> docs = XMLUtils.getElementsRecursive(element, new XMLUtils.ElementsFilter() {
-                    
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        return element.getNodeName().equals("doc");
+            String iterationUrl = iterationMap.get("url");
+            String masterQuery = "*:*";
+            String filterQuery = "none";
+            switch(item.getTypeOfReharvest()) {
+                case root:
+                    filterQuery = "root.pid:\"" + item.getRootPid() + "\"";
+                break;
+                case children:
+                    String ownPidPath = item.getOwnPidPath();
+                    if (!StringUtils.isAnyString(ownPidPath)) {
+                        throw new IllegalArgumentException("own pid path is null string");
                     }
-                });
+                    //ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"/*";
+                    ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"*";
+                    filterQuery = String.format("own_pid_path:%s", ownPidPath);;
+                break;
+            }
+            
+            String sRows = iterationMap.containsKey("rows")   ? iterationMap.get("rows")  : ITERATION_ROWS_STRING_VALUE  ;
+            TypeOfIteration typeOfIteration = iterationMap.containsKey("type")  ? TypeOfIteration.valueOf(iterationMap.get("type")) : TypeOfIteration.CURSOR;
+            ProcessIterator processIterator = null;
+            switch (typeOfIteration) {
+                case CURSOR: {
+                    processIterator =  new SolrCursorIterator(iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows));
+                    break;
+                }
+                case FILTER: {
+                    processIterator  = new SolrFilterQueryIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows));
+                    break;
+                }
+                case PAGINATION: {
+                    processIterator = new SolrPageIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows));
+                    break;
+                }
+            }
+            LOGGER.info(String.format("Solr iterator %s", processIterator.getClass().getName()));
+            final LinkedHashSet<Pair<String,String>> retvals  = new LinkedHashSet<>();
+            processIterator.iterate(client, (list)-> {
+                for (IterationItem it : list) {
+                    //LOGGER.info("Iterating item "+it.toString());
+                    String compositeId = it.getPid();
+                    String[] arr = compositeId.split("!");
+                    if (arr.length == 2) { 
+                        Pair<String,String> pair = Pair.of(arr[1], compositeId);
+                        retvals.add(pair); 
+                    }
+                }
+                if (retvals.size()>maxItems) {
+                    throw new TooBigException("too_big",retvals.size());
+                }
                 
-                List<Pair<String,String>> pairs = docs.stream().map(doc-> {
-                    
-                    Element pidElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
-                        
-                        @Override
-                        public boolean acceptElement(Element element) {
-                            String name = element.getAttribute("name");
-                            return (name != null && name.equals("pid"));
-                        }
-                    });
-
-                    Element compositeIdElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
-                        @Override
-                        public boolean acceptElement(Element element) {
-                            String name = element.getAttribute("name");
-                            return (name != null && name.equals("compositeId"));
-                        }
-                    });
-                    
-                    
-                    if (pidElm != null && compositeIdElm != null ) {
-                        return Pair.of(pidElm.getTextContent(), compositeIdElm.getTextContent());
-                    } else return null;
-                }).filter(x -> x != null).collect(Collectors.toList());
-                
-                allPids.addAll(pairs);
-                LOGGER.info(String.format( "Collected pids to delete %d", allPids.size()));
-                
-            } while ((cursorMark != null && queryCursorMark != null)
-                    && !cursorMark.equals(queryCursorMark));
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        return  new ArrayList<Pair<String,String>>(allPids);
+            }, ()->{});
+        
+            return  new ArrayList<Pair<String,String>>(retvals);
+            
+        } catch (TooBigException e) {
+            throw e; // Vyhození výjimky dál
+        }        
     }
 
     /** Render template */
@@ -226,6 +217,8 @@ public class ReharvestUtils {
             }
             String channel = colObject.optString("forwardurl");
             String fullChannelUrl = solrChannelUrl(apiVersion, channel);
+            
+            LOGGER.info(String.format("Checking %s", fullChannelUrl));
             
             WebResource configResource = client.resource(fullChannelUrl+"/select?q=*&rows=0&wt=json");
             ClientResponse configReourceStatus = configResource.accept(MediaType.APPLICATION_JSON)

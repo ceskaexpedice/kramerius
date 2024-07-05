@@ -144,7 +144,7 @@ public class ReharvestResource {
                     jsonObj.put(OWN_PID_PATH, ownPidPath.getTextContent());
                 }
                 
-                if (cdkCollection != null) {
+                if (cdkCollection != null && !jsonObj.has(LIBRARIES_KEYWORD)) {
                     List<String> collections = XMLUtils.getElements(cdkCollection).stream().map(Element::getTextContent).collect(Collectors.toList());
                     JSONArray jsonArr = new JSONArray();
                     collections.forEach(jsonArr::put);

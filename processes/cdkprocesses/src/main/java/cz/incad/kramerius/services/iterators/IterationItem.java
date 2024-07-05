@@ -44,4 +44,11 @@ public class IterationItem {
     public int hashCode() {
         return Objects.hash(getPid(), getSource());
     }
+
+    @Override
+    public String toString() {
+        return "IterationItem [pid=" + pid + ", source=" + source + "]";
+    }
+    
+    
 }

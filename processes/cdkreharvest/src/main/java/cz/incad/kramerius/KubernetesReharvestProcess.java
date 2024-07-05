@@ -1,7 +1,9 @@
 package cz.incad.kramerius;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,32 +97,39 @@ public class KubernetesReharvestProcess {
                         }
                     }
 
-                    // find all pids 
-                    List<Pair<String,String>> allPidsList = ReharvestUtils.findPidByType(iterationMap, client, ReharvestItem.fromJSON(itemObject));
-                    // check size; if size > 10000 - fail state
-                    if (allPidsList.size() <  maxItemsToDelete) {
+                    List<Pair<String,String>> allPidsList = new ArrayList<>();
+                    try {
+                        allPidsList = ReharvestUtils.findPidByType(iterationMap, client, ReharvestItem.fromJSON(itemObject), maxItemsToDelete);
+                        // check size; if size > 10000 - fail state
+                        if (allPidsList.size() <  maxItemsToDelete) {
 
-                        String proxyURl = proxyMap.get("url");
-                        if (proxyURl != null) {
-                            ReharvestItem reharvestItem = ReharvestItem.fromJSON(itemObject);
+                            String proxyURl = proxyMap.get("url");
+                            if (proxyURl != null) {
+                                ReharvestItem reharvestItem = ReharvestItem.fromJSON(itemObject);
 
-                            Map<String, JSONObject> configurations = libraryConfigurations(client, proxyURl,reharvestItem);
-                            // check channels before delete
-                            ReharvestUtils.checkChannelsBeforeDelete(client, configurations);
-                            // delete all asociated pids from index 
-                            ReharvestUtils.deleteAllGivenPids(client, destinationMap, allPidsList, onlyShowConfiguration);
-                            // reindex pids
-                            ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, reharvestItem);
+                                Map<String, JSONObject> configurations = libraryConfigurations(client, proxyURl,reharvestItem);
+                                // check channels before delete
+                                ReharvestUtils.checkChannelsBeforeDelete(client, configurations);
+                                // delete all asociated pids from index 
+                                ReharvestUtils.deleteAllGivenPids(client, destinationMap, allPidsList, onlyShowConfiguration);
+                                // reindex pids
+                                ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, reharvestItem);
 
-                            if (!onlyShowConfiguration) {
-                                changeState(client, wurl, id,"closed");
+                                if (!onlyShowConfiguration) {
+                                    changeState(client, wurl, id,"closed");
+                                }
+                            } else {
+                                LOGGER.severe("No proxy configuration");
                             }
                         } else {
-                            LOGGER.severe("No proxy configuration");
+                            changeState(client, wurl, id,"too_big");
+                            String compare = String.format("delete.size()  %d >=  maxItemstoDelete %d", allPidsList.size(), maxItemsToDelete);
+                            LOGGER.severe(String.format( "Too big to reharvest (%s)  -> manual change ", compare));
                         }
-                    } else {
+                        
+                    } catch(TooBigException ex) {
                         changeState(client, wurl, id,"too_big");
-                        String compare = String.format("delete.size()  %d >=  maxItemstoDelete %d", allPidsList.size(), maxItemsToDelete);
+                        String compare = String.format("delete.size()  %d >=  maxItemstoDelete %d", ex.getCounter(), maxItemsToDelete);
                         LOGGER.severe(String.format( "Too big to reharvest (%s)  -> manual change ", compare));
                     }
                 }  else if (topItemFrom.getStatus() == ClientResponse.Status.NOT_FOUND.getStatusCode()) {
@@ -129,6 +138,7 @@ public class KubernetesReharvestProcess {
             } else {
                 LOGGER.severe("No proxy or reharvest configuration");
             }
+            
             
         } catch (Throwable thr) {
             if (idReference.get() != null) {
@@ -139,7 +149,8 @@ public class KubernetesReharvestProcess {
                 }
                 changeState(client, wurl, idReference.get(),"failed");
             }
-            LOGGER.severe("Exception ex" + thr.getMessage());
+            thr.printStackTrace();
+            LOGGER.severe("Exception :" + thr.getMessage());
         }
         
     }
