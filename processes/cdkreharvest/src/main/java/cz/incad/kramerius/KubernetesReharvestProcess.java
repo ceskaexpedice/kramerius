@@ -33,6 +33,7 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.json.JSONConfiguration;
 
 import antlr.StringUtils;
+import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.utils.kubernetes.KubernetesEnvSupport;
@@ -109,7 +110,7 @@ public class KubernetesReharvestProcess {
 
                                 Map<String, JSONObject> configurations = libraryConfigurations(client, proxyURl,reharvestItem);
                                 // check channels before delete
-                                ReharvestUtils.checkChannelsBeforeDelete(client, configurations);
+                                ChannelUtils.checkSolrChannelEndpoints(client, configurations);
                                 // delete all asociated pids from index 
                                 ReharvestUtils.deleteAllGivenPids(client, destinationMap, allPidsList, onlyShowConfiguration);
                                 // reindex pids

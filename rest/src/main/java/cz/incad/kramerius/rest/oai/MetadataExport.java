@@ -344,7 +344,6 @@ public enum MetadataExport {
 
     private static String defaultDocumentSource(SolrAccess solrAccess, String pid) throws IOException {
         org.w3c.dom.Document solrDataByPid = solrAccess.getSolrDataByPid(pid);
-        // TODO: All page 
         String leader = CDKUtils.findCDKLeader(solrDataByPid.getDocumentElement());
         List<String> sources = CDKUtils.findSources(solrDataByPid.getDocumentElement());
         return leader != null ? leader : (!sources.isEmpty() ? sources.get(0) : null);

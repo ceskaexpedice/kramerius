@@ -25,7 +25,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.inject.Inject;
+import com.sun.jersey.api.client.Client;
 
+import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.TypeOfChangedStatus;
@@ -49,6 +51,13 @@ public class ConnectedInfoResource {
 
     @Inject
     private TimestampStore timestampStore;
+
+    private Client client;
+
+    public ConnectedInfoResource() {
+        super();
+        this.client = Client.create();
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -179,6 +188,50 @@ public class ConnectedInfoResource {
         return Response.ok(config.toString()).build();
     }
 
+    @GET
+    @Path("{library}/config/channel/health")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getChannelHealth(@PathParam("library") String library) {
+        JSONObject healthObject = new JSONObject();
+        JSONObject channelObject = new JSONObject();
+        
+        healthObject.put("channel", channelObject);
+        
+        String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".baseurl");
+        String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api");
+        boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
+        String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
+
+        if (channelAccess) {
+            OneInstance inst = this.libraries.find(library);
+            healthObject.put("status", inst.isConnected());
+            if (inst.isConnected()) {
+                // solr
+                try {
+                    String solrChannelUrl = ChannelUtils.solrChannelUrl(api, channel);
+                    ChannelUtils.checkSolrChannelEndpoint(this.client, library, solrChannelUrl);
+                    channelObject.put("solr", true);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    channelObject.put("solr", false);
+                }
+
+                // user
+                try {
+                    String fullChannelUrl =  ChannelUtils.userChannelUrl(api, channel);
+                    ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl);
+                    channelObject.put("user", true);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    channelObject.put("user", false);
+                }
+            }
+        }
+        
+        return Response.ok(healthObject.toString()).build();
+    }
+
+    
     @PUT
     @Path("{library}/timestamp")
     @Produces(MediaType.APPLICATION_JSON)
