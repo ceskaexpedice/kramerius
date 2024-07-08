@@ -39,6 +39,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.timestamps.Timestamp;
 import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.timestamps.impl.SolrTimestamp;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 @Path("/admin/v7.0/connected")
@@ -61,21 +62,21 @@ public class ConnectedInfoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllConnected(@QueryParam("health")String health) {
+    public Response getAllConnected(/*@QueryParam("health")String health*/) {
         JSONObject retval = new JSONObject();
         this.libraries.allInstances().forEach(library -> {
             JSONObject json = libraryJSON(library);
             retval.put(library.getName(), json);
             
+            /*
             boolean healthCheck = Boolean.valueOf(health);
-            
             LOGGER.info(String.format("Parameter health '%b'", healthCheck));
             if (healthCheck) {
                 JSONObject channel = new JSONObject();
                 channelHealth(library.getName(), channel);
                 json.put("channel", channel);
                 LOGGER.info(String.format("Channel json is '%s'", channel.toString()));
-            }
+            }*/
         });
         return Response.ok(retval).build();
     }
@@ -220,7 +221,9 @@ public class ConnectedInfoResource {
         if (channelAccess) {
             OneInstance inst = this.libraries.find(library);
             //healthObject.put("status", inst.isConnected());
-            if (inst.isConnected()) {
+            
+            if (inst.isConnected() && StringUtils.isAnyString(channel)) {
+                channelObject.put("enabled", true);
                 // solr
                 try {
                     String solrChannelUrl = ChannelUtils.solrChannelUrl(api, channel);
@@ -229,6 +232,7 @@ public class ConnectedInfoResource {
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     channelObject.put("solr", false);
+                    channelObject.put("solr_message", e.getMessage());
                 }
 
                 // user
@@ -239,7 +243,10 @@ public class ConnectedInfoResource {
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     channelObject.put("user", false);
+                    channelObject.put("user_message", e.getMessage());
                 }
+            } else {
+                channelObject.put("enabled", false);
             }
         }
     }
