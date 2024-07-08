@@ -61,11 +61,17 @@ public class ConnectedInfoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllConnected() {
+    public Response getAllConnected(@QueryParam("health")String health) {
         JSONObject retval = new JSONObject();
         this.libraries.allInstances().forEach(library -> {
             JSONObject json = libraryJSON(library);
             retval.put(library.getName(), json);
+            
+            if (health !=  null && "true".equals("health")) {
+                JSONObject channel = new JSONObject();
+                channelHealth(library.getName(), channel);
+                json.put("channel", channel);
+            }
         });
         return Response.ok(retval).build();
     }
@@ -196,7 +202,12 @@ public class ConnectedInfoResource {
         JSONObject channelObject = new JSONObject();
         
         healthObject.put("channel", channelObject);
-        
+        channelHealth(library, channelObject);
+
+        return Response.ok(healthObject.toString()).build();
+    }
+
+    private void channelHealth(String library, JSONObject channelObject) {
         String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".baseurl");
         String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api");
         boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
@@ -204,7 +215,7 @@ public class ConnectedInfoResource {
 
         if (channelAccess) {
             OneInstance inst = this.libraries.find(library);
-            healthObject.put("status", inst.isConnected());
+            //healthObject.put("status", inst.isConnected());
             if (inst.isConnected()) {
                 // solr
                 try {
@@ -227,8 +238,6 @@ public class ConnectedInfoResource {
                 }
             }
         }
-        
-        return Response.ok(healthObject.toString()).build();
     }
 
     
