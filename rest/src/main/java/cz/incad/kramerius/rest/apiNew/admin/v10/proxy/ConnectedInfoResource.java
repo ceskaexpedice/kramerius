@@ -67,10 +67,15 @@ public class ConnectedInfoResource {
             JSONObject json = libraryJSON(library);
             retval.put(library.getName(), json);
             
+            LOGGER.info(String.format("Parameter health '%s'", health));
+            
             if (health !=  null && "true".equals("health")) {
                 JSONObject channel = new JSONObject();
                 channelHealth(library.getName(), channel);
                 json.put("channel", channel);
+
+                LOGGER.info(String.format("Channel json is '%s'", channel.toString()));
+                
             }
         });
         return Response.ok(retval).build();
