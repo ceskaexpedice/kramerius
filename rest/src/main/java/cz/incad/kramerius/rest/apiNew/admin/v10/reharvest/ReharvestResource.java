@@ -102,6 +102,7 @@ public class ReharvestResource {
             if (!jsonObj.has(PID_KEYWORD)) {
                 throw new BadRequestException(" Request must contain pid ");
             }
+            
             if (!jsonObj.has(OWN_PID_PATH) || !jsonObj.has(ROOT_PID)) { 
                 Document solrDataByPid = this.solrAccess.getSolrDataByPid(jsonObj.getString(PID_KEYWORD));
                 Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
@@ -154,15 +155,33 @@ public class ReharvestResource {
 
             // nasel to v indexu (pro polozky, ktere nejsou v indexu je potreba novy typ harvestu
             ReharvestItem item = ReharvestItem.fromJSON(jsonObj);
-            // check 
-            if (item != null && StringUtils.isAnyString(item.getRootPid()) && StringUtils.isAnyString(item.getOwnPidPath())) {
-                item.setTimestamp(Instant.now());
-                this.reharvestManager.register(item);
-                return Response.ok(item.toJSON().toString()).build();
-            } else {
-                JSONObject errorObject = new JSONObject();
-                errorObject.put("error", "No root pid or own_pid_path");
-                return Response.status(Response.Status.BAD_REQUEST).entity(errorObject.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
+            
+            switch(item.getTypeOfReharvest()) {
+                case root:
+                case children:
+                    
+                    if (item != null && StringUtils.isAnyString(item.getRootPid()) && StringUtils.isAnyString(item.getOwnPidPath())) {
+                        item.setTimestamp(Instant.now());
+                        this.reharvestManager.register(item);
+                        return Response.ok(item.toJSON().toString()).build();
+                    } else {
+                        JSONObject errorObject = new JSONObject();
+                        errorObject.put("error", "No root pid or own_pid_path");
+                        return Response.status(Response.Status.BAD_REQUEST).entity(errorObject.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
+                    }
+                
+                case new_root:
+                    if (item != null && StringUtils.isAnyString(item.getRootPid())) {
+                        item.setTimestamp(Instant.now());
+                        this.reharvestManager.register(item);
+                        return Response.ok(item.toJSON().toString()).build();
+                    } else {
+                        JSONObject errorObject = new JSONObject();
+                        errorObject.put("error", "No root pid or own_pid_path");
+                        return Response.status(Response.Status.BAD_REQUEST).entity(errorObject.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
+                    }
+                default:
+                    throw new IllegalStateException(String.format("Uknown type of reharvest %s", item.getTypeOfReharvest()));
             }
         } catch (JSONException | ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

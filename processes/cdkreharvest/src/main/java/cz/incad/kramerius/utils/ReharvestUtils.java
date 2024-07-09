@@ -101,6 +101,7 @@ public class ReharvestUtils {
             String masterQuery = "*:*";
             String filterQuery = "none";
             switch(item.getTypeOfReharvest()) {
+                case new_root:
                 case root:
                     filterQuery = "root.pid:\"" + item.getRootPid() + "\"";
                 break;
@@ -177,6 +178,8 @@ public class ReharvestUtils {
 
     public static String fq(String api, String pid, ReharvestItem item) throws UnsupportedEncodingException {
         switch(item.getTypeOfReharvest()) {
+            
+            case new_root:
             case root: 
                 switch(api) {
                     case "v7": return "root.pid:\""+pid+"\""; 

@@ -13,7 +13,7 @@ public class KubernetesEnvSupport {
     public static final String ITERATION_PREFIX = "ITERATION_";
     public static final String CHECK_PREFIX = "CHECK_";
     public static final String DEST_PREFIX = "DESTINATION_";
-
+    
     public static final String PROXY_API_URL = "PROXY_API_URL";
     public static final String REHARVEST_URL = "REHARVEST_URL";
     
@@ -21,6 +21,7 @@ public class KubernetesEnvSupport {
     public static final String TMSP_PREFIX = "TIMESTAMP_";
     public static final String PROXY_API_PREFIX = "PROXY_API_";
     public static final String REHARVEST_PREFIX = "REHARVEST_";
+    public static final String ITERATION_SYNC_PREFIX = "ITERATION_SYNC_";
     
     public static void prefixVariables(Map<String, String> env, Map<String, String> templateMap, String prefix) {
         env.keySet().forEach(key -> {
@@ -64,6 +65,12 @@ public class KubernetesEnvSupport {
         if (env.containsKey(ITERATION_URL)) {
             iteration.put("url", env.get(ITERATION_URL));
         }
+        return iteration;
+    }
+
+    public static Map<String, String> iterationSyncMap(Map<String, String> env) {
+        Map<String, String> iteration = new HashMap<>();
+        prefixVariables(env, iteration, ITERATION_SYNC_PREFIX);
         return iteration;
     }
 

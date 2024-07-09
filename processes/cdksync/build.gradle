@@ -1,0 +1,35 @@
+//apply plugin: 'application'
+apply plugin: 'java'
+
+
+dependencies {
+    api project(':shared:common')
+    api project(':processes:cdkprocesses')
+
+    implementation project(':processes:solr-migration')
+
+    implementation project(':search-index')
+
+    testImplementation 'org.xmlunit:xmlunit-core:2.8.4'
+    testImplementation group: 'org.xmlunit', name: 'xmlunit-matchers', version: '2.8.4'
+    testImplementation group: 'org.xmlunit',	 name: 'xmlunit-assertj', version: '2.8.4'
+	testImplementation "org.easymock:easymock:4.3"
+
+}
+
+
+
+configurations.api {
+    exclude group: 'org.bouncycastle'
+    exclude group: 'com.lowagie'
+    exclude group: 'org.apache.pdfbox'
+    exclude group: 'com.levigo.jbig2'
+    exclude group: 'org.apache.solr:solr-solrj'
+    //exclude group: 'com.sun.jersey:jersey-json'
+}
+
+
+/*
+application {
+    mainClass = 'cz.incad.kramerius.KubernetesReharvestProcess'
+}*/
