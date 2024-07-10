@@ -223,7 +223,8 @@ public class ReharvestItem {
         
         if (json.has(TYPE_KEYWORD)) {
             String tt = json.getString(TYPE_KEYWORD);
-            item.setTypeOfReharvest(TypeOfReharvset.root.name().equals(tt) ? TypeOfReharvset.root : TypeOfReharvset.children);
+            TypeOfReharvset typeOfHarvest = TypeOfReharvset.valueOf(tt);
+            item.setTypeOfReharvest(typeOfHarvest);
         }
 
         if (json.has(LIBRARIES_KEYWORD)) {

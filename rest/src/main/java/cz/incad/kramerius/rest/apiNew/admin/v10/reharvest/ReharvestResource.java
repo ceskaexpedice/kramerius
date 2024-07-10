@@ -138,10 +138,10 @@ public class ReharvestResource {
                 });
 
                 
-                if (rootPid != null) {
+                if (rootPid != null && !jsonObj.has(ROOT_PID)) {
                     jsonObj.put(ROOT_PID, rootPid.getTextContent());
                 }
-                if (ownPidPath != null) {
+                if (ownPidPath != null && !jsonObj.has(OWN_PID_PATH)) {
                     jsonObj.put(OWN_PID_PATH, ownPidPath.getTextContent());
                 }
                 
@@ -177,7 +177,7 @@ public class ReharvestResource {
                         return Response.ok(item.toJSON().toString()).build();
                     } else {
                         JSONObject errorObject = new JSONObject();
-                        errorObject.put("error", "No root pid or own_pid_path");
+                        errorObject.put("error", "No root pid");
                         return Response.status(Response.Status.BAD_REQUEST).entity(errorObject.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
                     }
                 default:
