@@ -62,7 +62,7 @@ public class ChannelUtils {
             String fullChannelUrl = userChannelUrl(apiVersion, channel);
             
             LOGGER.info(String.format("Checking %s", fullChannelUrl));
-            checkUserChannelEndpoint(client, ac, fullChannelUrl);
+            checkUserChannelEndpoint(client, ac, fullChannelUrl,false);
             
             
 //            WebResource configResource = client.resource(fullChannelUrl);
