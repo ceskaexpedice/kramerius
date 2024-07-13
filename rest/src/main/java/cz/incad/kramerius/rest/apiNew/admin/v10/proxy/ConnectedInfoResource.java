@@ -30,7 +30,10 @@ import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.InstanceType;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.TypeOfChangedStatus;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.user.V5ForwardUserHandler;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.user.V7ForwardUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.PhysicalLocationMap;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -205,16 +208,20 @@ public class ConnectedInfoResource {
     public Response getChannelHealth(@PathParam("library") String library) {
         JSONObject healthObject = new JSONObject();
         JSONObject channelObject = new JSONObject();
+        JSONObject usersObject = new JSONObject();
         
         healthObject.put("channel", channelObject);
-        channelHealth(library, channelObject);
+        healthObject.put("users", usersObject);
 
+        channelHealth(library, channelObject,usersObject);
+            
+        
         return Response.ok(healthObject.toString()).build();
     }
 
-    private void channelHealth(String library, JSONObject channelObject) {
+    private void channelHealth(String library, JSONObject channelObject, JSONObject usersObject) {
         String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".baseurl");
-        String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api");
+        String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api","v5");
         boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
         String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
 
@@ -238,8 +245,20 @@ public class ConnectedInfoResource {
                 // user
                 try {
                     String fullChannelUrl =  ChannelUtils.userChannelUrl(api, channel);
-                    ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl);
+
+                    JSONObject notLoggedUser = new JSONObject();
+                    JSONObject dnntUser = new JSONObject();
+                    
+                    JSONObject notLoggedJSON = ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl, false);
                     channelObject.put("user", true);
+
+                    usersDetail(notLoggedUser, notLoggedJSON);
+                    usersObject.put("notLogged", notLoggedUser);
+
+                    JSONObject dnntJSON = ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl, true);
+                    usersDetail(dnntUser, dnntJSON);
+
+                    
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     channelObject.put("user", false);
@@ -248,6 +267,18 @@ public class ConnectedInfoResource {
             } else {
                 channelObject.put("enabled", false);
             }
+        }
+    }
+
+    private void usersDetail(JSONObject notLogged, JSONObject userJson) {
+        JSONArray rolesJSONArray = userJson.optJSONArray("roles");
+        notLogged.put("roles", rolesJSONArray);
+        if (userJson.has("labels")) {
+            JSONArray licensesArray = userJson.getJSONArray("labels");
+            notLogged.put("licenses", licensesArray);
+        } else if (userJson.has("licenses")){
+            JSONArray licensesArray = userJson.getJSONArray("licenses");
+            notLogged.put("licenses", licensesArray);
         }
     }
 
