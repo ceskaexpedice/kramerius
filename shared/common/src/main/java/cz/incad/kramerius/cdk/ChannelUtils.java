@@ -71,18 +71,19 @@ public class ChannelUtils {
 
     public static JSONObject checkUserChannelEndpoint(Client client, String ac,String fullChannelUrl, boolean header) {
         WebResource configResource = client.resource(fullChannelUrl);
-        Builder builder = configResource.accept(MediaType.APPLICATION_JSON);
+        Builder builder = null;
         if (header) {
-            builder = configResource.header("CDK_TOKEN_PARAMETERS", "header_shib-session-id=_dd68cbd66641c9b647b05509ac0241fa|header_shib-session-expires=1592847906|header_shib-identity-provider=https://shibboleth.mzk.cz/simplesaml/metadata.xml|header_shib-authentication-method=urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport|header_shib-handler=https://dnnt.mzk.cz/Shibboleth.sso|header_eppn=test|header_entitlement=cdk.entitlement|header_eduPersonEntitlement=urn:mace:dir:entitlement:common-lib-terms|header_knav_type=validuser|header_knav_session_eppn=test|header_displayName=Inovatika|header_expiration_time=1720851072|header_knav_entitlement=urn:mace:dir:entitlement:common-lib-terms|header_entitlement=urn:mace:dir:entitlement:common-lib-terms|header_remote_user=f4ca5f6c5859d882f16aea477cd64a4c5887d3df824b91c7ab29c66091fccfff.aadzzwnyzxqx1rezk8w/sgpucjhb9hbrkxz8las3xof3hlpgnr6/ocwgyi82t6vwjepzgkru4iayuqkirk8dfilp68/i9ffozxdb25+wbrr8ij10tbowcfqgooztwhoiezaug/qijsyq1iftbo9cm5zq4z+h2ivqutjhv9trbjsdtnx0svpgtim=|header_eduPersonScopedAffiliation=[employee@lib.cas.cz, member@lib.cas.cz]|header_token_id=e96c9aec-a262-4fc6-8fe1-4104bdaa8dc8|header_affiliation=[employee@lib.cas.cz, member@lib.cas.cz]|header_knav_affiliation=[employee@lib.cas.cz, member@lib.cas.cz]|header_eduPersonPrincipalName=principalname@lib.cas.cz|header_knav_dnnt_user=test|header_eduPersonUniqueId=eduperson@lib.cas.cz|header_expires_in=1801|header_preffered_user_name=f4ca5f6c5859d882f16aea477cd64a4c5887d3df824b91c7ab29c66091fccfff.aadzzwnyzxqx1rezk8w/sgpucjhb9hbrkxz8las3xof3hlpgnr6/ocwgyi82t6vwjepzgkru4iayuqkirk8dfilp68/i9ffozxdb25+wbrr8ij10tbowcfqgooztwhoiezaug/qijsyq1iftbo9cm5zq4z+h2ivqutjhv9trbjsdtnx0svpgtim=|header_email=xxx@time.com|header_authentication_time=1720849271|header_ip_address=xx.xx.xx.xx");
+            builder = configResource.accept(MediaType.APPLICATION_JSON).header("CDK_TOKEN_PARAMETERS", "header_shib-session-id=_dd68cbd66641c9b647b05509ac0241fa|header_shib-session-expires=1592847906|header_shib-identity-provider=https://shibboleth.mzk.cz/simplesaml/metadata.xml|header_shib-authentication-method=urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport|header_shib-handler=https://dnnt.mzk.cz/Shibboleth.sso|header_eppn=test|header_entitlement=cdk.entitlement|header_eduPersonEntitlement=urn:mace:dir:entitlement:common-lib-terms|header_knav_type=validuser|header_knav_session_eppn=test|header_displayName=Inovatika|header_expiration_time=1720851072|header_knav_entitlement=urn:mace:dir:entitlement:common-lib-terms|header_entitlement=urn:mace:dir:entitlement:common-lib-terms|header_remote_user=f4ca5f6c5859d882f16aea477cd64a4c5887d3df824b91c7ab29c66091fccfff.aadzzwnyzxqx1rezk8w/sgpucjhb9hbrkxz8las3xof3hlpgnr6/ocwgyi82t6vwjepzgkru4iayuqkirk8dfilp68/i9ffozxdb25+wbrr8ij10tbowcfqgooztwhoiezaug/qijsyq1iftbo9cm5zq4z+h2ivqutjhv9trbjsdtnx0svpgtim=|header_eduPersonScopedAffiliation=[employee@lib.cas.cz, member@lib.cas.cz]|header_token_id=e96c9aec-a262-4fc6-8fe1-4104bdaa8dc8|header_affiliation=[employee@lib.cas.cz, member@lib.cas.cz]|header_knav_affiliation=[employee@lib.cas.cz, member@lib.cas.cz]|header_eduPersonPrincipalName=principalname@lib.cas.cz|header_knav_dnnt_user=test|header_eduPersonUniqueId=eduperson@lib.cas.cz|header_expires_in=1801|header_preffered_user_name=f4ca5f6c5859d882f16aea477cd64a4c5887d3df824b91c7ab29c66091fccfff.aadzzwnyzxqx1rezk8w/sgpucjhb9hbrkxz8las3xof3hlpgnr6/ocwgyi82t6vwjepzgkru4iayuqkirk8dfilp68/i9ffozxdb25+wbrr8ij10tbowcfqgooztwhoiezaug/qijsyq1iftbo9cm5zq4z+h2ivqutjhv9trbjsdtnx0svpgtim=|header_email=xxx@time.com|header_authentication_time=1720849271|header_ip_address=xx.xx.xx.xx");
+            LOGGER.info("CDK_TOKEN_PARAMETERS = "+configResource+";");
+        } else {
+            builder = configResource.accept(MediaType.APPLICATION_JSON);
         }
-        
         ClientResponse userRes = builder.get(ClientResponse.class);
         if (userRes.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
             String t = userRes.getEntity(String.class);
             return new JSONObject(t);
             // ok - live channel
         } else throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
-        
     }
     
     public static void checkSolrChannelEndpoints(Client client, Map<String,JSONObject> collectionConfigurations) {
