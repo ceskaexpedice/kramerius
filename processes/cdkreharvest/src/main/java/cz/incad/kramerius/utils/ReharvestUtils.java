@@ -53,7 +53,7 @@ import cz.incad.kramerius.services.utils.SolrUtils;
 
 public class ReharvestUtils {
     
-    private static final String ITERATION_ROWS_STRING_VALUE = "300";
+    public static final String ITERATION_ROWS_STRING_VALUE = "300";
     public static final Logger LOGGER = Logger.getLogger(ReharvestUtils.class.getName());
     
     private ReharvestUtils() {}

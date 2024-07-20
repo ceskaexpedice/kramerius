@@ -21,7 +21,9 @@ public class KubernetesEnvSupport {
     public static final String TMSP_PREFIX = "TIMESTAMP_";
     public static final String PROXY_API_PREFIX = "PROXY_API_";
     public static final String REHARVEST_PREFIX = "REHARVEST_";
-    public static final String ITERATION_SYNC_PREFIX = "ITERATION_SYNC_";
+
+    public static final String COMPARING_PREFIX = "COMPARING_";
+    
     
     public static void prefixVariables(Map<String, String> env, Map<String, String> templateMap, String prefix) {
         env.keySet().forEach(key -> {
@@ -68,10 +70,10 @@ public class KubernetesEnvSupport {
         return iteration;
     }
 
-    public static Map<String, String> iterationSyncMap(Map<String, String> env) {
-        Map<String, String> iteration = new HashMap<>();
-        prefixVariables(env, iteration, ITERATION_SYNC_PREFIX);
-        return iteration;
+    public static Map<String, String> comparingMap(Map<String, String> env) {
+        Map<String, String> comparing = new HashMap<>();
+        prefixVariables(env, comparing, COMPARING_PREFIX);
+        return comparing;
     }
 
     public static Map<String, String> proxyMap(Map<String, String> env) {

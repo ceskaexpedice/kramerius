@@ -272,8 +272,27 @@ public class ConnectedInfoResource {
     }
 
     private void usersDetail(JSONObject notLogged, JSONObject userJson) {
-        JSONArray rolesJSONArray = userJson.optJSONArray("roles");
-        notLogged.put("roles", rolesJSONArray);
+        //JSONArray rolesDestArray = new JSONArray();
+        JSONArray rolesSourceArray = userJson.optJSONArray("roles");
+        JSONArray nRolesSourceArray = new JSONArray();
+        if (rolesSourceArray != null) {
+            for (int i = 0; i < rolesSourceArray.length(); i++) {
+                Object obj = rolesSourceArray.get(i);
+                if (obj instanceof String) {
+                    nRolesSourceArray.put(obj.toString());
+                } else {
+                    JSONObject roleObj = (JSONObject) obj;
+                    String rname = roleObj.optString("name");
+                    if (rname != null) {
+                        nRolesSourceArray.put(rname);
+                    }
+                }
+                
+            }
+        }
+        
+        notLogged.put("roles", nRolesSourceArray);
+
         if (userJson.has("labels")) {
             JSONArray licensesArray = userJson.getJSONArray("labels");
             notLogged.put("licenses", licensesArray);
