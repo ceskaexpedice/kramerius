@@ -257,7 +257,7 @@ public class ConnectedInfoResource {
 
                     JSONObject dnntJSON = ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl, true);
                     usersDetail(dnntUser, dnntJSON);
-                    usersObject.put("dnnt", notLoggedUser);
+                    usersObject.put("dnnt", dnntJSON);
 
                     
                 } catch (Exception e) {
