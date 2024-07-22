@@ -1,6 +1,7 @@
 package cz.inovatika.cdk.sync;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,8 +64,11 @@ public class KubernetesSyncProcess {
         return Client.create(cc);
     }
 
-    /** Find all pids by given root.pid */
-    public static void comparePids(Map<String, String> iterationMap,Map<String, String> comparingMap,Map<String, String> reharvestMap, String dl, String model, Client client) {
+    /** Find all pids by given root.pid 
+     * @throws IOException 
+     * @throws SAXException 
+     * @throws ParserConfigurationException */
+    public static void comparePids(Map<String, String> iterationMap,Map<String, String> comparingMap,Map<String, String> reharvestMap, String dl, String model, Client client) throws ParserConfigurationException, SAXException, IOException {
         
         String reharvestUrl = reharvestMap.get("url");
         
@@ -82,20 +86,14 @@ public class KubernetesSyncProcess {
                 sortedComparing.remove(sourceTop);
             } else {
                 
-                // je ve zdroji(cdk) a neni v knihovne(knav, kfbz, nkp,... atd) => Potencionalne smazane dilo
-                // reharvest dle toho co je v indexu
-
                 //https://api.val.ceskadigitalniknihovna.cz/search/api/client/v7.0
                 String url = iterationMap.get("url");
                 String endpoint = iterationMap.containsKey("endpoint") ? iterationMap.get("endpoint") : "select";
-                String replaced = sourceTop.replace(":", "\\:");
-                String query = URLEncoder.encode(String.format("pid:%s", replaced), "UTF-8")+"&wt=xml";
+                //String replaced = sourceTop.replace(":", "\\:");
+                //String query = URLEncoder.encode(String.format("pid:%s", replaced), "UTF-8")+"&wt=xml";
                 
                 if (!url.endsWith("/")) { url = url+"/";  }
                 url = url + endpoint;
-                
-                Element executeQuery = SolrUtils.executeQuery(client, url, query, "", "");
-
                 
                 
                 ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - reharvest from sync program","open", sourceTop, sourceTop);
@@ -103,11 +101,10 @@ public class KubernetesSyncProcess {
                 reharvestItem.setState("waiting_for_approve");
                 reharvestItem.setRootPid(sourceTop);
                 reharvestItem.setOwnPidPath(sourceTop);
-
                 
                 WebResource r = client.resource(reharvestUrl);
                 ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
-                LOGGER.info("Status:"+resp.getStatus());
+                //LOGGER.info("Status:"+resp.getStatus());
                 if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
                     String errorMsg = resp.getEntity(String.class);
                     LOGGER.warning(String.format("%s",errorMsg));
@@ -225,7 +222,7 @@ public class KubernetesSyncProcess {
     }
 
     
-    public static void main(String[] args)  {
+    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException  {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Prague"));
         
         Client buildClient = buildClient();

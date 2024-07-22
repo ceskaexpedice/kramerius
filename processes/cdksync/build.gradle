@@ -1,4 +1,4 @@
-//apply plugin: 'application'
+apply plugin: 'application'
 apply plugin: 'java'
 
 
@@ -30,7 +30,6 @@ configurations.api {
 }
 
 
-/*
 application {
-    mainClass = 'cz.incad.kramerius.KubernetesReharvestProcess'
-}*/
+    mainClass = 'cz.inovatika.cdk.sync.KubernetesSyncProcess'
+}
