@@ -185,7 +185,7 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
     public ReharvestItem getOpenItemByPid(String pid) {
         try {
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
-            String query = String.format("pid:(%s)+AND+state:(open+OR+waiting_for_approve)", pid);
+            String query = URLEncoder.encode( String.format("pid:(\"%s\")+AND+state:(open+OR+waiting_for_approve)", pid),"UTF-8");
             String sort = URLEncoder.encode("indexed asc","UTF-8");
             String fullUrl = String.format("%s/select?q=%s&rows=1&sort=%s", reharvest, query,sort);
             String t = solrGet(fullUrl);
