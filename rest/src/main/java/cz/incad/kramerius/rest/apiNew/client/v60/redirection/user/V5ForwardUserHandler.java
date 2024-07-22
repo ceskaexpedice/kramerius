@@ -49,50 +49,44 @@ public class V5ForwardUserHandler extends ProxyUserHandler {
     }
 
     public static Pair<User, List<String>> userFromJSON(JSONObject json) throws JSONException {
-        if (json.has("id") && json.getInt("id") > -1) {
+        Map<String, String> session = new HashMap<>();
+        String loginName = json.optString("lname");
+        String firstName = json.optString("firstname");
+        String surName = json.optString("surname");
+        ;
 
-            Map<String, String> session = new HashMap<>();
-            String loginName = json.optString("lname");
-            String firstName = json.optString("firstname");
-            String surName = json.optString("surname");
-            ;
+        List<String> licenses = new ArrayList<>();
+        List<Role> roles = new ArrayList<>();
+        JSONArray rolesJSONArray = json.optJSONArray("roles");
 
-            List<String> licenses = new ArrayList<>();
-            List<Role> roles = new ArrayList<>();
-            JSONArray rolesJSONArray = json.optJSONArray("roles");
-
-            if (rolesJSONArray != null) {
-                for (int i = 0; i < rolesJSONArray.length(); i++) {
-                    String optString = rolesJSONArray.getJSONObject(i).optString("name");
-                    roles.add(new RoleImpl(optString));
-                }
+        if (rolesJSONArray != null) {
+            for (int i = 0; i < rolesJSONArray.length(); i++) {
+                String optString = rolesJSONArray.getJSONObject(i).optString("name");
+                roles.add(new RoleImpl(optString));
             }
+        }
 
-            if (json.has("session")) {
-                JSONObject sessionAttrs = json.getJSONObject("session");
-                sessionAttrs.keySet().forEach(key -> {
-                    Object object = sessionAttrs.get((String) key);
-                    session.put(key.toString(), object.toString());
-                });
-            }
-
-            if (json.has("labels")) {
-                JSONArray licensesArray = json.getJSONArray("labels");
-                for (int i = 0; i < licensesArray.length(); i++) {
-                    licenses.add(licensesArray.getString(i));
-                }
-            }
-
-            UserImpl userImpl = new UserImpl(1, firstName != null ? firstName : "", surName != null ? surName : "",
-                    loginName, 0);
-            userImpl.setGroups(roles.toArray(new Role[roles.size()]));
-            session.entrySet().forEach(entry -> {
-                userImpl.addSessionAttribute(entry.getKey(), entry.getValue());
+        if (json.has("session")) {
+            JSONObject sessionAttrs = json.getJSONObject("session");
+            sessionAttrs.keySet().forEach(key -> {
+                Object object = sessionAttrs.get((String) key);
+                session.put(key.toString(), object.toString());
             });
+        }
 
-            return Pair.of(userImpl, licenses);
+        if (json.has("labels")) {
+            JSONArray licensesArray = json.getJSONArray("labels");
+            for (int i = 0; i < licensesArray.length(); i++) {
+                licenses.add(licensesArray.getString(i));
+            }
+        }
 
-        } else
-            return null;
+        UserImpl userImpl = new UserImpl(1, firstName != null ? firstName : "", surName != null ? surName : "",
+                loginName, 0);
+        userImpl.setGroups(roles.toArray(new Role[roles.size()]));
+        session.entrySet().forEach(entry -> {
+            userImpl.addSessionAttribute(entry.getKey(), entry.getValue());
+        });
+        return Pair.of(userImpl, licenses);
     }
 }
