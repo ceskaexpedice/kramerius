@@ -23,7 +23,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.x;
 import cz.incad.kramerius.rest.apiNew.client.v60.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;

@@ -20,6 +20,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,6 +29,7 @@ import com.google.inject.Inject;
 import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.cdk.ChannelUtils;
+import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.InstanceType;
@@ -220,8 +222,6 @@ public class ConnectedInfoResource {
     }
 
     private void channelHealth(String library, JSONObject channelObject, JSONObject usersObject) {
-        String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".baseurl");
-        String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api","v5");
         boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
         String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
 
@@ -233,7 +233,7 @@ public class ConnectedInfoResource {
                 channelObject.put("enabled", true);
                 // solr
                 try {
-                    String solrChannelUrl = ChannelUtils.solrChannelUrl(api, channel);
+                    String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
                     ChannelUtils.checkSolrChannelEndpoint(this.client, library, solrChannelUrl);
                     channelObject.put("solr", true);
                 } catch (Exception e) {
@@ -244,20 +244,19 @@ public class ConnectedInfoResource {
 
                 // user
                 try {
-                    String fullChannelUrl =  ChannelUtils.userChannelUrl(api, channel);
+                    String fullChannelUrl =  ChannelUtils.userChannelUrl(inst.getInstanceType().name(), channel);
 
-                    JSONObject notLoggedUser = new JSONObject();
-                    JSONObject dnntUser = new JSONObject();
-                    
                     JSONObject notLoggedJSON = ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl, false);
+                    Pair<User, List<String>> notLogged = parsedUsers(inst, notLoggedJSON);
+                    
                     channelObject.put("user", true);
 
-                    usersDetail(notLoggedUser, notLoggedJSON);
-                    usersObject.put("notLogged", notLoggedUser);
+                    usersObject.put("notLogged", UsersUtils.userToJSON(notLogged.getLeft(),notLogged.getRight(),false));
 
                     JSONObject dnntJSON = ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl, true);
-                    usersDetail(dnntUser, dnntJSON);
-                    usersObject.put("dnnt", dnntJSON);
+                    Pair<User, List<String>> dnntUser = parsedUsers(inst, dnntJSON);
+
+                    usersObject.put("dnnt", UsersUtils.userToJSON(dnntUser.getLeft(),dnntUser.getRight(),false));
 
                     
                 } catch (Exception e) {
@@ -271,36 +270,47 @@ public class ConnectedInfoResource {
         }
     }
 
-    private void usersDetail(JSONObject notLogged, JSONObject userJson) {
-        //JSONArray rolesDestArray = new JSONArray();
-        JSONArray rolesSourceArray = userJson.optJSONArray("roles");
-        JSONArray nRolesSourceArray = new JSONArray();
-        if (rolesSourceArray != null) {
-            for (int i = 0; i < rolesSourceArray.length(); i++) {
-                Object obj = rolesSourceArray.get(i);
-                if (obj instanceof String) {
-                    nRolesSourceArray.put(obj.toString());
-                } else {
-                    JSONObject roleObj = (JSONObject) obj;
-                    String rname = roleObj.optString("name");
-                    if (rname != null) {
-                        nRolesSourceArray.put(rname);
-                    }
-                }
-                
-            }
-        }
-        
-        notLogged.put("roles", nRolesSourceArray);
-
-        if (userJson.has("labels")) {
-            JSONArray licensesArray = userJson.getJSONArray("labels");
-            notLogged.put("licenses", licensesArray);
-        } else if (userJson.has("licenses")){
-            JSONArray licensesArray = userJson.getJSONArray("licenses");
-            notLogged.put("licenses", licensesArray);
+    private Pair<User, List<String>> parsedUsers(OneInstance inst, JSONObject notLoggedJSON) {
+        switch(inst.getInstanceType()) {
+            case V5:
+                return V5ForwardUserHandler.userFromJSON(notLoggedJSON);
+            case V7:
+                return V7ForwardUserHandler.userFromJSON(notLoggedJSON);
+            default:
+                return V7ForwardUserHandler.userFromJSON(notLoggedJSON);
         }
     }
+
+//    private void usersDetail(JSONObject notLogged, JSONObject userJson) {
+//        //JSONArray rolesDestArray = new JSONArray();
+//        JSONArray rolesSourceArray = userJson.optJSONArray("roles");
+//        JSONArray nRolesSourceArray = new JSONArray();
+//        if (rolesSourceArray != null) {
+//            for (int i = 0; i < rolesSourceArray.length(); i++) {
+//                Object obj = rolesSourceArray.get(i);
+//                if (obj instanceof String) {
+//                    nRolesSourceArray.put(obj.toString());
+//                } else {
+//                    JSONObject roleObj = (JSONObject) obj;
+//                    String rname = roleObj.optString("name");
+//                    if (rname != null) {
+//                        nRolesSourceArray.put(rname);
+//                    }
+//                }
+//                
+//            }
+//        }
+//        
+//        notLogged.put("roles", nRolesSourceArray);
+//
+//        if (userJson.has("labels")) {
+//            JSONArray licensesArray = userJson.getJSONArray("labels");
+//            notLogged.put("licenses", licensesArray);
+//        } else if (userJson.has("licenses")){
+//            JSONArray licensesArray = userJson.getJSONArray("licenses");
+//            notLogged.put("licenses", licensesArray);
+//        }
+//    }
 
     
     @PUT

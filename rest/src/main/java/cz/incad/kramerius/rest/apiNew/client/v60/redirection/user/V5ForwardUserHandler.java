@@ -41,13 +41,10 @@ public class V5ForwardUserHandler extends ProxyUserHandler {
     @Override
     public Pair<User, List<String>> user() throws ProxyHandlerException {
         String baseurl = forwardUrl();
-        // https://kramerius-dnnt.lib.cas.cz/search/api/v5.0/cdk/forward/user
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/user";
         ClientResponse fResponse = super.forwardedResponse(url);
         String entity = fResponse.getEntity(String.class);
         JSONObject jObject = new JSONObject(entity);
-        // LOGGER.info("Collecting user information from = "+url+"; information =
-        // "+jObject.toString());
         return userFromJSON(jObject);
     }
 
