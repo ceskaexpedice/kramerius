@@ -216,14 +216,17 @@ public class ReharvestResource {
   @Path("open")
   @Produces(MediaType.APPLICATION_JSON)
   public Response getOpenHarvest(@QueryParam("pid")String pid) {
+      LOGGER.info("Returning open harvest");
       if (StringUtils.isAnyString(pid)) {
           ReharvestItem topItem = this.reharvestManager.getOpenItemByPid(pid);
           if (topItem != null) {
               return Response.ok(topItem.toJSON().toString()).build();
           } else {
+              LOGGER.info("Open harvest not found");
               return Response.status(Response.Status.NOT_FOUND).build();
           }
       } else {
+          LOGGER.info("Open harvest Bad request");
           return Response.status(Response.Status.BAD_REQUEST).build();
       }
   }
