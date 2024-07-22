@@ -155,11 +155,13 @@ public class ReharvestResource {
 
             // nasel to v indexu (pro polozky, ktere nejsou v indexu je potreba novy typ harvestu
             ReharvestItem item = ReharvestItem.fromJSON(jsonObj);
-            
-            switch(item.getTypeOfReharvest()) {
+            ReharvestItem alreadyRegistredItem = this.reharvestManager.getOpenItemByPid(item.getPid());
+            if (alreadyRegistredItem != null) {
+                return Response.status(Response.Status.CONFLICT).build();
+            } else {
+                switch(item.getTypeOfReharvest()) {
                 case root:
                 case children:
-                    
                     if (item != null && StringUtils.isAnyString(item.getRootPid()) && StringUtils.isAnyString(item.getOwnPidPath())) {
                         item.setTimestamp(Instant.now());
                         this.reharvestManager.register(item);
@@ -182,6 +184,7 @@ public class ReharvestResource {
                     }
                 default:
                     throw new IllegalStateException(String.format("Uknown type of reharvest %s", item.getTypeOfReharvest()));
+                }
             }
         } catch (JSONException | ParseException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

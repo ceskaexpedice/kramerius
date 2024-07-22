@@ -17,6 +17,8 @@ public interface ReharvestManager {
     public ReharvestItem getTopItem(String status);
 
     public ReharvestItem getItemById(String id);
+
+    public ReharvestItem getOpenItemByPid(String pid);
     
     public void deregister(String id);
 }

@@ -60,8 +60,13 @@ public class MemoryReharvestManagerImpl implements ReharvestManager {
     public ReharvestItem getItemById(String id) {
         return this.mapper.get(id);
     }
-    
-    
+ 
+    @Override
+    public ReharvestItem getOpenItemByPid(String pid) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     @Override
     public ReharvestItem update(ReharvestItem item) throws UnsupportedEncodingException, JSONException, ParseException {
         return item;

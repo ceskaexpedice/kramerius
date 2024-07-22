@@ -177,6 +177,52 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
         return null;
     }
 
+    
+    
+    
+    
+    @Override
+    public ReharvestItem getOpenItemByPid(String pid) {
+        try {
+            String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
+            String query = String.format("pid:(%s)+AND+state:(open+OR+waiting_for_approve)", pid);
+            String sort = URLEncoder.encode("indexed asc","UTF-8");
+            String fullUrl = String.format("%s/select?q=%s&rows=1&sort=%s", reharvest, query,sort);
+            String t = solrGet(fullUrl);
+            JSONObject solrResp = new JSONObject(t);
+            JSONArray docs = solrDocs(solrResp);
+            if (docs.length() > 0) {
+                JSONObject doc = docs.getJSONObject(0);
+                ReharvestItem reharvestItem = ReharvestItem.fromJSON(doc);
+                return reharvestItem;
+            }
+        } catch (UniformInterfaceException | ClientHandlerException | JSONException | ParseException | UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return null;
+    }
+
+//    @Override
+//    public ReharvestItem getItemByPid(String pid) {
+//        try {
+//            String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
+//            String query = String.format("pid:(%s)", pid);
+//            String sort = URLEncoder.encode("indexed asc","UTF-8");
+//            String fullUrl = String.format("%s/select?q=%s&rows=1&sort=%s", reharvest, query,sort);
+//            String t = solrGet(fullUrl);
+//            JSONObject solrResp = new JSONObject(t);
+//            JSONArray docs = solrDocs(solrResp);
+//            if (docs.length() > 0) {
+//                JSONObject doc = docs.getJSONObject(0);
+//                ReharvestItem reharvestItem = ReharvestItem.fromJSON(doc);
+//                return reharvestItem;
+//            }
+//        } catch (UniformInterfaceException | ClientHandlerException | JSONException | ParseException | UnsupportedEncodingException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//        }
+//        return null;
+//    }
+
     private JSONArray solrDocs(JSONObject solrResp) {
         JSONArray docs = new JSONArray();
         if (solrResp.has("response")) {
