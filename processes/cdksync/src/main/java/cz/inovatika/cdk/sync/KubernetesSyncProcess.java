@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -68,8 +70,8 @@ public class KubernetesSyncProcess {
      * @throws IOException 
      * @throws SAXException 
      * @throws ParserConfigurationException */
-    public static void comparePids(Map<String, String> iterationMap,Map<String, String> comparingMap,Map<String, String> reharvestMap, String dl, String model, Client client) throws ParserConfigurationException, SAXException, IOException {
-        
+    public static void comparePids(Map<String, String> iterationMap,Map<String, String> comparingMap,Map<String, String> reharvestMap, JSONObject libs, String dl, String model, Client client) throws ParserConfigurationException, SAXException, IOException {
+
         String reharvestUrl = reharvestMap.get("url");
         
         HashSet<String> source = identifiers(iterationMap, model, client);
@@ -86,7 +88,6 @@ public class KubernetesSyncProcess {
                 sortedComparing.remove(sourceTop);
             } else {
                 
-                //https://api.val.ceskadigitalniknihovna.cz/search/api/client/v7.0
                 String url = iterationMap.get("url");
                 String endpoint = iterationMap.containsKey("endpoint") ? iterationMap.get("endpoint") : "select";
                 //String replaced = sourceTop.replace(":", "\\:");
@@ -102,9 +103,11 @@ public class KubernetesSyncProcess {
                 reharvestItem.setRootPid(sourceTop);
                 reharvestItem.setOwnPidPath(sourceTop);
                 
+                reharvestItem.setLibraries(allEnabledLibraries(libs));
+
+                
                 WebResource r = client.resource(reharvestUrl);
                 ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
-                //LOGGER.info("Status:"+resp.getStatus());
                 if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
                     String errorMsg = resp.getEntity(String.class);
                     LOGGER.warning(String.format("%s",errorMsg));
@@ -119,26 +122,72 @@ public class KubernetesSyncProcess {
             if (source.contains(compTop)) {
                 sortedSource.remove(compTop);
             } else {
-     
-                ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - reharvest from sync program","open", compTop, "none");
-                reharvestItem.setTypeOfReharvest(TypeOfReharvset.new_root);
-                reharvestItem.setState("waiting_for_approve");
-                reharvestItem.setRootPid(compTop);
-                reharvestItem.setLibraries(Arrays.asList(dl));
                 
-                
-                WebResource r = client.resource(reharvestUrl);
-                ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
-                LOGGER.info("Status:"+resp.getStatus());
-                if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
-                    String errorMsg = resp.getEntity(String.class);
-                    LOGGER.warning(String.format("%s",errorMsg));
+                if (exists(compTop, iterationMap, client)) {
+
+                    ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - reharvest from sync program","open", compTop, "none");
+                    reharvestItem.setTypeOfReharvest(TypeOfReharvset.root);
+                    reharvestItem.setState("waiting_for_approve");
+                    reharvestItem.setRootPid(compTop);
+                    reharvestItem.setLibraries(allEnabledLibraries(libs));
+                    
+                    
+                    WebResource r = client.resource(reharvestUrl);
+                    ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
+                    LOGGER.info("Status:"+resp.getStatus());
+                    if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
+                        String errorMsg = resp.getEntity(String.class);
+                        LOGGER.warning(String.format("%s",errorMsg));
+                    }
+
+                } else {
+                    ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - reharvest from sync program","open", compTop, "none");
+                    reharvestItem.setTypeOfReharvest(TypeOfReharvset.new_root);
+                    reharvestItem.setState("waiting_for_approve");
+                    reharvestItem.setRootPid(compTop);
+                    reharvestItem.setLibraries(Arrays.asList(dl));
+                    
+                    
+                    WebResource r = client.resource(reharvestUrl);
+                    ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
+                    LOGGER.info("Status:"+resp.getStatus());
+                    if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
+                        String errorMsg = resp.getEntity(String.class);
+                        LOGGER.warning(String.format("%s",errorMsg));
+                    }
                 }
             }
             sortedComparing.remove(compTop);
         }
     }
 
+    private static List<String> allEnabledLibraries(JSONObject libs) {
+        List<String> libsArray = new ArrayList<>();
+        Set keys = libs.keySet();
+        for (Object key : keys) {
+            JSONObject libObject =  libs.getJSONObject(key.toString());
+            boolean status = libObject.optBoolean("status",false);
+            if (status) libsArray.add(key.toString());
+        }
+        return libsArray;
+    }
+
+    private static boolean exists(String pid, Map<String, String> map,  Client client) throws ParserConfigurationException, SAXException, IOException {
+        String iterationUrl = map.get("url");
+        
+        String solrEndpoint = solrEndpoint(map);
+        //String identifier = identifier(map);
+        
+        String masterQuery = URLEncoder.encode(String.format("%s:\"%s\"", "pid", pid), "UTF-8");
+        
+        
+        Element response = SolrUtils.executeQuery(client, iterationUrl, solrEndpoint+"?q="+masterQuery+"&wt=xml", "", "");
+        List<String> findAllPids = SolrUtils.findAllPids(response);
+        
+        return !findAllPids.isEmpty();
+    }    
+    
+    
     private static HashSet<String> identifiers(Map<String, String> map, String model, Client client) {
         String iterationUrl = map.get("url");
         String api = map.get("api");
@@ -244,10 +293,22 @@ public class KubernetesSyncProcess {
         if (!comparingSyncMap.containsKey("batch")) {
             comparingSyncMap.put("batch", "45");
         }
-        
-        List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-        for (String topLevelModel : topLevelModels) {
-            comparePids(iterationMap, comparingSyncMap,reharvestMap, iterationMap.get("dl"), topLevelModel, buildClient);
+
+        Map<String,String> proxyMap = KubernetesEnvSupport.proxyMap(env);
+        String proxyUrl = proxyMap.get("url");
+        if (proxyUrl == null) throw new IllegalStateException("expecting PROXY_API_URL");
+        WebResource r = buildClient.resource(proxyUrl);
+        ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+        if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+            String proxyURLREsp = resp.getEntity(String.class);
+            JSONObject libraries = new JSONObject(proxyURLREsp);
+            List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
+            for (String topLevelModel : topLevelModels) {
+                comparePids(iterationMap, comparingSyncMap,reharvestMap, libraries,  iterationMap.get("dl"), topLevelModel, buildClient);
+            }
+        } else {
+            throw new RuntimeException(String.format("Error response from %s (status %d)",proxyUrl, resp.getStatus()));
         }
     }
+
 }

@@ -211,7 +211,23 @@ public class ReharvestResource {
       }
   }
 
-  
+
+  @GET
+  @Path("open")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getOpenHarvest(@QueryParam("pid")String pid) {
+      if (StringUtils.isAnyString(pid)) {
+          ReharvestItem topItem = this.reharvestManager.getOpenItemByPid(pid);
+          if (topItem != null) {
+              return Response.ok(topItem.toJSON().toString()).build();
+          } else {
+              return Response.status(Response.Status.NOT_FOUND).build();
+          }
+      } else {
+          return Response.status(Response.Status.BAD_REQUEST).build();
+      }
+  }
+
   @PUT
   @Path("{id}/state")
   @Produces(MediaType.APPLICATION_JSON)
