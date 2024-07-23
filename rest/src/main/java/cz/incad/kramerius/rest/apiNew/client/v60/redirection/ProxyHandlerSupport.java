@@ -224,19 +224,18 @@ public abstract class ProxyHandlerSupport {
                         pidPath = pidPath.substring(0, index + ownParentPidText.length()).trim();
                     }
                     try {
-                        ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", ownParentPid.getTextContent().trim(), pidPath);
-                        reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
-                        reharvestItem.setState("waiting_for_approve");
-                            
-                        if (cdkCollection != null) {
-                            List<String> collections = XMLUtils.getElements(cdkCollection).stream().map(Element::getTextContent).collect(Collectors.toList());
-                            reharvestItem.setLibraries(collections);
+                        ReharvestItem alreadyRegistredItem = this.reharvestManager.getOpenItemByPid(ownParentPid.getTextContent().trim());
+                        if (alreadyRegistredItem == null) {
+                            ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", ownParentPid.getTextContent().trim(), pidPath);
+                            reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
+                            reharvestItem.setState("waiting_for_approve");
+                            if (cdkCollection != null) {
+                                List<String> collections = XMLUtils.getElements(cdkCollection).stream().map(Element::getTextContent).collect(Collectors.toList());
+                                reharvestItem.setLibraries(collections);
+                            }
+                            this.reharvestManager.register(reharvestItem);
                         }
                         
-
-                        //LOGGER.info(String.format("Registering item %s", reharvestItem.toJSON().toString()));
-
-                        this.reharvestManager.register(reharvestItem);
                     } catch (DOMException e) {
                         LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     } catch (AlreadyRegistedPidsException e) {

@@ -77,6 +77,35 @@ public class KubernetesSyncProcess {
         HashSet<String> source = identifiers(iterationMap, model, client);
         TreeSet<String> sortedSource = new TreeSet<>(source);
         
+        if (!comparingMap.containsKey("api")) {
+            JSONObject libObject = libs.getJSONObject(dl);
+            JSONObject configObject = libObject.getJSONObject("config");
+            comparingMap.put("api", configObject.getString("api"));
+        }
+        if (!comparingMap.containsKey("url")) {
+            JSONObject libObject = libs.getJSONObject(dl);
+            JSONObject configObject = libObject.getJSONObject("config");
+            String forwardUrl = configObject.getString("forwardurl");
+            String api = comparingMap.get("api");
+            switch (api) {
+                case "v7":
+                    String v7url= forwardUrl+(forwardUrl.endsWith("/")?"":"/")+ "api/cdk/v7.0/forward/sync/solr";
+                    comparingMap.put("url", v7url);
+                    break;
+
+                case "v5":
+                    String v5url= forwardUrl+(forwardUrl.endsWith("/")?"":"/")+ "api/v5.0/cdk/forward/sync/solr";
+                    comparingMap.put("url", v5url);
+                    break;
+
+                default:
+                    String defaulturl= forwardUrl+(forwardUrl.endsWith("/")?"":"/")+ "api/cdk/v7.0/forward/sync/solr";
+                    comparingMap.put("url", defaulturl);
+                    break;
+            }
+            //comparingMap.put("url", configObject.getString("forwardurl"));
+        }       
+
         HashSet<String> comparing = identifiers(comparingMap, model, client);
         TreeSet<String> sortedComparing = new TreeSet<>(comparing);
         
@@ -90,14 +119,12 @@ public class KubernetesSyncProcess {
                 
                 String url = iterationMap.get("url");
                 String endpoint = iterationMap.containsKey("endpoint") ? iterationMap.get("endpoint") : "select";
-                //String replaced = sourceTop.replace(":", "\\:");
-                //String query = URLEncoder.encode(String.format("pid:%s", replaced), "UTF-8")+"&wt=xml";
                 
                 if (!url.endsWith("/")) { url = url+"/";  }
                 url = url + endpoint;
                 
                 
-                ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - reharvest from sync program","open", sourceTop, sourceTop);
+                ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - probably deleted- whole reharvest","open", sourceTop, sourceTop);
                 reharvestItem.setTypeOfReharvest(TypeOfReharvset.root);
                 reharvestItem.setState("waiting_for_approve");
                 reharvestItem.setRootPid(sourceTop);
@@ -125,7 +152,7 @@ public class KubernetesSyncProcess {
                 
                 if (exists(compTop, iterationMap, client)) {
 
-                    ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - reharvest from sync program","open", compTop, "none");
+                    ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - missing DL","open", compTop, "none");
                     reharvestItem.setTypeOfReharvest(TypeOfReharvset.root);
                     reharvestItem.setState("waiting_for_approve");
                     reharvestItem.setRootPid(compTop);
@@ -141,7 +168,7 @@ public class KubernetesSyncProcess {
                     }
 
                 } else {
-                    ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - reharvest from sync program","open", compTop, "none");
+                    ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - missing title","open", compTop, "none");
                     reharvestItem.setTypeOfReharvest(TypeOfReharvset.new_root);
                     reharvestItem.setState("waiting_for_approve");
                     reharvestItem.setRootPid(compTop);
@@ -167,7 +194,12 @@ public class KubernetesSyncProcess {
         for (Object key : keys) {
             JSONObject libObject =  libs.getJSONObject(key.toString());
             boolean status = libObject.optBoolean("status",false);
-            if (status) libsArray.add(key.toString());
+            if (status) {
+                JSONObject config = libObject.getJSONObject("config");
+                if (config.optBoolean("licenses",false)) {
+                    libsArray.add(key.toString());
+                }
+            }
         }
         return libsArray;
     }
@@ -176,7 +208,6 @@ public class KubernetesSyncProcess {
         String iterationUrl = map.get("url");
         
         String solrEndpoint = solrEndpoint(map);
-        //String identifier = identifier(map);
         
         String masterQuery = URLEncoder.encode(String.format("%s:\"%s\"", "pid", pid), "UTF-8");
         
@@ -293,19 +324,39 @@ public class KubernetesSyncProcess {
         if (!comparingSyncMap.containsKey("batch")) {
             comparingSyncMap.put("batch", "45");
         }
-
+        
+        
         Map<String,String> proxyMap = KubernetesEnvSupport.proxyMap(env);
         String proxyUrl = proxyMap.get("url");
         if (proxyUrl == null) throw new IllegalStateException("expecting PROXY_API_URL");
+
+        JSONObject librariesInfo = librariesInfo(buildClient, proxyUrl);
+        List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
+        for (String topLevelModel : topLevelModels) {
+            comparePids(iterationMap, comparingSyncMap,reharvestMap, librariesInfo,  iterationMap.get("dl"), topLevelModel, buildClient);
+        }
+    }
+
+
+    
+    private static JSONObject librariesInfo(Client buildClient, String proxyUrl) {
         WebResource r = buildClient.resource(proxyUrl);
         ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
         if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
             String proxyURLREsp = resp.getEntity(String.class);
             JSONObject libraries = new JSONObject(proxyURLREsp);
-            List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-            for (String topLevelModel : topLevelModels) {
-                comparePids(iterationMap, comparingSyncMap,reharvestMap, libraries,  iterationMap.get("dl"), topLevelModel, buildClient);
+            Set keys = libraries.keySet();
+            for (Object key : keys) {
+                JSONObject libObject = libraries.getJSONObject(key.toString());
+                WebResource keyr = buildClient.resource(proxyUrl+"/"+key.toString()+"/config");
+                ClientResponse configResp = keyr.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+                if (configResp.getStatus() == Response.Status.OK.getStatusCode()) {
+                    String cionfigResp = configResp.getEntity(String.class);
+                    JSONObject configRespJSON = new JSONObject(cionfigResp);
+                    libObject.put("config", configRespJSON);
+                } 
             }
+            return libraries;
         } else {
             throw new RuntimeException(String.format("Error response from %s (status %d)",proxyUrl, resp.getStatus()));
         }
