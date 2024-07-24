@@ -13,6 +13,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.List;
 
 import static cz.incad.kramerius.services.iterators.utils.IterationUtils.pidsToIterationItem;
 import static cz.incad.kramerius.services.utils.SolrUtils.*;
@@ -31,7 +32,7 @@ public class SolrPageIterator extends AbstractSolrIterator{
         super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
     }
 
-    public static Element paginationQuery(Client client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String user, String pass) throws IOException, SAXException, ParserConfigurationException {
+    public static Element paginationQuery(Client client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String sorting, String user, String pass) throws IOException, SAXException, ParserConfigurationException {
         String fullQuery = null;
         if (StringUtils.isAnyString(filterQuery)) {
             fullQuery = String.format("?q=%s&start=%s&rows=%d&fq=%s&fl=%s",mq,offset, rows, URLEncoder.encode(filterQuery,"UTF-8"), identifierField);
@@ -39,6 +40,9 @@ public class SolrPageIterator extends AbstractSolrIterator{
             fullQuery = String.format("?q=%s&start=%s&rows=%d&fl=%s",mq,offset, rows,identifierField);
         }
         String query = endpoint+ fullQuery+"&wt=xml";
+        if (StringUtils.isAnyString(sorting)) {
+           query = query+"&sort="+URLEncoder.encode(sorting,"UTF-8");
+        }
         return SolrUtils.executeQuery(client, url, query, user, pass);
     }
 
@@ -64,11 +68,12 @@ public class SolrPageIterator extends AbstractSolrIterator{
             int offset = 0;
             int numberOfResult = Integer.MAX_VALUE;
             do {
-                Element element =  paginationQuery( client, address,masterQuery,  ""+offset, rows, filterQuery, endpoint, id, this.user, this.pass);
+                Element element =  paginationQuery( client, address,masterQuery,  ""+offset, rows, filterQuery, endpoint, id, this.sorting, this.user, this.pass);
                 if (numberOfResult == Integer.MAX_VALUE) {
                     numberOfResult = findNumberOfResults(element);
                 }
-                iterationCallback.call(pidsToIterationItem(this.address, findAllPids(element)));
+                List<String> allPids = findAllPids(element);
+                iterationCallback.call(pidsToIterationItem(this.address, allPids));
                 offset += rows;
             }while(offset < numberOfResult);
             // callback after iteration

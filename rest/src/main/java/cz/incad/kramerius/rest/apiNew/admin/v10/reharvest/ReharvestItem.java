@@ -26,7 +26,12 @@ public class ReharvestItem {
         children, // reharvest titulu a potomku
         
         new_children, // dilo v cdk smazano a je potreba stahnout z krameriu informace o detech a titulu a pak pomoci own_pid_path 
-        new_root; // dilo je v cdk smazano a je potreba stahnot z krameriu informace o korenovem dile
+        new_root, // dilo je v cdk smazano a je potreba stahnot z krameriu informace o korenovem dile
+        
+        only_pid, // pouze jeden pid
+        
+        delete_pid,
+        delete_tree;
     }
 
     

@@ -35,6 +35,7 @@ import com.sun.jersey.api.json.JSONConfiguration;
 import antlr.StringUtils;
 import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
+import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem.TypeOfReharvset;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.utils.kubernetes.KubernetesEnvSupport;
 import cz.incad.kramerius.utils.ReharvestUtils;
@@ -113,8 +114,11 @@ public class KubernetesReharvestProcess {
                                 ChannelUtils.checkSolrChannelEndpoints(client, configurations);
                                 // delete all asociated pids from index 
                                 ReharvestUtils.deleteAllGivenPids(client, destinationMap, allPidsList, onlyShowConfiguration);
+                                
                                 // reindex pids
-                                ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, reharvestItem);
+                                if (!reharvestItem.getTypeOfReharvest().equals(TypeOfReharvset.delete_pid) && !reharvestItem.getTypeOfReharvest().equals(TypeOfReharvset.delete_tree)) {
+                                    ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, reharvestItem);
+                                }
 
                                 if (!onlyShowConfiguration) {
                                     changeState(client, wurl, id,"closed");

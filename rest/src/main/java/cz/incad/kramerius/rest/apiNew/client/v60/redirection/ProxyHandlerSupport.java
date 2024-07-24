@@ -44,6 +44,7 @@ import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem.TypeOfReharvset;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -109,16 +110,16 @@ public abstract class ProxyHandlerSupport {
 		}
 	}
 	
-    public Response buildForwardResponseGET(String url) throws ProxyHandlerException {
-        return buildForwardResponseGET(url, null, null);
+    public Response buildForwardResponseGET(String url, boolean deleteTrigger) throws ProxyHandlerException {
+        return buildForwardResponseGET(url, null, null, deleteTrigger);
     }
     
-    public Response buildForwardResponseGET(String url, String pid) throws ProxyHandlerException {
-        return buildForwardResponseGET(url, null, pid);
+    public Response buildForwardResponseGET(String url, String pid, boolean deleteTrigger) throws ProxyHandlerException {
+        return buildForwardResponseGET(url, null, pid, deleteTrigger);
     }
     
 
-    public Response buildForwardResponseGET(String url, String mimetype, String pid) throws ProxyHandlerException {
+    public Response buildForwardResponseGET(String url, String mimetype, String pid, boolean deleteTrigger) throws ProxyHandlerException {
 		WebResource.Builder b = buidFowrardResponse(url);
 		ClientResponse response = b.get(ClientResponse.class);
 		if (response.getStatus() == 200) {
@@ -157,7 +158,7 @@ public abstract class ProxyHandlerSupport {
 		} else {
             // event for reharvest
 		    if (response.getStatus() == 404) {
-		        deleteTriggeToReharvest(pid);
+		        if (deleteTrigger)  deleteTriggeToReharvest(pid);
 	        }
 			return Response.status(response.getStatus()).build();
 		}
@@ -226,11 +227,18 @@ public abstract class ProxyHandlerSupport {
                     try {
                         ReharvestItem alreadyRegistredItem = this.reharvestManager.getOpenItemByPid(ownParentPid.getTextContent().trim());
                         if (alreadyRegistredItem == null) {
-                            ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger - reharvest from core","open", ownParentPid.getTextContent().trim(), pidPath);
+                            ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger|404 ","open", ownParentPid.getTextContent().trim(), pidPath);
                             reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
                             reharvestItem.setState("waiting_for_approve");
                             if (cdkCollection != null) {
-                                List<String> collections = XMLUtils.getElements(cdkCollection).stream().map(Element::getTextContent).collect(Collectors.toList());
+                                // all libraries
+                                List<String> collections = new ArrayList<>();
+                                List<OneInstance> enabledInstances = this.instances.enabledInstances();
+                                for (OneInstance inst : enabledInstances) {
+                                    String acronym = inst.getName();
+                                    boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + acronym + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + acronym + ".licenses") : false;
+                                    if (channelAccess) { collections.add(acronym); }
+                                }
                                 reharvestItem.setLibraries(collections);
                             }
                             this.reharvestManager.register(reharvestItem);

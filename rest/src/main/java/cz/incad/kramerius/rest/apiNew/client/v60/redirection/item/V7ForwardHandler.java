@@ -99,7 +99,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, null);
+            return buildForwardResponseGET(url, null, true);
         }
     }
 
@@ -112,7 +112,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, null);
+            return buildForwardResponseGET(url, null,false);
         }
     }
 
@@ -124,7 +124,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
             String baseurl = this.forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                     + "/streams/BIBLIO_MODS";
-            return buildForwardResponseGET(url,this.pid);
+            return buildForwardResponseGET(url,this.pid, true);
         }
     }
 
@@ -137,7 +137,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
             String baseurl = forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/zoomify/" + this.pid
                     + "/ImageProperties.xml";
-            return buildForwardResponseGET(url, null);
+            return buildForwardResponseGET(url, null, true);
         }
     }
     
@@ -148,7 +148,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String baseurl = forwardUrl();
         String formatted = String.format("api/cdk/v7.0/forward/zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
-        return buildForwardResponseGET(url, null);
+        return buildForwardResponseGET(url, null, false);
     }
 
     
@@ -161,7 +161,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, null);
+            return buildForwardResponseGET(url, null, false);
         }
     }
 
@@ -173,7 +173,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, null);
+            return buildForwardResponseGET(url, null,false);
         }
     }
 

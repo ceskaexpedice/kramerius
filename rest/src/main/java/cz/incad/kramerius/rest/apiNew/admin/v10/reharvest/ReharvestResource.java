@@ -160,6 +160,17 @@ public class ReharvestResource {
                 return Response.status(Response.Status.CONFLICT).build();
             } else {
                 switch(item.getTypeOfReharvest()) {
+
+                case only_pid:
+                    if (item != null && StringUtils.isAnyString(item.getPid())) {
+                        item.setTimestamp(Instant.now());
+                        this.reharvestManager.register(item);
+                        return Response.ok(item.toJSON().toString()).build();
+                    } else {
+                        JSONObject errorObject = new JSONObject();
+                        errorObject.put("error", "No pid");
+                        return Response.status(Response.Status.BAD_REQUEST).entity(errorObject.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
+                    }
                 case root:
                 case children:
                     if (item != null && StringUtils.isAnyString(item.getRootPid()) && StringUtils.isAnyString(item.getOwnPidPath())) {

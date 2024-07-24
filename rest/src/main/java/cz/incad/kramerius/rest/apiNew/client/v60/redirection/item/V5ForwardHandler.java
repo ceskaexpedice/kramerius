@@ -57,7 +57,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, null);
+            return buildForwardResponseGET(url, null, true);
         }
     }
 
@@ -70,7 +70,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, null);
+            return buildForwardResponseGET(url, null,false);
         }
     }
 
@@ -87,7 +87,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
                     + "/streams/BIBLIO_MODS";
             // String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/"
             // + this.pid + "/streams/BIBLIO_MODS";
-            return buildForwardResponseGET(url, this.pid);
+            return buildForwardResponseGET(url, this.pid, true);
         }
     }
 
@@ -100,7 +100,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, null);
+            return buildForwardResponseGET(url, null, true);
         }
     }
 
@@ -109,7 +109,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         String baseurl = this.forwardUrl();
         String formatted = String.format("api/v5.0/cdk/forward/zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
-        return buildForwardResponseGET(url, null);
+        return buildForwardResponseGET(url, null, false);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url,null);
+            return buildForwardResponseGET(url,null, false);
         }
     }
 
@@ -134,7 +134,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, null);
+            return buildForwardResponseGET(url, null, false);
         }
     }
 
@@ -169,7 +169,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, null);
+            return buildForwardResponseGET(url, null, true);
         }
     }
 
@@ -192,7 +192,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
             if (splited.length > 1) {
                 mime =  IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? IIIF_SUPPORTED_MIMETYPES.get(splited[1]) :  defaultMime;
             }
-            return buildForwardResponseGET(url, null, mime);
+            return buildForwardResponseGET(url, null, mime,false);
         }
     }
 

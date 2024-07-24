@@ -6,6 +6,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -75,7 +76,7 @@ public class KubernetesSyncProcess {
         String reharvestUrl = reharvestMap.get("url");
         
         HashSet<String> source = identifiers(iterationMap, model, client);
-        TreeSet<String> sortedSource = new TreeSet<>(source);
+        //TreeSet<String> sortedSource = new TreeSet<>(source);
         
         if (!comparingMap.containsKey("api")) {
             JSONObject libObject = libs.getJSONObject(dl);
@@ -103,88 +104,77 @@ public class KubernetesSyncProcess {
                     comparingMap.put("url", defaulturl);
                     break;
             }
-            //comparingMap.put("url", configObject.getString("forwardurl"));
         }       
 
         HashSet<String> comparing = identifiers(comparingMap, model, client);
-        TreeSet<String> sortedComparing = new TreeSet<>(comparing);
-        
+
         LOGGER.info(String.format("--- Model %s ---", model));
-        
-        while(!sortedSource.isEmpty()) {
-            String sourceTop = sortedSource.first();
-            if (comparing.contains(sourceTop)) {
-                sortedComparing.remove(sourceTop);
-            } else {
-                
-                String url = iterationMap.get("url");
-                String endpoint = iterationMap.containsKey("endpoint") ? iterationMap.get("endpoint") : "select";
-                
-                if (!url.endsWith("/")) { url = url+"/";  }
-                url = url + endpoint;
-                
-                
-                ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - probably deleted- whole reharvest","open", sourceTop, sourceTop);
-                reharvestItem.setTypeOfReharvest(TypeOfReharvset.root);
-                reharvestItem.setState("waiting_for_approve");
-                reharvestItem.setRootPid(sourceTop);
-                reharvestItem.setOwnPidPath(sourceTop);
-                
-                reharvestItem.setLibraries(allEnabledLibraries(libs));
+        List<String> probablyDeleted = new ArrayList<>(source);
 
-                
-                WebResource r = client.resource(reharvestUrl);
-                ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
-                if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
-                    String errorMsg = resp.getEntity(String.class);
-                    LOGGER.warning(String.format("%s",errorMsg));
-                }
-            }
-            sortedSource.remove(sourceTop);
+        probablyDeleted.removeAll(comparing);
+        LOGGER.info(String.format("Probably deleted titles %s",probablyDeleted));
+        
+        for (String pid : probablyDeleted) {
+          
+          String url = iterationMap.get("url");
+          String endpoint = iterationMap.containsKey("endpoint") ? iterationMap.get("endpoint") : "select";
+          
+          if (!url.endsWith("/")) { url = url+"/";  }
+          url = url + endpoint;
+          
+          
+          ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger|probably deleted","open", pid, pid);
+          reharvestItem.setTypeOfReharvest(TypeOfReharvset.root);
+          reharvestItem.setState("waiting_for_approve");
+          reharvestItem.setRootPid(pid);
+          reharvestItem.setOwnPidPath(pid);
+          
+          reharvestItem.setLibraries(allEnabledLibraries(libs));
+          
+          WebResource r = client.resource(reharvestUrl);
+          ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
+          if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
+              String errorMsg = resp.getEntity(String.class);
+              LOGGER.warning(String.format("%s",errorMsg));
+          }
         }
-
         
-        while(!sortedComparing.isEmpty()) {
-            String compTop = sortedComparing.first();
-            if (source.contains(compTop)) {
-                sortedSource.remove(compTop);
-            } else {
-                
-                if (exists(compTop, iterationMap, client)) {
+        
+        List<String> probablyNotHarvested = new ArrayList<>(comparing);
+        probablyNotHarvested.removeAll(source);
+        LOGGER.info(String.format("Probably not harvested titles %s",probablyNotHarvested));
 
-                    ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - missing DL","open", compTop, "none");
-                    reharvestItem.setTypeOfReharvest(TypeOfReharvset.root);
-                    reharvestItem.setState("waiting_for_approve");
-                    reharvestItem.setRootPid(compTop);
-                    reharvestItem.setLibraries(allEnabledLibraries(libs));
-                    
-                    
-                    WebResource r = client.resource(reharvestUrl);
-                    ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
-                    LOGGER.info("Status:"+resp.getStatus());
-                    if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
-                        String errorMsg = resp.getEntity(String.class);
-                        LOGGER.warning(String.format("%s",errorMsg));
-                    }
+        for (String pid : probablyNotHarvested) {
+          if (exists(pid, iterationMap, client)) {
+              // muze byt i spatny model??? - pak konflikt
+              ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger|missing DL","open", pid, "none");
+              reharvestItem.setTypeOfReharvest(TypeOfReharvset.root);
+              reharvestItem.setState("waiting_for_approve");
+              reharvestItem.setRootPid(pid);
+              reharvestItem.setLibraries(allEnabledLibraries(libs));
+              
+              WebResource r = client.resource(reharvestUrl);
+              ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
+              LOGGER.info("Status:"+resp.getStatus());
+              if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
+                  String errorMsg = resp.getEntity(String.class);
+                  LOGGER.warning(String.format("%s",errorMsg));
+              }
+      } else {
+              ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger|missing title","open", pid, "none");
+              reharvestItem.setTypeOfReharvest(TypeOfReharvset.new_root);
+              reharvestItem.setState("waiting_for_approve");
+              reharvestItem.setRootPid(pid);
+              reharvestItem.setLibraries(Arrays.asList(dl));
 
-                } else {
-                    ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Sync trigger - missing title","open", compTop, "none");
-                    reharvestItem.setTypeOfReharvest(TypeOfReharvset.new_root);
-                    reharvestItem.setState("waiting_for_approve");
-                    reharvestItem.setRootPid(compTop);
-                    reharvestItem.setLibraries(Arrays.asList(dl));
-                    
-                    
-                    WebResource r = client.resource(reharvestUrl);
-                    ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
-                    LOGGER.info("Status:"+resp.getStatus());
-                    if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
-                        String errorMsg = resp.getEntity(String.class);
-                        LOGGER.warning(String.format("%s",errorMsg));
-                    }
-                }
-            }
-            sortedComparing.remove(compTop);
+              WebResource r = client.resource(reharvestUrl);
+              ClientResponse resp = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(reharvestItem.toJSON().toString(), MediaType.APPLICATION_JSON).put(ClientResponse.class);
+              LOGGER.info("Status:"+resp.getStatus());
+              if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
+                  String errorMsg = resp.getEntity(String.class);
+                  LOGGER.warning(String.format("%s",errorMsg));
+              }
+          }
         }
     }
 
@@ -206,15 +196,10 @@ public class KubernetesSyncProcess {
 
     private static boolean exists(String pid, Map<String, String> map,  Client client) throws ParserConfigurationException, SAXException, IOException {
         String iterationUrl = map.get("url");
-        
         String solrEndpoint = solrEndpoint(map);
-        
         String masterQuery = URLEncoder.encode(String.format("%s:\"%s\"", "pid", pid), "UTF-8");
-        
-        
         Element response = SolrUtils.executeQuery(client, iterationUrl, solrEndpoint+"?q="+masterQuery+"&wt=xml", "", "");
         List<String> findAllPids = SolrUtils.findAllPids(response);
-        
         return !findAllPids.isEmpty();
     }    
     
@@ -252,8 +237,12 @@ public class KubernetesSyncProcess {
         }
         LOGGER.info(String.format("Solr iterator %s, filter query %s, source url %s" , processIterator.getClass().getName(), filterQuery, iterationUrl));
         final HashSet<String> sourcePids  = new HashSet<>();
+        //final HashMap<String, List<String>> pp = new HashMap<>();
+        //List<String> compositeIds = new ArrayList<>();
         processIterator.iterate(client, (list)-> {
+            LOGGER.info("SourcePids size "+sourcePids.size());
             for (IterationItem it : list) {
+                
                 String id = it.getPid();
                 if (identifier.equals("compositeId")) {
                     String[] arr = id.split("!");
@@ -267,7 +256,7 @@ public class KubernetesSyncProcess {
                     sourcePids.add(id);
                 }
             }
-            
+           
         }, ()->{});
 
         LOGGER.info(String.format("Number of results %d" , sourcePids.size()));
@@ -331,8 +320,16 @@ public class KubernetesSyncProcess {
         if (proxyUrl == null) throw new IllegalStateException("expecting PROXY_API_URL");
 
         JSONObject librariesInfo = librariesInfo(buildClient, proxyUrl);
-        List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-        for (String topLevelModel : topLevelModels) {
+        
+        List<String> iterationModels = new ArrayList<>();
+        if (!iterationMap.containsKey("models")) {
+            iterationModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
+        } else {
+            String[] models = iterationMap.get("models").split(",");
+            iterationModels = Arrays.asList(models);
+        }
+        
+        for (String topLevelModel : iterationModels) {
             comparePids(iterationMap, comparingSyncMap,reharvestMap, librariesInfo,  iterationMap.get("dl"), topLevelModel, buildClient);
         }
     }
