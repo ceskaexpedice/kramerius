@@ -161,6 +161,7 @@ public class ReharvestResource {
             } else {
                 switch(item.getTypeOfReharvest()) {
 
+                case delete_pid:
                 case only_pid:
                     if (item != null && StringUtils.isAnyString(item.getPid())) {
                         item.setTimestamp(Instant.now());
@@ -171,6 +172,7 @@ public class ReharvestResource {
                         errorObject.put("error", "No pid");
                         return Response.status(Response.Status.BAD_REQUEST).entity(errorObject.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
                     }
+                case delete_tree:    
                 case root:
                 case children:
                     if (item != null && StringUtils.isAnyString(item.getRootPid()) && StringUtils.isAnyString(item.getOwnPidPath())) {
