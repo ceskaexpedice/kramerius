@@ -102,12 +102,14 @@ public class ReharvestUtils {
             String filterQuery = "none";
             switch(item.getTypeOfReharvest()) {
                 case only_pid:
+                case delete_pid:
                     filterQuery = "pid:\"" + item.getPid() + "\"";
                 break;
                 case new_root:
                 case root:
                     filterQuery = "root.pid:\"" + item.getRootPid() + "\"";
                 break;
+                case delete_tree:
                 case children:
                     String ownPidPath = item.getOwnPidPath();
                     if (!StringUtils.isAnyString(ownPidPath)) {
