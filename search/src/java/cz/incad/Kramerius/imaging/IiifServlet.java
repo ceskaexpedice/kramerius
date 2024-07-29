@@ -83,39 +83,49 @@ public class IiifServlet extends AbstractImageServlet {
                 permited = this.rightsResolver.isActionAllowed(userProvider.get(), SecuredActions.A_READ.getFormalName(), pid, null, pth.injectRepository()).flag();
                 if (permited) break;
             }
-
             if (permited) {
                 try {
+                    
                     String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
-                    StringBuilder url = new StringBuilder(u);
-                    while (tokenizer.hasMoreTokens()) {
-                        String nextToken = tokenizer.nextToken();
-                        url.append("/").append(nextToken);
-                        if ("info.json".equals(nextToken)) {
-                            reportAccess(pid);
-                            resp.setContentType("application/ld+json");
-                            resp.setCharacterEncoding("UTF-8");
-                            HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
-                            InputStream inputStream = con.getInputStream();
-                            String json = IOUtils.toString(inputStream, Charset.defaultCharset());
-                            JSONObject object = new JSONObject(json);
-                            String urlRequest = req.getRequestURL().toString();
-                            object.put("@id", urlRequest.substring(0, urlRequest.lastIndexOf('/')));
-                            PrintWriter out = resp.getWriter();
-                            out.print(object.toString());
-                            out.flush();
-                            return;
+                    if (u != null) {
+                        StringBuilder url = new StringBuilder(u);
+                        while (tokenizer.hasMoreTokens()) {
+                            String nextToken = tokenizer.nextToken();
+                            url.append("/").append(nextToken);
+                            if ("info.json".equals(nextToken)) {
+                                reportAccess(pid);
+                                resp.setContentType("application/ld+json");
+                                resp.setCharacterEncoding("UTF-8");
+                                HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
+                                InputStream inputStream = con.getInputStream();
+                                String json = IOUtils.toString(inputStream, Charset.defaultCharset());
+                                JSONObject object = new JSONObject(json);
+                                String urlRequest = req.getRequestURL().toString();
+                                object.put("@id", urlRequest.substring(0, urlRequest.lastIndexOf('/')));
+                                PrintWriter out = resp.getWriter();
+                                out.print(object.toString());
+                                out.flush();
+                                return;
+                            }
                         }
+                        copyFromImageServer(url.toString(),resp);
+                    } else {
+                        LOGGER.severe(String.format("No iip url for %s", pid));
+                        resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     }
-                    copyFromImageServer(url.toString(),resp);
                 } catch (JSONException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage());
+                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } else {
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         } catch (IOException e) {
-            LOGGER.severe(e.getMessage());
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
