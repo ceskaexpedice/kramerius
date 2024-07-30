@@ -49,6 +49,16 @@ public class Indexer {
         return rootPid + "!" + pid;
     }
 
+    public static String getCompositeId(String rootPid, String pid) {
+        return rootPid + "!" + pid;
+    }
+
+    public static void ensureCompositeId(SolrInput solrInput, String rootPid, String pid) {
+        if (IterationUtils.useCompositeId()) {
+            solrInput.addField("compositeId", getCompositeId(rootPid, pid));
+        }
+    }
+
     public static void ensureCompositeId(SolrInput solrInput, RepositoryNode repositoryNode, String pid) {
         if (IterationUtils.useCompositeId()) {
             solrInput.addField("compositeId", getCompositeId(repositoryNode, pid));
@@ -292,7 +302,7 @@ public class Indexer {
         }
     }
 
-    private String normalizeWhitespacesForOcrText(String ocrText) {
+    static String normalizeWhitespacesForOcrText(String ocrText) {
         return ocrText == null ? null : ocrText
                 // ("MAR-\nTIN", "MAR-\r\nTIN", "MAR-\n   TIN", "MAR-\n\tTIN", etc.) -> MARTIN
                 .replaceAll("-\\r?\\n\\s*", "")
