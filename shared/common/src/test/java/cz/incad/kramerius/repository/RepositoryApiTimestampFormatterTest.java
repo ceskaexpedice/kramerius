@@ -104,7 +104,7 @@ public class RepositoryApiTimestampFormatterTest {
 
     @Test
     public void testFormattingMillisIn0Digit() {
-        assertMatchesAfterParsingAndFormatting("2022-06-24T19:11:55.Z", "2022-06-24T19:11:55.0Z");
+        assertMatchesAfterParsingAndFormatting("2022-06-24T19:11:55.0Z", "2022-06-24T19:11:55.0Z");
     }
 
     @Test

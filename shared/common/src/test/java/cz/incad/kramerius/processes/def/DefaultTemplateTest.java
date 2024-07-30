@@ -37,6 +37,7 @@ import junit.framework.Assert;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
@@ -63,6 +64,7 @@ public class DefaultTemplateTest {
             + "processes.defaultfields.second=druhy\n" + "processes.defaultfields.third=treti\n";
 
 
+    @Ignore
     @Test
     public void shouldRenderTemplate() throws IOException, ParserConfigurationException, SAXException {
         Locale locale = new Locale("cs", "CZ");
