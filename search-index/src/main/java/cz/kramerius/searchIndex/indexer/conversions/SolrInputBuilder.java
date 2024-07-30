@@ -139,6 +139,10 @@ public class SolrInputBuilder {
         //addSolrField(solrInput, "page.type", "NormalPage");
         //addSolrField(solrInput, "page.placement", "single");
 
+        
+        //optional support for compositeId in SOLR Cloud
+        ensureCompositeId(solrInput, parentNode, pid);
+
         //OCR text
         if (pageOcrText != null && !pageOcrText.isEmpty()) {
             addSolrField(solrInput, "text_ocr", pageOcrText);

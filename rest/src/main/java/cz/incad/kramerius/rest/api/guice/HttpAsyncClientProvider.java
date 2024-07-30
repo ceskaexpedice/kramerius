@@ -14,19 +14,18 @@ import javax.inject.Provider;
  */
 public class HttpAsyncClientProvider implements Provider<CloseableHttpAsyncClient> {
 
-    static final int MAX_CONNECTIONS = 50;
-
     @Override
     public CloseableHttpAsyncClient get() {
         int httptimeout = new Integer(KConfiguration.getInstance().getProperty("http.timeout", "10000"));
+        int httpConnections = new Integer(KConfiguration.getInstance().getProperty("http.connections", "50"));
 
         RequestConfig requestConfig = RequestConfig.custom()
                 .setSocketTimeout(httptimeout)
                 .setConnectTimeout(httptimeout).build();
         CloseableHttpAsyncClient httpclient = HttpAsyncClients.custom()
                 .setDefaultRequestConfig(requestConfig)
-                .setMaxConnPerRoute(MAX_CONNECTIONS)
-                .setMaxConnTotal(MAX_CONNECTIONS)
+                .setMaxConnPerRoute(httpConnections)
+                .setMaxConnTotal(httpConnections)
                 .build();
 
         return httpclient;
