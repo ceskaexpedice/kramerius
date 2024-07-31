@@ -78,8 +78,10 @@ public class StartupServlet extends GuiceServlet {
          * e1.getMessage(),e1); }
          **/
 
-        Connection connection = this.connectionProvider.get();
+        Connection connection = null;
         try {
+            connection = this.connectionProvider.get();
+
             // read previous db version
             VersionDbInitializer.initDatabase(connection);
 
@@ -110,20 +112,17 @@ public class StartupServlet extends GuiceServlet {
             versionService.updateVersionIfOutdated();
 
             this.pdfService.init();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
+            this.lifecycleRegistry.startNotification();
+
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new RuntimeException("Failed to start Kramerius", e);
         } finally {
             if (connection != null) {
                 DatabaseUtils.tryClose(connection);
             }
         }
-
-        this.lifecycleRegistry.startNotification();
-
     }
 
     @Override
