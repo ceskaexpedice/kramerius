@@ -1,3 +1,4 @@
+
 plugins {
     id 'java'
     //tohle vyzaduje alespon gradle 5, pouzivame 4.10 (vydany v zari 2018)
@@ -5,7 +6,7 @@ plugins {
     //id 'com.github.johnrengelman.shadow' version '5.2.0'
 
     //https://docs.gradle.org/current/userguide/application_plugin.html
-    id 'application'
+ //   id 'application'
 }
 
 //group 'cz.incad.kramerius'
@@ -63,20 +64,20 @@ dependencies {
 
 
 //gradle run
-application {
-    mainClassName = 'cz.kramerius.searchIndex.Main'
-}
+//application {
+//    mainClassName = 'cz.kramerius.searchIndex.Main'
+//}
 
-jar {
-    manifest {
-        attributes(
-                'Main-Class': 'cz.kramerius.searchIndex.Main'
-        )
-    }
+//jar {
+//    manifest {
+//        attributes(
+//                'Main-Class': 'cz.kramerius.searchIndex.Main'
+//        )
+//    }
     /*from {
         configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
     }*/
-}
+//}
 
 //for manifest in fat jar (without shadow plugin)
 //task fatJar(type: Jar) {

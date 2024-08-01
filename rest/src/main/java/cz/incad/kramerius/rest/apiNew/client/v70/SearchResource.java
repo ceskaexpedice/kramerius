@@ -25,7 +25,10 @@ import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.solr.SolrKeys;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpResponseException;
@@ -61,8 +64,11 @@ public class SearchResource {
 
     private static Logger LOGGER = Logger.getLogger(SearchResource.class.getName());
     private static final String[] FILTERED_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
+    
+    private static final String[] CONTROLLED_SIZE_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
     private static final int DEFAULT_FRAG_SIZE = 20; //see api.search.highlight.defaultfragsize for old index
-    private static final int MAX_FRAG_SIZE = 120; //see api.search.highlight.maxfragsize for old index
+    private static final int DEFAULT_MAX_FRAGSIZE = 120; //see api.search.highlight.maxfragsize for old index
+    private static final int DEFAULT_MAX_SNIPPETS = 100; //see api.search.highlight.maxfragsize for old index
 
     @Inject
     private LicensesManager licensesManager;
@@ -174,7 +180,14 @@ public class SearchResource {
                 }
                 if (k.equals("hl.fragsize")) {
                     value = normalizeHighlightFragsize(value).toString();
+                    hlFragsizeFound = true;
                 }
+                if (k.equals("hl.snippet")) {
+                    value = normalizeHighlightSnippets(value).toString();
+                }
+                
+                // kombinace fragsize && snippet
+                
                 builder.append(k).append("=").append(URLEncoder.encode(value, "UTF-8"));
                 builder.append("&");
             }
@@ -199,14 +212,25 @@ public class SearchResource {
 
     private Integer normalizeHighlightFragsize(String value) {
         try {
+            Integer max = KConfiguration.getInstance().getConfiguration().getInteger(SolrKeys.SOLR_SEARCH_MAX_HL_FRAGSIZE, DEFAULT_MAX_FRAGSIZE);
             Integer hlFragSize = Integer.valueOf(value);
-            return hlFragSize > MAX_FRAG_SIZE ? MAX_FRAG_SIZE : hlFragSize;
+            return hlFragSize > max ? max : hlFragSize;
         } catch (NumberFormatException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
 
-
+    private Integer normalizeHighlightSnippets(String value) {
+        try {
+            Integer max = KConfiguration.getInstance().getConfiguration().getInteger(SolrKeys.SOLR_SEARCH_MAX_HL_SNIPPET, DEFAULT_MAX_SNIPPETS);
+            Integer hlFragSize = Integer.valueOf(value);
+            return hlFragSize > max ? max : hlFragSize;
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+    
+  
     /**
      * Build XML document from SOLR response as a raw String
      *
@@ -298,7 +322,7 @@ public class SearchResource {
                 // fiter protected fields
                 filterOutFieldsFromJSON(docJSON);
                 // decorators TODO: Delete, unused
-                applyDecorators(context, decs, docJSON);
+                //applyDecorators(context, decs, docJSON);
                 // sort keys: licenses_of_ancestors, licenses,  contains_licenses
                 if (sortedLicenses.size() > 0) {
                     List<String> keys = Arrays.asList("licenses_of_ancestors","licenses","contains_licenses");
@@ -313,6 +337,7 @@ public class SearchResource {
                 }
             }
         }
+        
         return resultJSONObject;
     }
     
@@ -339,22 +364,22 @@ public class SearchResource {
         return jsonArray;
     }
     
-    private void applyDecorators(String context, List<JSONDecorator> decs, JSONObject docJSON) throws JSONException {
-        // decorators
-        Map<String, Object> runtimeCtx = new HashMap<String, Object>();
-        for (JSONDecorator d : decs) {
-            d.before(runtimeCtx);
-        }
-        for (JSONDecorator jsonDec : decs) {
-            boolean canApply = jsonDec.apply(docJSON, context);
-            if (canApply) {
-                jsonDec.decorate(docJSON, runtimeCtx);
-            }
-        }
-        for (JSONDecorator d : decs) {
-            d.after();
-        }
-    }
+//    private void applyDecorators(String context, List<JSONDecorator> decs, JSONObject docJSON) throws JSONException {
+//        // decorators
+//        Map<String, Object> runtimeCtx = new HashMap<String, Object>();
+//        for (JSONDecorator d : decs) {
+//            d.before(runtimeCtx);
+//        }
+//        for (JSONDecorator jsonDec : decs) {
+//            boolean canApply = jsonDec.apply(docJSON, context);
+//            if (canApply) {
+//                jsonDec.decorate(docJSON, runtimeCtx);
+//            }
+//        }
+//        for (JSONDecorator d : decs) {
+//            d.after();
+//        }
+//    }
 
     private void filterOutFieldsFromJSON(JSONObject jsonObj) {
         for (String filteredFieldName : FILTERED_FIELDS) {
