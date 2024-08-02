@@ -177,6 +177,22 @@ public class SearchResource {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 return value;
             }
+        } else  if (v.equals("hl.snippet")) {
+            try {
+                int confVal = KConfiguration.getInstance().getConfiguration().getInt("api.search.highlight.defaultsnippet", 20);
+                int maxVal = KConfiguration.getInstance().getConfiguration().getInt("api.search.highlight.maxsnippet", 120);
+                int val = Integer.parseInt(value);
+                if (val == 0) {
+                    val = confVal;
+                } else if (val > maxVal) {
+                    val = confVal;
+                }
+                return ""+val;
+            } catch (NumberFormatException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                return value;
+            }
+
         } else {
             return value;
         }
