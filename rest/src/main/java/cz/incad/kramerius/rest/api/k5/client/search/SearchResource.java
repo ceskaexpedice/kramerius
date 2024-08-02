@@ -76,7 +76,15 @@ import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 @Path("/v5.0/search")
 public class SearchResource {
 
-    private static Logger LOGGER = Logger.getLogger(SearchResource.class
+    private static final String API_SEARCH_HIGHLIGHT_MAXSNIPPETS_PARAM = "api.search.highlight.maxsnippets";
+	private static final String API_SEARCH_HIGHLIGHT_DEFAULTSNIPPETS_PARAM = "api.search.highlight.defaultsnippets";
+	private static final String API_SEARCH_HIGHLIGHT_MAXFRAGSIZE_PARAM = "api.search.highlight.maxfragsize";
+	private static final String API_SEARCH_HIGHLIGHT_DEFAULTFRAGSIZE_PARAM = "api.search.highlight.defaultfragsize";
+
+    private static final String HL_FRAGSIZE_PARAMETER = "hl.fragsize";
+    private static final String HL_SNIPPETS_PARAMETER = "hl.snippets";
+
+	private static Logger LOGGER = Logger.getLogger(SearchResource.class
             .getName());
 
     @Inject
@@ -161,40 +169,38 @@ public class SearchResource {
         }
     }
     
-    private String checkHighlightValues(String v, String value) {
-        if (v.equals("hl.fragsize")) {
-            try {
-                int confVal = KConfiguration.getInstance().getConfiguration().getInt("api.search.highlight.defaultfragsize", 20);
-                int maxVal = KConfiguration.getInstance().getConfiguration().getInt("api.search.highlight.maxfragsize", 120);
-                int val = Integer.parseInt(value);
-                if (val == 0) {
-                    val = confVal;
-                } else if (val > maxVal) {
-                    val = confVal;
-                }
-                return ""+val;
-            } catch (NumberFormatException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                return value;
-            }
-        } else  if (v.equals("hl.snippet")) {
-            try {
-                int confVal = KConfiguration.getInstance().getConfiguration().getInt("api.search.highlight.defaultsnippet", 20);
-                int maxVal = KConfiguration.getInstance().getConfiguration().getInt("api.search.highlight.maxsnippet", 120);
-                int val = Integer.parseInt(value);
-                if (val == 0) {
-                    val = confVal;
-                } else if (val > maxVal) {
-                    val = confVal;
-                }
-                return ""+val;
-            } catch (NumberFormatException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                return value;
-            }
 
-        } else {
-            return value;
+    private String checkHighlightValues(String key, String value) {
+        int confVal;
+        int maxVal;
+        switch (key) {
+            case HL_FRAGSIZE_PARAMETER:
+                confVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_DEFAULTFRAGSIZE_PARAM, 20);
+                maxVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_MAXFRAGSIZE_PARAM, 120);
+                break;
+            case HL_SNIPPETS_PARAMETER:
+                confVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_DEFAULTSNIPPETS_PARAM, 20);
+                maxVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_MAXSNIPPETS_PARAM, 120);
+                break;
+            default:
+                return value;
+        }
+        return validateHighlightValue(value, confVal, maxVal);
+    }
+
+    private String validateHighlightValue(String value, int confVal, int maxVal) {
+        try {
+            int val = Integer.parseInt(value);
+            if (val <=0) {
+            	val = confVal;
+            } else if (val > maxVal) {
+                val = maxVal;
+            	
+            }
+            return String.valueOf(val);
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return String.valueOf(confVal);
         }
     }
 
