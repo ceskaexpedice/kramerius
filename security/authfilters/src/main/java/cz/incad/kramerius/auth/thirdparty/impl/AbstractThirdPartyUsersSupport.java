@@ -20,7 +20,7 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
 
     protected Map<String, String> credentials = new HashMap<String, String>();
     protected UserManager usersManager;
-    protected LoggedUsersSingleton loggedUsersSingleton;
+    //protected LoggedUsersSingleton loggedUsersSingleton;
 
     public synchronized HttpServletRequest updateRequest(final HttpServletRequest req) {
         final Object userName = req.getSession().getAttribute(UserUtils.USER_NAME_PARAM);
@@ -79,14 +79,15 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
     public void setUserManager(UserManager uMan) {
         this.usersManager = uMan;
     }
-
+    
+    /*
     public LoggedUsersSingleton getLoggedUsersSingleton() {
         return loggedUsersSingleton;
     }
 
     public void setLoggedUsersSingleton(LoggedUsersSingleton loggedUsersSingleton) {
         this.loggedUsersSingleton = loggedUsersSingleton;
-    }
+    }*/
 
     protected abstract String updateExistingUser(String userName, T wrapper) throws Exception;
     
@@ -128,8 +129,8 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
         User user = wrapper.toUser(this.usersManager);
         req.getSession().setAttribute(UserUtils.LOGGED_USER_PARAM, user);
 
-        String key = loggedUsersSingleton.registerLoggedUser(user, req);
-        req.getSession().setAttribute(UserUtils.LOGGED_USER_KEY_PARAM, key);
+//        String key = loggedUsersSingleton.registerLoggedUser(user, req);
+//        req.getSession().setAttribute(UserUtils.LOGGED_USER_KEY_PARAM, key);
 
         req.getSession().setAttribute(UserUtils.THIRD_PARTY_USER, Boolean.TRUE.toString());
 

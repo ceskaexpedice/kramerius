@@ -207,15 +207,11 @@ public class Indexer {
                 //monografie se muze jevit jako zaindexovana indexerem ve verzi třeba 15, ale obsahuje stranku, ktera preindexovana nebyla, nebyla ale ani zahozena a jeji zaznam v indexu je nenapadne zastaraly
                 //podobne pro periodikum, pokud by nebyl dostupny zaznam cisla, nebude preindexovano a ani jeji stranky
 
-                // Replaced ingoremissingFromRepository by ingore inconsistent object
-                //boolean ignoreObjectsMissingFromRepository = true;
                 if (this.ignoreInconsistentObjects) { //ignore missing objects
                     reportError("object not found in repository (or found in inconsistent state), ignoring: " + pid);
-                    //System.err.println("object not found in repository (or found in inconsistent state), ignoring: " + pid);
                     counters.incrementIgnored();
                 } else { //remove missing objects from index
                     reportError("object not found in repository (or found in inconsistent state), removing from index: " + pid);
-                    //System.err.println("object not found in repository (or found in inconsistent state), removing from index: " + pid);
                     solrIndexer.deleteById(pid);
                     counters.incrementRemoved();
                 }
@@ -278,8 +274,7 @@ public class Indexer {
             System.out.println("failed to detect audio length of " + pid);
             return null;
         } catch (IOException | UnsupportedAudioFileException e) {
-            System.err.println("error extracting audio length from " + pid);
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE,"error extracting audio length from " + pid, e);
             return null;
         }
     }
@@ -312,7 +307,7 @@ public class Indexer {
 
     private void processChildren(String parentPid, RepositoryNode parentNode, Counters counters, IndexationType type, boolean isIndexationRoot, ProgressListener progressListener) {
         if (parentNode == null) {
-            System.err.println("object not found in repository (or found in inconsistent state), ignoring it's children: " + parentPid);
+            LOGGER.log(Level.SEVERE, "object not found in repository (or found in inconsistent state), ignoring it's children: " + parentPid);
             return;
         }
         switch (type) {

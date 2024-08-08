@@ -16,8 +16,8 @@ public class InternalShibbolethAuthFilter extends ShibbolethAuthFilter {
     
     @Inject
     UserManager userManager;
-    @Inject
-    LoggedUsersSingleton loggedUsersSingleton;
+//    @Inject
+//    LoggedUsersSingleton loggedUsersSingleton;
 
 
     ThirdPartyUsersSupport authenticatedSources;
@@ -34,7 +34,7 @@ public class InternalShibbolethAuthFilter extends ShibbolethAuthFilter {
         injector.injectMembers(this);
         InternalThirdPartyUsersSupportImpl internalAuthUsers = new InternalThirdPartyUsersSupportImpl();
         internalAuthUsers.setUserManager(this.userManager);
-        internalAuthUsers.setLoggedUsersSingleton(this.loggedUsersSingleton);
+//        internalAuthUsers.setLoggedUsersSingleton(this.loggedUsersSingleton);
         this.authenticatedSources = internalAuthUsers;
     }
 

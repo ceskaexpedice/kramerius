@@ -26,7 +26,7 @@ public abstract class AdminApiResource extends ApiResource {
 
     public static Logger LOGGER = Logger.getLogger(AdminApiResource.class.getName());
 
-    private static final String HEADER_PARENT_PROCESS_AUTH_TOKEN = "parent-process-auth-token";
+    public static final String HEADER_PARENT_PROCESS_AUTH_TOKEN = "parent-process-auth-token";
 
     @Inject
     Provider<HttpServletRequest> requestProvider;

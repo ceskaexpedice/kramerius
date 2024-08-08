@@ -98,6 +98,7 @@ import static cz.incad.kramerius.rest.api.processes.utils.SecurityProcessUtils.*
  * Processes API endpoint
  * @author pavels
  */
+// Disable verseion 4.6
 @Path("/v4.6/processes")
 public class LRResource {
 
@@ -132,8 +133,8 @@ public class LRResource {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    @Inject
-    LoggedUsersSingleton loggedUsersSingleton;
+//    @Inject
+//    LoggedUsersSingleton loggedUsersSingleton;
     
     @Inject
     Provider<User> userProvider;
@@ -197,14 +198,9 @@ public class LRResource {
     Response plainProcessStart(String def, JSONArray array) {
         LRProcessDefinition definition = processDefinition(def);
         if (definition == null) throw new NoProcessFound("definition not found");
-
         
-        String loggedUserKey = findLoggedUserKey();
-        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
-        if (user == null) {
-            //throw new SecurityException("access denided");
-            throw new ActionNotAllowed("action is not allowed");
-        }
+        User user = this.userProvider.get();
+        
 
         try {
             
@@ -216,7 +212,7 @@ public class LRResource {
                             permitProcessByDefinedAction(rightsResolver, user,  definition);
 
                     if (permitted) {
-                        newProcess.setLoggedUserKey(loggedUserKey);
+                        //newProcess.setLoggedUserKey(loggedUserKey);
 
                         List<String> params = new ArrayList<String>();
                         for (int i = 0,ll=array.length(); i < ll; i++) {
@@ -225,7 +221,7 @@ public class LRResource {
                         newProcess.setParameters(params);
                         newProcess.setUser(user);
                         newProcess.planMe(new Properties(),IPAddressUtils.getRemoteAddress(this.requestProvider.get()));
-                        lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+                        //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
                         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
                         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
                     } else {
@@ -263,8 +259,9 @@ public class LRResource {
         LRProcessDefinition definition = processDefinition(def);
         if (definition == null) throw new NoProcessFound("definition not found");
         
-        String loggedUserKey = findLoggedUserKey();
-        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        User user = this.userProvider.get();
+//        String loggedUserKey = findLoggedUserKey();
+//        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
             // no user
             //throw new SecurityException("access denided");
@@ -273,7 +270,7 @@ public class LRResource {
 
         try {
             LRProcess newProcess = definition.createNewProcess(authToken(), groupToken());
-            newProcess.setLoggedUserKey(loggedUserKey);
+            //newProcess.setLoggedUserKey(loggedUserKey);
 
             boolean permitted = permitManager(rightsResolver, user) ||
                     permitProcessByDefinedAction(rightsResolver, user,  definition);
@@ -295,7 +292,7 @@ public class LRResource {
                 newProcess.setUser(user);
 
                 newProcess.planMe(props, IPAddressUtils.getRemoteAddress(this.requestProvider.get()));
-                lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
+                //lrProcessManager.updateAuthTokenMapping(newProcess, loggedUserKey);
                 URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
                 return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
             } else {
@@ -327,7 +324,8 @@ public class LRResource {
 
         LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
         String loggedUserKey = findLoggedUserKey();
-        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        User user = this.userProvider.get();
+//        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
             // no user
             //throw new SecurityException("access denided");
@@ -382,7 +380,8 @@ public class LRResource {
             throw new NoProcessFound("cannot find process"+uuid);
         }
         String loggedUserKey = findLoggedUserKey();
-        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+//        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        User user = this.userProvider.get();
         if (user == null) {
             // no user
             //throw new SecurityException("access denided");
@@ -435,7 +434,8 @@ public class LRResource {
     public Response logs(@PathParam("uuid")String uuid){
         LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
         String loggedUserKey = findLoggedUserKey();
-        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+//        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        User user = this.userProvider.get();
         if (user == null) {
             // no user
             //throw new SecurityException("access denided");
@@ -488,7 +488,8 @@ public class LRResource {
     public Response getProcessDescription(@PathParam("uuid")String uuid){
         LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
         String loggedUserKey = findLoggedUserKey();
-        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        User user = this.userProvider.get();
+//        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
         if (user == null) {
             // no user
             //throw new SecurityException("access denided");
@@ -566,7 +567,8 @@ public class LRResource {
 
         //LRProcess lrPRocess = lrProcessManager.getLongRunningProcess(uuid);
         String loggedUserKey = findLoggedUserKey();
-        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+//        User user = this.loggedUsersSingleton.getUser(loggedUserKey);
+        User user = this.userProvider.get();
         if (user == null) {
             // no user
             //throw new SecurityException("access denided");

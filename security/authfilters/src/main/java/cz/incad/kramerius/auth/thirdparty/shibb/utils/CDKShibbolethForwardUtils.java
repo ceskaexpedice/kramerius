@@ -52,26 +52,5 @@ public class CDKShibbolethForwardUtils {
         return map;
     }
 
-    // principalName=,
-    // ip address =
-    /*
-     * header_test= header_test2= header_test3= s
-     */
-
-//    shib-session-id=_dd68cbd66641c9b647b05509ac0241fa
-//    		shib-session-index=_36e3755e67acdeaf1b8b6f7ebebecdeb3abd6ddc9a
-//    		shib-session-expires=1592847906
-//    		shib-identity-provider=https://shibboleth.mzk.cz/simplesaml/metadata.xml
-//    		shib-authentication-method=urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
-//    		shib-handler=https://dnnt.mzk.cz/Shibboleth.sso
-//    		remote_user=all_users@mzk.cz
-//    		affilation=all_access@mzk.cz;member@mzk.cz
-//    		edupersonuniqueid=user@mzk.cz
-//			_remote_ip=    
-    public static void main(String[] args) {
-        String token = "header_shib-session-id=_dd68cbd66641c9b647b05509ac0241fa|header_shib-session-expires=1592847906|header_shib-identity-provider=https://shibboleth.mzk.cz/simplesaml/metadata.xml|header_shib-authentication-method=urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport|header_shib-handler=https://dnnt.mzk.cz/Shibboleth.sso|header_remote_user=all_users@mzk.cz|header_affilation=all_access@mzk.cz;member@mzk.cz|header_edupersonuniqueid=user@mzk.cz";
-        Map<String, String> tokenHeaders = tokenHeaders(token);
-        System.out.println(tokenHeaders);
-    }
 
 }

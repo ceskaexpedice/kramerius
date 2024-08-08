@@ -22,8 +22,8 @@ public class CDKKeycloakFilter extends ExtAuthFilter {
     @Inject
     UserManager userManager;
 
-    @Inject
-    LoggedUsersSingleton loggedUsersSingleton;
+//    @Inject
+//    LoggedUsersSingleton loggedUsersSingleton;
 
     @Inject
     KeycloakCDKCache groupCache;
@@ -53,7 +53,7 @@ public class CDKKeycloakFilter extends ExtAuthFilter {
         this.cdkUserSupport = new CDKUserSupport();
         this.cdkUserSupport.setCache(this.groupCache);
         this.cdkUserSupport.setUserManager(this.userManager);
-        this.cdkUserSupport.setLoggedUsersSingleton(this.loggedUsersSingleton);
+        //this.cdkUserSupport.setLoggedUsersSingleton(this.loggedUsersSingleton);
 
     }
 

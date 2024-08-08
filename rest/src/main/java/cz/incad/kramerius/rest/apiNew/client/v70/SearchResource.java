@@ -182,12 +182,11 @@ public class SearchResource {
                     value = normalizeHighlightFragsize(value).toString();
                     hlFragsizeFound = true;
                 }
-                if (k.equals("hl.snippet")) {
+                if (k.equals("hl.snippets")) {
                     value = normalizeHighlightSnippets(value).toString();
                 }
                 
                 // kombinace fragsize && snippet
-                
                 builder.append(k).append("=").append(URLEncoder.encode(value, "UTF-8"));
                 builder.append("&");
             }
@@ -222,7 +221,7 @@ public class SearchResource {
 
     private Integer normalizeHighlightSnippets(String value) {
         try {
-            Integer max = KConfiguration.getInstance().getConfiguration().getInteger(SolrKeys.SOLR_SEARCH_MAX_HL_SNIPPET, DEFAULT_MAX_SNIPPETS);
+            Integer max = KConfiguration.getInstance().getConfiguration().getInteger(SolrKeys.SOLR_SEARCH_MAX_HL_SNIPPETS, DEFAULT_MAX_SNIPPETS);
             Integer hlFragSize = Integer.valueOf(value);
             return hlFragSize > max ? max : hlFragSize;
         } catch (NumberFormatException e) {

@@ -428,7 +428,7 @@ public class CollectionsResource extends AdminApiResource {
     @POST
     @Path("{pid}/items")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response addItemToCollection(@PathParam("pid") String collectionPid, String itemPid) {
+    public Response addItemToCollection(@PathParam("pid") String collectionPid,@QueryParam("indexation") String indexation, String itemPid) {
         try {
             checkSupportedObjectPid(collectionPid);
             checkSupportedObjectPid(itemPid);
@@ -455,7 +455,12 @@ public class CollectionsResource extends AdminApiResource {
                 krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
                 //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
+                    LOGGER.info("Ommiting indexation");
+                } else {
+                    scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                }
+                
                 //LOGGER.info("addItemToCollection end, Thread " + Thread.currentThread().getName());
                 return Response.status(Response.Status.CREATED).build();
             }
@@ -478,7 +483,7 @@ public class CollectionsResource extends AdminApiResource {
     @Path("{pid}/items")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addItemsToCollection(@PathParam("pid") String collectionPid, String itemsPidsJsonArrayStr) { //primo JSONArray itemsPids jako parametr nefunguje
+    public Response addItemsToCollection(@PathParam("pid") String collectionPid, @QueryParam("indexation") String indexation, String itemsPidsJsonArrayStr) { //primo JSONArray itemsPids jako parametr nefunguje
         System.out.println(itemsPidsJsonArrayStr);
         try {
             //parse JSON Array on input
@@ -544,10 +549,16 @@ public class CollectionsResource extends AdminApiResource {
                     //save updated rels-ext
                     krameriusRepositoryApi.updateRelsExt(collectionPid, relsExt);
                     //no need to re-index collection itself
-                    for (String itemPid : pidsAdded) {
-                        //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                        scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+
+                    if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
+                        LOGGER.info("Ommiting indexation");
+                    } else {
+                        for (String itemPid : pidsAdded) {
+                            //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+                            scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                        }
                     }
+
                 }
             }
 
@@ -1185,11 +1196,16 @@ public class CollectionsResource extends AdminApiResource {
 
     public boolean permitAbleToAdd(RightsResolver rightsResolver, User user, String pid) throws IOException {
         ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
-        for (ObjectPidsPath objectPidsPath : pidPaths) {
-            boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION.getFormalName(), pid, null, objectPidsPath).flag() : false;
+        if (pidPaths.length > 0) {
+            for (ObjectPidsPath objectPidsPath : pidPaths) {
+                boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION.getFormalName(), pid, null, objectPidsPath).flag() : false;
+                if (permited) return permited;
+            }
+            return false;
+        } else {
+            boolean permited = user != null ? rightsResolver.isActionAllowed(user, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION.getFormalName(), pid, null, ObjectPidsPath.REPOSITORY_PATH).flag() : false;
             if (permited) return permited;
         }
         return false;
-
     }
 }

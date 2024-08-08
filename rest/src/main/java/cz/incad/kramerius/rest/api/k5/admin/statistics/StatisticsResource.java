@@ -96,8 +96,8 @@ public class StatisticsResource {
     @Inject
     LRProcessManager lrProcessManager;
 
-    @Inject
-    LoggedUsersSingleton loggedUsersSingleton;
+//    @Inject
+//    LoggedUsersSingleton loggedUsersSingleton;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -514,7 +514,7 @@ public class StatisticsResource {
         if (authToken != null && !lrProcessManager.isAuthTokenClosed(authToken)) {
             String sessionKey = lrProcessManager.getSessionKey(authToken);
             if (sessionKey != null) {
-                user =  this.loggedUsersSingleton.getUser(sessionKey);
+                user = this.userProvider.get();
             } else {
                 user = this.userProvider.get();
             }

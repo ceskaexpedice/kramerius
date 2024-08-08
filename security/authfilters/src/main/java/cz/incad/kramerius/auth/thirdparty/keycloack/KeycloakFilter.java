@@ -21,8 +21,8 @@ public class KeycloakFilter extends ExtAuthFilter {
     @Inject
     UserManager userManager;
 
-    @Inject
-    LoggedUsersSingleton loggedUsersSingleton;
+//    @Inject
+//    LoggedUsersSingleton loggedUsersSingleton;
 
     private KeycloakUserSupport keycloackUserSupport;
 
@@ -51,7 +51,7 @@ public class KeycloakFilter extends ExtAuthFilter {
         injector.injectMembers(this);
         this.keycloackUserSupport = new KeycloakUserSupport();
         this.keycloackUserSupport.setUserManager(this.userManager);
-        this.keycloackUserSupport.setLoggedUsersSingleton(this.loggedUsersSingleton);
+        //this.keycloackUserSupport.setLoggedUsersSingleton(this.loggedUsersSingleton);
 
     }
 

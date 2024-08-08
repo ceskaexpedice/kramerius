@@ -77,8 +77,8 @@ public class DatabaseProcessManager implements LRProcessManager {
     @Inject
     private Provider<User> userProvider;
 
-    @Inject
-    private LoggedUsersSingleton loggedUsersSingleton;
+//    @Inject
+//    private LoggedUsersSingleton loggedUsersSingleton;
 
     private final Lock lock = new ReentrantLock();
 
@@ -752,19 +752,20 @@ public class DatabaseProcessManager implements LRProcessManager {
 
     @Override
     public void updateAuthTokenMapping(LRProcess lrProcess, String sessionKey) {
-        lock.lock();
-        try (Connection connection = getConnection()){
-            int sessionKeyId = this.loggedUsersSingleton.getSessionKeyId(sessionKey);
-            if (sessionKeyId > -1) {
-                ProcessDatabaseUtils.updateAuthTokenMapping(lrProcess, connection, sessionKeyId);
-            } else {
-                throw new ProcessManagerException("cannot find session associated with sessionKey '" + sessionKey + "'");
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } finally {
-            lock.unlock();
-        }
+//        lock.lock();
+//        try (Connection connection = getConnection()){
+//            
+//            int sessionKeyId = this.loggedUsersSingleton.getSessionKeyId(sessionKey);
+//            if (sessionKeyId > -1) {
+//                ProcessDatabaseUtils.updateAuthTokenMapping(lrProcess, connection, sessionKeyId);
+//            } else {
+//                throw new ProcessManagerException("cannot find session associated with sessionKey '" + sessionKey + "'");
+//            }
+//        } catch (SQLException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//        } finally {
+//            lock.unlock();
+//        }
     }
 
     @Override

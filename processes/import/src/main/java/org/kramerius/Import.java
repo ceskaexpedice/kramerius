@@ -5,6 +5,10 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.*;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
@@ -26,16 +30,20 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.fcrepo.common.rdf.FedoraNamespace;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -68,6 +76,9 @@ import static cz.incad.kramerius.FedoraNamespaces.*;
 
 
 public class Import {
+
+    public static final String NON_KEYWORD = "-none-";
+
 
     static ObjectFactory of;
     static int counter = 0;
@@ -119,11 +130,12 @@ public class Import {
         Boolean startIndexerFromArgs = args.length > argsIndex ? Boolean.valueOf(args[argsIndex++]) : null;
         
         String license = null;
-        if (startIndexerFromArgs) { license = args.length > argsIndex ? args[argsIndex++] : null; }
-        
+        String addCollection = null;
+        if (startIndexerFromArgs) { 
+            license = args.length > argsIndex ? args[argsIndex++] : null; 
+            addCollection = args.length > argsIndex ? args[argsIndex++] : null; 
+        }
 
-        //Boolean startIndexerFromArgs = args.length > argsIndex ? Boolean.valueOf(args[argsIndex++]) : null;
-        
         
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
@@ -145,11 +157,12 @@ public class Import {
         } else if (System.getProperties().containsKey("ingest.startIndexer")) {
             startIndexer = Boolean.valueOf(System.getProperty("ingest.startIndexer"));
         }
-
+        
+        
 
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
         
-        if (license != null) {
+        if (license != null && !license.equals(NON_KEYWORD)) {
 
             File importFolder = new File(importDirectory);
             File importParentFolder = importFolder.getParentFile();
@@ -171,7 +184,7 @@ public class Import {
             log.info("start indexer: " + startIndexer);
             log.info("license : " + license);
             
-            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken);
+            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken,addCollection);
             
             log.info( String.format("Deleting import folder %s", licensesImportFile));
             FileUtils.deleteDirectory(licensesImportFile);
@@ -182,20 +195,17 @@ public class Import {
             log.info("import dir: " + importDirectory);
             log.info("start indexer: " + startIndexer);
 
-            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken);
-            
+            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection);
         }
     }
 
     public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
-        run(fa, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null);
+        run(fa, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null, null);
     }
 
-    public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken) throws IOException, SolrServerException {
-        //log.info("INGEST - url:" + url + " user:" + user + " pwd:" + pwd + " importRoot:" + importRoot);
+    public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken, String addcollections) throws IOException, SolrServerException {
         log.info("INGEST - url:" + url + " user:" + user + " importRoot:" + importRoot);
         sortingService = sortingServiceParam;
-
         // system property 
         try {
             String skipIngest = System.getProperties().containsKey("ingest.skip") ? System.getProperty("ingest.skip") : KConfiguration.getInstance().getConfiguration().getString("ingest.skip", "false");
@@ -220,7 +230,6 @@ public class Import {
 
             Set<TitlePidTuple> classicRoots = new HashSet<TitlePidTuple>();
             Set<TitlePidTuple> convolutes = new HashSet<TitlePidTuple>();
-
             Set<TitlePidTuple> collections = new HashSet<TitlePidTuple>();
 
             Set<String> sortRelations = new HashSet<String>();
@@ -277,6 +286,18 @@ public class Import {
 
             if (startIndexer) {
                 
+                List<String> addCollectionList = new ArrayList<>();
+                if (StringUtils.isAnyString(addcollections)) {
+                    Arrays.stream(addcollections.split(";")).forEach(addCollectionList::add);
+                    for (String pid : addCollectionList) {
+                        if (!pid.trim().equals(NON_KEYWORD)) {
+                            addCollection(fa, pid, classicRoots, collections, authToken);
+                        }
+                    }
+                }
+                
+                
+                
                 if (collections.isEmpty()) {
                     log.info("NO COLLECTIONS FOR INDEXING FOUND.");
                 } else {
@@ -300,6 +321,28 @@ public class Import {
                     }
                 }
 
+                
+                if (convolutes.isEmpty()) {
+                    log.info("NO CONVOLUTES FOR INDEXING FOUND.");
+                } else {
+                    try {
+                        String waitIndexerProperty = System.getProperties().containsKey("ingest.startIndexer.wait") ? System.getProperty("ingest.startIndexer.wait") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer.wait", "1000");
+                        // should wait
+                        log.info("Waiting for soft commit :" + waitIndexerProperty + " s");
+                        Thread.sleep(Integer.parseInt(waitIndexerProperty));
+
+                        if (authToken != null) {
+                            for (TitlePidTuple convolute : convolutes) {
+                                ProcessScheduler.scheduleIndexation(convolute.pid, convolute.title, false, authToken);
+                            }
+                            log.info("ALL CONVOLUTES SCHEDULED FOR INDEXING.");
+                        } else {
+                            log.warning("cannot schedule indexation due to missing process credentials");
+                        }
+                    } catch (Exception e) {
+                        log.log(Level.WARNING, e.getMessage(), e);
+                    }
+                }
                 
                 if (classicRoots.isEmpty()) {
                     log.info("NO ROOT OBJECTS FOR INDEXING FOUND.");
@@ -328,27 +371,7 @@ public class Import {
                         log.log(Level.WARNING, e.getMessage(), e);
                     }
                 }
-                if (convolutes.isEmpty()) {
-                    log.info("NO CONVOLUTES FOR INDEXING FOUND.");
-                } else {
-                    try {
-                        String waitIndexerProperty = System.getProperties().containsKey("ingest.startIndexer.wait") ? System.getProperty("ingest.startIndexer.wait") : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer.wait", "1000");
-                        // should wait
-                        log.info("Waiting for soft commit :" + waitIndexerProperty + " s");
-                        Thread.sleep(Integer.parseInt(waitIndexerProperty));
 
-                        if (authToken != null) {
-                            for (TitlePidTuple convolute : convolutes) {
-                                ProcessScheduler.scheduleIndexation(convolute.pid, convolute.title, false, authToken);
-                            }
-                            log.info("ALL CONVOLUTES SCHEDULED FOR INDEXING.");
-                        } else {
-                            log.warning("cannot schedule indexation due to missing process credentials");
-                        }
-                    } catch (Exception e) {
-                        log.log(Level.WARNING, e.getMessage(), e);
-                    }
-                }
             } else {
                 log.info("AUTO INDEXING DISABLED.");
             }
@@ -756,6 +779,49 @@ public class Import {
         }
     }
 
+    private static void addCollection(FedoraAccess fa, String collectionPid,Set<TitlePidTuple> classicRoots, Set<TitlePidTuple> collectionsToReindex, String authToken) {
+        Client c = Client.create();
+
+        List<String> rootPids = new ArrayList<>();
+        classicRoots.forEach(clRoot -> rootPids.add(clRoot.pid));
+        
+        List<String> pidsToCollection = new ArrayList<>();
+        
+        
+        String adminPoint = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point");
+        if (!adminPoint.endsWith("/")) adminPoint = adminPoint +"/";
+        String collectionDescUrl = adminPoint +String.format("collections/%s", collectionPid);
+        WebResource collectionResource = c.resource(collectionDescUrl);
+        String collectionJSON = collectionResource.header("parent-process-auth-token",authToken).accept(MediaType.APPLICATION_JSON).get(String.class);
+        JSONObject collectionObject = new JSONObject(collectionJSON);
+        
+        JSONArray alreadyInCollection =  collectionObject.getJSONArray("items");
+        List<String> alreadyInCollectionList = new ArrayList<String>();
+        for (int i = 0; i < alreadyInCollection.length(); i++) { alreadyInCollectionList.add(alreadyInCollection.getString(i));}
+
+        for (String pidToAdd : rootPids) {
+            if (!alreadyInCollectionList.contains(pidToAdd)) {
+                pidsToCollection.add(pidToAdd);
+            } else {
+                LOGGER.info(String.format("Pid %s has been already added to %s", pidToAdd, collectionPid));
+            }
+        }
+        
+        String collectionsUrl = adminPoint +String.format("collections/%s/items?indexation=false", collectionPid);
+        WebResource r = c.resource(collectionsUrl);
+        for (String pidToCollection : pidsToCollection) {
+            LOGGER.info(String.format("Adding %s  to collection %s", pidToCollection, collectionPid));
+            ClientResponse clientResponse = r.accept(MediaType.TEXT_PLAIN_TYPE).header("parent-process-auth-token",authToken).entity(pidToCollection, MediaType.TEXT_PLAIN_TYPE).post(ClientResponse.class);
+            if (clientResponse.getStatus() != 200 && clientResponse.getStatus() != 201) {
+                String responseBody = clientResponse.getEntity(String.class);
+                throw new RuntimeException(String.format("Status code %d, %s", clientResponse.getStatus(), responseBody));
+            }
+        }
+        
+        TitlePidTuple npt = new TitlePidTuple("Sbírka", collectionPid);
+        collectionsToReindex.add(npt);
+    }
+    
     /**
      * Parse FOXML file and if it has model "convolute", add its
      * PID to convolutes list. Objects in the convolutes list then will be submitted to

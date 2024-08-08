@@ -23,7 +23,7 @@ public class SolrKeys {
     /** max allowed fragsize */
     public static final String SOLR_SEARCH_MAX_HL_FRAGSIZE = "solrSearch.max.hl.fragsize";
     /** max snippet */
-    public static final String SOLR_SEARCH_MAX_HL_SNIPPET = "solrSearch.max.hl.snippet";
+    public static final String SOLR_SEARCH_MAX_HL_SNIPPETS = "solrSearch.max.hl.snippets";
 
     private SolrKeys( ) {}
 }

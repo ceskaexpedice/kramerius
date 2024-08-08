@@ -456,61 +456,12 @@ public class FromK5Instance {
                 KConfiguration.getInstance().getProperty("ingest.url"),
                 KConfiguration.getInstance().getProperty("ingest.user"),
                 KConfiguration.getInstance().getProperty("ingest.password"),
-                exportRoot, startIndexer, authToken);
+                exportRoot, startIndexer, authToken, null);
     
         Restore.LOGGER.info(String.format("Deleting directory %s", exportRoot));
         File exportFolder = new File(exportRoot);
         FileUtils.deleteDirectory(exportFolder);
     }
-    
-//    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, InterruptedException, BrokenBarrierException {
-//        Client client = Client.create();
-//        List<String> models = Arrays.asList(
-//                "monograph",
-//                "periodical",
-//                "sheetmusic",
-//                "monographunit"
-//                );
-//        
-//        String fqModel = "fedora.model:("+models.stream().collect(Collectors.joining(" OR "))+") AND ";
-//        String collectionPid="(collection:\"vc:809d92e6-abd0-4642-ba73-f1f259275d96\")";
-//        String masterQuery= URLEncoder.encode(fqModel + collectionPid, "UTF-8");
-//
-//        collectionIterations(client, "https://kramerius.lib.cas.cz/search/api/v5.0", masterQuery, (elm, i) -> {
-//
-//            Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
-//                @Override
-//                public boolean acceptElement(Element element) {
-//                    String nodeName = element.getNodeName();
-//                    return nodeName.equals("result");
-//                }
-//            });
-//            if (result != null) {
-//                List<Element> elements = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
-//                    @Override
-//                    public boolean acceptElement(Element element) {
-//                        String nodeName = element.getNodeName();
-//                        return nodeName.equals("doc");
-//                    }
-//                });
-//
-//                List<String> idents = elements.stream().map(item -> {
-//                            Element str = XMLUtils.findElement(item, new XMLUtils.ElementsFilter() {
-//                                        @Override
-//                                        public boolean acceptElement(Element element) {
-//                                            return element.getNodeName().equals("str");
-//                                        }
-//                                    }
-//                            );
-//                            return str.getTextContent();
-//                        }
-//                ).collect(Collectors.toList());
-//
-//                System.out.println(idents);
-//            } 
-//        }, ()->{});
-//    }
-    
     
 }
 

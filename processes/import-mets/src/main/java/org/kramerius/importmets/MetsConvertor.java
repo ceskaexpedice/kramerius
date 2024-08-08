@@ -56,6 +56,8 @@ import java.util.logging.Level;
  */
 public class MetsConvertor {
 
+    //private static final String NONE_LICENSE = "-none-";
+
     private static final Logger log = Logger.getLogger(MetsConvertor.class);
 
     private final Marshaller marshaller;
@@ -89,7 +91,7 @@ public class MetsConvertor {
             boolean policyPublic = Boolean.parseBoolean(args[argsIndex++]);
             String importRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.directory");
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
-            new MetsConvertor().run(importRoot, exportRoot, policyPublic, false, null, null);
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, false, null, null, null);
         } else { // as a process
             if (args.length < 2) {
                 throw new RuntimeException("Not enough arguments.");
@@ -116,13 +118,18 @@ public class MetsConvertor {
             
             String license = null;
             license = args.length > argsIndex ? args[argsIndex++] : null; 
+
+            String addToCollections = null;
+            addToCollections = args.length > argsIndex ? args[argsIndex++] : null; 
             
             try {
                 ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
-            new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken, license);
+            
+            
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken, license,addToCollections);
         }
     }
 
@@ -145,7 +152,7 @@ public class MetsConvertor {
         }
     }
 
-    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken, String license) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
+    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken, String license, String addToCollections) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
         checkAndConvertDirectory(importRoot, exportRoot, policyPublic);
         if (!foundvalidPSP) {
             throw new RuntimeException("No valid PSP found.");
@@ -157,7 +164,7 @@ public class MetsConvertor {
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
 
         
-        if (license != null) {
+        if (license != null && !license.equals(Import.NON_KEYWORD)) {
             log.info(String.format("Applying license to %s", license));
             try {
                 foxmlService.appendLicense(exportRoot, license);
@@ -171,7 +178,7 @@ public class MetsConvertor {
                 KConfiguration.getInstance().getProperty("ingest.url"),
                 KConfiguration.getInstance().getProperty("ingest.user"),
                 KConfiguration.getInstance().getProperty("ingest.password"),
-                exportRoot, startIndexer, authToken);
+                exportRoot, startIndexer, authToken,addToCollections);
         
         
         if (deleteContractSubfolder()) {

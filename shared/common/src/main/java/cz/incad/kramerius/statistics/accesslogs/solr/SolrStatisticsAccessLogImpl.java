@@ -83,8 +83,8 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    @Inject
-    LoggedUsersSingleton loggedUsersSingleton;
+//    @Inject
+//    LoggedUsersSingleton loggedUsersSingleton;
 
     @Inject
     Provider<User> userProvider;
