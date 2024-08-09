@@ -6,6 +6,7 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
+import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -31,6 +32,7 @@ import org.json.JSONObject;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -72,6 +74,17 @@ public class ItemsResource extends AdminApiResource {
     @Inject
     @Named("new-index")
     private SolrAccess solrAccess;
+    
+
+    @Inject
+    RightsResolver rightsResolver;
+    
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
+
+    @Inject
+    IResourceIndex resourceIndex;
+
 
 
     /**
@@ -162,6 +175,40 @@ public class ItemsResource extends AdminApiResource {
             }
             json.put("items", items);
             return Response.ok(json).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    
+    @SuppressWarnings("deprecation")
+    @GET
+    @Path("/models")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCollections(@QueryParam("withItem") String itemPid) {
+        try {
+            User user = this.userProvider.get();
+            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
+            // TODO: check if it is necessary
+//            if (!permitPocessingIndexAcceess(this.rightsResolver, user1)) {
+//                throw new ForbiddenException("user '%s' is not allowed to read processing index (missing action '%s')", user1.getLoginname(), SecuredActions.A_INDEX); //403
+//            }
+            
+            if (!userIsAllowedToRead(this.rightsResolver, user, SpecialObjects.REPOSITORY.getPid())) {
+                // request doesnt contain user principal
+                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
+            }
+
+            
+            List<org.apache.commons.lang3.tuple.Pair<String,Long>> allFedoraModelsAsList = this.resourceIndex.getAllFedoraModelsAsList();
+            JSONObject object = new JSONObject();
+            for (org.apache.commons.lang3.tuple.Pair<String, Long> pair : allFedoraModelsAsList) {
+                object.put(pair.getKey(), pair.getRight());
+            }
+            return Response.ok(object.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {

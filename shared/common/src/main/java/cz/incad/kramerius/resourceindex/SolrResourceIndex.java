@@ -9,6 +9,8 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * SOLR implemenation of the resource index;
@@ -131,24 +134,40 @@ public class SolrResourceIndex implements IResourceIndex {
     }
 
 
+    
+    public List<Pair<String,Long>> getAllFedoraModelsAsList() throws ResourceIndexException {
+        try {
+            QueryResponse response = this.solrClient.query(new SolrQuery("type:description").setRows(0).setFacet(true).addFacetField("model"));
+            List<Count> values = response.getFacetField("model").getValues();
+            return values.stream().map(c-> {
+                long count = c.getCount();
+                String cname = c.getName();
+                return Pair.of(cname, count);
+            }).collect(Collectors.toList());
+        } catch (SolrServerException | IOException e) {
+            throw new ResourceIndexException(e);
+        }
+    }
+    
+
     @Override
     // TODO: rewrite it
     public Document getFedoraModels() throws ResourceIndexException {
         try {
-            QueryResponse response = this.solrClient.query(new SolrQuery("type:description").setRows(0).setFacet(true).addFacetField("model"));
+            //QueryResponse response = this.solrClient.query(new SolrQuery("type:description").setRows(0).setFacet(true).addFacetField("model"));
+            List<Pair<String,Long>> allModels = getAllFedoraModelsAsList();
+            
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.newDocument();
             Element rootElement = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI, "sparql");
             rootElement.appendChild(createHeader(doc, "object", "title"));
-            rootElement.appendChild(createModelResults(doc, response.getFacetField("model").getValues()));
+            rootElement.appendChild(createModelResults(doc, allModels));
             doc.appendChild(rootElement);
             return doc;
         } catch (ParserConfigurationException e) {
             throw new ResourceIndexException(e);
-        } catch (SolrServerException e) {
-            throw new ResourceIndexException(e);
-        } catch (IOException e) {
-            throw new ResourceIndexException(e);
+        } catch (ResourceIndexException e) {
+            throw e;
         }
     }
 
@@ -162,17 +181,18 @@ public class SolrResourceIndex implements IResourceIndex {
         return head;
     }
 
-    private Element createModelResults(Document doc, List<Count> values) {
+    private Element createModelResults(Document doc, List<Pair<String,Long>> values) {
         Element results = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI, "results");
-        for (Count count : values) {
+        //for (Count count : values) {
+        for (Pair<String,Long> count : values) {
             Element result = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI, "result");
             Element object = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI, "object");
             //page info:fedora/model:page
-            object.setAttribute("uri", "info:fedora/model:" + count.getName());
+            object.setAttribute("uri", "info:fedora/model:" + count.getLeft());
             result.appendChild(object);
 
             Element title = doc.createElementNS(FedoraNamespaces.SPARQL_NAMESPACE_URI, "title");
-            title.setTextContent(count.getName());
+            title.setTextContent(count.getLeft());
             result.appendChild(title);
 
             results.appendChild(result);
