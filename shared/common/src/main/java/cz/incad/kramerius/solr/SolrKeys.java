@@ -20,10 +20,15 @@ public class SolrKeys {
     
     /** Composite id */
     public static final String SOLR_SEARCH_USE_COMPOSITE_ID = "solrSearch.useCompositeId";
-    /** max allowed fragsize */
-    public static final String SOLR_SEARCH_MAX_HL_FRAGSIZE = "solrSearch.max.hl.fragsize";
-    /** max snippet */
-    public static final String SOLR_SEARCH_MAX_HL_SNIPPETS = "solrSearch.max.hl.snippets";
 
+    /** Max value for hl.fragsize parameter */
+    public static final int MAX_HL_FRAGSIZE = 120;
+    /** Max value for hl.snippets parameter */
+    public static final int MAX_HL_SNIPPETS = 10;
+    /** Max value for combination of the parameters hl.fragsize*hl.snippets */
+    public static final int MAX_HL_COMBINATION = 300;
+    
+
+    
     private SolrKeys( ) {}
 }
