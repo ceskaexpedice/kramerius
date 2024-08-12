@@ -76,14 +76,22 @@ import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 @Path("/v5.0/search")
 public class SearchResource {
 
-    private static final String API_SEARCH_HIGHLIGHT_MAXSNIPPETS_PARAM = "api.search.highlight.maxsnippets";
-	private static final String API_SEARCH_HIGHLIGHT_DEFAULTSNIPPETS_PARAM = "api.search.highlight.defaultsnippets";
-	private static final String API_SEARCH_HIGHLIGHT_MAXFRAGSIZE_PARAM = "api.search.highlight.maxfragsize";
-	private static final String API_SEARCH_HIGHLIGHT_DEFAULTFRAGSIZE_PARAM = "api.search.highlight.defaultfragsize";
+//    private static final String API_SEARCH_HIGHLIGHT_MAXSNIPPETS_PARAM = "api.search.highlight.maxsnippets";
+//	private static final String API_SEARCH_HIGHLIGHT_DEFAULTSNIPPETS_PARAM = "api.search.highlight.defaultsnippets";
+//	private static final String API_SEARCH_HIGHLIGHT_MAXFRAGSIZE_PARAM = "api.search.highlight.maxfragsize";
+//	private static final String API_SEARCH_HIGHLIGHT_DEFAULTFRAGSIZE_PARAM = "api.search.highlight.defaultfragsize";
 
     private static final String HL_FRAGSIZE_PARAMETER = "hl.fragsize";
     private static final String HL_SNIPPETS_PARAMETER = "hl.snippets";
 
+    /** Max value for hl.fragsize parameter */
+    public static final int MAX_HL_FRAGSIZE = 120;
+    /** Max value for hl.snippets parameter */
+    public static final int MAX_HL_SNIPPETS = 10;
+    /** Max value for combination of the parameters hl.fragsize*hl.snippets */
+    public static final int MAX_HL_COMBINATION = 300;
+
+    
 	private static Logger LOGGER = Logger.getLogger(SearchResource.class
             .getName());
 
@@ -121,6 +129,13 @@ public class SearchResource {
                     builder.append("&");
                 }
             }
+
+            if (queryParameters.containsKey(HL_FRAGSIZE_PARAMETER) && queryParameters.containsKey(HL_SNIPPETS_PARAMETER)) {
+            	List<String> fragmetSize = queryParameters.get(HL_FRAGSIZE_PARAMETER);
+            	List<String> hlSnippet = queryParameters.get(HL_SNIPPETS_PARAMETER);
+            	checkCombination(fragmetSize.get(0), hlSnippet.get(0));
+            }
+
             InputStream istream = this.solrAccess.request(builder.toString(),
                     "xml");
             
@@ -171,37 +186,44 @@ public class SearchResource {
     }
     
 
+    private void checkCombination(String hlFragSizeParameter, String hlSnippetsParameter) {
+		int fragSize = Integer.parseInt(hlFragSizeParameter);
+        Integer hlSnippets = Integer.valueOf(hlSnippetsParameter);
+        int combination = fragSize * hlSnippets;
+        if (combination > MAX_HL_COMBINATION) {
+            throw new BadRequestException(String.format("The combination of the parameters hl.snippet and hl.fragsize is too high (%d*%d). The maximum allowed value is %d.", hlSnippets,fragSize, MAX_HL_COMBINATION));
+        }
+    }
+    
     private String checkHighlightValues(String key, String value) {
-        int confVal;
-        int maxVal;
         switch (key) {
             case HL_FRAGSIZE_PARAMETER:
-                confVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_DEFAULTFRAGSIZE_PARAM, 15);
-                maxVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_MAXFRAGSIZE_PARAM, 20);
-                break;
+                try {
+					int fragSize = Integer.parseInt(value);
+					if (fragSize > MAX_HL_FRAGSIZE) {
+		                throw new BadRequestException(String.format("The value of the parameter hl.fragsize is too large (%d). The maximum allowed value is %d.", fragSize,MAX_HL_FRAGSIZE));
+					}
+		            if (fragSize == 0) {
+		                throw new BadRequestException("The value of the parameter hl.fragsize cannot be 0");
+		            }
+		            return value;
+                } catch (NumberFormatException e) {
+					LOGGER.log(Level.SEVERE,e.getMessage(),e);
+	                throw new BadRequestException("hl.fragsize must be number");
+				}
             case HL_SNIPPETS_PARAMETER:
-                confVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_DEFAULTSNIPPETS_PARAM, 15);
-                maxVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_MAXSNIPPETS_PARAM, 20);
-                break;
+                try {
+                    int hlSnippets = Integer.parseInt(value);
+                    if (hlSnippets > MAX_HL_SNIPPETS) {
+                        throw new BadRequestException(String.format("The value of the parameter hl.snippets is too large (%d). The maximum allowed value is %d.", hlSnippets, MAX_HL_SNIPPETS));
+                    }
+		            return value;
+                } catch (NumberFormatException e) {
+					LOGGER.log(Level.SEVERE,e.getMessage(),e);
+	                throw new BadRequestException("hl.snippets must be number");
+                }
             default:
                 return value;
-        }
-        return validateHighlightValue(value, confVal, maxVal);
-    }
-
-    private String validateHighlightValue(String value, int confVal, int maxVal) {
-        try {
-            int val = Integer.parseInt(value);
-            if (val <=0) {
-            	val = confVal;
-            } else if (val > maxVal) {
-                val = maxVal;
-            	
-            }
-            return String.valueOf(val);
-        } catch (NumberFormatException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return String.valueOf(confVal);
         }
     }
 
@@ -219,6 +241,7 @@ public class SearchResource {
     private String getEntityJSON(UriInfo uriInfo) {
         try {
 
+        	
             MultivaluedMap<String, String> queryParameters = uriInfo
                     .getQueryParameters();
             StringBuilder builder = new StringBuilder();
@@ -230,10 +253,18 @@ public class SearchResource {
                     }
                     String value = URLEncoder.encode(v, "UTF-8");
                     value = checkHighlightValues(k, value);
+
                     builder.append(k + "=" + value);
                     builder.append("&");
                 }
             }
+            if (queryParameters.containsKey(HL_FRAGSIZE_PARAMETER) && queryParameters.containsKey(HL_SNIPPETS_PARAMETER)) {
+            	List<String> fragmetSize = queryParameters.get(HL_FRAGSIZE_PARAMETER);
+            	List<String> hlSnippet = queryParameters.get(HL_SNIPPETS_PARAMETER);
+            	checkCombination(fragmetSize.get(0), hlSnippet.get(0));
+            }
+            
+            
             InputStream istream = this.solrAccess.request(builder.toString(),
                     "json");
 
