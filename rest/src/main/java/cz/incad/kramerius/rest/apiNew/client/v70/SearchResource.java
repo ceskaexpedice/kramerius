@@ -217,9 +217,9 @@ public class SearchResource {
             Integer hlFragSize = Integer.valueOf(value);
             if (hlFragSize > SolrKeys.MAX_HL_FRAGSIZE) {
                 throw new BadRequestException(String.format("The value of the parameter hl.fragsize is too large (%d). The maximum allowed value is %d.", hlFragSize, SolrKeys.MAX_HL_FRAGSIZE));
-            } if (hlFragSize == 0) {
+            }
+            if (hlFragSize == 0) {
                 throw new BadRequestException("The value of the parameter hl.fragsize cannot be 0");
-                
             }
             return hlFragSize ;
         } catch (NumberFormatException e) {
