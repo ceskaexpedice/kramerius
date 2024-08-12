@@ -123,7 +123,8 @@ public class SearchResource {
             }
             InputStream istream = this.solrAccess.request(builder.toString(),
                     "xml");
-
+            
+            
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
             String rawString = new String(bos.toByteArray(), "UTF-8");
@@ -175,12 +176,12 @@ public class SearchResource {
         int maxVal;
         switch (key) {
             case HL_FRAGSIZE_PARAMETER:
-                confVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_DEFAULTFRAGSIZE_PARAM, 20);
-                maxVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_MAXFRAGSIZE_PARAM, 120);
+                confVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_DEFAULTFRAGSIZE_PARAM, 15);
+                maxVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_MAXFRAGSIZE_PARAM, 20);
                 break;
             case HL_SNIPPETS_PARAMETER:
-                confVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_DEFAULTSNIPPETS_PARAM, 20);
-                maxVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_MAXSNIPPETS_PARAM, 120);
+                confVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_DEFAULTSNIPPETS_PARAM, 15);
+                maxVal = KConfiguration.getInstance().getConfiguration().getInt(API_SEARCH_HIGHLIGHT_MAXSNIPPETS_PARAM, 20);
                 break;
             default:
                 return value;
