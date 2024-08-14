@@ -105,6 +105,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ steps.find_zip.outputs.ZIP_INSTALLATION_FILE }}
+        asset_path: ${{ steps.find_installation_zip.outputs.ZIP_INSTALLATION_FILE }}
         asset_name: installation.zip
         asset_content_type: application/zip

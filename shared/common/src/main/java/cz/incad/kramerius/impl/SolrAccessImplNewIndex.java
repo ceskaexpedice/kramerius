@@ -38,10 +38,14 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class SolrAccessImplNewIndex implements SolrAccess {
 
+    public static final Logger LOGGER = Logger.getLogger(SolrAccessImplNewIndex.class.getName());
+    
     private final SolrUtils utils = new SolrUtils(KConfiguration.getInstance().getSolrSearchHost());
 
     @Override
@@ -107,8 +111,7 @@ public class SolrAccessImplNewIndex implements SolrAccess {
             }
             return paths.toArray(new ObjectPidsPath[0]);
         } catch (Exception e) {
-            //TODO: handle properly
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new IOException(e);
         }
     }

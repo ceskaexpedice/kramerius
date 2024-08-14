@@ -26,6 +26,14 @@ public class ProcessingIndexImplAbstract implements ProcessingIndex {
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    
+    
+    @Override
+    public List<org.apache.commons.lang3.tuple.Pair<String, Long>> getAllFedoraModelsAsList()
+            throws ResourceIndexException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     @Override
     public Document getFedoraModels() throws ResourceIndexException {
         throw new UnsupportedOperationException("Not implemented");

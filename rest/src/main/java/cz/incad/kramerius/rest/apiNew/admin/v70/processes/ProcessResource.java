@@ -50,6 +50,9 @@ import java.util.stream.Collectors;
 @Path("/admin/v7.0/processes")
 public class ProcessResource extends AdminApiResource {
 
+    /** Special keyword for null value; If there is need to fill all program arguments and one of them must be null */
+    public static final String NONE_KEYWORD = "-none-";
+    
     private static final int MAX_TITLE_LENGTH = 1024;
 
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
@@ -735,7 +738,6 @@ public class ProcessResource extends AdminApiResource {
                 }));
                 String title = shortenIfTooLong(buildInitialProcessName(defid, paramsList), MAX_TITLE_LENGTH);
                 return scheduleProcess(defid, paramsList, userId, userName, batchToken, title);
-            
             } else { //run by user (through web client)
                 AtomicBoolean pidPermitted = new AtomicBoolean(false);
                 //System.out.println("process auth token NOT found");
@@ -1102,12 +1104,20 @@ public class ProcessResource extends AdminApiResource {
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
 
                 String license = extractOptionalParamString(params, "license", null);
+                String collections = extractOptionalParamString(params, "collections", null);
 
                 List<String> result = new ArrayList<>();
                 result.add(inputDataDir.getPath());
                 result.add(startIndexer.toString());
                 if (license != null) {
                     result.add(license.toString());
+                } else {
+                    result.add(NONE_KEYWORD);
+                }
+                if (collections != null) {
+                    result.add(collections.toString());
+                } else {
+                    result.add(NONE_KEYWORD);
                 }
 
                 consumer.accept(false);
@@ -1122,7 +1132,9 @@ public class ProcessResource extends AdminApiResource {
                 Boolean useIIPServer = extractMandatoryParamBoolean(params, "useIIPServer");
 
                 String license = extractOptionalParamString(params, "license", null);
+                String collections = extractOptionalParamString(params, "collections", null);
 
+                
                 List<String> result = new ArrayList<>();
                 result.add(policy);
                 result.add(inputDataDir.getPath());
@@ -1132,9 +1144,14 @@ public class ProcessResource extends AdminApiResource {
 
                 if (license != null) {
                     result.add(license.toString());
-                    
+                } else {
+                    result.add(NONE_KEYWORD);
+                }                
+                if (collections != null) {
+                    result.add(collections.toString());
+                } else {
+                    result.add(NONE_KEYWORD);
                 }
-                
                 consumer.accept(false);
                 return result;
             }

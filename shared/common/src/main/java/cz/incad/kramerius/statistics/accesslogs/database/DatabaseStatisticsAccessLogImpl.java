@@ -100,8 +100,8 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    @Inject
-    LoggedUsersSingleton loggedUsersSingleton;
+//    @Inject
+//    LoggedUsersSingleton loggedUsersSingleton;
 
     @Inject
     Provider<User> userProvider;
@@ -145,7 +145,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
             Map<String, String> evaluateInfoMap = rightsReturnObject != null ? rightsReturnObject.getEvaluateInfoMap() : new HashMap<>();
 
             // insert standardni zaznam 
-            commands.add(new InsertRecord(pid, loggedUsersSingleton, requestProvider, userProvider, this.reportedAction.get(), false, false, evaluateInfoMap, user.getSessionAttributes(), versionService.getVersion(), licenses));
+            commands.add(new InsertRecord(pid,  requestProvider, userProvider, this.reportedAction.get(), false, false, evaluateInfoMap, user.getSessionAttributes(), versionService.getVersion(), licenses));
             for (int i = 0, ll = paths.length; i < ll; i++) {
 
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -341,7 +341,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
     public static class InsertRecord extends JDBCCommand {
 
-        private LoggedUsersSingleton loggedUserSingleton;
+        //private LoggedUsersSingleton loggedUserSingleton;
         private Provider<HttpServletRequest> requestProvider;
         private Provider<User> userProvider;
         private String pid;
@@ -356,9 +356,9 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
         private String[] dnnt_labels;
 
-        public InsertRecord(String pid, LoggedUsersSingleton loggedUserSingleton, Provider<HttpServletRequest> requestProvider, Provider<User> userProvider, ReportedAction action, boolean dnnt, boolean providedByDnnt, Map evaulateMap, Map userSesionAttributes, String dbversion, List<String> dnnt_labels) {
+        public InsertRecord(String pid, /*LoggedUsersSingleton loggedUserSingleton,*/ Provider<HttpServletRequest> requestProvider, Provider<User> userProvider, ReportedAction action, boolean dnnt, boolean providedByDnnt, Map evaulateMap, Map userSesionAttributes, String dbversion, List<String> dnnt_labels) {
             super();
-            this.loggedUserSingleton = loggedUserSingleton;
+            //this.loggedUserSingleton = loggedUserSingleton;
             this.requestProvider = requestProvider;
             this.userProvider = userProvider;
             this.pid = pid;
@@ -382,7 +382,8 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
             final StringTemplate statRecord = stGroup.getInstanceOf("insertStatisticRecord");
             String sessionId = requestProvider.get().getSession().getId();
-            boolean logged = loggedUserSingleton.isLoggedUser(requestProvider);
+            boolean logged = userProvider.get().getId() != -1;
+            
             Object user = logged ? userProvider.get().getLoginname() : new JDBCUpdateTemplate.NullObject(String.class);
 
             String url = disectedURL(requestProvider); //requestProvider.get().getRequestURL().toString() +"?"+requestProvider.get().getQueryString();

@@ -21,6 +21,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.solr.SolrKeys;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
@@ -41,7 +42,7 @@ public class IterationUtils {
     }
 
     public static boolean useCompositeId() {
-        return KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false);
+        return KConfiguration.getInstance().getConfiguration().getBoolean(SolrKeys.SOLR_SEARCH_USE_COMPOSITE_ID, false);
     }
 
     public static enum Endpoint {

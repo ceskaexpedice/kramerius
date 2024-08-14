@@ -88,23 +88,6 @@ public class RepositoryNodeManager {
                 fosterParents.add(getKrameriusNodeWithCycleDetection(fosterParent, path));
             }
 
-            /*for (String parentPid : pidsOfParents) {
-                RepositoryNode parentNode = getKrameriusNode(parentPid);
-                if (parentNode != null) {
-                    if (parentNode.getPidsOfOwnChildren().contains(pid)) {
-                        if (ownParent != null) {
-                            throw new IllegalStateException(String.format("duplicate parents for %s: %s and %s", this, ownParent.getPid(), parentPid));
-                        } else {
-                            ownParent = parentNode;
-                            //System.out.println(String.format("%s is own parent of %s", parentPid, pid));
-                        }
-                    } else {
-                        fosterParents.add(parentNode);
-                        //System.out.println(String.format("%s is foster parent of %s", parentPid, pid));
-                    }
-                }
-            }*/
-
             Document relsExtDoc = krameriusRepositoryFascade.getRelsExt(pid, false);
             //String model = KrameriusRepositoryUtils.extractKrameriusModelName(relsExtDoc);
             String model = krameriusRepositoryFascade.getModel(pid);

@@ -67,6 +67,20 @@ public class ProcessScheduler {
         data.put("params", params);
         schedule(data.toString(), parentProcessAuthToken);
     }
+
+  //TODO: cleanup
+    public static void scheduleAddCollection(String pid, String title, boolean includingDescendants, String parentProcessAuthToken) {
+        JSONObject data = new JSONObject();
+        data.put("defid", "new_indexer_index_object");
+        JSONObject params = new JSONObject();
+        params.put("type", includingDescendants ? "TREE_AND_FOSTER_TREES" : "OBJECT");
+        params.put("pid", pid);
+        params.put("title", title);
+        params.put("ignoreInconsistentObjects", true);
+        data.put("params", params);
+        schedule(data.toString(), parentProcessAuthToken);
+    }
+    
     
     //TODO: cleanup
     public static void scheduleIndexation(String pid, String title, boolean includingDescendants, String parentProcessAuthToken) {

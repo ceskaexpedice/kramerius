@@ -25,7 +25,10 @@ import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.solr.SolrKeys;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpResponseException;
@@ -61,8 +64,11 @@ public class SearchResource {
 
     private static Logger LOGGER = Logger.getLogger(SearchResource.class.getName());
     private static final String[] FILTERED_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
+    
+    private static final String[] CONTROLLED_SIZE_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
     private static final int DEFAULT_FRAG_SIZE = 20; //see api.search.highlight.defaultfragsize for old index
-    private static final int MAX_FRAG_SIZE = 120; //see api.search.highlight.maxfragsize for old index
+    private static final int DEFAULT_MAX_FRAGSIZE = 70; //see api.search.highlight.maxfragsize for old index
+    private static final int DEFAULT_MAX_SNIPPETS = 20; //see api.search.highlight.maxfragsize for old index
 
     @Inject
     private LicensesManager licensesManager;
@@ -162,10 +168,13 @@ public class SearchResource {
     }
 
     private String buildSearchSolrQueryString(UriInfo uriInfo) throws UnsupportedEncodingException {
+        int snippets = -1;
+        int fragsize = -1;
+        
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         StringBuilder builder = new StringBuilder();
         Set<String> keys = queryParameters.keySet();
-        boolean hlFragsizeFound = false;
+        
         for (String k : keys) {
             for (final String v : queryParameters.get(k)) {
                 String value = v;
@@ -173,14 +182,20 @@ public class SearchResource {
                     checkFlValueDoesNotContainFilteredField(value);
                 }
                 if (k.equals("hl.fragsize")) {
-                    value = normalizeHighlightFragsize(value).toString();
+                    value = validateHighlightFragsize(value).toString();
+                    fragsize = Integer.parseInt( value );
                 }
+                if (k.equals("hl.snippets")) {
+                    value = validateHighlightSnippets(value).toString();
+                    snippets = Integer.parseInt( value );
+                }
+                
                 builder.append(k).append("=").append(URLEncoder.encode(value, "UTF-8"));
                 builder.append("&");
             }
         }
-        if (!hlFragsizeFound) {
-            builder.append("hl.fragsize").append("=").append(DEFAULT_FRAG_SIZE);
+        if (snippets>-1 && fragsize >-1) {
+            validateHLCombination(fragsize, snippets);
         }
         return builder.toString();
     }
@@ -197,16 +212,41 @@ public class SearchResource {
         }
     }
 
-    private Integer normalizeHighlightFragsize(String value) {
+    private Integer validateHighlightFragsize(String value) {
         try {
             Integer hlFragSize = Integer.valueOf(value);
-            return hlFragSize > MAX_FRAG_SIZE ? MAX_FRAG_SIZE : hlFragSize;
+            if (hlFragSize > SolrKeys.MAX_HL_FRAGSIZE) {
+                throw new BadRequestException(String.format("The value of the parameter hl.fragsize is too large (%d). The maximum allowed value is %d.", hlFragSize, SolrKeys.MAX_HL_FRAGSIZE));
+            }
+            if (hlFragSize == 0) {
+                throw new BadRequestException("The value of the parameter hl.fragsize cannot be 0");
+            }
+            return hlFragSize ;
         } catch (NumberFormatException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
 
-
+    private Integer validateHighlightSnippets(String value) {
+        try {
+            Integer hlSnippets = Integer.valueOf(value);
+            if (hlSnippets > SolrKeys.MAX_HL_SNIPPETS) {
+                throw new BadRequestException(String.format("The value of the parameter hl.snippet is too large (%d). The maximum allowed value is %d.", hlSnippets, SolrKeys.MAX_HL_SNIPPETS));
+            }
+            return hlSnippets;
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+    
+    
+    private void validateHLCombination(int  fragsize, int snippets) {
+        int combination = fragsize * snippets;
+        if (combination > SolrKeys.MAX_HL_COMBINATION) {
+            throw new BadRequestException(String.format("The combination of the parameters hl.snippet and hl.fragsize is too high (%d*%d). The maximum allowed value is %d.", snippets,fragsize, SolrKeys.MAX_HL_COMBINATION));
+        }
+    }
+  
     /**
      * Build XML document from SOLR response as a raw String
      *
@@ -298,7 +338,7 @@ public class SearchResource {
                 // fiter protected fields
                 filterOutFieldsFromJSON(docJSON);
                 // decorators TODO: Delete, unused
-                applyDecorators(context, decs, docJSON);
+                //applyDecorators(context, decs, docJSON);
                 // sort keys: licenses_of_ancestors, licenses,  contains_licenses
                 if (sortedLicenses.size() > 0) {
                     List<String> keys = Arrays.asList("licenses_of_ancestors","licenses","contains_licenses");
@@ -313,6 +353,7 @@ public class SearchResource {
                 }
             }
         }
+        
         return resultJSONObject;
     }
     
@@ -339,22 +380,22 @@ public class SearchResource {
         return jsonArray;
     }
     
-    private void applyDecorators(String context, List<JSONDecorator> decs, JSONObject docJSON) throws JSONException {
-        // decorators
-        Map<String, Object> runtimeCtx = new HashMap<String, Object>();
-        for (JSONDecorator d : decs) {
-            d.before(runtimeCtx);
-        }
-        for (JSONDecorator jsonDec : decs) {
-            boolean canApply = jsonDec.apply(docJSON, context);
-            if (canApply) {
-                jsonDec.decorate(docJSON, runtimeCtx);
-            }
-        }
-        for (JSONDecorator d : decs) {
-            d.after();
-        }
-    }
+//    private void applyDecorators(String context, List<JSONDecorator> decs, JSONObject docJSON) throws JSONException {
+//        // decorators
+//        Map<String, Object> runtimeCtx = new HashMap<String, Object>();
+//        for (JSONDecorator d : decs) {
+//            d.before(runtimeCtx);
+//        }
+//        for (JSONDecorator jsonDec : decs) {
+//            boolean canApply = jsonDec.apply(docJSON, context);
+//            if (canApply) {
+//                jsonDec.decorate(docJSON, runtimeCtx);
+//            }
+//        }
+//        for (JSONDecorator d : decs) {
+//            d.after();
+//        }
+//    }
 
     private void filterOutFieldsFromJSON(JSONObject jsonObj) {
         for (String filteredFieldName : FILTERED_FIELDS) {
