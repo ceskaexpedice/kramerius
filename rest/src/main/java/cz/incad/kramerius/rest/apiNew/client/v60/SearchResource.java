@@ -24,6 +24,7 @@ import cz.incad.kramerius.rest.apiNew.client.v60.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.solr.SolrKeys;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -166,7 +167,11 @@ public class SearchResource {
     }
 
     private String buildSearchSolrQueryString(UriInfo uriInfo) throws UnsupportedEncodingException {
-    	boolean fqFound = false;
+
+        int snippets = -1;
+        int fragsize = -1;
+
+        boolean fqFound = false;
     	
     	MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         StringBuilder builder = new StringBuilder();
@@ -181,9 +186,16 @@ public class SearchResource {
                 if (k.equals("fq")) {
                 	value = this.proxyFilter.enhancedFilter(value);
                 }
+                
                 if (k.equals("hl.fragsize")) {
-                    value = normalizeHighlightFragsize(value).toString();
+                    value = validateHighlightFragsize(value).toString();
+                    fragsize = Integer.parseInt( value );
                 }
+                if (k.equals("hl.snippets")) {
+                    value = validateHighlightSnippets(value).toString();
+                    snippets = Integer.parseInt( value );
+                }
+
                 builder.append(k).append("=").append(URLEncoder.encode(value, "UTF-8"));
                 builder.append("&");
             }
@@ -219,15 +231,50 @@ public class SearchResource {
         }
     }
 
-    private Integer normalizeHighlightFragsize(String value) {
+//    private Integer normalizeHighlightFragsize(String value) {
+//        try {
+//            Integer hlFragSize = Integer.valueOf(value);
+//            return hlFragSize > MAX_FRAG_SIZE ? MAX_FRAG_SIZE : hlFragSize;
+//        } catch (NumberFormatException e) {
+//            throw new BadRequestException(e.getMessage());
+//        }
+//    }
+
+
+    private Integer validateHighlightFragsize(String value) {
         try {
             Integer hlFragSize = Integer.valueOf(value);
-            return hlFragSize > MAX_FRAG_SIZE ? MAX_FRAG_SIZE : hlFragSize;
+            if (hlFragSize > SolrKeys.MAX_HL_FRAGSIZE) {
+                throw new BadRequestException(String.format("The value of the parameter hl.fragsize is too large (%d). The maximum allowed value is %d.", hlFragSize, SolrKeys.MAX_HL_FRAGSIZE));
+            }
+            if (hlFragSize == 0) {
+                throw new BadRequestException("The value of the parameter hl.fragsize cannot be 0");
+            }
+            return hlFragSize ;
         } catch (NumberFormatException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
 
+    private Integer validateHighlightSnippets(String value) {
+        try {
+            Integer hlSnippets = Integer.valueOf(value);
+            if (hlSnippets > SolrKeys.MAX_HL_SNIPPETS) {
+                throw new BadRequestException(String.format("The value of the parameter hl.snippet is too large (%d). The maximum allowed value is %d.", hlSnippets, SolrKeys.MAX_HL_SNIPPETS));
+            }
+            return hlSnippets;
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+    
+    
+    private void validateHLCombination(int  fragsize, int snippets) {
+        int combination = fragsize * snippets;
+        if (combination > SolrKeys.MAX_HL_COMBINATION) {
+            throw new BadRequestException(String.format("The combination of the parameters hl.snippet and hl.fragsize is too high (%d*%d). The maximum allowed value is %d.", snippets,fragsize, SolrKeys.MAX_HL_COMBINATION));
+        }
+    }
 
     /**
      * Build XML document from SOLR response as a raw String

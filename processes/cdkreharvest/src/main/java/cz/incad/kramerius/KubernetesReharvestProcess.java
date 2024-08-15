@@ -117,9 +117,29 @@ public class KubernetesReharvestProcess {
                                 
                                 // reindex pids
                                 if (!reharvestItem.getTypeOfReharvest().equals(TypeOfReharvset.delete_pid) && !reharvestItem.getTypeOfReharvest().equals(TypeOfReharvset.delete_tree)) {
+                                    if (reharvestItem.getTypeOfReharvest().equals(TypeOfReharvset.new_children)) {
+                                        Map<String, Map<String, String>> foundRoots = ReharvestUtils.findRootsAndPidPathsFromLibs(client,pid,configurations);
+                                        LOGGER.info("Found roots:"+foundRoots);
+                                        //String foundPid = null;
+                                        String foundRootPid = null;
+                                        String ownPidPath = null;
+                                        for (String key : foundRoots.keySet()) {
+                                            foundRootPid = foundRoots.get(key).get("root.pid");
+                                            ownPidPath = foundRoots.get(key).get("own_pid_path");
+                                        }
+                                        if (ownPidPath != null) {
+                                            LOGGER.info("Own pid path "+ownPidPath);
+                                            reharvestItem.setOwnPidPath(ownPidPath);
+                                        }
+                                        if (foundRootPid != null) {
+                                            LOGGER.info("root pid "+ownPidPath);
+                                            reharvestItem.setRootPid(foundRootPid);
+                                        }
+                                    }
+                                    
+                                    
                                     ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, reharvestItem);
                                 }
-
                                 if (!onlyShowConfiguration) {
                                     changeState(client, wurl, id,"closed");
                                 }
