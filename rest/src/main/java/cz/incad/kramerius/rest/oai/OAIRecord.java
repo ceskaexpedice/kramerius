@@ -39,11 +39,14 @@ public class OAIRecord {
     
     private String identifier;
     private String solrIdentifier;
+    private String dateTimeStamp;
     
-    public OAIRecord(String solrIdentifier, String identifier) {
+    
+    public OAIRecord(String solrIdentifier, String identifier, String dateTimeStamp) {
         super();
         this.solrIdentifier = solrIdentifier;
         this.identifier = identifier;
+        this.dateTimeStamp = dateTimeStamp;
     }
     
     public String getIdentifier() {
@@ -79,8 +82,32 @@ public class OAIRecord {
             });
 
             if (docs.size() > 0) {
-                Element pidElm = XMLUtils.findElement(docs.get(0), "str");
-                return new OAIRecord(pidElm.getTextContent(), oaiIdentifier);
+                    
+                Element pidElm = XMLUtils.findElement(docs.get(0), new XMLUtils.ElementsFilter() {
+                    
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        String nodeName = element.getNodeName();
+                        if (nodeName.equals("str") && element.getAttribute("name").equals("pid")) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+
+                Element indexedElm = XMLUtils.findElement(docs.get(0), new XMLUtils.ElementsFilter() {
+                    
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        String nodeName = element.getNodeName();
+                        if (nodeName.equals("date") && element.getAttribute("name").equals("indexed")) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+
+                return new OAIRecord(pidElm.getTextContent(), oaiIdentifier,indexedElm.getTextContent());
                 
             } else return null;
         } else {
@@ -102,9 +129,9 @@ public class OAIRecord {
         identifier.setTextContent(this.identifier);
         header.appendChild(identifier);
         
-        OffsetDateTime now = OffsetDateTime.now();
+        //OffsetDateTime now = OffsetDateTime.now();
         Element datestamp = doc.createElement("datestamp");
-        datestamp.setTextContent(now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        datestamp.setTextContent(this.dateTimeStamp);
         header.appendChild(datestamp);
         
         if (setSpec != null) {

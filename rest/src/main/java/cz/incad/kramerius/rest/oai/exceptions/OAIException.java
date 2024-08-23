@@ -34,6 +34,7 @@ import cz.incad.kramerius.rest.oai.ErrorCode;
 import cz.incad.kramerius.rest.oai.MetadataExport;
 import cz.incad.kramerius.rest.oai.OAISet;
 import cz.incad.kramerius.rest.oai.OAIVerb;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 import static cz.incad.kramerius.rest.oai.OAITools.*;
@@ -61,18 +62,32 @@ public class OAIException extends WebApplicationException {
     public OAIException(ErrorCode oaiErrorCode,OAIVerb verb, OAISet set,String baseUrl,MetadataExport metadata) {
         this(Response.status(Response.Status.BAD_REQUEST)
                 .type(MediaType.APPLICATION_XML)
-                .entity(buildXml(oaiErrorCode, verb, set, baseUrl, metadata))
+                .entity(buildXml(oaiErrorCode, verb, set, baseUrl, metadata, null))
+                .build());
+    }
+
+    public OAIException(ErrorCode oaiErrorCode,OAIVerb verb, OAISet set,String baseUrl,MetadataExport metadata, String message) {
+        this(Response.status(Response.Status.BAD_REQUEST)
+                .type(MediaType.APPLICATION_XML)
+                .entity(buildXml(oaiErrorCode, verb, set, baseUrl, metadata, message))
                 .build());
     }
 
     public OAIException(int errorCode, ErrorCode oaiErrorCode,OAIVerb verb, OAISet set,String baseUrl,MetadataExport metadata) {
         this(Response.status(errorCode)
                 .type(MediaType.APPLICATION_XML)
-                .entity(buildXml(oaiErrorCode, verb, set, baseUrl, metadata))
+                .entity(buildXml(oaiErrorCode, verb, set, baseUrl, metadata, null))
                 .build());
     }
 
-    private static String buildXml(ErrorCode oaiErrorCode, OAIVerb verb, OAISet set,String baseUrl,MetadataExport metadata) {
+    public OAIException(int errorCode, ErrorCode oaiErrorCode,OAIVerb verb, OAISet set,String baseUrl,MetadataExport metadata,String message) {
+        this(Response.status(errorCode)
+                .type(MediaType.APPLICATION_XML)
+                .entity(buildXml(oaiErrorCode, verb, set, baseUrl, metadata, message))
+                .build());
+    }
+
+    private static String buildXml(ErrorCode oaiErrorCode, OAIVerb verb, OAISet set,String baseUrl,MetadataExport metadata, String message) {
         try {
             Document oai = createOAIDocument();
             Element oaiRoot = oai.getDocumentElement();
@@ -81,6 +96,7 @@ public class OAIException extends WebApplicationException {
             Element error = oai.createElement("error");
             error.setAttribute("code", oaiErrorCode.name());
             oaiRoot.appendChild(error);
+            if (StringUtils.isAnyString(message)) { error.setTextContent(message); }
             
             StringWriter writer = new StringWriter();
             XMLUtils.print(oai, writer);
