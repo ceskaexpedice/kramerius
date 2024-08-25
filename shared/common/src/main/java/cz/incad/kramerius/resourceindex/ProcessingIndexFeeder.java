@@ -15,6 +15,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.CursorMarkParams;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -185,22 +186,23 @@ public class ProcessingIndexFeeder {
 
     
     private void iterateProcessingWithSort(String query, String sortField, SolrQuery.ORDER order, Consumer<SolrDocument> action) throws IOException, SolrServerException {
-        ///String query = "*:*";
         SolrQuery solrQuery = new SolrQuery(query);
-        int offset = 0;
-        int rows = 100;
-        long numFound = Integer.MAX_VALUE;
-        solrQuery.setStart(offset).setRows(rows);
+        int rows = 1000;
+        solrQuery.setRows(rows);
         solrQuery.setSort(sortField, order);
-        QueryResponse response = this.solrClient.query(solrQuery);
-        while (offset < numFound) {
+        String cursorMark = CursorMarkParams.CURSOR_MARK_START;
+        boolean done = false;
+        while (!done) {
+            solrQuery.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
+            QueryResponse response = this.solrClient.query(solrQuery);
+            String nextCursorMark = response.getNextCursorMark();
             response.getResults().forEach((doc) -> {
                 action.accept(doc);
             });
-            offset += rows;
-            solrQuery.setStart(offset).setRows(rows);
-            response = this.solrClient.query(solrQuery);
-            numFound = response.getResults().getNumFound();
+            if (cursorMark.equals(nextCursorMark)) {
+                done = true;
+            }
+            cursorMark = nextCursorMark;
         }
     }
 

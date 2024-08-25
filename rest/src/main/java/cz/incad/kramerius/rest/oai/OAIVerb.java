@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.oai;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.DateTimeException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,6 +37,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.oai.exceptions.OAIException;
 import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -54,7 +56,7 @@ public enum OAIVerb {
             for (MetadataExport metadataExport : values) {
                 Element metadataFormat= doc.createElement("metadataFormat");
 
-                Element metadataPrefix = doc.createElement("metadataPrefix");
+                Element metadataPrefix = doc.createElement(METADATA_PREFIX_PARAMETER);
                 metadataPrefix.setTextContent(metadataExport.getMetadataPrefix());
                 metadataFormat.appendChild(metadataPrefix);
                 
@@ -91,7 +93,7 @@ public enum OAIVerb {
                 
                 for (OAISet oaiIterationSet : oaiSets) {
                     if (!oaiIterationSet.getSetSpec().equals(OAISet.DEFAULT_SET_KEYWORD)) {
-                        Element setDefinition= doc.createElement("set");
+                        Element setDefinition= doc.createElement(SET_PARAMETER);
 
                         Element setSpec = doc.createElement("setSpec");
                         setSpec.setTextContent(oaiIterationSet.getSetSpec());
@@ -214,10 +216,14 @@ public enum OAIVerb {
                 String baseUrl = ApplicationURL.applicationURL(request);
                 URL urlObject = new URL(baseUrl);
                 OAISets sets = new OAISets(configManager, urlObject.getHost());
-                String set = request.getParameter("set");
+                String set = request.getParameter(SET_PARAMETER);
+                String resumptionToken = request.getParameter(RESUMPTION_TOKEN_PARAMETER);
+                String metadataPrefix = request.getParameter(METADATA_PREFIX_PARAMETER);
+                String from = request.getParameter(FROM_PARAMETER);
+                String until = request.getParameter(UNTIL_PARAMETER);
 
-                String resumptionToken = request.getParameter("resumptionToken");
-                String metadataPrefix = request.getParameter("metadataPrefix");
+                
+                
                 if (metadataPrefix != null || resumptionToken != null) {
                     int rows = KConfiguration.getInstance().getConfiguration().getInt(REPOSITORY_ROWS_IN_RESULTS,600);
                     if (set != null) {
@@ -228,8 +234,33 @@ public enum OAIVerb {
                     } else if (resumptionToken != null){
                         selectedSet = sets.findByToken(resumptionToken);
                         metadataPrefix = OAITools.metadataFromResumptionToken(resumptionToken);
+                        if (OAITools.fromFromResumptionToken(resumptionToken) != null) {
+                            from = OAITools.fromFromResumptionToken(resumptionToken);
+                        }
+                        if (OAITools.untilFromResumptionToken(resumptionToken) != null) {
+                            until = OAITools.untilFromResumptionToken(resumptionToken);
+                        }
+
                         if (metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
+                        }
+                    }
+
+                    
+                    if (StringUtils.isAnyString(from)) {
+                        try {
+                            OAITools.parseISO8601Date(from);
+                        } catch (DateTimeException e) {
+                            throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata, "illegal value of from");
+                        }
+                    }
+                    
+
+                    if (StringUtils.isAnyString(until)) {
+                        try {
+                            OAITools.parseISO8601Date(until);
+                        } catch (DateTimeException e) {
+                            throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata,"illegal value of until");
                         }
                     }
 
@@ -248,7 +279,7 @@ public enum OAIVerb {
                         
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
-                            results = selectedSet.findRecords(solrAccess, solrCursor,metadataPrefix,rows);
+                            results = selectedSet.findRecords(solrAccess, solrCursor,metadataPrefix,rows,from, until);
                             for (OAIRecord oaiRec : results.getRecords()) { 
 
                                 Element record= doc.createElement("record");
@@ -262,29 +293,34 @@ public enum OAIVerb {
                                 record.appendChild(metadata);
                                 
                                 identify.appendChild(record);
-                                
                                 
                             }
                         } else {
-                            results = selectedSet.findRecords(solrAccess,"*", metadataPrefix,rows);
-                            for (OAIRecord oaiRec : results.getRecords()) { 
+                            results = selectedSet.findRecords(solrAccess,"*", metadataPrefix,rows,from, until);
+                            if (results.getCompleteListSize() > 0) {
+                                for (OAIRecord oaiRec : results.getRecords()) { 
 
-                                Element record= doc.createElement("record");
-                                Element header = oaiRec.toHeader(doc, selectedSet.getSetSpec());
-                                
-                                
-                                Element metadata = doc.createElement("metadata");
-                                metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,selectedSet));
+                                    Element record= doc.createElement("record");
+                                    Element header = oaiRec.toHeader(doc, selectedSet.getSetSpec());
+                                    
+                                    
+                                    Element metadata = doc.createElement("metadata");
+                                    metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,selectedSet));
 
-                                record.appendChild(header);
-                                record.appendChild(metadata);
-                                
-                                identify.appendChild(record);
+                                    record.appendChild(header);
+                                    record.appendChild(metadata);
+                                    
+                                    identify.appendChild(record);
+                                }
+                           } else {
+                                throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                             }
+
+                            
                         }
 
                         if (results.getResumptionToken()!= null) {
-                            Element resToken = doc.createElement("resumptionToken");
+                            Element resToken = doc.createElement(RESUMPTION_TOKEN_PARAMETER);
                             resToken.setAttribute("completeListSize", ""+results.getCompleteListSize());
                             resToken.setTextContent(results.getResumptionToken());
                             identify.appendChild(resToken);
@@ -317,19 +353,49 @@ public enum OAIVerb {
 
                 URL urlObject = new URL(baseUrl);
                 OAISets sets = new OAISets(configManager, urlObject.getHost());
-                String set = request.getParameter("set");
-                String resumptionToken = request.getParameter("resumptionToken");
-                String metadataPrefix = request.getParameter("metadataPrefix");
+                String set = request.getParameter(SET_PARAMETER);
+                String resumptionToken = request.getParameter(RESUMPTION_TOKEN_PARAMETER);
+                String metadataPrefix = request.getParameter(METADATA_PREFIX_PARAMETER);
+                String from = request.getParameter(FROM_PARAMETER);
+                String until = request.getParameter(UNTIL_PARAMETER);
+                
+                
                 if (metadataPrefix != null || resumptionToken != null) {
-                    int rows = KConfiguration.getInstance().getConfiguration().getInt(REPOSITORY_ROWS_IN_RESULTS,600);
+                    int configuredRows = KConfiguration.getInstance().getConfiguration().getInt(REPOSITORY_ROWS_IN_RESULTS,600);
                     
                     if (set != null) {
                         selectedSet = sets.findBySet(set);
                     } else if (resumptionToken != null){
+                        // everything from resumption token
                         selectedSet = sets.findByToken(resumptionToken);
                         metadataPrefix = OAITools.metadataFromResumptionToken(resumptionToken);
+                        if (OAITools.fromFromResumptionToken(resumptionToken) != null) {
+                            from = OAITools.fromFromResumptionToken(resumptionToken);
+                        }
+                        if (OAITools.untilFromResumptionToken(resumptionToken) != null) {
+                            until = OAITools.untilFromResumptionToken(resumptionToken);
+                        }
+                        
                         if ( metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
+                        }
+                        
+                    }
+
+                    if (StringUtils.isAnyString(from)) {
+                        try {
+                            OAITools.parseISO8601Date(from);
+                        } catch (DateTimeException e) {
+                            throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata, "illegal value of from");
+                        }
+                    }
+                    
+
+                    if (StringUtils.isAnyString(until)) {
+                        try {
+                            OAITools.parseISO8601Date(until);
+                        } catch (DateTimeException e) {
+                            throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata,"illegal value of until");
                         }
                     }
 
@@ -347,15 +413,19 @@ public enum OAIVerb {
                         OAIResults results = null;
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
-                            results = selectedSet.findRecords(solrAccess, solrCursor,metadataPrefix,rows);
+                            results = selectedSet.findRecords(solrAccess, solrCursor,metadataPrefix,configuredRows, from, until);
                             for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, selectedSet.getSetSpec()));}
                         } else {
-                            results = selectedSet.findRecords(solrAccess,"*", metadataPrefix,rows);
-                            for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, selectedSet.getSetSpec()));}
+                            results = selectedSet.findRecords(solrAccess,"*", metadataPrefix,configuredRows, from, until);
+                            if (results.getCompleteListSize() > 0) {
+                                for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, selectedSet.getSetSpec()));}
+                            } else {
+                                throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
+                            }
                         }
 
                         if (results.getResumptionToken()!= null) {
-                            Element resToken = doc.createElement("resumptionToken");
+                            Element resToken = doc.createElement(RESUMPTION_TOKEN_PARAMETER);
                             resToken.setAttribute("completeListSize", ""+results.getCompleteListSize());
                             resToken.setTextContent(results.getResumptionToken());
                             identify.appendChild(resToken);
@@ -385,7 +455,7 @@ public enum OAIVerb {
                 String baseUrl = ApplicationURL.applicationURL(request);
 
                 String identifier = request.getParameter("Identifier");
-                String metadataPrefix = request.getParameter("metadataPrefix");
+                String metadataPrefix = request.getParameter(METADATA_PREFIX_PARAMETER);
                 if (metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
                     throw new OAIException(ErrorCode.cannotDisseminateFormat, OAIVerb.GetRecord, null, ApplicationURL.applicationURL(request),selectedMetadata);
                 }
@@ -429,6 +499,13 @@ public enum OAIVerb {
         }
     };
 
+    private static final String METADATA_PREFIX_PARAMETER = "metadataPrefix";
+    private static final String RESUMPTION_TOKEN_PARAMETER = "resumptionToken";
+    private static final String SET_PARAMETER = "set";
+    private static final String UNTIL_PARAMETER = "until";
+    private static final String FROM_PARAMETER = "from";
+    
+    
     private static final String REPOSITORY_ADMIN_EMAIL = "oai.adminEmail";
     private static final String REPOSITORY_BASE_URL = "oai.baseUrl";
     private static final String REPOSITORY_NAME = "oai.repositoryName";

@@ -134,6 +134,7 @@ public class OAIEndpoint extends ClientApiResource {
             @QueryParam("verb") String verb, 
             @QueryParam("set") String set, 
             @QueryParam("metadataPrefix") String metadataPrefix
+ 
             ) throws OAIException {
         
         if (StringUtils.isAnyString(verb)) {

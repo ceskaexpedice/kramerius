@@ -66,9 +66,6 @@ public class SearchResource {
     private static final String[] FILTERED_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
     
     private static final String[] CONTROLLED_SIZE_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
-    private static final int DEFAULT_FRAG_SIZE = 20; //see api.search.highlight.defaultfragsize for old index
-    private static final int DEFAULT_MAX_FRAGSIZE = 70; //see api.search.highlight.maxfragsize for old index
-    private static final int DEFAULT_MAX_SNIPPETS = 20; //see api.search.highlight.maxfragsize for old index
 
     @Inject
     private LicensesManager licensesManager;

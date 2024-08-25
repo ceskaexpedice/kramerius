@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.oai;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -168,9 +169,24 @@ public class OAISet {
         return -1;
     }
     
-    public OAIResults findRecords(SolrAccess solrAccess,String cursor, String metadataPrefix, int rows) throws IOException, ParserConfigurationException, SAXException {
+    public OAIResults findRecords(SolrAccess solrAccess,String cursor, String metadataPrefix, int configuredMaxRows, String fromParameter, String untilParameter) throws IOException, ParserConfigurationException, SAXException {
+        String query = String.format("q=%s&cursorMark=%s&fl=pid+indexed&rows=%d&sort="+getSortField()+"+asc", this.filterQuery, cursor, configuredMaxRows);
+        
+        if (StringUtils.isAnyString(fromParameter) && StringUtils.isAnyString(untilParameter)) {
+            ZonedDateTime fromDate = OAITools.parseISO8601Date(fromParameter);
+            ZonedDateTime untilDate = OAITools.parseISO8601Date(untilParameter);
+            query = query +String.format("&fq=indexed:[%s+TO+%s]", OAITools.formatForSolr(fromDate), OAITools.formatForSolr(untilDate)); 
+        }
+        if (StringUtils.isAnyString(fromParameter)) {
+            ZonedDateTime fromDate = OAITools.parseISO8601Date(fromParameter);
+            query = query +String.format("&fq=indexed:[%s+TO+*]", OAITools.formatForSolr(fromDate)); 
+        }
+        
+        if (StringUtils.isAnyString(untilParameter)) {
+            ZonedDateTime untilDate = OAITools.parseISO8601Date(untilParameter);
+            query = query +String.format("&fq=indexed:[*+TO+%s]", OAITools.formatForSolr(untilDate)); 
+        }
 
-        String query = String.format("q=%s&cursorMark=%s&fl=pid&rows=%d&sort="+getSortField()+"+asc", this.filterQuery, cursor, rows);
         String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
         Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
         
@@ -205,12 +221,15 @@ public class OAISet {
 
             List<OAIRecord> records = docs.stream().map(doc-> {
                 Element pidElm = XMLUtils.findElement(doc, "str");
+                Element dateElm = XMLUtils.findElement(doc, "date");
                 String oaiIdentifier =  OAITools.oaiIdentfier(host, pidElm.getTextContent());
-                return new OAIRecord(pidElm.getTextContent(), oaiIdentifier);
+                return new OAIRecord(pidElm.getTextContent(), oaiIdentifier, dateElm.getTextContent());
             }).collect(Collectors.toList());
             
-            String nextCursor = records.size() == rows && solrNextCursor != null ? solrNextCursor+":"+this.setSpec+":"+metadataPrefix : null; 
-            OAIResults results = new OAIResults(Integer.parseInt(number), nextCursor, metadataPrefix, records);
+            
+            int rowsInResults = records.size();
+            String resumptionToken = OAITools.generateResumptionToken(metadataPrefix, configuredMaxRows, rowsInResults, solrNextCursor, this.setSpec, fromParameter, untilParameter); 
+            OAIResults results = new OAIResults(Integer.parseInt(number), resumptionToken, metadataPrefix, records);
             return results;
         } else {
             return null;
