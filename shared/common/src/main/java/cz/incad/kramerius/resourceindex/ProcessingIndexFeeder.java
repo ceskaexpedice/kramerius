@@ -189,7 +189,8 @@ public class ProcessingIndexFeeder {
         SolrQuery solrQuery = new SolrQuery(query);
         int rows = 1000;
         solrQuery.setRows(rows);
-        solrQuery.setSort(sortField, order);
+        solrQuery.addSort("pid", SolrQuery.ORDER.asc);
+        solrQuery.addSort(sortField, order);
         String cursorMark = CursorMarkParams.CURSOR_MARK_START;
         boolean done = false;
         while (!done) {
