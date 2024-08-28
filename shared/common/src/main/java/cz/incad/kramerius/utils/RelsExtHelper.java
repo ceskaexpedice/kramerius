@@ -17,7 +17,11 @@
 package cz.incad.kramerius.utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -28,7 +32,9 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Attr;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -36,6 +42,10 @@ import org.w3c.dom.Text;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownRelations;
+import cz.incad.kramerius.utils.database.SQLFilter.Tripple;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
@@ -158,10 +168,6 @@ public class RelsExtHelper {
     public static final String CACHE_RELS_EXT_LITERAL = "kramerius4://deepZoomCache";
     
     
-    
-    //  private static String RELS_EXT_RELATION_LICENSE = "license";
-    //  private static String RELS_EXT_RELATION_CONTAINS_LICENSE = "containsLicense";
-
     public static List<String> getLicenses(Element relsExt) throws XPathExpressionException, LexerException {
         List<Element> elms = XMLUtils.getElementsRecursive(relsExt, (elm)->{
             return (elm.getLocalName().equals("license"));
@@ -178,6 +184,47 @@ public class RelsExtHelper {
         return collect;
     }    
 
+    
+    public static List<Pair<String,String>> getRelations(Element relsExt) {
+
+        //    private static Set<KrameriusModels> EXCLUDE_RELATIONS = EnumSet.of(
+//      KrameriusModels.DONATOR, KrameriusModels.INTERNALPART);
+      //KrameriusModels.DONATOR, KrameriusModels.INTERNALPART, KrameriusModels.PAGE);
+
+        
+        List<Pair<String,String>> pairs = new ArrayList<>();
+        List<String> names = Arrays.stream(KrameriusRepositoryApi.KnownRelations.values()).map(KrameriusRepositoryApi.KnownRelations::toString).collect(Collectors.toList());
+        List<Element> elms = XMLUtils.getElementsRecursive(relsExt,  new XMLUtils.ElementsFilter() {
+
+            @Override
+            public boolean acceptElement(Element element) {
+                String namespaceUri = element.getNamespaceURI();
+                if (namespaceUri.equals(FedoraNamespaces.KRAMERIUS_URI)) {
+                    String nodeName = element.getLocalName();
+                    return names.contains(nodeName);
+                }
+                return false;
+            }
+            
+        });
+        
+        
+        elms.stream().forEach(elm-> {
+          try {
+            String attrVal = elm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+              PIDParser pidParser = new PIDParser(attrVal);
+              pidParser.disseminationURI();
+              String objectPid = pidParser.getObjectPid();
+              pairs.add(Pair.of(elm.getLocalName(), objectPid));
+            } catch (DOMException | LexerException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            }
+        });
+        
+        return pairs;
+    }
+    
+    
 
     public synchronized static void addRDFLiteral(Element relsExt, String license, String elmName)
             throws XPathExpressionException, LexerException {
