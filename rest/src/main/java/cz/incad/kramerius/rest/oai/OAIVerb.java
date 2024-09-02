@@ -279,47 +279,58 @@ public enum OAIVerb {
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
                             results = selectedSet.findRecords(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows, from, until);
-                            for (OAIRecord oaiRec : results.getRecords()) { 
 
-                                Element record= doc.createElement("record");
-                                Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
-                                
-                                Element metadata = doc.createElement("metadata");
-                                Element metadataElm = oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet);
-                                if (metadataElm != null) {
-                                    metadata.appendChild(metadataElm);
-                                } else {
-                                    header.setAttribute("status","deleted");
+                            if (results.getCompleteListSize() > 0) {
+                                for (OAIRecord oaiRec : results.getRecords()) { 
+
+                                    Element record= doc.createElement("record");
+                                    Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                    
+                                    Element metadata = doc.createElement("metadata");
+                                    Element metadataElm = oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet);
+                                    if (metadataElm != null) {
+                                        metadata.appendChild(metadataElm);
+                                    } else {
+                                        header.setAttribute("status","deleted");
+                                    }
+                                    
+                                    record.appendChild(header);
+                                    record.appendChild(metadata);
+                                    
+                                    identify.appendChild(record);
+                                    
+                                    
                                 }
-                                
-                                record.appendChild(header);
-                                record.appendChild(metadata);
-                                
-                                identify.appendChild(record);
-                                
-                                
+                            } else {
+                                throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                             }
+                            
                         } else {
                             results = selectedSet.findRecords(proxyFilter, solrAccess,"*", metadataPrefix,rows, from, until);
-                            for (OAIRecord oaiRec : results.getRecords()) { 
+                            if (results.getCompleteListSize() > 0) {
+                                for (OAIRecord oaiRec : results.getRecords()) { 
 
-                                Element record= doc.createElement("record");
-                                Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
-                                //Element header = oaiRec.toHeader(doc, selectedSet);
-                                
-                                Element metadata = doc.createElement("metadata");
-                                Element metadataElm = oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet);
-                                if (metadataElm != null) {
-                                    metadata.appendChild(metadataElm);
-                                } else {
-                                    header.setAttribute("status","deleted");
+                                    Element record= doc.createElement("record");
+                                    Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                    //Element header = oaiRec.toHeader(doc, selectedSet);
+                                    
+                                    Element metadata = doc.createElement("metadata");
+                                    Element metadataElm = oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet);
+                                    if (metadataElm != null) {
+                                        metadata.appendChild(metadataElm);
+                                    } else {
+                                        header.setAttribute("status","deleted");
+                                    }
+
+                                    record.appendChild(header);
+                                    record.appendChild(metadata);
+                                    
+                                    identify.appendChild(record);
                                 }
-
-                                record.appendChild(header);
-                                record.appendChild(metadata);
-                                
-                                identify.appendChild(record);
+                            } else {
+                                throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                             }
+                            
                         }
 
                         if (results.getResumptionToken()!= null) {
@@ -407,15 +418,24 @@ public enum OAIVerb {
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
                             results = selectedSet.findRecords(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows, from, until);
-                            for (OAIRecord oaiRec : results.getRecords()) { 
-                                Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
-                                identify.appendChild(header);}
+                            if (results.getCompleteListSize() > 0) {
+                                for (OAIRecord oaiRec : results.getRecords()) { 
+                                    Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                    identify.appendChild(header);}
+                            } else {
+                                throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
+                            }
+                            
                         } else {
                             results = selectedSet.findRecords(proxyFilter, solrAccess,"*", metadataPrefix,rows, from, until);
-                            for (OAIRecord oaiRec : results.getRecords()) { 
-                                Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
-                                identify.appendChild(header);
-                                
+                            if (results.getCompleteListSize() > 0) {
+                                for (OAIRecord oaiRec : results.getRecords()) { 
+                                    Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                    identify.appendChild(header);
+                                    
+                                }
+                            } else {
+                                throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                             }
                         }
 
