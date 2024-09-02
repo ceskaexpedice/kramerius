@@ -45,15 +45,15 @@ public class SolrPageIteratorTest  {
         Document document = XMLUtils.parseDocument(new StringReader(xmlConfig));
         Client client = createMock(Client.class);
 
-        String firstReq = "http://solr_test:8983/test/select?q=*:*&start=0&rows=1000&fl=PID&wt=xml";
+        String firstReq = "http://solr_test:8983/test/select?q=*:*&start=0&rows=1000&fl=PID&wt=xml&sort=PID+ASC";
         String firstResp  = IOUtils.toString(this.getClass().getResourceAsStream("pagination_first_page.xml"), "UTF-8");
         List<Object> mockFromFirstCall = webCallExpect(client, firstReq, firstResp);
 
-        String secondReq = "http://solr_test:8983/test/select?q=*:*&start=1000&rows=1000&fl=PID&wt=xml";
+        String secondReq = "http://solr_test:8983/test/select?q=*:*&start=1000&rows=1000&fl=PID&wt=xml&sort=PID+ASC";
         String secondResp  = IOUtils.toString(this.getClass().getResourceAsStream("pagination_second_page.xml"), "UTF-8");
         List<Object> mockFromSecondCall = webCallExpect(client, secondReq, secondResp);
 
-        String thirdReq = "http://solr_test:8983/test/select?q=*:*&start=2000&rows=1000&fl=PID&wt=xml";
+        String thirdReq = "http://solr_test:8983/test/select?q=*:*&start=2000&rows=1000&fl=PID&wt=xml&sort=PID+ASC";
         String thirdResp  = IOUtils.toString(this.getClass().getResourceAsStream("pagination_third_page.xml"), "UTF-8");
         List<Object> mockFromThirdCall = webCallExpect(client, thirdReq, thirdResp);
 
@@ -101,15 +101,16 @@ public class SolrPageIteratorTest  {
         Document document = XMLUtils.parseDocument(new StringReader(xmlConfig));
         Client client = createMock(Client.class);
 
-        String firstReq = "http://solr_test:8983/test/select?q=*:*&start=0&rows=1000&fq=modified_date%3A%5B2016-05-03T00%3A16%3A19.440Z+TO+2017-05-03T04%3A16%3A19.440Z%5D&fl=PID&wt=xml";
+                         //http://solr_test:8983/test/select?q=*:*&start=0&rows=1000&fq=modified_date%3A%5B2016-05-03T00%3A16%3A19.440Z+TO+2017-05-03T04%3A16%3A19.440Z%5D&fl=PID&wt=xml&sort=PID+ASC
+        String firstReq = "http://solr_test:8983/test/select?q=*:*&start=0&rows=1000&fq=modified_date%3A%5B2016-05-03T00%3A16%3A19.440Z+TO+2017-05-03T04%3A16%3A19.440Z%5D&fl=PID&wt=xml&sort=PID+ASC";
         String firstResp  = IOUtils.toString(this.getClass().getResourceAsStream("pagination_first_page.xml"), "UTF-8");
         List<Object> mockFromFirstCall = webCallExpect(client, firstReq, firstResp);
 
-        String secondReq = "http://solr_test:8983/test/select?q=*:*&start=1000&rows=1000&fq=modified_date%3A%5B2016-05-03T00%3A16%3A19.440Z+TO+2017-05-03T04%3A16%3A19.440Z%5D&fl=PID&wt=xml";
+        String secondReq = "http://solr_test:8983/test/select?q=*:*&start=1000&rows=1000&fq=modified_date%3A%5B2016-05-03T00%3A16%3A19.440Z+TO+2017-05-03T04%3A16%3A19.440Z%5D&fl=PID&wt=xml&sort=PID+ASC";
         String secondResp  = IOUtils.toString(this.getClass().getResourceAsStream("pagination_second_page.xml"), "UTF-8");
         List<Object> mockFromSecondCall = webCallExpect(client, secondReq, secondResp);
 
-        String thirdReq = "http://solr_test:8983/test/select?q=*:*&start=2000&rows=1000&fq=modified_date%3A%5B2016-05-03T00%3A16%3A19.440Z+TO+2017-05-03T04%3A16%3A19.440Z%5D&fl=PID&wt=xml";
+        String thirdReq = "http://solr_test:8983/test/select?q=*:*&start=2000&rows=1000&fq=modified_date%3A%5B2016-05-03T00%3A16%3A19.440Z+TO+2017-05-03T04%3A16%3A19.440Z%5D&fl=PID&wt=xml&sort=PID+ASC";
         String thirdResp  = IOUtils.toString(this.getClass().getResourceAsStream("pagination_third_page.xml"), "UTF-8");
         List<Object> mockFromThirdCall = webCallExpect(client, thirdReq, thirdResp);
 

@@ -192,8 +192,21 @@ public class V7RedirectHandler extends ProxyItemHandler{
 
     @Override
     public InputStream directStreamDC() throws ProxyHandlerException {
+        return directStream("dc");
+    }
+
+
+
+    @Override
+    public InputStream directStreamBiblioMods() throws ProxyHandlerException {
+        return directStream("mods");
+    }
+
+
+    // TODO: Consider if this should be 
+    private InputStream directStream(String stream) {
         String baseurl = baseUrl();
-        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/metadata/dc";
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/metadata/"+stream;
         WebResource.Builder b = buidFowrardResponse(url);
         ClientResponse response = b.get(ClientResponse.class);
         if (response.getStatus() == 200) {
@@ -202,6 +215,26 @@ public class V7RedirectHandler extends ProxyItemHandler{
         } else return null;
     }
 
+
+    private boolean isStreamAvailable(String stream) throws ProxyHandlerException {
+        String baseurl = super.baseUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/metadata/"+stream;
+        WebResource.Builder b = buidFowrardResponse(url);
+        ClientResponse response = b.head();
+        if (response.getStatus() == 200) {
+            return true;
+        } else return false;
+    }
+    
+    @Override
+    public boolean isStreamDCAvaiable() throws ProxyHandlerException {
+        return isStreamAvailable("dc");
+    }
+
+    @Override
+    public boolean isStreamBiblioModsAvaiable() throws ProxyHandlerException {
+        return isStreamAvailable("mods");
+    }
 
 
     @Override

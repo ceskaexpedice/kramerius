@@ -101,20 +101,52 @@ public class V5RedirectHandler extends ProxyItemHandler {
         return buildRedirectResponse(url);
     }
 
+
+    @Override
+    public InputStream directStreamDC() throws ProxyHandlerException {
+        return directStream("DC");
+    }
+    
     
     
     @Override
-    public InputStream directStreamDC() throws ProxyHandlerException {
+    public InputStream directStreamBiblioMods() throws ProxyHandlerException {
+        return directStream("BIBLIO_MODS");
+    }
+    
+
+    private InputStream directStream(String stream) throws ProxyHandlerException {
         String baseurl = super.baseUrl();
-        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/DC";
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/"+stream;
         WebResource.Builder b = buidFowrardResponse(url);
         ClientResponse response = b.get(ClientResponse.class);
         if (response.getStatus() == 200) {
             InputStream is = response.getEntityInputStream();
             return is;
         } else return null;
+        
+    }
+
+    private boolean isStreamAvailable(String stream) throws ProxyHandlerException {
+        String baseurl = super.baseUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/"+stream;
+        WebResource.Builder b = buidFowrardResponse(url);
+        ClientResponse response = b.head();
+        if (response.getStatus() == 200) {
+            return true;
+        } else return false;
     }
     
+    @Override
+    public boolean isStreamDCAvaiable() throws ProxyHandlerException {
+        return isStreamAvailable("DC");
+    }
+
+    @Override
+    public boolean isStreamBiblioModsAvaiable() throws ProxyHandlerException {
+        return isStreamAvailable("BIBLIO_MODS");
+    }
+
     @Override
     public Response zoomifyTile(String tileGroupStr, String tileStr) throws ProxyHandlerException {
         String baseurl = baseUrl();

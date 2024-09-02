@@ -17,18 +17,22 @@
 package cz.incad.kramerius.rest.oai;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URLEncoder;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -39,6 +43,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.IPAddressUtils;
@@ -48,6 +53,8 @@ import cz.incad.kramerius.utils.pid.LexerException;
 
 public class OAIRecord {
     
+    public static final Logger LOGGER = Logger.getLogger(OAIRecord.class.getName());
+    
     private String identifier;
     private String solrIdentifier;
     
@@ -55,10 +62,14 @@ public class OAIRecord {
     
     private List<String> cdkCollections = new ArrayList<>();
     
-    public OAIRecord(String solrIdentifier, String identifier) {
+    private String dateTimeStamp;
+    
+    
+    public OAIRecord(String solrIdentifier, String identifier, String dateTimeStamp) {
         super();
         this.solrIdentifier = solrIdentifier;
         this.identifier = identifier;
+        this.dateTimeStamp = dateTimeStamp;
     }
     
     public String getIdentifier() {
@@ -123,7 +134,16 @@ public class OAIRecord {
                     }
                 });
 
-                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier);
+                Element dateElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("indexed");
+                        
+                    }
+                });
+
+                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier, dateElm != null ? dateElm.getTextContent() : "");
                 oaiRecord.setCdkCollections(collections.stream().map(Element::getTextContent).collect(Collectors.toList()));
                 return oaiRecord;
                 
@@ -138,26 +158,70 @@ public class OAIRecord {
     public Element toMetadata(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,   Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set) {
         return export.performOnCDKSide(solrAccess,userProvider,  clientProvider, instances, request,   owningDocument, this,  set);
     }
-//    
+//  
+//    /** render header 
+//     * @throws IOException */
+//    public Element toHeader(Document doc, FedoraAccess fa, OAISet set ) throws IOException {
+//
+//        Element header = doc.createElement("header");
+//        Element identifier = doc.createElement("identifier");
+//        identifier.setTextContent(this.identifier);
+//        header.appendChild(identifier);
+//        
+//        //OffsetDateTime now = OffsetDateTime.now();
+//        Element datestamp = doc.createElement("datestamp");
+//        datestamp.setTextContent(this.dateTimeStamp);
+//        header.appendChild(datestamp);
+//        
+//        if (set != null) {
+//            Element setSpecElm = doc.createElement("setSpec");
+//            setSpecElm.setTextContent(set.getSetSpec());
+//            header.appendChild(setSpecElm);
+//        }
+//
+//        String pid = OAITools.pidFromOAIIdentifier(this.identifier);
+//        if (!fa.isObjectAvailable(pid) && (!pid.contains("_"))) {
+//            header.setAttribute("status", "deleted");
+//        }
+//        return header;
+//    }
+
+    
     /** render header */
-    public Element toHeader(Document doc, String setSpec) {
+    public Element toHeader(Document doc, OAISet set, SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request, String source) {
+
         Element header = doc.createElement("header");
 
         Element identifier = doc.createElement("identifier");
         identifier.setTextContent(this.identifier);
         header.appendChild(identifier);
         
-        OffsetDateTime now = OffsetDateTime.now();
+        //OffsetDateTime now = OffsetDateTime.now();
         Element datestamp = doc.createElement("datestamp");
-        datestamp.setTextContent(now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         header.appendChild(datestamp);
+        datestamp.setTextContent(this.dateTimeStamp);
         
-        if (setSpec != null) {
+        if (set != null) {
             Element setSpecElm = doc.createElement("setSpec");
-            setSpecElm.setTextContent(setSpec);
+            setSpecElm.setTextContent(set.getSetSpec());
             header.appendChild(setSpecElm);
         }
         
+        try {
+            String pid = OAITools.pidFromOAIIdentifier(this.identifier);
+            ProxyItemHandler redirectHandler = MetadataExport.findRedirectHandler(solrAccess, userProvider, clientProvider, instances, request, pid, null);
+            if (!pid.contains("_")) {
+                if (redirectHandler != null && !redirectHandler.isStreamBiblioModsAvaiable()) {
+                    header.setAttribute("status", "deleted");
+                // co s tim ??
+                } else if (redirectHandler == null){
+                    header.setAttribute("status", "deleted");
+                    
+                }
+            }
+        } catch (DOMException | LexerException | IOException | ProxyHandlerException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
         return header;
     }
 }

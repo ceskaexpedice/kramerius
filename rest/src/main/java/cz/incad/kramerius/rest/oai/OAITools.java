@@ -16,10 +16,12 @@
  */
 package cz.incad.kramerius.rest.oai;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -30,6 +32,7 @@ import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class OAITools {
@@ -107,6 +110,36 @@ public class OAITools {
         } else return null;
     }
     
+    
+    public static String fromFromResumptionToken(String resumptionToken) {
+        if (resumptionToken.contains(":")) {
+            String[] split = resumptionToken.split(":");
+            if (split.length > 3) {
+                String fromUntil=split[3];
+                if (fromUntil.contains("from_")) {
+                    int maxIndex =  fromUntil.indexOf("_until") > 0 ? fromUntil.indexOf("_until") :  fromUntil.length();
+                    return fromUntil.substring(fromUntil.indexOf("from_")+"from_".length(), maxIndex);
+                }
+                return null;
+            } else return null;
+        } else return null;
+        
+    }
+
+    public static String untilFromResumptionToken(String resumptionToken) {
+        if (resumptionToken.contains(":")) {
+            String[] split = resumptionToken.split(":");
+            if (split.length > 3) {
+                String fromUntil=split[3];
+                if (fromUntil.contains("until_")) {
+                    return fromUntil.substring(fromUntil.indexOf("until_")+"until_".length(), fromUntil.length());
+                }
+                return null;
+            } else return null;
+        } else return null;
+        
+    }
+
     /** create OAI identifier */
     public static String oaiIdentfier(String host, String pid) {
         String oaiIdentifier =  String.format("oai:%s:%s", host, pid);
@@ -129,5 +162,50 @@ public class OAITools {
             return oaiIdentifier.substring(pidIndex);
         } else return null;
     }
+
     
+    public static ZonedDateTime parseISO8601Date(String dateStr) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME;
+        try {
+            // YYYY-MM-DD)
+            LocalDate date = LocalDate.parse(dateStr, dateFormatter);
+            return date.atStartOfDay(ZonedDateTime.now().getZone());
+        } catch (DateTimeParseException e) {
+            // YYYY-MM-DDThh:mm:ssZ
+            try {
+                LocalDateTime dateTime = LocalDateTime.parse(dateStr, dateTimeFormatter);
+                return dateTime.atZone(ZonedDateTime.now().getZone());
+            } catch (DateTimeParseException ex) {
+                // ZonedDateTime (full UTC)
+                return ZonedDateTime.parse(dateStr, dateTimeFormatter);
+            }
+        }
+    }
+    
+    public static String formatForSolr(ZonedDateTime dateTime) {
+        DateTimeFormatter solrDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        return dateTime.withZoneSameInstant(dateTime.getZone()).format(solrDateFormat);
+    }
+    
+    public static String generateResumptionToken(String metadataPrefix, int rowsInPage, int configuredRowsInPage, String solrNextCursor, String setSpec, String from, String until) {
+        if (configuredRowsInPage == rowsInPage && solrNextCursor != null) {
+            StringBuilder builder = new StringBuilder().append(solrNextCursor).append(":").append(setSpec).append(":").append(metadataPrefix);
+            if (StringUtils.isAnyString(from) || StringUtils.isAnyString(until)) {
+                builder.append(":");
+                if (StringUtils.isAnyString(from)) {
+                    builder.append("from_").append(from);
+                    
+                    if (StringUtils.isAnyString(until)) {
+                        builder.append("_");
+                    }
+                } 
+                if (StringUtils.isAnyString(until)) {
+                    builder.append("until_").append(until);
+                }
+            }
+            return builder.toString();
+        } else return null;
+    }
+
 }

@@ -52,171 +52,171 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public abstract class ProxyHandlerSupport {
 
-	public static final boolean DEBUG = false;
-	
-	public static final Logger LOGGER = Logger.getLogger(ProxyHandlerSupport.class.getName());
+    public static final boolean DEBUG = false;
 
-	protected String source;
-	protected Client client;
-	protected SolrAccess solrAccess;
-	protected User user;
-	protected String remoteAddr;
-	protected Instances instances;
-	protected ReharvestManager reharvestManager;
+    public static final Logger LOGGER = Logger.getLogger(ProxyHandlerSupport.class.getName());
 
-	public ProxyHandlerSupport(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source,
-			String remoteAddr) {
-	    this.reharvestManager = reharvestManager;
-		this.source = source;
-		this.client = client;
-		this.solrAccess = solrAccess;
-		this.user = user;
-		this.remoteAddr = remoteAddr;
-		this.instances = instances;
-	}
+    protected String source;
+    protected Client client;
+    protected SolrAccess solrAccess;
+    protected User user;
+    protected String remoteAddr;
+    protected Instances instances;
+    protected ReharvestManager reharvestManager;
 
-	public Response buildRedirectResponse(String url) throws ProxyHandlerException {
-		try {
-			LOGGER.info(String.format("Redirecting to %s", url));
-			return Response.temporaryRedirect(new URL(url).toURI()).build();
-		} catch (MalformedURLException | URISyntaxException e) {
-			throw new ProxyHandlerException(e);
-		}
-	}
+    public ProxyHandlerSupport(ReharvestManager reharvestManager, Instances instances, User user, Client client,
+            SolrAccess solrAccess, String source, String remoteAddr) {
+        this.reharvestManager = reharvestManager;
+        this.source = source;
+        this.client = client;
+        this.solrAccess = solrAccess;
+        this.user = user;
+        this.remoteAddr = remoteAddr;
+        this.instances = instances;
+    }
 
-	/**
-	 * Build rewsponse with HEAD method
-	 * @param url
-	 * @return
-	 * @throws ProxyHandlerException
-	 */
-	public Response buildForwardResponseHEAD(String url) throws ProxyHandlerException {
-		WebResource.Builder b = buidFowrardResponse(url);
-		ClientResponse clientResponseHead = b.head();
-		if (clientResponseHead.getStatus() == 200) {
-			return Response.status(200).build();
-		} else {
-			return Response.status(clientResponseHead.getStatus()).build();
-		}
-	}
+    public Response buildRedirectResponse(String url) throws ProxyHandlerException {
+        try {
+            LOGGER.info(String.format("Redirecting to %s", url));
+            return Response.temporaryRedirect(new URL(url).toURI()).build();
+        } catch (MalformedURLException | URISyntaxException e) {
+            throw new ProxyHandlerException(e);
+        }
+    }
 
-	public ClientResponse forwardedResponse(String url) throws ProxyHandlerException {
-		WebResource.Builder b = buidFowrardResponse(url);
-		ClientResponse response = b.get(ClientResponse.class);
-		if (response.getStatus() == 200) {
-			return response;
-		} else {
-			throw new ProxyHandlerException("Bad response; status code "+response.getStatus());
-		}
-	}
-	
+    /**
+     * Build rewsponse with HEAD method
+     * 
+     * @param url
+     * @return
+     * @throws ProxyHandlerException
+     */
+    public Response buildForwardResponseHEAD(String url) throws ProxyHandlerException {
+        WebResource.Builder b = buidFowrardResponse(url);
+        ClientResponse clientResponseHead = b.head();
+        if (clientResponseHead.getStatus() == 200) {
+            return Response.status(200).build();
+        } else {
+            return Response.status(clientResponseHead.getStatus()).build();
+        }
+    }
+
+    public ClientResponse forwardedResponse(String url) throws ProxyHandlerException {
+        WebResource.Builder b = buidFowrardResponse(url);
+        ClientResponse response = b.get(ClientResponse.class);
+        if (response.getStatus() == 200) {
+            return response;
+        } else {
+            throw new ProxyHandlerException("Bad response; status code " + response.getStatus());
+        }
+    }
+
     public Response buildForwardResponseGET(String url, boolean deleteTrigger) throws ProxyHandlerException {
         return buildForwardResponseGET(url, null, null, deleteTrigger);
     }
-    
-    public Response buildForwardResponseGET(String url, String pid, boolean deleteTrigger) throws ProxyHandlerException {
+
+    public Response buildForwardResponseGET(String url, String pid, boolean deleteTrigger)
+            throws ProxyHandlerException {
         return buildForwardResponseGET(url, null, pid, deleteTrigger);
     }
-    
 
-    public Response buildForwardResponseGET(String url, String mimetype, String pid, boolean deleteTrigger) throws ProxyHandlerException {
-		WebResource.Builder b = buidFowrardResponse(url);
-		ClientResponse response = b.get(ClientResponse.class);
-		if (response.getStatus() == 200) {
-		    String responseMimeType = response.getType().toString();
-		    InputStream is = response.getEntityInputStream();
-			MultivaluedMap<String, String> headers = response.getHeaders();
+    public Response buildForwardResponseGET(String url, String mimetype, String pid, boolean deleteTrigger)
+            throws ProxyHandlerException {
+        WebResource.Builder b = buidFowrardResponse(url);
+        ClientResponse response = b.get(ClientResponse.class);
+        if (response.getStatus() == 200) {
+            String responseMimeType = response.getType().toString();
+            InputStream is = response.getEntityInputStream();
+            MultivaluedMap<String, String> headers = response.getHeaders();
 
-			StreamingOutput stream = new StreamingOutput() {
-				public void write(OutputStream output) throws IOException, WebApplicationException {
-					try {
-						IOUtils.copy(is, output);
-					} catch (Exception e) {
-						throw new WebApplicationException(e);
-					}
-				}
-			};
-			ResponseBuilder respEntity = null;
-			if (mimetype != null) {
+            StreamingOutput stream = new StreamingOutput() {
+                public void write(OutputStream output) throws IOException, WebApplicationException {
+                    try {
+                        IOUtils.copy(is, output);
+                    } catch (Exception e) {
+                        throw new WebApplicationException(e);
+                    }
+                }
+            };
+            ResponseBuilder respEntity = null;
+            if (mimetype != null) {
                 respEntity = Response.status(200).entity(stream).type(mimetype);
-			} else if (responseMimeType != null) {
+            } else if (responseMimeType != null) {
                 respEntity = Response.status(200).entity(stream).type(responseMimeType);
-			} else {
-		        respEntity = Response.status(200).entity(stream);
-			}
-			
-			/* Disable header forward 
-			headers.keySet().forEach(key -> {
-				List<String> values = headers.get(key);
-				values.stream().forEach(val -> {
-					respEntity.header(key, val);
-				});
-			});
-            */
-			
-			return respEntity.build();
-		} else {
+            } else {
+                respEntity = Response.status(200).entity(stream);
+            }
+
+            /*
+             * Disable header forward headers.keySet().forEach(key -> { List<String> values
+             * = headers.get(key); values.stream().forEach(val -> { respEntity.header(key,
+             * val); }); });
+             */
+
+            return respEntity.build();
+        } else {
             // event for reharvest
-		    if (response.getStatus() == 404) {
-		        if (deleteTrigger)  deleteTriggeToReharvest(pid);
-	        }
-			return Response.status(response.getStatus()).build();
-		}
-	}
+            if (response.getStatus() == 404) {
+                if (deleteTrigger)
+                    deleteTriggeToReharvest(pid);
+            }
+            return Response.status(response.getStatus()).build();
+        }
+    }
 
     public void deleteTriggeToReharvest(String pid) {
         if (reharvestManager != null && pid != null) {
-            //LOGGER.info(String.format("Registering pid %s",pid));
+            // LOGGER.info(String.format("Registering pid %s",pid));
             try {
                 Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
-                Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        if (element.getNodeName().equals("str")) {
-                            String fieldName = element.getAttribute("name");
-                            return fieldName.equals("root.pid");
-                        }
-                        return false;
-                    }
-                });
-                
-                Element ownPidPath = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        if (element.getNodeName().equals("str")) {
-                            String fieldName = element.getAttribute("name");
-                            return fieldName.equals("own_pid_path");
-                        }
-                        return false;
-                    }
-                });
-                
-                Element ownParentPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        if (element.getNodeName().equals("str")) {
-                            String fieldName = element.getAttribute("name");
-                            return fieldName.equals("own_parent.pid");
-                        }
-                        return false;
-                    }
-                });
-                
-                
-                Element cdkCollection = XMLUtils.findElement(solrDataByPid.getDocumentElement(),  new XMLUtils.ElementsFilter() {
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        if (element.getNodeName().equals("arr")) {
-                            String fieldName = element.getAttribute("name");
-                            return fieldName.equals("cdk.collection");
-                        }
-                        return false;
-                    }
-                });
+                Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
+                        new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                if (element.getNodeName().equals("str")) {
+                                    String fieldName = element.getAttribute("name");
+                                    return fieldName.equals("root.pid");
+                                }
+                                return false;
+                            }
+                        });
 
-                
-                
-                
+                Element ownPidPath = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
+                        new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                if (element.getNodeName().equals("str")) {
+                                    String fieldName = element.getAttribute("name");
+                                    return fieldName.equals("own_pid_path");
+                                }
+                                return false;
+                            }
+                        });
+
+                Element ownParentPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
+                        new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                if (element.getNodeName().equals("str")) {
+                                    String fieldName = element.getAttribute("name");
+                                    return fieldName.equals("own_parent.pid");
+                                }
+                                return false;
+                            }
+                        });
+
+                Element cdkCollection = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
+                        new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                if (element.getNodeName().equals("arr")) {
+                                    String fieldName = element.getAttribute("name");
+                                    return fieldName.equals("cdk.collection");
+                                }
+                                return false;
+                            }
+                        });
+
                 if (rootPid != null && ownPidPath != null && ownParentPid != null) {
                     String pidPath = ownPidPath.getTextContent().trim();
                     String ownParentPidText = ownParentPid.getTextContent().trim();
@@ -225,9 +225,11 @@ public abstract class ProxyHandlerSupport {
                         pidPath = pidPath.substring(0, index + ownParentPidText.length()).trim();
                     }
                     try {
-                        ReharvestItem alreadyRegistredItem = this.reharvestManager.getOpenItemByPid(ownParentPid.getTextContent().trim());
+                        ReharvestItem alreadyRegistredItem = this.reharvestManager
+                                .getOpenItemByPid(ownParentPid.getTextContent().trim());
                         if (alreadyRegistredItem == null) {
-                            ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger|404 ","open", ownParentPid.getTextContent().trim(), pidPath);
+                            ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(),
+                                    "Delete trigger|404 ", "open", ownParentPid.getTextContent().trim(), pidPath);
                             reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
                             reharvestItem.setState("waiting_for_approve");
                             if (cdkCollection != null) {
@@ -236,97 +238,103 @@ public abstract class ProxyHandlerSupport {
                                 List<OneInstance> enabledInstances = this.instances.enabledInstances();
                                 for (OneInstance inst : enabledInstances) {
                                     String acronym = inst.getName();
-                                    boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + acronym + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + acronym + ".licenses") : false;
-                                    if (channelAccess) { collections.add(acronym); }
+                                    boolean channelAccess = KConfiguration.getInstance().getConfiguration()
+                                            .containsKey("cdk.collections.sources." + acronym + ".licenses")
+                                                    ? KConfiguration.getInstance().getConfiguration().getBoolean(
+                                                            "cdk.collections.sources." + acronym + ".licenses")
+                                                    : false;
+                                    if (channelAccess) {
+                                        collections.add(acronym);
+                                    }
                                 }
                                 reharvestItem.setLibraries(collections);
                             }
                             this.reharvestManager.register(reharvestItem);
                         }
-                        
+
                     } catch (DOMException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     } catch (AlreadyRegistedPidsException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                 } else {
                     LOGGER.log(Level.SEVERE, "Cannot find root.pid element");
                 }
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage());
+                LOGGER.log(Level.SEVERE, e.getMessage());
             }
         } else {
-            LOGGER.log(Level.SEVERE,"No reharvest manager or pid ");
+            LOGGER.log(Level.SEVERE, "No reharvest manager or pid ");
         }
     }
 
-	protected void mockSession() {
-		if (!user.getSessionAttributes().containsKey("shib-session-id")) {
-			this.user.addSessionAttribute("shib-session-id", "_dd68cbd66641c9b647b05509ac0241fa");
-		}
-		if (!user.getSessionAttributes().containsKey("shib-session-expires")) {
-			this.user.addSessionAttribute("shib-session-expires", "1592847906");
-		}
-		if (!user.getSessionAttributes().containsKey("shib-identity-provider")) {
-			this.user.addSessionAttribute("shib-identity-provider",
-					"https://shibboleth.mzk.cz/simplesaml/metadata.xml");
-		}
-		if (!user.getSessionAttributes().containsKey("shib-authentication-method")) {
-			this.user.addSessionAttribute("shib-authentication-method",
-					"urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport");
-		}
+    protected void mockSession() {
+        if (!user.getSessionAttributes().containsKey("shib-session-id")) {
+            this.user.addSessionAttribute("shib-session-id", "_dd68cbd66641c9b647b05509ac0241fa");
+        }
+        if (!user.getSessionAttributes().containsKey("shib-session-expires")) {
+            this.user.addSessionAttribute("shib-session-expires", "1592847906");
+        }
+        if (!user.getSessionAttributes().containsKey("shib-identity-provider")) {
+            this.user.addSessionAttribute("shib-identity-provider",
+                    "https://shibboleth.mzk.cz/simplesaml/metadata.xml");
+        }
+        if (!user.getSessionAttributes().containsKey("shib-authentication-method")) {
+            this.user.addSessionAttribute("shib-authentication-method",
+                    "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport");
+        }
 
-		if (!user.getSessionAttributes().containsKey("shib-handler")) {
-			this.user.addSessionAttribute("shib-handler", "https://dnnt.mzk.cz/Shibboleth.sso");
-		}
-		if (!user.getSessionAttributes().containsKey("remote_user")) {
-			this.user.addSessionAttribute("remote_user", "all_users@mzk.cz");
-		}
-		if (!user.getSessionAttributes().containsKey("affiliation")) {
-			this.user.addSessionAttribute("affiliation", "member@mzk.cz");
-		}
-		if (!user.getSessionAttributes().containsKey("entitlement")) {
-			this.user.addSessionAttribute("entitlement", "cokoliv");
-		}
-		if (!user.getSessionAttributes().containsKey("edupersonuniqueid")) {
-			this.user.addSessionAttribute("edupersonuniqueid", "user@mzk.cz");
-		}
-	}
+        if (!user.getSessionAttributes().containsKey("shib-handler")) {
+            this.user.addSessionAttribute("shib-handler", "https://dnnt.mzk.cz/Shibboleth.sso");
+        }
+        if (!user.getSessionAttributes().containsKey("remote_user")) {
+            this.user.addSessionAttribute("remote_user", "all_users@mzk.cz");
+        }
+        if (!user.getSessionAttributes().containsKey("affiliation")) {
+            this.user.addSessionAttribute("affiliation", "member@mzk.cz");
+        }
+        if (!user.getSessionAttributes().containsKey("entitlement")) {
+            this.user.addSessionAttribute("entitlement", "cokoliv");
+        }
+        if (!user.getSessionAttributes().containsKey("edupersonuniqueid")) {
+            this.user.addSessionAttribute("edupersonuniqueid", "user@mzk.cz");
+        }
+    }
 
-	protected WebResource.Builder buidFowrardResponse(String url) {
-		String prefixHeaders = KConfiguration.getInstance().getConfiguration().getString("cdk.shibboleth.forward.headers");
-		
-		// no user session attributes in case of no federation
-		String header = "";
+    protected WebResource.Builder buidFowrardResponse(String url) {
+        String prefixHeaders = KConfiguration.getInstance().getConfiguration()
+                .getString("cdk.shibboleth.forward.headers");
+
+        // no user session attributes in case of no federation
+        String header = "";
 
         boolean shibbolethAttributes = KConfiguration.getInstance().getConfiguration()
                 .getBoolean("cdk.collections.sources." + this.source + ".shibboleth_attributes", true);
 
-        
-		if (shibbolethAttributes) {
-	        Map<String, String> attributes = this.user.getSessionAttributes();
-	        header = header + attributes.keySet().stream().map(key -> {
-	            return "header_" + key + "=" + attributes.get(key);
-	        }).collect(Collectors.joining("|"));
-		}
+        if (shibbolethAttributes) {
+            Map<String, String> attributes = this.user.getSessionAttributes();
+            header = header + attributes.keySet().stream().map(key -> {
+                return "header_" + key + "=" + attributes.get(key);
+            }).collect(Collectors.joining("|"));
+        }
 
-		if (this.remoteAddr != null) {
-			header = header + "|" + "header_ip_address=" + this.remoteAddr;
-		}
-		//TODO: Source 
-		if (StringUtils.isAnyString(prefixHeaders)) {
-			header = prefixHeaders+header;
-		}
-		
-		LOGGER.fine(String.format("Requesting %s", url));
-		WebResource r = client.resource(url);
-		LOGGER.info("CDK_TOKEN_PARAMETERS = "+header);
-		return r.header("CDK_TOKEN_PARAMETERS", header);
-	}
+        if (this.remoteAddr != null) {
+            header = header + "|" + "header_ip_address=" + this.remoteAddr;
+        }
+        // TODO: Source
+        if (StringUtils.isAnyString(prefixHeaders)) {
+            header = prefixHeaders + header;
+        }
 
-	protected String baseUrl() {
-		String baseurl = KConfiguration.getInstance().getConfiguration()
-				.getString("cdk.collections.sources." + this.source + ".baseurl");
-		return baseurl;
-	}
+        LOGGER.fine(String.format("Requesting %s", url));
+        WebResource r = client.resource(url);
+        LOGGER.info("CDK_TOKEN_PARAMETERS = " + header);
+        return r.header("CDK_TOKEN_PARAMETERS", header);
+    }
+
+    protected String baseUrl() {
+        String baseurl = KConfiguration.getInstance().getConfiguration()
+                .getString("cdk.collections.sources." + this.source + ".baseurl");
+        return baseurl;
+    }
 }

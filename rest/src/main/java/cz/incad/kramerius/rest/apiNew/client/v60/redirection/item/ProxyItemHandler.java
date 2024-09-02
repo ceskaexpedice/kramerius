@@ -77,6 +77,10 @@ public abstract class ProxyItemHandler extends ProxyHandlerSupport {
     
     // helper methods for direct access to dc stream
     public abstract InputStream directStreamDC() throws ProxyHandlerException;
+    public abstract InputStream directStreamBiblioMods() throws ProxyHandlerException;
+    
+    public abstract boolean isStreamDCAvaiable() throws ProxyHandlerException;
+    public abstract boolean isStreamBiblioModsAvaiable() throws ProxyHandlerException;
     
     
 	public boolean imageThumbForceRedirection() {

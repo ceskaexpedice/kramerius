@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.oai;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.DateTimeException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +43,7 @@ import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.oai.exceptions.OAIException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -220,10 +222,14 @@ public enum OAIVerb {
                 String baseUrl = ApplicationURL.applicationURL(request);
                 URL urlObject = new URL(baseUrl);
                 OAISets sets = new OAISets(configManager, urlObject.getHost());
-                String set = request.getParameter("set");
 
-                String resumptionToken = request.getParameter("resumptionToken");
-                String metadataPrefix = request.getParameter("metadataPrefix");
+                String set = request.getParameter(SET_PARAMETER);
+                String resumptionToken = request.getParameter(RESUMPTION_TOKEN_PARAMETER);
+                String metadataPrefix = request.getParameter(METADATA_PREFIX_PARAMETER);
+                String from = request.getParameter(FROM_PARAMETER);
+                String until = request.getParameter(UNTIL_PARAMETER);
+
+                
                 if (metadataPrefix != null || resumptionToken != null) {
                     int rows = KConfiguration.getInstance().getConfiguration().getInt(REPOSITORY_ROWS_IN_RESULTS,600);
                     if (set != null) {
@@ -240,6 +246,22 @@ public enum OAIVerb {
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         }
                     }
+                    
+                    if (StringUtils.isAnyString(from)) {
+                        try {
+                            OAITools.parseISO8601Date(from);
+                        } catch (DateTimeException e) {
+                            throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata, "illegal value of from");
+                        }
+                    }
+                    if (StringUtils.isAnyString(until)) {
+                        try {
+                            OAITools.parseISO8601Date(until);
+                        } catch (DateTimeException e) {
+                            throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata,"illegal value of until");
+                        }
+                    }
+
 
                     selectedMetadata = MetadataExport.findByPrefix(metadataPrefix);
                     
@@ -256,20 +278,18 @@ public enum OAIVerb {
                         
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
-                            results = selectedSet.findRecords(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows);
+                            results = selectedSet.findRecords(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows, from, until);
                             for (OAIRecord oaiRec : results.getRecords()) { 
 
                                 Element record= doc.createElement("record");
-                                Element header = oaiRec.toHeader(doc, selectedSet.getSetSpec());
-                                
-                                //  Instances instances, HttpServletRequest request,   Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set
+                                Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
                                 
                                 Element metadata = doc.createElement("metadata");
                                 Element metadataElm = oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet);
                                 if (metadataElm != null) {
                                     metadata.appendChild(metadataElm);
                                 } else {
-                                    record.setAttribute("deleted","true");
+                                    header.setAttribute("status","deleted");
                                 }
                                 
                                 record.appendChild(header);
@@ -280,18 +300,19 @@ public enum OAIVerb {
                                 
                             }
                         } else {
-                            results = selectedSet.findRecords(proxyFilter, solrAccess,"*", metadataPrefix,rows);
+                            results = selectedSet.findRecords(proxyFilter, solrAccess,"*", metadataPrefix,rows, from, until);
                             for (OAIRecord oaiRec : results.getRecords()) { 
 
                                 Element record= doc.createElement("record");
-                                Element header = oaiRec.toHeader(doc, selectedSet.getSetSpec());
+                                Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                //Element header = oaiRec.toHeader(doc, selectedSet);
                                 
                                 Element metadata = doc.createElement("metadata");
                                 Element metadataElm = oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet);
                                 if (metadataElm != null) {
                                     metadata.appendChild(metadataElm);
                                 } else {
-                                    record.setAttribute("deleted","true");
+                                    header.setAttribute("status","deleted");
                                 }
 
                                 record.appendChild(header);
@@ -335,9 +356,14 @@ public enum OAIVerb {
 
                 URL urlObject = new URL(baseUrl);
                 OAISets sets = new OAISets(configManager, urlObject.getHost());
-                String set = request.getParameter("set");
-                String resumptionToken = request.getParameter("resumptionToken");
-                String metadataPrefix = request.getParameter("metadataPrefix");
+                
+                String set = request.getParameter(SET_PARAMETER);
+                String resumptionToken = request.getParameter(RESUMPTION_TOKEN_PARAMETER);
+                String metadataPrefix = request.getParameter(METADATA_PREFIX_PARAMETER);
+                String from = request.getParameter(FROM_PARAMETER);
+                String until = request.getParameter(UNTIL_PARAMETER);
+
+                
                 if (metadataPrefix != null || resumptionToken != null) {
                     int rows = KConfiguration.getInstance().getConfiguration().getInt(REPOSITORY_ROWS_IN_RESULTS,600);
                     
@@ -348,6 +374,21 @@ public enum OAIVerb {
                         metadataPrefix = OAITools.metadataFromResumptionToken(resumptionToken);
                         if ( metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
+                        }
+                    }
+
+                    if (StringUtils.isAnyString(from)) {
+                        try {
+                            OAITools.parseISO8601Date(from);
+                        } catch (DateTimeException e) {
+                            throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata, "illegal value of from");
+                        }
+                    }
+                    if (StringUtils.isAnyString(until)) {
+                        try {
+                            OAITools.parseISO8601Date(until);
+                        } catch (DateTimeException e) {
+                            throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata,"illegal value of until");
                         }
                     }
 
@@ -365,11 +406,17 @@ public enum OAIVerb {
                         OAIResults results = null;
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
-                            results = selectedSet.findRecords(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows);
-                            for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, selectedSet.getSetSpec()));}
+                            results = selectedSet.findRecords(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows, from, until);
+                            for (OAIRecord oaiRec : results.getRecords()) { 
+                                Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                identify.appendChild(header);}
                         } else {
-                            results = selectedSet.findRecords(proxyFilter, solrAccess,"*", metadataPrefix,rows);
-                            for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, selectedSet.getSetSpec()));}
+                            results = selectedSet.findRecords(proxyFilter, solrAccess,"*", metadataPrefix,rows, from, until);
+                            for (OAIRecord oaiRec : results.getRecords()) { 
+                                Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                identify.appendChild(header);
+                                
+                            }
                         }
 
                         if (results.getResumptionToken()!= null) {
@@ -420,8 +467,8 @@ public enum OAIVerb {
                     if (oaiRec != null) {
 
                         Element record= doc.createElement("record");
-                        Element header = oaiRec.toHeader(doc, null);
-                        
+
+                        Element header = oaiRec.toHeader(doc, null, solrAccess, userProvider, clientProvider, instances, request, null);
                         
                         Element metadata = doc.createElement("metadata");
                         Element metadataElm = oaiRec.toMetadata(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,null);
@@ -451,6 +498,12 @@ public enum OAIVerb {
             
         }
     };
+
+    private static final String METADATA_PREFIX_PARAMETER = "metadataPrefix";
+    private static final String RESUMPTION_TOKEN_PARAMETER = "resumptionToken";
+    private static final String SET_PARAMETER = "set";
+    private static final String UNTIL_PARAMETER = "until";
+    private static final String FROM_PARAMETER = "from";
 
     private static final String REPOSITORY_ADMIN_EMAIL = "oai.adminEmail";
     private static final String REPOSITORY_BASE_URL = "oai.baseUrl";
