@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.ws.rs.core.Response;
 
@@ -13,7 +14,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
@@ -40,12 +43,17 @@ public class V5ForwardUserHandler extends ProxyUserHandler {
 
     @Override
     public Pair<User, List<String>> user() throws ProxyHandlerException {
-        String baseurl = forwardUrl();
-        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/user";
-        ClientResponse fResponse = super.forwardedResponse(url);
-        String entity = fResponse.getEntity(String.class);
-        JSONObject jObject = new JSONObject(entity);
-        return userFromJSON(jObject);
+        try {
+            String baseurl = forwardUrl();
+            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/user";
+            ClientResponse fResponse = super.forwardedResponse(url);
+            String entity = fResponse.getEntity(String.class);
+            JSONObject jObject = new JSONObject(entity);
+            return userFromJSON(jObject);
+        } catch (ClientHandlerException | UniformInterfaceException | JSONException | ProxyHandlerException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            return null;
+        }
     }
 
     public static Pair<User, List<String>> userFromJSON(JSONObject json) throws JSONException {
