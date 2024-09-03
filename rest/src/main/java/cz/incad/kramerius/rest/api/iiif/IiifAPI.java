@@ -28,10 +28,18 @@ import de.digitalcollections.iiif.presentation.model.impl.v2.SequenceImpl;
 import de.digitalcollections.iiif.presentation.model.impl.v2.ServiceImpl;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.nio.client.HttpAsyncClient;
+import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
+import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
+import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.nio.AsyncRequestProducer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.util.Timeout;
+import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
@@ -54,9 +62,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * IiiPresentationApi
@@ -83,7 +92,7 @@ public class IiifAPI {
 
     @Inject
     public IiifAPI(SolrMemoization solrMemoization, @Named("cachedFedoraAccess") FedoraAccess fedoraAccess,
-                   @Named("new-index")SolrAccess solrAccess, Provider<HttpServletRequest> requestProvider, HttpAsyncClient asyncClient) {
+                   @Named("new-index") SolrAccess solrAccess, Provider<HttpServletRequest> requestProvider, HttpAsyncClient asyncClient) {
         this.solrMemoization = solrMemoization;
         this.fedoraAccess = fedoraAccess;
         this.solrAccess = solrAccess;
@@ -179,58 +188,53 @@ public class IiifAPI {
     }
 
     private Map<String, Pair<Integer, Integer>> getResolutions(List<String> children) throws IOException, InterruptedException {
-        final Map<String, Pair<Integer, Integer>> resolutions = new HashMap<String, Pair<Integer, Integer>>();
+        final Map<String, Pair<Integer, Integer>> resolutions = new ConcurrentHashMap<>();
 
-        final CountDownLatch latch = new CountDownLatch(children.size());
-        for (final String pid : children) {
-            String iiifEndpoint = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
-            if (iiifEndpoint != null) {
-                HttpGet request = new HttpGet(iiifEndpoint + "/info.json");
-                asyncClient.execute(request, new FutureCallback<HttpResponse>() {
-
-                    @Override
-                    public void completed(HttpResponse httpResponse) {
-                        try {
-                            String json = IOUtils.toString(httpResponse.getEntity().getContent());
-                            final JSONObject jsonObject = new JSONObject(json);
-
-                            Pair resolution = new Pair<Integer, Integer>() {
-                                    @Override
-                                    public Integer getLeft() {
-                                        return jsonObject.getInt("height");
-                                    }
-
-                                    @Override
-                                    public Integer getRight() {
-                                        return jsonObject.getInt("width");
-                                    }
-
-                                    @Override
-                                    public Integer setValue(Integer value) {
-                                        return null;
-                                    }
-                                };
-                            resolutions.put(pid, resolution);
-                        } catch (IOException e) {
-                            LOGGER.log(Level.SEVERE, e.getMessage());
-                        }
-                        latch.countDown();
-                    }
-
-                    @Override
-                    public void failed(Exception e) {
-                        latch.countDown();
+        List<CompletableFuture<Void>> futures = children.stream()
+                .map(pid -> CompletableFuture.runAsync(() -> {
+                    String iiifEndpoint = null;
+                    try {
+                        iiifEndpoint = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+                    } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage());
                     }
+                    if (iiifEndpoint != null) {
+                        AsyncRequestProducer producer = AsyncRequestBuilder.get(iiifEndpoint + "/info.json").build();
+                        SimpleResponseConsumer consumer = SimpleResponseConsumer.create();
 
-                    @Override
-                    public void cancelled() {
-                        latch.countDown();
+                        try {
+                            Future<SimpleHttpResponse> responseFuture = asyncClient.execute(producer, consumer, null, null, null);
+                            SimpleHttpResponse response = responseFuture.get(); // wait for the request
+
+                            String json = response.getBodyText();
+                            JSONObject jsonObject = new JSONObject(json);
+
+                            Pair<Integer, Integer> resolution = new Pair<Integer, Integer>() {
+                                @Override
+                                public Integer getLeft() {
+                                    return jsonObject.getInt("height");
+                                }
+
+                                @Override
+                                public Integer getRight() {
+                                    return jsonObject.getInt("width");
+                                }
+
+                                @Override
+                                public Integer setValue(Integer value) {
+                                    return null;
+                                }
+                            };
+                            resolutions.put(pid, resolution);
+                        } catch (Exception e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage());
+                        }
                     }
-                });
-            }
-        }
-        latch.await();
+                }))
+                .collect(Collectors.toList());
+
+        // Wait for all futures to complete
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
         return resolutions;
     }

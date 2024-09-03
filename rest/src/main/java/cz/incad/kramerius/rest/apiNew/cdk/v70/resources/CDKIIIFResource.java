@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.nio.client.HttpAsyncClient;
+import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 

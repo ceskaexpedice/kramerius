@@ -49,7 +49,7 @@ import cz.incad.kramerius.utils.java.Pair;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.nio.client.HttpAsyncClient;
+import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.codehaus.jettison.json.JSONArray;
 import org.dom4j.Attribute;

@@ -14,16 +14,20 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.apache.http.Header;
-import org.apache.http.HttpException;
-import org.apache.http.HttpResponse;
-import org.apache.http.nio.IOControl;
-import org.apache.http.nio.client.HttpAsyncClient;
-import org.apache.http.nio.client.methods.AsyncByteConsumer;
-import org.apache.http.nio.client.methods.HttpAsyncMethods;
-import org.apache.http.protocol.HttpContext;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
+import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.nio.AsyncRequestProducer;
+import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
+import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
+import org.apache.hc.client5.http.async.HttpAsyncClient;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -55,6 +59,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.utils.*;
+import org.apache.http.nio.IOControl;
 
 public abstract class AbstractImageServlet extends GuiceServlet {
 
@@ -213,12 +218,23 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     public void copyFromImageServer(String urlString, final HttpServletResponse resp)
             throws IOException {
         final WritableByteChannel channel = Channels.newChannel(resp.getOutputStream());
-
-        Future<Void> responseFuture = client.execute(HttpAsyncMethods.createGet(urlString), new AsyncByteConsumer<Void>() {
+        AsyncRequestProducer producer = AsyncRequestBuilder.get(urlString).build();
+        AbstractBinResponseConsumer<HttpResponse> consumer = new AbstractBinResponseConsumer()
+        {
             @Override
-            protected void onByteReceived(ByteBuffer byteBuffer, IOControl ioControl) throws IOException {
+            public void releaseResources() {
+
+            }
+
+            @Override
+            protected int capacityIncrement() {
+                return Integer.MAX_VALUE;
+            }
+
+            @Override
+            protected void data(ByteBuffer src, boolean endOfStream) throws IOException {
                 try {
-                    channel.write(byteBuffer);
+                    channel.write(src);
                 } catch (IOException e) {
                     if ("ClientAbortException".equals(e.getClass().getSimpleName())) {
                         // Do nothing, request was cancelled by client. This is usual image viewers behavior.
@@ -229,11 +245,11 @@ public abstract class AbstractImageServlet extends GuiceServlet {
             }
 
             @Override
-            protected void onResponseReceived(HttpResponse response) throws HttpException, IOException {
-                int statusCode = response.getStatusLine().getStatusCode();
+            protected void start(HttpResponse response, ContentType contentType) throws HttpException, IOException {
+                int statusCode = response.getCode();
                 resp.setStatus(statusCode);
                 if (statusCode == 200) {
-                    resp.setContentType(response.getEntity().getContentType().getValue());
+                    resp.setContentType(contentType.getMimeType());
                     LOGGER.fine(String.format("Set access-control-header %s ", "Access-Control-Allow-Origin *"));
                     resp.setHeader("Access-Control-Allow-Origin", "*");
                     Header cacheControl = response.getLastHeader("Cache-Control");
@@ -245,10 +261,13 @@ public abstract class AbstractImageServlet extends GuiceServlet {
             }
 
             @Override
-            protected Void buildResult(HttpContext httpContext) throws Exception {
+            protected Object buildResult() {
                 return null;
             }
-        }, null);
+        };
+
+
+        Future<HttpResponse> responseFuture = client.execute(producer, consumer, null, null, null);
 
         try {
             responseFuture.get(); // wait for request

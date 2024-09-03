@@ -39,14 +39,18 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.nio.AsyncRequestProducer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.client.HttpAsyncClient;
-import org.apache.http.nio.client.methods.AsyncByteConsumer;
-import org.apache.http.nio.client.methods.HttpAsyncMethods;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.async.HttpAsyncClient;
+//import org.apache.http.nio.client.methods.AsyncByteConsumer;
+//import org.apache.http.nio.client.methods.HttpAsyncMethods;
+//import org.apache.http.protocol.HttpContext;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -65,12 +69,24 @@ public class IIPImagesSupport {
     public static void nonBlockingCopyFromImageServer(HttpAsyncClient client, String urlString, final HttpServletResponse resp)
             throws IOException {
         final WritableByteChannel channel = Channels.newChannel(resp.getOutputStream());
-    
-        Future<Void> responseFuture = client.execute(HttpAsyncMethods.createGet(urlString), new AsyncByteConsumer<Void>() {
+
+        AsyncRequestProducer producer = AsyncRequestBuilder.get(urlString).build();
+        AbstractBinResponseConsumer<org.apache.hc.core5.http.HttpResponse> consumer = new AbstractBinResponseConsumer()
+        {
             @Override
-            protected void onByteReceived(ByteBuffer byteBuffer, IOControl ioControl) throws IOException {
+            public void releaseResources() {
+
+            }
+
+            @Override
+            protected int capacityIncrement() {
+                return Integer.MAX_VALUE;
+            }
+
+            @Override
+            protected void data(ByteBuffer src, boolean endOfStream) throws IOException {
                 try {
-                    channel.write(byteBuffer);
+                    channel.write(src);
                 } catch (IOException e) {
                     if ("ClientAbortException".equals(e.getClass().getSimpleName())) {
                         // Do nothing, request was cancelled by client. This is usual image viewers behavior.
@@ -79,39 +95,41 @@ public class IIPImagesSupport {
                     }
                 }
             }
-    
+
             @Override
-            protected void onResponseReceived(HttpResponse response) throws HttpException, IOException {
-                int statusCode = response.getStatusLine().getStatusCode();
+            protected void start(org.apache.hc.core5.http.HttpResponse response, ContentType contentType) throws org.apache.hc.core5.http.HttpException, IOException {
+                int statusCode = response.getCode();
                 resp.setStatus(statusCode);
                 if (statusCode == 200) {
-                    LOGGER.info("writing response, status code, ..."+statusCode);
-                    resp.setContentType(response.getEntity().getContentType().getValue());
-                    ItemsResource.LOGGER.fine(String.format("Set access-control-header %s ", "Access-Control-Allow-Origin *"));
+                    resp.setContentType(contentType.getMimeType());
+                    LOGGER.fine(String.format("Set access-control-header %s ", "Access-Control-Allow-Origin *"));
                     resp.setHeader("Access-Control-Allow-Origin", "*");
-                    Header cacheControl = response.getLastHeader("Cache-Control");
+                    org.apache.hc.core5.http.Header cacheControl = response.getLastHeader("Cache-Control");
                     if (cacheControl != null) resp.setHeader(cacheControl.getName(), cacheControl.getValue());
-                    Header lastModified = response.getLastHeader("Last-Modified");
+                    org.apache.hc.core5.http.Header lastModified = response.getLastHeader("Last-Modified");
                     if (lastModified != null) resp.setHeader(lastModified.getName(), lastModified.getValue());
-    
+
                 }
             }
-    
+
             @Override
-            protected Void buildResult(HttpContext httpContext) throws Exception {
+            protected Object buildResult() {
                 return null;
             }
-        }, null);
-    
+        };
+
+
+        Future<org.apache.hc.core5.http.HttpResponse> responseFuture = client.execute(producer, consumer, null, null, null);
+
         try {
             responseFuture.get(); // wait for request
         } catch (InterruptedException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage());
             throw new IOException(e.getMessage());
         } catch (ExecutionException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage());
             throw new IOException(e.getMessage());
         }
+    
+
     }
 
     /** Non blocking copy from file */

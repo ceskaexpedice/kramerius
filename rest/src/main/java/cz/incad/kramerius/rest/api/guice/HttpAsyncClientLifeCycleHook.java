@@ -1,10 +1,8 @@
 package cz.incad.kramerius.rest.api.guice;
 
-import cz.incad.kramerius.audio.CacheLifeCycleHook;
 import cz.incad.kramerius.service.LifeCycleHook;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.nio.client.HttpAsyncClient;
-import org.ehcache.CacheManager;
+import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
+import org.apache.hc.client5.http.async.HttpAsyncClient;
 
 import javax.inject.Inject;
 import java.io.IOException;
