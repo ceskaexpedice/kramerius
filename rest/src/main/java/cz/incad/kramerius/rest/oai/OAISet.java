@@ -251,13 +251,10 @@ public class OAISet {
             ZonedDateTime fromDate = OAITools.parseISO8601Date(fromParameter);
             ZonedDateTime untilDate = OAITools.parseISO8601Date(untilParameter);
             query = query +String.format("&fq=indexed:[%s+TO+%s]", OAITools.formatForSolr(fromDate), OAITools.formatForSolr(untilDate)); 
-        }
-        if (StringUtils.isAnyString(fromParameter)) {
+        } else if (StringUtils.isAnyString(fromParameter)) {
             ZonedDateTime fromDate = OAITools.parseISO8601Date(fromParameter);
             query = query +String.format("&fq=indexed:[%s+TO+*]", OAITools.formatForSolr(fromDate)); 
-        }
-        
-        if (StringUtils.isAnyString(untilParameter)) {
+        } else  if (StringUtils.isAnyString(untilParameter)) {
             ZonedDateTime untilDate = OAITools.parseISO8601Date(untilParameter);
             query = query +String.format("&fq=indexed:[*+TO+%s]", OAITools.formatForSolr(untilDate)); 
         }
