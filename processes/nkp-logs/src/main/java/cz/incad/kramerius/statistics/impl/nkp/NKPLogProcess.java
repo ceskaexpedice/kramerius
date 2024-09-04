@@ -5,7 +5,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.gdpr.AnnonymizationSupport;
+import cz.incad.kramerius.gdpr.AnonymizationSupport;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
@@ -100,7 +100,7 @@ public class NKPLogProcess {
     //TODO: Do it better - change configuration key
     public static List<Object> getAnnonymizedKeys() {
         List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_ANONYMIZATION_KEY, 
-                AnnonymizationSupport.DEFAULT_ANONYMIZATION_PROPERTIES);
+                AnonymizationSupport.DEFAULT_ANONYMIZATION_PROPERTIES);
         return anonymization;
     }
 
@@ -168,7 +168,7 @@ public class NKPLogProcess {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientResponse, "UTF-8"));
                     String line = null;
                     while ((line = bufferedReader.readLine()) != null) {
-                        JSONObject lineJSONObject = AnnonymizationSupport.annonymizeObject(annonymizationKeys, line);
+                        JSONObject lineJSONObject = AnonymizationSupport.annonymizeObject(annonymizationKeys, line);
 
                         fileWriter.write(lineJSONObject.toString() + "\n");
 

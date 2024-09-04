@@ -69,7 +69,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.gdpr.AnnonymizationSupport;
+import cz.incad.kramerius.gdpr.AnonymizationSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.security.RightsResolver;
@@ -560,7 +560,7 @@ public class StatisticsResource {
                     validateDateRange(dateFrom, dateTo);
 
                     //TODO: Change key - this k
-                    List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList("nkp.logs.anonymization", AnnonymizationSupport.DEFAULT_ANONYMIZATION_PROPERTIES);
+                    List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList("nkp.logs.anonymization", AnonymizationSupport.DEFAULT_ANONYMIZATION_PROPERTIES);
                     List<String> keys = anonymization.stream().map(Object::toString).collect(Collectors.toList());
                     
                     
@@ -575,7 +575,7 @@ public class StatisticsResource {
                     for (int i = 0; i < docsArray.length(); i++) {
                         JSONObject doc = docsArray.getJSONObject(i);
                         String userSessionAttributes = doc.getString("user_session_attributes");
-                        JSONObject changedObj = AnnonymizationSupport.annonymizeObject(keys, userSessionAttributes);
+                        JSONObject changedObj = AnonymizationSupport.annonymizeObject(keys, userSessionAttributes);
                         doc.put("user_session_attributes", changedObj.toString());
                     }
                     return Response.ok().entity(string).build();
