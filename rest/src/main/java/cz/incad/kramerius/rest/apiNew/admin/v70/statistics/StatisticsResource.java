@@ -14,29 +14,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.api.k5.admin.statistics;
+package cz.incad.kramerius.rest.apiNew.admin.v70.statistics;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.text.ParseException;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
 
 import com.google.inject.name.Named;
 import cz.incad.kramerius.processes.LRProcessManager;
@@ -44,6 +54,7 @@ import cz.incad.kramerius.processes.*;
 
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.processes.LRResource;
+import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.statistics.filters.*;
 import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
@@ -58,6 +69,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.gdpr.AnnonymizationSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.security.RightsResolver;
@@ -73,10 +85,16 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.database.Offset;
 
 
-
+/**
+ * Moved from k5
+ * @author happy
+ *
+ */
 @Path("/admin/v7.0/statistics")
 public class StatisticsResource {
 
+    public static final Logger LOGGER = Logger.getLogger(StatisticsResource.class.getName());
+    
     public static final Semaphore STATISTIC_SEMAPHORE = new Semaphore(1);
 
 
@@ -504,9 +522,84 @@ public class StatisticsResource {
        }
 	}
 
+
+	public static void validateDateRange(String dateFrom, String dateTo) {
+        // ISO-8601 formátování pro datum s časovou zónou (např. "2024-09-05T00:00:00Z")
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+        // Naparsování řetězců na OffsetDateTime objekty
+        OffsetDateTime fromDate = OffsetDateTime.parse(dateFrom, formatter);
+        OffsetDateTime toDate = OffsetDateTime.parse(dateTo, formatter);
+        long maxHours = 120;
+        long hoursBetween = ChronoUnit.HOURS.between(fromDate, toDate);
+        if (hoursBetween >= maxHours) {
+            throw new BadRequestException( String.format("The difference between dateFrom and dateTo must be less than %s hours.", maxHours));
+        }
+    }
 	
-	
-	
+    @GET
+    @Path("logs")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response exportLogs(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo, @QueryParam("rows") String rows, @QueryParam("start") String start) {
+        try {
+            
+            if (permit(SecuredActions.A_EXPORT_STATISTICS)) {
+                
+                if (!StringUtils.isAnyString(rows)) {
+                    rows = "10";
+                }
+                
+                if (!StringUtils.isAnyString(start)) {
+                    start="0";
+                }
+                
+                String selectEndpint = this.logsEndpoint();
+                StringBuilder builder = new StringBuilder("q=*");
+                builder.append(String.format("&rows=%s&start=%s", rows, start));
+                if (StringUtils.isAnyString(dateFrom) && StringUtils.isAnyString(dateTo)) {
+                    
+                    validateDateRange(dateFrom, dateTo);
+
+                    //TODO: Change key - this k
+                    List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList("nkp.logs.anonymization", AnnonymizationSupport.DEFAULT_ANONYMIZATION_PROPERTIES);
+                    List<String> keys = anonymization.stream().map(Object::toString).collect(Collectors.toList());
+                    
+                    
+                    String encoded = URLEncoder.encode(String.format("date:[%s TO %s]", dateFrom, dateTo), "UTF-8");
+                    builder.append("&fq="+encoded);
+                    InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
+                    String string = org.apache.commons.io.IOUtils.toString(iStream, "UTF-8");
+                    
+                    JSONObject allResp = new JSONObject(string);
+                    JSONObject responseObj = allResp.getJSONObject("response");
+                    JSONArray docsArray = responseObj.getJSONArray("docs");
+                    for (int i = 0; i < docsArray.length(); i++) {
+                        JSONObject doc = docsArray.getJSONObject(i);
+                        String userSessionAttributes = doc.getString("user_session_attributes");
+                        JSONObject changedObj = AnnonymizationSupport.annonymizeObject(keys, userSessionAttributes);
+                        doc.put("user_session_attributes", changedObj.toString());
+                    }
+                    return Response.ok().entity(string).build();
+                } else {
+                    throw new BadRequestException("Expecting 'dateFrom' and 'dateTo'");
+                }
+            } else {
+                throw new ActionNotAllowed("not allowed");
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    
+    
+
+    protected String logsEndpoint() {
+        String loggerPoint = KConfiguration.getInstance().getProperty("k7.log.solr.point","http://localhost:8983/solr/logs");
+        String selectEndpoint = loggerPoint + (loggerPoint.endsWith("/") ? "" : "/" ) +"";
+        return selectEndpoint;
+    }
 
     boolean permit(SecuredActions action) {
         User user = null;
@@ -535,5 +628,6 @@ public class StatisticsResource {
             return false;
     }
     
+
     
 }

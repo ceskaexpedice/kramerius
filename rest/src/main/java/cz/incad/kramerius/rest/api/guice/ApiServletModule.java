@@ -23,9 +23,9 @@ import cz.incad.kramerius.keycloak.KeycloakProxy;
 import cz.incad.kramerius.rest.apiNew.admin.v70.files.GenerateDownloadLinks;
 import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RightsResource;
-import cz.incad.kramerius.rest.api.k5.admin.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RolesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.UsersResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.statistics.StatisticsResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.CDKForwardResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
@@ -51,6 +51,7 @@ import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource;
+import cz.incad.kramerius.rest.apiNew.exts.v70.ExtsTokensResource;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.folders.db.FolderDatabase;
 import cz.inovatika.folders.jersey.EndpointFolders;
@@ -118,6 +119,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.client.v70.LocksResource.class);
         
         
+        
         // API Admin 7.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.collections.CollectionsResource.class);
@@ -131,6 +133,9 @@ public class ApiServletModule extends JerseyServletModule {
         
         // OAI endpoint
         bind(cz.incad.kramerius.rest.oai.OAIEndpoint.class);
+        
+        // EXTS endpoint
+        bind(cz.incad.kramerius.rest.apiNew.exts.v70.ExtsTokensResource.class);
         
         // Generated download links
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.files.GenerateDownloadLinks.class).asEagerSingleton();

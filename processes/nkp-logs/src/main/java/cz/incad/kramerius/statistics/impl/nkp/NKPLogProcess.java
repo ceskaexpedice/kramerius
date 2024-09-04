@@ -4,6 +4,8 @@ import com.google.inject.Inject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+
+import cz.incad.kramerius.gdpr.AnnonymizationSupport;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
@@ -28,7 +30,6 @@ import javax.mail.internet.MimeMessage;
 import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.rmi.ServerException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -45,17 +46,6 @@ import java.util.zip.ZipOutputStream;
 
 public class NKPLogProcess {
 
-    private static final List<String> DEFAULT_ANONYMIZATION_PROPERTIES = Arrays.asList(
-            "username",
-            "session_eppn",
-            "dnnt_user",
-            "eduPersonUniqueId",
-            "affilation",
-            "remoteAddr",
-            "eduPersonPrincipalName",
-            "email",
-            "preffered_user_name");
-    
     private static final String NKP_LOGS_FOLDER_KEY = "nkp.logs.folder";
     private static final String NKP_LOGS_VISIBILITY_KEY = "nkp.logs.visibility";
     private static final String NKP_LOGS_INSTITUTION_KEY = "nkp.logs.institution";
@@ -81,8 +71,7 @@ public class NKPLogProcess {
             String folder = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_FOLDER_KEY, System.getProperty("java.io.tmpdir"));
             String visibility = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_VISIBILITY_KEY, "ALL");
             String institution = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_INSTITUTION_KEY, StringUtils.isAnyString(defaultInst) ? defaultInst :  "-none-");
-            List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_ANONYMIZATION_KEY, 
-                    DEFAULT_ANONYMIZATION_PROPERTIES);
+            List<Object> anonymization = getAnnonymizedKeys();
 
             process(from, to, folder, institution, visibility, anonymization);
 
@@ -106,6 +95,13 @@ public class NKPLogProcess {
                 }
             }
         }
+    }
+    
+    //TODO: Do it better - change configuration key
+    public static List<Object> getAnnonymizedKeys() {
+        List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_ANONYMIZATION_KEY, 
+                AnnonymizationSupport.DEFAULT_ANONYMIZATION_PROPERTIES);
+        return anonymization;
     }
 
     public static void sendEmailNotification(String emailFrom, List<Object> recipients, String subject, String text) throws MessagingException {
@@ -172,24 +168,7 @@ public class NKPLogProcess {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientResponse, "UTF-8"));
                     String line = null;
                     while ((line = bufferedReader.readLine()) != null) {
-
-                        JSONObject lineJSONObject = new JSONObject(line);
-                        annonymizationKeys.stream().forEach(key -> {
-                            if (lineJSONObject.has(key)) {
-                                Object o = lineJSONObject.get(key);
-                                if (o instanceof String) {
-                                    String stringToBeHashed = o.toString();
-                                    String newVal = null;
-                                    if (stringToBeHashed.contains("@")) {
-                                        String[] split = stringToBeHashed.split("@");
-                                        newVal = String.format("%s@%s", hashVal(split[0]), hashVal(split[1]));
-                                    } else {
-                                        newVal = hashVal(stringToBeHashed);
-                                    }
-                                    lineJSONObject.put(key, newVal);
-                                }
-                            }
-                        });
+                        JSONObject lineJSONObject = AnnonymizationSupport.annonymizeObject(annonymizationKeys, line);
 
                         fileWriter.write(lineJSONObject.toString() + "\n");
 
@@ -246,22 +225,6 @@ public class NKPLogProcess {
         }
         fis.close();
     }
-
-
-
-    
-    public static String hashVal(String value) {
-        try {
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-            Base64.Encoder base64Encoder = Base64.getEncoder();
-            md5.update(value.getBytes("UTF-8"));
-            return base64Encoder.encodeToString(md5.digest());
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return value;
-        }
-    }
-
     
 }
 

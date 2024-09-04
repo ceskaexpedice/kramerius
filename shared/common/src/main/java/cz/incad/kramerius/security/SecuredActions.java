@@ -67,6 +67,9 @@ public enum SecuredActions {
     /** moznost mazat statistiky */
     A_STATISTICS_EDIT("a_statistics_edit"),
     
+    /** exportovani statistik tretim stranam */
+    A_EXPORT_STATISTICS("a_export_statistics"),
+    
     /** replikace - export  */
     A_EXPORT_REPLICATIONS("a_export_replications"),
     
