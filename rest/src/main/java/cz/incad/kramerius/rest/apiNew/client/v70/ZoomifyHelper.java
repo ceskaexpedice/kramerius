@@ -23,7 +23,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.nio.client.HttpAsyncClient;
+import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -67,8 +67,8 @@ public class ZoomifyHelper {
     @Inject
     MostDesirable mostDesirable;
 
-    @javax.inject.Inject
-    protected transient HttpAsyncClient client;
+    //@javax.inject.Inject
+    //protected transient HttpAsyncClient client;
 
     @javax.inject.Inject
     @Named("securedFedoraAccess")

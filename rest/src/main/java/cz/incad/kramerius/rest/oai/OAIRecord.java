@@ -121,10 +121,11 @@ public class OAIRecord {
         return export.perform(request, fa, doc, identifier, set);
     }
     
-    /** render header */
-    public Element toHeader(Document doc, String setSpec) {
-        Element header = doc.createElement("header");
+    /** render header 
+     * @throws IOException */
+    public Element toHeader(Document doc, FedoraAccess fa, OAISet set ) throws IOException {
 
+        Element header = doc.createElement("header");
         Element identifier = doc.createElement("identifier");
         identifier.setTextContent(this.identifier);
         header.appendChild(identifier);
@@ -134,12 +135,16 @@ public class OAIRecord {
         datestamp.setTextContent(this.dateTimeStamp);
         header.appendChild(datestamp);
         
-        if (setSpec != null) {
+        if (set != null) {
             Element setSpecElm = doc.createElement("setSpec");
-            setSpecElm.setTextContent(setSpec);
+            setSpecElm.setTextContent(set.getSetSpec());
             header.appendChild(setSpecElm);
         }
-        
+
+        String pid = OAITools.pidFromOAIIdentifier(this.identifier);
+        if (!fa.isObjectAvailable(pid) && (!pid.contains("_"))) {
+            header.setAttribute("status", "deleted");
+        }
         return header;
     }
 }

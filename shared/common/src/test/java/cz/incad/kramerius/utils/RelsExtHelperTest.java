@@ -7,6 +7,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -48,4 +49,18 @@ public class RelsExtHelperTest {
         Assert.assertEquals(model,"monograph");
     }
 
+    
+    @Test
+    public void testRelations() throws ParserConfigurationException, SAXException, IOException {
+        URL resource = RelsExtHelperTest.class.getResource("donator.xml");
+        Assert.assertNotNull(resource);
+        Document document = XMLUtils.parseDocument(resource.openStream(),true);
+        List<Pair<String,String>> relations = RelsExtHelper.getRelations(document.getDocumentElement());
+        Assert.assertTrue(relations.size() == 16);
+        relations.stream().forEach(rel-> {
+            Assert.assertTrue(rel.getLeft().equals("hasPage"));
+            Assert.assertTrue(rel.getRight().startsWith("uuid:"));
+        });
+    }
+    
 }

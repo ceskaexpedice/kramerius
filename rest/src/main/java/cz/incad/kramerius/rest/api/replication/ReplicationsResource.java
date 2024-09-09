@@ -41,13 +41,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.utils.RelsExtHelper;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.nio.client.HttpAsyncClient;
 import org.apache.pdfbox.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -110,10 +107,6 @@ public class ReplicationsResource {
 
     @Inject
     Provider<User> userProvider;
-
-    @Inject
-    protected HttpAsyncClient client;
-    
     
     /**
      * Returns DC content

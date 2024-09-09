@@ -223,7 +223,7 @@ public class OAISet {
                 Element pidElm = XMLUtils.findElement(doc, "str");
                 Element dateElm = XMLUtils.findElement(doc, "date");
                 String oaiIdentifier =  OAITools.oaiIdentfier(host, pidElm.getTextContent());
-                return new OAIRecord(pidElm.getTextContent(), oaiIdentifier, dateElm.getTextContent());
+                return new OAIRecord(pidElm.getTextContent(), oaiIdentifier, dateElm != null ? dateElm.getTextContent() : "");
             }).collect(Collectors.toList());
             
             

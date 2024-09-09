@@ -237,6 +237,7 @@ public enum MetadataExport {
                 }
     },
 
+    /** disabled for now */
     drkramerius4("drkramerius4",
             "http://registrdigitalizace.cz/schemas/drkramerius/v4/drkram.xsd",
             "http://registrdigitalizace.cz/schemas/drkramerius/v4/") {

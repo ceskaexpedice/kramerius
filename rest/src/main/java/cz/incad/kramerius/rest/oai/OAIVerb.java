@@ -283,14 +283,15 @@ public enum OAIVerb {
                             for (OAIRecord oaiRec : results.getRecords()) { 
 
                                 Element record= doc.createElement("record");
-                                Element header = oaiRec.toHeader(doc, selectedSet.getSetSpec());
-                                
-                                
-                                Element metadata = doc.createElement("metadata");
-                                metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,selectedSet));
-
+                                Element header = oaiRec.toHeader(doc, fa, selectedSet);
                                 record.appendChild(header);
-                                record.appendChild(metadata);
+
+                                String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
+                                if (fa.isObjectAvailable(pid)) {
+                                    Element metadata = doc.createElement("metadata");
+                                    metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,selectedSet));
+                                    record.appendChild(metadata);
+                                }
                                 
                                 identify.appendChild(record);
                                 
@@ -301,22 +302,22 @@ public enum OAIVerb {
                                 for (OAIRecord oaiRec : results.getRecords()) { 
 
                                     Element record= doc.createElement("record");
-                                    Element header = oaiRec.toHeader(doc, selectedSet.getSetSpec());
+                                    Element header = oaiRec.toHeader(doc, fa, selectedSet);
                                     
-                                    
-                                    Element metadata = doc.createElement("metadata");
-                                    metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,selectedSet));
-
                                     record.appendChild(header);
-                                    record.appendChild(metadata);
+
+                                    String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
+                                    if (fa.isObjectAvailable(pid)) {
+                                        Element metadata = doc.createElement("metadata");
+                                        metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,selectedSet));
+                                        record.appendChild(metadata);
+                                    }
                                     
                                     identify.appendChild(record);
                                 }
                            } else {
                                 throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                             }
-
-                            
                         }
 
                         if (results.getResumptionToken()!= null) {
@@ -379,9 +380,7 @@ public enum OAIVerb {
                         if ( metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         }
-                        
                     }
-
                     if (StringUtils.isAnyString(from)) {
                         try {
                             OAITools.parseISO8601Date(from);
@@ -389,8 +388,6 @@ public enum OAIVerb {
                             throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata, "illegal value of from");
                         }
                     }
-                    
-
                     if (StringUtils.isAnyString(until)) {
                         try {
                             OAITools.parseISO8601Date(until);
@@ -414,11 +411,11 @@ public enum OAIVerb {
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
                             results = selectedSet.findRecords(solrAccess, solrCursor,metadataPrefix,configuredRows, from, until);
-                            for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, selectedSet.getSetSpec()));}
+                            for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, fa, selectedSet));}
                         } else {
                             results = selectedSet.findRecords(solrAccess,"*", metadataPrefix,configuredRows, from, until);
                             if (results.getCompleteListSize() > 0) {
-                                for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, selectedSet.getSetSpec()));}
+                                for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, fa, selectedSet));}
                             } else {
                                 throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                             }
@@ -430,7 +427,6 @@ public enum OAIVerb {
                             resToken.setTextContent(results.getResumptionToken());
                             identify.appendChild(resToken);
                         }
-
                         doc.getDocumentElement().appendChild(identify);
                     } else {
                         throw new OAIException(ErrorCode.noMetadataFormats, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
@@ -471,16 +467,19 @@ public enum OAIVerb {
                     OAIRecord oaiRec = OAIRecord.findRecord(solrAccess,identifier);
                     if (oaiRec != null) {
 
+                        
+                        
                         Element record= doc.createElement("record");
-                        Element header = oaiRec.toHeader(doc, null);
-                        
-                        
-                        Element metadata = doc.createElement("metadata");
-                        metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,null));
-
+                        Element header = oaiRec.toHeader(doc, fa, null);
                         record.appendChild(header);
-                        record.appendChild(metadata);
                         
+                        
+                        String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
+                        if (fa.isObjectAvailable(pid)) {
+                            Element metadata = doc.createElement("metadata");
+                            metadata.appendChild(oaiRec.toMetadata(request, fa, doc, selectedMetadata,null));
+                            record.appendChild(metadata);
+                        }
                         identify.appendChild(record);
                         
                     } else {
