@@ -129,6 +129,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.sync.SDNNTSyncResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.conf.Configurations.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.AdminLockResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.index.IndexReflectionResource.class);
         //bind(cz.incad.kramerius.rest.apiNew.admin.v70.processing.ProcessingSupportResource.class);
         
         // OAI endpoint

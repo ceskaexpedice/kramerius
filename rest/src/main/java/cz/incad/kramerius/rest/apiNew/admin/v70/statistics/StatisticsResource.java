@@ -16,11 +16,14 @@
  */
 package cz.incad.kramerius.rest.apiNew.admin.v70.statistics;
 
+import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
@@ -44,9 +47,13 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import com.google.inject.name.Named;
 import cz.incad.kramerius.processes.LRProcessManager;
@@ -54,21 +61,27 @@ import cz.incad.kramerius.processes.*;
 
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.processes.LRResource;
+import cz.incad.kramerius.rest.apiNew.client.v70.SearchResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.statistics.filters.*;
 import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
+import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.terracotta.statistics.Statistic;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.gdpr.AnonymizationSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
@@ -82,6 +95,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.database.Offset;
 
 
@@ -119,6 +133,10 @@ public class StatisticsResource {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
+
+    @Inject
+    @Named("new-index")
+    private SolrAccess solrAccess;
 
     
     @DELETE
@@ -524,9 +542,7 @@ public class StatisticsResource {
 
 
 	public static void validateDateRange(String dateFrom, String dateTo) {
-        // ISO-8601 formátování pro datum s časovou zónou (např. "2024-09-05T00:00:00Z")
         DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-        // Naparsování řetězců na OffsetDateTime objekty
         OffsetDateTime fromDate = OffsetDateTime.parse(dateFrom, formatter);
         OffsetDateTime toDate = OffsetDateTime.parse(dateTo, formatter);
         long maxHours = 120;
@@ -536,6 +552,99 @@ public class StatisticsResource {
         }
     }
 	
+	
+	
+	
+    @GET
+    @Path("search")
+    public Response search(@Context UriInfo uriInfo, @Context HttpHeaders headers, @QueryParam("wt") String wt) {
+        try {
+            if (permit(SecuredActions.A_STATISTICS)) {
+                MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+                StringBuilder builder = new StringBuilder();
+                Set<String> keys = queryParameters.keySet();
+                for (String k : keys) {
+                    for (final String v : queryParameters.get(k)) {
+                        String value = v;
+                        builder.append(k).append("=").append(URLEncoder.encode(value, "UTF-8"));
+                        builder.append("&");
+                    }
+                }
+                
+                if ("json".equals(wt)) {
+                    return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo, builder.toString() )).build();
+                } else if ("xml".equals(wt)) {
+                    return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo, builder.toString())).build();
+                } else { //format not specified in query param "wt"
+                    boolean preferXmlAccordingToHeaderAccept = false;
+                    List<String> headerAcceptValues = headers.getRequestHeader("Accept");
+                    if (headerAcceptValues != null) { //can be null instead of empty list in some implementations
+                        for (String headerValue : headerAcceptValues) {
+                            if ("application/xml".equals(headerValue) || "text/xml".equals(headerValue)) {
+                                preferXmlAccordingToHeaderAccept = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (preferXmlAccordingToHeaderAccept) { //header Accept contains "application/xml" or "text/xml"
+                        return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo, builder.toString())).build();
+                    } else { //default format: json
+                        return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo, builder.toString())).build();
+                    }
+                }
+            } else {
+                throw new ActionNotAllowed("not allowed");
+            }
+            
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+    
+    private String buildSearchResponseJson(UriInfo uriInfo, String solrQuery) {
+        try {
+            return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(logsEndpoint(), solrQuery, "json");
+            
+        } catch (HttpResponseException e) {
+            if (e.getStatusCode() == SC_BAD_REQUEST) {
+                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                throw new BadRequestException(e.getMessage());
+            } else {
+                LOGGER.log(Level.INFO, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        } catch (JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+    private String buildSearchResponseXml(UriInfo uriInfo,String solrQuery) {
+        try {
+            return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(logsEndpoint(), solrQuery, "xml");
+        } catch (HttpResponseException e) {
+            if (e.getStatusCode() == SC_BAD_REQUEST) {
+                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                throw new BadRequestException(e.getMessage());
+            } else {
+                LOGGER.log(Level.INFO, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    
+	
     @GET
     @Path("logs")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -543,15 +652,8 @@ public class StatisticsResource {
         try {
             
             if (permit(SecuredActions.A_EXPORT_STATISTICS)) {
-                
-                if (!StringUtils.isAnyString(rows)) {
-                    rows = "10";
-                }
-                
-                if (!StringUtils.isAnyString(start)) {
-                    start="0";
-                }
-                
+                if (!StringUtils.isAnyString(rows)) { rows = "10"; }
+                if (!StringUtils.isAnyString(start)) { start="0"; }
                 String selectEndpint = this.logsEndpoint();
                 StringBuilder builder = new StringBuilder("q=*");
                 builder.append(String.format("&rows=%s&start=%s", rows, start));
