@@ -29,6 +29,7 @@ import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -169,7 +170,7 @@ public class StatisticsResource {
     }
 
     
-    
+    @Deprecated
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response reports() {
@@ -187,6 +188,7 @@ public class StatisticsResource {
         }
     }
     
+    @Deprecated
     @GET
     @Path("{report}/options")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -231,6 +233,7 @@ public class StatisticsResource {
             }
     }
 
+    @Deprecated
     @GET
     @Path("{report}")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -559,6 +562,11 @@ public class StatisticsResource {
     @Path("search")
     public Response search(@Context UriInfo uriInfo, @Context HttpHeaders headers, @QueryParam("wt") String wt) {
         try {
+            // default 
+            
+            
+
+            
             if (permit(SecuredActions.A_STATISTICS)) {
                 MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
                 StringBuilder builder = new StringBuilder();
@@ -570,6 +578,15 @@ public class StatisticsResource {
                         builder.append("&");
                     }
                 }
+                
+                List<Object> ipfiltersObject = KConfiguration.getInstance().getConfiguration().getList("statistics.ip.filter", new ArrayList<>());
+                List<String> ipFilters = ipfiltersObject.stream().map(Object::toString).collect(Collectors.toList());
+                
+                for (String ipExpr : ipFilters) {
+                    builder.append("fq").append("=").append("-ip_address:"+URLEncoder.encode(ipExpr, "UTF-8"));
+                    builder.append("&");
+                }
+                
                 
                 if ("json".equals(wt)) {
                     return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo, builder.toString() )).build();
