@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -37,7 +36,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
@@ -46,8 +44,15 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -55,46 +60,30 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import com.google.inject.name.Named;
-import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.*;
-
-import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
-import cz.incad.kramerius.rest.api.processes.LRResource;
-import cz.incad.kramerius.rest.apiNew.client.v70.SearchResource;
-import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.statistics.filters.*;
-import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.terracotta.statistics.Statistic;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.gdpr.AnonymizationSupport;
+import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.rest.api.processes.LRResource;
+import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -103,9 +92,21 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
+import cz.incad.kramerius.statistics.filters.AnnualYearFilter;
+import cz.incad.kramerius.statistics.filters.DateFilter;
+import cz.incad.kramerius.statistics.filters.IdentifiersFilter;
+import cz.incad.kramerius.statistics.filters.LicenseFilter;
+import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.statistics.filters.MultimodelFilter;
+import cz.incad.kramerius.statistics.filters.PidsFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFilter;
+import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
+import cz.incad.kramerius.statistics.filters.VisibilityFilter;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
+import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.Offset;
 
 
@@ -628,7 +629,6 @@ public class StatisticsResource {
                 }
                 
                 String csvName = fmtAttributes.containsKey("fmt_filename") ?  fmtAttributes.get("fmt_filename").get(0) :  String.format("%s.csv",csvFacetName);
-
                 List<Object> ipfiltersObject = KConfiguration.getInstance().getConfiguration().getList("statistics.ip.filter", new ArrayList<>());
                 List<String> ipFilters = ipfiltersObject.stream().map(Object::toString).collect(Collectors.toList());
                 
@@ -637,22 +637,72 @@ public class StatisticsResource {
                     builder.append("&");
                 }
                 
+                
                 String buildSearchResponseJson = buildSearchResponseJson(uriInfo, builder.toString());
                 JSONObject facetCountObject = new JSONObject(buildSearchResponseJson).optJSONObject("facet_counts");
                 JSONArray facet = facetCountObject.getJSONObject("facet_fields").getJSONArray(csvFacetName);
 
+                List<String> pids = new ArrayList<>();
+                for (int i = 0; i < facet.length(); i += 2) {
+                    String value = facet.getString(i); pids.add(value);
+                }                
+
+                Map<String, JSONObject> mapping = new HashMap<>();
+                StringBuilder fquery = new StringBuilder();
+                fquery.append("q").append("=").append(URLEncoder.encode("*", "UTF-8")).append("&");
+                fquery.append("facet").append("=").append(URLEncoder.encode("false", "UTF-8")).append("&");
+                fquery.append("rows").append("=").append(URLEncoder.encode(""+pids.size(), "UTF-8")).append("&");
+                fquery.append("fl").append("=").append(URLEncoder.encode("pid,root.title,title.search,model", "UTF-8")).append("&");
+
+                String fq = "pid:("+pids.stream().map(pid-> {
+                    return '"'+pid+'"';
+                }).collect(Collectors.joining(" OR "))+")";
+                fquery.append("fq").append("=").append(URLEncoder.encode(""+fq, "UTF-8")).append("&");
+                
+                
+                JSONObject obj =  this.solrAccess.requestWithSelectReturningJson(fquery.toString());
+                JSONObject resp =  obj.optJSONObject("response");
+                if (resp != null) {
+                    JSONArray docs = resp.getJSONArray("docs");
+                    for (int i = 0; i < docs.length(); i++) {
+                        JSONObject doc =  docs.getJSONObject(i);
+                        mapping.put(doc.getString("pid"), doc);
+                    }
+                }
+
+
+                String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
+
+                
                 StringWriter writer = new StringWriter();
                 CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
                         .withCommentMarker('#')
                         .withDelimiter(';'));
                     
+                
                 formatCSVComments(fmtAttributes, fqs, csvName, csvPrinter);
+                
                 
                 for (int i = 0; i < facet.length(); i += 2) {
                     String value = facet.getString(i);
                     int count = facet.getInt(i + 1);
-                    csvPrinter.printRecord(count, value);
+                    String url = clientUrl+"/uuid/"+value;
+                    String title = "";
+                    if (mapping.containsKey(value)) {
+                        JSONObject doc =mapping.get(value);
+                        String model = doc.getString("model");
+                        List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
+                        if (topLevelModels.contains(model) || model.equals("collection")) {
+                            // pouze root title
+                            title = String.format("%s",doc.optString("root.title"));
+                        } else {
+                            title = String.format("%s / %s",doc.optString("root.title"), doc.optString("title.search"));
+                        }
+                    }
+                    
+                    csvPrinter.printRecord(count, value, title, url);
                 }
+
                 csvPrinter.flush();
                 csvPrinter.close();
                 String csvData = writer.toString();
