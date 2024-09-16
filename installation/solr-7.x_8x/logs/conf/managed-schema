@@ -143,6 +143,12 @@
   <!-- solr dates ?? Je to nutne ??   -->
   <field name="solr_dates" type="string" indexed="true" stored="true" multiValued="true"/>
 
+  <!-- date from solr -->
+  <field name="date_range_start.year" type="int" indexed="true" stored="true" multiValued="false"/>
+  <field name="date_range_end.year" type="int" indexed="true" stored="true" multiValued="false"/>
+  <field name="date.str" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+
+
   <field name="authors" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
   <field name="publishers" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
