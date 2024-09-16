@@ -42,7 +42,8 @@ public class AnonymizationSupport {
     "remoteAddr",
     "eduPersonPrincipalName",
     "email",
-    "preffered_user_name");
+    "preffered_user_name",
+    "ip_address");
 
     public static JSONObject annonymizeObject(List<String> annonymizationKeys, String line) {
         JSONObject lineJSONObject = new JSONObject(line);

@@ -1082,8 +1082,17 @@ public class StatisticsResource {
                         String userSessionAttributes = doc.getString("user_session_attributes");
                         JSONObject changedObj = AnonymizationSupport.annonymizeObject(keys, userSessionAttributes);
                         doc.put("user_session_attributes", changedObj.toString());
+
+                        for (String key : keys) {
+                            if (doc.has(key)) {
+                                Object object = doc.get(key);
+                                String hashVal = AnonymizationSupport.hashVal(object.toString());
+                                doc.put(key, hashVal);
+                            }
+                        }
+                        
                     }
-                    return Response.ok().entity(string).build();
+                    return Response.ok().entity(allResp.toString()).build();
                 } else {
                     throw new BadRequestException("Expecting 'dateFrom' and 'dateTo'");
                 }
