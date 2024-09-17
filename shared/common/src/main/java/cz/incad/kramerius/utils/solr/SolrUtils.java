@@ -43,6 +43,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -638,6 +639,37 @@ public class SolrUtils   {
     }
     
     
+
+    //http://localhost:8983/solr/logs/schema
+    //http://localhost:8983/solr/logs/schema/fields
+
+    public static InputStream schema(String hostWithCollection) throws IOException {
+        String url = String.format("%s/schema", hostWithCollection);
+        HttpGet httpGet = new HttpGet(url);
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            try (CloseableHttpResponse response = client.execute(httpGet)) {
+                if (response.getStatusLine().getStatusCode() == SC_OK) {
+                    return readContentAndProvideThroughBufferedStream(response.getEntity());
+                } else {
+                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                }
+            }
+        }
+    }
+
+    public static InputStream fields(String hostWithCollection) throws IOException {
+        String url = String.format("%s/schema/fields", hostWithCollection);
+        HttpGet httpGet = new HttpGet(url);
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            try (CloseableHttpResponse response = client.execute(httpGet)) {
+                if (response.getStatusLine().getStatusCode() == SC_OK) {
+                    return readContentAndProvideThroughBufferedStream(response.getEntity());
+                } else {
+                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                }
+            }
+        }
+    }
 
     
 }
