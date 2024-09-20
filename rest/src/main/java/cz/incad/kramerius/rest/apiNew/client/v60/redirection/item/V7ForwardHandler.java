@@ -169,10 +169,11 @@ public class V7ForwardHandler extends V7RedirectHandler {
     public Response altoOCR(RequestMethodName method) throws ProxyHandlerException {
         String baseurl = super.baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
-                + "/streams/TEXT_OCR";
+                + "/streams/ALTO";
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
+            LOGGER.info(String.format("ALTO OCR url, pid, deleteTrigger = %s,%s, %b", (url != null ? url : "null"), "",false));
             return buildForwardResponseGET(url, null,false);
         }
     }

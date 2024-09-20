@@ -124,6 +124,7 @@ public abstract class ProxyHandlerSupport {
             throws ProxyHandlerException {
         WebResource.Builder b = buidFowrardResponse(url);
         ClientResponse response = b.get(ClientResponse.class);
+        LOGGER.info("Status code response "+response.getStatus());
         if (response.getStatus() == 200) {
             String responseMimeType = response.getType().toString();
             InputStream is = response.getEntityInputStream();
