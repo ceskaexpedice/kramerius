@@ -115,7 +115,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
     @Override
     public Response textOCR(RequestMethodName method) throws ProxyHandlerException {
         String baseurl = this.forwardUrl();
-        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/" + this.pid
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/item/" + this.pid
                 + "/streams/TEXT_OCR";
 
         if (method == RequestMethodName.head) {
@@ -127,8 +127,9 @@ public class V5ForwardHandler extends V5RedirectHandler {
 
     @Override
     public Response altoOCR(RequestMethodName method) throws ProxyHandlerException {
+
         String baseurl = this.forwardUrl();
-        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/" + this.pid
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/item/" + this.pid
                 + "/streams/ALTO";
 
         if (method == RequestMethodName.head) {
