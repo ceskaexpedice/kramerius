@@ -134,7 +134,7 @@ public class V5ForwardHandler extends V5RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
-            return buildForwardResponseGET(url, "application/xml;charset=utf-8", false);
+            return buildForwardResponseGET(url, "application/xml;charset=utf-8", null, false);
         }
     }
 
