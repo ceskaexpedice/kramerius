@@ -173,6 +173,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return buildForwardResponseHEAD(url);
         } else {
+            LOGGER.info("buildForwardResponseGET( url = "+url+", mimetype=\"application/xml;charset=utf-8\", pid=null, deleteTrigger=false)");
             return buildForwardResponseGET(url, "application/xml;charset=utf-8",null,false);
         }
     }
