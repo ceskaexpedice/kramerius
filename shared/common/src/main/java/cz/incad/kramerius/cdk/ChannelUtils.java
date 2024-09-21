@@ -1,5 +1,7 @@
 package cz.incad.kramerius.cdk;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -109,9 +111,10 @@ public class ChannelUtils {
         } else throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
     }
     
-    public static String solrChannelPid(Client client, String ac, String fullChannelUrl, String apiVersion, String pid) {
+    public static String solrChannelPid(Client client, String ac, String fullChannelUrl, String apiVersion, String pid) throws UnsupportedEncodingException {
         if (apiVersion.toLowerCase().equals("v5")) {
-            WebResource configResource = client.resource(fullChannelUrl+"/select?q=PID:\""+pid+"\"&rows=0&wt=json");
+            String query = URLEncoder.encode( "PID:\""+pid+"\"", "UTF-8");
+            WebResource configResource = client.resource(fullChannelUrl+"/select?q="+query+"&rows=0&wt=json");
             ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
                     .get(ClientResponse.class);
             if (solrResource.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
@@ -119,8 +122,8 @@ public class ChannelUtils {
                 return entity;
             } 
         } else {
-
-            WebResource configResource = client.resource(fullChannelUrl+"/select?q=pid:\""+pid+"\"&rows=0&wt=json");
+            String query = URLEncoder.encode( "pid:\""+pid+"\"", "UTF-8");
+            WebResource configResource = client.resource(fullChannelUrl+"/select?q="+query+"\"&rows=0&wt=json");
             ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
                     .get(ClientResponse.class);
             if (solrResource.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
