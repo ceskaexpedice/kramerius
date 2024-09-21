@@ -193,12 +193,14 @@ public class ItemsResource extends AdminApiResource {
         for(OneInstance inst:instances) {
             String library = inst.getName();
             boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
-            String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
-            String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
-            InstanceType instType = inst.getInstanceType();
-            String solrPid = ChannelUtils.solrChannelPid(this.client, channel, solrChannelUrl, instType.name(), pid);
-            if (solrPid != null) {
-                obj.put(library, new JSONObject(solrPid));
+            if(channelAccess) {
+                String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
+                String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
+                InstanceType instType = inst.getInstanceType();
+                String solrPid = ChannelUtils.solrChannelPid(this.client, channel, solrChannelUrl, instType.name(), pid);
+                if (solrPid != null) {
+                    obj.put(library, new JSONObject(solrPid));
+                }
             }
         }
         return Response.ok(obj.toString()).build();
