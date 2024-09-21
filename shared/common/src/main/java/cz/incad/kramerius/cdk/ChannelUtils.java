@@ -109,6 +109,27 @@ public class ChannelUtils {
         } else throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
     }
     
+    public static String solrChannelPid(Client client, String ac, String fullChannelUrl, String apiVersion, String pid) {
+        if (apiVersion.toLowerCase().equals("v5")) {
+            WebResource configResource = client.resource(fullChannelUrl+"/select?q=PID:\""+pid+"\"&rows=0&wt=json");
+            ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
+                    .get(ClientResponse.class);
+            if (solrResource.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
+                String entity = solrResource.getEntity(String.class);
+                return entity;
+            } 
+        } else {
+
+            WebResource configResource = client.resource(fullChannelUrl+"/select?q=pid:\""+pid+"\"&rows=0&wt=json");
+            ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
+                    .get(ClientResponse.class);
+            if (solrResource.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
+                String entity = solrResource.getEntity(String.class);
+                return entity;
+            } 
+        }
+        return null;
+    }
     
 }
 

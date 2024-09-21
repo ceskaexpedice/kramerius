@@ -1,18 +1,27 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10;
 
+import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
+import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.InstanceType;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.google.inject.Inject;
+import com.sun.jersey.api.client.Client;
 
 import javax.inject.Provider;
 import javax.ws.rs.*;
@@ -21,6 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +55,16 @@ public class ItemsResource extends AdminApiResource {
     @javax.inject.Inject
     Provider<User> userProvider;
 
+    @Inject
+    private Instances libraries;
+
+    private Client client;
+    
+    
+    public ItemsResource() {
+        super();
+        this.client = Client.create();
+    }
 
     /**
      * Returns array of pids (with titles) that have given model. Only partial array with offset & limit.
@@ -163,7 +183,28 @@ public class ItemsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
-
+    
+    @GET
+    @Path("{pid}/solr/instintrospect")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response introspectPidInInstances(@PathParam("pid") String pid) {
+        JSONObject obj = new JSONObject();
+        List<OneInstance> instances = libraries.enabledInstances();
+        for(OneInstance inst:instances) {
+            String library = inst.getName();
+            boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
+            String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
+            String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
+            InstanceType instType = inst.getInstanceType();
+            String solrPid = ChannelUtils.solrChannelPid(this.client, channel, solrChannelUrl, instType.name(), pid);
+            if (solrPid != null) {
+                obj.put(library, new JSONObject(solrPid));
+            }
+        }
+        return Response.ok(obj.toString()).build();
+    }
+    
+    
     @GET
     @Path("{pid}/foxml")
     @Produces(MediaType.APPLICATION_XML)
