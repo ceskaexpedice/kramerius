@@ -113,7 +113,7 @@ public class ChannelUtils {
         } else throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
     }
     
-    public static String solrChannelPidExistence(Client client, String ac, String fullChannelUrl, String apiVersion, String pid, List<String> fieldList) throws UnsupportedEncodingException {
+    public static String solrChannelPidExistence(Client client, String ac, String fullChannelUrl, String apiVersion, String pid) throws UnsupportedEncodingException {
         // PID, fedora.model, pid_path, root_pid, 
         if (apiVersion.toLowerCase().equals("v5")) {
             String query = URLEncoder.encode( "PID:\""+pid+"\"", "UTF-8");
