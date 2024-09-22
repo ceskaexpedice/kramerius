@@ -2,8 +2,10 @@ package cz.incad.kramerius.cdk;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MediaType;
 
@@ -111,11 +113,11 @@ public class ChannelUtils {
         } else throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
     }
     
-    public static String solrChannelPid(Client client, String ac, String fullChannelUrl, String apiVersion, String pid) throws UnsupportedEncodingException {
+    public static String solrChannelPidExistence(Client client, String ac, String fullChannelUrl, String apiVersion, String pid, List<String> fieldList) throws UnsupportedEncodingException {
+        // PID, fedora.model, pid_path, root_pid, 
         if (apiVersion.toLowerCase().equals("v5")) {
             String query = URLEncoder.encode( "PID:\""+pid+"\"", "UTF-8");
-            String url = fullChannelUrl+"/select?q="+query+"&rows=0&wt=json";
-            LOGGER.info("SOLR URL "+url);
+            String url = fullChannelUrl+"/select?q="+query+"&rows=0&wt=json&fl=PID,fedora.model,pid_path,root_pid";
             WebResource configResource = client.resource(url);
             ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
                     .get(ClientResponse.class);
@@ -124,9 +126,9 @@ public class ChannelUtils {
                 return entity;
             } 
         } else {
+        // pid, model, pid_paths, root.pid
             String query = URLEncoder.encode( "pid:\""+pid+"\"", "UTF-8");
-            String url = fullChannelUrl+"/select?q="+query+"\"&rows=0&wt=json";
-            LOGGER.info("SOLR URL "+url);
+            String url = fullChannelUrl+"/select?q="+query+"&rows=0&wt=json&fl=pid,model,pid_paths,root.pid";
             WebResource configResource = client.resource(url);
             ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
                     .get(ClientResponse.class);
