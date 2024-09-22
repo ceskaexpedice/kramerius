@@ -117,7 +117,7 @@ public class ChannelUtils {
         // PID, fedora.model, pid_path, root_pid, 
         if (apiVersion.toLowerCase().equals("v5")) {
             String query = URLEncoder.encode( "PID:\""+pid+"\"", "UTF-8");
-            String url = fullChannelUrl+"/select?q="+query+"&rows=0&wt=json&fl=PID,fedora.model,pid_path,root_pid";
+            String url = fullChannelUrl+"/select?q="+query+"&rows=1&wt=json&fl=PID,fedora.model,pid_path,root_pid";
             WebResource configResource = client.resource(url);
             ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
                     .get(ClientResponse.class);
@@ -128,7 +128,7 @@ public class ChannelUtils {
         } else {
         // pid, model, pid_paths, root.pid
             String query = URLEncoder.encode( "pid:\""+pid+"\"", "UTF-8");
-            String url = fullChannelUrl+"/select?q="+query+"&rows=0&wt=json&fl=pid,model,pid_paths,root.pid";
+            String url = fullChannelUrl+"/select?q="+query+"&rows=1&wt=json&fl=pid,model,pid_paths,root.pid";
             WebResource configResource = client.resource(url);
             ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
                     .get(ClientResponse.class);
