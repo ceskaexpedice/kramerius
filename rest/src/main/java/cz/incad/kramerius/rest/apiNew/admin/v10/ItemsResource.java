@@ -200,7 +200,7 @@ public class ItemsResource extends AdminApiResource {
                     String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
                     String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
                     InstanceType instType = inst.getInstanceType();
-                    String solrPid = ChannelUtils.solrChannelPid(this.client, channel, solrChannelUrl, instType.name(), pid);
+                    String solrPid = ChannelUtils.solrChannelPidExistence(this.client, channel, solrChannelUrl, instType.name(), pid);
                     if (solrPid != null) {
                         obj.put(library, new JSONObject(solrPid));
                     }
