@@ -114,8 +114,9 @@ public class ChannelUtils {
     public static String solrChannelPid(Client client, String ac, String fullChannelUrl, String apiVersion, String pid) throws UnsupportedEncodingException {
         if (apiVersion.toLowerCase().equals("v5")) {
             String query = URLEncoder.encode( "PID:\""+pid+"\"", "UTF-8");
-            LOGGER.info("Query :"+query);
-            WebResource configResource = client.resource(fullChannelUrl+"/select?q="+query+"&rows=0&wt=json");
+            String url = fullChannelUrl+"/select?q="+query+"&rows=0&wt=json";
+            LOGGER.info("SOLR URL "+url);
+            WebResource configResource = client.resource(url);
             ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
                     .get(ClientResponse.class);
             if (solrResource.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
@@ -124,8 +125,9 @@ public class ChannelUtils {
             } 
         } else {
             String query = URLEncoder.encode( "pid:\""+pid+"\"", "UTF-8");
-            LOGGER.info("Query :"+query);
-            WebResource configResource = client.resource(fullChannelUrl+"/select?q="+query+"\"&rows=0&wt=json");
+            String url = fullChannelUrl+"/select?q="+query+"\"&rows=0&wt=json";
+            LOGGER.info("SOLR URL "+url);
+            WebResource configResource = client.resource(url);
             ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
                     .get(ClientResponse.class);
             if (solrResource.getStatus() == ClientResponse.Status.OK.getStatusCode()) {

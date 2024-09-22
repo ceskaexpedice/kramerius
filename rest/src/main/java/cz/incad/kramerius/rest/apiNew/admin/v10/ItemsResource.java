@@ -18,6 +18,7 @@ import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.inject.Inject;
@@ -29,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -188,22 +190,27 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}/solr/instintrospect")
     @Produces(MediaType.APPLICATION_JSON)
     public Response introspectPidInInstances(@PathParam("pid") String pid) {
-        JSONObject obj = new JSONObject();
-        List<OneInstance> instances = libraries.enabledInstances();
-        for(OneInstance inst:instances) {
-            String library = inst.getName();
-            boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
-            if(channelAccess) {
-                String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
-                String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
-                InstanceType instType = inst.getInstanceType();
-                String solrPid = ChannelUtils.solrChannelPid(this.client, channel, solrChannelUrl, instType.name(), pid);
-                if (solrPid != null) {
-                    obj.put(library, new JSONObject(solrPid));
+        try {
+            JSONObject obj = new JSONObject();
+            List<OneInstance> instances = libraries.enabledInstances();
+            for(OneInstance inst:instances) {
+                String library = inst.getName();
+                boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
+                if(channelAccess) {
+                    String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
+                    String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
+                    InstanceType instType = inst.getInstanceType();
+                    String solrPid = ChannelUtils.solrChannelPid(this.client, channel, solrChannelUrl, instType.name(), pid);
+                    if (solrPid != null) {
+                        obj.put(library, new JSONObject(solrPid));
+                    }
                 }
             }
+            return Response.ok(obj.toString()).build();
+        } catch (UnsupportedEncodingException | JSONException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
-        return Response.ok(obj.toString()).build();
     }
     
     
