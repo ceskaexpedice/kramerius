@@ -23,8 +23,6 @@ public class GuiceServlet extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		Injector injector = getInjector();
-		injector.injectMembers(this);
 	}
 
 	protected Injector getInjector() {
