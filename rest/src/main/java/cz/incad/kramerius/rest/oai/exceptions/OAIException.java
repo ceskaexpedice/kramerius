@@ -51,23 +51,16 @@ public class OAIException extends WebApplicationException {
         super(response);
     }
 
-//    public AbstractOAIException(int errorCode) {
-//        super(errorCode);
-//    }
-//
-//    public AbstractOAIException(Response.Status status) {
-//        super(status);
-//    }
 
     public OAIException(ErrorCode oaiErrorCode,OAIVerb verb, OAISet set,String baseUrl,MetadataExport metadata) {
-        this(Response.status(Response.Status.BAD_REQUEST)
+        this(Response.status(oaiErrorCode.getStatusCode())
                 .type(MediaType.APPLICATION_XML)
                 .entity(buildXml(oaiErrorCode, verb, set, baseUrl, metadata, null))
                 .build());
     }
 
     public OAIException(ErrorCode oaiErrorCode,OAIVerb verb, OAISet set,String baseUrl,MetadataExport metadata, String message) {
-        this(Response.status(Response.Status.BAD_REQUEST)
+        this(Response.status(oaiErrorCode.getStatusCode())
                 .type(MediaType.APPLICATION_XML)
                 .entity(buildXml(oaiErrorCode, verb, set, baseUrl, metadata, message))
                 .build());

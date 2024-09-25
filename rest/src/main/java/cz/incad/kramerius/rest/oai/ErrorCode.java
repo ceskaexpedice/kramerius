@@ -19,20 +19,33 @@ package cz.incad.kramerius.rest.oai;
 public enum ErrorCode {
 
     // acceptable for all verbs
-    badArgument,
+    badArgument(400),
     // acceptable badResumptionToken
-    badResumptionToken,
+    badResumptionToken(400),
     // no verb
-    badVerb,
+    badVerb(400),
     // GetRecord, ListIdentifiers, ListRecords
-    cannotDisseminateFormat,
+    cannotDisseminateFormat(400),
     // GetRecord, ListMetadataFormat
-    idDoesNotExist,
+    idDoesNotExist(404),
     //ListIdentifiers ListRecords
-    noRecordsMatch,
+    noRecordsMatch(200),
     //ListMetadataFormats
-    noMetadataFormats,
+    noMetadataFormats(400),
     
     //ListSets ListIdentifiers ListRecords
-    noSetHierarchy
+    noSetHierarchy(400);
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+    
+    int statusCode;
+
+    private ErrorCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+    
+    
 }
+
