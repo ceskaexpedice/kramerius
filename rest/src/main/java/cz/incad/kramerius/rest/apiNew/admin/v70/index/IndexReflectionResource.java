@@ -58,7 +58,6 @@ public class IndexReflectionResource extends AdminApiResource {
     @Inject
     Provider<User> userProvider;
 
-
     
     @GET
     @Path("/search/schema")
