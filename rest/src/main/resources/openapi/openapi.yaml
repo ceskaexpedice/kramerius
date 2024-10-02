@@ -1,0 +1,1003 @@
+openapi: 3.0.2
+info:
+  title: Klientské API v systému Kramerius
+  description: |
+    Popis je platný k verzi 7.0.35 a vyšší. Kramerius obsahuje REST API, které umožňuje všechny operace nad systémem.  Standardně je dostupné na nainstalovaném serveru pod kontextem: `~/search/api/*`.  
+    Primárně určeno pro získávání a zobrazování dat pro koncové klienty ([Web klient](https://github.com/ceskaexpedice/kramerius-web-client), [mobilní-klient](https://play.google.com/store/apps/details?id=cz.mzk.kramerius.app), atd..)    
+    
+  version: "7.0"
+
+servers:
+  - url: /search/api/client/v7.0
+
+tags:
+  
+  - name: Info o titulu
+    description: >
+      Všechny informace vztažené k titulu:  *Hledání*, *Informace pro zobrazení*, *Struktura titulu*, *metadata*,  *dotazy na OCR*, *obrazová i audio data*, *Informace specifické pro model - kolekce*
+      
+  - name: Info o uživateli
+    description: Všechny inforamce a operace s uživatelem 
+  
+  
+  - name: Excluzivní zámky na dokumentech
+    description: Manipulace s exkluzivními zámky
+
+  - name: Obecné informace
+    description: Obecné informace o systému
+
+paths:
+  # Vyhledavani v solru 
+  /search:
+    get:
+      tags:
+        - Info o titulu
+      summary: Vyhledávání titulů
+      description: |
+        Vyhledávání je umožněno endpointem, který slouží jako proxy do vyhledávacího enginu SOLR. Přebírá všechny parametry, validuje je a následně posílá na vyhledávací server solr. Z odpovědi jsou filtrována data typu TEXT_OCR a je posílán zpět na klienta.             Možné parametry jsou všechny, které akceptuje vyhledávací engine solr. Dokumentace je k nalezení [zde](https://solr.apache.org/guide/solr/latest/query-guide/query-syntax-and-parsers.html) Popis jednotlivých indexovaných polí je k nalezení [zde](https://github.com/ceskaexpedice/kramerius/blob/master/installation/solr-9.x/search/conf/managed-schema). V definici jsou uvedeny pouze ty nejdůležitější
+
+      operationId: searching
+
+      parameters:
+        - in: query
+          name: q
+          description: Samotný dotaz do solru
+          schema:
+            type: string
+          required: true
+
+        - in: query
+          name: fl
+          description: Seznam polí ve výsledku
+          schema:
+            type: string
+          required: false
+
+        - in: query
+          name: fq
+          description: Filter query
+          schema:
+            type: array
+            items:
+                type: string
+          required: false
+
+        - in: query
+          name: sort
+          description: Pole pro třídění
+          schema:
+            type: string
+          required: false
+
+        - in: query
+          name: start
+          description: Počet dokumentů od kterých se má vracet výsledek
+          schema:
+            type: integer
+          required: false
+
+        - in: query
+          name: rows
+          description: Počet dokumentů v odpovědi
+          schema:
+            type: integer
+          required: false
+
+        - in: query
+          name: facet
+          description: Faseting
+          schema:
+            type: boolean
+          required: false
+
+        - in: query
+          name: facet.field
+          description: Pole pro fasetování
+          schema:
+            type: string
+          required: false
+
+        - in: query
+          name: facet.mincount
+          description: Minimální počet výsledků ve fasetu
+          schema:
+            type: integer
+          required: false
+        
+
+        - in: query
+          name: wt
+          schema:
+            type: string
+            enum: ["xml","json"]
+          required: false
+
+      responses:
+        '200':
+          description: Standardní výstup ze solru. JSON nebo xml 
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/client/SOLRResponse.yaml'
+              example: |
+                  {
+                  "response": {
+                    "docs": [
+                      {
+                        "root.pid": "uuid:cb955d70-e04f-11e5-ac59-005056825209",
+                        "titles.search": [
+                          "Acta Universitatis Carolinae. Philosophica et historica. Miscellanea logica",
+                          "Philosophica et historica",
+                          "Miscellanea logica",
+                          "Consequence, inference, structure VII (2008)",
+                          "Foundations of logic VIII (2010)"
+                        ],
+                        "id_ccnb": [
+                          "cnb000326959"
+                        ],
+                        "accessibility": "private",
+                        "date_range_start.year": 1998,
+                        "pid": "uuid:cb955d70-e04f-11e5-ac59-005056825209",
+                        "publication_places.facet": [
+                          "Xr",
+                          "Praha"
+                        ],
+                        "publishers.search": [
+                          "Karolinum"
+                        ],
+                        "licenses.facet": [
+                          "dnntt",
+                          "dnnto"
+                        ],
+                        "physical_locations.facet": [
+                          "BOA001"
+                        ],
+                        "part.name": "Philosophica et historica. Miscellanea logica",
+                        "id_barcode": [
+                          "2610406819"
+                        ],
+                        "id_urnnbn": [
+                          "urn:nbn:cz:mzk-004kw1"
+                        ],
+                        "pid_paths": [
+                          "uuid:cb955d70-e04f-11e5-ac59-005056825209"
+                        ],
+                        "root.model": "periodical",
+                        "id_issn": [
+                          "0567-8293"
+                        ],
+                        "modified": "2023-07-07T09:37:51.103Z",
+                        "model": "periodical",
+                        "date.min": "1998-01-01T00:00:00.001Z",
+                        "id_uuid": [
+                          "cb955d70-e04f-11e5-ac59-005056825209"
+                        ],
+                        "keywords.facet": [
+                          "Logika",
+                          "Logic"
+                        ],
+                        "has_tiles": false,
+                        "title.search": "Acta Universitatis Carolinae. Philosophica et historica. Miscellanea logica",
+                        "root.title.sort": "ACTA UNIVERSITATIS CAROLINAE PHILOSOPHICA ET HISTORICA MISCELLANEA LOGICA",
+                        "indexer_version": 19,
+                        "authors.facet": [
+                          "Univerzita Karlova"
+                        ],
+                        "root.title": "Acta Universitatis Carolinae. Philosophica et historica. Miscellanea logica",
+                        "indexed": "2024-03-02T21:33:18.759Z",
+                        "level": 0,
+                        "created": "2016-03-02T09:42:15.829Z",
+                        "own_model_path": "periodical",
+                        "authors.search": [
+                          "Univerzita Karlova"
+                        ],
+                        "languages.facet": [
+                          "slo",
+                          "cze",
+                          "eng"
+                        ],
+                        "date.max": "9999-12-31T23:59:59.999Z",
+                        "title.sort": "ACTA UNIVERSITATIS CAROLINAE PHILOSOPHICA ET HISTORICA MISCELLANEA LOGICA",
+                        "id_oclc": [
+                          "85013992"
+                        ],
+                        "publishers.facet": [
+                          "Karolinum"
+                        ],
+                        "date_range_end.year": 9999,
+                        "contains_licenses": [
+                          "dnnto",
+                          "dnntt"
+                        ],
+                        "_version_": 1.7924517703691796e+18,
+                        "shelf_locators": [
+                          "2-1043.440"
+                        ],
+                        "publication_places.search": [
+                          "xr",
+                          "Praha"
+                        ],
+                        "date.str": "1998-",
+                        "mdt": [
+                          "16"
+                        ],
+                        "keywords.search": [
+                          "logika",
+                          "logic"
+                        ],
+                        "own_pid_path": "uuid:cb955d70-e04f-11e5-ac59-005056825209",
+                        "authors": [
+                          "Univerzita Karlova"
+                        ]
+                      }
+                    ],
+                    "numFound": 1,
+                    "start": 0,
+                    "numFoundExact": true
+                  },
+                  "responseHeader": {
+                    "QTime": 2,
+                    "params": {
+                      "q": "pid:\"uuid:cb955d70-e04f-11e5-ac59-005056825209\"",
+                      "wt": "json"
+                    },
+                    "status": 0
+                  }}
+                
+        '400':
+          description: Chybová hláška v případě špatného dotazu
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/client/SOLRResponse.yaml'
+
+  # Dotazy na obecne informace
+  /items/{pid}:
+    head:
+      tags:
+        - Info o titulu 
+      summary: Kontrolní endpoint pro titul 
+      description: Umožňuje získat info titulu  
+      operationId: exist
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+      responses:
+        '200':
+          description: V případě existence a práv na objekt
+        '400':
+          description: Chybně formulovaný pid
+        '403':
+          description: Nedostatečná práva na objekt
+        '404':
+          description: Neexistence objektu
+
+  # Informace o objektu        
+  /items/{pid}/info:
+    get:
+      tags:
+        - Info o titulu
+      summary: Informace o objektu pro zobrazení
+      description: Informace o objektu pro zobrazení, typ zobrazení, licence, dle které se pid poskytnul
+      operationId: info
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID
+      responses:
+        '200':
+          description: Informace o zobrazení
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/client/InfoResponse.yaml'
+              example: |
+                {
+                  "image": {
+                    "type": "tiles"
+                  },
+                  "providedByLicenses": [],
+                  "data": {
+                    "image": {
+                      "preview": true,
+                      "thumb": true,
+                      "full": true
+                    },
+                    "metadata": {
+                      "mods": true,
+                      "dc": true
+                    },
+                    "audio": {
+                      "mp3": false,
+                      "wav": false,
+                      "ogg": false
+                    },
+                    "ocr": {
+                      "text": true,
+                      "alto": true
+                    }
+                  },
+                  "accessibleLocks": []
+                }  
+        '400':
+          description: Chybně formulovaný pid
+        '404':
+          description: Neexistence pidu
+
+  # Informace o struktuře        
+  /items/{pid}/info/structure:
+    get:
+      tags:
+        - Info o titulu
+      summary: Informace o objektu pro zobrazení
+      description: Informace o objektu pro zobrazení, typ zobrazení, licence, dle které se pid poskytnul
+      operationId: structure
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+      responses:
+        '200':
+          description: Informace o zobrazení
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/client/InfoResponse.yaml'
+              example: |
+                  {
+                  "children": {
+                    "own": [
+                      {
+                        "pid": "uuid:99199751-78ac-11e9-8ed5-5ef3fc9ae867",
+                        "relation": "hasItem"
+                      },
+                      {
+                        "pid": "uuid:b7907e90-78b3-11e9-8ed5-5ef3fc9ae867",
+                        "relation": "hasItem"
+                      },
+                      {
+                        "pid": "uuid:4007de00-78b2-11e9-8ed5-5ef3fc9ae867",
+                        "relation": "hasItem"
+                      },
+                      {
+                        "pid": "uuid:92a99260-78ae-11e9-8ed5-5ef3fc9ae867",
+                        "relation": "hasItem"
+                      },
+                      {
+                        "pid": "uuid:68397770-78ae-11e9-8ed5-5ef3fc9ae867",
+                        "relation": "hasItem"
+                      }
+                    ],
+                    "foster": []
+                  },
+                  "model": "periodicalvolume",
+                  "parents": {
+                    "own": {
+                      "pid": "uuid:639726c0-22b6-11e4-8413-5ef3fc9ae867",
+                      "relation": "hasVolume"
+                    },
+                    "foster": []
+                   }
+                  }
+        '400':
+          description: Chybně formulovaný pid
+        '403':
+          description: Nedostatečná práva na objekt
+        '404':
+          description: Neexistence pidu
+
+    
+  # Informace o metadatech        
+  /items/{pid}/metadata/{metadata}:
+    head:
+      tags:
+        - Info o titulu
+      summary: Dotaz na existenci metadat
+      description: Ziskani informace pro metadata 
+      operationId: metadata
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+        - in: path
+          name: metadata
+          schema:
+            type: string
+            enum: 
+              - dc
+              - mods
+          required: true
+          description: Identifikátor metadat (povoleny pouze 'dc' nebo 'mods') 
+      responses:
+        '200':
+          description: Informace o zobrazení
+        '400':
+          description: Chybně formulovaný pid
+        '404':
+          description: Neexistence pidu
+    get:
+      tags:
+        - Info o titulu
+      summary: Získání metadat
+      description: Informace o objektu pro zobrazení, typ zobrazení, licence, dle které se pid poskytnul
+      operationId: getMetadata
+      parameters:
+
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+ 
+        - in: path
+          name: metadata
+          schema:
+            type: string
+            enum: 
+              - dc
+              - mods
+          required: true
+          description: Identifikátor metadat (povoleny pouze 'dc' nebo 'mods') 
+          
+      responses:
+        '200':
+          description: Informace o zobrazení
+          content:
+            application/xml:
+              schema:
+               $ref: './schemas/client/MetadataResponse.yaml#/components/schemas/MetadataResponse'
+              examples:
+                dc:
+                  summary: Dublin Core příklad
+                  value: |
+                    <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+                      <dc:title>Nejistá věda: co věda o klimatu říká, co neříká, a proč na tom záleží</dc:title>
+                      <dc:title>Unsettled. Česky</dc:title>
+                      <dc:creator>Koonin, Steven E., 1951-</dc:creator>
+                      <dc:creator>Kaňa, Štěpán, 1977-</dc:creator>
+                      <dc:creator>pna20241227247</dc:creator>
+                      <dc:creator>xx0070486</dc:creator>
+                      <dc:subject>Geologie. Meteorologie. Klimatologie</dc:subject>
+                      <dc:subject>klimatologie</dc:subject>
+                      <dc:subject>klimatické změny</dc:subject>
+                      <dc:subject>globální oteplování</dc:subject>
+                      <dc:subject>climatology</dc:subject>
+                      <dc:subject>climate changes</dc:subject>
+                      <dc:subject>global warming</dc:subject>
+                      <dc:subject>551.58</dc:subject>
+                      <dc:subject>551.583</dc:subject>
+                      <dc:subject>551.588.7</dc:subject>
+                      <dc:subject>(0.062)</dc:subject>
+                      <dc:subject>7</dc:subject>
+                      <dc:subject>551</dc:subject>
+                      <dc:description>Kniha se podrobně a apoliticky zabývá mylnými představami a ideologickým zkreslením mainstreamové prezentace vědy o klimatu, jež je mnohem méně černobílá, než si mnozí lidé uvědomují.</dc:description>
+                      <dc:description>Steven E. Koonin ; z anglického originálu Unsettled : what climate science tells us, what it doesn't, and why it matters ... přeložil Štěpán Kaňa.</dc:description>
+                      <dc:description>Obsahuje bibliografické odkazy a rejstřík</dc:description>
+                      <dc:publisher>Books &amp; Pipes</dc:publisher>
+                      <dc:date>2024</dc:date>
+                      <dc:type>model:monograph</dc:type>
+                      <dc:format>print</dc:format>
+                      <dc:format>bez média</dc:format>
+                      <dc:format>svazek</dc:format>
+                      <dc:format>339 stran : ilustrace, grafy, mapy.</dc:format>
+                      <dc:identifier>uuid:48460ae7-6800-4e61-bd4a-85b42179451b</dc:identifier>
+                      <dc:identifier>ccnb:cnb003607882</dc:identifier>
+                      <dc:identifier>isbn:978-80-7485-292-3</dc:identifier>
+                      <dc:identifier>barcode:26002401684</dc:identifier>
+                      <dc:identifier>urnnbn:urn:nbn:cz:aba007-000lls</dc:identifier>
+                      <dc:source>ABA007</dc:source>
+                      <dc:source>F 150662</dc:source>
+                      <dc:language>cze</dc:language>
+                      <dc:language>eng</dc:language>
+                      <dc:coverage>Brno</dc:coverage>
+                      <dc:rights>policy:private</dc:rights>
+                    </oai_dc:dc>
+                mods:
+                  summary: Biblio_MODS příklad
+                  value: |
+                    <mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+                      <mods:mods xmlns:xlink="http://www.w3.org/1999/xlink" version="3.6">
+                        <mods:abstract type="Scope and content">Kniha se podrobně a apoliticky zabývá mylnými představami a ideologickým zkreslením mainstreamové prezentace vědy o klimatu, jež je mnohem méně černobílá, než si mnozí lidé uvědomují.</mods:abstract>
+                        <mods:classification authority="udc">551.58</mods:classification>
+                        <mods:classification authority="udc">551.583</mods:classification>
+                        <mods:classification authority="udc">551.588.7</mods:classification>
+                        <mods:classification authority="udc">(0.062)</mods:classification>
+                        <mods:classification authority="Konspekt">7</mods:classification>
+                        <mods:classification authority="udc" edition="Konspekt">551</mods:classification>
+                        <mods:genre>volume</mods:genre>
+                        <mods:genre authority="rdacontent">text</mods:genre>
+                        <mods:genre authority="czenas">populárně-naučné publikace</mods:genre>
+                        <mods:genre authority="eczenas">popular works</mods:genre>
+                        <mods:identifier type="uuid">48460ae7-6800-4e61-bd4a-85b42179451b</mods:identifier>
+                        <mods:identifier type="ccnb">cnb003607882</mods:identifier>
+                        <mods:identifier type="isbn">978-80-7485-292-3</mods:identifier>
+                        <mods:identifier type="barcode">26002401684</mods:identifier>
+                        <mods:identifier type="urnnbn">urn:nbn:cz:aba007-000lls</mods:identifier>
+                        <mods:language>
+                          <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+                        </mods:language>
+                        <mods:language objectPart="translation">
+                          <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
+                        </mods:language>
+                        <mods:location>
+                          <mods:physicalLocation authority="siglaADR">ABA007</mods:physicalLocation>
+                          <mods:shelfLocator>F 150662</mods:shelfLocator>
+                        </mods:location>
+                        <mods:name nameTitleGroup="1" type="personal" usage="primary">
+                          <mods:namePart type="family">Koonin</mods:namePart>
+                          <mods:namePart type="given">Steven E.</mods:namePart>
+                          <mods:namePart type="date">1951-</mods:namePart>
+                          <mods:role>
+                            <mods:roleTerm authority="marcrelator" type="code">aut</mods:roleTerm>
+                          </mods:role>
+                          <mods:nameIdentifier>pna20241227247</mods:nameIdentifier>
+                        </mods:name>
+                        <mods:name type="personal">
+                          <mods:namePart type="family">Kaňa</mods:namePart>
+                          <mods:namePart type="given">Štěpán</mods:namePart>
+                          <mods:namePart type="date">1977-</mods:namePart>
+                          <mods:role>
+                            <mods:roleTerm authority="marcrelator" type="code">trl</mods:roleTerm>
+                          </mods:role>
+                          <mods:nameIdentifier>xx0070486</mods:nameIdentifier>
+                        </mods:name>
+                        <mods:note altRepGroup="00" type="statement of responsibility">Steven E. Koonin ; z anglického originálu Unsettled : what climate science tells us, what it doesn't, and why it matters ... přeložil Štěpán Kaňa.</mods:note>
+                        <mods:note type="bibliography">Obsahuje bibliografické odkazy a rejstřík</mods:note>
+                        <mods:originInfo eventType="publication">
+                          <mods:place>
+                            <mods:placeTerm authority="marccountry" type="code">xr</mods:placeTerm>
+                          </mods:place>
+                          <mods:place>
+                            <mods:placeTerm type="text">Brno</mods:placeTerm>
+                          </mods:place>
+                          <mods:publisher>Books &amp; Pipes</mods:publisher>
+                          <mods:dateIssued encoding="marc">2024</mods:dateIssued>
+                          <mods:edition>1. vydání</mods:edition>
+                          <mods:issuance>single unit</mods:issuance>
+                        </mods:originInfo>
+                        <mods:physicalDescription>
+                          <mods:form authority="marcform">print</mods:form>
+                          <mods:form authority="rdamedia" type="media">bez média</mods:form>
+                          <mods:form authority="rdacarrier" type="carrier">svazek</mods:form>
+                          <mods:extent>339 stran : ilustrace, grafy, mapy.</mods:extent>
+                        </mods:physicalDescription>
+                        <mods:recordInfo>
+                          <mods:recordContentSource authority="marcorg">ABA007</mods:recordContentSource>
+                          <mods:recordCreationDate encoding="iso8601">20240819T073342</mods:recordCreationDate>
+                          <mods:recordChangeDate encoding="iso8601">20240826T120948</mods:recordChangeDate>
+                          <mods:recordIdentifier source="CZ PrAS">002908972</mods:recordIdentifier>
+                          <mods:languageOfCataloging>
+                            <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+                          </mods:languageOfCataloging>
+                          <mods:recordOrigin>machine generated</mods:recordOrigin>
+                          <mods:descriptionStandard>rda</mods:descriptionStandard>
+                          <mods:recordInfoNote>Converted from MARCXML to MODS version 3.6 using MARC21slim2MODS3.xsl (Revision 1.98 2018/02/09, ProArc patch 18.1352 2022/10/12)</mods:recordInfoNote>
+                        </mods:recordInfo>
+                        <mods:subject authority="Konspekt">
+                          <mods:topic>Geologie. Meteorologie. Klimatologie</mods:topic>
+                        </mods:subject>
+                        <mods:subject authority="czenas">
+                          <mods:topic>klimatologie</mods:topic>
+                        </mods:subject>
+                        <mods:subject authority="czenas">
+                          <mods:topic>klimatické změny</mods:topic>
+                        </mods:subject>
+                        <mods:subject authority="czenas">
+                          <mods:topic>globální oteplování</mods:topic>
+                        </mods:subject>
+                        <mods:subject authority="eczenas">
+                          <mods:topic>climatology</mods:topic>
+                        </mods:subject>
+                        <mods:subject authority="eczenas">
+                          <mods:topic>climate changes</mods:topic>
+                        </mods:subject>
+                        <mods:subject authority="eczenas">
+                          <mods:topic>global warming</mods:topic>
+                        </mods:subject>
+                        <mods:targetAudience authority="marctarget">adult</mods:targetAudience>
+                        <mods:titleInfo>
+                          <mods:title>Nejistá věda</mods:title>
+                          <mods:subTitle>co věda o klimatu říká, co neříká, a proč na tom záleží</mods:subTitle>
+                        </mods:titleInfo>
+                        <mods:titleInfo nameTitleGroup="1" type="uniform">
+                          <mods:title>Unsettled. Česky</mods:title>
+                        </mods:titleInfo>
+                        <mods:typeOfResource>text</mods:typeOfResource>
+                      </mods:mods>
+                    </mods:modsCollection>               
+        '400':
+          description: Chybně formulovaný pid
+        '404':
+          description: Neexistence pidu
+    
+  # Dotazy na ocr data       
+  /items/{pid}/ocr/{type}:
+    head:
+      tags:
+        - Info o titulu
+      summary: Dotaz na existenci ocr dat
+      description: Dotaz na existenci ocr dat
+      operationId: hasOcr
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+        - in: path
+          name: type
+          schema:
+            type: string
+            enum: 
+              - text
+              - alto
+          required: true
+          description: Identifikátor ocr dat (povoleny pouze 'text' nebo 'alto') 
+      responses:
+        '200':
+          description: OCR data jsou dostupná
+        '400':
+          description: Chybně formulovaný pid
+        '403':
+          description: Nedostatečná práva na objekt
+        '404':
+          description: Neexistence pidu
+    get:
+      tags:
+        - Info o titulu
+      summary: Získání OCR dat
+      description: Získání OCR dat k danému titulu
+      operationId: getOcr
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+        - in: path
+          name: type
+          schema:
+            type: string
+            enum: 
+              - text
+              - alto
+          required: true
+          description: Identifikátor ocr dat (povoleny pouze 'text' nebo 'alto') 
+      responses:
+        '200':
+          description: OCR data jsou dostupná
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: |
+                  Toto je příklad textového OCR obsahu.
+            application/xml:
+              schema:
+                type: string
+                example: |
+                          <alto>
+                            <Layout>
+                              <Page WIDTH="2100" HEIGHT="2970">
+                                <!-- XML obsah OCR dat -->
+                              </Page>
+                            </Layout>
+                          </alto>
+        '400':
+          description: Chybně formulovaný pid
+        '403':
+          description: Nedostatečná práva na objekt
+        '404':
+          description: Neexistence pidu
+   
+  # Dotazy na obrazová data       
+  /items/{pid}/image:
+    head:
+      tags:
+        - Info o titulu
+      summary: Dotaz na existenci obrazových dat
+      description: Dotaz na existenci obrazových dat
+      operationId: image
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+      responses:
+        '200':
+          description: Plný obraz  je dostunpný
+        '400':
+          description: Chybně formulovaný pid
+        '403':
+          description: Nedostatečná práva na objekt
+        '404':
+          description: Neexistence pidu
+    get:
+      tags:
+        - Info o titulu
+      summary: Získání plného skenu
+      description: Získání plného skenu
+      operationId: getImage
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+      responses:
+        '200':
+          description: Získání plného skenu
+        '400':
+          description: Chybně formulovaný pid
+        '403':
+          description: Nedostatečná práva na objekt
+        '404':
+          description: Neexistence pidu
+
+  # Dotazy na audio data       
+  /items/{pid}/audio/{type}:
+    head:
+      tags:
+        - Info o titulu
+      summary: Dotaz na existenci audio dat
+      description: Dotaz na existenci audio dat
+      operationId: audio
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+        - in: path
+          name: type
+          schema:
+            type: string
+            enum: 
+              - mp3
+              - wav
+              - ogg
+          required: true
+          description: Typ audio dat 
+      responses:
+        '200':
+          description: Plný obraz  je dostunpný
+        '400':
+          description: Chybně formulovaný pid
+        '403':
+          description: Nedostatečná práva na objekt
+        '404':
+          description: Neexistence pidu
+    get:
+      tags:
+        - Info o titulu
+      summary: Získání audio dat
+      description: Získání audio dat
+      operationId: getAudio
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+
+        - in: path
+          name: type
+          schema:
+            type: string
+            enum: 
+              - mp3
+              - wav
+              - ogg
+          required: true
+          description: Typ audio dat 
+          
+      responses:
+        '200':
+          description: Získání audio nahrávky
+        '400':
+          description: Chybně formulovaný pid
+        '403':
+          description: Nedostatečná práva na objekt
+        '404':
+          description: Neexistence pidu
+
+  # Dotaz specifický pro sbírku - získání výstřižků
+  /items/{pid}/collection/cuttings:
+    get:
+      tags:
+        - Info o titulu
+      summary: Získání výstřižků
+      description: Získání výstřižků
+      operationId: getCuttings
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+      responses:
+        '200':
+          description: Získání výstřižků
+          content:
+            application/json:
+              schema:
+                type: string
+                example: [
+                            {
+                                "name": "jmeno",
+                                "uuid": "2cdd2a8e-2e56-45d5-a50f-7423d74ce274",
+                                "itemsCount": 1,
+                                "users": [
+                                    [
+                                        {
+                                            "createdAt": "2024-02-08 14:38:30.874",
+                                            "userRole": "owner",
+                                            "userId": "xxx@mzk.cz"
+                                        }
+                                    ]
+                                ],
+                                "updatedAt": "2024-02-08 14:38:31.028612"
+                            },
+                            {
+                                "name": "K prezentaci",
+                                "uuid": "5c7e423f-ae3e-4b7c-9ce0-6536c879db34",
+                                "itemsCount": 13,
+                                "users": [
+                                    [
+                                        {
+                                            "createdAt": "2024-02-05 09:56:32.18",
+                                            "userRole": "follower",
+                                            "userId": "xxx@mzk.cz"
+                                        },
+                                        {
+                                            "createdAt": "2024-01-24 20:53:39.255",
+                                            "userRole": "owner",
+                                            "userId": "zzz@mzk.cz"
+                                        }
+                                    ]
+                                ],
+                                "updatedAt": "2024-02-07 16:12:07.719772"
+                            }
+                        ]          
+        '400':
+          description: Chybný pid
+        '404':
+          description: "Neexitence výstřižků. Poznámka: V případě, že model není typu collection vrací vždy status 404"
+
+  # Dotaz na uživatele
+  /user:
+    get:
+      tags:
+        - Info o uživateli
+      summary: Informace o uživateli. V případě přihlášených uživatelů (v dotazu je přítomen JWT token), pak jsou vidět informace o platnosti tokenu, o atributech, o přiřazené roli a licencích 
+      description: Informace o uživateli. V případě přihlášených uživatelů (v dotazu je přítomen JWT token), pak jsou vidět informace o platnosti tokenu, o atributech, o přiřazené roli a licencích 
+      operationId: getUserInfo
+      parameters:
+        - in: query
+          name: sessionAttributes
+          schema:
+            type: boolean
+          required: false
+          description: Navrácení runtime informaci - čas expirace tokenu, atributů získaných z keycloaku, atd.. 
+      responses:
+        '200':
+          description: JSON informace o uživateli
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "uid": "xxx@mzk.cz",
+                  "authenticated": true,
+                  "licenses": [
+                      "mzk_public-muo",
+                      "mzk_public-contract",
+                      "public",
+                      "dnnto"
+                  ],
+                  "session": {
+                      "eduPersonEntitlement": "urn:mace:dir:entitlement:common-lib-terms",
+                      "eduPersonScopedAffiliation": "[member@mzk.cz]",
+                      "token_id": "ee60372a-bc5e-4651-a81f-7d3829273c55",
+                      "displayName": "Test Testovic",
+                      "expiration_time": "1727809076",
+                      "eduPersonPrincipalName": "xxx@mzk.cz",
+                      "eduPersonUniqueId": "xxx@mzk.cz",
+                      "expires_in": "10801",
+                      "preffered_user_name": "204f1520147d1ac0de3f78b0ac6c2f19bebcca65c6146548d7aa3216106051fb._6ad3c10d03e0fee55dc0f3c69414f0a3b342fd646d",
+                      "email": "xxx@mzk.cz",
+                      "authentication_time": "1727798275"
+                  },
+                  "roles": [
+                      "common_users",
+                      "default-roles-kramerius",
+                      "dnnt_users",
+                      "offline_access",
+                      "uma_authorization"
+                  ],
+                  "name": "Test Testovic",
+                  "email": "xxx@mzk.cz"
+              }
+  # Dotaz na uživatele a povolene akce
+  /user/actions:
+    get:
+      tags:
+        - Info o uživateli
+      summary: Informace o povolených akcích pro auktuálně přihlášeného uživatele.  
+      description: Informace o uživateli. V případě přihlášených uživatelů (v dotazu je přítomen JWT token), pak jsou vidět informace o platnosti tokenu, o atributech, o přiřazené roli a licencích 
+      operationId: getUserInfoActions
+      parameters:
+        - in: query
+          name: sessionAttributes
+          schema:
+            type: boolean
+          required: false
+          description: Navrácení runtime informaci - čas expirace tokenu, atributů získaných z keycloaku, atd.. 
+      responses:
+        '200':
+          description: JSON informace o uživateli
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "actions": [
+                    "a_pdf_read",
+                    "a_statistics",
+                    "a_export_statistics"
+                  ]
+                }          
+        
+  # Informace o systému
+  /info:
+    get:
+      tags:
+        - Obecné informace
+      summary: Obecné informace o systému 
+      description: Obecné informace o systému 
+      operationId: getInfo
+      responses:
+        '200':
+          description: JSON informace o systému
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                      "rightMsg": {
+                        "cs": "Tento dokument není veřejně přístupný.",
+                        "en": "This document is not public"
+                      },
+                      "instance": {
+                        "registr": "https://registr.digitalniknihovna.cz/library/mzk",
+                        "acronym": "mzk"
+                      },
+                      "pdfMaxRange": "80",
+                      "version": "7.0.38-dev",
+                      "indexerVersion": 19,
+                      "hash": "38afc320e39ecdfd3c1fca378ddc67a0f8208758"
+                    }
+
+    
