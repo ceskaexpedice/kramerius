@@ -55,15 +55,6 @@ public class ItemsResource extends AdminApiResource {
     private static final Integer DEFAULT_OFFSET = 0;
     private static final Integer DEFAULT_LIMIT = 10;
 
-    //TODO: prejmenovat role podle spravy uctu
-    
-    /*
-    private static final String ROLE_READ_ITEMS = "kramerius_admin";
-    private static final String ROLE_READ_FOXML = "kramerius_admin";
-    private static final String ROLE_EDIT_OBJECTS = "kramerius_admin";
-    private static final String ROLE_DELETE_OBJECTS = "kramerius_admin";
-    */
-
 
     @javax.inject.Inject
     Provider<User> userProvider;

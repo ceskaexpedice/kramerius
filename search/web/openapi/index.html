@@ -1,0 +1,110 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="./swagger-ui.css" />
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
+    <style>
+    /* Styl pro vlastní tlačítka */
+    .custom-auth-buttons {
+      position: absolute;
+      top: 180px;
+      left: 30px;
+    }
+    .custom-auth-buttons button {
+      margin-left: 5px;
+      padding: 5px 10px;
+    }
+  </style>
+  </head>
+
+  <body>
+
+    <div class="custom-auth-buttons">
+        <button id="login-button" onclick="login()">Login</button>
+        <button id="logout-button">Logout</button>
+    </div>
+  
+    <div id="swagger-ui"></div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script src="./swagger-ui-bundle.js" charset="UTF-8"> </script>
+    <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
+    <script src="./swagger-initializer.js" charset="UTF-8"> </script>
+
+    <script>
+    
+        var TOKEN = null;
+        
+        function login() {
+          const redirectUri = window.location.origin + '/search/openapi/index.html';
+          const authorizationUrl = `../api/client/v7.0/user/auth/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
+          window.location.href = authorizationUrl;
+        }
+
+        function logout() {
+          const redirectUri = window.location.origin + '/search/openapi/index.html';
+          const authorizationUrl = `../api/client/v7.0/user/auth/logout?redirect_uri=${encodeURIComponent(redirectUri)}`;
+          window.location.href = authorizationUrl;
+        }
+
+        const currentUrl = window.location.origin;
+        window.onload = function() {
+        const ui = SwaggerUIBundle({
+            url: "../api/client/v7.0/embedded/files/openapi.yaml",
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            defaultModelsExpandDepth: -1,
+            validatorUrl : null,
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            plugins: [
+              SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            
+            requestInterceptor: (request) => {
+                if (TOKEN && TOKEN["access_token"]) {
+                    request.headers['Authorization'] = `Bearer ${TOKEN["access_token"]}`;
+                }
+                return request;
+            },
+            
+            layout: "StandaloneLayout"
+      });
+      window.ui = ui;
+
+      setTimeout(function() {
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get('code');
+        const tokenSet = url.searchParams.get('tokenSet');
+        if (code && !tokenSet) {
+            const redirectUri = window.location.origin + '/search/openapi/index.html';
+            const encodedRedirectUri = encodeURIComponent(redirectUri);
+            const tokenUrl = window.location.origin + `/search/api/client/v7.0/user/auth/token?code=${encodeURIComponent(code)}&redirect_uri=${encodedRedirectUri}`;
+            
+            $.get(tokenUrl)
+                .done(function(response) {
+
+                	if (response.error) {
+                        logout();
+                    } else {
+                        TOKEN = response;
+                    }
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                    logout();
+                    console.error('Error fetching token:', textStatus, errorThrown);
+                });
+            }       
+        },1000);
+      
+     };
+  </script>
+  </body>
+</html>
