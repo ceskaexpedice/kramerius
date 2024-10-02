@@ -1,0 +1,133 @@
+type: object
+  properties:
+    image:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Typ obrázku
+      required:
+        - type
+    providedByLicenses:
+      type: array
+      items:
+        type: string
+      description: Seznam licencí poskytujících přístup
+    data:
+      type: object
+      properties:
+        image:
+          type: object
+          properties:
+            preview:
+              type: boolean
+              description: Indikuje, zda je k dispozici střední náhled obrázku
+            thumb:
+              type: boolean
+              description: Indikuje, zda je k dispozici miniatura obrázku
+            full:
+              type: boolean
+              description: Indikuje, zda je k dispozici obrázek v plné velikosti
+          required:
+            - preview
+            - thumb
+            - full
+        metadata:
+          type: object
+          properties:
+            mods:
+              type: boolean
+              description: Indikuje, zda jsou dostupná metadata ve formátu BIBLIO_MODS
+            dc:
+              type: boolean
+              description: Indikuje, zda jsou dostupná metadata ve formátu Dublin Core
+          required:
+            - mods
+            - dc
+        audio:
+          type: object
+          properties:
+            mp3:
+              type: boolean
+              description: Indikuje, zda je k dispozici audio ve formátu MP3
+            wav:
+              type: boolean
+              description: Indikuje, zda je k dispozici audio ve formátu WAV
+            ogg:
+              type: boolean
+              description: Indikuje, zda je k dispozici audio ve formátu OGG
+          required:
+            - mp3
+            - wav
+            - ogg
+        ocr:
+          type: object
+          properties:
+            text:
+              type: boolean
+              description: Indikuje, zda je k dispozici OCR výstup ve formátu text
+            alto:
+              type: boolean
+              description: Indikuje, zda je k dispozici OCR výstup ve formátu ALTO
+          required:
+            - text
+            - alto
+      required:
+        - image
+        - metadata
+        - audio
+        - ocr
+    accessibleLocks:
+      type: array
+      items:
+        type: object
+        properties:
+          right:
+            type: object
+            properties:
+              license:
+                type: string
+                description: Licence poskytující zámek
+              id:
+                type: integer
+                description: ID licence
+            required:
+              - license
+              - id
+          type:
+            type: string
+            description: Typ zámku
+          hash:
+            type: string
+            description: Hash hodnoty zámku
+        required:
+          - right
+          - type
+          - hash
+      description: Seznam dostupných zámků
+  required:
+    - image
+    - providedByLicenses
+    - data
+    - accessibleLocks
+    
+example:
+  image:
+    type: "tiles"
+  providedByLicenses: []
+  data:
+    image:
+      preview: true
+      thumb: true
+      full: true
+    metadata:
+      mods: true
+      dc: true
+    audio:
+      mp3: false
+      wav: false
+      ogg: false
+    ocr:
+      text: true
+      alto: true
+  accessibleLocks: []
