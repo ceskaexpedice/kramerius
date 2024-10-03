@@ -10,23 +10,38 @@
     <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
     <style>
     /* Styl pro vlastní tlačítka */
-    .custom-auth-buttons {
-      position: absolute;
-      top: 180px;
-      left: 30px;
+    .app-custom-auth-buttons {
+      background: #f3f3f3;
+      border-bottom: 1px solid #e0e0e0;
     }
-    .custom-auth-buttons button {
+
+    .app-custom-auth-buttons .app-container {
+      text-align: right;
+      margin: 0 auto;
+      max-width: 1460px;
+      width: 100%;
+      padding: 16px 0;
+    }
+
+    .app-custom-auth-buttons button {
       margin-left: 5px;
       padding: 5px 10px;
+    }
+
+
+    .swagger-ui .topbar {
+      display: none;
     }
   </style>
   </head>
 
   <body>
 
-    <div class="custom-auth-buttons">
+    <div class="app-custom-auth-buttons">
+      <div class="app-container">
         <button id="login-button" onclick="login()">Login</button>
-        <button id="logout-button">Logout</button>
+        <button id="logout-button" onclick="logout()" disabled>Logout</button>
+      </div>
     </div>
   
     <div id="swagger-ui"></div>
@@ -92,11 +107,18 @@
             $.get(tokenUrl)
                 .done(function(response) {
 
-                	if (response.error) {
+                    if (response.error) {
                         logout();
                     } else {
                         TOKEN = response;
                     }
+                    
+                    
+                    if (TOKEN && TOKEN["access_token"]) { 
+                        $("#login-button").prop("disabled", true);
+                        $("#logout-button").prop("disabled", false);
+                    }
+                    
                 }).fail(function(jqXHR, textStatus, errorThrown) {
                     logout();
                     console.error('Error fetching token:', textStatus, errorThrown);
