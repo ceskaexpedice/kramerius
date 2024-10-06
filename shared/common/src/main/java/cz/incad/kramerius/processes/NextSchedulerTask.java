@@ -51,7 +51,6 @@ public class NextSchedulerTask extends TimerTask {
             }
             this.processScheduler.scheduleNextTask();
         } catch (Throwable e) {
-            this.processScheduler.shutdown();
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
 
