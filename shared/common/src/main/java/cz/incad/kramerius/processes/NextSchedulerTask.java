@@ -31,6 +31,7 @@ public class NextSchedulerTask extends TimerTask {
     @Override
     public void run() {
         try {
+            LOGGER.fine("Scheduling next task");
             definitionManager.load();
             List<LRProcess> plannedProcess = lrProcessManager.getPlannedProcess(allowRunningProcesses());
             if (!plannedProcess.isEmpty() && this.processScheduler.getApplicationLib() != null /* initalized */) {
@@ -40,13 +41,13 @@ public class NextSchedulerTask extends TimerTask {
                     lrProcess.startMe(false, this.processScheduler.getApplicationLib(),
                             this.processScheduler.getAdditionalJarFiles());
                 } else {
-                    LOGGER.fine("the maximum number of running processes is reached");
+                    LOGGER.fine("The maximum number of running processes is reached");
                 }
             } else {
                 if (this.processScheduler.getApplicationLib() == null) {
-                    LOGGER.fine("scheduler is not initialized");
+                    LOGGER.fine("Scheduler is not initialized");
                 } else {
-                    LOGGER.fine("no planned process found ");
+                    LOGGER.fine("No planned process found");
                 }
             }
             this.processScheduler.scheduleNextTask();

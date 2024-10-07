@@ -1390,6 +1390,63 @@ paths:
                 description: Volající není vlastník seznamu
             
 
+  # Informace o systému
+  /folders/{uuid}/items:
+    put:
+      tags:
+        - Uživatelské seznamy
+      summary:  Přidání/obrání položek v uživatelském seznamu
+      description:  Přidání/obrání položek v uživatelském seznamu
+      operationId: updateFolderItems
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: Jedinečný identifikátor seznamu
+          schema:
+            type: string
+            example: "b5d56622-8d1f-417f-a667-07bcf9547621"
+      requestBody:
+        description: Aktualizovaný obsah seznamu, včetně názvu a seznamu uživatelů.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: string
+                    example: "uuid:7aebc9bf-b139-436d-a638-d47c745edf76"
+      responses:
+          '200':
+              description: Úspěšně přidány a odebrány položky ze seznamu.
+              content:
+                application/json:
+                  schema:
+                    type: string
+                  example: {
+                        "name": "NovySeznam",
+                        "uuid": "b5d56622-8d1f-417f-a667-07bcf9547621",
+                        "itemsCount": 1,
+                        "items":[
+                            "uuid:7aebc9bf-b139-436d-a638-d47c745edf76"
+                        ],
+                        "users": [
+                            [
+                                {
+                                    "createdAt": "2024-08-21 11:04:22.421",
+                                    "userRole": "owner",
+                                    "userId": "xxxx@mzk.cz"
+                                }
+                            ]
+                        ],
+                        "updatedAt": "2024-08-21 11:04:22.421"
+                    }
+          '401':
+                description: Nepřihlášený uživatel
+
   # Exkluzivni zamky 
   /locks/{hash}:
     get:
