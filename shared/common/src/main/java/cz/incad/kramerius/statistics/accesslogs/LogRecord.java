@@ -3,6 +3,8 @@ package cz.incad.kramerius.statistics.accesslogs;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import cz.incad.kramerius.utils.StringUtils;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -431,30 +433,32 @@ public class LogRecord {
         ipddress.setTextContent(this.ipAddress);
         docElm.appendChild(ipddress);
 
-        Element requestedUrl = doc.createElement("field");
-        requestedUrl.setAttribute("name", "requested_url");
-        requestedUrl.setTextContent(this.requestedUrl);
-        docElm.appendChild(requestedUrl);
+        if (StringUtils.isAnyString(this.requestedUrl)) {
+            Element requestedUrl = doc.createElement("field");
+            requestedUrl.setAttribute("name", "requested_url");
+            requestedUrl.setTextContent(this.requestedUrl);
+            docElm.appendChild(requestedUrl);
+        }
         
-        if (this.dateStr != null) {
+        if (this.dateStr != null && StringUtils.isAnyString(this.dateStr)) {
             Element dateStrField = doc.createElement("field");
-            requestedUrl.setAttribute("name", "date.str");
-            requestedUrl.setTextContent(this.dateStr);
+            dateStrField.setAttribute("name", "date.str");
+            dateStrField.setTextContent(this.dateStr);
             docElm.appendChild(dateStrField);
         }
 
-        if (this.dateRangeStart != null) {
-            Element dateStrField = doc.createElement("field");
-            requestedUrl.setAttribute("name", "date_range_start.year");
-            requestedUrl.setTextContent(this.dateRangeStart);
-            docElm.appendChild(dateStrField);
+        if (this.dateRangeStart != null && StringUtils.isAnyString(this.dateRangeStart)) {
+            Element dateRangeStart = doc.createElement("field");
+            dateRangeStart.setAttribute("name", "date_range_start.year");
+            dateRangeStart.setTextContent(this.dateRangeStart);
+            docElm.appendChild(dateRangeStart);
         }
         
-        if (this.dateRangeEnd != null) {
-            Element dateStrField = doc.createElement("field");
-            requestedUrl.setAttribute("name", "date_range_end.year");
-            requestedUrl.setTextContent(this.dateRangeEnd);
-            docElm.appendChild(dateStrField);
+        if (this.dateRangeEnd != null && StringUtils.isAnyString(this.dateRangeEnd)) {
+            Element dateRangeEnd = doc.createElement("field");
+            dateRangeEnd.setAttribute("name", "date_range_end.year");
+            dateRangeEnd.setTextContent(this.dateRangeEnd);
+            docElm.appendChild(dateRangeEnd);
         }
         
         if (this.rootTitle != null) {
@@ -586,10 +590,12 @@ public class LogRecord {
         }
 
         for (String title : this.titles) {
-            Element titleElm = doc.createElement("field");
-            titleElm.setAttribute("name", "titles");
-            titleElm.setTextContent(title);
-            docElm.appendChild(titleElm);
+            if (StringUtils.isAnyString(title)) {
+                Element titleElm = doc.createElement("field");
+                titleElm.setAttribute("name", "titles");
+                titleElm.setTextContent(title);
+                docElm.appendChild(titleElm);
+            }
         }
 
         for (String sDate : this.solrDates) {
@@ -642,4 +648,21 @@ public class LogRecord {
 
         return doc;
     }
+
+    @Override
+    public String toString() {
+        return "LogRecord [id=" + id + ", pid=" + pid + ", date=" + date + ", ipAddress=" + ipAddress + ", user=" + user
+                + ", requestedUrl=" + requestedUrl + ", sessionToken=" + sessionToken + ", rootTitle=" + rootTitle
+                + ", rootModel=" + rootModel + ", rootPid=" + rootPid + ", reportedAction=" + reportedAction
+                + ", dbVersion=" + dbVersion + ", kramVersion=" + kramVersion + ", providedByLicense="
+                + providedByLicense + ", evaluatedMap=" + evaluatedMap + ", userSessionAttributes="
+                + userSessionAttributes + ", ownPidpath=" + ownPidpath + ", ownModelPath=" + ownModelPath + ", dateStr="
+                + dateStr + ", dateRangeStart=" + dateRangeStart + ", dateRangeEnd=" + dateRangeEnd + ", licenses="
+                + licenses + ", issueDates=" + issueDates + ", langs=" + langs + ", titles=" + titles + ", solrDates="
+                + solrDates + ", publishers=" + publishers + ", authors=" + authors + ", pidsPaths=" + pidsPaths
+                + ", modelsPaths=" + modelsPaths + ", isbns=" + isbns + ", issns=" + issns + ", ccnbs=" + ccnbs
+                + ", fieldsFromHttpRequestHeaders=" + fieldsFromHttpRequestHeaders + ", details=" + details + "]";
+    }
+
+    
 }
