@@ -16,45 +16,45 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GCSchedulerImpl implements GCScheduler {
 
-	public static Logger LOGGER = Logger.getLogger(GCScheduler.class.getName());
-	
-	private LRProcessManager lrProcessManager;
-	private DefinitionManager definitionManager;
-	
-	private int interval;
-	private Timer timer;
-	
-	@Inject
-	public GCSchedulerImpl(LRProcessManager lrProcessManager,
-			DefinitionManager definitionManager) {
-		super();
-		this.lrProcessManager = lrProcessManager;
-		this.definitionManager = definitionManager;
-		this.timer = new Timer(GCSchedulerImpl.class.getName()+"-thread",/*true*/ false);
-	}
+    public static Logger LOGGER = Logger.getLogger(GCScheduler.class.getName());
 
-	@Override
-	public void init() {
-		String sinterval  = KConfiguration.getInstance().getProperty("gcScheduler.checkInterval","10000");
-		this.interval =  Integer.parseInt(sinterval);
-		//this.scheduleFindGCCandidates();
-	}
+    private LRProcessManager lrProcessManager;
+    private DefinitionManager definitionManager;
 
-	
-	@Override
-	public void scheduleFindGCCandidates() {
-		GCFindCandiatesTask findCandidates = new GCFindCandiatesTask(this.lrProcessManager, this.definitionManager, this, this.interval);
-		this.timer.schedule(findCandidates, this.interval);
-	}
+    private int interval;
+    private Timer timer;
 
-	@Override
-	public void scheduleCheckFoundGCCandidates(List<String> procUuids) {
-		GCCheckFoundCandidatesTask checkCandidates = new GCCheckFoundCandidatesTask(lrProcessManager, this, procUuids, this.interval);
-		this.timer.schedule(checkCandidates, this.interval);
-	}
-	
-	public void shutdown() {
-		LOGGER.info("canceling gcscheduler");
-		this.timer.cancel();
-	}
+    @Inject
+    public GCSchedulerImpl(LRProcessManager lrProcessManager, DefinitionManager definitionManager) {
+        super();
+        this.lrProcessManager = lrProcessManager;
+        this.definitionManager = definitionManager;
+        this.timer = new Timer(GCSchedulerImpl.class.getName() + "-thread", /* true */ false);
+    }
+
+    @Override
+    public void init() {
+        String sinterval = KConfiguration.getInstance().getProperty("gcScheduler.checkInterval", "10000");
+        this.interval = Integer.parseInt(sinterval);
+        // this.scheduleFindGCCandidates();
+    }
+
+    @Override
+    public void scheduleFindGCCandidates() {
+        GCFindCandiatesTask findCandidates = new GCFindCandiatesTask(this.lrProcessManager, this.definitionManager,
+                this, this.interval);
+        this.timer.schedule(findCandidates, this.interval);
+    }
+
+    @Override
+    public void scheduleCheckFoundGCCandidates(List<String> procUuids) {
+        GCCheckFoundCandidatesTask checkCandidates = new GCCheckFoundCandidatesTask(lrProcessManager, this, procUuids,
+                this.interval);
+        this.timer.schedule(checkCandidates, this.interval);
+    }
+
+    public void shutdown() {
+        LOGGER.info("Canceling gcscheduler");
+        this.timer.cancel();
+    }
 }

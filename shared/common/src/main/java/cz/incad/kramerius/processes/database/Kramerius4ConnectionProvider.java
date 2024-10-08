@@ -21,6 +21,8 @@ public class Kramerius4ConnectionProvider implements Provider<Connection> {
     private static DataSource dataSource = createDataSource();
 
     private static DataSource createDataSource() {
+        
+        
         HikariDataSource ds = new HikariDataSource();
         ds.setDriverClassName("org.postgresql.Driver");
         ds.setJdbcUrl(KConfiguration.getInstance().getJdbcUrl());
@@ -29,7 +31,10 @@ public class Kramerius4ConnectionProvider implements Provider<Connection> {
         ds.setLeakDetectionThreshold(KConfiguration.getInstance().getConfiguration().getInt("jdbcLeakDetectionThreshold"));
         ds.setMaximumPoolSize(KConfiguration.getInstance().getConfiguration().getInt("jdbcMaximumPoolSize"));
         ds.setConnectionTimeout(KConfiguration.getInstance().getConfiguration().getInt("jdbcConnectionTimeout"));
-        ds.addDataSourceProperty("socketTimeout", "30");
+
+        int datasourceSocketTimeout = KConfiguration.getInstance().getConfiguration().getInt("datasourceSocketTimeout",30);
+        ds.addDataSourceProperty("socketTimeout", datasourceSocketTimeout);
+
         ds.setKeepaliveTime(120000);
         return ds;
     }

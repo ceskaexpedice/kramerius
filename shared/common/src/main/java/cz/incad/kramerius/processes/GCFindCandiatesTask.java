@@ -50,7 +50,7 @@ public class GCFindCandiatesTask extends TimerTask {
             }
 
         } catch (Throwable e) {
-            this.gcScheduler.shutdown();
+            //this.gcScheduler.shutdown();
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }

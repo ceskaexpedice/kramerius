@@ -83,7 +83,7 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 
 	@Override
 	public void shutdown() {
-		LOGGER.info("canceling process scheduler");
+		LOGGER.info("Canceling process scheduler");
 		this.timer.cancel();
 	}
 }
