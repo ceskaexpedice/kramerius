@@ -484,7 +484,6 @@ public class CollectionsResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addItemsToCollection(@PathParam("pid") String collectionPid, @QueryParam("indexation") String indexation, String itemsPidsJsonArrayStr) { //primo JSONArray itemsPids jako parametr nefunguje
-        System.out.println(itemsPidsJsonArrayStr);
         try {
             //parse JSON Array on input
             JSONArray itemsPid;

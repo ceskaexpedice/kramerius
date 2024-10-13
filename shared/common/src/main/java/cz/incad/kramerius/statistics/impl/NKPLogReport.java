@@ -332,7 +332,14 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
             map.put("date.str", obj.getString("date.str"));
             
             int start = obj.getInt("date_range_start.year");
+            if (start > -1) {
+                map.put("date_range_start.year", start);
+                
+            }
             int end = obj.getInt("date_range_end.year");
+            if (end > -1) {
+                map.put("date_range_end.year", end);
+            }
             //Issue #1046
             if (start >-1 && start == end ) {
                 map.put("date.publication_year", start);

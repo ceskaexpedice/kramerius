@@ -223,8 +223,6 @@ public class ProcessResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to manage processes (missing action '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
             
-            
-            
             JSONObject result = processInBatchToJson(processInBatch);
             return Response.ok().entity(result.toString()).build();
 

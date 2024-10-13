@@ -1079,10 +1079,19 @@ public class StatisticsResource {
                     JSONArray docsArray = responseObj.getJSONArray("docs");
                     for (int i = 0; i < docsArray.length(); i++) {
                         JSONObject doc = docsArray.getJSONObject(i);
+                        
                         String userSessionAttributes = doc.getString("user_session_attributes");
                         JSONObject changedObj = AnonymizationSupport.annonymizeObject(keys, userSessionAttributes);
-                        doc.put("user_session_attributes", changedObj.toString());
-
+                        //doc.put("user_session_attributes", changedObj.toString());
+                        doc.remove("user_session_attributes");
+                        Set keySet = changedObj.keySet();
+                        for (Object key : keySet) {
+                            if (!doc.has(key.toString())) {
+                                doc.put(key.toString(), changedObj.get(key.toString()));
+                            }
+                        }
+                        
+                        
                         for (String key : keys) {
                             if (doc.has(key)) {
                                 Object object = doc.get(key);

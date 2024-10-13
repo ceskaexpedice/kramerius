@@ -295,7 +295,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas/client/InfoResponse.yaml'
+                type: string
               example: |
                 {
                   "image": {
@@ -352,7 +352,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas/client/InfoResponse.yaml'
+                type: string
               example: |
                  {"type":"tiles"}
         '400':
@@ -383,7 +383,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas/client/InfoResponse.yaml'
+                type: string
               example: |
                   {
                     "licenses":[
@@ -418,7 +418,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas/client/InfoResponse.yaml'
+                type: string
               example: |
                   {
                   "children": {
@@ -483,7 +483,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas/client/InfoResponse.yaml'
+                type: string
               example: |
                         {
                           "image": {
@@ -571,7 +571,6 @@ paths:
           content:
             application/xml:
               schema:
-               #$ref: './schemas/client/MetadataResponse.yaml#/components/schemas/MetadataResponse'
                type: string
               examples:
                 dc:
