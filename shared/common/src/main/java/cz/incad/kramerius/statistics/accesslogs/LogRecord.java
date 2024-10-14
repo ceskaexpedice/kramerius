@@ -468,6 +468,23 @@ public class LogRecord {
             docElm.appendChild(rootTitleElm);
         }
 
+        /*
+        if (this.rootPid != null) {
+            Element rootPidElm = doc.createElement("field");
+            rootPidElm.setAttribute("name", "root_pid");
+            rootPidElm.setTextContent(this.rootPid);
+            docElm.appendChild(rootPidElm);
+        } 
+        */
+
+        if (this.rootModel != null) {
+            Element rootModelElm = doc.createElement("field");
+            rootModelElm.setAttribute("name", "root_model");
+            rootModelElm.setTextContent(this.rootModel);
+            docElm.appendChild(rootModelElm);
+        }
+        
+
         if (this.user != null) {
             Element userField = doc.createElement("field");
             userField.setAttribute("name", "user");

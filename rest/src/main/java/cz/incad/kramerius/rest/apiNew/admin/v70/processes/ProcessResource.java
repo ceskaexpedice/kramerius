@@ -1098,12 +1098,20 @@ public class ProcessResource extends AdminApiResource {
             }
             case "import": {
                 // import directory
-                File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
+
+                File inputDataDir = null;
+                String pathType = extractOptionalParamString(params, "pathtype", "relative");
+                if (pathType.equals("relative")) {
+                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
+                } else { // absolute
+                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir",  null);
+                }
+
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
 
                 String license = extractOptionalParamString(params, "license", null);
                 String collections = extractOptionalParamString(params, "collections", null);
-
+                
                 List<String> result = new ArrayList<>();
                 result.add(inputDataDir.getPath());
                 result.add(startIndexer.toString());
@@ -1123,7 +1131,17 @@ public class ProcessResource extends AdminApiResource {
             }
             case "convert_and_import": {
                 String policy = extractMandatoryParamWithValueFromEnum(params, "policy", Policy.class);
-                File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("convert.directory")));
+                //File inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("convert.directory")));
+
+                File inputDataDir = null;
+                String pathType = extractOptionalParamString(params, "pathtype", "relative");
+                if (pathType.equals("relative")) {
+                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
+                } else { // absolute
+                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir",  null);
+                }
+
+                
                 String convertedDataDirSuffix = new SimpleDateFormat("yyMMdd_HHmmss_SSS").format(System.currentTimeMillis());
                 File convertedDataDir = new File(new File(KConfiguration.getInstance().getProperty("convert.target.directory")), inputDataDir.getName() + "_" + convertedDataDirSuffix);
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
@@ -1459,25 +1477,14 @@ public class ProcessResource extends AdminApiResource {
                 throw new BadRequestException("invalid value of %s (contains forbidden character '%s'): '%s'", paramName, forbiddenChar, paramValue);
             }
         }
-        try {//sanitize against values that would leave the root dir, for example "../../something"
-            // Problems with symlinks  -> property allows use or not use cannonicalpath
-            File paramFile = null;
+        try {
+
             boolean canonical = KConfiguration.getInstance().getConfiguration().getBoolean("io.canonical.file",true);
-            if (canonical) {
-                paramFile = new File(rootDir, paramValue).getCanonicalFile();
+            File paramFile = null;
+            if (rootDir != null) {
+                paramFile = canonical ? new File(rootDir, paramValue).getCanonicalFile() : new File(rootDir, paramValue);
             } else {
-                paramFile = new File(rootDir, paramValue);
-            }
-            String paramFilePath = paramFile.getPath();
-            
-            String rootDirPath = null;
-            if (canonical) {
-                rootDirPath =  rootDir.getCanonicalPath();
-            } else {
-                rootDirPath = rootDir.getPath();
-            }
-            if (!paramFilePath.startsWith(rootDirPath)) {
-                throw new BadRequestException("invalid value of %s (not within root dir '%s'): '%s'", paramName, rootDirPath, paramValue);
+                paramFile = canonical ? new File(paramValue).getCanonicalFile() : new File(paramValue);
             }
             return paramFile;
         } catch (IOException e) { //protoze getCanonicalPath saha na filesystem

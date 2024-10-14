@@ -582,20 +582,6 @@ public class StatisticsResource {
 
 	
 
-//    @GET
-//    @Path("facets/csv/annual")
-//    public Response annualCSVFile(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
-//    }   
-//
-//    @GET
-//    @Path("facets/csv/parts")
-//    public Response authorsCSVFile(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
-//    }   
-//
-//    @GET
-//    @Path("facets/csv/models")
-//    public Response authorsCSVFile(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
-//    }	
 	
 	// pocet, titul, uuid, link 
     @GET
@@ -1062,46 +1048,51 @@ public class StatisticsResource {
                 builder.append(String.format("&rows=%s&start=%s", rows, start));
                 if (StringUtils.isAnyString(dateFrom) && StringUtils.isAnyString(dateTo)) {
                     
-                    validateDateRange(dateFrom, dateTo);
+                    try {
 
-                    //TODO: Change key - this k
-                    List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList("nkp.logs.anonymization", AnonymizationSupport.DEFAULT_ANONYMIZATION_PROPERTIES);
-                    List<String> keys = anonymization.stream().map(Object::toString).collect(Collectors.toList());
-                    
-                    
-                    String encoded = URLEncoder.encode(String.format("date:[%s TO %s]", dateFrom, dateTo), "UTF-8");
-                    builder.append("&fq="+encoded);
-                    InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
-                    String string = org.apache.commons.io.IOUtils.toString(iStream, "UTF-8");
-                    
-                    JSONObject allResp = new JSONObject(string);
-                    JSONObject responseObj = allResp.getJSONObject("response");
-                    JSONArray docsArray = responseObj.getJSONArray("docs");
-                    for (int i = 0; i < docsArray.length(); i++) {
-                        JSONObject doc = docsArray.getJSONObject(i);
+                        validateDateRange(dateFrom, dateTo);
+
+                        //TODO: Change key - this k
+                        List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList("nkp.logs.anonymization", AnonymizationSupport.DEFAULT_ANONYMIZATION_PROPERTIES);
+                        List<String> keys = anonymization.stream().map(Object::toString).collect(Collectors.toList());
                         
-                        String userSessionAttributes = doc.getString("user_session_attributes");
-                        JSONObject changedObj = AnonymizationSupport.annonymizeObject(keys, userSessionAttributes);
-                        //doc.put("user_session_attributes", changedObj.toString());
-                        doc.remove("user_session_attributes");
-                        Set keySet = changedObj.keySet();
-                        for (Object key : keySet) {
-                            if (!doc.has(key.toString())) {
-                                doc.put(key.toString(), changedObj.get(key.toString()));
+                        
+                        String encoded = URLEncoder.encode(String.format("date:[%s TO %s]", dateFrom, dateTo), "UTF-8");
+                        builder.append("&fq="+encoded);
+                        InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
+                        String string = org.apache.commons.io.IOUtils.toString(iStream, "UTF-8");
+                        
+                        JSONObject allResp = new JSONObject(string);
+                        JSONObject responseObj = allResp.getJSONObject("response");
+                        JSONArray docsArray = responseObj.getJSONArray("docs");
+                        for (int i = 0; i < docsArray.length(); i++) {
+                            JSONObject doc = docsArray.getJSONObject(i);
+                            
+                            String userSessionAttributes = doc.getString("user_session_attributes");
+                            JSONObject changedObj = AnonymizationSupport.annonymizeObject(keys, userSessionAttributes);
+                            //doc.put("user_session_attributes", changedObj.toString());
+                            doc.remove("user_session_attributes");
+                            Set keySet = changedObj.keySet();
+                            for (Object key : keySet) {
+                                if (!doc.has(key.toString())) {
+                                    doc.put(key.toString(), changedObj.get(key.toString()));
+                                }
                             }
-                        }
-                        
-                        
-                        for (String key : keys) {
-                            if (doc.has(key)) {
-                                Object object = doc.get(key);
-                                String hashVal = AnonymizationSupport.hashVal(object.toString());
-                                doc.put(key, hashVal);
+                            
+                            
+                            for (String key : keys) {
+                                if (doc.has(key)) {
+                                    Object object = doc.get(key);
+                                    String hashVal = AnonymizationSupport.hashVal(object.toString());
+                                    doc.put(key, hashVal);
+                                }
                             }
+                            
                         }
-                        
+                        return Response.ok().entity(allResp.toString()).build();
+                    } catch(java.time.format.DateTimeParseException ex) {
+                        throw new BadRequestException(ex.getMessage());
                     }
-                    return Response.ok().entity(allResp.toString()).build();
                 } else {
                     throw new BadRequestException("Expecting 'dateFrom' and 'dateTo'");
                 }
