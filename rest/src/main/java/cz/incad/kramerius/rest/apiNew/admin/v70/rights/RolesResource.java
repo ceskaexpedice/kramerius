@@ -87,7 +87,9 @@ public class RolesResource {
     @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     public Response role(@PathParam("id") String roleId) {
         try {
-            if (permit(this.userProvider.get())) {
+            User user = this.userProvider.get();
+            if (permitRead(user) ||  permit(user)) {
+            //if (permit(this.userProvider.get())) {
                 Role role = this.userManager.findRole(Integer.parseInt(roleId));
                 if (role != null) {
                     return Response.ok().entity(roleToJSON(role).toString()).build();
@@ -136,8 +138,8 @@ public class RolesResource {
             @QueryParam("resultSize") String filterResultSize,
             @QueryParam("ordering") String filterOrdering,
             @QueryParam("typefordering") @DefaultValue("ASC")String typeofordering) {
-
-        if (permit(this.userProvider.get())) {
+        User user = this.userProvider.get();
+        if (permitRead(user) ||  permit(user)) {
             try {
                 Offset offset = null;
                 if (StringUtils.isAnyString(filterOffset) || StringUtils.isAnyString(filterResultSize)) {
@@ -249,6 +251,15 @@ public class RolesResource {
         return r;
     }
 
+    boolean permitRead(User user) {
+        if (user != null) {
+            boolean retval = this.rightsResolver.isActionAllowed(user,SecuredActions.A_ROLES_READ.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
+            return retval;
+        } else {
+            return false;
+        }
+    }
+    
     boolean permit(User user) {
     	if (user != null) {
             boolean retval = this.rightsResolver.isActionAllowed(user,SecuredActions.A_ROLES_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag();
