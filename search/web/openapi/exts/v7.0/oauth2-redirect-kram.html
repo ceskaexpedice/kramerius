@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>OAuth2 Redirect</title>
+</head>
+<body>
+  <script>
+    'use strict';
+    // Tento skript umožňuje Swagger UI správně zpracovat OAuth2 redirect
+    function run() {
+      const params = window.location.hash.substring(1);
+      const query = {};
+      params.split('&').forEach(pair => {
+        const [key, value] = pair.split('=');
+        query[key] = decodeURIComponent(value);
+      });
+      window.opener.swaggerUIRedirectOauth2 && window.opener.swaggerUIRedirectOauth2(query);
+      window.close();
+    }
+
+    run();
+  </script>
+</body>
+</html>
