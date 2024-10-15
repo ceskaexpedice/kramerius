@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Klientské API v systému Kramerius
   description: |
-    Popis je platný k verzi 7.0.35 a vyšší. Kramerius obsahuje REST API, které umožňuje všechny operace nad systémem.  Standardně je dostupné na nainstalovaném serveru pod kontextem: `~/search/api/*`.  
+    Popis je platný k verzi 7.0.38 a vyšší. Kramerius obsahuje REST API, které umožňuje všechny operace nad systémem.  Standardně je dostupné na nainstalovaném serveru pod kontextem: `~/search/api/client/v7.0*`.  
     Primárně určeno pro získávání a zobrazování dat pro koncové klienty ([Web klient](https://github.com/ceskaexpedice/kramerius-web-client), [mobilní-klient](https://play.google.com/store/apps/details?id=cz.mzk.kramerius.app), atd..)    
     
   version: "7.0"

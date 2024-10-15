@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Administrační API v systému Kramerius
   description: |
-    Popis je platný k verzi 7.0.35 a vyšší. Kramerius obsahuje REST API, které umožňuje všechny operace nad systémem.   Standardně je dostupné na nainstalovaném serveru pod kontextem: `~/search/api/*`.  
+    Popis je platný k verzi 7.0.38 a vyšší. Kramerius obsahuje REST API, které umožňuje všechny operace nad systémem.   Standardně je dostupné na nainstalovaném serveru pod kontextem: `~/search/api/admin/v7.0*`.  
     Primárně určeno pro administraci  
     
   version: "7.0"
@@ -3309,20 +3309,24 @@ paths:
                   - **startIndexer**: Boolean hodnota určující, zda začít indexaci.
                   - **license**: Typ licence pro import.
                   - **collections**: UUID kolekcí, do kterých budou data importována.  
-                value: {"defid":"import","params":{"inputDataDir":"/d28b2a1a-508e-419e-9d3b-12ed4560138e","startIndexer":true,"license":"dnnto","collections":"uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02"}}                 
+                  - **pathtype**: Typ cesty, možné hodnoty **absolute** nebo **relative**
+
+                value: {"defid":"import","params":{"inputDataDir":"/d28b2a1a-508e-419e-9d3b-12ed4560138e","startIndexer":true,"license":"dnnto","collections":"uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02", "pathtype":"relative"}}     
               importndk:
                 summary: Plánování procesu import/NDK-METS
                 description: |
                   Příklad naplánování procesu importu NDK-METS
                   Popis parametrů:
 
+                  - **policy**: Příznak viditelnosti, ponecháno z důvodu zpětné kompatibility. Pro viditelnost využívejte licenci public nebo onsite  
                   - **inputDataDir**: Cesta k adresáři s daty pro import.
                   - **startIndexer**: Boolean hodnota určující, zda začít indexaci.
                   - **useIIPServer**: Use IIP server.
                   - **license**: Typ licence pro import.
                   - **collections**: UUID kolekcí, do kterých budou data importována.
+                  - **pathtype**: Typ cesty, možné hodnoty **absolute** nebo **relative**
 
-                value: {"defid":"convert_and_import","params":{"policy":"PRIVATE","inputDataDir":"/1c8fc53b-9c82-4bc7-8e1f-038d92749b1f","startIndexer":true,"useIIPServer":true,"license":"dnnto","collections":"uuid:28b00683-977d-4743-ad4b-ff8135f5e263"}}         
+                value: {"defid":"convert_and_import","params":{"policy":"PRIVATE","inputDataDir":"/1c8fc53b-9c82-4bc7-8e1f-038d92749b1f","startIndexer":true,"useIIPServer":true,"license":"dnnto","collections":"uuid:28b00683-977d-4743-ad4b-ff8135f5e263", "pathtype":"relative"}}         
               index_object:
                 summary: Plánování indexace objektu
                 description: |
