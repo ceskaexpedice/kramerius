@@ -1,0 +1,120 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="./swagger-ui.css" />
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
+    <style>
+    /* Styl pro vlastní tlačítka */
+    .app-custom-auth-buttons {
+      background: #f3f3f3;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .app-custom-auth-buttons .app-container {
+      text-align: right;
+      margin: 0 auto;
+      max-width: 1460px;
+      width: 100%;
+      padding: 16px 0;
+    }
+
+    .app-custom-auth-buttons button {
+      margin-left: 5px;
+      padding: 5px 10px;
+    }
+
+
+    .swagger-ui .topbar {
+      display: none;
+    }
+  </style>
+  </head>
+
+  <body>
+
+    <div class="app-custom-auth-buttons">
+      <div class="app-container">
+        <button id="login-button" onclick="login(CLIENT_URL)">Login</button>
+        <button id="logout-button" onclick="logout(CLIENT_URL)" disabled>Logout</button>
+      </div>
+    </div>
+  
+    <div id="swagger-ui"></div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script src="./swagger-ui-bundle.js" charset="UTF-8"> </script>
+    <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
+    <script src="./swagger-initializer.js" charset="UTF-8"> </script>
+    <script src="../../openapi-initializer.js" charset="UTF-8"> </script>
+
+    <script>
+
+			
+        const currentUrl = window.location.origin;
+        window.onload = function() {
+        const ui = SwaggerUIBundle({
+            url: EXTS_DEFINITION_URL, 
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            defaultModelsExpandDepth: -1,
+            validatorUrl : null,
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            plugins: [
+              SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            
+            requestInterceptor: (request) => {
+                if (TOKEN && TOKEN["access_token"]) {
+                    request.headers['Authorization'] = `Bearer ${TOKEN["access_token"]}`;
+                }
+                return request;
+            },
+            
+            layout: "StandaloneLayout"
+      });
+      window.ui = ui;
+
+      setTimeout(function() {
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get('code');
+        const tokenSet = url.searchParams.get('tokenSet');
+        if (code && !tokenSet) {
+            const redirectUri = window.location.origin + CLIENT_URL;
+            const encodedRedirectUri = encodeURIComponent(redirectUri);
+            const tokenUrl = window.location.origin + `/search/api/client/v7.0/user/auth/token?code=${encodeURIComponent(code)}&redirect_uri=${encodedRedirectUri}`;
+            
+            $.get(tokenUrl)
+                .done(function(response) {
+
+                    if (response.error) {
+                        logout(CLIENT_URL);
+                    } else {
+                        TOKEN = response;
+                    }
+                    
+                    
+                    if (TOKEN && TOKEN["access_token"]) { 
+                        $("#login-button").prop("disabled", true);
+                        $("#logout-button").prop("disabled", false);
+                    }
+                    
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                    logout();
+                    console.error('Error fetching token:', textStatus, errorThrown);
+                });
+            }       
+        },1000);
+      
+     };
+  </script>
+  </body>
+</html>

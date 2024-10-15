@@ -1,0 +1,66 @@
+openapi: 3.0.2
+info:
+  title: API pro externí aplikace
+  description: |
+    Popis je platný k verzi 7.0.38 a vyšší. Kramerius obsahuje REST API, které je určeno pro externí aplikace a bude se dále rozšiřovat.
+  version: "7.0"
+
+servers:
+  - url: /search/api/exts/v7.0
+
+tags:
+  
+  - name: Získání servisního tokenu
+    description: >
+        Pokud je potřeba aby aplikace pracovala s JWT tokenem, který má jinou expirační dobu (typicky dlouho trvajicí proces), může administrátor vyrvořit nový objekt v keycloaku typu client, k němu přiřadit servisní roli.  Proces pomocí endpointu krameria, clientId a secret je schopen získat token. Administrátor může upravit vlastnosti klienta dle požadavků procesu
+
+paths:
+  /tokens/{clientid}:
+    get:
+      tags:
+        - Získání servisního tokenu
+      summary: Získání servisního tokenu
+      description: Získání servisního tokenu
+      parameters:
+
+        - name: clientid
+          in: path
+          required: true
+          description: Identifikátor objektu client
+          schema:
+            type: string
+
+        - name: secrets
+          in: query
+          required: true
+          description: Secrets svázaný s přístupem na token. 
+          schema:
+            type: string
+            
+
+      responses:
+        '200':
+          description: JSON odpověď z keycloaku 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                   "access_token": "xxxxfffffaaa",
+                    "expires_in": 36000,
+                    "refresh_expires_in": 0,
+                    "token_type": "Bearer",
+                    "not-before-policy": 0,
+                    "scope": "profile email"
+                  }
+                  
+        '401':
+          description: Neautorizovaný přístup
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                 "error": "unauthorized_client",
+                  "error_description": "Invalid client secret"
+              }

@@ -1,0 +1,3829 @@
+openapi: 3.0.2
+info:
+  title: Administrační API v systému Kramerius
+  description: |
+    Popis je platný k verzi 7.0.35 a vyšší. Kramerius obsahuje REST API, které umožňuje všechny operace nad systémem.   Standardně je dostupné na nainstalovaném serveru pod kontextem: `~/search/api/*`.  
+    Primárně určeno pro administraci  
+    
+  version: "7.0"
+
+servers:
+  - url: /search/api/admin/v7.0
+
+tags:
+  
+  - name: Administrace sbírek
+    description: >
+      Všechny operace nad sbírkou: editace metadat, přidávání do sbírky, odebírání ze sbírky, editace výstřižků, atd..
+      
+  - name: Přístup do importních a exportních dat
+    description: >
+      Získání souborů a adresářů z importních a exportních složek. (Importy FOXML, NDK, Generované logy, atd..)
+
+  - name: Statistiky
+    description: >
+      Všechny operace týkající se statistik
+  
+  - name: Titul
+    description: >
+      Operace nad titulem 
+
+  - name: Licence
+    description: >
+      Vytváření, rušení licencí, priorita, atd.. 
+
+  - name: Role
+    description: >
+      Výpis, vytváření, rušení rolí, atd..
+      
+  - name: Práva
+    description: >
+      Vytvoření, výpis, atd..
+
+  - name: Procesy
+    description: >
+      Výpis, plánování, stopování, atd..
+      
+paths:
+
+  /collections:
+    get:
+      tags:
+        - Administrace sbírek
+      summary: Získání všech sbírek případně sbírek, které obsahují daný objekt 
+      description: |
+        Získání všech sbírek případně sbírek, které obsahují daný objekt 
+      
+      operationId: getCollections
+      parameters:
+        - in: query
+          name: withItem
+          description: PID objektu, v případě vyplnění vrací jenom ty sbírky, které obsahují daný objekt
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Úspěšně získaný resultset 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "collections": [
+                    {
+                      "thumbnail": "content",
+                      "names": {
+                        "cze": "Pokus",
+                        "eng": "Example"
+                      },
+                      "created": "2024-08-03T08:54:45.385",
+                      "standalone": false,
+                      "modified": "2024-08-04T11:53:01.021",
+                      "pid": "uuid:2fe4f178-a742-4b85-9af3-71d554a0c21d",
+                      "descriptions": {
+                        "cze": "Pokus",
+                        "eng": "Example"
+                      }
+                    }
+                  ],
+                  "total_size": 1
+                }
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+    post:
+      tags:
+        - Administrace sbírek
+
+      summary: Vytvoření nové sbírky 
+      description: |
+        Vytvoření nové sbírky 
+
+      operationId: createCollection
+
+      requestBody:
+        description: JSON reprezentace sbírky
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {
+                  "names": {
+                    "cze": "Cesky nazev",
+                    "eng": "Name"
+                  },
+                  "descriptions": {
+                    "cze": "Cesky popisek",
+                    "eng": "Description"
+                  },
+                  "contents": {},
+                  "standalone": true
+                }
+
+      responses:
+        '201':
+          description: Úspěšně vytvořená sbírka
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                    "thumbnail": "none",
+                    "names": {
+                      "cze": "Cesky nazev",
+                      "eng": "Name"
+                    },
+                    "standalone": true,
+                    "pid": "uuid:28b00683-977d-4743-ad4b-ff8135f5e263",
+                    "descriptions": {
+                      "cze": "Cesky popisek",
+                      "eng": "Description"
+                    }
+                  }
+                
+        '400':
+          description: Chybný dotaz
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /collections/{pid}:
+    get:
+      tags:
+        - Administrace sbírek
+
+      summary: Získání plného popisu sbírky
+      description: |
+        Získání plného popisu sbírky 
+
+      operationId: getCollection
+      parameters:
+        - in: path
+          name: pid
+          description: Identifikátor sbírky
+          schema:
+            type: string
+          required: true
+
+      responses:
+        '200':
+          description: Úspěšně získaná sbírka
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "thumbnail": "content",
+                  "names": {
+                      "cze": "RWar"
+                  },
+                  "keywords": {
+                      "cze": [
+                          "test",
+                          "lest",
+                          "pok"
+                      ],
+                      "eng": [
+                          "ahoj",
+                          "jest"
+                      ]
+                  },
+                  "contents": {
+                      "cze": "<p>Dlouhy popis sbirky<\\/p>"
+                  },
+                  "author": "Pavel Stastny",
+                  "created": "2024-08-02T19:40:11.243",
+                  "standalone": false,
+                  "clippingitems": [
+                      {
+                          "thumb": "IMG_0514EF172485DC7BFD7E975B02B7FC21",
+                          "name": "Zar",
+                          "description": "Zar",
+                          "url": "https://k7.inovatika.dev/uuid/uuid:48f84987-3921-11ef-a7a7-001b63bd97ba?bb=659,179,2467,1143"
+                      },
+                      {
+                          "thumb": "IMG_DC6159E55D315F81A3D9FF89C9B8A6A6",
+                          "name": "Pardubice",
+                          "description": "Pardubice",
+                          "url": "https://k7.inovatika.dev/uuid/uuid:48f8709e-3921-11ef-a7a7-001b63bd97ba?bb=509,172,3050,2283"
+                      }
+                  ],
+                  "modified": "2024-09-12T08:33:37.606",
+                  "pid": "uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02",
+                  "descriptions": {
+                      "cze": "Krakty popis sbirky"
+                  },
+                  "items": [
+                      "uuid:31121290-d52e-4206-8723-56cd1fa200c7",
+                      "uuid:b35833b3-7f7f-4cac-a434-484b6e096922"
+                  ]
+              }
+        '400':
+          description: Chybný pid sbírky
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+        '404':
+          description: Sbírka neexistuje
+    
+    put:
+      tags:
+        - Administrace sbírek
+      
+      summary: Update vlastností sbírky
+      description: |
+        Update vlastností sbírky 
+
+      operationId: updateCollection
+
+      parameters:
+        - in: path
+          name: pid
+          description: Identifikátor sbírky
+          schema:
+            type: string
+          required: true
+
+      requestBody:
+        description: JSON reprezentace sbírky
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {
+                  "names": {
+                    "cze": "Cesky nazev",
+                    "eng": "Name"
+                  },
+                  "descriptions": {
+                    "cze": "Cesky popisek",
+                    "eng": "Description"
+                  },
+                  "keywords": {
+                      "cze": [
+                          "test",
+                          "lest",
+                          "pok"
+                      ],
+                      "eng": [
+                          "ahoj",
+                          "jest"
+                      ]
+                  },
+
+                  "contents": {
+                      "cze": "<p>Dlouhy popis sbirky<\\/p>"
+                  },
+                  "standalone": true
+                }
+
+      responses:
+        '200':
+          description: Úspěšně updatovaná sbírka
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "thumbnail": "content",
+                  "names": {
+                      "cze": "RWar"
+                  },
+                  "keywords": {
+                      "cze": [
+                          "test",
+                          "lest",
+                          "pok"
+                      ],
+                      "eng": [
+                          "ahoj",
+                          "jest"
+                      ]
+                  },
+                  "contents": {
+                      "cze": "<p>Dlouhy popis sbirky<\\/p>"
+                  },
+                  "author": "Pavel Stastny",
+                  "created": "2024-08-02T19:40:11.243",
+                  "standalone": false,
+                  "clippingitems": [
+                      {
+                          "thumb": "IMG_0514EF172485DC7BFD7E975B02B7FC21",
+                          "name": "Zar",
+                          "description": "Zar",
+                          "url": "https://k7.inovatika.dev/uuid/uuid:48f84987-3921-11ef-a7a7-001b63bd97ba?bb=659,179,2467,1143"
+                      },
+                      {
+                          "thumb": "IMG_DC6159E55D315F81A3D9FF89C9B8A6A6",
+                          "name": "Pardubice",
+                          "description": "Pardubice",
+                          "url": "https://k7.inovatika.dev/uuid/uuid:48f8709e-3921-11ef-a7a7-001b63bd97ba?bb=509,172,3050,2283"
+                      }
+                  ],
+                  "modified": "2024-09-12T08:33:37.606",
+                  "pid": "uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02",
+                  "descriptions": {
+                      "cze": "Krakty popis sbirky"
+                  },
+                  "items": [
+                      "uuid:31121290-d52e-4206-8723-56cd1fa200c7",
+                      "uuid:b35833b3-7f7f-4cac-a434-484b6e096922"
+                  ]
+              }
+        '400':
+          description: Chybný pid sbírky
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+        '404':
+          description: Sbírka neexistuje
+
+    delete:
+      tags:
+        - Administrace sbírek
+      operationId: deleteCollection
+
+      summary: Smazání sbírky 
+      description: |
+        Smazání sbírky
+    
+      parameters:
+        - in: path
+          name: pid
+          description: Identifikátor sbírky
+          schema:
+            type: string
+          required: true
+  
+      responses:
+        '200':
+          description: Úspěšně smazaná sbírka
+
+        '400':
+          description: Chybný pid sbírky
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Sbírka neexistuje
+
+  /collections/{pid}/items:
+    post:
+      tags:
+        - Administrace sbírek
+      operationId: addToContent
+
+      summary: Přidání objektů do sbírky 
+      description: |
+        Update obsahu sbírky - přidání objektů do sbírky
+
+      parameters:
+        - in: path
+          name: pid
+          description: Identifikátor sbírky
+          schema:
+            type: string
+          required: true
+
+        - in: query
+          name: indexation
+          description: Spustit indexaci
+          schema:
+            type: string
+            enum: ["true","false"]
+          required: true
+
+      requestBody:
+        description: JSON reprezentace obsahu sbírky
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: ["uuid:b92c8b10-4a9a-11e3-ad8c-005056827e52","uuid:c11acb60-f28f-11e2-9923-005056827e52"]
+      responses:
+        '201':
+          description: Úspěšný update obsahu sbírky 
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /collections/prefix:
+    get:
+      tags:
+        - Administrace sbírek
+      operationId: prefixSearch
+
+      summary: Vyhledavání sbírek dle prefixu  
+      description: |
+        Vyhledávání sbírek dle prefixu titulku
+
+      parameters:
+        - in: query
+          name: prefix
+          description: Vyhledavací dotaz, vyhledává se dle všech titlků a používá se prefix search
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: rows
+          description: Počet vrácených řádků
+          schema:
+            type: number
+          required: false
+        - in: query
+          name: page
+          description: Číslo strany výsledků - počítáno od nuly
+          schema:
+            type:  number
+          required: false
+      responses:
+        '200':
+          description: Úspěšně získaný resultset 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "collections": [
+                    {
+                      "thumbnail": "content",
+                      "names": {
+                        "cze": "Pokus",
+                        "eng": "Example"
+                      },
+                      "created": "2024-08-03T08:54:45.385",
+                      "standalone": false,
+                      "modified": "2024-08-04T11:53:01.021",
+                      "pid": "uuid:2fe4f178-a742-4b85-9af3-71d554a0c21d",
+                      "descriptions": {
+                        "cze": "Pokus",
+                        "eng": "Example"
+                      }
+                    }
+                  ],
+                  "total_size": 1
+                }
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /collections/{pid}/image/thumb:
+    post:
+      tags:
+        - Administrace sbírek
+        
+
+      summary: Upload náhledu pro sbírku
+      description: |
+        Upload náhledu pro sbírku
+
+        
+      operationId: uploadThumbnail
+      parameters:
+        - in: path
+          name: pid
+          description: PID identifikátor sbírky
+          schema:
+            type: string
+          required: true
+            
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Náhled pro sbírku
+      responses:
+        '200':
+          description: Náhled úspěšně nahraný
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "thumbnail": "content",
+                  "names": {
+                      "cze": "RWar"
+                  },
+                  "keywords": {
+                      "cze": [
+                          "test",
+                          "lest",
+                          "pok"
+                      ],
+                      "eng": [
+                          "ahoj",
+                          "jest"
+                      ]
+                  },
+                  "contents": {
+                      "cze": "<p>Dlouhy popis sbirky<\\/p>"
+                  },
+                  "author": "Pavel Stastny",
+                  "created": "2024-08-02T19:40:11.243",
+                  "standalone": false,
+                  "clippingitems": [
+                      {
+                          "thumb": "IMG_0514EF172485DC7BFD7E975B02B7FC21",
+                          "name": "Zar",
+                          "description": "Zar",
+                          "url": "https://k7.inovatika.dev/uuid/uuid:48f84987-3921-11ef-a7a7-001b63bd97ba?bb=659,179,2467,1143"
+                      },
+                      {
+                          "thumb": "IMG_DC6159E55D315F81A3D9FF89C9B8A6A6",
+                          "name": "Pardubice",
+                          "description": "Pardubice",
+                          "url": "https://k7.inovatika.dev/uuid/uuid:48f8709e-3921-11ef-a7a7-001b63bd97ba?bb=509,172,3050,2283"
+                      }
+                  ],
+                  "modified": "2024-09-12T08:33:37.606",
+                  "pid": "uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02",
+                  "descriptions": {
+                      "cze": "Krakty popis sbirky"
+                  },
+                  "items": [
+                      "uuid:31121290-d52e-4206-8723-56cd1fa200c7",
+                      "uuid:b35833b3-7f7f-4cac-a434-484b6e096922"
+                  ]
+              }
+        '400':
+          description: Chybný pid sbírky
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /collections/{colpid}/items/{itempid}:
+    delete:
+      tags:
+        - Administrace sbírek
+        
+
+      summary: Smazání položky ze sbírky
+      description: |
+        Smazání položky ze sbírky
+
+      operationId: deleteItemPid
+      parameters:
+        - in: path
+          name: colpid
+          description: Identifikátor sbírky
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: itempid
+          description: Identifikátor mazaného objektu
+          schema:
+            type: string
+          required: true
+
+      responses:
+        '200':
+          description: Úspěšné odstranění ze sbírky 
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /collections/{colpid}/items/delete_batch_items:
+    put:
+      tags:
+        - Administrace sbírek
+        
+
+      summary: Smazání položky ze sbírky
+      description: |
+        Smazání položky ze sbírky
+
+      operationId: deleteBatchItems
+      parameters:
+        - in: path
+          name: colpid
+          description: Identifikátor sbírky
+          schema:
+            type: string
+          required: true
+
+      requestBody:
+        description: JSON reprezentace sbírky
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {
+                  "pids": [
+                      "uuid:31121290-d52e-4206-8723-56cd1fa200c7",
+                      "uuid:b35833b3-7f7f-4cac-a434-484b6e096922"
+                  ]
+                }
+
+      responses:
+        '200':
+          description: Úspěšné odstranění ze sbírky 
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /collections/{colpid}/add_clip_item:
+    post:
+      tags:
+        - Administrace sbírek
+
+      summary: Přidání výstřižků do sbírky
+      description: |
+        Přidání výstřižků do sbírky
+      
+      operationId: addClipItem
+      parameters:
+        - in: path
+          name: colpid
+          description: Identifikátor sbírky
+          schema:
+            type: string
+          required: true
+
+      requestBody:
+        description: JSON reprezentace výstřižku
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {"name":"Popis","description":"Popis","url":"https://k7.inovatika.dev/uuid/uuid:488e8b24-3921-11ef-a7a7-001b63bd97ba?bb=2259,2567,903,861"}
+
+      responses:
+        '200':
+          description: Úspěšné přidání výstřižku 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "thumbnail": "content",
+                  "names": {
+                      "cze": "RWar"
+                  },
+                  "keywords": {
+                      "cze": [
+                          "test",
+                          "lest",
+                          "pok"
+                      ],
+                      "eng": [
+                          "ahoj",
+                          "jest"
+                      ]
+                  },
+                  "contents": {
+                      "cze": "<p>Dlouhy popis sbirky<\\/p>"
+                  },
+                  "author": "Pavel Stastny",
+                  "created": "2024-08-02T19:40:11.243",
+                  "standalone": false,
+                  "clippingitems": [
+                      {
+                          "thumb": "IMG_0514EF172485DC7BFD7E975B02B7FC21",
+                          "name": "Popis",
+                          "description": "Popis",
+                          "url": "https://k7.inovatika.dev/uuid/uuid:488e8b24-3921-11ef-a7a7-001b63bd97ba?bb=2259,2567,903,861"
+                      }
+
+                  ],
+                  "modified": "2024-09-12T08:33:37.606",
+                  "pid": "uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02",
+                  "descriptions": {
+                      "cze": "Krakty popis sbirky"
+                  },
+                  "items": [
+                      "uuid:31121290-d52e-4206-8723-56cd1fa200c7",
+                      "uuid:b35833b3-7f7f-4cac-a434-484b6e096922"
+                  ]
+              }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+          
+  /collections/{colpid}/delete_clip_item:
+    post:
+      tags:
+        - Administrace sbírek
+      summary: Odebrání výstřižků ze sbírky
+      description: |
+        Odebrání výstřižků ze sbírky
+      
+      operationId: deleteClipItem
+      parameters:
+        - in: path
+          name: colpid
+          description: Identifikátor sbírky
+          schema:
+            type: string
+          required: true
+
+      requestBody:
+        description: JSON reprezentace výstřižku
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {"name":"Popis","description":"Popis","url":"https://k7.inovatika.dev/uuid/uuid:488e8b24-3921-11ef-a7a7-001b63bd97ba?bb=2259,2567,903,861"}
+
+      responses:
+        '200':
+          description: Úspěšné přidání výstřižku 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "thumbnail": "content",
+                  "names": {
+                      "cze": "RWar"
+                  },
+                  "keywords": {
+                      "cze": [
+                          "test",
+                          "lest",
+                          "pok"
+                      ],
+                      "eng": [
+                          "ahoj",
+                          "jest"
+                      ]
+                  },
+                  "contents": {
+                      "cze": "<p>Dlouhy popis sbirky<\\/p>"
+                  },
+                  "author": "Pavel Stastny",
+                  "created": "2024-08-02T19:40:11.243",
+                  "standalone": false,
+                  "clippingitems": [
+
+                  ],
+                  "modified": "2024-09-12T08:33:37.606",
+                  "pid": "uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02",
+                  "descriptions": {
+                      "cze": "Krakty popis sbirky"
+                  },
+                  "items": [
+                      "uuid:31121290-d52e-4206-8723-56cd1fa200c7",
+                      "uuid:b35833b3-7f7f-4cac-a434-484b6e096922"
+                  ]
+              }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+  
+  /collections/{colpid}/delete_batch_clipitems:
+    put:
+      tags:
+        - Administrace sbírek
+      summary: Dávkové odebrání výstřižků ze sbírky
+      description: |
+        Dávkové odebrání výstřižků ze sbírky
+      
+
+      operationId: deleteClipBatchItems
+      parameters:
+        - in: path
+          name: colpid
+          description: Identifikátor sbírky
+          schema:
+            type: string
+          required: true
+
+      requestBody:
+        description: JSON reprezentace výstřižku
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: { "clippingitems": [
+                      {
+                          "thumb": "IMG_0514EF172485DC7BFD7E975B02B7FC21",
+                          "name": "Popis",
+                          "description": "Popis",
+                          "url": "https://k7.inovatika.dev/uuid/uuid:488e8b24-3921-11ef-a7a7-001b63bd97ba?bb=2259,2567,903,861"
+                      }
+                  ]}
+      responses:
+        '200':
+          description: Úspěšné přidání výstřižku 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "thumbnail": "content",
+                  "names": {
+                      "cze": "RWar"
+                  },
+                  "keywords": {
+                      "cze": [
+                          "test",
+                          "lest",
+                          "pok"
+                      ],
+                      "eng": [
+                          "ahoj",
+                          "jest"
+                      ]
+                  },
+                  "contents": {
+                      "cze": "<p>Dlouhy popis sbirky<\\/p>"
+                  },
+                  "author": "Pavel Stastny",
+                  "created": "2024-08-02T19:40:11.243",
+                  "standalone": false,
+                  "clippingitems": [
+
+                  ],
+                  "modified": "2024-09-12T08:33:37.606",
+                  "pid": "uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02",
+                  "descriptions": {
+                      "cze": "Krakty popis sbirky"
+                  },
+                  "items": [
+                      "uuid:31121290-d52e-4206-8723-56cd1fa200c7",
+                      "uuid:b35833b3-7f7f-4cac-a434-484b6e096922"
+                  ]
+              }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /files/output-data-dir-for_collectionsbackup/{path}:
+    get:
+      tags:
+        - Přístup do importních a exportních dat
+      summary: Přístup do složky pro  zálohy sbírek
+      description: |
+        Přístup do složky pro zálohy sbírek 
+
+      operationId: getCollectionsBackups
+
+      parameters:
+        - name: path
+          in: path
+          description: Cesta ke specifickému souboru nebo adresáři ve složce pro backup sbírek
+          required: true
+          schema:
+            type: string
+        - name: generatedownloads
+          in: query
+          description: Zda má rovněž generovat download link
+          required: false
+          schema:
+            type: boolean
+            
+      responses:
+        '200':
+          description: Úspěšné získání seznamu 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                    "rootDir": "/root/.kramerius4/import/",
+                    "files": [
+                        {
+                            "lastModifiedTime": 1719867550113,
+                            "lastAccessTime": 1719926700235,
+                            "name": "d28b2a1a-508e-419e-9d3b-12ed4560138e",
+                            "isDir": true
+                        },
+                        {
+                            "lastModifiedTime": 1719867551097,
+                            "lastAccessTime": 1719867578945,
+                            "name": "k4_1c8fc53b-9c82-4bc7-8e1f-038d92749b1f",
+                            "isDir": true
+                        },
+                        {
+                            "lastModifiedTime": 1719867549701,
+                            "lastAccessTime": 1719867578945,
+                            "name": "k4_77970356-2bf4-430a-92cf-6a9a58ae58b6",
+                            "isDir": true
+                        },
+                        {
+                            "lastModifiedTime": 1719867551093,
+                            "lastAccessTime": 1719867578945,
+                            "name": "k4_dd5c6f25-b415-40ee-97b6-71653a8618e6",
+                            "isDir": true
+                        },
+                        {
+                            "lastModifiedTime": 1721135638301,
+                            "lastAccessTime": 1725355798501,
+                            "name": "proarc-export",
+                            "isDir": true
+                        },
+                        {
+                            "lastModifiedTime": 1719867549801,
+                            "lastAccessTime": 1719867578945,
+                            "name": "testLs",
+                            "isDir": true
+                        }
+                    ]
+                }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /files/output-data-dir-for_nkplogs/{path}:
+    get:
+      tags:
+        - Přístup do importních a exportních dat
+      summary: Přístup do složky pro export nkp logů
+      description: |
+        Přístup do složky pro export nkp logů 
+
+      operationId: getNKPLogs
+
+      parameters:
+        - name: path
+          in: path
+          description: Cesta ke specifickému souboru nebo adresáři ve složce pro export nkp logů
+          required: true
+          schema:
+            type: string
+        - name: generatedownloads
+          in: query
+          description: Zda má rovněž generovat download link
+          required: false
+          schema:
+            type: boolean
+      
+      responses:
+        '200':
+          description: Úspěšné získání seznamu
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                          "rootDir": "/root/.kramerius4/statistics/",
+                          "files": [
+                              {
+                                  "lastModifiedTime": 1728549184165,
+                                  "lastAccessTime": 1728549373130,
+                                  "name": "statistics-2024.09.10-2024.10.11.zip",
+                                  "isDir": false
+                              }
+                          ]
+                      }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /files/input-data-dir-for_import-foxml/{path}:
+    get:
+      tags:
+        - Přístup do importních a exportních dat
+      summary: Přístup do složky pro import foxml souborů
+      description: |
+        Přístup do složky pro import foxml souborů
+
+      operationId: getImportFOXML
+
+      parameters:
+        - name: path
+          in: path
+          description: Cesta ke specifickému souboru nebo adresáři ve složce pro export nkp logů
+          required: true
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Úspěšné získání seznamu 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                        "rootDir": "/root/.kramerius4/import/",
+                        "files": [
+                            {
+                                "lastModifiedTime": 1719867550113,
+                                "lastAccessTime": 1719926700235,
+                                "name": "d28b2a1a-508e-419e-9d3b-12ed4560138e",
+                                "isDir": true
+                            },
+                            {
+                                "lastModifiedTime": 1719867551097,
+                                "lastAccessTime": 1719867578945,
+                                "name": "k4_1c8fc53b-9c82-4bc7-8e1f-038d92749b1f",
+                                "isDir": true
+                            },
+                            {
+                                "lastModifiedTime": 1719867549701,
+                                "lastAccessTime": 1719867578945,
+                                "name": "k4_77970356-2bf4-430a-92cf-6a9a58ae58b6",
+                                "isDir": true
+                            },
+                            {
+                                "lastModifiedTime": 1719867551093,
+                                "lastAccessTime": 1719867578945,
+                                "name": "k4_dd5c6f25-b415-40ee-97b6-71653a8618e6",
+                                "isDir": true
+                            },
+                            {
+                                "lastModifiedTime": 1721135638301,
+                                "lastAccessTime": 1725355798501,
+                                "name": "proarc-export",
+                                "isDir": true
+                            },
+                            {
+                                "lastModifiedTime": 1719867549801,
+                                "lastAccessTime": 1719867578945,
+                                "name": "testLs",
+                                "isDir": true
+                            }
+                        ]
+                    }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+  
+  /files/input-data-dir-for_convert-and-import-ndk/{path}:
+    get:
+      tags:
+        - Přístup do importních a exportních dat
+      summary: Přístup do složky pro import NDK balíčků
+      description: |
+        Přístup do složky pro import NDK balíčků
+
+      operationId: getImportNDK
+
+      parameters:
+        - name: path
+          in: path
+          description: Cesta ke specifickému souboru nebo adresáři ve složce pro import
+          required: true
+          schema:
+            type: string
+      
+      responses:
+        '200':
+          description: Úspěšné získání seznamu 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                        "rootDir": "/root/.kramerius4/import/",
+                        "files": [
+                            {
+                                "lastModifiedTime": 1719867550113,
+                                "lastAccessTime": 1719926700235,
+                                "name": "d28b2a1a-508e-419e-9d3b-12ed4560138e",
+                                "isDir": true
+                            },
+                            {
+                                "lastModifiedTime": 1719867551097,
+                                "lastAccessTime": 1719867578945,
+                                "name": "k4_1c8fc53b-9c82-4bc7-8e1f-038d92749b1f",
+                                "isDir": true
+                            },
+                            {
+                                "lastModifiedTime": 1719867549701,
+                                "lastAccessTime": 1719867578945,
+                                "name": "k4_77970356-2bf4-430a-92cf-6a9a58ae58b6",
+                                "isDir": true
+                            },
+                            {
+                                "lastModifiedTime": 1719867551093,
+                                "lastAccessTime": 1719867578945,
+                                "name": "k4_dd5c6f25-b415-40ee-97b6-71653a8618e6",
+                                "isDir": true
+                            },
+                            {
+                                "lastModifiedTime": 1721135638301,
+                                "lastAccessTime": 1725355798501,
+                                "name": "proarc-export",
+                                "isDir": true
+                            },
+                            {
+                                "lastModifiedTime": 1719867549801,
+                                "lastAccessTime": 1719867578945,
+                                "name": "testLs",
+                                "isDir": true
+                            }
+                        ]
+                    }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /files/pidlist-dir/{path}:
+    get:
+      tags:
+        - Přístup do importních a exportních dat
+      summary: Přístup do spožky pro seznam pidů
+      description: |
+        Přístup do spožky pro seznam pidů
+
+      operationId: getPidList
+
+      parameters:
+        - name: path
+          in: path
+          description: Cesta ke specifickému souboru nebo adresáři ve složce pro import
+          required: true
+          schema:
+            type: string
+      
+      responses:
+        '200':
+           description: Úspěšné získání seznamu 
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /files/download-path/{path}:
+    get:
+      tags:
+        - Přístup do importních a exportních dat
+      
+      summary: Přístup pro download linky
+      description: |
+        Přístup pro downlink
+
+      operationId: getDownload
+
+      parameters:
+        - name: path
+          in: path
+          description: Cesta k souboru pro který byl vygenerovaný download link
+          required: true
+          schema:
+            type: string
+      
+      responses:
+        '200':
+           description: Úspěšné získání souboru 
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+  
+  /statistics:
+
+    delete:
+      tags:
+        - Statistiky
+      summary: Smazání statistických záznamů
+      description: |
+        Smazání statistických záznamů
+
+      operationId: deleteLogs
+
+      parameters:
+        - name: dateFrom
+          in: query
+          required: true
+          description: Počáteční datum pro čištění statistických dat 
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          required: true
+          description: Konečné datum pro čištění statistických dat 
+          schema:
+            type: string
+            format: date      
+      responses:
+        '200':
+          description: Úspěšné smazání dat 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                      "deleted":103
+                    }
+        '400':
+          description: Chybný požadavek 
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /statistics/facets/csv/{type}:
+    get:
+      tags:
+        - Statistiky
+      summary: Generovani csv pro facet langs / agregace dle jazyku
+      description: |
+        Generovani csv pro facet langs / agregace dle jazyku
+      parameters:
+        - name: type
+          in: path
+          description: Typ csv souboru
+          schema:
+            type: string
+            enum: [provided_by_license, authors, langs, all_models]
+          example: '*'
+          required: true
+          
+        - name: q
+          in: query
+          description: Solr query parameter
+          schema:
+            type: string
+          example: '*'
+          
+        - name: rows
+          in: query
+          description: Počet řádků v odpovědi solru
+          schema:
+            type: integer
+          example: 0
+
+        - name: facet
+          in: query
+          description: Povolení neb
+          schema:
+            type: boolean
+          example: true
+
+        - name: facet.mincount
+          in: query
+          description: Minimum count of facet values to be included
+          schema:
+            type: integer
+          example: 1
+
+        - name: facet.field
+          in: query
+          description: The facet fields to be included
+          schema:
+            type: string
+            enum: [provided_by_license, authors, langs, all_models]
+
+            
+        - name: fq
+          in: query
+          description: Filtr query, ktere limituje vysledek
+          schema:
+            type: string
+          example: date:[2024-09-09T22:00:00.000Z TO 2024-10-10T22:00:00.000Z]
+
+        - name: fmt_headers
+          in: query
+          description: Hlavičky pro CSV soubor
+          schema:
+            type: array
+            items:
+              type: string
+          example: [Count, Lang]
+
+        - name: fmt_firstlinecomment
+          in: query
+          description: První řádek jako komentář do generovaného csv
+          schema:
+            type: string
+          example: Lang csv
+
+        - name: fmt_filename
+          in: query
+          description: Jméno generováného souboru
+          schema:
+            type: string
+          example: langs.csv
+
+      responses:
+        '200':
+          description: Soubor vygenerován
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+              example: |
+                # Lang csv
+                # date:[2024-09-13T22:00:00.000Z,2024-10-14T22:00:00.000Z]
+                Count;Lang
+                24;cze
+                4;eng
+          headers:
+            Content-Disposition:
+              description: Jméno generováného souboru
+              schema:
+                type: string
+                example: attachment; filename="langs.csv"
+              
+        '400':
+          description: Špatný dotaz
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /statistics/search:
+    get:
+      tags:
+        - Statistiky
+      summary: Vyhledávní v logu přístupů. Používá admin prostředí pro rendrování statistik
+      description: Endpoint umožňuje vyhledávání dle zadaných kritérií a vrací výsledky buď ve formátu JSON nebo XML podle požadovaného parametru. _Parametry jsou uvedené jenom ty základní. Pro úplný přehled všech parametrů jděte sem_ 
+      parameters:
+
+        - in: query
+          name: q
+          description: Samotný dotaz do solru
+          schema:
+            type: string
+          required: true
+
+        - in: query
+          name: fl
+          description: Seznam polí ve výsledku
+          schema:
+            type: string
+          required: false
+
+        - in: query
+          name: fq
+          description: Filter query
+          schema:
+            type: array
+            items:
+                type: string
+          required: false
+
+        - in: query
+          name: sort
+          description: Pole pro třídění
+          schema:
+            type: string
+          required: false
+
+        - in: query
+          name: start
+          description: Počet dokumentů od kterých se má vracet výsledek
+          schema:
+            type: integer
+          required: false
+
+        - in: query
+          name: rows
+          description: Počet dokumentů v odpovědi
+          schema:
+            type: integer
+          required: false
+
+        - in: query
+          name: facet
+          description: Faseting
+          schema:
+            type: boolean
+          required: false
+
+        - in: query
+          name: facet.field
+          description: Pole pro fasetování
+          schema:
+            type: string
+          required: false
+
+        - in: query
+          name: facet.mincount
+          description: Minimální počet výsledků ve fasetu
+          schema:
+            type: integer
+          required: false
+        
+
+        - in: query
+          name: wt
+          schema:
+            type: string
+            enum: ["xml","json"]
+          required: false
+      responses:
+        '200':
+          description: Vrací výsledek dotazu 
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "responseHeader": {
+                    "status": 0,
+                    "QTime": 2,
+                    "params": {
+                      "q": "*",
+                      "facet.field": [
+                        "provided_by_license",
+                        "authors",
+                        "langs",
+                        "all_models"
+                      ],
+                      "facet.mincount": "1",
+                      "fq": "date:[2024-09-13T22:00:00.000Z TO 2024-10-14T22:00:00.000Z]",
+                      "rows": "0",
+                      "facet": "true",
+                      "wt": "json"
+                    }
+                  },
+                  "response": {
+                    "numFound": 28,
+                    "start": 0,
+                    "numFoundExact": true,
+                    "docs": []
+                  },
+                  "facet_counts": {
+                    "facet_queries": {
+
+                    },
+                    "facet_fields": {
+                      "provided_by_license": [
+                        "public",
+                        17, "onsite",
+                        3],
+                      "authors": [
+                        "Krajský výbor (Pardubice, Česko)",
+                        24, "Okresní národní výbor",
+                        24, "Jurajda, Štěpán, 1970-",
+                        4, "Kovač, Dejan, 1984-",
+                        4, "Národohospodářský ústav (Akademie věd ČR)",
+                        4, "Univerzita Karlova Centrum pro ekonomický výzkum a doktorské studium",
+                        4, "Zápal, Jan",
+                        4, "jo2017953195",
+                        4, "kn20020321166",
+                        4, "mzk2009517323",
+                        4, "olak2002113688",
+                        4, "xx0003189",
+                        4],
+                      "langs": [
+                        "cze",
+                        24, "eng",
+                        4],
+                      "all_models": [
+                        "page",
+                        24, "periodical",
+                        24, "periodicalitem",
+                        24, "periodicalvolume",
+                        24, "monograph",
+                        4]
+                    },
+                    "facet_ranges": {
+
+                    },
+                    "facet_intervals": {
+
+                    },
+                    "facet_heatmaps": {
+
+                    }
+                  }
+                }
+                
+            application/xml:
+              schema:
+                type: string
+              example: |
+                    <?xml version="1.0" encoding="UTF-8"?><response><lst name="responseHeader">  <int name="status">0</int>  <int name="QTime">4</int>  <lst name="params">    <str name="q">*</str>    <arr name="facet.field">      <str>provided_by_license</str>      <str>authors</str>      <str>langs</str>      <str>all_models</str>    </arr>    <str name="facet.mincount">1</str>    <str name="fq">date:[2024-09-13T22:00:00.000Z TO 2024-10-14T22:00:00.000Z]</str>    <str name="rows">0</str>    <str name="facet">true</str>    <arr name="wt">      <str>xml</str>      <str>xml</str>    </arr>  </lst></lst><result name="response" numFound="28" start="0" numFoundExact="true"></result><lst name="facet_counts">  <lst name="facet_queries"/>  <lst name="facet_fields">    <lst name="provided_by_license">      <int name="public">17</int>      <int name="onsite">3</int>    </lst>    <lst name="authors">      <int name="Krajský výbor (Pardubice, Česko)">24</int>      <int name="Okresní národní výbor">24</int>      <int name="Jurajda, Štěpán, 1970-">4</int>      <int name="Kovač, Dejan, 1984-">4</int>      <int name="Národohospodářský ústav (Akademie věd ČR)">4</int>      <int name="Univerzita Karlova Centrum pro ekonomický výzkum a doktorské studium">4</int>      <int name="Zápal, Jan">4</int>      <int name="jo2017953195">4</int>      <int name="kn20020321166">4</int>      <int name="mzk2009517323">4</int>      <int name="olak2002113688">4</int>      <int name="xx0003189">4</int>    </lst>    <lst name="langs">      <int name="cze">24</int>      <int name="eng">4</int>    </lst>    <lst name="all_models">      <int name="page">24</int>      <int name="periodical">24</int>      <int name="periodicalitem">24</int>      <int name="periodicalvolume">24</int>      <int name="monograph">4</int>    </lst>  </lst>  <lst name="facet_ranges"/>  <lst name="facet_intervals"/>  <lst name="facet_heatmaps"/></lst></response>
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+                
+  /statistics/logs:
+    get:
+      tags:
+        - Statistiky
+      summary: Přístup do logů jádra dle zadaného rozsahu. Určeno pro statistické moduly
+      description: Vrací logy dle zadaných kritérií. Maximální rozsah je 120 hodin 
+      parameters:
+        - name: dateFrom
+          in: query
+          required: true
+          description: Počáteční datum "YYYY-MM-DD".
+          schema:
+            type: string
+            format: date-time
+          example: 2024-10-14T00:00:00Z
+        - name: dateTo
+          in: query
+          required: true
+          description: Koncové datum "YYYY-MM-DD".
+          schema:
+            type: string
+            format: date-time
+          example: 2024-10-14T00:00:00Z
+        - name: rows
+          in: query
+          required: false
+          description: Počet vrácených řádků
+          schema:
+            type: string
+            default: "10"
+        - name: start
+          in: query
+          required: false
+          description: Počáteční bod stránkování
+          schema:
+            type: string
+            default: "0"
+      responses:
+        '200':
+          description: Vrácené logy dle zadaných kritériíí
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                    "response": {
+                      "docs": [
+                        {
+                          "date": "2024-10-13T17:53:31.080Z",
+                          "pids_page": [
+                            "uuid:4aa843db-3921-11ef-a7a7-001b63bd97ba"
+                          ],
+                          "pids_periodicalitem": [
+                            "uuid:ad11c4fb-91d5-4d92-854e-e026df09ed8b"
+                          ],
+                          "provided_by_license": "public",
+                          "date_range_start.year": 1952,
+                          "pid": "uuid:4aa843db-3921-11ef-a7a7-001b63bd97ba",
+                          "all_pids": [
+                            "uuid:06011240-a943-4efe-9f89-6707453b5f3d",
+                            "uuid:d0134941-11e8-43a1-ac7f-c2bfc74fa663",
+                            "uuid:ad11c4fb-91d5-4d92-854e-e026df09ed8b",
+                            "uuid:4aa843db-3921-11ef-a7a7-001b63bd97ba"
+                          ],
+                          "issue_dates": [
+                            "02.05.1952",
+                            "1952",
+                            "[1945]-1992"
+                          ],
+                          "session_token": "3BDD4142C7AF7A1097B6682F7DE85B9B",
+                          "pid_paths": [
+                            "uuid:06011240-a943-4efe-9f89-6707453b5f3d/uuid:d0134941-11e8-43a1-ac7f-c2bfc74fa663/uuid:ad11c4fb-91d5-4d92-854e-e026df09ed8b/uuid:4aa843db-3921-11ef-a7a7-001b63bd97ba"
+                          ],
+                          "pids_periodicalvolume": [
+                            "uuid:d0134941-11e8-43a1-ac7f-c2bfc74fa663"
+                          ],
+                          "publishers": [
+                            "KV KSČ",
+                            "ONV",
+                            "Polabí"
+                          ],
+                          "langs": [
+                            "cze"
+                          ],
+                          "id": "c3ecfcae-d3a8-45aa-b067-39f80381653f",
+                          "licences": [
+                            "public",
+                            "onsite"
+                          ],
+                          "pids_periodical": [
+                            "uuid:06011240-a943-4efe-9f89-6707453b5f3d"
+                          ],
+                          "reported_action": "READ",
+                          "evaluated_map": "{\"providedByLabel\":\"public\",\"providedByLicense\":\"public\"}",
+                          "all_models": [
+                            "periodical",
+                            "periodicalvolume",
+                            "periodicalitem",
+                            "page"
+                          ],
+                          "own_model_path": "periodical/periodicalvolume/periodicalitem/page",
+                          "requested_url": "http://k7.inovatika.dev/search/iiif/uuid:4aa843db-3921-11ef-a7a7-001b63bd97ba/info.json",
+                          "hrh_referer": "https://k7.inovatika.dev/view/uuid:ad11c4fb-91d5-4d92-854e-e026df09ed8b?page=uuid:4aa843db-3921-11ef-a7a7-001b63bd97ba",
+                          "ip_address": "HMEU8cx48zMXS6jFG55oqA==",
+                          "titles": [
+                            "1",
+                            "Zář"
+                          ],
+                          "db_version": "7.0.4",
+                          "date_range_end.year": 1952,
+                          "licenses": [
+                            "public",
+                            "onsite"
+                          ],
+                          "_version_": 1812822240612319200,
+                          "date.str": "02.05.1952",
+                          "root_title": "Zář: list KSČ pardubického kraje",
+                          "user": "not_logged",
+                          "own_pid_path": "uuid:06011240-a943-4efe-9f89-6707453b5f3d/uuid:d0134941-11e8-43a1-ac7f-c2bfc74fa663/uuid:ad11c4fb-91d5-4d92-854e-e026df09ed8b/uuid:4aa843db-3921-11ef-a7a7-001b63bd97ba",
+                          "authors": [
+                            "Krajský výbor (Pardubice, Česko)",
+                            "Okresní národní výbor"
+                          ]
+                        }
+                      ],
+                      "numFound": 3,
+                      "start": 0,
+                      "numFoundExact": true
+                    },
+                    "responseHeader": {
+                      "QTime": 21,
+                      "params": {
+                        "q": "*",
+                        "start": "0",
+                        "fq": "date:[2024-10-13T00:00:00Z TO 2024-10-14T00:00:00Z]",
+                        "rows": "10",
+                        "wt": "json"
+                      },
+                      "status": 0
+                    }
+                  } 
+              
+        '400':
+          description: Špatně formátovaný parameter dateFrom a/nebo dateTo.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /statistics/anual/csv:
+    get:
+      tags:
+        - Statistiky
+      summary: Generovani ročního výkazu
+      description: Vrací csv pro roční výkaz
+      parameters:
+        - name: year
+          in: query
+          required: true
+          description: Rok pro který se má výkaz generovat
+          schema:
+            type: string
+        - name: fmt_filename
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Vrací vygenerovaný CSV soubor
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+              example: |
+                # Sample CSV content
+                "100","monograph"
+                "50","periodicalvolume"
+        '400':
+          description: Nevalidní parametr
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+  
+  /items:
+    get:
+      tags:
+        - Titul
+      summary: Získání položek dle modelu.
+      description: Vrací seznam titulů z úložiště dle modelu, offsetu, kurzoru a limitu. Vyžaduje oprávnění pro čtení.
+      parameters:
+        - name: model
+          in: query
+          required: true
+          description: Model položky, pro kterou se mají vrátit položky.
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: false
+          description: Počet položek, které se mají přeskočit.
+          schema:
+            type: integer
+            default: 0
+        - name: cursor
+          in: query
+          required: false
+          description: Kurzor pro stránkování výsledků.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: Maximální počet vrácených položek.
+          schema:
+            type: integer
+            default: 10
+        - name: order
+          in: query
+          required: false
+          description: Určuje pořadí výsledků, možné hodnoty jsou 'ASC' nebo 'DESC'.
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+      responses:
+        '200':
+          description: Úspěšně vrací seznam položek jako řetězec.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                  "model": "monograph",
+                  "items": [
+                      {
+                          "pid": "uuid:33244df3-e448-4a2c-b69f-3a0fb96fc8c7",
+                          "title": "Marná sláva: profesorské romanetto"
+                      },
+                      {
+                          "pid": "uuid:9cd864d5-981a-42bb-badc-2d8160488ac2",
+                          "title": "What's in a name in a war"
+                      }
+                  ]
+              } 
+                          
+        '400':
+          description: Chybný požadavek - chybí nebo je neplatný parametr.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                 "message": "missing mandatory query param 'model'"
+              }
+                
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /items/models:
+    get:
+      tags:
+        - Titul
+      summary: Získání seznamu modelů z úložiště.
+      description: Vrací seznam všech modelů z Fedora úložiště. Pouze oprávnění uživatelé mohou volat tento endpoint.
+      responses:
+        '200':
+          description: Úspěšně vrací seznam modelů jako string.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                 "model:periodical": 1,
+                  "model:monograph": 2,
+                  "model:collection": 3,
+                  "model:periodicalitem": 90,
+                  "model:page": 850,
+                  "model:periodicalvolume": 2
+          }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /items/{pid}/foxml:
+    get:
+      tags:
+        - Titul
+      summary: Získání FOXML dokumentu.
+      description: Vrací FOXML dokument pro zadané PID. Uživatel musí mít oprávnění k přečtení nebo úpravě objektu.
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: PID objektu, pro který se má získat FOXML dokument.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Úspěšně vrací FOXML dokument.
+          content:
+            application/xml:
+              schema:
+                type: string
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+         
+        '404':
+          description: Objekt s daným PID nebyl nalezen.
+
+  /items/{pid}/children_order:
+    put:
+      tags:
+        - Titul
+      summary: Nastavení pořadí dětí pro daný objekt.
+      description: Umožňuje nastavit nové pořadí dětí pro objekt podle PID. Uživatel musí mít oprávnění k přečtení objektu.
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: PID objektu, pro který se nastavuje pořadí dětí.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {"childrenPids":["uuid:b35833b3-7f7f-4cac-a434-484b6e096922","uuid:31121290-d52e-4206-8723-56cd1fa200c7"]}
+      responses:
+        '200':
+          description: Úspěšně nastaveno nové pořadí dětí.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {"childrenPids":["uuid:b35833b3-7f7f-4cac-a434-484b6e096922","uuid:31121290-d52e-4206-8723-56cd1fa200c7"]}
+
+              
+        '400':
+          description: Chyba při zpracování - některé PID dětí nejsou nalezeny v RELS-EXT nebo chybí v požadovaných datech.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: { "message": "'badpid' is not in supported PID format for this operation"
+            }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Objekt s daným PID nebyl nalezen.
+
+  /items/{pid}:
+    delete:
+      tags:
+        - Titul
+      summary: Odstranění objektu podle PID.
+      description: Umožňuje odstranit objekt určený jeho PID. Uživatel musí mít oprávnění k přečtení objektu.
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: PID objektu, který má být odstraněn.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Objekt byl úspěšně odstraněn.
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Chyba při zpracování - některé PID dětí nejsou nalezeny v RELS-EXT nebo chybí v požadovaných datech.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: { "message": "'badpid' is not in supported PID format for this operation"
+            }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Objekt s daným PID nebyl nalezen.
+
+  /licenses:
+    get:
+      tags:
+        - Licence
+      summary: Vrací všechny licence
+      operationId: getAllLicenses
+      description: Vrací všechny licence
+      responses:
+        '200':
+          description: JSON reprezentace licencí
+          content:
+            application/json:
+              schema:
+                type: string
+              example: [{
+                        "name": "dnntt",
+                        "description": "DNNT terminal license",
+                        "id": 1,
+                        "priority": 1,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "dnnto",
+                        "description": "DNNT online license",
+                        "id": 2,
+                        "priority": 2,
+                        "group": "embedded"
+                    }]
+
+  /licenses/global:
+    get:
+      tags:
+        - Licence
+      summary: Vrací všechny globální licence
+      operationId: getGlobalLicenses
+      description: Vrací globální licence
+      responses:
+        '200':
+          description: JSON reprezentace licencí
+          content:
+            application/json:
+              schema:
+                type: string
+              example: [{
+                        "name": "dnntt",
+                        "description": "DNNT terminal license",
+                        "id": 1,
+                        "priority": 1,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "dnnto",
+                        "description": "DNNT online license",
+                        "id": 2,
+                        "priority": 2,
+                        "group": "embedded"
+                    }]
+
+  /licenses/local:
+    get:
+      tags:
+        - Licence
+      summary: Vrací všechny lokální licence
+      operationId: getLocalLicenses
+      description: Vrací lokální licence
+      responses:
+        '200':
+          description: JSON reprezentace licencí
+          content:
+            application/json:
+              schema:
+                type: string
+              example: [{
+                          "name": "inovatika_licence_zamek",
+                          "description": "Zamek s licenci",
+                          "exclusive": true,
+                          "maxreaders": 1,
+                          "id": 8,
+                          "refreshinterval": 20,
+                          "priority": 8,
+                          "type": "RULE",
+                          "maxinterval": 10000,
+                          "group": "local"
+                      }]
+                
+    post:
+      tags:
+        - Licence
+      summary: Vytváří novou lokální licenci
+      operationId: createLocalLicense
+      description: Vytváří novou lokální licenci
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example:  {
+                "name": "inovatika_test",
+                "description": "test",
+                "priority": 9,
+                "group": "local"
+            }
+      responses:
+        '200':
+          description: JSON reprezentace vytvořemé licence
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                "name": "inovatika_test",
+                "description": "test",
+                "id": 9,
+                "priority": 9,
+                "group": "local"
+            }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /licenses/local/{id}:
+    get:
+      tags:
+        - Licence
+      summary: Vrací lokální licence dle podaného id
+      operationId: getLicenseById
+      description: Získá lokálni licenci dle id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id licence
+          schema:
+            type: string
+            pattern: '^[0-9]+$'
+      responses:
+        '200':
+          description: JSON reprezentace licence
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                     "name": "inovatika_licence_zamek",
+                     "description": "Zamek s licenci",
+                     "exclusive": true,
+                     "maxreaders": 1,
+                     "id": 8,
+                     "refreshinterval": 20,
+                     "priority": 8,
+                     "type": "RULE",
+                     "maxinterval": 10000,
+                     "group": "local"}
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci                
+        '404':
+          description: Licence nenalezena.
+
+    put:
+      tags:
+        - Licence
+      summary: Modifikuje lokální licenci
+      operationId: updateLocalLicense
+      description: Modifikuje lokální licenci
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id licence
+          schema:
+            type: string
+            pattern: '^[0-9]+$'
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example:  {
+                "name": "inovatika_test",
+                "description": "test",
+                "id": 9,
+                "priority": 9,
+                "group": "local"
+            }
+      responses:
+        '200':
+          description: JSON reprezentace licencí
+          content:
+            application/json:
+              schema:
+                type: string
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+        '404':
+          description: Licence nenalezena.
+
+    delete:
+      tags:
+        - Licence
+      summary: Maže lokální licenci
+      operationId: deleteLocalLicense
+      description: Maže lokální licenci
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id licence
+          schema:
+            type: string
+            pattern: '^[0-9]+$'
+      responses:
+        '204':
+          description: Licence úspěšně smazána
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+          
+
+  /licenses/changeOrdering:
+    put:
+      tags:
+        - Licence
+      summary: Modifikuje pořadí licencí
+      operationId: updateOrdering
+      description: Modifikuje pořadí licencí
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example:  [{
+                        "name": "dnntt",
+                        "description": "DNNT terminal license",
+                        "id": 1,
+                        "priority": 1,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "dnnto",
+                        "description": "DNNT online license",
+                        "id": 2,
+                        "priority": 2,
+                        "group": "embedded"
+                    }]
+      responses:
+        '200':
+          description: JSON reprezentace licencí
+          content:
+            application/json:
+              schema:
+                type: string
+              example:  [{
+                        "name": "dnntt",
+                        "description": "DNNT terminal license",
+                        "id": 1,
+                        "priority": 1,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "dnnto",
+                        "description": "DNNT online license",
+                        "id": 2,
+                        "priority": 2,
+                        "group": "embedded"
+                    }]
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /licenses/moveup/{id}:
+    put:  
+      tags:
+        - Licence
+      summary: Zvětší prioritu licence
+      operationId: moveUpLicense
+      description: Zvětší prioritu licence
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id licence
+          schema:
+            type: string
+            pattern: '^[0-9]+$'
+
+      responses:
+        '200':
+          description: JSON reprezentace licencí
+          content:
+            application/json:
+              schema:
+                type: string
+              example:  [{
+                        "name": "dnntt",
+                        "description": "DNNT terminal license",
+                        "id": 1,
+                        "priority": 1,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "dnnto",
+                        "description": "DNNT online license",
+                        "id": 2,
+                        "priority": 2,
+                        "group": "embedded"
+                    }]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /licenses/movedown/{id}:
+    put:  
+      tags:
+        - Licence
+      summary: Zmenší prioritu licence
+      operationId: moveDownLicense
+      description: Zmenší prioritu licence
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id licence
+          schema:
+            type: string
+            pattern: '^[0-9]+$'
+
+      responses:
+        '200':
+          description: JSON reprezentace licencí
+          content:
+            application/json:
+              schema:
+                type: string
+              example:  [{
+                        "name": "dnntt",
+                        "description": "DNNT terminal license",
+                        "id": 1,
+                        "priority": 1,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "dnnto",
+                        "description": "DNNT online license",
+                        "id": 2,
+                        "priority": 2,
+                        "group": "embedded"
+                    }]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /roles:
+    get:
+      tags:
+        - Role
+      summary: Získat filtrované role
+      operationId: getRoles
+      description: Načte seznam rolí na základě poskytnutých dotazovacích parametrů.
+      parameters:
+        - name: name
+          in: query
+          description: Filtrovat role podle názvu.
+          required: false
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: Posun pro stránkování (výchozí hodnota je 0).
+          required: false
+          schema:
+            type: string
+            example: '0'
+        - name: resultSize
+          in: query
+          description: Počet výsledků k vrácení (výchozí hodnota je 20).
+          required: false
+          schema:
+            type: string
+            example: '20'
+        - name: ordering
+          in: query
+          description: Pole, podle kterého se výsledky seřadí.
+          required: false
+          schema:
+            type: string
+        - name: typefordering
+          in: query
+          description: Typ řazení (ASC nebo DESC).
+          required: false
+          schema:
+            type: string
+            default: ASC
+      responses:
+        '200':
+          description: JSON pole s rolemi na základě filtračních kritérií.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: [{"name": "common_users","id": 1},{"name": "kramerius_admin","id": 2},{"name": "offline_access","id": 3}]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+    post:
+      tags:
+        - Role
+      summary: Vytvoření nové role
+      operationId: createRole
+      description: Vytvoří novou roli na základě poskytnutých dat v JSON. Pokud role s daným názvem již existuje, akce bude odmítnuta.
+      requestBody:
+        description: JSON obsahující data nové role (mimo ID, které přidává server).
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {"name":"new_role"}
+      responses:
+        '201':
+          description: Role byla úspěšně vytvořena.
+          headers:
+            Location:
+              description: URI nové role
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {"name":"moje_role","id":11}
+        '400':
+          description: Chyba při vytváření role (např. role již existuje).
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+  
+  /roles/{id}:
+    put:
+      tags:
+        - Role
+      summary: Změna existující role
+      operationId: changeRole
+      description: Upraví existující roli na základě ID a poskytnutých dat v JSON. 
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID role, kterou chcete změnit.
+          schema:
+            type: string
+            example: '1'
+      requestBody:
+        description: JSON obsahující nová data pro roli.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {"name":"moje_role","id":11}
+      responses:
+        '200':
+          description: Role byla úspěšně změněna.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {"name":"moje_role","id":11}
+        '400':
+          description: Chyba při změně role (např. role s daným ID nebyla nalezena nebo název role již existuje).
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+    get:
+      tags:
+        - Role
+
+      summary: Získání detailů role podle ID
+      operationId: getRole
+      description: Vrací informace o roli na základě zadaného ID. Pokud role neexistuje, vrátí chybu.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID role, kterou chcete získat.
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Úspěšný dotaz, role byla nalezena.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {"name": "kramerius_admin","id": 2}
+        '404':
+          description: Role nebyla nalezena.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+    delete:
+      tags:
+        - Role
+
+      summary: Smazání role podle ID
+      operationId: deleteRole
+      description: Smaže roli na základě jejího ID. Pokud role neexistuje, nebo nastane problém při mazání, vrátí chybu.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID role, kterou chcete získat.
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '204':
+          description: Role byla úspěšně smazána.
+        '404':
+          description: Role nebyla nalezena.
+        '400':
+          description: Chyba při mazání role (např. pokud ji nelze smazat kvůli asociacím nebo SQL chybě).
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /rights:
+    get:
+      tags:
+        - Práva
+      summary: Získání práv na základě PID a akce
+      operationId: getRights
+      description: Vrací seznam práv na základě zadaných parametrů `pids` (IDs) a `action` (akce). Pokud uživatel nemá oprávnění, vrátí chybu.
+      parameters:
+        - name: pids
+          in: query
+          required: false
+          description: Čísla PID, oddělená čárkou.
+          schema:
+            type: string
+        - name: action
+          in: query
+          required: false
+          description: Akce, ke které se právo vztahuje
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Seznam nalezených práv.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: [{
+                      "role": {
+                          "name": "common_users",
+                          "id": 1
+                      },
+                      "criterium": {
+                          "license": "public",
+                          "qname": "cz.incad.kramerius.security.impl.criteria.Licenses",
+                          "label": "public",
+                          "params": {
+                              "objects": [],
+                              "id": 0
+                          }
+                      },
+                      "action": "a_read",
+                      "pid": "uuid:1",
+                      "id": 48
+                  },
+                  {
+                      "role": {
+                          "name": "kramerius_admin",
+                          "id": 4
+                      },
+                      "criterium": {
+                          "license": "inovatika_licence_zamek",
+                          "qname": "cz.incad.kramerius.security.impl.criteria.Licenses",
+                          "label": "inovatika_licence_zamek",
+                          "params": {
+                              "objects": [],
+                              "id": 0
+                          }
+                      },
+                      "action": "a_read",
+                      "pid": "uuid:1",
+                      "id": 50
+                  },
+                  {
+                      "role": {
+                          "name": "kramerius_admin",
+                          "id": 4
+                      },
+                      "action": "a_pdf_read",
+                      "pid": "uuid:1",
+                      "id": 24
+                  },
+                  {
+                      "role": {
+                          "name": "kramerius_admin",
+                          "id": 4
+                      },
+                      "action": "a_import",
+                      "pid": "uuid:1",
+                      "id": 25
+                  },
+                  {
+                      "role": {
+                          "name": "kramerius_admin",
+                          "id": 4
+                      },
+                      "action": "a_delete",
+                      "pid": "uuid:1",
+                      "id": 26
+                  }
+              ]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+    post:
+      tags:
+        - Práva
+      summary: Vložení nového práva
+      description: Umožňuje vložit nové právo, pokud má uživatel odpovídající oprávnění.
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {"action":"a_read","role":{"name":"common_users","id":1},"pid":"uuid:1","criterium":{"qname":"cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered","params":{"description":"Localhosts","objects":["127.*","localhost","0.*"],"id":1},"label":"orphan"}}
+      responses:
+        '201':
+          description: Právo bylo úspěšně vytvořeno
+          content:
+            application/json:
+              example: {
+                  "role": {
+                      "name": "common_users",
+                      "id": -1
+                  },
+                  "criterium": {
+                      "license": "orphan",
+                      "qname": "cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered",
+                      "label": "orphan",
+                      "params": {
+                          "objects": [
+                              "127.*",
+                              "localhost",
+                              "0.*"
+                          ],
+                          "description": "Localhosts",
+                          "id": 1
+                      }
+                  },
+                  "action": "a_read",
+                  "pid": "uuid:1",
+                  "id": 62
+              }
+
+        '400':
+          description: Neplatná data požadavku nebo právo nelze vložit
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /rights/{id}:
+    get:
+      tags:
+        - Práva
+      summary: Získání práva dle ID
+      description: Vrací konkrétní právo na základě ID. Pokud uživatel nemá oprávnění, nebo pokud právo neexistuje, žádost selže.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID práva, které chcete získat (musí být číslo).
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Právo bylo úspěšně získáno
+          content:
+            application/json:
+              schema:
+                type: string
+                description: JSON reprezentace prava
+              example:
+                right: {
+                    "role": {
+                        "name": "common_users",
+                        "id": -1
+                    },
+                    "criterium": {
+                        "license": "orphan",
+                        "qname": "cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered",
+                        "label": "orphan",
+                        "params": {
+                            "objects": [
+                                "127.*",
+                                "localhost",
+                                "0.*"
+                            ],
+                            "description": "Localhosts",
+                            "id": 1
+                        }
+                    },
+                    "action": "a_read",
+                    "pid": "uuid:1",
+                    "id": 62
+                }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Právo s daným ID nebylo nalezeno
+
+    put:
+      tags:
+        - Práva
+      summary: Aktualizace existujícího práva podle ID
+      description: Aktualizuje právo na základě poskytnutého ID a JSON dat. Uživatel musí mít oprávnění pro tuto akci.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID práva, které chcete aktualizovat (musí být číslo).
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {
+                  "role":  {
+                      "name": "moje_role",
+                      "id": 11
+                  },
+                  "criterium": {
+                      "license": "orphan",
+                      "qname": "cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered",
+                      "label": "orphan",
+                      "params": {
+                          "objects": [
+                              "127.*",
+                              "localhost",
+                              "0.*"
+                          ],
+                          "description": "Localhosts",
+                          "id": 1
+                      }
+                  },
+                  "action": "a_read",
+                  "pid": "uuid:1",
+                  "id": 62
+              }
+      responses:
+        '200':
+          description: Právo bylo úspěšně aktualizováno
+          content:
+            application/json:
+              example: {
+                  "role":  {
+                      "name": "moje_role",
+                      "id": 11
+                  },
+                  "criterium": {
+                      "license": "orphan",
+                      "qname": "cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered",
+                      "label": "orphan",
+                      "params": {
+                          "objects": [
+                              "127.*",
+                              "localhost",
+                              "0.*"
+                          ],
+                          "description": "Localhosts",
+                          "id": 1
+                      }
+                  },
+                  "action": "a_read",
+                  "pid": "uuid:1",
+                  "id": 62
+              }
+        '400':
+          description: Neplatná data požadavku nebo právo nelze aktualizovat
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Právo s daným ID nebylo nalezeno
+
+    delete:
+      tags:
+        - Práva
+      summary: Smazání práva podle ID
+      description: Smaže existující právo podle jeho ID. Uživatel musí mít oprávnění pro tuto akci.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID práva, které chcete smazat (musí být číslo).
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Právo bylo úspěšně smazáno
+          content:
+            application/json:
+              example: {
+                  "id": 123,
+                  "deleted": true
+                }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Právo s daným ID nebylo nalezeno
+
+  /rights/resolve/{pid}:
+    get:
+      tags:
+        - Práva
+      summary: Vypíše seznam práv pro konkrétní pid a akci
+      description: Vypíše seznam práv pro konkrétní pid a akci
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: PID, jehož cesty a práva chcete vyřešit.
+          schema:
+            type: string
+        - name: action
+          in: query
+          required: false
+          description: Akce, na základě které se mají získat práva.
+          schema:
+            type: string
+            enum: ["a_read", "a_pdf_read", "a_delete", "a_process_edit", "a_process_read", "a_owner_process_edit", "a_index", "a_rebuild_processing_index", "a_import", "a_set_accessibility", "a_export_cdk", "a_statistics", "a_statistics_edit", "a_export_statistics", "a_export_replications", "a_import_replications", "a_rights_edit", "a_criteria_read", "a_collections_read", "a_collections_edit", "a_able_tobe_part_of_collections", "a_generate_nkplogs", "a_roles_edit", "a_roles_read", "a_admin_read", "a_sdnnt_sync", "a_object_edit", "a_admin_api_specification_read"]
+
+      responses:
+        '200':
+          description: Úspěšně získaná práva pro zadané PID
+          content:
+            application/json:
+              example: {
+                        "uuid:1/uuid:06011240-a943-4efe-9f89-6707453b5f3d/uuid:d0134941-11e8-43a1-ac7f-c2bfc74fa663/uuid:c40fe6af-5c63-4c27-9434-9832ebe1f9d6/uuid:488e650f-3921-11ef-a7a7-001b63bd97ba": [
+                            {
+                                "role": {
+                                    "name": "kramerius_admin",
+                                    "id": -1
+                                },
+                                "action": "a_read",
+                                "pid": "uuid:1",
+                                "id": 59
+                            },
+                            {
+                                "role": {
+                                    "name": "kramerius_admin",
+                                    "id": -1
+                                },
+                                "action": "a_read",
+                                "pid": "uuid:1",
+                                "id": 54
+                            },
+                            {
+                                "role": {
+                                    "name": "moje_role",
+                                    "id": -1
+                                },
+                                "criterium": {
+                                    "license": "orphan",
+                                    "qname": "cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered",
+                                    "label": "orphan",
+                                    "params": {
+                                        "objects": [
+                                            "127.*",
+                                            "localhost",
+                                            "0.*"
+                                        ],
+                                        "description": "Localhosts",
+                                        "id": 1
+                                    }
+                                },
+                                "action": "a_read",
+                                "pid": "uuid:1",
+                                "id": 62
+                            },
+                            {
+                                "role": {
+                                    "name": "common_users",
+                                    "id": -1
+                                },
+                                "criterium": {
+                                    "license": "public",
+                                    "qname": "cz.incad.kramerius.security.impl.criteria.Licenses",
+                                    "label": "public",
+                                    "params": {
+                                        "objects": [],
+                                        "id": 0
+                                    }
+                                },
+                                "action": "a_read",
+                                "pid": "uuid:1",
+                                "id": 48
+                            },
+                            {
+                                "role": {
+                                    "name": "kramerius_admin",
+                                    "id": -1
+                                },
+                                "criterium": {
+                                    "license": "inovatika_licence_zamek",
+                                    "qname": "cz.incad.kramerius.security.impl.criteria.Licenses",
+                                    "label": "inovatika_licence_zamek",
+                                    "params": {
+                                        "objects": [],
+                                        "id": 0
+                                    }
+                                },
+                                "action": "a_read",
+                                "pid": "uuid:1",
+                                "id": 50
+                            }
+                        ]
+                    }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '400':
+          description: Chybějící nebo neplatný parametr akce
+
+  /rights/params:
+    get:
+      tags:
+        - Práva
+      summary: Výpis všech parametrů 
+      description: Výpis všech parametrů
+      responses:
+        '200':
+          description: Seznam všech parametrů
+          content:
+            application/json:
+              example: [
+                  {
+                      "objects": [
+                          "127.*",
+                          "localhost",
+                          "0.*"
+                      ],
+                      "description": "Localhosts",
+                      "id": 1
+                  },
+                  {
+                      "objects": [
+                          "172.*"
+                      ],
+                      "description": "Bash_IP",
+                      "id": 2
+                  }
+              ]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+                
+  /rights/params/{id}:
+    get:
+      tags:
+        - Práva
+      summary: Získání parametrů práva podle ID
+      description: Získává parametry práva na základě zadaného ID. Uživatel musí mít oprávnění pro tuto akci.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID parametru, který chcete získat (musí být číslo).
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Úspěšně získané parametry práva
+          content:
+            application/json:
+              example: {
+                      "objects": [
+                          "127.*",
+                          "localhost",
+                          "0.*"
+                      ],
+                      "description": "Localhosts",
+                      "id": 1
+                  }
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Parametr s daným ID nebyl nalezen
+
+    put:
+      tags:
+        - Práva
+      summary: Aktualizace parametru dle id
+      description: Aktualizuje existující parametr dle id. 
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID parametru, který chcete aktualizovat (musí být číslo).
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {
+                      "objects": [
+                          "127.*",
+                          "localhost",
+                          "0.*"
+                      ],
+                      "description": "Localhosts",
+                      "id": 1
+                  }
+      responses:
+        '200':
+          description: Parametr byl úspěšně aktualizován
+          content:
+            application/json:
+              example: {
+                      "objects": [
+                          "127.*",
+                          "localhost",
+                          "0.*"
+                      ],
+                      "description": "Localhosts",
+                      "id": 1
+                  }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Parametr s daným ID nebyl nalezen
+
+    delete:
+      tags:
+        - Práva
+      summary: Smazání parametru práva podle ID
+      description: Smaže existující parametr práva podle jeho ID. Uživatel musí mít oprávnění pro tuto akci a parametr nesmí být používán.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID parametru, který chcete smazat (musí být číslo).
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Parametr byl úspěšně smazán
+          content:
+            application/json:
+              example: |
+                {
+                  "id": 123,
+                  "deleted": true
+                }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Parametr s daným ID nebyl nalezen
+        '409':
+          description: Parametr nemůže být smazán, protože je používán
+
+  /rights/criteria:
+    get:
+      tags:
+        - Práva
+      summary: Získání kritérií práv
+      description: Získává seznam všech kritérií práv, pokud má uživatel oprávnění pro čtení nebo úpravu.
+      responses:
+        '200':
+          description: Úspěšně získaná kritéria práv
+          content:
+            application/json:
+              example: {
+              "cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": true,
+                  "isLicenseAssignable": true,
+                  "rootLevelCriterum": true,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.PolicyFlag": {
+                  "paramsNecessary": false,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.DefaultDomainFilter": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read",
+                      "a_pdf_read",
+                      "a_delete",
+                      "a_process_edit",
+                      "a_process_read",
+                      "a_owner_process_edit",
+                      "a_index",
+                      "a_rebuild_processing_index",
+                      "a_import",
+                      "a_set_accessibility",
+                      "a_export_cdk",
+                      "a_statistics",
+                      "a_statistics_edit",
+                      "a_export_statistics",
+                      "a_export_replications",
+                      "a_import_replications",
+                      "a_rights_edit",
+                      "a_criteria_read",
+                      "a_collections_read",
+                      "a_collections_edit",
+                      "a_able_tobe_part_of_collections",
+                      "a_generate_nkplogs",
+                      "a_roles_edit",
+                      "a_roles_read",
+                      "a_admin_read",
+                      "a_sdnnt_sync",
+                      "a_object_edit"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.Window": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read",
+                      "a_pdf_read",
+                      "a_delete",
+                      "a_process_edit",
+                      "a_process_read",
+                      "a_owner_process_edit",
+                      "a_index",
+                      "a_rebuild_processing_index",
+                      "a_import",
+                      "a_set_accessibility",
+                      "a_export_cdk",
+                      "a_statistics",
+                      "a_statistics_edit",
+                      "a_export_statistics",
+                      "a_export_replications",
+                      "a_import_replications",
+                      "a_rights_edit",
+                      "a_criteria_read",
+                      "a_collections_read",
+                      "a_collections_edit",
+                      "a_able_tobe_part_of_collections",
+                      "a_generate_nkplogs",
+                      "a_roles_edit",
+                      "a_roles_read",
+                      "a_admin_read",
+                      "a_sdnnt_sync",
+                      "a_object_edit"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.PDFDNNTLabels": {
+                  "paramsNecessary": false,
+                  "isLabelAssignable": true,
+                  "isLicenseAssignable": true,
+                  "rootLevelCriterum": true,
+                  "applicableActions": [
+                      "a_pdf_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.BenevolentMovingWall": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.Licenses": {
+                  "paramsNecessary": false,
+                  "isLabelAssignable": true,
+                  "isLicenseAssignable": true,
+                  "rootLevelCriterum": true,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.CoverAndContentFilter": {
+                  "paramsNecessary": false,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": true,
+                  "isLicenseAssignable": true,
+                  "rootLevelCriterum": true,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.NegativeBenevolentModelFilter": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels": {
+                  "paramsNecessary": false,
+                  "isLabelAssignable": true,
+                  "isLicenseAssignable": true,
+                  "rootLevelCriterum": true,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.StrictIPAddresFilter": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read",
+                      "a_pdf_read",
+                      "a_delete",
+                      "a_process_edit",
+                      "a_process_read",
+                      "a_owner_process_edit",
+                      "a_index",
+                      "a_rebuild_processing_index",
+                      "a_import",
+                      "a_set_accessibility",
+                      "a_export_cdk",
+                      "a_statistics",
+                      "a_statistics_edit",
+                      "a_export_statistics",
+                      "a_export_replications",
+                      "a_import_replications",
+                      "a_rights_edit",
+                      "a_criteria_read",
+                      "a_collections_read",
+                      "a_collections_edit",
+                      "a_able_tobe_part_of_collections",
+                      "a_generate_nkplogs",
+                      "a_roles_edit",
+                      "a_roles_read",
+                      "a_admin_read",
+                      "a_sdnnt_sync",
+                      "a_object_edit"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.LicensesGEOIPFiltered": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": true,
+                  "isLicenseAssignable": true,
+                  "rootLevelCriterum": true,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.MovingWall": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.StrictDomainFilter": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read",
+                      "a_pdf_read",
+                      "a_delete",
+                      "a_process_edit",
+                      "a_process_read",
+                      "a_owner_process_edit",
+                      "a_index",
+                      "a_rebuild_processing_index",
+                      "a_import",
+                      "a_set_accessibility",
+                      "a_export_cdk",
+                      "a_statistics",
+                      "a_statistics_edit",
+                      "a_export_statistics",
+                      "a_export_replications",
+                      "a_import_replications",
+                      "a_rights_edit",
+                      "a_criteria_read",
+                      "a_collections_read",
+                      "a_collections_edit",
+                      "a_able_tobe_part_of_collections",
+                      "a_generate_nkplogs",
+                      "a_roles_edit",
+                      "a_roles_read",
+                      "a_admin_read",
+                      "a_sdnnt_sync",
+                      "a_object_edit"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.PDFProtectedByLicense": {
+                  "paramsNecessary": false,
+                  "isLabelAssignable": true,
+                  "isLicenseAssignable": true,
+                  "rootLevelCriterum": true,
+                  "applicableActions": [
+                      "a_pdf_read"
+                  ]
+              },
+              "cz.incad.kramerius.security.impl.criteria.BenevolentModelFilter": {
+                  "paramsNecessary": true,
+                  "isLabelAssignable": false,
+                  "isLicenseAssignable": false,
+                  "rootLevelCriterum": false,
+                  "applicableActions": [
+                      "a_read"
+                  ]
+              }
+          }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+
+  /rights/licenses:
+    get:      
+      tags:
+        - Práva
+      summary: Získání seznamu licencí
+      description: Vrátí seznam všech licencí, pokud má uživatel oprávnění pro tuto akci.
+      responses:
+        '200':
+          description: Úspěšně získané licence
+          content:
+            application/json:
+              example:     [{
+                        "name": "dnntt",
+                        "description": "DNNT terminal license",
+                        "id": 1,
+                        "priority": 1,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "dnnto",
+                        "description": "DNNT online license",
+                        "id": 2,
+                        "priority": 2,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "onsite",
+                        "description": "Accessible only in library",
+                        "id": 3,
+                        "priority": 3,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "orphan",
+                        "description": "Orphan works",
+                        "id": 4,
+                        "priority": 4,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "public",
+                        "description": "Public license",
+                        "id": 5,
+                        "priority": 5,
+                        "group": "embedded"
+                    },
+                    {
+                        "name": "onsite-sheetmusic",
+                        "description": "On site sheet music",
+                        "id": 7,
+                        "priority": 7,
+                        "group": "embedded"
+                    }
+                ]
+              
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /processes:
+    post:
+      tags:
+        - Procesy
+      summary: Naplánování procesu
+      description: Naplánuje nový proces, který může být různých typů, jako například indexace, import, import NDK, atd.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+
+            examples:
+              
+              importfoxml:
+                summary: Plánování procesu import/FOXML
+                description: | 
+                  Příklad naplánování procesu importu FOXML. 
+                  Popis parametrů:
+    
+                  - **inputDataDir**: Cesta k adresáři s daty pro import.
+                  - **startIndexer**: Boolean hodnota určující, zda začít indexaci.
+                  - **license**: Typ licence pro import.
+                  - **collections**: UUID kolekcí, do kterých budou data importována.  
+                value: {"defid":"import","params":{"inputDataDir":"/d28b2a1a-508e-419e-9d3b-12ed4560138e","startIndexer":true,"license":"dnnto","collections":"uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02"}}                 
+              importndk:
+                summary: Plánování procesu import/NDK-METS
+                description: |
+                  Příklad naplánování procesu importu NDK-METS
+                  Popis parametrů:
+
+                  - **inputDataDir**: Cesta k adresáři s daty pro import.
+                  - **startIndexer**: Boolean hodnota určující, zda začít indexaci.
+                  - **useIIPServer**: Use IIP server.
+                  - **license**: Typ licence pro import.
+                  - **collections**: UUID kolekcí, do kterých budou data importována.
+
+                value: {"defid":"convert_and_import","params":{"policy":"PRIVATE","inputDataDir":"/1c8fc53b-9c82-4bc7-8e1f-038d92749b1f","startIndexer":true,"useIIPServer":true,"license":"dnnto","collections":"uuid:28b00683-977d-4743-ad4b-ff8135f5e263"}}         
+              index_object:
+                summary: Plánování indexace objektu
+                description: |
+                  Příklad naplánování procesu indexace objektu
+                  Popis parametrů:
+
+                  - **type**: Typ indexace. Možné hodnoty jsou TREE_AND_FOSTER_TREES nebo OBJECT 
+                  - **pid**: Pid identifkikátor objektu
+                  - **pidlist**: V případě, že chceme více objektů, je možno využít pole pidů
+                  - **ignoreInconsistentObjects**: Příznak určuje zda má indexer pokračovat i v případě nalezení nekonzistence .
+
+                
+                value: {"defid":"new_indexer_index_object","params":{"type":"TREE_AND_FOSTER_TREES","pid":"uuid:b35833b3-7f7f-4cac-a434-484b6e096922","ignoreInconsistentObjects":false}}                  
+                                
+                
+              add_license:
+                summary: Plánování procesu přidání licence
+                description: |
+                  Příklad přidání licence
+                  Popis parametrů:
+  
+                  - **license**: Přiřazovaná licence
+                  - **pid**: Pid identifkikátor objektu
+                  - **pidlist**: V případě, že chceme více objektů, je možno využít pole pidů
+
+                value: {"defid":"add_license","params":{"license":"orphan","pid":"uuid:b35833b3-7f7f-4cac-a434-484b6e096922"}}
+              
+              remove_license:
+                summary: Plánování procesu odebírání licence
+                description: | 
+
+                  Příklad odebírání licence
+                  Popis parametrů:
+  
+                  - **license**: Odebíraná licence
+                  - **pid**: Pid identifkikátor objektu
+                  - **pidlist**: V případě, že chceme více objektů, je možno využít pole pidů
+
+                
+                value: {"defid":"remove_license","params":{"license":"dnnto","pid":"uuid:b35833b3-7f7f-4cac-a434-484b6e096922"}}  
+                
+              
+              backup_collection:
+                summary: Vytvoření zálohy sbírky/sbírek
+                description: | 
+                  Vytvoří zálohu sbírky/sbírek
+                  Popis parametrů:
+  
+                  - **pid**: Pid identifkikátor objektu
+                  - **pidlist**: V případě, že chceme více objektů, je možno využít pole pidů
+                  - **backupname**: Jméno zálohy
+                
+                
+                value: {"defid":"backup-collections","params":{"pidlist":["uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02"],"backupname":"Test"}}  
+              
+              
+              restore_collection:
+                summary: Obnovení sbírek ze zálohy
+                description: | 
+                  Obnovení sbírek ze zálohy
+                  Popis parametrů:
+  
+                  - **backupname**: Jméno zálohy
+
+                
+                value: {"defid":"restore-collections","params":{"backupname":"Test.zip"}}
+                            
+              
+              flag_to_license:
+                summary: Změna příznaku na licence (public a onsite)
+                description: Příklad změny poříznaku
+
+                value: {"defid":"flag_to_license","params":{}}
+                
+                
+              sdnnt_sync:
+                summary: Plánování procesu synchronizace se SDNNT
+                description: Příklad synchronizace se SDNNT
+
+                  
+                value: {"defid":"sdnnt-sync","params":{}}
+                
+              delete:
+                summary: Plánování procesu mazání
+                description: |
+                  Příklad smazání objektu
+                  Popis parametrů:
+  
+                  - **pid**: Pid identifkikátor objektu
+                  - **pidlist**: V případě, že chceme více objektů, je možno využít pole pidů
+                  
+                  - **ignoreIncosistencies**: Ignorovat nekozistence
+
+                value: {"defid":"delete_tree","params":{"pid":"uuid:1c8fc53b-9c82-4bc7-8e1f-038d92749b1f","ignoreIncosistencies":true}}
+                
+      responses:
+        '200':
+          description: Proces byl úspěšně naplánován
+          content:
+            application/json:
+              example: {
+                  "name": "Import FOXML z /d28b2a1a-508e-419e-9d3b-12ed4560138e ",
+                  "id": "import",
+                  "state": "PLANNED",
+                  "planned": "+56753-06-10T20:40:06",
+                  "uuid": "103cb713-b778-4370-8d58-f13bf4b276ec"
+                }
+        '400':
+          description: Špatný požadavek - chybí definice procesu nebo `defid`
+          content:
+            application/json:
+              example:
+                error: "missing process definition"
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+          content:
+            application/json:
+              example:
+                error: "user 'username' is not allowed to manage processes"
+      
+
+
+  /processes/batches:
+    get:
+      tags:
+        - Procesy
+      summary: Vrací všechny dávky procesů
+      description: Vrací všechny dávky procesů a umožňuje filtrování a paginaci
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          description: Počáteční bod výpisu/paginace. Standardně 0.
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          description: Maximální počet vrácených položek. Standardně 50.
+          schema:
+            type: integer
+            default: 50
+        - name: owner
+          in: query
+          required: false
+          description: Filtrování dle vlastníka
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          description: Filtrování dle počátečního data. (ISO 8601 formát).
+          schema:
+            type: string
+            format: date-time
+        - name: until
+          in: query
+          required: false
+          description: Filtrování dle koncového data. (ISO 8601 formát).
+          schema:
+            type: string
+            format: date-time
+        - name: state
+          in: query
+          required: false
+          description: Filtrování dle stavu.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Výpis všech dávek asociovaných s procesem
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Nevalidní query parametr (offset, limit, from, until)
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+          
+
+  /processes/owners:
+    get:      
+      tags:
+        - Procesy
+      summary: Vrací seznam všech vlastníků procesů
+      description: Vrací seznam všech vlastníků procesů.
+      responses:
+        '200':
+          description: Úspěšně získané licence
+          content:
+            application/json:
+              example:     {
+                  "owners": [
+                      {
+                          "name": "krameriusadmin",
+                          "id": "krameriusadmin"
+                      }
+                  ]
+            }
+              
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /processes/by_process_id/{process_id}:
+    get:
+      tags:
+        - Procesy
+      summary: Vrací detail procesu/dávky dle databázového id
+      description: Vrací detail procesu/dávky dle databázového id
+      parameters:
+        - name: process_id
+          in: path
+          required: true
+          description: Databázová id procesu
+          schema:
+            type: string
+          example: 576  
+      responses:
+        '200':
+          description: JSON reprezentace procesu/dávky
+          content:
+            application/json:
+              schema:
+                type: string
+                example: {
+                    "process": {
+                      "defid": "import",
+                      "name": "Import FOXML z ./import/d28b2a1a-508e-419e-9d3b-12ed4560138e ",
+                      "started": "2024-10-13T07:46:51.141",
+                      "finished": "2024-10-13T07:46:54.077",
+                      "id": "576",
+                      "state": "FAILED",
+                      "planned": "2024-10-13T07:46:50.406",
+                      "uuid": "103cb713-b778-4370-8d58-f13bf4b276ec"
+                    },
+                    "batch": {
+                      "owner_name": "krameriusadmin",
+                      "owner_id": "krameriusadmin",
+                      "started": "2024-10-13T07:46:51.141",
+                      "finished": "2024-10-13T07:46:54.077",
+                      "id": "576",
+                      "state": "FAILED",
+                      "planned": "2024-10-13T07:46:50.406",
+                      "token": "13d099c7-e95c-4834-ad6e-d8f40017d0b9"
+                    }
+                  }
+        '400':
+          description: Nevalidní id procesu, process_id musí být číslo
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Proces se zadaným id neexistuje
+  
+  /processes/by_process_uuid/{process_uuid}:
+    get:
+      tags:
+        - Procesy
+      summary: Vrací detail procesu dle zadaného uuid
+      description: Retrieve process and batch information for a given process UUID.
+      parameters:
+        - name: process_uuid
+          in: path
+          required: true
+          description: UUID of the process to fetch.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Process found, returns JSON object with process data.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                    "process": {
+                      "defid": "import",
+                      "name": "Import FOXML z ./import/d28b2a1a-508e-419e-9d3b-12ed4560138e ",
+                      "started": "2024-10-13T07:46:51.141",
+                      "finished": "2024-10-13T07:46:54.077",
+                      "id": "576",
+                      "state": "FAILED",
+                      "planned": "2024-10-13T07:46:50.406",
+                      "uuid": "103cb713-b778-4370-8d58-f13bf4b276ec"
+                    },
+                    "batch": {
+                      "owner_name": "krameriusadmin",
+                      "owner_id": "krameriusadmin",
+                      "started": "2024-10-13T07:46:51.141",
+                      "finished": "2024-10-13T07:46:54.077",
+                      "id": "576",
+                      "state": "FAILED",
+                      "planned": "2024-10-13T07:46:50.406",
+                      "token": "13d099c7-e95c-4834-ad6e-d8f40017d0b9"
+                    }
+                  }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: No process found with the given process UUID.
+
+
+  /processes/by_process_uuid/{process_uuid}/logs/out:
+    get:
+      tags:
+        - Procesy
+      summary: Vrací standardní výstup z procesu
+      description: Vrací standardní výstup z procesu
+      parameters:
+        - name: process_uuid
+          in: path
+          required: true
+          description: UUID procesu
+          schema:
+            type: string
+            format: uuid
+          example: 103cb713-b778-4370-8d58-f13bf4b276ec
+        - name: fileName
+          in: query
+          required: false
+          description: Jméno souboru pro download. Standardně "out.txt".
+          schema:
+            type: string
+            default: "out.txt"
+      responses:
+        '200':
+          description: Proces nalezen a logy poskytnuty ve formě streamu
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: User is not authorized to access these logs.
+        '404':
+          description: Process logs not found for the given UUID.
+
+  
+  /processes/by_process_uuid/{process_uuid}/logs/err:
+    get:
+      tags:
+        - Procesy
+      summary: Vrací chybový výstup procesu
+      description:  Vrací chybový výstup procesu
+      parameters:
+        - name: process_uuid
+          in: path
+          required: true
+          description: uuid procesu
+          schema:
+            type: string
+            format: uuid
+          example: 103cb713-b778-4370-8d58-f13bf4b276ec
+        - name: fileName
+          in: query
+          required: false
+          description: Jméno výstupního souboru. Standardně "err.txt".
+          schema:
+            type: string
+            default: "err.txt"
+      responses:
+        '200':
+          description: Error logs file found and returned as a binary stream.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+        '404':
+          description: Error logs not found for the given UUID.
+
+
+
+  
+  /processes/batches/by_first_process_id/{process_id}:
+    delete:
+      tags:
+        - Procesy
+      summary: Smaže konkrétní procesu
+      description: Smaže konkrétní proces
+      parameters:
+        - name: process_id
+          in: path
+          required: true
+          description: ID prvního procesu v dávce.
+          schema:
+            type: integer
+          example: 576
+      responses:
+        '200':
+          description: Proces úspěšně smazán
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Neplatné ID procesu nebo dávka nelze smazat.
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+
+  /processes/batches/by_first_process_id/{process_id}/execution:
+    delete:
+      tags:
+        - Procesy
+      summary: Ukončí běžící proces
+      description: Ukončí běžící proces
+      parameters:
+        - name: process_id
+          in: path
+          required: true
+          description: ID procesu
+          schema:
+            type: integer
+          example: 576
+      responses:
+        '200':
+          description: Proces úspěšně ukončen.
+        '400':
+          description: Neplatné ID.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+
+  /processes/by_process_uuid/{process_uuid}/logs/out/lines:
+    get:
+      tags:
+        - Procesy
+      summary: Získá standardní výstup ve formě řádklů
+      description: Získá standardní výstup ve formě řádků
+      parameters:
+        - name: process_uuid
+          in: path
+          required: true
+          description: UUID procesu, pro který se získávají logy.
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: Počáteční index, od kterého se začnou načítat řádky logu.
+          schema:
+            type: integer
+          example: 0
+        - name: limit
+          in: query
+          description: Maximální počet řádků logu, které se mají vrátit.
+          schema:
+            type: integer
+          example: 100
+      responses:
+        '200':
+          description: Úspěšně načtené logy procesu.
+        '400':
+          description: Neplatný požadavek, např. neplatný offset nebo limit.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Proces s daným UUID nebyl nalezen.
+      operationId: getProcessLogsOutLinesByProcessUuid
+
+
+  /processes/by_process_uuid/{process_uuid}/logs/err/lines:
+    get:
+      summary: Získá chybový výstup ve formě řádků
+      description: Získá chybový výstup ve formě řádků
+      tags:
+        - Procesy
+      parameters:
+        - name: process_uuid
+          in: path
+          required: true
+          description: UUID procesu, pro který se získávají chybové logy.
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: Počáteční index, od kterého se začnou načítat řádky chybového logu.
+          schema:
+            type: integer
+          example: 0
+        - name: limit
+          in: query
+          description: Maximální počet řádků chybového logu, které se mají vrátit.
+          schema:
+            type: integer
+          example: 100
+      responses:
+        '200':
+          description: Úspěšně načtené chybové logy procesu.
+        '400':
+          description: Neplatný požadavek, např. neplatný offset nebo limit.
+
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+          
+        '404':
+          description: Proces s daným UUID nebyl nalezen.
+

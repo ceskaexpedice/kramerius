@@ -37,8 +37,7 @@ paths:
 
       summary: Vyhledávání titulů
       description: |
-        Vyhledávání je umožněno endpointem, který slouží jako proxy do vyhledávacího enginu SOLR. Přebírá všechny parametry, validuje je a následně posílá na vyhledávací server solr. Z odpovědi jsou filtrována data typu TEXT_OCR a je posílán zpět na klienta.             Možné parametry jsou všechny, které akceptuje vyhledávací engine solr. Dokumentace je k nalezení [zde](https://solr.apache.org/guide/solr/latest/query-guide/query-syntax-and-parsers.html) Popis jednotlivých indexovaných polí je k nalezení [zde](https://github.com/ceskaexpedice/kramerius/blob/master/installation/solr-9.x/search/conf/managed-schema). V definici jsou uvedeny pouze ty nejdůležitější
-
+        Vyhledávání je umožněno prostřednictvím endpointu, který slouží jako proxy do vyhledávacího enginu Solr. Přebírá všechny parametry, validuje je a následně je posílá na vyhledávací server Solr. Z odpovědi jsou filtrována data typu TEXT_OCR a posílána zpět na klienta. Možné parametry jsou všechny, které akceptuje vyhledávací engine Solr. Dokumentace je k nalezení [zde](https://solr.apache.org/guide/solr/latest/query-guide/query-syntax-and-parsers.html). Popis jednotlivých indexovaných polí je k nalezení [zde](https://github.com/ceskaexpedice/kramerius/blob/master/installation/solr-9.x/search/conf/managed-schema). V definici jsou uvedeny pouze ty nejdůležitější.
       operationId: searching
 
       parameters:
@@ -117,7 +116,7 @@ paths:
 
       responses:
         '200':
-          description: Standardní výstup ze solru. JSON nebo xml 
+          description: Standardní výstup ze Solru. JSON nebo XML
           content:
             application/json:
               schema:
@@ -255,7 +254,7 @@ paths:
       tags:
         - Informace o titulu 
       summary: Kontrolní endpoint pro titul 
-      description: Umožňuje získat info titulu  
+      description: Umožňuje získat informace o titulu    
       operationId: exist
       parameters:
         - in: path
@@ -296,8 +295,7 @@ paths:
             application/json:
               schema:
                 type: string
-              example: |
-                {
+              example: {
                   "image": {
                     "type": "tiles"
                   },
@@ -336,8 +334,8 @@ paths:
     get:
       tags:
         - Informace o titulu
-      summary: Informace jak zobrazovat data  - dlaždice, obrázek, audio, atd.. 
-      description: Informace jak zobrazovat data
+      summary: Informace o způsobu zobrazení dat (dlaždice, obrázek, audio atd.) 
+      description: Informace o způsobu zobrazení dat.
       operationId: getImageInfo
       parameters:
         - in: path
@@ -353,8 +351,7 @@ paths:
             application/json:
               schema:
                 type: string
-              example: |
-                 {"type":"tiles"}
+              example: {"type":"tiles"}
         '400':
           description: Chybný formát nebo hodnota PID identifikátoru
         '403':
@@ -367,8 +364,8 @@ paths:
     get:
       tags:
         - Informace o titulu
-      summary: Informace o licenci dle které je dílo poskytnuto
-      description: Informace o licenci které je dílo poskytnuto
+      summary: Informace o licenci, podle které je dílo poskytnuto
+      description: Informace o licenci, podle které je dílo poskytnuto.
       operationId: getProvidedByLicenses
       parameters:
         - in: path
@@ -384,8 +381,7 @@ paths:
             application/json:
               schema:
                 type: string
-              example: |
-                  {
+              example: {
                     "licenses":[
                         "onsite"
                     ]
@@ -402,8 +398,8 @@ paths:
     get:
       tags:
         - Informace o titulu
-      summary: Informace o objektu pro zobrazení
-      description: Informace o objektu pro zobrazení, typ zobrazení, licence, dle které se pid poskytnul
+      summary: Informace o struktuře objektu pro zobrazení
+      description: Informace o struktuře, děti, rodiče, atd..
       operationId: structure
       parameters:
         - in: path
@@ -419,8 +415,7 @@ paths:
             application/json:
               schema:
                 type: string
-              example: |
-                  {
+              example: {
                   "children": {
                     "own": [
                       {
@@ -467,8 +462,8 @@ paths:
     get:
       tags:
         - Informace o titulu
-      summary: Informace o dostupných datech/datastreamech
-      description: Inforamce o dostupných datech/datastreamech
+      summary: Informace o dostupných datech/datastreams
+      description: Informace o dostupných datech/datastreams.
       operationId: getDataAvailability
       parameters:
         - in: path
@@ -479,13 +474,12 @@ paths:
           description: Identifikátor PID 
       responses:
         '200':
-          description:  Úspěšné získání informací přístupných datech (obrázky, audiosoubory, metadata, atd.. ).
+          description: Úspěšné získání informací o dostupných datech (obrázky, audio soubory, metadata atd.).
           content:
             application/json:
               schema:
                 type: string
-              example: |
-                        {
+              example: {
                           "image": {
                             "preview": true,
                             "thumb": true,
@@ -512,13 +506,13 @@ paths:
       
 
   # Informace o metadatech        
-  /items/{pid}/metadata/{metadata}:
+  /items/{pid}/metadata/dc:
     head:
       tags:
         - Informace o titulu
       summary: Dotaz na existenci metadat
       description: Ziskani informace pro metadata 
-      operationId: metadata
+      operationId: dcMetadata
       parameters:
         - in: path
           name: pid
@@ -526,15 +520,6 @@ paths:
             type: string
           required: true
           description: Identifikátor PID 
-        - in: path
-          name: metadata
-          schema:
-            type: string
-            enum: 
-              - dc
-              - mods
-          required: true
-          description: Identifikátor metadat (povoleny pouze 'dc' nebo 'mods') 
       responses:
         '200':
           description: Metadata jsou dostupná
@@ -547,7 +532,7 @@ paths:
         - Informace o titulu
       summary: Získání metadat
       description: Informace o objektu pro zobrazení, typ zobrazení, licence, dle které se pid poskytnul
-      operationId: getMetadata
+      operationId: getDcMetadata
       parameters:
         - in: path
           name: pid
@@ -555,195 +540,34 @@ paths:
             type: string
           required: true
           description: Identifikátor PID 
-        - in: path
-          name: metadata
-          schema:
-            type: string
-            enum: 
-              - dc
-              - mods
-          required: true
-          description: Identifikátor metadat (povoleny pouze 'dc' nebo 'mods') 
-          
+
       responses:
         '200':
-          description: Úspěšné získání metadat
+          description: Úspěšné získání dc metadat
           content:
             application/xml:
               schema:
-               type: string
-              examples:
-                dc:
-                  summary: Dublin Core příklad
-                  value: |
-                    <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-                      <dc:title>Nejistá věda: co věda o klimatu říká, co neříká, a proč na tom záleží</dc:title>
-                      <dc:title>Unsettled. Česky</dc:title>
-                      <dc:creator>Koonin, Steven E., 1951-</dc:creator>
-                      <dc:creator>Kaňa, Štěpán, 1977-</dc:creator>
-                      <dc:creator>pna20241227247</dc:creator>
-                      <dc:creator>xx0070486</dc:creator>
-                      <dc:subject>Geologie. Meteorologie. Klimatologie</dc:subject>
-                      <dc:subject>klimatologie</dc:subject>
-                      <dc:subject>klimatické změny</dc:subject>
-                      <dc:subject>globální oteplování</dc:subject>
-                      <dc:subject>climatology</dc:subject>
-                      <dc:subject>climate changes</dc:subject>
-                      <dc:subject>global warming</dc:subject>
-                      <dc:subject>551.58</dc:subject>
-                      <dc:subject>551.583</dc:subject>
-                      <dc:subject>551.588.7</dc:subject>
-                      <dc:subject>(0.062)</dc:subject>
-                      <dc:subject>7</dc:subject>
-                      <dc:subject>551</dc:subject>
-                      <dc:description>Kniha se podrobně a apoliticky zabývá mylnými představami a ideologickým zkreslením mainstreamové prezentace vědy o klimatu, jež je mnohem méně černobílá, než si mnozí lidé uvědomují.</dc:description>
-                      <dc:description>Steven E. Koonin ; z anglického originálu Unsettled : what climate science tells us, what it doesn't, and why it matters ... přeložil Štěpán Kaňa.</dc:description>
-                      <dc:description>Obsahuje bibliografické odkazy a rejstřík</dc:description>
-                      <dc:publisher>Books &amp; Pipes</dc:publisher>
-                      <dc:date>2024</dc:date>
-                      <dc:type>model:monograph</dc:type>
-                      <dc:format>print</dc:format>
-                      <dc:format>bez média</dc:format>
-                      <dc:format>svazek</dc:format>
-                      <dc:format>339 stran : ilustrace, grafy, mapy.</dc:format>
-                      <dc:identifier>uuid:48460ae7-6800-4e61-bd4a-85b42179451b</dc:identifier>
-                      <dc:identifier>ccnb:cnb003607882</dc:identifier>
-                      <dc:identifier>isbn:978-80-7485-292-3</dc:identifier>
-                      <dc:identifier>barcode:26002401684</dc:identifier>
-                      <dc:identifier>urnnbn:urn:nbn:cz:aba007-000lls</dc:identifier>
-                      <dc:source>ABA007</dc:source>
-                      <dc:source>F 150662</dc:source>
-                      <dc:language>cze</dc:language>
-                      <dc:language>eng</dc:language>
-                      <dc:coverage>Brno</dc:coverage>
-                      <dc:rights>policy:private</dc:rights>
-                    </oai_dc:dc>
-                mods:
-                  summary: Biblio_MODS příklad
-                  value: |
-                    <mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
-                      <mods:mods xmlns:xlink="http://www.w3.org/1999/xlink" version="3.6">
-                        <mods:abstract type="Scope and content">Kniha se podrobně a apoliticky zabývá mylnými představami a ideologickým zkreslením mainstreamové prezentace vědy o klimatu, jež je mnohem méně černobílá, než si mnozí lidé uvědomují.</mods:abstract>
-                        <mods:classification authority="udc">551.58</mods:classification>
-                        <mods:classification authority="udc">551.583</mods:classification>
-                        <mods:classification authority="udc">551.588.7</mods:classification>
-                        <mods:classification authority="udc">(0.062)</mods:classification>
-                        <mods:classification authority="Konspekt">7</mods:classification>
-                        <mods:classification authority="udc" edition="Konspekt">551</mods:classification>
-                        <mods:genre>volume</mods:genre>
-                        <mods:genre authority="rdacontent">text</mods:genre>
-                        <mods:genre authority="czenas">populárně-naučné publikace</mods:genre>
-                        <mods:genre authority="eczenas">popular works</mods:genre>
-                        <mods:identifier type="uuid">48460ae7-6800-4e61-bd4a-85b42179451b</mods:identifier>
-                        <mods:identifier type="ccnb">cnb003607882</mods:identifier>
-                        <mods:identifier type="isbn">978-80-7485-292-3</mods:identifier>
-                        <mods:identifier type="barcode">26002401684</mods:identifier>
-                        <mods:identifier type="urnnbn">urn:nbn:cz:aba007-000lls</mods:identifier>
-                        <mods:language>
-                          <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
-                        </mods:language>
-                        <mods:language objectPart="translation">
-                          <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
-                        </mods:language>
-                        <mods:location>
-                          <mods:physicalLocation authority="siglaADR">ABA007</mods:physicalLocation>
-                          <mods:shelfLocator>F 150662</mods:shelfLocator>
-                        </mods:location>
-                        <mods:name nameTitleGroup="1" type="personal" usage="primary">
-                          <mods:namePart type="family">Koonin</mods:namePart>
-                          <mods:namePart type="given">Steven E.</mods:namePart>
-                          <mods:namePart type="date">1951-</mods:namePart>
-                          <mods:role>
-                            <mods:roleTerm authority="marcrelator" type="code">aut</mods:roleTerm>
-                          </mods:role>
-                          <mods:nameIdentifier>pna20241227247</mods:nameIdentifier>
-                        </mods:name>
-                        <mods:name type="personal">
-                          <mods:namePart type="family">Kaňa</mods:namePart>
-                          <mods:namePart type="given">Štěpán</mods:namePart>
-                          <mods:namePart type="date">1977-</mods:namePart>
-                          <mods:role>
-                            <mods:roleTerm authority="marcrelator" type="code">trl</mods:roleTerm>
-                          </mods:role>
-                          <mods:nameIdentifier>xx0070486</mods:nameIdentifier>
-                        </mods:name>
-                        <mods:note altRepGroup="00" type="statement of responsibility">Steven E. Koonin ; z anglického originálu Unsettled : what climate science tells us, what it doesn't, and why it matters ... přeložil Štěpán Kaňa.</mods:note>
-                        <mods:note type="bibliography">Obsahuje bibliografické odkazy a rejstřík</mods:note>
-                        <mods:originInfo eventType="publication">
-                          <mods:place>
-                            <mods:placeTerm authority="marccountry" type="code">xr</mods:placeTerm>
-                          </mods:place>
-                          <mods:place>
-                            <mods:placeTerm type="text">Brno</mods:placeTerm>
-                          </mods:place>
-                          <mods:publisher>Books &amp; Pipes</mods:publisher>
-                          <mods:dateIssued encoding="marc">2024</mods:dateIssued>
-                          <mods:edition>1. vydání</mods:edition>
-                          <mods:issuance>single unit</mods:issuance>
-                        </mods:originInfo>
-                        <mods:physicalDescription>
-                          <mods:form authority="marcform">print</mods:form>
-                          <mods:form authority="rdamedia" type="media">bez média</mods:form>
-                          <mods:form authority="rdacarrier" type="carrier">svazek</mods:form>
-                          <mods:extent>339 stran : ilustrace, grafy, mapy.</mods:extent>
-                        </mods:physicalDescription>
-                        <mods:recordInfo>
-                          <mods:recordContentSource authority="marcorg">ABA007</mods:recordContentSource>
-                          <mods:recordCreationDate encoding="iso8601">20240819T073342</mods:recordCreationDate>
-                          <mods:recordChangeDate encoding="iso8601">20240826T120948</mods:recordChangeDate>
-                          <mods:recordIdentifier source="CZ PrAS">002908972</mods:recordIdentifier>
-                          <mods:languageOfCataloging>
-                            <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
-                          </mods:languageOfCataloging>
-                          <mods:recordOrigin>machine generated</mods:recordOrigin>
-                          <mods:descriptionStandard>rda</mods:descriptionStandard>
-                          <mods:recordInfoNote>Converted from MARCXML to MODS version 3.6 using MARC21slim2MODS3.xsl (Revision 1.98 2018/02/09, ProArc patch 18.1352 2022/10/12)</mods:recordInfoNote>
-                        </mods:recordInfo>
-                        <mods:subject authority="Konspekt">
-                          <mods:topic>Geologie. Meteorologie. Klimatologie</mods:topic>
-                        </mods:subject>
-                        <mods:subject authority="czenas">
-                          <mods:topic>klimatologie</mods:topic>
-                        </mods:subject>
-                        <mods:subject authority="czenas">
-                          <mods:topic>klimatické změny</mods:topic>
-                        </mods:subject>
-                        <mods:subject authority="czenas">
-                          <mods:topic>globální oteplování</mods:topic>
-                        </mods:subject>
-                        <mods:subject authority="eczenas">
-                          <mods:topic>climatology</mods:topic>
-                        </mods:subject>
-                        <mods:subject authority="eczenas">
-                          <mods:topic>climate changes</mods:topic>
-                        </mods:subject>
-                        <mods:subject authority="eczenas">
-                          <mods:topic>global warming</mods:topic>
-                        </mods:subject>
-                        <mods:targetAudience authority="marctarget">adult</mods:targetAudience>
-                        <mods:titleInfo>
-                          <mods:title>Nejistá věda</mods:title>
-                          <mods:subTitle>co věda o klimatu říká, co neříká, a proč na tom záleží</mods:subTitle>
-                        </mods:titleInfo>
-                        <mods:titleInfo nameTitleGroup="1" type="uniform">
-                          <mods:title>Unsettled. Česky</mods:title>
-                        </mods:titleInfo>
-                        <mods:typeOfResource>text</mods:typeOfResource>
-                      </mods:mods>
-                    </mods:modsCollection>               
+                type: string
+                xml:
+                    name: dc  
+                    namespace: "http://www.openarchives.org/OAI/2.0/oai_dc/"
+                    prefix: oai_dc
+              example: ... obsah dc streamu ...           
+
+
         '400':
           description: Chybný formát nebo hodnota PID identifikátoru.
         '404':
           description: PID identifikátor neexistuje nebo nebyl nalezen
-    
-  # Dotazy na ocr data       
-  /items/{pid}/ocr/{type}:
+
+  # Informace o metadatech        
+  /items/{pid}/metadata/mods:
     head:
       tags:
         - Informace o titulu
-      summary: Dotaz na existenci ocr dat
-      description: Dotaz na existenci ocr dat
-      operationId: hasOcr
+      summary: Dotaz na existenci metadat
+      description: Ziskani informace pro metadata 
+      operationId: modsMetadata
       parameters:
         - in: path
           name: pid
@@ -751,15 +575,60 @@ paths:
             type: string
           required: true
           description: Identifikátor PID 
+      responses:
+        '200':
+          description: Metadata jsou dostupná
+        '400':
+          description: Chybný formát nebo hodnota PID identifikátoru.
+        '404':
+          description: PID identifikátor neexistuje nebo nebyl nalezen.
+    get:
+      tags:
+        - Informace o titulu
+      summary: Získání metadat
+      description: Informace o objektu pro zobrazení, typ zobrazení, licence, dle které se pid poskytnul
+      operationId: getModsMetadata
+      parameters:
         - in: path
-          name: type
+          name: pid
           schema:
             type: string
-            enum: 
-              - text
-              - alto
           required: true
-          description: Identifikátor ocr dat (povoleny pouze 'text' nebo 'alto') 
+          description: Identifikátor PID 
+
+      responses:
+        '200':
+          description: Úspěšné získání dc metadat
+          content:
+            application/xml:
+              schema:
+                type: string
+                xml:
+                    name: modsCollection  
+                    namespace: "http://www.loc.gov/mods/v3"
+                    prefix: mods
+              example: ... obsah dc streamu ...           
+        '400':
+          description: Chybný formát nebo hodnota PID identifikátoru.
+        '404':
+          description: PID identifikátor neexistuje nebo nebyl nalezen
+
+
+  # Dotazy na ocr data       
+  /items/{pid}/ocr/text:
+    head:
+      tags:
+        - Informace o titulu
+      summary: Dotaz na existenci ocr dat v textové podobě
+      description: Dotaz na existenci ocr dat v textové podobě
+      operationId: hasTextOcr
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
       responses:
         '200':
           description: OCR data jsou dostupná
@@ -772,9 +641,9 @@ paths:
     get:
       tags:
         - Informace o titulu
-      summary: Získání OCR dat
-      description: Získání OCR dat k danému titulu
-      operationId: getOcr
+      summary: Získání OCR dat v textové podobě
+      description: Získání OCR dat v textové podobě
+      operationId: getTextOcr
       parameters:
         - in: path
           name: pid
@@ -782,42 +651,82 @@ paths:
             type: string
           required: true
           description: Identifikátor PID 
-        - in: path
-          name: type
-          schema:
-            type: string
-            enum: 
-              - text
-              - alto
-          required: true
-          description: Identifikátor ocr dat (povoleny pouze 'text' nebo 'alto') 
       responses:
         '200':
-          description: Úspěšné získání ocr dat
+          description: Úspěšné získání textových ocr dat
           content:
             text/plain:
               schema:
                 type: string
                 example: |
                   Toto je příklad textového OCR obsahu.
-            application/xml:
-              schema:
-                type: string
-                example: |
-                          <alto>
-                            <Layout>
-                              <Page WIDTH="2100" HEIGHT="2970">
-                                <!-- XML obsah OCR dat -->
-                              </Page>
-                            </Layout>
-                          </alto>
         '400':
           description: Chybný formát nebo hodnota PID identifikátoru.
         '403':
           description: Uživatel nemá dostatečná oprávnění k přístupu k tomuto objektu.
         '404':
           description: PID identifikátor neexistuje nebo nebyl nalezen.
-   
+
+
+  # Dotazy na ocr data       
+  /items/{pid}/ocr/alto:
+    head:
+      tags:
+        - Informace o titulu
+      summary: Dotaz na existenci ocr dat v alto formátu
+      description: Dotaz na existenci ocr dat v alto formátu
+      operationId: hasAltotOcr
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+      responses:
+        '200':
+          description: OCR data jsou dostupná
+        '400':
+          description: Chybný formát nebo hodnota PID identifikátoru.
+        '403':
+          description: Uživatel nemá dostatečná oprávnění k přístupu k tomuto objektu.
+        '404':
+          description: PID identifikátor neexistuje nebo nebyl nalezen.
+    get:
+      tags:
+        - Informace o titulu
+      summary: Získání OCR dat v alto formátu
+      description: Získání OCR dat v alto formátu
+      operationId: getAltotOcr
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+          required: true
+          description: Identifikátor PID 
+      responses:
+        '200':
+          description: Úspěšné získání textových ocr dat
+          content:
+            application/xml:
+              schema:
+                type: string
+                xml:
+                    name: alto  
+                    namespace: "http://www.loc.gov/standards/alto/ns-v2#"
+                    prefix: alto
+              example: ... příklad alto streamu ...           
+        '400':
+          description: Chybný formát nebo hodnota PID identifikátoru.
+        '403':
+          description: Uživatel nemá dostatečná oprávnění k přístupu k tomuto objektu.
+        '404':
+          description: PID identifikátor neexistuje nebo nebyl nalezen.
+
+
+
+
   # Dotazy na obrazová data       
   /items/{pid}/image:
     head:
@@ -1533,4 +1442,6 @@ paths:
                     }
           '404':
                 description: Neexistující zámek nebo volající není vlastníkem zámku
+
+
 
