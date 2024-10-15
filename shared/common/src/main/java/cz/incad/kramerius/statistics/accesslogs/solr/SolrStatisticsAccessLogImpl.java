@@ -4,6 +4,7 @@ import static org.apache.http.HttpStatus.SC_OK;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
@@ -19,10 +20,13 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpResponseException;
@@ -66,7 +70,12 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 
 public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
-	private static final String SOLR_POINT = "k7.log.solr.point";
+	private static final String DATE_RANGE_START_YEAR_FIELD = "date_range_start.year";
+    private static final String DATE_RANGE_END_YEAR_FIELD = "date_range_end.year";
+    private static final String DATE_STR_FIELD = "date.str";
+
+
+    private static final String SOLR_POINT = "k7.log.solr.point";
 
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
@@ -112,8 +121,14 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
         Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
-        
-        
+
+        try {
+            StringWriter writer = new StringWriter();
+            XMLUtils.print(solrDoc, writer);
+            LOGGER.fine("Reporting doc for '"+pid+"' => "+writer.toString());
+        } catch (TransformerException e1) {
+            LOGGER.log(Level.SEVERE,e1.getMessage(),e1);
+        }
         
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(solrDoc);
         ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(solrDoc);
@@ -202,17 +217,19 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             }
 
             // Issue #1046
-            Object dateFromSolr = SElemUtils.selem("str", "date.str", solrDoc);
+            Object dateFromSolr = SElemUtils.selem("str", DATE_STR_FIELD, solrDoc);
             if (dateFromSolr!= null) logRecord.setDateStr(dateFromSolr.toString());
+            else LOGGER.fine("No "+DATE_STR_FIELD);
             
-            Object dateRangeEnd = SElemUtils.selem("int", "date_range_end.year", solrDoc);
+            Object dateRangeEnd = SElemUtils.selem("int", DATE_RANGE_END_YEAR_FIELD, solrDoc);
             if (dateRangeEnd != null) logRecord.setDateRangeEnd(dateRangeEnd.toString());
+            else LOGGER.fine("No "+DATE_RANGE_END_YEAR_FIELD);
             
-            Object dateRangeStart = SElemUtils.selem("int", "date_range_start.year", solrDoc);
+            Object dateRangeStart = SElemUtils.selem("int", DATE_RANGE_START_YEAR_FIELD, solrDoc);
             if (dateRangeStart != null) logRecord.setDateRangeStart(dateRangeStart.toString());
+            else LOGGER.fine("No "+DATE_RANGE_START_YEAR_FIELD);
             
             logRecord.setFieldsFromHttpRequestHeaders(extractFieldsFromHttpRequestHeaders());
-
             
             for (int i = 0, ll = paths.length; i < ll; i++) {
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -292,6 +309,18 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             try {
                 String loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/logs");
                 String updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
+                
+                LOGGER.fine("Log record is "+logRecord.toString());
+                
+                Document batch = logRecord.toSolrBatch(this.documentBuilderFactory);
+                try {
+                    StringWriter writer = new StringWriter();
+                    XMLUtils.print(batch, writer);
+                    LOGGER.fine("Update doc  => "+writer.toString());
+                } catch (TransformerException e1) {
+                    LOGGER.log(Level.SEVERE,e1.getMessage(),e1);
+                }
+                
                 SolrUpdateUtils.sendToDest(this.client, logRecord.toSolrBatch(this.documentBuilderFactory), updateUrl);
             } catch (ParserConfigurationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);

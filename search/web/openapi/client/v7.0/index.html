@@ -39,8 +39,8 @@
 
     <div class="app-custom-auth-buttons">
       <div class="app-container">
-        <button id="login-button" onclick="login()">Login</button>
-        <button id="logout-button" onclick="logout()" disabled>Logout</button>
+        <button id="login-button" onclick="login(CLIENT_URL)">Login</button>
+        <button id="logout-button" onclick="logout(CLIENT_URL)" disabled>Logout</button>
       </div>
     </div>
   
@@ -51,27 +51,15 @@
     <script src="./swagger-ui-bundle.js" charset="UTF-8"> </script>
     <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
     <script src="./swagger-initializer.js" charset="UTF-8"> </script>
+    <script src="../../openapi-initializer.js" charset="UTF-8"> </script>
 
     <script>
-    
-        var TOKEN = null;
-        
-        function login() {
-          const redirectUri = window.location.origin + '/search/openapi/index.html';
-          const authorizationUrl = `../api/client/v7.0/user/auth/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
-          window.location.href = authorizationUrl;
-        }
 
-        function logout() {
-          const redirectUri = window.location.origin + '/search/openapi/index.html';
-          const authorizationUrl = `../api/client/v7.0/user/auth/logout?redirect_uri=${encodeURIComponent(redirectUri)}`;
-          window.location.href = authorizationUrl;
-        }
-
+			
         const currentUrl = window.location.origin;
         window.onload = function() {
         const ui = SwaggerUIBundle({
-            url: "../api/client/v7.0/embedded/files/openapi.yaml",
+            url: CLIENT_DEFINITION_URL, 
             dom_id: '#swagger-ui',
             deepLinking: true,
             defaultModelsExpandDepth: -1,
@@ -100,7 +88,7 @@
         const code = url.searchParams.get('code');
         const tokenSet = url.searchParams.get('tokenSet');
         if (code && !tokenSet) {
-            const redirectUri = window.location.origin + '/search/openapi/index.html';
+            const redirectUri = window.location.origin + CLIENT_URL;
             const encodedRedirectUri = encodeURIComponent(redirectUri);
             const tokenUrl = window.location.origin + `/search/api/client/v7.0/user/auth/token?code=${encodeURIComponent(code)}&redirect_uri=${encodedRedirectUri}`;
             
@@ -108,7 +96,7 @@
                 .done(function(response) {
 
                     if (response.error) {
-                        logout();
+                        logout(CLIENT_URL);
                     } else {
                         TOKEN = response;
                     }

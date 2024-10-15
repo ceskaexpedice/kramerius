@@ -30,12 +30,17 @@ public class Kramerius4ConnectionProvider implements Provider<Connection> {
         ds.setPassword(KConfiguration.getInstance().getJdbcUserPass());
         ds.setLeakDetectionThreshold(KConfiguration.getInstance().getConfiguration().getInt("jdbcLeakDetectionThreshold"));
         ds.setMaximumPoolSize(KConfiguration.getInstance().getConfiguration().getInt("jdbcMaximumPoolSize"));
+
         ds.setConnectionTimeout(KConfiguration.getInstance().getConfiguration().getInt("jdbcConnectionTimeout"));
+        
+        ds.setValidationTimeout(KConfiguration.getInstance().getConfiguration().getInt("jdbcValidationTimeout",30000));
+        ds.setIdleTimeout(KConfiguration.getInstance().getConfiguration().getInt("jdbcIdleTimeout",600000)); 
+        ds.setMaxLifetime(KConfiguration.getInstance().getConfiguration().getInt("jdbcMaxLifetime",1800000));
 
         int datasourceSocketTimeout = KConfiguration.getInstance().getConfiguration().getInt("datasourceSocketTimeout",30);
         ds.addDataSourceProperty("socketTimeout", datasourceSocketTimeout);
-
         ds.setKeepaliveTime(120000);
+
         return ds;
     }
 

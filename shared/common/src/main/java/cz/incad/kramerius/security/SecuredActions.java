@@ -112,7 +112,10 @@ public enum SecuredActions {
     A_SDNNT_SYNC("a_sdnnt_sync"),
     
     /** Object editation */
-    A_OBJECT_EDIT("a_object_edit");
+    A_OBJECT_EDIT("a_object_edit"),
+    
+    /** Admin openapi specification read */
+    A_ADMIN_API_SPECIFICATION_READ("a_admin_api_specification_read");
     
     private String formalName;
     private boolean onlyGlobalAction;
