@@ -3503,6 +3503,42 @@ paths:
             application/json:
               schema:
                 type: string
+              example: {
+                "batches": [
+                  {
+                    "processes": [
+                      {
+                        "defid": "import",
+                        "name": "Import FOXML z /k4_ae9265da-e51b-4521-80ca-532ffde5277a ",
+                        "started": "2024-10-16T07:11:29.899",
+                        "finished": "2024-10-16T07:11:35.15",
+                        "id": "587",
+                        "state": "FINISHED",
+                        "planned": "2024-10-16T07:11:29.815",
+                        "uuid": "6f10ffa5-8cab-476e-a1d4-97781945fec8"
+                      },
+                      {
+                        "defid": "new_indexer_index_object",
+                        "name": "Indexace Orlické hory a Podorlicko: přírodou, dějinami, současností : sborník vlastivědných prací ([uuid:263c8c1c-8873-47d4-8586-3a0a3c9dc1db], typ TREE_AND_FOSTER_TREES)",
+                        "started": "2024-10-16T07:11:35.991",
+                        "finished": "2024-10-16T07:11:40.491",
+                        "id": "588",
+                        "state": "FINISHED",
+                        "planned": "2024-10-16T07:11:35.057",
+                        "uuid": "b33e5ee5-d243-4cf7-b471-eae052bbcc6f"
+                      }
+                    ],
+                    "batch": {
+                      "owner_name": "krameriusadmin",
+                      "owner_id": "krameriusadmin",
+                      "started": "2024-10-16T07:11:29.899",
+                      "finished": "2024-10-16T07:11:40.491",
+                      "id": "587",
+                      "state": "FINISHED",
+                      "planned": "2024-10-16T07:11:29.815",
+                      "token": "f4910a6d-ca34-468c-a400-c67a8fe501e8"
+                    }
+                  }]}
         '400':
           description: Nevalidní query parametr (offset, limit, from, until)
         '403':
