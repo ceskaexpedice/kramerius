@@ -90,6 +90,9 @@ public class MetsConvertor {
             int argsIndex = 0;
             boolean policyPublic = Boolean.parseBoolean(args[argsIndex++]);
             String importRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.directory");
+            
+            log.info(String.format("Import directory %s", importRoot));
+
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
             new MetsConvertor().run(importRoot, exportRoot, policyPublic, false, null, null, null);
         } else { // as a process
@@ -106,6 +109,8 @@ public class MetsConvertor {
             String policy = args[argsIndex++];
             boolean policyPublic = "PUBLIC".equals(policy);
             String importRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.directory");
+            log.info(String.format("Import directory %s", importRoot));
+
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
             boolean startIndexer = Boolean.valueOf(args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
             
