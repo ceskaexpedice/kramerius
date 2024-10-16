@@ -89,7 +89,6 @@ public class RolesResource {
         try {
             User user = this.userProvider.get();
             if (permitRead(user) ||  permit(user)) {
-            //if (permit(this.userProvider.get())) {
                 Role role = this.userManager.findRole(Integer.parseInt(roleId));
                 if (role != null) {
                     return Response.ok().entity(roleToJSON(role).toString()).build();

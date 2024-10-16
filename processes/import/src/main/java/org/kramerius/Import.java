@@ -127,6 +127,9 @@ public class Import {
         String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //process params
         String importDirFromArgs = args.length > argsIndex ? args[argsIndex++] : null;
+        log.info(String.format("Import directory %s", importDirFromArgs));
+        
+        
         Boolean startIndexerFromArgs = args.length > argsIndex ? Boolean.valueOf(args[argsIndex++]) : null;
         
         String license = null;
@@ -184,8 +187,8 @@ public class Import {
             log.info("start indexer: " + startIndexer);
             log.info("license : " + license);
             
-            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken,addCollection);
-            
+            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken,addCollection);
+
             log.info( String.format("Deleting import folder %s", licensesImportFile));
             FileUtils.deleteDirectory(licensesImportFile);
             
