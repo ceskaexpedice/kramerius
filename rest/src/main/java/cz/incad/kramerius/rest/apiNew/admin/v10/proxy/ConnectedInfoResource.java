@@ -204,6 +204,7 @@ public class ConnectedInfoResource {
         return Response.ok(config.toString()).build();
     }
 
+    
     @GET
     @Path("{library}/config/channel/health")
     @Produces(MediaType.APPLICATION_JSON)
@@ -211,24 +212,25 @@ public class ConnectedInfoResource {
         JSONObject healthObject = new JSONObject();
         JSONObject channelObject = new JSONObject();
         JSONObject usersObject = new JSONObject();
-        
+
         healthObject.put("channel", channelObject);
         healthObject.put("users", usersObject);
 
         channelHealth(library, channelObject,usersObject);
-            
-        
         return Response.ok(healthObject.toString()).build();
     }
+
+
+    
+    
+    
+    
 
     private void channelHealth(String library, JSONObject channelObject, JSONObject usersObject) {
         boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
         String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
-
         if (channelAccess) {
             OneInstance inst = this.libraries.find(library);
-            //healthObject.put("status", inst.isConnected());
-            
             if (inst.isConnected() && StringUtils.isAnyString(channel)) {
                 channelObject.put("enabled", true);
                 // solr

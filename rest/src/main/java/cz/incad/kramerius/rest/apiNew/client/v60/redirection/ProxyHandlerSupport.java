@@ -7,11 +7,13 @@ import static cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem.R
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,22 +31,28 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.AlreadyRegistedPidsException;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem.TypeOfReharvset;
 import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.InstanceType;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -167,10 +175,15 @@ public abstract class ProxyHandlerSupport {
 
     public void deleteTriggeToReharvest(String pid) {
         if (reharvestManager != null && pid != null) {
-            // LOGGER.info(String.format("Registering pid %s",pid));
             try {
+                
+                String cdkRootPid = null;
+                String cdkOwnPidPath = null;
+                String cdkOwnParentPid = null;
+//                String intropsectingPid = pid;
+                
                 Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
-                Element rootPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
+                Element rootPidElm = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
                         new XMLUtils.ElementsFilter() {
                             @Override
                             public boolean acceptElement(Element element) {
@@ -180,8 +193,8 @@ public abstract class ProxyHandlerSupport {
                                 }
                                 return false;
                             }
-                        });
-
+                });
+                cdkRootPid = rootPidElm != null ? rootPidElm.getTextContent() : null;
                 Element ownPidPath = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
                         new XMLUtils.ElementsFilter() {
                             @Override
@@ -192,9 +205,10 @@ public abstract class ProxyHandlerSupport {
                                 }
                                 return false;
                             }
-                        });
-
-                Element ownParentPid = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
+                });
+                cdkOwnPidPath = ownPidPath != null ? ownPidPath.getTextContent() : null;
+                
+                Element ownParentPidElm = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
                         new XMLUtils.ElementsFilter() {
                             @Override
                             public boolean acceptElement(Element element) {
@@ -204,55 +218,61 @@ public abstract class ProxyHandlerSupport {
                                 }
                                 return false;
                             }
-                        });
+                });
+                cdkOwnParentPid = ownParentPidElm != null ? ownParentPidElm.getTextContent() : null;
 
-                Element cdkCollection = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
-                        new XMLUtils.ElementsFilter() {
-                            @Override
-                            public boolean acceptElement(Element element) {
-                                if (element.getNodeName().equals("arr")) {
-                                    String fieldName = element.getAttribute("name");
-                                    return fieldName.equals("cdk.collection");
-                                }
-                                return false;
-                            }
-                        });
-
-                if (rootPid != null && ownPidPath != null && ownParentPid != null) {
+                if (rootPidElm != null && ownPidPath != null && ownParentPidElm != null) {
                     String pidPath = ownPidPath.getTextContent().trim();
-                    String ownParentPidText = ownParentPid.getTextContent().trim();
+                    String ownParentPidText = ownParentPidElm.getTextContent().trim();
                     int index = pidPath.indexOf(ownParentPidText);
                     if (index >= 0) {
                         pidPath = pidPath.substring(0, index + ownParentPidText.length()).trim();
                     }
+                    
                     try {
+                        Pair<List<String>, List<String>> pair  = introspectPid(ownParentPidText);
                         ReharvestItem alreadyRegistredItem = this.reharvestManager
-                                .getOpenItemByPid(ownParentPid.getTextContent().trim());
+                                .getOpenItemByPid(ownParentPidText);
                         if (alreadyRegistredItem == null) {
-                            ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(),
-                                    "Delete trigger|404 ", "open", ownParentPid.getTextContent().trim(), pidPath);
-                            reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
-                            reharvestItem.setState("waiting_for_approve");
-                            if (cdkCollection != null) {
-                                // all libraries
-                                List<String> collections = new ArrayList<>();
-                                List<OneInstance> enabledInstances = this.instances.enabledInstances();
-                                for (OneInstance inst : enabledInstances) {
-                                    String acronym = inst.getName();
-                                    boolean channelAccess = KConfiguration.getInstance().getConfiguration()
-                                            .containsKey("cdk.collections.sources." + acronym + ".licenses")
-                                                    ? KConfiguration.getInstance().getConfiguration().getBoolean(
-                                                            "cdk.collections.sources." + acronym + ".licenses")
-                                                    : false;
-                                    if (channelAccess) {
-                                        collections.add(acronym);
+                            
+                            Document onwParentPidDocument = this.solrAccess.getSolrDataByPid(ownParentPidElm.getTextContent().trim());
+                            Element cdkModelElement = onwParentPidDocument!= null ? XMLUtils.findElement(onwParentPidDocument.getDocumentElement(),
+                                new XMLUtils.ElementsFilter() {
+                                    @Override
+                                    public boolean acceptElement(Element element) {
+                                        if (element.getNodeName().equals("str")) {
+                                            String fieldName = element.getAttribute("name");
+                                            return fieldName.equals("model");
+                                        }
+                                        return false;
                                     }
+                            }) : null;
+                            
+                            ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger|404 ", "open", ownParentPidElm.getTextContent().trim(), pidPath);
+                            List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
+                            LinkedHashSet<String> uniqueModels = new LinkedHashSet<>(pair.getLeft());
+                            if (uniqueModels.size() == 1) {
+                                String model = uniqueModels.iterator().next();
+                                if (cdkModelElement != null) {
+                                    String cdkModel = cdkModelElement.getTextContent().trim(); 
+                                    if (!cdkModel.equals(model)) {
+                                        //TODO: cdk conflict 
+                                        // delete - followed by reharvest
+                                        
+                                    } 
                                 }
-                                reharvestItem.setLibraries(collections);
+                                if (topLevelModels.contains(model)) {
+                                    reharvestItem.setTypeOfReharvest(TypeOfReharvset.root);
+                                } else {
+                                    reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
+                                }
+                            } else if (uniqueModels.size() > 1){
+                                // live conflict - reharvest dle nkp 
                             }
+                            reharvestItem.setLibraries(pair.getRight());
+                            reharvestItem.setState("waiting_for_approve");
                             this.reharvestManager.register(reharvestItem);
                         }
-
                     } catch (DOMException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     } catch (AlreadyRegistedPidsException e) {
@@ -267,6 +287,40 @@ public abstract class ProxyHandlerSupport {
         } else {
             LOGGER.log(Level.SEVERE, "No reharvest manager or pid ");
         }
+    }
+
+    private Pair<List<String>, List<String>> introspectPid(String pid) throws UnsupportedEncodingException {
+        List<String> models = new ArrayList<>();
+        List<String> liveInstances = new ArrayList<>();
+        List<OneInstance> instances = this.instances.enabledInstances();
+        for(OneInstance inst:instances) {
+            String library = inst.getName();
+            boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
+            if(channelAccess) {
+                String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
+                String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
+                InstanceType instType = inst.getInstanceType();
+                String solrPid = ChannelUtils.solrChannelPidExistence(this.client, channel, solrChannelUrl, instType.name(), pid);
+                
+                JSONObject obj = new JSONObject(solrPid);
+                JSONObject responseObject = obj.getJSONObject("response");
+                JSONArray docs = responseObject.getJSONArray("docs");
+                if (docs.length() > 0 ) {
+                    JSONObject doc = docs.getJSONObject(0);
+                    switch(inst.getInstanceType()) {
+                        case V5:
+                            models.add(doc.optString("fedora.model"));
+                            liveInstances.add(inst.getName());
+                        break;
+                        case V7:
+                            models.add(doc.optString("model"));
+                            liveInstances.add(inst.getName());
+                        break;
+                    }
+                }
+            }
+        }
+        return Pair.of(models, liveInstances);
     }
 
     protected void mockSession() {

@@ -157,12 +157,23 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
         LOGGER.fine("Token id: "+token.getId() +", and returned claims:"+ token.getOtherClaims());
         Map<String, Object> otherClaims = token.getOtherClaims();
         otherClaims.keySet().forEach(key-> {
-        	Object object = otherClaims.get(key);
-        	if (object != null) {
-            	LOGGER.log(Level.FINE,"Key value  "+key+" = "+object.toString());
-            	keycloack3rdUser.setProperty(key, object.toString());
-        	}
+            Object object = otherClaims.get(key);
+            if (object != null) {
+                LOGGER.log(Level.FINE,"Key value  "+key+" = "+object.toString());
+                keycloack3rdUser.setProperty(key, object.toString());
+            }
         });
+        
+        /** K5 instance */
+        Set<String> allKeys = keycloack3rdUser.getPropertyKeys();
+        if (allKeys.contains("eduPersonScopedAffiliation") && !allKeys.contains("affiliation")) {
+            keycloack3rdUser.setProperty("affiliation", keycloack3rdUser.getProperty("eduPersonScopedAffiliation"));
+        }
+
+        if (allKeys.contains("eduPersonEntitlement") && !allKeys.contains("entitlement")) {
+            keycloack3rdUser.setProperty("entitlement", keycloack3rdUser.getProperty("eduPersonEntitlement"));
+        }
+
         return keycloack3rdUser;
     }
 
