@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10.proxy;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -36,6 +37,7 @@ import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.InstanceType;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.TypeOfChangedStatus;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.user.V5ForwardUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v60.redirection.user.V7ForwardUserHandler;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.utils.IntrospectUtils;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.PhysicalLocationMap;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -221,10 +223,30 @@ public class ConnectedInfoResource {
     }
 
 
+    @GET
+    @Path("introspect/{pid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response introspectPid(@PathParam("pid") String pid) {
+        try {
+            Pair<List<String>, List<String>> intropsected = IntrospectUtils.introspectPid(this.client, this.libraries, pid);
+            JSONObject retval = new JSONObject();
+            JSONArray modelsArr = new JSONArray();
+            JSONArray libsArr = new JSONArray();
+            intropsected.getLeft().forEach(modelsArr::put);
+            intropsected.getRight().forEach(libsArr::put);
+            retval.put("models", modelsArr);
+            retval.put("libraries", libsArr);
+            return Response.ok(retval.toString()).build();
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     
     
     
-    
+
+        
 
     private void channelHealth(String library, JSONObject channelObject, JSONObject usersObject) {
         boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;

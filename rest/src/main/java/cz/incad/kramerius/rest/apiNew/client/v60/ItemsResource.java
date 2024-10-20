@@ -508,7 +508,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.mods(get);
+                return redirectHandler.dc(get);
             } else {
                 return Response.ok().build();
             }
