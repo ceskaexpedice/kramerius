@@ -202,6 +202,36 @@ public class ItemsResource extends AdminApiResource {
                     InstanceType instType = inst.getInstanceType();
                     String solrPid = ChannelUtils.solrChannelPidExistence(this.client, channel, solrChannelUrl, instType.name(), pid);
                     if (solrPid != null) {
+                        JSONObject responseObj = null; 
+                        switch(instType) {
+                            case V5:
+                                // make solr fields accessible
+                                // PID copy to pid
+                                // fedora.model copy to model
+                                // root_pid copy to root_pid
+                                // pid_path copy to pid_paths
+                                JSONObject k5resp = new JSONObject(solrPid);
+                                JSONObject optJSONObject = k5resp.optJSONObject("response");
+                                if (optJSONObject != null) {
+                                    JSONArray docs = optJSONObject.getJSONArray("docs");
+                                    for (int i = 0; i < docs.length(); i++) {
+                                        JSONObject doc = docs.getJSONObject(i);
+                                        if (doc.has("PID")) {
+                                            doc.put("pid", doc.getString("pid"));
+                                        }
+                                        if (doc.has("fedora.model")) {
+                                            doc.put("model", doc.getString("fedora.model"));
+                                        }
+
+                                        if (doc.has("pid_path")) {
+                                            doc.put("pid_paths", doc.getJSONArray("pid_path"));
+                                        }
+}
+                                }
+                                
+                            default:
+                                responseObj = new JSONObject(solrPid); 
+                        }
                         obj.put(library, new JSONObject(solrPid));
                     }
                 }
