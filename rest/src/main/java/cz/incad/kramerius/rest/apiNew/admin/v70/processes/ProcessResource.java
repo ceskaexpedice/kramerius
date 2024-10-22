@@ -1136,7 +1136,7 @@ public class ProcessResource extends AdminApiResource {
                 File inputDataDir = null;
                 String pathType = extractOptionalParamString(params, "pathtype", "relative");
                 if (pathType.equals("relative")) {
-                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
+                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("convert.directory")));
                 } else { // absolute
                     inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir",  null);
                 }
