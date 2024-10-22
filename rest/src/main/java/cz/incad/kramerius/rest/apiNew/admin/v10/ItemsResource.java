@@ -220,7 +220,7 @@ public class ItemsResource extends AdminApiResource {
                                             doc.put("pid", doc.getString("PID"));
                                         }
                                         if (doc.has("fedora.model")) {
-                                            doc.put("model", doc.root_pid("fedora.model"));
+                                            doc.put("model", doc.getString("fedora.model"));
                                         }
 
                                         if (doc.has("pid_path")) {
@@ -228,7 +228,7 @@ public class ItemsResource extends AdminApiResource {
                                         }
 
                                         if (doc.has("root_pid")) {
-                                            doc.put("root.pid", doc.root_pid("root_pid"));
+                                            doc.put("root.pid", doc.getString("root_pid"));
                                         }
 }
                                 }
