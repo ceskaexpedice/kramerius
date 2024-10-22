@@ -217,7 +217,7 @@ public class ItemsResource extends AdminApiResource {
                                     for (int i = 0; i < docs.length(); i++) {
                                         JSONObject doc = docs.getJSONObject(i);
                                         if (doc.has("PID")) {
-                                            doc.put("pid", doc.getString("pid"));
+                                            doc.put("pid", doc.getString("PID"));
                                         }
                                         if (doc.has("fedora.model")) {
                                             doc.put("model", doc.getString("fedora.model"));
