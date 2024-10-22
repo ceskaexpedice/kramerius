@@ -228,11 +228,14 @@ public class ItemsResource extends AdminApiResource {
                                         }
 }
                                 }
+                                responseObj = k5resp;
+                                break;
                                 
                             default:
                                 responseObj = new JSONObject(solrPid); 
+                                break;
                         }
-                        obj.put(library, new JSONObject(solrPid));
+                        obj.put(library, responseObj);
                     }
                 }
             }
