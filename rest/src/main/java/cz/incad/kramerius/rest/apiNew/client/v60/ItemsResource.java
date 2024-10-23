@@ -411,7 +411,7 @@ public class ItemsResource extends ClientApiResource {
         }
     }
     
-    //
+    /**
     @GET
     @Path("{pid}/metadata/deletetrig")
     @Produces(MediaType.APPLICATION_JSON)
@@ -434,7 +434,7 @@ public class ItemsResource extends ClientApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
-    }
+    }**/
 
 
     @GET
