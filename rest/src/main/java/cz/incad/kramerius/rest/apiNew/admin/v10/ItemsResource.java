@@ -1,19 +1,16 @@
 package cz.incad.kramerius.rest.apiNew.admin.v10;
 
-import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
 import cz.incad.kramerius.rest.apiNew.client.v60.libs.Instances;
-import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance;
-import cz.incad.kramerius.rest.apiNew.client.v60.libs.OneInstance.InstanceType;
+import cz.incad.kramerius.rest.apiNew.client.v60.redirection.utils.IntrospectUtils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
@@ -191,66 +188,14 @@ public class ItemsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response introspectPidInInstances(@PathParam("pid") String pid) {
         try {
-            JSONObject obj = new JSONObject();
-            List<OneInstance> instances = libraries.enabledInstances();
-            for(OneInstance inst:instances) {
-                String library = inst.getName();
-                boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
-                if(channelAccess) {
-                    String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
-                    String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
-                    InstanceType instType = inst.getInstanceType();
-                    String solrPid = ChannelUtils.solrChannelPidExistence(this.client, channel, solrChannelUrl, instType.name(), pid);
-                    if (solrPid != null) {
-                        JSONObject responseObj = null; 
-                        switch(instType) {
-                            case V5:
-                                // make solr fields accessible
-                                // PID copy to pid
-                                // fedora.model copy to model
-                                // root_pid copy to root_pid
-                                // pid_path copy to pid_paths
-                                JSONObject k5resp = new JSONObject(solrPid);
-                                JSONObject optJSONObject = k5resp.optJSONObject("response");
-                                if (optJSONObject != null) {
-                                    JSONArray docs = optJSONObject.getJSONArray("docs");
-                                    for (int i = 0; i < docs.length(); i++) {
-                                        JSONObject doc = docs.getJSONObject(i);
-                                        if (doc.has("PID")) {
-                                            doc.put("pid", doc.getString("PID"));
-                                        }
-                                        if (doc.has("fedora.model")) {
-                                            doc.put("model", doc.getString("fedora.model"));
-                                        }
-
-                                        if (doc.has("pid_path")) {
-                                            doc.put("pid_paths", doc.getJSONArray("pid_path"));
-                                        }
-
-                                        if (doc.has("root_pid")) {
-                                            doc.put("root.pid", doc.getString("root_pid"));
-                                        }
-}
-                                }
-                                responseObj = k5resp;
-                                break;
-                                
-                            default:
-                                responseObj = new JSONObject(solrPid); 
-                                break;
-                        }
-                        obj.put(library, responseObj);
-                    }
-                }
-            }
+            JSONObject obj = IntrospectUtils.introspectSolr(this.client, this.libraries, pid);
             return Response.ok(obj.toString()).build();
         } catch (UnsupportedEncodingException | JSONException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
-    
-    
+
     @GET
     @Path("{pid}/foxml")
     @Produces(MediaType.APPLICATION_XML)

@@ -10,10 +10,13 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +33,8 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -174,7 +179,7 @@ public abstract class ProxyHandlerSupport {
                 String cdkRootPid = null;
                 String cdkOwnPidPath = null;
                 String cdkOwnParentPid = null;
-//                String intropsectingPid = pid;
+
                 
                 Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
                 Element rootPidElm = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
@@ -224,11 +229,45 @@ public abstract class ProxyHandlerSupport {
                     }
                     
                     try {
-                        Pair<List<String>, List<String>> pair  = IntrospectUtils.introspectPid(this.client, this.instances, ownParentPidText);
-                        ReharvestItem alreadyRegistredItem = this.reharvestManager
-                                .getOpenItemByPid(ownParentPidText);
+
+                        Map<String, JSONObject> map = new HashMap<>();
+                        
+                        JSONObject jsonResult = IntrospectUtils.introspectSolr(this.client, this.instances, ownParentPidText);
+                        Set keys = jsonResult.keySet();
+                        for (Object keyObj : keys) {
+                            String key = keyObj.toString();
+                            JSONObject solrResult = jsonResult.getJSONObject(key);
+                            JSONObject response = solrResult.getJSONObject("response");
+                            int numFound = response.optInt("numFound");
+                            if (numFound > 0) {
+                                JSONObject doc =  response.getJSONArray("docs").getJSONObject(0);
+                                map.put(key, doc);
+                                
+                                /*
+                                 *  
+                                 *  {
+                                      "fedora.model": "periodical",
+                                      "root.pid": "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867",
+                                      "pid_paths": [
+                                        "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867"
+                                      ],
+                                      "PID": "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867",
+                                      "pid": "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867",
+                                      "model": "periodical",
+                                      "pid_path": [
+                                        "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867"
+                                      ],
+                                      "root_pid": "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867"
+                                 *  }
+                                 *   
+                                 */
+                                
+                            }
+                        }
+                        
+                        
+                        ReharvestItem alreadyRegistredItem = this.reharvestManager.getOpenItemByPid(ownParentPidText);
                         if (alreadyRegistredItem == null) {
-                            
                             Document onwParentPidDocument = this.solrAccess.getSolrDataByPid(ownParentPidElm.getTextContent().trim());
                             Element cdkModelElement = onwParentPidDocument!= null ? XMLUtils.findElement(onwParentPidDocument.getDocumentElement(),
                                 new XMLUtils.ElementsFilter() {
@@ -244,7 +283,21 @@ public abstract class ProxyHandlerSupport {
                             
                             ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger|404 ", "open", ownParentPidElm.getTextContent().trim(), pidPath);
                             List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-                            LinkedHashSet<String> uniqueModels = new LinkedHashSet<>(pair.getLeft());
+
+                            LinkedHashSet<String> uniqueRootPids = new LinkedHashSet<>();
+                            map.keySet().forEach(key-> {
+                                String rootPid = map.get(key).optString("root.pid");
+                                uniqueRootPids.add(rootPid);
+                                
+                            });                            
+                            
+                            LinkedHashSet<String> uniqueModels = new LinkedHashSet<>();
+                            map.keySet().forEach(key-> {
+                                String model = map.get(key).optString("model");
+                                uniqueModels.add(model);
+                            });
+                            
+                            
                             if (uniqueModels.size() == 1) {
                                 String model = uniqueModels.iterator().next();
                                 if (cdkModelElement != null) {
@@ -252,7 +305,6 @@ public abstract class ProxyHandlerSupport {
                                     if (!cdkModel.equals(model)) {
                                         //TODO: cdk conflict 
                                         // delete - followed by reharvest
-                                        
                                     } 
                                 }
                                 if (topLevelModels.contains(model)) {
@@ -263,7 +315,8 @@ public abstract class ProxyHandlerSupport {
                             } else if (uniqueModels.size() > 1){
                                 // live conflict - reharvest dle nkp 
                             }
-                            reharvestItem.setLibraries(pair.getRight());
+                            reharvestItem.setLibraries(new ArrayList<>( map.keySet()) );
+                            //reharvestItem.setLibraries(pair.getRight());
                             reharvestItem.setState("waiting_for_approve");
                             this.reharvestManager.register(reharvestItem);
                         }

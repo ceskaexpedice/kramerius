@@ -53,4 +53,61 @@ public class IntrospectUtils {
         }
         return Pair.of(models, liveInstances);
     }
+
+    /** introspect utils */
+    public static JSONObject introspectSolr(Client client, Instances libraries, String pid) throws UnsupportedEncodingException {
+            JSONObject obj = new JSONObject();
+            List<OneInstance> instances = libraries.enabledInstances();
+            for(OneInstance inst:instances) {
+                String library = inst.getName();
+                boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
+                if(channelAccess) {
+                    String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
+                    String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
+                    InstanceType instType = inst.getInstanceType();
+                    String solrPid = ChannelUtils.solrChannelPidExistence(client, channel, solrChannelUrl, instType.name(), pid);
+                    if (solrPid != null) {
+                        JSONObject responseObj = null; 
+                        switch(instType) {
+                            case V5:
+                                // make solr fields accessible
+                                // PID copy to pid
+                                // fedora.model copy to model
+                                // root_pid copy to root_pid
+                                // pid_path copy to pid_paths
+                                JSONObject k5resp = new JSONObject(solrPid);
+                                JSONObject optJSONObject = k5resp.optJSONObject("response");
+                                if (optJSONObject != null) {
+                                    JSONArray docs = optJSONObject.getJSONArray("docs");
+                                    for (int i = 0; i < docs.length(); i++) {
+                                        JSONObject doc = docs.getJSONObject(i);
+                                        if (doc.has("PID")) {
+                                            doc.put("pid", doc.getString("PID"));
+                                        }
+                                        if (doc.has("fedora.model")) {
+                                            doc.put("model", doc.getString("fedora.model"));
+                                        }
+    
+                                        if (doc.has("pid_path")) {
+                                            doc.put("pid_paths", doc.getJSONArray("pid_path"));
+                                        }
+    
+                                        if (doc.has("root_pid")) {
+                                            doc.put("root.pid", doc.getString("root_pid"));
+                                        }
+    }
+                                }
+                                responseObj = k5resp;
+                                break;
+                                
+                            default:
+                                responseObj = new JSONObject(solrPid); 
+                                break;
+                        }
+                        obj.put(library, responseObj);
+                    }
+                }
+            }
+            return obj;
+        }
 }
