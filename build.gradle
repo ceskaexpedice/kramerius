@@ -69,16 +69,6 @@ repositories {
  * Inject to all subprojects
  */
 allprojects {
-    /*
-    configurations.all {
-        resolutionStrategy {
-            // Set timeout for dependency resolution
-            eachDependency { DependencyResolveDetails details ->
-                details.useVersion details.requested.version
-            }
-            cacheChangingModulesFor 0, 'seconds'
-        }
-    }*/
 
     apply plugin:'java'
     apply plugin:'java-library'
@@ -241,9 +231,6 @@ allprojects {
 }
 
 allprojects {
-
-
-
     task sourcesJar(type: Jar) { //workaround for setting duplicatesStrategy for subsequent withSourcesJar call
         duplicatesStrategy = 'include'
         archiveClassifier = 'sources'
@@ -314,30 +301,6 @@ task distZip(type:Zip, dependsOn: 'zipInstallDir') {
 
     exclude "**.tar"
 }
-
-/*
-task distZipWOEditors(type: Zip, dependsOn: 'zipInstallDir') {
-    description "Create  distributions zip without editors"
-    baseName "kramerius"
-    group "Distribution"
-    from { 'search/build/libs' }
-    from { 'build/installation' }
-}*/
-
-/**
- * Patch distribution task
-  // DISABLED	
-task distPatchZip(type:Zip) {
-    description "Create patch distribution zip"
-    baseName "kramerius-patch"
-    group "Distribution"
-    from configurations.database
-    from {'search/build/libs'}
-    from {'processes/migration/build/distributions'}
-
-    exclude "**.tar"
-}
- */
 
 
 // zip installaton directory

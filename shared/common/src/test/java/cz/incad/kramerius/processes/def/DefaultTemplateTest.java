@@ -64,6 +64,7 @@ public class DefaultTemplateTest {
             + "processes.defaultfields.second=druhy\n" + "processes.defaultfields.third=treti\n";
 
 
+    // TODO make it work by upgrading Guice libraries
     @Ignore
     @Test
     public void shouldRenderTemplate() throws IOException, ParserConfigurationException, SAXException {
