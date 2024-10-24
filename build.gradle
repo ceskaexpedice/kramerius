@@ -329,3 +329,9 @@ task zipAllJavadocs(type: Zip) {
 
     }
 }
+
+task printJavaVersion {
+    doLast {
+        println "Running on Java version: ${System.getProperty('java.version')}"
+    }
+}
