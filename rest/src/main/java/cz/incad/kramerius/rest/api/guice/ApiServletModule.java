@@ -45,7 +45,6 @@ import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
 import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
-import cz.incad.kramerius.rest.api.k5.client.info.InfoResource;
 import cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
@@ -91,7 +90,6 @@ public class ApiServletModule extends JerseyServletModule {
         bind(ClientRightsResource.class);
         bind(PDFResource.class);
         bind(AsyncPDFResource.class);
-        bind(InfoResource.class);
         bind(RightsResource.class);
         bind(UsersResource.class);
         bind(RolesResource.class);
