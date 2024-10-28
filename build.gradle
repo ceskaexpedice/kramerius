@@ -156,10 +156,6 @@ allprojects {
 
 
         maven {
-            url "https://m2.duraspace.org/content/repositories/releases"
-        }
-
-        maven {
             url "https://maven.java.net/content/repositories/snapshots/"
         }
 
@@ -207,6 +203,9 @@ allprojects {
     //~ overwrite windows encoding
     test {
         systemProperty "file.encoding", "utf-8"
+
+		jvmArgs "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+				"--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED"
     }
 
     tasks.withType(JavaCompile) {

@@ -124,8 +124,7 @@ repositories {
 
 jib {
     from {
-        image = 'tomcat:9.0.87-jre11-temurin-jammy'
-        //image = 'bitnami/tomcat:9.0.75'
+        image = 'tomcat:9.0.87-jre21-temurin-jammy'
         platforms {
             platform {
                 architecture = 'amd64'
