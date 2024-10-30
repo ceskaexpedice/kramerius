@@ -43,9 +43,13 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
         plainValueFields.put("keywords",  Arrays.asList("keywords.search","keywords.facet"));
         plainValueFields.put("geographic_names",  Arrays.asList("geographic_names.search","geographic_names.facet"));
         plainValueFields.put("search_autor",  Arrays.asList("authors","authors.search"));
+
+        plainValueFields.put("dc.creatorr",  Arrays.asList("authors","authors.search"));
+
         plainValueFields.put("facet_autor",  Arrays.asList("authors.facet"));
         
         plainValueFields.put("dc.title",  Arrays.asList("title.search","titles.search"));
+
         //plainValueFields.put("dc.title",  Arrays.asList("titles.search"));
 
         plainValueFields.put("keywords",  Arrays.asList("keywords.search", "keywords.facet"));
