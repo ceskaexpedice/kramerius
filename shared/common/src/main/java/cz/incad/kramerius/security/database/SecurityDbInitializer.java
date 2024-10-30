@@ -239,7 +239,8 @@ public class SecurityDbInitializer {
             
             updateExistingActions(connection);
             checkLabelExists(connection);
-            
+
+            dropDeprecatedLabels(connection);
             
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -248,6 +249,40 @@ public class SecurityDbInitializer {
         }
     }
 
+    
+    private static void dropDeprecatedLabels(Connection connection) {
+        CzechEmbeddedLicenses.DEPRECATED_LICENSES.forEach(lic->{
+
+            List<String> labels = new JDBCQueryTemplate<String>(connection, false) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                    returnsList.add(rs.getString("label_name"));
+                    return super.handleRow(rs, returnsList);
+                }
+            }.executeQuery("select * from labels_entity where label_name = ?", lic.getName());
+            if (!labels.isEmpty()) {
+                try {
+                    JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+                    template.setUseReturningKeys(false);
+
+                    template.executeUpdate(
+                            "DELETE FROM labels_entity WHERE label_name = ?",
+                            lic.getName()
+                        );
+                    
+//                    template.executeUpdate(
+//                            "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
+//                                    "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, ?, (select coalesce(max(label_priority),0)+1 from labels_entity))",
+//                            lic.getName(), lic.getDescription());
+
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, String.format("Cannot create embedded label %s", lic.getName()));
+                }
+
+            }
+        });
+    }
+    
     
     
     private static void checkLabelExists(Connection connection) {
