@@ -121,14 +121,6 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
         Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
-
-        try {
-            StringWriter writer = new StringWriter();
-            XMLUtils.print(solrDoc, writer);
-            LOGGER.fine("Reporting doc for '"+pid+"' => "+writer.toString());
-        } catch (TransformerException e1) {
-            LOGGER.log(Level.SEVERE,e1.getMessage(),e1);
-        }
         
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(solrDoc);
         ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(solrDoc);

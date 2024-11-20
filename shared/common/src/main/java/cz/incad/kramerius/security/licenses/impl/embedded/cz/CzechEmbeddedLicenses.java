@@ -61,8 +61,10 @@ public class CzechEmbeddedLicenses {
             ONSITE_LICENSE, 
             ORPHAN_LICENSE,
             PUBLIC_LICENSE,
-            PUBLIC_MUO_LICENSE,
+            //PUBLIC_MUO_LICENSE,
             SHHETMUSIC_ONSITE_LICENSE
     );
+    
+    public static List<License> DEPRECATED_LICENSES = Arrays.asList(PUBLIC_MUO_LICENSE);
     
 }

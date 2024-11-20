@@ -200,6 +200,9 @@ allprojects {
     //~ overwrite windows encoding
     test {
         systemProperty "file.encoding", "utf-8"
+
+		jvmArgs "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+				"--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED"
     }
 
     tasks.withType(JavaCompile) {
@@ -285,13 +288,20 @@ allprojects {
 /**
  * Distribution task; zipInstallDir first
  */
-task distZip(type:Zip, dependsOn: 'zipInstallDir') {
+task distZip(type:Zip, dependsOn: ['zipInstallDir', ':search:war', ':processes:migration:distZip']) {
     description "Create full distribution zip"
     archiveBaseName.set('kramerius')
     group "Distribution"
-	// core war 
+
+	// Nastavení závislosti na spuštění po `:search:war`
+    //finalizedBy ':search:war'
+
+	// core war
 	from {'search/build/libs'}
-	// migration tool 
+
+	//inputs.files file('search/build/libs/search.war')
+
+	// migration tool
     from {'processes/migration/build/distributions'}
 	// installation.zip
     from {'build/installation/'}
@@ -330,8 +340,3 @@ task zipAllJavadocs(type: Zip) {
     }
 }
 
-task printJavaVersion {
-    doLast {
-        println "Running on Java version: ${System.getProperty('java.version')}"
-    }
-}
