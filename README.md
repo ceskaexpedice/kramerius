@@ -79,19 +79,14 @@ Kompletní dokumentace k aktuální verzi je v sekci [Wiki](https://github.com/c
 
 [Instalační postup a konfigurace systému](https://github.com/ceskaexpedice/kramerius/wiki/Instalace) jsou popsány na Wiki.
 
-Službu instalace lze také objednat na http://www.unidata.cz/system-kramerius
-
-Distribuovanou instalaci u společnosti INOVATIKA, která zajišťuje analytické a programátorské práce.
-
-
 ## Podpora systému Kramerius
 
 Systém Kramerius je open source řešení. SW podporu poskytuje vývojový tým. 
 Pro garantované termíny musí mít instituce uzavřenu samostatnou smlouvu o podpoře.
 
-SPRÁVA SYSTÉMU
+INSTALACE A SPRÁVA SYSTÉMU
 
-Správa a dohled instalovaného systému může být zajištěna na základě individuální dohody.
+Správa instalovaného systému může být zajištěna na základě individuální dohody.
 Instalaci a správu systému mohou, vzhledem k licenci pod kterou je systém vyvíjen, zajišťovat i jiné subjekty.
 
 Technologickými partnery jsou společnosti [Galderon](mailto:kontakt@galderon.cz), [INOVATIKA](https://inovatika.cz/) a [Trinera](https://www.trinera.cz/)
