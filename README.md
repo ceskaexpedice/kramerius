@@ -86,7 +86,7 @@ Pro garantované termíny musí mít instituce uzavřenu samostatnou smlouvu o p
 
 INSTALACE A SPRÁVA SYSTÉMU
 
-Správa instalovaného systému může být zajištěna na základě individuální dohody.
+Instalace a správa instalovaného systému může být zajištěna na základě individuální dohody.
 Instalaci a správu systému mohou, vzhledem k licenci pod kterou je systém vyvíjen, zajišťovat i jiné subjekty.
 
 Technologickými partnery jsou společnosti [Galderon](mailto:kontakt@galderon.cz), [INOVATIKA](https://inovatika.cz/) a [Trinera](https://www.trinera.cz/)
