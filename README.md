@@ -2,8 +2,6 @@
 
 Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub (https://github.com/ceskaexpedice/kramerius/releases/latest) 
 
-Upozornění pro vývojáře: Větev master nyní obsahuje beta verzi Kramerius 7 s integrovaným úložištěm Akubra. Dosavadní produkční verze Kramerius 5 je převedena do režimu údržby ve samostatné větvi kramerius5
-
 # Kramerius system
 
 is a digital library open source software solution (GNU GPL v3) primarily designated for digitized library collections, monographs and periodicals. It can be used also for other types of documents such as maps, music sheets and old prints or parts of documents such as articles and chapters. The system is also suitable for digital born documents, i.e. documents that were created in electronic form. Kramerius is continuously developed so that the metadata structure corresponds to the standards announced by the National Library of the Czech Republic.
@@ -54,7 +52,6 @@ Národní 3, 115 22 Praha 1
 lhotak@knav.cz
 
 
-
 ## Financování
 
 V současné době je financování vývoje zajištěno zejména z grantů MK ČR prostřednictvím dotačních programů NAKI (projekt RightLib 2018-2022) a VISK (individuální roční projekty). Od roku 2019 je vývoj provázán i s rozvojem výzkumné infrastruktury LINDAT/CLARIAH-CZ umístěné na národní cestovní mapě velkých výzkumných infrastruktur. 
@@ -63,17 +60,6 @@ V letech 2012 - 2015 bylo financování vývoje zajištěno díky projektu "Čes
 
 V předchozích letech byl vývoj systému Kramerius průběžně financován z různých dotačních programů Akademie věd ČR a Ministerstva kultury ČR. Počátek vývoje se datuje do roku 2003, kdy byl vývoj iniciován Národní knihovnou ČR ve spolupráci s Knihovnou AV ČR. 
 
-
-##Instalace
-Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . 
-
-Kompletní dokumentace k aktuální verzi je v sekci [Wiki](https://github.com/ceskaexpedice/kramerius/wiki).
-
-[Instalační postup a konfigurace systému](https://github.com/ceskaexpedice/kramerius/wiki/Instalace) jsou popsány na Wiki.
-
-Službu instalace lze také objednat na http://www.unidata.cz/system-kramerius
-
-Distribuovanou instalaci u společnosti INOVATIKA, která zajišťuje analytické a programátorské práce www,inovatika.cz
 
 ## Komunikace
 Hlášení o chybách a požadavky na novou funkcionalitu zadávejte pomocí formuláře New Issue v sekci Issues. 
@@ -86,16 +72,33 @@ První příhlášení do konference: https://mailman.lib.cas.cz/mailman/listinf
 
 Do mailové konference je možné posílat hlášení chyb, návrhy na vylepšení a vývoj i na přispění ke zdrojovému kódu Krameria.
 
+##Instalace
+Instalační balík je k dispozici v sekci Releases na adrese https://github.com/ceskaexpedice/kramerius/releases/latest . 
+
+Kompletní dokumentace k aktuální verzi je v sekci [Wiki](https://github.com/ceskaexpedice/kramerius/wiki).
+
+[Instalační postup a konfigurace systému](https://github.com/ceskaexpedice/kramerius/wiki/Instalace) jsou popsány na Wiki.
+
+Službu instalace lze také objednat na http://www.unidata.cz/system-kramerius
+
+Distribuovanou instalaci u společnosti INOVATIKA, která zajišťuje analytické a programátorské práce.
+
 
 ## Podpora systému Kramerius
 
-Systém Kramerius je open source řešení. SW podporu poskytuje vývojový tým. Pro garantované termíny musí mít instituce uzavřenu samostatnou smlouvu o podpoře.
+Systém Kramerius je open source řešení. SW podporu poskytuje vývojový tým. 
+Pro garantované termíny musí mít instituce uzavřenu samostatnou smlouvu o podpoře.
 
 SPRÁVA SYSTÉMU
 
-Správa a dohled instalovaného systému může být zajištěna na základě individuální dohody např. od https://www.trinera.cz/ nebo http://www.inovatika.cz
-
+Správa a dohled instalovaného systému může být zajištěna na základě individuální dohody.
 Instalaci a správu systému mohou, vzhledem k licenci pod kterou je systém vyvíjen, zajišťovat i jiné subjekty.
+
+Technologickými partnery jsou společnosti [Galderon](mailto:kontakt@galderon.cz), [INOVATIKA](https://inovatika.cz/) a [Trinera](https://www.trinera.cz/)
+
+
+
+
 
 [![Join the chat at https://gitter.im/ceskaexpedice/kramerius](https://badges.gitter.im/ceskaexpedice/kramerius.svg)](https://gitter.im/ceskaexpedice/kramerius?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
