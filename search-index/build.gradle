@@ -27,7 +27,12 @@ test {
 
 
 dependencies {
+
     implementation project(':shared:common')
+
+    //api project(':security:security-core')
+    api project(':shared:common')
+
 
     //  testCompile group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'

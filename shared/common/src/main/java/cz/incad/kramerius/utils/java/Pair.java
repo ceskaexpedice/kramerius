@@ -70,7 +70,7 @@ public class Pair<K, V> implements Serializable {
      * @param first  The first value for this pair
      * @param second The second value to use for this pair
      */
-    public Pair(K first, V second) {
+    public Pair( K first, V second) {
         this.first = first;
         this.second = second;
     }

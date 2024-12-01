@@ -29,9 +29,9 @@ public class AnnualCSVFormatter implements StatisticsReportFormatter {
         String model = (String)record.get("model");
 
         if (!cumulativeMap.containsKey(model)) {
-            cumulativeMap.put(model, new Integer(0));
+            cumulativeMap.put(model, 0);
         }
-        cumulativeMap.put(model, new Integer(count + cumulativeMap.get(model)));
+        cumulativeMap.put(model, count + cumulativeMap.get(model));
 
     }
 

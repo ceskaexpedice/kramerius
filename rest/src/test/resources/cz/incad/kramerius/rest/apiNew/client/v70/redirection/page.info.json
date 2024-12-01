@@ -1,0 +1,28 @@
+{
+	"datanode": true,
+	"context": [
+		[
+			{
+				"pid": "uuid:72ff818d-314c-48b8-a0c1-30185fa6177c",
+				"model": "monograph"
+			},
+			{
+				"pid": "uuid:25e47c6f-f80d-4b42-9aab-903abbf83b1d",
+				"model": "page"
+			}
+		]
+	],
+	"pid": "uuid:25e47c6f-f80d-4b42-9aab-903abbf83b1d",
+	"model": "page",
+	"handle": {
+		"href": "http://kramerius.lib.cas.cz/search/handle/uuid:25e47c6f-f80d-4b42-9aab-903abbf83b1d"
+	},
+	"details": {
+		"type": "TitlePage",
+		"pagenumber": "[iii] \n                        "
+	},
+	"title": "[iii]",
+	"root_title": "Hilbert space operators in quantum physics",
+	"root_pid": "uuid:72ff818d-314c-48b8-a0c1-30185fa6177c",
+	"policy": "private"
+}

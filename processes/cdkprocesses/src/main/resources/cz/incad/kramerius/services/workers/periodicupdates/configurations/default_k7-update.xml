@@ -1,0 +1,83 @@
+<!--   Default sablona pro update z k7  -->
+<cdkprocess>
+
+   <source-name>$iteration.dl$</source-name>
+   <name>$iteration.dl$-update</name>
+   <type>update</type>
+
+    <timestamp>$timestamp.url$</timestamp>
+
+    <!-- Iteration part -->
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    <iteration>
+        <url>$iteration.url$</url>
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
+        
+        <endpoint>select</endpoint>
+        <id>pid</id>
+        <rows>4000</rows>
+        <type>CURSOR</type>
+        
+        		<!--  timestamp field  -->
+        <timestamp_field>indexed</timestamp_field>
+        
+    </iteration>
+
+    <threads>2</threads>
+
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <url>$iteration.url$</url>
+            <user>$iteration.user$</user>
+            <pass>$iteration.pass$</pass>
+            
+            <endpoint>select</endpoint>
+            <batchsize>70</batchsize>
+
+            <id>pid</id>
+
+            <composite.id>true</composite.id>
+            <composite.root>root.pid</composite.root>
+            <composite.child>pid</composite.child>
+
+            <checkUrl>$destination.url$</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+
+            <!-- cdk source field -->
+            <collection>cdk.collection</collection>
+
+            <fieldlist>indexer_version pid root.pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* titles.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr licenses contains_licenses licenses_of_ancestors</fieldlist>
+
+        </request>
+
+        <destination>
+            <url>$destination.url$/update</url>
+
+            <!-- on index -->
+            <onindex>
+                <!-- remove from batch document -->
+                <remove.dest.field>
+                    <field name="collection"></field>
+                </remove.dest.field>
+                <!-- append to batch document -->
+                <update.dest.field>
+                    <field name="cdk.collection">$iteration.dl$</field>
+                    <field name="cdk.leader">$iteration.dl$</field>
+                </update.dest.field>
+            </onindex>
+
+            <!-- on update; disabled for now -->
+            <onupdate>
+
+                <fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors titles.* collection.* in_collections in_collections.* title.* titles.* text_ocr</fieldlist>
+
+                <update.dest.field>
+                    <field name="cdk.collection" update="add-distinct">$iteration.dl$</field>
+                </update.dest.field>
+            </onupdate>
+
+        </destination>
+    </worker>
+</cdkprocess>

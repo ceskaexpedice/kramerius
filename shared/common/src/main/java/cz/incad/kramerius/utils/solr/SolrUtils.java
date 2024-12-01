@@ -38,10 +38,15 @@ import cz.incad.kramerius.solr.SolrFieldsMapping;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -62,7 +67,6 @@ import static org.apache.http.HttpStatus.SC_OK;
  * @author pavels
  */
 public class SolrUtils   {
-    
     public static final Logger LOGGER = Logger.getLogger(SolrUtils.class.getName());
     //public static final String DNNT_FLAG = "dnnt";
 //    /** Handle query */
@@ -637,8 +641,6 @@ public class SolrUtils   {
         }
         return responseStrBuilder.toString();
     }
-    
-    
 
     //http://localhost:8983/solr/logs/schema
     //http://localhost:8983/solr/logs/schema/fields

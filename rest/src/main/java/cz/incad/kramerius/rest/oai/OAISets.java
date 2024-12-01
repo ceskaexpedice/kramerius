@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -201,6 +202,8 @@ public class OAISets {
     }
     
     public OAISet findBySet(String setName) {
+        LOGGER.info(String.format("Finding %s",setName));
+        LOGGER.info("ALL sets " + this.sets.stream().map(OAISet::getSetSpec).collect(Collectors.toList()));
         if (setName != null && !setName.equals(DEFAULT_SET_KEY)) {
             Optional<OAISet> found = this.sets.stream()
                     .filter(oaiSet -> oaiSet.getSetSpec().equals(setName))

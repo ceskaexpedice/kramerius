@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,16 +31,21 @@ import org.w3c.dom.NodeList;
 import cz.incad.kramerius.utils.XMLUtils;
 
 
-
+//TODO: Delete
 public class SOLRUtils {
 
     public static final Logger LOGGER = Logger.getLogger(SOLRUtils.class.getName());
     
-    public static Map<Class, String> SOLR_TYPE_NAMES = new HashMap<Class, String>();
+    public static Map<Class, String> SOLR_TYPE_NAMES = new HashMap<>();
+    public static Map<String, Class> SOLR_NAME_TYPES = new HashMap<>();
     static {
         SOLR_TYPE_NAMES.put(String.class, "str");
         SOLR_TYPE_NAMES.put(Boolean.class, "bool");
         SOLR_TYPE_NAMES.put(Integer.class, "int");
+
+        SOLR_NAME_TYPES.put("str", String.class);
+        SOLR_NAME_TYPES.put("bool", Boolean.class);
+        SOLR_NAME_TYPES.put("int", Integer.class);
     }
 
     public static <T> T value(String val, Class<T> clz) {
@@ -178,6 +184,32 @@ public class SOLRUtils {
                 }
             }
             return ret;
+        }
+    }
+
+    /**
+     * Finds correct rels ext position
+     * @param parentPid
+     * @param docelm
+     * @return
+     */
+    public static String relsExtIndex(String parentPid, Element docelm) {
+        List<Integer> docindexes =  narray(docelm, "rels_ext_index", Integer.class);
+
+        if (docindexes.isEmpty()) return "0";
+        List<String> parentPids = narray(docelm, "parent_pid", String.class);
+        int index = 0;
+        for (int i = 0, length = parentPids.size(); i < length; i++) {
+            if (parentPids.get(i).endsWith(parentPid)) {
+                index =  i;
+                break;
+            }
+        }
+        if (docindexes.size() > index) {
+            return ""+docindexes.get(index);
+        } else {
+            ItemResourceUtils.LOGGER.warning("bad solr document for parent_pid:"+parentPid);
+            return "0";
         }
     }
 }

@@ -39,6 +39,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Provider;
+import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
@@ -48,6 +49,12 @@ import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.oai.exceptions.OAIException;
 import cz.incad.kramerius.rest.oai.exceptions.OAIInfoException;
+import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.rest.oai.exceptions.OAIException;
+import cz.incad.kramerius.rest.oai.exceptions.OAIInfoException;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -71,13 +78,29 @@ public class OAIEndpoint extends ClientApiResource {
     @Named("cachedFedoraAccess")
     private transient FedoraAccess fedoraAccess;
 
+//    @Inject
+//    @Named("cachedFedoraAccess")
+//    private transient FedoraAccess fedoraAccess;
+
     @Inject
     Provider<HttpServletRequest> requestProvider;
     
     @Inject
     ConfigManager configManager;
+
+    @Inject
+    @Named("forward-client")
+    Provider<Client> clientProvider;
     
+    @Inject
+    Provider<User> userProvider;
     
+    @Inject
+    Instances instances;
+
+    @Inject
+    ProxyFilter proxyFilter;
+
     
     public OAIEndpoint() {
     }
@@ -101,7 +124,11 @@ public class OAIEndpoint extends ClientApiResource {
         OAISet found = sets.findBySet(set);
         if (found != null) {
             try {
-                int ndocs = found.numberOfDoc(solrAccess);
+
+				boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
+                int ndocs = cdkServerMode ? found.numberOfDocOnCDKSide(proxyFilter, solrAccess) : found.numberOfDocOnLocal(solrAccess);
+
+
                 JSONObject object = new JSONObject();
                 object.put("setSpec", found.getSetSpec());
                 object.put("setName", found.getSetName());
@@ -134,7 +161,6 @@ public class OAIEndpoint extends ClientApiResource {
             @QueryParam("verb") String verb, 
             @QueryParam("set") String set, 
             @QueryParam("metadataPrefix") String metadataPrefix
- 
             ) throws OAIException {
         
         if (StringUtils.isAnyString(verb)) {
@@ -142,7 +168,16 @@ public class OAIEndpoint extends ClientApiResource {
                  OAIVerb oaiVerb = OAIVerb.valueOf(verb);
                  Document oai = createOAIDocument();
                  Element oaiRoot = oai.getDocumentElement();
-                 oaiVerb.perform(configManager, this.fedoraAccess, solrAccess, this.requestProvider.get(), oai, oaiRoot);
+
+				 boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
+				 if (cdkServerMode) {
+					// cdk
+					oaiVerb.performOnCDKSide(this.userProvider, clientProvider,  instances, configManager, this.proxyFilter, this.solrAccess, this.requestProvider.get(), oai, oaiRoot);
+				 } else {
+					// local	
+					oaiVerb.performOnLocal(configManager, this.fedoraAccess, solrAccess, this.requestProvider.get(), oai, oaiRoot);
+				 }
+
                  StringWriter writer = new StringWriter();
                  XMLUtils.print(oai, writer);
                  return Response.ok(writer.toString()).build();

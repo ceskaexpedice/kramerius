@@ -442,6 +442,42 @@ public class MetsConvertor {
     /**
      *
      */
+
+    public static class NamespacePrefixMapperInternalImpl extends com.sun.xml.bind.marshaller.NamespacePrefixMapper {
+
+        public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
+            if ("info:fedora/fedora-system:def/foxml#".equals(namespaceUri)) {
+                return "foxml";
+            }
+            if ("http://www.loc.gov/mods/v3".equals(namespaceUri)) {
+                return "mods";
+            }
+            if ("http://purl.org/dc/elements/1.1/".equals(namespaceUri)){
+                return "dc";
+            }
+            if ("http://www.openarchives.org/OAI/2.0/oai_dc/".equals(namespaceUri)){
+                return "oai_dc";
+            }
+            if ("info:fedora/fedora-system:def/model#".equals(namespaceUri)){
+                return "fedora-model";
+            }
+            if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(namespaceUri)){
+                return "rdf";
+            }
+            if ("http://www.nsdl.org/ontologies/relationships#".equals(namespaceUri)){
+                return "kramerius";
+            }
+            if ("http://www.w3.org/1999/xlink".equals(namespaceUri)){
+                return "xlink";
+            }
+            if ("http://www.loc.gov/METS/".equals(namespaceUri)){
+                return "mets";
+            }
+            return suggestion;
+        }
+
+    }
+
 //    public static class NamespacePrefixMapperInternalImpl extends com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper {
 //
 //        public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
@@ -476,6 +512,7 @@ public class MetsConvertor {
 //        }
 //
 //    }
+
 
     public static class NamespacePrefixMapperImpl extends com.sun.xml.bind.marshaller.NamespacePrefixMapper {
 
@@ -513,15 +550,15 @@ public class MetsConvertor {
     }
 
     public static boolean deleteContractSubfolder() {
-        return System.getProperties().containsKey("convert.deleteContractSubfolders") ? new Boolean(System.getProperty("convert.deleteContractSubfolders")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.deleteContractSubfolders", true);
+        return System.getProperties().containsKey("convert.deleteContractSubfolders") ? Boolean.valueOf(System.getProperty("convert.deleteContractSubfolders")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.deleteContractSubfolders", true);
     }
 
     public static boolean useContractSubfolders() {
-        return System.getProperties().containsKey("convert.useContractSubfolders") ? new Boolean(System.getProperty("convert.useContractSubfolders")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
+        return System.getProperties().containsKey("convert.useContractSubfolders") ? Boolean.valueOf(System.getProperty("convert.useContractSubfolders")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.useContractSubfolders", false);
     }
 
     public static boolean copyOriginal() {
-        return System.getProperties().containsKey("convert.copyOriginal") ? new Boolean(System.getProperty("convert.copyOriginal")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);
+        return System.getProperties().containsKey("convert.copyOriginal") ? Boolean.valueOf(System.getProperty("convert.copyOriginal")) : KConfiguration.getInstance().getConfiguration().getBoolean("convert.copyOriginal", false);
     }
 
 }

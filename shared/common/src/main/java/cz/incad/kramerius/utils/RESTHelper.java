@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -57,10 +59,12 @@ public class RESTHelper {
         uc.setRequestProperty("Authorization", "Basic " + encoded);
         return uc;
     }
-    
-    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, TransformerException {
-        Document solrDataInternal = SolrUtils.getSolrDataInternal(SolrUtils.UUID_QUERY + "\"" + "uuid:xxxx" );
-        XMLUtils.print(solrDataInternal, System.out);
+
+    public static void main(String[] args) throws IOException {
+        URL url = new URL("https://kramerius5.nkp.cz//search/api/v5.0/item/uuid:576c33b0-24e0-11e3-9319-005056827e51");
+        URLConnection connection = url.openConnection();
+        String s = IOUtils.toString(connection.getInputStream(), "UTF-8");
+        System.out.println(s);
     }
 
 }

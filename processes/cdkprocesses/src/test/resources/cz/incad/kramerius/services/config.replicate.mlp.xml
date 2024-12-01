@@ -1,0 +1,64 @@
+<cdkprocess>
+
+    <!-- Iteration part -->
+    <source-name>mkp</source-name>
+	<name>mkp-full</name>
+    
+    
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
+   <iteration>
+	<url>%s</url>
+    </iteration>
+    <threads>2</threads>
+
+
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <url>http://kramerius4.mlp.cz/search/api/v5.0</url>
+            <endpoint>search</endpoint>
+            <batchsize>20</batchsize>
+            <!--
+            <user>user</user>
+            <pass>pass</pass>
+            -->
+            <checkUrl>http://10.19.6.10:8983/solr/k7_5</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+
+
+
+            <composite.id>true</composite.id>
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
+
+            <trasfrom>K7</trasfrom>
+
+        </request>
+
+        <destination>
+            <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update</url>
+
+            <!-- on index -->
+            <onindex>
+                <!-- remove from batch document -->
+                <remove.dest.field>
+                    <field name="collection"></field>
+                </remove.dest.field>
+                <!-- append to batch document -->
+                <update.dest.field>
+                    <field name="collection">added-collection</field>
+                </update.dest.field>
+            </onindex>
+            <!-- on update -->
+            <onupdate>
+           <onupdate>
+               <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels dostupnost fedora.model</fieldlist>
+               <update.dest.field>
+                    <field name="cdk.collection" update="add-distinct">knav</field>
+                </update.dest.field>
+            </onupdate>
+            </onupdate>
+
+        </destination>
+    </worker>
+</cdkprocess>

@@ -17,6 +17,7 @@
 package cz.incad.kramerius.rest.oai;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URLEncoder;
 import java.time.OffsetDateTime;
@@ -26,7 +27,17 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
+import javax.inject.Provider;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -35,10 +46,34 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.XMLUtils;
 
+import com.sun.jersey.api.client.Client;
+
+import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+
 public class OAIRecord {
+    public static final Logger LOGGER = Logger.getLogger(OAIRecord.class.getName());
+    /*
+    private String identifier;
+    private String solrIdentifier;
+    */
     
     private String identifier;
     private String solrIdentifier;
+    
+    // CDK extension
+    
+    private List<String> cdkCollections = new ArrayList<>();
+    
     private String dateTimeStamp;
     
     
@@ -57,6 +92,16 @@ public class OAIRecord {
         return solrIdentifier;
     }
     
+    // specific to cdk.server = true
+    public List<String> getCdkCollections() {
+        return cdkCollections;
+    }
+	
+	// specific to cdk.server = true
+    public void setCdkCollections(List<String> cdkCollections) {
+        this.cdkCollections = cdkCollections;
+    }
+
     /** find oai record */
     public static OAIRecord findRecord(SolrAccess solrAccess,String oaiIdentifier) throws IOException, ParserConfigurationException, SAXException  {
         String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
@@ -83,31 +128,38 @@ public class OAIRecord {
 
             if (docs.size() > 0) {
                     
-                Element pidElm = XMLUtils.findElement(docs.get(0), new XMLUtils.ElementsFilter() {
-                    
+                Element doc = docs.get(0);
+                
+                Element pidElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
                     @Override
-                    public boolean acceptElement(Element element) {
-                        String nodeName = element.getNodeName();
-                        if (nodeName.equals("str") && element.getAttribute("name").equals("pid")) {
-                            return true;
-                        }
-                        return false;
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("pid");
+                        
+                    }
+                });
+                
+                List<Element> collections  = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("cdk.collection");
+                        
                     }
                 });
 
-                Element indexedElm = XMLUtils.findElement(docs.get(0), new XMLUtils.ElementsFilter() {
-                    
+                Element dateElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
                     @Override
-                    public boolean acceptElement(Element element) {
-                        String nodeName = element.getNodeName();
-                        if (nodeName.equals("date") && element.getAttribute("name").equals("indexed")) {
-                            return true;
-                        }
-                        return false;
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("indexed");
+                        
                     }
                 });
 
-                return new OAIRecord(pidElm.getTextContent(), oaiIdentifier,indexedElm.getTextContent());
+                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier, dateElm != null ? dateElm.getTextContent() : "");
+                oaiRecord.setCdkCollections(collections.stream().map(Element::getTextContent).collect(Collectors.toList()));
+                return oaiRecord;
                 
             } else return null;
         } else {
@@ -117,14 +169,87 @@ public class OAIRecord {
     }
 
     /** render metadata */
-    public Element toMetadata(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export, OAISet set) {
+    public Element toMetadataOnLocal(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export, OAISet set) {
         return export.perform(request, fa, doc, identifier, set);
     }
+    public Element toMetadataOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,   Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set) {
+        return export.performOnCDKSide(solrAccess,userProvider,  clientProvider, instances, request,   owningDocument, this,  set);
+	}
     
-    /** render header 
-     * @throws IOException */
-    public Element toHeader(Document doc, FedoraAccess fa, OAISet set ) throws IOException {
+    public Element toHeaderOnCDKSide(Document doc, OAISet set, SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request, String source) throws IOException {
+        Element header = doc.createElement("header");
 
+        Element identifier = doc.createElement("identifier");
+        identifier.setTextContent(this.identifier);
+        header.appendChild(identifier);
+        
+        //OffsetDateTime now = OffsetDateTime.now();
+        Element datestamp = doc.createElement("datestamp");
+        datestamp.setTextContent(this.dateTimeStamp);
+        header.appendChild(datestamp);
+        datestamp.setTextContent(this.dateTimeStamp);
+        
+        if (set != null) {
+            Element setSpecElm = doc.createElement("setSpec");
+            setSpecElm.setTextContent(set.getSetSpec());
+            header.appendChild(setSpecElm);
+        }
+		
+//		// local 
+//		String pid = OAITools.pidFromOAIIdentifier(this.identifier);
+//		if (!fa.isObjectAvailable(pid) && (!pid.contains("_"))) {
+//			header.setAttribute("status", "deleted");
+//		}
+
+		try {
+			String pid = OAITools.pidFromOAIIdentifier(this.identifier);
+			ProxyItemHandler redirectHandler = MetadataExport.findRedirectHandler(solrAccess, userProvider, clientProvider, instances, request, pid, null);
+			if (!pid.contains("_")) {
+				if (redirectHandler != null && !redirectHandler.isStreamBiblioModsAvaiable()) {
+					header.setAttribute("status", "deleted");
+				// co s tim ??
+				} else if (redirectHandler == null){
+					header.setAttribute("status", "deleted");
+					
+				}
+			}
+		} catch (DOMException | LexerException | IOException | ProxyHandlerException e) {
+			LOGGER.log(Level.SEVERE,e.getMessage(),e);
+		}
+        return header;
+	}
+	
+    public Element toHeaderOnLocal(Document doc, FedoraAccess fa, OAISet set ) throws IOException {
+        Element header = doc.createElement("header");
+
+        Element identifier = doc.createElement("identifier");
+        identifier.setTextContent(this.identifier);
+        header.appendChild(identifier);
+        
+        //OffsetDateTime now = OffsetDateTime.now();
+        Element datestamp = doc.createElement("datestamp");
+        datestamp.setTextContent(this.dateTimeStamp);
+        header.appendChild(datestamp);
+        datestamp.setTextContent(this.dateTimeStamp);
+        
+        if (set != null) {
+            Element setSpecElm = doc.createElement("setSpec");
+            setSpecElm.setTextContent(set.getSetSpec());
+            header.appendChild(setSpecElm);
+        }
+		
+		// local 
+		String pid = OAITools.pidFromOAIIdentifier(this.identifier);
+		if (!fa.isObjectAvailable(pid) && (!pid.contains("_"))) {
+			header.setAttribute("status", "deleted");
+		}
+        return header;
+	}	
+
+    
+    /** render header */
+	/*
+    public Element toHeader(Document doc, OAISet set, SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request, String source) {
         Element header = doc.createElement("header");
         Element identifier = doc.createElement("identifier");
         identifier.setTextContent(this.identifier);
@@ -134,17 +259,39 @@ public class OAIRecord {
         Element datestamp = doc.createElement("datestamp");
         datestamp.setTextContent(this.dateTimeStamp);
         header.appendChild(datestamp);
+        datestamp.setTextContent(this.dateTimeStamp);
         
         if (set != null) {
             Element setSpecElm = doc.createElement("setSpec");
             setSpecElm.setTextContent(set.getSetSpec());
             header.appendChild(setSpecElm);
         }
-
-        String pid = OAITools.pidFromOAIIdentifier(this.identifier);
-        if (!fa.isObjectAvailable(pid) && (!pid.contains("_"))) {
-            header.setAttribute("status", "deleted");
-        }
+		
+		boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
+		if (cdkServerMode) {
+			// cdk
+			try {
+				String pid = OAITools.pidFromOAIIdentifier(this.identifier);
+				ProxyItemHandler redirectHandler = MetadataExport.findRedirectHandler(solrAccess, userProvider, clientProvider, instances, request, pid, null);
+				if (!pid.contains("_")) {
+					if (redirectHandler != null && !redirectHandler.isStreamBiblioModsAvaiable()) {
+						header.setAttribute("status", "deleted");
+					// co s tim ??
+					} else if (redirectHandler == null){
+						header.setAttribute("status", "deleted");
+						
+					}
+				}
+			} catch (DOMException | LexerException | IOException | ProxyHandlerException e) {
+				LOGGER.log(Level.SEVERE,e.getMessage(),e);
+			}
+		} else {
+			// local 
+			String pid = OAITools.pidFromOAIIdentifier(this.identifier);
+			if (!fa.isObjectAvailable(pid) && (!pid.contains("_"))) {
+				header.setAttribute("status", "deleted");
+			}
+		}
         return header;
-    }
+    }*/
 }

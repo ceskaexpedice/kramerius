@@ -1,0 +1,29 @@
+<cdkprocess>
+
+    <!-- Iteration part -->
+    
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
+   <iteration>
+	<url>%s</url>
+    </iteration>
+    <threads>1</threads>
+
+
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.updatefield.UpdateFieldWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <url>http://kramerius4.mlp.cz/search/api/v5.0</url>
+            <endpoint>search</endpoint>
+            <batchsize>20</batchsize>
+            <checkUrl>http://10.19.6.10:8983/solr/k7_5</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+            <fieldlist>PID dc.title</fieldlist>
+        </request>
+
+        <destination>
+            <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update</url>
+			<updateField>dc.title</updateField>
+			<updateFieldOperation>set</updateFieldOperation>
+        </destination>
+    </worker>
+</cdkprocess>

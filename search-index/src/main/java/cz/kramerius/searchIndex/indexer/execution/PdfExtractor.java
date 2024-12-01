@@ -62,8 +62,9 @@ public class PdfExtractor {
         }
     }
 
+    /*	
     public void finalize() {
         IOUtils.closeQuietly(pdDoc);
-    }
+    }*/
 
 }

@@ -6,7 +6,6 @@ import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.utils.UUIDManager;
 import com.qbizm.kramerius.imptool.poc.utils.XSLTransformer;
 import com.qbizm.kramerius.imptool.poc.valueobj.*;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import cz.incad.kramerius.service.XSLService;
 import cz.incad.kramerius.service.impl.XSLServiceImpl;
 import cz.incad.kramerius.utils.FedoraUtils;

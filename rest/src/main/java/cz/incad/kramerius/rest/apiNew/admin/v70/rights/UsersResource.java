@@ -80,7 +80,6 @@ import cz.incad.kramerius.utils.database.SQLFilter.TypesMapping;
  */
 @Path("/admin/v7.0/users")
 public class UsersResource {
-
     @Inject
     UserManager userManager;
 
@@ -405,5 +404,4 @@ public class UsersResource {
         else
             return false;
     }
-
 }

@@ -220,7 +220,7 @@ public class ParsingCoordinates {
             this.consume();
         }
         this.matchToken(Token.TokenType.ALPHA, expectingEndChars);
-        return new Long(builder.toString());
+        return Long.valueOf(builder.toString());
     }
 
 

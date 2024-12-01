@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.w3c.dom.Document;
@@ -15,7 +16,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import cz.incad.kramerius.indexer.FedoraOperations;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -42,10 +42,25 @@ public class BatchUtils {
                 destBatch.getDocumentElement().appendChild(destDocElement);
                 Element sourceDocElm = elms.get(j);
                 transform(sourceDocElm, destBatch, destDocElement);
+
+                // array  field
+                Element field = destBatch.createElement("field");
+                field.setAttribute("name", "collection");
+                field.setTextContent("vc:44679769-b5bb-4ac7-ad27-a0c44698c2ea");
+
+                destDocElement.appendChild(field);
+
             }
+//            try {
+//                XMLUtils.print(destBatch, System.out);
+//            } catch (TransformerException e) {
+//                e.printStackTrace();
+//            }
+
             batches.add(destBatch);
         }
-        
+
+
         return batches;
     }
 
@@ -77,17 +92,8 @@ public class BatchUtils {
         } else return "";
     }
 
-    public static void transform(Element sourceDocElm, Document destDocument,Element destDocElem) throws MigrateSolrIndexException {
-        try {
-            FedoraOperations operations = new FedoraOperations();
-            transform(sourceDocElm,destDocument,  destDocElem,operations);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(), e);
-            throw new RuntimeException(e.getMessage());
-        }
-    }
 
-    public static void transform(Element sourceDocElm, Document destDocument,Element destDocElem, FedoraOperations operations) throws MigrateSolrIndexException  {
+    public static void transform(Element sourceDocElm, Document destDocument,Element destDocElem) throws MigrateSolrIndexException  {
         String pid = pid(sourceDocElm);
         if (sourceDocElm.getNodeName().equals("doc")) {
             NodeList childNodes = sourceDocElm.getChildNodes();
@@ -102,7 +108,7 @@ public class BatchUtils {
                     }
                 }
             }
-            browseAuthorsAndTitles(sourceDocElm, destDocument, destDocElem, operations);
+            //browseAuthorsAndTitles(sourceDocElm, destDocument, destDocElem);
             if (MigrationUtils.configuredBuildCompositeId()) {
                 enhanceByCompositeId(destDocument, destDocElem);
             }
@@ -210,95 +216,95 @@ public class BatchUtils {
     }
 
 
-    public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm) {
-        try {
-            FedoraOperations operations = new FedoraOperations();
-            browseAuthorsAndTitles(sourceDocElm,ndoc,docElm, operations);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(), e);
-            throw new RuntimeException(e.getMessage());
-        }
-    }
+//    public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm) {
+//        try {
+//            FedoraOperations operations = new FedoraOperations();
+//            browseAuthorsAndTitles(sourceDocElm,ndoc,docElm, operations);
+//        } catch (Exception e) {
+//            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+//            throw new RuntimeException(e.getMessage());
+//        }
+//    }
 
 
     // special not stored fields  browse_autor, browse_title
-    public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm, FedoraOperations operations)  {
-        try {
-
-            // browse author -- skip
-            Element browseAuthorInSource = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    return element.getAttribute("name").equals("browse_autor");
-                }
-            });
-            // browse title doens't exist
-            if (browseAuthorInSource == null) {
-                Element dcCreators = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
-
-                    @Override
-                    public boolean acceptElement(Element e) {
-                        String attribute = e.getAttribute("name");
-                        return attribute.equals("dc.creator");
-                    }
-                });
-                if (dcCreators != null) {
-                    List<Element> dcCreatorsStrings = XMLUtils.getElements(dcCreators);
-                    for (Element author : dcCreatorsStrings) {
-                        //<xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
-                        String textContent = author.getTextContent();
-                        String prepared = operations.prepareCzech(textContent)+"##"+textContent;
-                        Element strElm = ndoc.createElement("field");
-                        strElm.setAttribute("name", "browse_autor");
-                        docElm.appendChild(strElm);
-                        strElm.setTextContent(prepared);
-                    }
-                }
-
-            }
-
-
-            // browse author -- skip
-            Element browseTitleInSource = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    return element.getAttribute("name").equals("browse_title");
-               }
-            });
-
-            if (browseTitleInSource == null) {
-                Element model = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
-
-                    @Override
-                    public boolean acceptElement(Element e) {
-                        String attribute = e.getAttribute("name");
-                        return attribute.equals("fedora.model");
-                    }
-                });
-
-
-                Element dcTitle = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
-
-                    @Override
-                    public boolean acceptElement(Element e) {
-                        String attribute = e.getAttribute("name");
-                        return attribute.equals("dc.title");
-                    }
-                });
-
-                if (dcTitle != null && model != null &&  Arrays.asList(KConfiguration.getInstance().getConfiguration().getStringArray("indexer.browseModels")).contains(model.getTextContent().trim())) {
-                    Element strElm = ndoc.createElement("field");
-                    strElm.setAttribute("name", "browse_title");
-                    docElm.appendChild(strElm);
-                    String textContent = dcTitle.getTextContent();
-                    String prepared = operations.prepareCzech(textContent)+"##"+textContent;
-                    strElm.setTextContent(prepared);
-                }
-            }
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(), e);
-            throw new RuntimeException(e.getMessage());
-        }
-    }
+//    public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm)  {
+//        try {
+//
+//            // browse author -- skip
+//            Element browseAuthorInSource = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+//                @Override
+//                public boolean acceptElement(Element element) {
+//                    return element.getAttribute("name").equals("browse_autor");
+//                }
+//            });
+//            // browse title doens't exist
+//            if (browseAuthorInSource == null) {
+//                Element dcCreators = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+//
+//                    @Override
+//                    public boolean acceptElement(Element e) {
+//                        String attribute = e.getAttribute("name");
+//                        return attribute.equals("dc.creator");
+//                    }
+//                });
+//                if (dcCreators != null) {
+//                    List<Element> dcCreatorsStrings = XMLUtils.getElements(dcCreators);
+//                    for (Element author : dcCreatorsStrings) {
+//                        //<xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
+//                        String textContent = author.getTextContent();
+//                        String prepared = FedoraOperations.prepareCzechString(textContent)+"##"+textContent;
+//                        Element strElm = ndoc.createElement("field");
+//                        strElm.setAttribute("name", "browse_autor");
+//                        docElm.appendChild(strElm);
+//                        strElm.setTextContent(prepared);
+//                    }
+//                }
+//
+//            }
+//
+//
+//            // browse author -- skip
+//            Element browseTitleInSource = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+//                @Override
+//                public boolean acceptElement(Element element) {
+//                    return element.getAttribute("name").equals("browse_title");
+//               }
+//            });
+//
+//            if (browseTitleInSource == null) {
+//                Element model = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+//
+//                    @Override
+//                    public boolean acceptElement(Element e) {
+//                        String attribute = e.getAttribute("name");
+//                        return attribute.equals("fedora.model");
+//                    }
+//                });
+//
+//
+//                Element dcTitle = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
+//
+//                    @Override
+//                    public boolean acceptElement(Element e) {
+//                        String attribute = e.getAttribute("name");
+//                        return attribute.equals("dc.title");
+//                    }
+//                });
+//
+//                if (dcTitle != null && model != null &&  Arrays.asList(KConfiguration.getInstance().getConfiguration().getStringArray("indexer.browseModels")).contains(model.getTextContent().trim())) {
+//                    Element strElm = ndoc.createElement("field");
+//                    strElm.setAttribute("name", "browse_title");
+//                    docElm.appendChild(strElm);
+//                    String textContent = dcTitle.getTextContent();
+//                    String prepared = FedoraOperations.prepareCzechString(textContent)+"##"+textContent;
+//                    strElm.setTextContent(prepared);
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+//            throw new RuntimeException(e.getMessage());
+//        }
+//    }
 }

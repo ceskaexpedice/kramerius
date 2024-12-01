@@ -1,0 +1,63 @@
+<doc>
+    <str name="accessibility">private</str>
+    <arr name="authors">
+        <str>Votoček, Otakar, 1921-1986</str>
+        <str>Kostková, Zdeňka</str>
+    </arr>
+    <arr name="authors.facet">
+        <str>Votoček, Otakar</str>
+        <str>Kostková, Zdeňka</str>
+    </arr>
+    <arr name="authors.search">
+        <str>Votoček, Otakar</str>
+        <str>Kostková, Zdeňka</str>
+    </arr>
+    <date name="created">2013-12-17T21:43:23.485Z</date>
+    <date name="date.max">1980-12-31T23:59:59.999Z</date>
+    <date name="date.min">1980-01-01T00:00:00.001Z</date>
+    <str name="date.str">1980</str>
+    <int name="date_range_end.year">1980</int>
+    <int name="date_range_start.year">1980</int>
+    <str name="ds.img_full.mime">image/jpeg</str>
+    <bool name="has_tiles">true</bool>
+    <arr name="id_other">
+        <str>urn:03173900-662a-11e3-9ea2-5ef3fc9ae867</str>
+    </arr>
+    <date name="indexed">2021-03-09T11:01:38.976Z</date>
+    <int name="indexer_version">1</int>
+    <arr name="languages.facet">
+        <str>rus</str>
+        <str>ger</str>
+        <str>fre</str>
+        <str>cze</str>
+        <str>eng</str>
+    </arr>
+    <int name="level">1</int>
+    <str name="model">page</str>
+    <date name="modified">2013-12-17T21:43:23.485Z</date>
+    <str name="own_model_path">monograph/page</str>
+    <str name="own_parent.model">monograph</str>
+    <str name="own_parent.pid">uuid:aefd5d30-529d-11e3-ac69-005056827e51</str>
+    <str name="own_parent.title">Terezín</str>
+    <str name="own_pid_path">uuid:aefd5d30-529d-11e3-ac69-005056827e51/uuid:03173900-662a-11e3-9ea2-5ef3fc9ae867</str>
+    <int name="page.index">169</int>
+    <str name="page.number">157</str>
+    <str name="page.type">NormalPage</str>
+    <str name="pid">uuid:03173900-662a-11e3-9ea2-5ef3fc9ae867</str>
+    <arr name="pid_paths">
+        <str>uuid:aefd5d30-529d-11e3-ac69-005056827e51/uuid:03173900-662a-11e3-9ea2-5ef3fc9ae867</str>
+    </arr>
+    <int name="rels_ext_index.sort">168</int>
+    <str name="root.model">monograph</str>
+    <str name="root.pid">uuid:aefd5d30-529d-11e3-ac69-005056827e51</str>
+    <str name="root.title">Terezín</str>
+    <str name="root.title.sort">TEREZI|N</str>
+    <str name="text_ocr">﻿i7 Pohled do valené klenby brány</str>
+    <str name="title.search">157</str>
+    <str name="title.sort">157</str>
+    <str name="compositeId">uuid:aefd5d30-529d-11e3-ac69-005056827e51!uuid:03173900-662a-11e3-9ea2-5ef3fc9ae867</str>
+    <arr name="cdk.collection">
+        <str>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+    </arr>
+    <str name="cdk.leader">vc:700a6cc7-1e5c-4487-b111-c425cbc51091</str>
+    <long name="_version_">1721305664006914048</long></doc>

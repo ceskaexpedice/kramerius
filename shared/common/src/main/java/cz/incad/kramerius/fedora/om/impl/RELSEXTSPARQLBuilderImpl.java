@@ -69,7 +69,7 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
                         }
                     }
                     if (!counters.containsKey(localName)) {
-                        counters.put(localName,new Integer(0));
+                        counters.put(localName,0);
                     }
 
                     // increment counters

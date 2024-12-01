@@ -21,12 +21,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,6 +75,7 @@ public class AkubraUtils {
 
     private static final String LOCAL_REF_PREFIX = "http://local.fedora.server/fedora/get/";
 
+
     public static InputStream getStreamContent(DatastreamVersionType stream, AkubraDOManager manager) throws TransformerException, IOException {
         if (stream.getXmlContent() != null) {
             StringWriter wrt = new StringWriter();
@@ -109,6 +112,7 @@ public class AkubraUtils {
         URL searchURL = new URL(url);
         URLConnection conn = searchURL.openConnection();
         conn.setUseCaches(true);
+        HttpURLConnection.setFollowRedirects(true);
         conn.connect();
         if ("gzip".equals(conn.getContentEncoding())) {
             return new GZIPInputStream(conn.getInputStream());
@@ -124,6 +128,12 @@ public class AkubraUtils {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }
+
+//            return DatatypeFactory.newInstance().newXMLGregorianCalendar(DATE_FORMAT.format(new Date()));
+//        } catch (DatatypeConfigurationException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            throw new RuntimeException(e);
+//        }
     }
 
     /**
