@@ -50,7 +50,7 @@ public class Fedora4AccessImplTest  {
 
         feeder.commit();
 
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("akubraFedoraAccess")));
         Assert.assertNotNull(fa);
 
         List<String> pids = fa.getPids("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");

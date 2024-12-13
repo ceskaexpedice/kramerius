@@ -63,8 +63,7 @@ import org.xml.sax.SAXException;
  * (konkretni monografii, konkretni periodikum, atd..)
  */
 public class MovingWall extends AbstractCriterium implements RightCriterium {
-
-    //encoding="marc"
+	//encoding="marc"
     public static String[] MODS_XPATHS = {
             "//mods:originInfo/mods:dateIssued[@encoding='marc']/text()",
             "//mods:originInfo/mods:dateIssued/text()",

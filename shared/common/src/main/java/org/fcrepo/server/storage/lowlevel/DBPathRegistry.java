@@ -405,12 +405,14 @@ public class DBPathRegistry
             }
         }
 
+	/*
         @Override
         protected void finalize() {
             if (!closed) {
                 close();
             }
-        }
+        }*/
+
 
         private void close() {
             try {

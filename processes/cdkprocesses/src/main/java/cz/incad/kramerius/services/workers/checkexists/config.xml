@@ -1,0 +1,79 @@
+<cdkprocess>
+
+
+    <!-- Iteration part -->
+    <!--
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
+    -->
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    <iteration>
+
+		<!--  named timestamp  -->		
+		<timestamp>
+			<name>KNAV</name>
+			<checkurl>http://192.168.10.109:18984/solr-test/kramerius-cdk-test</checkurl>
+		</timestamp>
+
+        <!--
+        <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test</url>
+        -->
+        <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test</url>
+        <!--
+        <url>file:///c:/Users/pavel.stastny/nprojs/_kramerius_akubra/kramerius/kibana.processed.log</url>
+         -->
+
+        <fquery>collection:"vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26"</fquery>
+
+        <endpoint>select</endpoint>
+
+        <id>PID</id>
+        <!--
+        <sort></sort>
+        -->
+        <rows>50</rows>
+        <type>CURSOR</type>
+    </iteration>
+
+    <threads>4</threads>
+
+
+    <workerFactory class="cz.incad.kramerius.services.workers.checkexists.ExistsWorkerFactory"></workerFactory>
+    <worker>
+
+        <request>
+            <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test</url>
+            <endpoint>select</endpoint>
+            <batchsize>10</batchsize>
+
+            <!-- for get information about collections and urls -->
+            <local.kramerius>http://192.168.10.109:8080/search/</local.kramerius>
+            <local.collections>vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26</local.collections>
+
+            <!-- toto vyresit lip -->
+            <collections.url>
+
+                <elem>
+                    <key>vc:700a6cc7-1e5c-4487-b111-c425cbc51091</key>
+                    <value>https://kramerius.mzk.cz/search</value>
+                </elem>
+                <elem>
+                    <key>vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26</key>
+                    <value>https://kramerius.lib.cas.cz/search/</value>
+                </elem>
+                <!--
+                <elem>
+                    <key>vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26</key>
+                    <value>https://kramerius.mzk.cz/search</value>
+                </elem>
+                -->
+            </collections.url>
+        </request>
+
+        <destination>
+            <kibana.log.logexisting>NOT_EXISTS</kibana.log.logexisting>
+            <!--
+            <kibana.log.loggername>kibana-check.log</kibana.log.loggername>
+            -->
+        </destination>
+    </worker>
+</cdkprocess>

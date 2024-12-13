@@ -4,6 +4,7 @@ import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -30,7 +31,11 @@ public class IPAddressUtils {
         }
     }
 
-    public static String getRemoteAddress(HttpServletRequest httpReq) {
+    public static String getRemoteAddress(HttpServletRequest httpReq)  {
+		return getRemoteAddress(httpReq, KConfiguration.getInstance().getConfiguration());
+	}
+
+    public static String getRemoteAddress(HttpServletRequest httpReq, Configuration conf) {
         //String headerFowraded = httpReq.getHeader(X_IP_FORWARD);
 
         String headerFowraded = null;
@@ -42,7 +47,7 @@ public class IPAddressUtils {
             }
         }
 
-        if (StringUtils.isAnyString(headerFowraded) && IPAddressUtils.matchConfigurationAddress(httpReq)) {
+        if (StringUtils.isAnyString(headerFowraded) && IPAddressUtils.matchConfigurationAddress(httpReq,conf)) {
             if (headerFowraded.contains(",")) {
                 return headerFowraded.split(",")[0];
             } else return headerFowraded;
@@ -51,15 +56,20 @@ public class IPAddressUtils {
         }
     }
 
-    public static boolean matchConfigurationAddress(HttpServletRequest httpReq) {
+    public static boolean matchConfigurationAddress(HttpServletRequest httpReq, Configuration conf) {
         String remoteAddr = httpReq.getRemoteAddr();
-        List<String> forwaredEnabled = Lists.transform( KConfiguration.getInstance().getConfiguration().getList(X_IP_FORWARED_ENABLED_FOR_KEY, Arrays.asList(LOCALHOSTS)), Functions.toStringFunction());
+        List<String> forwaredEnabled = Lists.transform(conf.getList(X_IP_FORWARED_ENABLED_FOR_KEY, Arrays.asList(LOCALHOSTS)), Functions.toStringFunction());
         if (!forwaredEnabled.isEmpty()) {
             for (String pattern : forwaredEnabled) {
                 if (remoteAddr.matches(pattern)) return true;
             }
         }
         return false;
+    }
+
+
+    public static boolean matchConfigurationAddress(HttpServletRequest httpReq) {
+		return matchConfigurationAddress(httpReq,  KConfiguration.getInstance().getConfiguration());
     }
 
 }

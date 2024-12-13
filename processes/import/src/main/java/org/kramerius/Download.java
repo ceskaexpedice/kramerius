@@ -833,11 +833,11 @@ public class Download {
 
     public static abstract class DataAction {
 
-        public static final Integer DTD_PERIODICAL = new Integer(1);
+        public static final Integer DTD_PERIODICAL = 1;
 
-        public static final Integer DTD_MONOGRAPH = new Integer(2);
+        public static final Integer DTD_MONOGRAPH = 2;
 
-        public static final Integer DTD_MUSEUM_OBJECT = new Integer(3);
+        public static final Integer DTD_MUSEUM_OBJECT = 3;
 
         public static final int MODE_METADATA_ONLY = 1;
 

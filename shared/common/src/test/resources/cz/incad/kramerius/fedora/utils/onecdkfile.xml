@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">0</int>
+        <lst name="params">
+            <str name="q">PID:"uuid:9cd57b03-0797-4e8f-90cb-6987dd633034"</str>
+            <str name="indent">on</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" start="0">
+        <doc>
+            <str name="PID">uuid:9cd57b03-0797-4e8f-90cb-6987dd633034</str>
+            <str name="fedora.model">monograph</str>
+            <arr name="document_type">
+                <str>text</str>
+                <str>volume</str>
+                <str>katalogy výstav</str>
+                <str>monograph</str>
+            </arr>
+            <str name="dc.title">Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+            <arr name="text">
+                <str>Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+                <str>Výstava českého severovýchodu (1903 : Hořice, Česko)</str>
+                <str>zemědělství</str>
+                <str>národní hospodářství</str>
+                <str>průmysl</str>
+                <str>školství</str>
+                <str>archeologie</str>
+                <str>sociální politika</str>
+                <str>zdravotnictví</str>
+                <str>vlastivěda</str>
+                <str/>
+            </arr>
+            <arr name="text_lemmatized">
+                <str>Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+                <str>Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+                <str>Výstava českého severovýchodu (1903 : Hořice, Česko)</str>
+                <str>zemědělství</str>
+                <str>národní hospodářství</str>
+                <str>průmysl</str>
+                <str>školství</str>
+                <str>archeologie</str>
+                <str>sociální politika</str>
+                <str>zdravotnictví</str>
+                <str>vlastivěda</str>
+            </arr>
+            <arr name="text_lemmatized_ascii">
+                <str>Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+                <str>Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+                <str>Výstava českého severovýchodu (1903 : Hořice, Česko)</str>
+                <str>zemědělství</str>
+                <str>národní hospodářství</str>
+                <str>průmysl</str>
+                <str>školství</str>
+                <str>archeologie</str>
+                <str>sociální politika</str>
+                <str>zdravotnictví</str>
+                <str>vlastivěda</str>
+            </arr>
+            <arr name="text_lemmatized_nostopwords">
+                <str>Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+                <str>Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+                <str>Výstava českého severovýchodu (1903 : Hořice, Česko)</str>
+                <str>zemědělství</str>
+                <str>národní hospodářství</str>
+                <str>průmysl</str>
+                <str>školství</str>
+                <str>archeologie</str>
+                <str>sociální politika</str>
+                <str>zdravotnictví</str>
+                <str>vlastivěda</str>
+            </arr>
+            <str name="title">Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+            <str name="title_sort">KATALOG VYSTAVY C|ES  SEVEROVYH|ODU V HOR ICIH| ROKU 1903</str>
+            <arr name="dc.creator">
+                <str>Výstava českého severovýchodu (1903 : Hořice, Česko)</str>
+            </arr>
+            <arr name="facet_autor">
+                <str>Výstava českého severovýchodu (1903 : Hořice, Česko)</str>
+            </arr>
+            <arr name="search_autor">
+                <str>Výstava českého severovýchodu (1903 : Hořice, Česko)</str>
+            </arr>
+            <arr name="browse_autor">
+                <str>VYSTAVA C|ESKEHO SEVEROVYH|ODU  1903   HOR ICE  C|ESKO ##Výstava českého severovýchodu (1903 : Hořice, Česko)</str>
+            </arr>
+            <arr name="dc.identifier">
+                <str>uuid:9cd57b03-0797-4e8f-90cb-6987dd633034</str>
+                <str>ccnb:cnb000576955</str>
+                <str>urnnbn:urn:nbn:cz:hka001-00008i</str>
+                <str>9cd57b03-0797-4e8f-90cb-6987dd633034</str>
+                <str>cnb000576955</str>
+                <str>urn:nbn:cz:hka001-00008i</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2018-02-26T14:11:34Z</date>
+            <date name="modified_date">2019-01-23T10:22:38.218Z</date>
+            <str name="dostupnost">private</str>
+            <arr name="language">
+                <str>cze</str>
+            </arr>
+            <arr name="mods.shelfLocator">
+                <str>320 753</str>
+            </arr>
+            <arr name="mods.physicalLocation">
+                <str>HKA001</str>
+            </arr>
+            <arr name="keywords">
+                <str>zemědělství</str>
+                <str>národní hospodářství</str>
+                <str>průmysl</str>
+                <str>školství</str>
+                <str>archeologie</str>
+                <str>sociální politika</str>
+                <str>zdravotnictví</str>
+                <str>vlastivěda</str>
+            </arr>
+            <arr name="geographic_names">
+                <str>Česko</str>
+                <str>Česko</str>
+                <str>Česko</str>
+                <str>Česko</str>
+                <str>Česko</str>
+                <str>Česko</str>
+                <str>Česko</str>
+                <str>Čechy severovýchodní (Česko)</str>
+                <str>Královéhradecký kraj (Česko)</str>
+            </arr>
+            <str name="issn"/>
+            <str name="mdt">330.5+338</str>
+            <str name="ddt"/>
+            <str name="browse_title">KATALOG VYSTAVY C|ES  SEVEROVYH|ODU V HOR ICIH| ROKU 1903##Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+            <str name="search_title">KATALOG VYSTAVY C|ES  SEVEROVYH|ODU V HOR ICIH| ROKU 1903##Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+            <arr name="pid_path">
+                <str>uuid:9cd57b03-0797-4e8f-90cb-6987dd633034</str>
+            </arr>
+            <arr name="parent_pid">
+                <str>uuid:9cd57b03-0797-4e8f-90cb-6987dd633034</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>0</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph</str>
+            </arr>
+            <str name="root_title">Katalog výstavy čes. severovýchodu v Hořicích roku 1903</str>
+            <str name="root_pid">uuid:9cd57b03-0797-4e8f-90cb-6987dd633034</str>
+            <int name="level">0</int>
+            <str name="datum_str">1903</str>
+            <int name="rok">1903</int>
+            <int name="datum_begin">1903</int>
+            <int name="datum_end">1903</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="collection">
+                <str>vc:44679769-b5bb-4ac7-ad27-a0c44698c2ea</str>
+            </arr>
+            <long name="_version_">1652538277153996800</long></doc>
+    </result>
+</response>

@@ -249,9 +249,20 @@ public class FedoraOperations {
         }
     }
 
-    public String prepareCzech(String s) {
-        return utfSort.translate(s);
+    public static String prepareCzechString(String s) throws IOException {
+        UTFSort utf_sort = new UTFSort();
+        //utf_sort.init();
+        return utf_sort.translate(s);
     }
+
+//    public String prepareCzech(String s) throws Exception {
+//        //return removeDiacritic(s).toLowerCase().replace("ch", "hz");
+//        return utf_sort.translate(s);
+//=======
+//    public String prepareCzech(String s) {
+//        return utfSort.translate(s);
+//>>>>>>> master
+//    }
 
     public String getDatastreamText(String pid, String dsId, String pageNum) throws Exception {
         if (dsId == null) {

@@ -406,7 +406,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                     );
 
 
-            previousResult.put("record_id", new Integer(record_id));
+            previousResult.put("record_id", record_id);
 
 
             return previousResult;

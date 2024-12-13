@@ -138,7 +138,7 @@ public class OutputTemplate implements ProcessOutputTemplate {
         StringBuilder builder = new StringBuilder();
         char[] array = str.toCharArray();
         for (char c : array) {
-            Character cObj = new Character(c);
+            Character cObj = c;
             if (escapeCharatectes.contains(cObj)) {
                 String repl = replacements.get(cObj);
                 builder.append(repl);

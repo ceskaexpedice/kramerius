@@ -21,16 +21,16 @@ package cz.incad.kramerius.service;
  * @author pavels
  */
 public interface LifeCycleHook {
-	
-	/**
-	 * Shutdown notification
-	 */
-	public void shutdownNotification();
-	
-	/**
-	 * Start notification
-	 */
-	public void startNotification();
+
+    /**
+     * Shutdown notification
+     */
+    public void shutdownNotification();
+
+    /**
+     * Start notification
+     */
+    public void startNotification();
 }
 
 

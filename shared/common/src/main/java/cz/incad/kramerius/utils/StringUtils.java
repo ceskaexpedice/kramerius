@@ -54,7 +54,7 @@ public class StringUtils {
         List<Character> mustBeEscaped = Arrays.asList(charsMustBeEscaped);
         char[] charArray = rawString.toCharArray();
         for (char c : charArray) {
-            if (mustBeEscaped.contains(new Character(c))) {
+            if (mustBeEscaped.contains(c)) {
                 writer.write('\\');
             }
             writer.write(c);
@@ -75,7 +75,7 @@ public class StringUtils {
         Stack<Character> stckChars = new Stack<Character>();
         char[] charArray = rawString.toCharArray();
         for (int i = charArray.length-1; i >=0; i--) {
-            stckChars.push(new Character(charArray[i]));
+            stckChars.push(charArray[i]);
         }
         
         while(!stckChars.isEmpty()) {

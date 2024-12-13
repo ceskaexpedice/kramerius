@@ -18,7 +18,7 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
 
     @Inject
     private RepositoryApiImpl repositoryApi;
-
+ 
     @Inject
     private AggregatedAccessLogs accessLog;
 
@@ -256,4 +256,16 @@ public class KrameriusRepositoryApiImpl implements KrameriusRepositoryApi {
         repositoryApi.updateInlineXmlDatastream(pid, KnownDatastreams.BIBLIO_DC.toString(), dcDoc, KnownXmlFormatUris.BIBLIO_DC);
     }
 
+
+    @Override
+    public boolean isPidAvailable(String pid) throws IOException, RepositoryException {
+        boolean exists = this.repositoryApi.objectExists(pid);
+        return exists;
+    }
+
+    @Override
+    public boolean isStreamAvailable(String pid, String dsId) throws IOException, RepositoryException {
+        boolean exists = this.repositoryApi.datastreamExists(pid, dsId);
+        return exists;
+    }
 }

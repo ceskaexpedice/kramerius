@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><response>
+
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">3</int>
+        <lst name="params">
+            <str name="q">dc.identifier:ismn\:*</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="3" start="0">
+        <doc>
+            <str name="PID">uuid:3b624880-96b5-11e2-9a08-005056827e52</str>
+            <date name="created_date">2015-02-12T17:34:32.306Z</date>
+            <date name="datum">1970-01-01T01:00:00Z</date>
+            <int name="datum_begin">1996</int>
+            <int name="datum_end">1996</int>
+            <str name="datum_str">1996</str>
+            <arr name="dc.creator">
+                <str>Socha, Vincenc</str>
+                <str>Rokyta, Jan</str>
+            </arr>
+
+            <arr name="facet_autor">
+                <str>Socha, Vincenc</str>
+                <str>Rokyta, Jan</str>
+            </arr>
+            <arr name="search_autor">
+                <str>Socha, Vincenc</str>
+                <str>Rokyta, Jan</str>
+            </arr>
+            <arr name="dc.identifier">
+                <str>urnnbn:urn:nbn:cz:nk-0004aw</str>
+                <str>ismn:M-66051-072-8 (v knize neuvedeno : brož.)</str>
+                <str>uuid:3b624880-96b5-11e2-9a08-005056827e52</str>
+                <str>barCode:1000265241</str>
+                <str>ccnb:cnb000605534</str>
+                <str>urn:nbn:cz:nk-0004aw</str>
+                <str>1000265241</str>
+                <str>3b624880-96b5-11e2-9a08-005056827e52</str>
+                <str>cnb000605534</str>
+                <str>M-66051-072-8 (v knize neuvedeno : brož.)</str>
+            </arr>
+            <str name="dc.title">Lidové písně ze Lhotky pod Ondřejníkem od Marie Tobolové (1873 - 1958): ze sběru V. Sochy. I. svazek</str>
+            <str name="title">Lidové písně ze Lhotky pod Ondřejníkem od Marie Tobolové (1873 - 1958): ze sběru V. Sochy. I. svazek</str>
+            <str name="ddt"/>
+            <arr name="document_type">
+                <str>sheetmusic</str>
+                <str>volume</str>
+            </arr>
+            <str name="dostupnost">private</str>
+            <str name="fedora.model">sheetmusic</str>
+            <str name="handle"/>
+            <str name="issn"/>
+            <arr name="keywords">
+                <str>české lidové písně (zpěv)</str>
+                <str>koledy</str>
+            </arr>
+            <arr name="language">
+                <str>cze</str>
+            </arr>
+            <int name="level">0</int>
+            <str name="mdt"/>
+            <arr name="model_path">
+                <str>sheetmusic</str>
+            </arr>
+            <date name="modified_date">2015-02-12T17:34:32.306Z</date>
+            <int name="pages_count">0</int>
+
+
+            <arr name="rels_ext_index">
+                <int>0</int>
+            </arr>
+            <int name="rok">1996</int>
+            <str name="root_pid">uuid:3b624880-96b5-11e2-9a08-005056827e52</str>
+            <str name="root_title">Lidové písně ze Lhotky pod Ondřejníkem od Marie Tobolové (1873 - 1958): ze sběru V. Sochy. I. svazek</str>
+            <str name="status">Active</str>
+            <str name="title_sort">LIDOVE PISNE ZE LHOTKY POD ONDR|EJNIKEM OD MARIE TOBOLOVE  1873   1958   ZE SBERU V  SOH|Y  I  SVAZEK</str>
+            <bool name="virtual">false</bool>
+            <arr name="browse_autor">
+                <str>SOH|A  VINCENC##Socha, Vincenc</str>
+                <str>ROKYTA  JAN##Rokyta, Jan</str>
+            </arr>
+            <str name="browse_title">LIDOVE PISNE ZE LHOTKY POD ONDR|EJNIKEM OD MARIE TOBOLOVE  1873   1958   ZE SBERU V  SOH|Y  I  SVAZEK##Lidové písně ze Lhotky pod Ondřejníkem od Marie Tobolové (1873 - 1958): ze sběru V. Sochy. I. svazek</str>
+            <str name="search_title">LIDOVE PISNE ZE LHOTKY POD ONDR|EJNIKEM OD MARIE TOBOLOVE  1873   1958   ZE SBERU V  SOH|Y  I  SVAZEK##Lidové písně ze Lhotky pod Ondřejníkem od Marie Tobolové (1873 - 1958): ze sběru V. Sochy. I. svazek</str>
+            <long name="_version_">1679430524332933120</long><arr name="parent_pid"><str>uuid:3b624880-96b5-11e2-9a08-005056827e52</str></arr><arr name="pid_path"><str>uuid:3b624880-96b5-11e2-9a08-005056827e52</str></arr></doc>
+        <doc>
+            <str name="PID">uuid:87d2a060-a692-11e2-8b87-005056827e51</str>
+            <date name="created_date">2015-02-07T14:51:51.435Z</date>
+            <date name="datum">1970-01-01T01:00:00Z</date>
+            <int name="datum_begin">2007</int>
+            <int name="datum_end">2007</int>
+            <str name="datum_str">2007</str>
+            <arr name="dc.creator">
+                <str>Dusík, František Josef</str>
+                <str>Barbo, Matjaž</str>
+            </arr>
+
+            <arr name="facet_autor">
+                <str>Dusík, František Josef</str>
+                <str>Barbo, Matjaž</str>
+            </arr>
+            <arr name="search_autor">
+                <str>Dusík, František Josef</str>
+                <str>Barbo, Matjaž</str>
+            </arr>
+            <arr name="dc.identifier">
+                <str>urnnbn:urn:nbn:cz:nk-0005a7</str>
+                <str>ismn:M-709004-23-2 (ZRC SAZU : brož)</str>
+                <str>uuid:87d2a060-a692-11e2-8b87-005056827e51</str>
+                <str>barCode:1001640688</str>
+                <str>urn:nbn:cz:nk-0005a7</str>
+                <str>1001640688</str>
+                <str>87d2a060-a692-11e2-8b87-005056827e51</str>
+                <str>M-709004-23-2 (ZRC SAZU : brož)</str>
+            </arr>
+            <str name="dc.title">Simphonia grande in G. č. 2, G dur</str>
+            <str name="title">Simphonia grande in G. č. 2, G dur</str>
+            <str name="ddt"/>
+            <arr name="document_type">
+                <str>sheetmusic</str>
+                <str>volume</str>
+            </arr>
+            <str name="dostupnost">private</str>
+            <str name="fedora.model">sheetmusic</str>
+            <str name="handle"/>
+            <str name="issn"/>
+            <arr name="keywords">
+                <str>sinfonie</str>
+                <str>sinfonie (komorní orchestr)</str>
+                <str>symphonies (chamber orchestra)</str>
+            </arr>
+            <arr name="language">
+                <str>zxx</str>
+                <str>slv</str>
+                <str>eng</str>
+            </arr>
+            <int name="level">0</int>
+            <str name="mdt">78.082.1</str>
+            <arr name="model_path">
+                <str>sheetmusic</str>
+            </arr>
+            <date name="modified_date">2015-02-07T14:51:51.435Z</date>
+            <int name="pages_count">0</int>
+
+
+            <arr name="rels_ext_index">
+                <int>0</int>
+            </arr>
+            <int name="rok">2007</int>
+            <str name="root_pid">uuid:87d2a060-a692-11e2-8b87-005056827e51</str>
+            <str name="root_title">Simphonia grande. č. 2, G dur</str>
+            <str name="status">Active</str>
+            <str name="title_sort">SIMPHONIA GRANDE IN G  C|  2  G DUR</str>
+            <bool name="virtual">false</bool>
+            <arr name="browse_autor">
+                <str>DUSIK  FRANTIS|EK JOSEF##Dusík, František Josef</str>
+                <str>BARBO  MATJAZ|##Barbo, Matjaž</str>
+            </arr>
+            <str name="browse_title">SIMPHONIA GRANDE IN G  C|  2  G DUR##Simphonia grande in G. č. 2, G dur</str>
+            <str name="search_title">SIMPHONIA GRANDE IN G  C|  2  G DUR##Simphonia grande in G. č. 2, G dur</str>
+            <long name="_version_">1679430688989773824</long><arr name="parent_pid"><str>uuid:87d2a060-a692-11e2-8b87-005056827e51</str></arr><arr name="pid_path"><str>uuid:87d2a060-a692-11e2-8b87-005056827e51</str></arr></doc>
+        <doc>
+            <str name="PID">uuid:653cfcf0-3fac-11e7-b56f-005056827e52</str>
+            <str name="fedora.model">sheetmusic</str>
+            <arr name="document_type">
+                <str>sheetmusic</str>
+            </arr>
+            <str name="dc.title">Škola hry na kytaru pro začátečníky</str>
+
+            <str name="title">Škola hry na kytaru pro začátečníky</str>
+            <str name="title_sort">S|KOLA HRY NA KYTARU PRO ZAC|ATEC|NIKY</str>
+            <arr name="dc.creator">
+                <str>Jirmal, Jiří</str>
+            </arr>
+            <arr name="facet_autor">
+                <str>Jirmal, Jiří</str>
+            </arr>
+            <arr name="search_autor">
+                <str>Jirmal, Jiří</str>
+            </arr>
+            <arr name="dc.identifier">
+                <str>urnnbn:urn:nbn:cz:mzk-005fx3</str>
+                <str>issue number:H 5194 Editio Bärenreiter</str>
+                <str>ismn:M260100633</str>
+                <str>uuid:653cfcf0-3fac-11e7-b56f-005056827e52</str>
+                <str>barCode:2610130862</str>
+                <str>ccnb:cnb000978958</str>
+                <str>urn:nbn:cz:mzk-005fx3</str>
+                <str>2610130862</str>
+                <str>653cfcf0-3fac-11e7-b56f-005056827e52</str>
+                <str>cnb000978958</str>
+                <str>M260100633</str>
+                <str>H 5194 Editio Bärenreiter</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2017-06-14T17:49:54.141Z</date>
+            <date name="modified_date">2017-06-14T17:49:54.141Z</date>
+            <str name="dostupnost">private</str>
+            <arr name="language">
+                <str>cze</str>
+                <str>ger</str>
+            </arr>
+            <arr name="keywords">
+                <str>kytarové školy</str>
+            </arr>
+            <str name="issn"/>
+            <str name="mdt">787.61.087.51</str>
+            <str name="ddt"/>
+
+
+            <arr name="rels_ext_index">
+                <int>0</int>
+            </arr>
+            <arr name="model_path">
+                <str>sheetmusic</str>
+            </arr>
+            <str name="root_title">Škola hry na kytaru pro začátečníky</str>
+            <str name="root_pid">uuid:653cfcf0-3fac-11e7-b56f-005056827e52</str>
+            <int name="level">0</int>
+            <str name="datum_str">2000</str>
+            <int name="rok">2000</int>
+            <int name="datum_begin">2000</int>
+            <int name="datum_end">2000</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="browse_autor">
+                <str>JIRMAL  JIR|I##Jirmal, Jiří</str>
+            </arr>
+            <str name="browse_title">S|KOLA HRY NA KYTARU PRO ZAC|ATEC|NIKY##Škola hry na kytaru pro začátečníky</str>
+            <str name="search_title">S|KOLA HRY NA KYTARU PRO ZAC|ATEC|NIKY##Škola hry na kytaru pro začátečníky</str>
+            <long name="_version_">1679430585372639232</long><arr name="parent_pid"><str>uuid:653cfcf0-3fac-11e7-b56f-005056827e52</str></arr><arr name="pid_path"><str>uuid:653cfcf0-3fac-11e7-b56f-005056827e52</str></arr></doc>
+    </result>
+</response>

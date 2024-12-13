@@ -1,0 +1,55 @@
+{
+	"image": {
+		"type": "none"
+	},
+	"providedByLicenses": [],
+	"data": {
+		"image": {
+			"preview": false,
+			"thumb": false,
+			"full": false
+		},
+		"metadata": {
+			"mods": true,
+			"dc": true
+		},
+		"audio": {
+			"mp3": false,
+			"wav": false,
+			"ogg": false
+		},
+		"ocr": {
+			"text": false,
+			"alto": false
+		}
+	},
+	"structure": {
+		"children": {
+			"own": [],
+			"foster": [{
+				"pid": "uuid:58e184a9-d295-11e1-8393-0050569d679d",
+				"relation": "isOnPage"
+			}, {
+				"pid": "uuid:58e184aa-d295-11e1-8393-0050569d679d",
+				"relation": "isOnPage"
+			}, {
+				"pid": "uuid:58e184ab-d295-11e1-8393-0050569d679d",
+				"relation": "isOnPage"
+			}, {
+				"pid": "uuid:58e1abbc-d295-11e1-8393-0050569d679d",
+				"relation": "isOnPage"
+			}, {
+				"pid": "uuid:58e1abbd-d295-11e1-8393-0050569d679d",
+				"relation": "isOnPage"
+			}]
+		},
+		"model": "article",
+		"parents": {
+			"own": {
+				"pid": "uuid:a1c53cdc-0031-467f-bfdc-76b824735862",
+				"relation": "hasIntCompPart"
+			},
+			"foster": []
+		}
+	}
+}

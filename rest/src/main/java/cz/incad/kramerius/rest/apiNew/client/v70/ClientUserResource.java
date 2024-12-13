@@ -133,7 +133,7 @@ public class ClientUserResource {
         	
         	Boolean flag  = Boolean.valueOf(sessionAttributes);
         	if (flag == null) {
-        		flag = new Boolean(false);
+        		flag = false;
         	}
         	
             User user = this.userProvider.get();

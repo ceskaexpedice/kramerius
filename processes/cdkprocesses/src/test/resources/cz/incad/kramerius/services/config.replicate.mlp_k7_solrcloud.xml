@@ -1,0 +1,80 @@
+<cdkprocess>
+
+    <!-- Iteration part -->
+    
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
+
+    <source-name>mlp</source-name>
+	<name>mlp-full</name>
+	<type>full</type>
+	
+    <workingtime></workingtime>
+    <timestamp></timestamp>
+	
+   <iteration>
+	<url>%s</url>
+    </iteration>
+    <threads>2</threads>
+
+
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <url>http://kramerius4.mlp.cz/search/api/v5.0</url>
+            <endpoint>search</endpoint>
+            <batchsize>20</batchsize>
+
+            <!-- for get information about collections and urls -->
+            <!--
+            <local.kramerius>http://192.168.10.109:8080/search/</local.kramerius>
+            <local.collections>vc:c4bb27af-3a51-4ac2-95c7-fd393b489e26</local.collections>
+            -->
+
+            <checkUrl>http://10.19.6.10:8983/solr/k7_5</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+
+            <composite.id>true</composite.id>
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
+
+            <trasfrom>K7</trasfrom>
+
+            <!-- toto vyresit lip -->
+            <collections.url>
+
+				<elem>
+                    <key>vc:d4b466de-5435-4b76-bff7-2838bbae747b</key>
+                    <value>http://kramerius4.mlp.cz/search</value>
+                </elem>
+
+            </collections.url>
+        </request>
+
+        <destination>
+            <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update</url>
+
+            <!-- on index -->
+            <onindex>
+                <!-- remove from batch document -->
+                <remove.dest.field>
+                    <field name="collection"></field>
+                </remove.dest.field>
+                <!-- append to batch document -->
+
+                <!--
+                <update.dest.field>
+                    <field name="collection">added-collection</field>
+                </update.dest.field>
+                -->
+            </onindex>
+            <!-- on update -->
+            <onupdate>
+            	<fieldlist>PID root_pid dnnt-labels contains-dnnt-labels dostupnost fedora.model dc.title search_autor facet_autor</fieldlist>
+                <update.dest.field>
+                    <field name="collection" update="add-distinct">knav</field>
+                </update.dest.field>
+            </onupdate>
+
+        </destination>
+    </worker>
+</cdkprocess>

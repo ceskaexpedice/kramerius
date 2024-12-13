@@ -46,12 +46,12 @@ public ShibRuleLexer(LexerSharedInputState state) {
 	caseSensitiveLiterals = true;
 	setCaseSensitive(true);
 	literals = new Hashtable();
-	literals.put(new ANTLRHashString("header", this), new Integer(14));
-	literals.put(new ANTLRHashString("user", this), new Integer(11));
-	literals.put(new ANTLRHashString("role", this), new Integer(13));
-	literals.put(new ANTLRHashString("match", this), new Integer(4));
-	literals.put(new ANTLRHashString("attribute", this), new Integer(15));
-	literals.put(new ANTLRHashString("principal", this), new Integer(16));
+	literals.put(new ANTLRHashString("header", this), 14);
+	literals.put(new ANTLRHashString("user", this), 11);
+	literals.put(new ANTLRHashString("role", this), 13);
+	literals.put(new ANTLRHashString("match", this), 4);
+	literals.put(new ANTLRHashString("attribute", this), 15);
+	literals.put(new ANTLRHashString("principal", this), 16);
 }
 
 public Token nextToken() throws TokenStreamException {

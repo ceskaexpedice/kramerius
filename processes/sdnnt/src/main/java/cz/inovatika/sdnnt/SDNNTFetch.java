@@ -71,7 +71,7 @@ public class SDNNTFetch {
         }
         
         public Integer getValue() {
-            return new Integer(this.sortValue);
+            return this.sortValue;
         }
     }
     
@@ -575,7 +575,7 @@ public class SDNNTFetch {
                 if (mainObject.has("granularity")) {
                     
                     JSONArray gr = mainObject.getJSONArray("granularity");
-                    doc.setField("has_granularity", new Boolean( gr.length()>0));
+                    doc.setField("has_granularity", gr.length()>0);
 
                     for (int j = 0; j < gr.length(); j++) {
                         JSONObject item = gr.getJSONObject(j);
@@ -615,7 +615,7 @@ public class SDNNTFetch {
                     }
                 } else {
                                //"has_granularity"
-                    doc.setField("has_granularity", new Boolean(false));
+                    doc.setField("has_granularity", false);
                 }
                 docs.add(doc);
                 

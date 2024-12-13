@@ -297,11 +297,11 @@ public class ObjectPidsPathTest {
     }
 
     private List<Collection> collectionList() {
-        Collection col1 = new Collection("vc:ebc58201-b12d-4be5-baa6-b0cdcf7f1ae3","",true);
+        Collection col1 = new Collection("vc:ebc58201-b12d-4be5-baa6-b0cdcf7f1ae3","","",true);
         col1.addDescription(new Collection.Description("cs","TEXT_cs","prvni"));
         col1.addDescription(new Collection.Description("en","TEXT_en","first"));
         
-        Collection col2 = new Collection("vc:07e47af3-58fb-47d2-b1db-c86af07c97b6","",true);
+        Collection col2 = new Collection("vc:07e47af3-58fb-47d2-b1db-c86af07c97b6","","",true);
         col2.addDescription(new Collection.Description("cs","TEXT_cs","druhy"));
         col2.addDescription(new Collection.Description("en","TEXT_en","second"));
 

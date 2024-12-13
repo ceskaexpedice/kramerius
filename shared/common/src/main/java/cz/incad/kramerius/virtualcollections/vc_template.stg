@@ -1,6 +1,6 @@
 group collection;
 
-foxml(pid, title, canLeave, text) ::= <<
+foxml(pid, title, canLeave, text,url) ::= <<
 
 <foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" VERSION="1.1" PID="$pid$" xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
 <foxml:objectProperties>
@@ -51,6 +51,9 @@ foxml(pid, title, canLeave, text) ::= <<
 <dc:title>$title$</dc:title>
 <dc:type>canLeave:$canLeave$</dc:type>
 <dc:identifier>$pid$</dc:identifier>
+
+<dc:source>$url$</dc:source>
+
 </oai_dc:dc>
 </foxml:xmlContent>
 </foxml:datastreamVersion>
@@ -71,7 +74,7 @@ foxml(pid, title, canLeave, text) ::= <<
 /**
 * DC Stream
 */
-dc(pid, title, canLeave) ::= <<
+dc(pid, title, canLeave, url) ::= <<
 <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
 xmlns:dc="http://purl.org/dc/elements/1.1/"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -79,6 +82,8 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.opena
     <dc:title>$title$</dc:title>
     <dc:identifier>$pid$</dc:identifier>
     <dc:type>$canLeave$</dc:type>
+    <dc:source>$url$</dc:source>
+
 </oai_dc:dc>
 >>
 

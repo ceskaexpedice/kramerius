@@ -230,7 +230,7 @@ public class Consistency {
     
     public static void main(String[] args) throws IOException, ProcessSubtreeException, LexerException, TransformerConfigurationException, RepositoryException {
         if (args.length ==2) {
-            process(args[0], new Boolean(args[1]));
+            process(args[0], Boolean.valueOf(args[1]));
         }
     }
 }

@@ -1,0 +1,66 @@
+{
+	"datanode": true,
+	"pid": "uuid:58de0285-d295-11e1-8393-0050569d679d",
+	"handle": {
+		"href": "https://dnnt.mzk.cz/search/handle/uuid:58de0285-d295-11e1-8393-0050569d679d"
+	},
+	"zoom": {
+		"type": "zoomify",
+		"url": "https://dnnt.mzk.cz/search/zoomify/uuid:58de0285-d295-11e1-8393-0050569d679d"
+	},
+	"title": "13",
+	"iiif": "https://dnnt.mzk.cz/search/iiif/uuid:58de0285-d295-11e1-8393-0050569d679d",
+	"collections": [
+		"vc:bfbfcb6c-149c-482a-bf77-ebcb923128ba"
+	],
+	"context": [
+		[
+			{
+				"pid": "uuid:f73d5ec6-e89f-425b-9fe2-eb2b826ea05d",
+				"model": "periodical"
+			},
+			{
+				"pid": "uuid:4da8778b-0056-4fb3-a8b7-a00634a5f816",
+				"model": "periodicalvolume"
+			},
+			{
+				"pid": "uuid:a1c53cdc-0031-467f-bfdc-76b824735862",
+				"model": "periodicalitem"
+			},
+			{
+				"pid": "uuid:58de0285-d295-11e1-8393-0050569d679d",
+				"model": "page"
+			}
+		],
+		[
+			{
+				"pid": "uuid:f73d5ec6-e89f-425b-9fe2-eb2b826ea05d",
+				"model": "periodical"
+			},
+			{
+				"pid": "uuid:4da8778b-0056-4fb3-a8b7-a00634a5f816",
+				"model": "periodicalvolume"
+			},
+			{
+				"pid": "uuid:a1c53cdc-0031-467f-bfdc-76b824735862",
+				"model": "periodicalitem"
+			},
+			{
+				"pid": "uuid:fe1191ba-98a7-4f21-b201-3c147fedc88e",
+				"model": "article"
+			},
+			{
+				"pid": "uuid:58de0285-d295-11e1-8393-0050569d679d",
+				"model": "page"
+			}
+		]
+	],
+	"model": "page",
+	"details": {
+		"type": "normalPage",
+		"pagenumber": "13 \n                        "
+	},
+	"root_title": "Acta Musei Moraviae. Scientiae Biologicae",
+	"root_pid": "uuid:f73d5ec6-e89f-425b-9fe2-eb2b826ea05d",
+	"policy": "private"
+}

@@ -1,0 +1,109 @@
+{
+	"image": {
+		"type": "none"
+	},
+	"providedByLicenses": [],
+	"data": {
+		"image": {
+			"preview": false,
+			"thumb": false,
+			"full": false
+		},
+		"metadata": {
+			"mods": true,
+			"dc": true
+		},
+		"audio": {
+			"mp3": false,
+			"wav": false,
+			"ogg": false
+		},
+		"ocr": {
+			"text": false,
+			"alto": false
+		}
+	},
+	"structure": {
+		"children": {
+			"own": [{
+				"pid": "uuid:91020d70-484f-11dd-a965-000d606f5dc6",
+				"relation": "hasPage"
+			}, {
+				"pid": "uuid:6f7c6820-485f-11dd-b5a3-000d606f5dc6",
+				"relation": "hasPage"
+			}, {
+				"pid": "uuid:9106a150-484f-11dd-b70b-000d606f5dc6",
+				"relation": "hasPage"
+			}, {
+				"pid": "uuid:6f7f0030-485f-11dd-9b25-000d606f5dc6",
+				"relation": "hasPage"
+			}, {
+				"pid": "uuid:910bd170-484f-11dd-8963-000d606f5dc6",
+				"relation": "hasPage"
+			}, {
+				"pid": "uuid:6f840940-485f-11dd-bcab-000d606f5dc6",
+				"relation": "hasPage"
+			}, {
+				"pid": "uuid:91106550-484f-11dd-a532-000d606f5dc6",
+				"relation": "hasPage"
+			}, {
+				"pid": "uuid:6f860510-485f-11dd-88ed-000d606f5dc6",
+				"relation": "hasPage"
+			}, {
+				"pid": "uuid:91156e60-484f-11dd-a2a4-000d606f5dc6",
+				"relation": "hasPage"
+			}, {
+				"pid": "uuid:6f8b3530-485f-11dd-9755-000d606f5dc6",
+				"relation": "hasPage"
+			}, {
+				"pid": "uuid:f603a6af-9cec-4e6c-bbaa-43942fdc5f66",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:c6e52545-fa0b-4e4d-afeb-410ecada80d3",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:199818ca-78ce-482c-9d86-2308b73e13c2",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:7002e2de-3e7e-4257-8d52-25e8203772f2",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:4bc07e13-d512-421d-8692-39348368b6a7",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:e0337211-f656-4876-a74f-69ee2c7565cf",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:cd665019-fc32-477f-964a-1981d6044bf2",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:85d66da1-d706-4399-9578-83603411b6db",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:fbd9a295-a2eb-42e7-9728-d98ad07c690f",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:7fee56e1-7ad6-4f07-869a-795b6eff321d",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:63933dce-e336-4505-88fc-8ac6383b75b9",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:b1c32dc2-9d9f-42d3-a35d-2e9245aad002",
+				"relation": "hasIntCompPart"
+			}, {
+				"pid": "uuid:890c7859-fcd7-47f4-8983-2851c00d73da",
+				"relation": "hasIntCompPart"
+			}],
+			"foster": []
+		},
+		"model": "periodicalitem",
+		"parents": {
+			"own": {
+				"pid": "uuid:3ad7f270-484f-11dd-b012-000d606f5dc6",
+				"relation": "hasItem"
+			},
+			"foster": []
+		}
+	}
+}

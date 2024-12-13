@@ -65,14 +65,19 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
     @Override
     protected Injector getInjector() {
+
     	List<AbstractModule> modules = new ArrayList<AbstractModule>(Arrays.asList(
 
-    	        new RepoModule(), // repo module
+                // Repo modules
+                new RepoModule(),
+
                 new SolrModule(),
+
+
                 new ResourceIndexModule(),
                 //new DatabaseStatisticsModule(),
 
-    	        new BaseModule(), // base  module
+                new BaseModule(), // base  module
                 
                 new ServicesModule(), // base services
                 
@@ -97,27 +102,26 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                 new IiifServletModule(),
 
                 servletModule()
-
 		)); 
     	
-    	try {
-			// api extensions
-			modules.addAll(extensionModule());
-		} catch (ClassNotFoundException e) {
-			LOGGER.log(Level.SEVERE,"ignoring API extensions");
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE,"ignoring API extensions");
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-		} catch (InstantiationException e) {
-			LOGGER.log(Level.SEVERE,"ignoring API extensions");
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-		} catch (IllegalAccessException e) {
-			LOGGER.log(Level.SEVERE,"ignoring API extensions");
-			LOGGER.log(Level.SEVERE,e.getMessage(),e);
-		}
-    	
-    	Injector injector = Guice.createInjector(modules);
+        try {
+            // api extensions
+            modules.addAll(extensionModule());
+        } catch (ClassNotFoundException e) {
+            LOGGER.log(Level.SEVERE,"ignoring API extensions");
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE,"ignoring API extensions");
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (InstantiationException e) {
+            LOGGER.log(Level.SEVERE,"ignoring API extensions");
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE,"ignoring API extensions");
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+        Injector injector = Guice.createInjector(modules);
+
         return injector;
     }
     
@@ -136,18 +140,18 @@ public class GuiceConfigBean extends GuiceServletContextListener {
     }
     
     public static List<AbstractModule> extensionModule() throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
-    	List<AbstractModule> list = new ArrayList<AbstractModule>();
-    	String resGuiceModule = "res/guice.module";
-		Enumeration<URL> urlRes = GuiceConfigBean.class.getClassLoader().getResources(resGuiceModule);
-    	while(urlRes.hasMoreElements()) {
-    		URL url = urlRes.nextElement();
-    		InputStream istream = url.openConnection().getInputStream();
-    		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    		IOUtils.copyStreams(istream, bos);
-    		Class clz = Class.forName(new String(bos.toByteArray()));
-    		list.add( (AbstractModule) clz.newInstance());
-    	}
-    	return list;
+        List<AbstractModule> list = new ArrayList<AbstractModule>();
+        String resGuiceModule = "res/guice.module";
+        Enumeration<URL> urlRes = GuiceConfigBean.class.getClassLoader().getResources(resGuiceModule);
+        while(urlRes.hasMoreElements()) {
+            URL url = urlRes.nextElement();
+            InputStream istream = url.openConnection().getInputStream();
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copyStreams(istream, bos);
+            Class clz = Class.forName(new String(bos.toByteArray()));
+            list.add( (AbstractModule) clz.newInstance());
+        }
+        return list;
     }
     
     

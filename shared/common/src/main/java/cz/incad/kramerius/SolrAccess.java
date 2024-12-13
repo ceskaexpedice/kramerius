@@ -22,6 +22,7 @@ import org.w3c.dom.Element;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,6 +40,12 @@ public interface SolrAccess {
      */
     public JSONObject getJSONSolrDataByPid(String pid) throws IOException;
     
+
+		
+	public List<String> getExistingPids(List<String>pids) throws IOException;
+
+	public boolean documentExist(String pid) throws IOException;
+	
     /**
      * Returns SOLR data containing document with given pid.
      * Including solr response envelope, i.e. <response><result><doc>...</doc></result></response>, not just <doc>...</doc>
@@ -49,8 +56,8 @@ public interface SolrAccess {
      */
     public Document getSolrDataByPid(String pid) throws IOException;
 
-    
-    
+    public Document getSolrDataByPid(String pid, String fl) throws IOException;
+
     /**
      * Returns SOLR data containing document with given handle
      * Examples of handle: handle/ABA001/12b34a, handle/uuid:8b0b25e0-49b7-11de-a45e-000d606f5dc6

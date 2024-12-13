@@ -212,7 +212,7 @@ public class Import {
         // system property 
         try {
             String skipIngest = System.getProperties().containsKey("ingest.skip") ? System.getProperty("ingest.skip") : KConfiguration.getInstance().getConfiguration().getString("ingest.skip", "false");
-            if (new Boolean(skipIngest)) {
+            if (Boolean.valueOf(skipIngest)) {
                 log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
                 return;
             }
@@ -272,7 +272,7 @@ public class Import {
             log.info("FINISHED INGESTION IN " + ((System.currentTimeMillis() - start) / 1000.0) + "s, processed " + counter + " files");
 
             String startSortProperty = System.getProperties().containsKey("ingest.sortRelations") ? System.getProperty("ingest.sortRelations") : KConfiguration.getInstance().getConfiguration().getString("ingest.sortRelations", "true");
-            if (new Boolean(startSortProperty)) {
+            if (Boolean.valueOf(startSortProperty)) {
 
 
                 if (sortRelations.isEmpty()) {

@@ -44,7 +44,6 @@ import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
@@ -90,8 +89,8 @@ public class AbstractPDFResource {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    @Inject
-    JSONDecoratorsAggregate decoratorsAggregate;
+//    @Inject
+//    JSONDecoratorsAggregate decoratorsAggregate;
 
     @Inject
     SolrMemoization solrMemoization;

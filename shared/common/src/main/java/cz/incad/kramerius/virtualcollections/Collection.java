@@ -12,17 +12,23 @@ public class Collection {
     
     private String pid;
     private String label;
+    private String url;
     private boolean canLeaveFlag;
     
     private int numberOfDocs;
     
-    private List<Description> descriptions = new ArrayList<Description>();
+    private List<Description> descriptions = new ArrayList<>();
     
-    public Collection(String pid, String label, boolean canLeaveFlag) {
+    public Collection(String pid, String label, String url, boolean canLeaveFlag) {
         super();
         this.pid = pid;
         this.canLeaveFlag = canLeaveFlag;
         this.label = label;
+        this.url = url;
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public String getPid() {
@@ -63,14 +69,14 @@ public class Collection {
     
 
     public int getNumberOfDocs() {
-		return numberOfDocs;
-	}
+        return numberOfDocs;
+    }
 
-	public void setNumberOfDocs(int numberOfDocs) {
-		this.numberOfDocs = numberOfDocs;
-	}
+    public void setNumberOfDocs(int numberOfDocs) {
+        this.numberOfDocs = numberOfDocs;
+    }
 
-	@Override
+    @Override
     public String toString() {
         return "Collection [pid=" + pid + ", label=" + label + ", canLeaveFlag=" + canLeaveFlag + ", descriptions="
                 + descriptions + "]";

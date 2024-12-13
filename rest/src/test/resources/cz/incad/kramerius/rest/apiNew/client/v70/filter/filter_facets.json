@@ -1,0 +1,527 @@
+{
+	"response": {
+		"docs": [{
+			"cdk.collection": ["svkhk"],
+			"root.title": "... jubilejní výroční zpráva rolnické školy odborné školy hospodářské a zemědělské poradny ve Smiřicích: za léta",
+			"accessibility": "public",
+			"pid": "uuid:f8ea4cfe-0689-42f3-99a1-cc555a7176e2",
+			"model": "periodical",
+			"date.str": "[192-]-[1940]",
+			"title.search": "... jubilejní výroční zpráva rolnické školy odborné školy hospodářské a zemědělské poradny ve Smiřicích: za léta"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "... výroční zpráva pětitřídní školy obecné v Opočně: uveřejněna ku konci školního roku",
+			"accessibility": "public",
+			"pid": "uuid:4efe1cde-de60-4bb7-a830-630e929284cc",
+			"model": "periodical",
+			"date.str": "[1871]-[19--]",
+			"title.search": "... výroční zpráva pětitřídní školy obecné v Opočně: uveřejněna ku konci školního roku"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Tělo, svět, ďábel: román",
+			"accessibility": "public",
+			"pid": "uuid:f9698087-dbf0-47a6-8ccf-603679141ae0",
+			"model": "monograph",
+			"date.str": "1941",
+			"title.search": "Tělo, svět, ďábel: román"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Památník ku položení základního kamene Masarykova domu sociální péče v Jaroměři ve dnech 23-27. července 1924",
+			"accessibility": "public",
+			"pid": "uuid:f7836a23-999b-4090-b223-02e82936badb",
+			"model": "monograph",
+			"date.str": "[1924]",
+			"title.search": "Památník ku položení základního kamene Masarykova domu sociální péče v Jaroměři ve dnech 23-27. července 1924"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "GBS: čtyři drobnosti",
+			"accessibility": "public",
+			"pid": "uuid:e5dad2d4-d4cf-4411-8a2f-2fc1cad136c1",
+			"model": "monograph",
+			"date.str": "1936",
+			"title.search": "GBS: čtyři drobnosti"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Trapné povídky",
+			"accessibility": "public",
+			"pid": "uuid:cd48a9ad-9aaf-478e-9ac9-ff22a792657f",
+			"model": "monograph",
+			"date.str": "1933",
+			"title.search": "Trapné povídky"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Život a dílo skladatele Foltýna",
+			"accessibility": "public",
+			"pid": "uuid:cc1a4a12-f8e4-47c8-862b-5280aca90a89",
+			"model": "monograph",
+			"date.str": "1940",
+			"title.search": "Život a dílo skladatele Foltýna"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Pěvci, jich umění a osudy: kapitoly z dějin zpěvu",
+			"accessibility": "public",
+			"pid": "uuid:956fbd80-8869-4556-b2dd-6a3cc365adde",
+			"model": "monograph",
+			"date.str": "1922",
+			"title.search": "Pěvci, jich umění a osudy: kapitoly z dějin zpěvu"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Věc Makropulos: komedie o třech dějstvích s přeměnou",
+			"accessibility": "public",
+			"pid": "uuid:9374a808-2456-4e7b-8d2d-c618814e6c4f",
+			"model": "monograph",
+			"date.str": "1929",
+			"title.search": "Věc Makropulos: komedie o třech dějstvích s přeměnou"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Zápisky Josefa Dlaska, rolníka v Dolánkách u Turnova a dějiny školy dolánecké",
+			"accessibility": "public",
+			"pid": "uuid:8d3f5a90-cd63-4bc3-82b5-36bf1207c9b0",
+			"model": "monograph",
+			"date.str": "1898",
+			"title.search": "Zápisky Josefa Dlaska, rolníka v Dolánkách u Turnova a dějiny školy dolánecké"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Pěvecký brevíř",
+			"accessibility": "public",
+			"pid": "uuid:785755ca-10cb-49d4-8830-761f81a45aa0",
+			"model": "monograph",
+			"date.str": "1919",
+			"title.search": "Pěvecký brevíř"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Krásné hříšnice: historické povídky",
+			"accessibility": "public",
+			"pid": "uuid:56e35b48-674d-4c1b-93ea-245861bea81d",
+			"model": "monograph",
+			"date.str": "1941",
+			"title.search": "Krásné hříšnice: historické povídky"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Kritika slov",
+			"accessibility": "public",
+			"pid": "uuid:35823caf-63c1-426d-abcd-0eb18601b1d4",
+			"model": "monograph",
+			"date.str": "1927",
+			"title.search": "Kritika slov"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Troja a starožitnosti Schliemannovy",
+			"accessibility": "public",
+			"pid": "uuid:30f50d80-ae15-42c0-85e3-af1782b71987",
+			"model": "monograph",
+			"date.str": "1874",
+			"title.search": "Troja a starožitnosti Schliemannovy"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Pěvecké umění a jeho metodika: dokument o stavu českého uměleckého zpěvu",
+			"accessibility": "public",
+			"pid": "uuid:28962ac9-5c48-48ad-807b-bd97e0a3443f",
+			"model": "monograph",
+			"date.str": "1926",
+			"title.search": "Pěvecké umění a jeho metodika: dokument o stavu českého uměleckého zpěvu"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Dvě pomněnky k šedesátinám universitního profesora Dra Bohumila Němce",
+			"accessibility": "public",
+			"pid": "uuid:27c8ae7b-094b-4863-8036-f1d245943879",
+			"model": "monograph",
+			"date.str": "1933",
+			"title.search": "Dvě pomněnky k šedesátinám universitního profesora Dra Bohumila Němce"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Obrana Života Řekův a Římanův",
+			"accessibility": "public",
+			"pid": "uuid:16f8848e-b592-46ac-8fb2-0160c146fead",
+			"model": "monograph",
+			"date.str": "1877",
+			"title.search": "Obrana Života Řekův a Římanův"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Klostermann mládeži: výbor ze spisů Karla Klostermanna",
+			"accessibility": "public",
+			"pid": "uuid:06fe8c12-1ac4-4a99-b8d9-311c9ba1493a",
+			"model": "monograph",
+			"date.str": "1923",
+			"title.search": "Klostermann mládeži: výbor ze spisů Karla Klostermanna"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Továrna na absolutno: román feuilleton",
+			"accessibility": "public",
+			"pid": "uuid:0592f5f2-07e9-4fd2-966f-0be355555508",
+			"model": "monograph",
+			"date.str": "1937",
+			"title.search": "Továrna na absolutno: román feuilleton"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Estimating the volatility of electricity prices: the case of the England and Wales wholesale electricity market",
+			"accessibility": "public",
+			"pid": "uuid:5ffc8126-466b-4af8-99f1-40efd3463081",
+			"model": "monograph",
+			"date.str": "2011",
+			"title.search": "Estimating the volatility of electricity prices: the case of the England and Wales wholesale electricity market"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Analysis of electricity industry liberalization in Great Britain: how did the bidding behavior of electricity producers change?",
+			"accessibility": "public",
+			"pid": "uuid:67752754-d242-43b7-8f71-012fc695d00b",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "Analysis of electricity industry liberalization in Great Britain: how did the bidding behavior of electricity producers change?"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Literárněvědná bohemistika a ÚČL",
+			"accessibility": "public",
+			"pid": "uuid:d635fe05-48ef-402b-aa5d-f2a1e2fb9dfe",
+			"model": "monograph",
+			"date.str": "2015",
+			"title.search": "Literárněvědná bohemistika a ÚČL"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Czech literary studies and the Institute of Czech Literature, CAS",
+			"accessibility": "public",
+			"pid": "uuid:85ed9f66-f635-48c4-921b-13d593d1f12c",
+			"model": "monograph",
+			"date.str": "2015",
+			"title.search": "Czech literary studies and the Institute of Czech Literature, CAS"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Báseň a počítač",
+			"accessibility": "public",
+			"pid": "uuid:76692045-e29f-46b5-a918-667515a64ced",
+			"model": "monograph",
+			"date.str": "2014",
+			"title.search": "Báseň a počítač"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Česká próza po roce 1989",
+			"accessibility": "public",
+			"pid": "uuid:fbb29633-4ed0-4104-af74-4a6ddc05c3dd",
+			"model": "monograph",
+			"date.str": "2015",
+			"title.search": "Česká próza po roce 1989"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Consumer reactions to unobserved changes in price schedules",
+			"accessibility": "public",
+			"pid": "uuid:ea9af406-2b5f-443c-9cdb-679a7f9a0147",
+			"model": "monograph",
+			"date.str": "2011",
+			"title.search": "Consumer reactions to unobserved changes in price schedules"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "A multilevel analysis of innovation in developing countries",
+			"accessibility": "public",
+			"pid": "uuid:47268b29-014a-443b-bcca-fd9d0f3594a8",
+			"model": "monograph",
+			"date.str": "2011",
+			"title.search": "A multilevel analysis of innovation in developing countries"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "The identification of price jumps",
+			"accessibility": "public",
+			"pid": "uuid:12afc94d-0ffd-47e6-bb8c-0f3a98e86295",
+			"model": "monograph",
+			"date.str": "2011",
+			"title.search": "The identification of price jumps"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Who borrows and who may not repay?",
+			"accessibility": "public",
+			"pid": "uuid:9fb4b7be-044f-4bce-ab20-a3a74985c36d",
+			"model": "monograph",
+			"date.str": "2011",
+			"title.search": "Who borrows and who may not repay?"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Access to capital and capital structure of the firm",
+			"accessibility": "public",
+			"pid": "uuid:d4dbf287-ab0f-4e45-a686-3dd80f72ca0e",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "Access to capital and capital structure of the firm"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Rent deregulation, tenure choice, and real estate price expectations",
+			"accessibility": "public",
+			"pid": "uuid:c7887740-d215-4ef8-9864-24fa2c023139",
+			"model": "monograph",
+			"date.str": "2011",
+			"title.search": "Rent deregulation, tenure choice, and real estate price expectations"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "How are inflation targets set?",
+			"accessibility": "public",
+			"pid": "uuid:9015a887-bc9d-4eae-9d43-845aa0a56210",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "How are inflation targets set?"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Nová úprava veřejných sbírek v království Českém",
+			"accessibility": "public",
+			"pid": "uuid:cc7d9d03-0457-4222-92b3-0c1788c83d80",
+			"model": "monograph",
+			"date.str": "[po roce 1912]",
+			"title.search": "Nová úprava veřejných sbírek v království Českém"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Pragmatická sankce a její význam pro země koruny České a celé soustátí Habsburské",
+			"accessibility": "public",
+			"pid": "uuid:773d2805-7b08-49b5-9196-c29c28591b9d",
+			"model": "monograph",
+			"date.str": "1913",
+			"title.search": "Pragmatická sankce a její význam pro země koruny České a celé soustátí Habsburské"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Zájmy českého průmyslu a obchodu při obstarávání potřeb státních drah v obvodu zemí koruny České",
+			"accessibility": "public",
+			"pid": "uuid:ef4812e4-e515-4f9b-8ebb-7724322a8727",
+			"model": "monograph",
+			"date.str": "1913",
+			"title.search": "Zájmy českého průmyslu a obchodu při obstarávání potřeb státních drah v obvodu zemí koruny České"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "K dějinám českého školství v Dolních Rakousích",
+			"accessibility": "public",
+			"pid": "uuid:4feaa0fc-a4ea-4aec-a6a9-097729da1b6a",
+			"model": "monograph",
+			"date.str": "1912",
+			"title.search": "K dějinám českého školství v Dolních Rakousích"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "V zájmu rovnoprávnosti při železnicích: všem českým obcím, školám, spolkům, závodům, firmám i jednotlivcům k laskavému povšimnutí",
+			"accessibility": "public",
+			"pid": "uuid:91025b19-7e76-444e-9ef4-11fd7a79f3ae",
+			"model": "monograph",
+			"date.str": "1909",
+			"title.search": "V zájmu rovnoprávnosti při železnicích: všem českým obcím, školám, spolkům, závodům, firmám i jednotlivcům k laskavému povšimnutí"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Stanovisko Národní rady české v otázce našeho národohospodářského posílení",
+			"accessibility": "public",
+			"pid": "uuid:8e83d21f-3069-4e07-9aaf-bee3e8c7aa30",
+			"model": "monograph",
+			"date.str": "1909",
+			"title.search": "Stanovisko Národní rady české v otázce našeho národohospodářského posílení"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Were stock during the financial crisis more jumpy: a comparative study",
+			"accessibility": "public",
+			"pid": "uuid:43c2aa89-e75e-4531-91ee-c6889d6b6d2b",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "Were stock during the financial crisis more jumpy: a comparative study"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Overcoming consumer biases in the choice of pricing schemes: a lab experiment",
+			"accessibility": "public",
+			"pid": "uuid:853b11d5-3c00-4b9d-8844-8c5a02cc35f4",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "Overcoming consumer biases in the choice of pricing schemes: a lab experiment"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Second-best trade policies, R&amp;D spillovers and government (in)ability to precommit in an intra-industry trade framework",
+			"accessibility": "public",
+			"pid": "uuid:aeff9853-1c21-410c-9109-db5258df68cf",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "Second-best trade policies, R&amp;D spillovers and government (in)ability to precommit in an intra-industry trade framework"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Don&apos;t drink and... avoid risky sex of your peers: the influence of alcohol consumption of opposite-gender peers on youth risky sexual behavior",
+			"accessibility": "public",
+			"pid": "uuid:3b9462cb-9dc4-4cc5-a5d4-742811877580",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "Don&apos;t drink and... avoid risky sex of your peers: the influence of alcohol consumption of opposite-gender peers on youth risky sexual behavior"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Growth of electoral fraud in non-democracies: the role of uncertainty",
+			"accessibility": "public",
+			"pid": "uuid:3b13bcc8-1ba8-43b1-bb5c-62b15364e8cc",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "Growth of electoral fraud in non-democracies: the role of uncertainty"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Intergenerational bargaining in technology adoption",
+			"accessibility": "public",
+			"pid": "uuid:a3f2c37a-48c5-4c4b-b3da-9ec3d22ce835",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "Intergenerational bargaining in technology adoption"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "The effect of time in a multi-dimensional marriage market model",
+			"accessibility": "public",
+			"pid": "uuid:6f50e9d6-9e5b-4a1e-95cc-700bb227b1e8",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "The effect of time in a multi-dimensional marriage market model"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Fairness in risky environments: theory and evidence",
+			"accessibility": "public",
+			"pid": "uuid:1da51d00-d892-4c48-a169-1dbbac37e2e0",
+			"model": "monograph",
+			"date.str": "2010",
+			"title.search": "Fairness in risky environments: theory and evidence"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Das allgemeine bürgerliche Gesetzbuch im Lichte der Lehren Kants: eine Untersuchung der philosophischen Grundlagen des österreichischen bürgerlichen Rechts, ihrer Auswirkung im einzelnen und ihrer Bedeutung für die Rechtsentwicklung Mitteleuropas",
+			"accessibility": "public",
+			"pid": "uuid:ce64aa33-a0c5-45fe-9e39-b9e5b36d185e",
+			"model": "monograph",
+			"date.str": "1926",
+			"title.search": "Das allgemeine bürgerliche Gesetzbuch im Lichte der Lehren Kants: eine Untersuchung der philosophischen Grundlagen des österreichischen bürgerlichen Rechts, ihrer Auswirkung im einzelnen und ihrer Bedeutung für die Rechtsentwicklung Mitteleuropas"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "O důležitosti hromadného vyučování v kreslení",
+			"accessibility": "public",
+			"pid": "uuid:8fbedc17-78fa-4d81-a49c-9986ec025451",
+			"model": "monograph",
+			"date.str": "1917",
+			"title.search": "O důležitosti hromadného vyučování v kreslení"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Geometrické a věcné motivy ornamentální v ploše i obrysech: příspěvek k vyučování kreslení v I. tř. střední školy",
+			"accessibility": "public",
+			"pid": "uuid:4e53e59a-fb33-4592-a1be-fcb9464a68b0",
+			"model": "monograph",
+			"date.str": "1917",
+			"title.search": "Geometrické a věcné motivy ornamentální v ploše i obrysech: příspěvek k vyučování kreslení v I. tř. střední školy"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Metodika figurálního kreslení na střední škole",
+			"accessibility": "public",
+			"pid": "uuid:4d1c3bcf-dbee-4009-80f0-1f3f08eedba3",
+			"model": "monograph",
+			"date.str": "[1917?]",
+			"title.search": "Metodika figurálního kreslení na střední škole"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Almanach na rok 1914",
+			"accessibility": "public",
+			"pid": "uuid:effd8242-2859-4e35-88bb-61661a94fae8",
+			"model": "monograph",
+			"date.str": "1913",
+			"title.search": "Almanach na rok 1914"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Illustrovaný nástin osnov kreslení na středních školách",
+			"accessibility": "public",
+			"pid": "uuid:c10b35af-155c-4901-8d41-4cbc71d5dee0",
+			"model": "monograph",
+			"date.str": "[1924]",
+			"title.search": "Illustrovaný nástin osnov kreslení na středních školách"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Pověsti a obrázky z chrudimského kraje",
+			"accessibility": "public",
+			"pid": "uuid:b0f21417-feb5-41a0-8124-82246ac9daee",
+			"model": "monograph",
+			"date.str": "1930",
+			"title.search": "Pověsti a obrázky z chrudimského kraje"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Typologický prozkum žactva české střední školy",
+			"accessibility": "public",
+			"pid": "uuid:827c1930-6f52-4fa4-9918-22661cc529f5",
+			"model": "monograph",
+			"date.str": "1927",
+			"title.search": "Typologický prozkum žactva české střední školy"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Souborná výstava obrazů, kreseb a plastik akademických malířů Josefa Heřmana, Bohumila Liznera a Vojtěcha Sedláčka, akademických sochařů Josefa Škody a Miloslava Vávry",
+			"accessibility": "public",
+			"pid": "uuid:7624b5c8-e952-4e9f-ac1b-784f3fa95a85",
+			"model": "monograph",
+			"date.str": "1933",
+			"title.search": "Souborná výstava obrazů, kreseb a plastik akademických malířů Josefa Heřmana, Bohumila Liznera a Vojtěcha Sedláčka, akademických sochařů Josefa Škody a Miloslava Vávry"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Quodlibet: veselé obrázky",
+			"accessibility": "public",
+			"pid": "uuid:73490ebf-97b5-4dba-9478-a6ffc3936300",
+			"model": "monograph",
+			"date.str": "1927",
+			"title.search": "Quodlibet: veselé obrázky"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Výstava obrazů Richarda Laudy a plastik Boh. Laudy: v čítárně musejní od 3. do 19. března",
+			"accessibility": "public",
+			"pid": "uuid:32f56874-cbe1-452d-8528-477cf0891014",
+			"model": "monograph",
+			"date.str": "1911",
+			"title.search": "Výstava obrazů Richarda Laudy a plastik Boh. Laudy: v čítárně musejní od 3. do 19. března"
+		}, {
+			"cdk.collection": ["svkhk"],
+			"root.title": "Sapientiae primae Usus triertium catholicum appellandus, hoc est, Humanarum, Cogitationum, Sermonum, Operum Scientiam, Artem, Usum, aperiens clavis triuna : sive Amabile Logicae, Grammatgica, Pragmaticaque cum Metaphysica osculum",
+			"accessibility": "public",
+			"pid": "uuid:1d00b08d-d0d3-4c06-a6fe-9ea9e77c86d3",
+			"model": "monograph",
+			"date.str": "1920",
+			"title.search": "Sapientiae primae Usus triertium catholicum appellandus, hoc est, Humanarum, Cogitationum, Sermonum, Operum Scientiam, Artem, Usum, aperiens clavis triuna : sive Amabile Logicae, Grammatgica, Pragmaticaque cum Metaphysica osculum"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Bezvěrci dle práva rakouského: vývoj, právní poměry a jich reformy",
+			"accessibility": "public",
+			"pid": "uuid:50cf7182-7fad-42e9-ac7b-4694416e324d",
+			"model": "monograph",
+			"date.str": "[1904]",
+			"title.search": "Bezvěrci dle práva rakouského: vývoj, právní poměry a jich reformy"
+		}, {
+			"cdk.collection": ["knav"],
+			"root.title": "Nezvítězíš, Galilejský !: interpelace poslanců soudruha Svěceného a Jaroše na říšské radě ze dne 23. března 1909",
+			"accessibility": "public",
+			"pid": "uuid:ef00cb65-5b82-4de1-81b2-1b9638317b9e",
+			"model": "monograph",
+			"date.str": "1909",
+			"title.search": "Nezvítězíš, Galilejský !: interpelace poslanců soudruha Svěceného a Jaroše na říšské radě ze dne 23. března 1909"
+		}],
+		"numFound": 9196,
+		"start": 0,
+		"numFoundExact": true
+	},
+	"responseHeader": {
+		"zkConnected": true,
+		"QTime": 19,
+		"params": {
+			"q": "*:*",
+			"facet.field": ["keywords.facet", "languages.facet", "cdk.collection", "licenses", "contains_licenses", "licenses_of_ancestors", "physical_locations.facet", "geographic_names.facet", "authors.facet", "publishers.facet", "publication_places.facet", "own_model_path", "genres.facet"],
+			"fl": "pid,accessibility,model,authors,title.search,title.search,root.title,date.str,cdk.collection,collection.desc,licenses,contains_licenses,licenses_of_ancestors",
+			"start": "0",
+			"hl.fragsize": "20",
+			"fq": ["(model:periodical OR model:monograph OR model:map OR model:graphic OR model:archive OR model:manuscript OR model:soundrecording OR model:sheetmusic OR model:convolute OR model:monographunit OR (model:collection AND collection.is_standalone:true)) AND accessibility:public AND cdk.collection:(svkhk OR kkp OR svkul OR knav OR uzei OR inovatika)", "cdk.collection:(svkhk OR kkp OR svkul OR knav OR uzei OR inovatika)"],
+			"facet.mincount": "1",
+			"sort": "created desc",
+			"rows": "60",
+			"facet": "true",
+			"wt": "json"
+		},
+		"status": 0
+	},
+	"facet_counts": {
+		"facet_intervals": {},
+		"facet_queries": {},
+		"facet_fields": {
+			"cdk.collection": ["knav", 3197, "svkhk", 2898, "uzei", 2880, "svkul", 195, "mzk", 147, "kkp", 31],
+			"authors.facet": ["Sovadina, Jan", 1, "Šílený, Václav", 1],
+			"own_model_path": ["monograph", 8036, "monograph/monographunit", 746, "periodical", 397, "monograph/monograph", 14, "map", 2, "sheetmusic", 1],
+			"geographic_names.facet": ["Česko", 909, "Čechy (Česko)", 146, "Československo", 130, "Czechia", 114, "Praha (Česko)", 92, "Morava (Česko)", 91, "Nizozemsko", 56, "Náchod (Česko)", 43, "Evropa", 37, "České království", 36, "Německo", 34, "Rakousko-Uhersko", 33, "Ústí nad Labem (Česko)", 32, "Indonésie", 29, "Jakarta (Indonésie)", 29, "Slovensko", 29, "Kadaň (Česko)", 27, "Rusko", 27, "Hradec Králové (Česko)", 23, "Pardubice (Česko)", 23, "Spojené státy americké", 20, "Francie", 18, "Rakousko", 18, "Durynsko (Německo)", 17, "Teplice (Česko)", 17, "Polsko", 15, "Čechy východní (Česko)", 15, "Litoměřice (Česko)", 14, "Evropa střední", 13, "Čechy jižní (Česko)", 12, "Europe", 11, "Maďarsko", 11, "Chrudim (Česko)", 10, "Egypt", 10, "Jičín (Česko)", 10, "země světa", 10, "Ústí nad Labem (Česko : oblast)", 10, "Anglie", 9, "Náchod (Česko : oblast)", 9, "Slezsko (Česko)", 9, "Tábor (Česko)", 9, "Czechoslovakia", 8, "Jindřichův Hradec (Czechia)", 8, "Jindřichův Hradec (Česko)", 8, "Slovakia", 8, "Teplice (Česko : oblast)", 8, "země Evropské unie", 8, "Švédsko", 8, "Amerika", 7, "Bohemia, Eastern (Czechia)", 7, "Brno (Česko)", 7, "Europe, Central", 7, "Hradec Králové (Česko : oblast)", 7, "Itálie", 7, "Jaroměř (Česko)", 7, "Prague (Czechia)", 7, "Slezsko", 7, "Vídeň (Rakousko)", 7, "starověké Řecko", 7, "starověký Řím", 7, "Šanov (Teplice, Česko)", 7, "Žatec (Louny, Česko)", 7, "Bulharsko", 6, "European Union countries", 6, "Germany", 6, "Hronov (Česko)", 6, "Kanada", 6, "Litomyšl (Česko)", 6, "Litoměřice (Česko : oblast)", 6, "Nil (řeka : oblast)", 6, "Nil River Valley", 6, "Pardubice (Česko : oblast)", 6, "Velké Meziříčí (Česko)", 6, "Čechy severovýchodní (Česko)", 6, "Austro-Hungarian Monarchy", 5, "Bohemia (Czechia)", 5, "Japonsko", 5, "Krkonoše (Česko a Polsko : pohoří)", 5, "Mělník (Česko)", 5, "Nový Bydžov (Česko)", 5, "Praha (Česko : oblast)", 5, "Rakousko (1804-1867)", 5, "Russia", 5, "Turnov (Česko)", 5, "Ukrajina", 5, "Velká Británie", 5, "Čechy severní (Česko)", 5, "Brašov (Rumunsko)", 4, "Chrudim (Česko : oblast)", 4, "Dánsko", 4, "France", 4, "German speaking countries", 4, "Jena (Německo)", 4, "Kutná Hora (Česko)", 4, "Litomyšl (Česko : oblast)", 4, "Louny (Česko)", 4, "Morava (řeka)", 4, "Morava jižní (Česko)", 4, "Moravia (Czechia)", 4, "Nová Francie", 4],
+			"languages.facet": ["cze", 5178, "ger", 1009, "lat", 954, "eng", 548, "fre", 168, "dut", 48, "ita", 48, "slo", 45, "pol", 38, "gre", 33, "rus", 26, "ukr", 13, "grc", 12, "mul", 11, "spa", 8, "chi", 5, "sla", 5, "ara", 4, "dan", 4, "dsb", 3, "por", 3, "wen", 3, "swe", 2, "Chi", 1, "alb", 1, "heb", 1, "scc", 1, "srp", 1],
+			"publication_places.facet": ["Praha", 2, "Brno", 1, "W Praze", 1, "Xr", 1],
+			"physical_locations.facet": ["ABA009", 2390, "HKA001", 2307, "ABA007", 2158, "ABE459", 496, "ULG001", 189, "ABA010", 166, "ABA001", 107, "NAG001", 58, "HKE302", 50, "PAG001", 29, "BOA001", 16, "HKG001", 11, "ABA000", 10, "KLG001", 10, "National Library of Sweden", 9, "ABB060", 8, "TUE801", 6, "ABB030", 5, "ABB005", 4, "ABA004", 3, "ABA006", 2, "JCE301", 2, "JCG001", 2, "NAE802", 2, "TUE301", 2, "ABA001 ", 1, "ABA013", 1, "ABB019", 1, "ABB083", 1, "ABB085", 1, "ABE 459", 1, "ABE461", 1, "BOD0022", 1, "BOD022", 1, "CRE1402", 1, "HBG001", 1, "LZC2", 1, "LZD13233", 1, "LZD7368", 1, "MZD7527", 1],
+			"genres.facet": [],
+			"licenses_of_ancestors": [],
+			"publishers.facet": ["J. Otto", 1, "JUDr. Václav Šílený", 1, "Josef Liboslav Ziegler", 1, "Julius Grégr", 1],
+			"licenses": ["dnnto", 36],
+			"contains_licenses": [],
+			"keywords.facet": ["Česká próza", 617, "dějiny", 590, "Zemědělství. Pedologie. Agrotechnika. Agroekologie", 337, "Biografie", 301, "pěstování", 291, "zemědělství", 271, "poezie", 255, "Rostlinná výroba", 202, "Chov zvířat. Živočišná výroba", 197, "České drama", 164, "Zahrádkářství", 148, "Historická věda. Pomocné vědy historické. Archivnictví", 141, "Lesnictví", 139, "Staré tisky", 139, "vlastivěda", 129, "Ovocnářství", 125, "Učební osnovy. Vyučovací předměty. Učebnice", 121, "Česká poezie", 118, "Česká literatura (o ní)", 114, "hospodářská zvířata", 105, "Botanika", 104, "epithalamia", 101, "Dějiny Česka a Slovenska", 100, "Tisky (19. století)", 99, "slavnosti", 97, "Ekonomie", 95, "Tisky (19. stol.)", 93, "lesnictví", 91, "Výchova a vzdělávání", 87, "gratulace", 81, "hnojení", 81, "Střední školy", 80, "spolky", 79, "dedikace", 78, "Zoologie", 77, "česká literatura", 76, "Zemědělství a příbuzné oblasti vědy a techniky", 75, "ovocnictví", 75, "Literatura pro děti a mládež (beletrie)", 73, "hagiografie", 73, "náboženství", 73, "gymnázia", 71, "ovoce", 70, "botanika", 69, "nemoci", 69, "stromy ovocné", 69, "rostliny", 67, "zpracování", 67, "školství", 66, "Finance", 65, "krmení", 65, "nuptialia", 65, "zelenina", 65, "čeští spisovatelé", 65, "historické prameny", 64, "ekonomická analýza", 63, "hospodaření", 63, "hospodářské rostliny", 63, "Anglická próza, anglicky psaná", 60, "Průmysl nápojů. Kvasný průmysl. Průmysl pochutin", 60, "Potravinářský průmysl", 59, "výroba", 59, "Ochrana rostlin. Fytopatologie", 58, "historiografie", 58, "history", 58, "odrůdy", 58, "Kuchařství. Potraviny. Vařená jídla", 57, "ilustrace", 57, "ceny", 56, "půda", 56, "Živočišná výroba", 55, "panegyrika", 54, "právo", 54, "umělecké památky", 54, "školy zemědělské", 54, "ochrana rostlin", 53, "čeština", 53, "Lingvistika. Jazyky", 52, "architektonické památky", 52, "dřeviny ovocné", 51, "Veterinární lékařství", 50, "filozofové", 50, "rostlinná výroba", 50, "skot", 49, "zahradnictví", 49, "Právo", 48, "vzdělávání", 48, "krmiva", 47, "malíři", 47, "včelařství", 47, "Geografie jako věda. Výzkum. Cestování", 46, "Malířství", 46, "filozofie", 46, "lesní hospodářství", 46, "lesy", 46, "Živočišné produkty", 46, "Křesťanství. Křesťanská církev všeobecně. Eklesiologie", 45, "Výtvarné umění", 45, "myslivost", 45, "hnojiva", 44]
+		},
+		"facet_heatmaps": {},
+		"facet_ranges": {}
+	}
+}

@@ -46,7 +46,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
-import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -263,7 +262,7 @@ public class SearchResultTest {
                 });
         
         Assert.assertTrue(elms.size() == 1);
-        String index = ItemResourceUtils.relsExtIndex("uuid:dfc78a5c-2542-44cf-8722-ee8a0924a855", elms.get(0));
+        String index = SOLRUtils.relsExtIndex("uuid:dfc78a5c-2542-44cf-8722-ee8a0924a855", elms.get(0));
         //cannot find actual index, always returs 0
         Assert.assertEquals("0", index);
     }

@@ -161,7 +161,7 @@ public class PdfTextUnderImage {
 		if (textStyle != null) {
 			final String s = "FONTSIZE";
 			if (textStyle.hasAttribute(s)) {
-				r = new Float(pxOrPtOr(textStyle.getAttribute(s), true));
+				r = pxOrPtOr(textStyle.getAttribute(s), true);
 			}
 		}
                 if (r == null) {
@@ -247,7 +247,8 @@ public class PdfTextUnderImage {
 			}
 		}
 		if (e.hasAttribute(rotation)) {
-			r = (new Float(e.getAttribute(rotation))).floatValue();
+			r = Float.parseFloat(e.getAttribute("rotation"));
+			//r = (new Float(e.getAttribute(rotation))).floatValue();
 		}
 		return r;
 	}
@@ -297,7 +298,8 @@ public class PdfTextUnderImage {
     	return pxOrPtOr(s, false);
     }
     private static float pxOrPtOr(String s, boolean ptToPx) {
-    	float r = (new Float(s)).floatValue();
+	float r = Float.parseFloat(s);
+    	//float r = (new Float(s)).floatValue();
     	if (ptToPx) {
     		r = 15 * r / 4;
     	} else {

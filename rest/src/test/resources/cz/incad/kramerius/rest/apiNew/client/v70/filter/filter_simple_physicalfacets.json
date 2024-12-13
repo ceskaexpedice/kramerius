@@ -1,0 +1,85 @@
+{
+    "response": {
+        "docs": [
+            {
+                "titles.search": [
+                    "EHRENFRIDI HAGENDORNII ... HISTORIAE MEDICO-PHYSICAE, CENTURIIS TRIBUS comprehensae."
+                ],
+                "root.pid": "uuid:3d525aa8-b93a-4ba5-b1e7-8373800878d6",
+                "accessibility": "public",
+                "date_range_start.year": 1690,
+                "pid": "uuid:3d525aa8-b93a-4ba5-b1e7-8373800878d6",
+                "physical_locations.facet": [
+                    "ABA007"
+                ],
+                "foster_parents.pids": [
+                    "uuid:3d525aa8-b93a-4ba5-b1e7-8373800878d6"
+                ],
+                "rels_ext_index.sort": 0,
+                "id_barcode": [
+                    "26005725210"
+                ],
+                "pid_paths": [
+                    "uuid:3d525aa8-b93a-4ba5-b1e7-8373800878d6"
+                ],
+                "modified": "2023-11-08T11:28:18.911Z",
+                "model": "monograph",
+                "keywords.facet": [
+                    "Staré tisky",
+                    "lékařství"
+                ],
+                "date.min": "1690-01-01T00:00:00.001Z",
+                "title.search": "EHRENFRIDI HAGENDORNII ... HISTORIAE MEDICO-PHYSICAE, CENTURIIS TRIBUS comprehensae.",
+                "root.title.sort": "EHRENFRIDI HAGENDORNII     HISTORIAE MEDICO PHYSICAE  CENTURIIS TRIBUS COMPREHENSAE ",
+                "cdk.collection": [
+                    "nkp",
+                    "knav",
+                    "mzk"
+                ],
+                "root.title": "EHRENFRIDI HAGENDORNII ... HISTORIAE MEDICO-PHYSICAE, CENTURIIS TRIBUS comprehensae.",
+                "indexed": "2023-11-08T11:28:18.911Z",
+                "level": 0,
+                "created": "2023-11-01T14:13:54.814Z",
+                "own_model_path": "monograph",
+                "languages.facet": [
+                    "lat"
+                ],
+                "cdk.leader": "knav",
+                "title.sort": "EHRENFRIDI HAGENDORNII     HISTORIAE MEDICO PHYSICAE  CENTURIIS TRIBUS COMPREHENSAE ",
+                "date.max": "1690-01-01T00:00:00.001Z",
+                "date_range_end.year": 1690,
+                "ddt": [
+                    ""
+                ],
+                "_version_": 1782028536889999400,
+                "shelf_locators": [
+                    "TH 316/adl.2"
+                ],
+                "date.str": "1690",
+                "compositeId": "uuid:3d525aa8-b93a-4ba5-b1e7-8373800878d6!uuid:3d525aa8-b93a-4ba5-b1e7-8373800878d6",
+                "keywords.search": [
+                    "Staré tisky",
+                    "lékařství"
+                ],
+                "own_pid_path": "uuid:3d525aa8-b93a-4ba5-b1e7-8373800878d6",
+                "own_parent.pid": "uuid:3d525aa8-b93a-4ba5-b1e7-8373800878d6"
+            }
+        ],
+        "numFound": 1,
+        "start": 0,
+        "maxScore": 7.6994467,
+        "numFoundExact": true
+    },
+    "responseHeader": {
+        "zkConnected": true,
+        "QTime": 3,
+        "params": {
+            "q": "pid:\"uuid:3d525aa8-b93a-4ba5-b1e7-8373800878d6\"",
+            "hl.fragsize": "20",
+            "fq": "",
+            "rows": "1",
+            "wt": "json"
+        },
+        "status": 0
+    }
+}

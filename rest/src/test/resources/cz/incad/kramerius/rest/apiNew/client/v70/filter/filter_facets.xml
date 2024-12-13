@@ -1,0 +1,1126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+	<lst name="responseHeader">
+		<bool name="zkConnected">true</bool>
+		<int name="status">0</int>
+		<int name="QTime">36</int>
+		<lst name="params">
+			<str name="q">*:*</str>
+			<arr name="facet.field">
+				<str>keywords.facet</str>
+				<str>languages.facet</str>
+				<str>cdk.collection</str>
+				<str>licenses</str>
+				<str>contains_licenses</str>
+				<str>licenses_of_ancestors</str>
+				<str>physical_locations.facet</str>
+				<str>geographic_names.facet</str>
+				<str>authors.facet</str>
+				<str>publishers.facet</str>
+				<str>publication_places.facet</str>
+				<str>own_model_path</str>
+				<str>genres.facet</str>
+			</arr>
+			<str name="fl">pid,accessibility,model,authors,title.search,title.search,root.title,date.str,cdk.collection,collection.desc,licenses,contains_licenses,licenses_of_ancestors
+			</str>
+			<str name="start">0</str>
+			<str name="hl.fragsize">20</str>
+			<arr name="fq">
+				<str>(model:periodical OR model:monograph OR model:map OR
+					model:graphic OR model:archive OR model:manuscript OR
+					model:soundrecording OR model:sheetmusic OR model:convolute OR
+					model:monographunit OR (model:collection AND
+					collection.is_standalone:true)) AND accessibility:public AND
+					cdk.collection:(svkhk OR kkp OR svkul OR knav OR uzei OR inovatika)
+				</str>
+				<str>cdk.collection:(svkhk OR kkp OR svkul OR knav OR uzei OR
+					inovatika)</str>
+			</arr>
+			<str name="facet.mincount">1</str>
+			<str name="sort">created desc</str>
+			<str name="rows">60</str>
+			<str name="facet">true</str>
+			<arr name="wt">
+				<str>xml</str>
+				<str>xml</str>
+			</arr>
+		</lst>
+	</lst>
+	<result name="response" numFound="9196" numFoundExact="true"
+		start="0">
+		<doc>
+			<str name="pid">uuid:f8ea4cfe-0689-42f3-99a1-cc555a7176e2</str>
+			<str name="model">periodical</str>
+			<str name="title.search">... jubilejní výroční zpráva rolnické školy odborné
+				školy hospodářské a zemědělské poradny ve Smiřicích: za léta</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">... jubilejní výroční zpráva rolnické školy odborné
+				školy hospodářské a zemědělské poradny ve Smiřicích: za léta</str>
+			<str name="date.str">[192-]-[1940]</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:4efe1cde-de60-4bb7-a830-630e929284cc</str>
+			<str name="model">periodical</str>
+			<str name="title.search">... výroční zpráva pětitřídní školy obecné v Opočně:
+				uveřejněna ku konci školního roku</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">... výroční zpráva pětitřídní školy obecné v Opočně:
+				uveřejněna ku konci školního roku</str>
+			<str name="date.str">[1871]-[19--]</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:f9698087-dbf0-47a6-8ccf-603679141ae0</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Tělo, svět, ďábel: román</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Tělo, svět, ďábel: román</str>
+			<str name="date.str">1941</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:f7836a23-999b-4090-b223-02e82936badb</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Památník ku položení základního kamene Masarykova domu
+				sociální péče v Jaroměři ve dnech 23-27. července 1924</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Památník ku položení základního kamene Masarykova domu
+				sociální péče v Jaroměři ve dnech 23-27. července 1924</str>
+			<str name="date.str">[1924]</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:e5dad2d4-d4cf-4411-8a2f-2fc1cad136c1</str>
+			<str name="model">monograph</str>
+			<str name="title.search">GBS: čtyři drobnosti</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">GBS: čtyři drobnosti</str>
+			<str name="date.str">1936</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:cd48a9ad-9aaf-478e-9ac9-ff22a792657f</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Trapné povídky</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Trapné povídky</str>
+			<str name="date.str">1933</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:cc1a4a12-f8e4-47c8-862b-5280aca90a89</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Život a dílo skladatele Foltýna</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Život a dílo skladatele Foltýna</str>
+			<str name="date.str">1940</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:956fbd80-8869-4556-b2dd-6a3cc365adde</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Pěvci, jich umění a osudy: kapitoly z dějin zpěvu</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Pěvci, jich umění a osudy: kapitoly z dějin zpěvu</str>
+			<str name="date.str">1922</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:9374a808-2456-4e7b-8d2d-c618814e6c4f</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Věc Makropulos: komedie o třech dějstvích s přeměnou
+			</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Věc Makropulos: komedie o třech dějstvích s přeměnou
+			</str>
+			<str name="date.str">1929</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:8d3f5a90-cd63-4bc3-82b5-36bf1207c9b0</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Zápisky Josefa Dlaska, rolníka v Dolánkách u Turnova a
+				dějiny školy dolánecké</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Zápisky Josefa Dlaska, rolníka v Dolánkách u Turnova a
+				dějiny školy dolánecké</str>
+			<str name="date.str">1898</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:785755ca-10cb-49d4-8830-761f81a45aa0</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Pěvecký brevíř</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Pěvecký brevíř</str>
+			<str name="date.str">1919</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:56e35b48-674d-4c1b-93ea-245861bea81d</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Krásné hříšnice: historické povídky</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Krásné hříšnice: historické povídky</str>
+			<str name="date.str">1941</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:35823caf-63c1-426d-abcd-0eb18601b1d4</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Kritika slov</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Kritika slov</str>
+			<str name="date.str">1927</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:30f50d80-ae15-42c0-85e3-af1782b71987</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Troja a starožitnosti Schliemannovy</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Troja a starožitnosti Schliemannovy</str>
+			<str name="date.str">1874</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:28962ac9-5c48-48ad-807b-bd97e0a3443f</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Pěvecké umění a jeho metodika: dokument o stavu českého
+				uměleckého zpěvu</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Pěvecké umění a jeho metodika: dokument o stavu českého
+				uměleckého zpěvu</str>
+			<str name="date.str">1926</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:27c8ae7b-094b-4863-8036-f1d245943879</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Dvě pomněnky k šedesátinám universitního profesora Dra
+				Bohumila Němce</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Dvě pomněnky k šedesátinám universitního profesora Dra
+				Bohumila Němce</str>
+			<str name="date.str">1933</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:16f8848e-b592-46ac-8fb2-0160c146fead</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Obrana Života Řekův a Římanův</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Obrana Života Řekův a Římanův</str>
+			<str name="date.str">1877</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:06fe8c12-1ac4-4a99-b8d9-311c9ba1493a</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Klostermann mládeži: výbor ze spisů Karla Klostermanna
+			</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Klostermann mládeži: výbor ze spisů Karla Klostermanna
+			</str>
+			<str name="date.str">1923</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:0592f5f2-07e9-4fd2-966f-0be355555508</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Továrna na absolutno: román feuilleton</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Továrna na absolutno: román feuilleton</str>
+			<str name="date.str">1937</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:5ffc8126-466b-4af8-99f1-40efd3463081</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Estimating the volatility of electricity prices: the
+				case of the England and Wales wholesale electricity market</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Estimating the volatility of electricity prices: the
+				case of the England and Wales wholesale electricity market</str>
+			<str name="date.str">2011</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:67752754-d242-43b7-8f71-012fc695d00b</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Analysis of electricity industry liberalization in
+				Great Britain: how did the bidding behavior of electricity producers
+				change?</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Analysis of electricity industry liberalization in
+				Great Britain: how did the bidding behavior of electricity producers
+				change?</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:d635fe05-48ef-402b-aa5d-f2a1e2fb9dfe</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Literárněvědná bohemistika a ÚČL</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Literárněvědná bohemistika a ÚČL</str>
+			<str name="date.str">2015</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:85ed9f66-f635-48c4-921b-13d593d1f12c</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Czech literary studies and the Institute of Czech
+				Literature, CAS</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Czech literary studies and the Institute of Czech
+				Literature, CAS</str>
+			<str name="date.str">2015</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:76692045-e29f-46b5-a918-667515a64ced</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Báseň a počítač</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Báseň a počítač</str>
+			<str name="date.str">2014</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:fbb29633-4ed0-4104-af74-4a6ddc05c3dd</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Česká próza po roce 1989</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Česká próza po roce 1989</str>
+			<str name="date.str">2015</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:ea9af406-2b5f-443c-9cdb-679a7f9a0147</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Consumer reactions to unobserved changes in price
+				schedules</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Consumer reactions to unobserved changes in price
+				schedules</str>
+			<str name="date.str">2011</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:47268b29-014a-443b-bcca-fd9d0f3594a8</str>
+			<str name="model">monograph</str>
+			<str name="title.search">A multilevel analysis of innovation in developing
+				countries</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">A multilevel analysis of innovation in developing
+				countries</str>
+			<str name="date.str">2011</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:12afc94d-0ffd-47e6-bb8c-0f3a98e86295</str>
+			<str name="model">monograph</str>
+			<str name="title.search">The identification of price jumps</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">The identification of price jumps</str>
+			<str name="date.str">2011</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:9fb4b7be-044f-4bce-ab20-a3a74985c36d</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Who borrows and who may not repay?</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Who borrows and who may not repay?</str>
+			<str name="date.str">2011</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:d4dbf287-ab0f-4e45-a686-3dd80f72ca0e</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Access to capital and capital structure of the firm
+			</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Access to capital and capital structure of the firm
+			</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:c7887740-d215-4ef8-9864-24fa2c023139</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Rent deregulation, tenure choice, and real estate price
+				expectations</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Rent deregulation, tenure choice, and real estate price
+				expectations</str>
+			<str name="date.str">2011</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:9015a887-bc9d-4eae-9d43-845aa0a56210</str>
+			<str name="model">monograph</str>
+			<str name="title.search">How are inflation targets set?</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">How are inflation targets set?</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:cc7d9d03-0457-4222-92b3-0c1788c83d80</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Nová úprava veřejných sbírek v království Českém</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Nová úprava veřejných sbírek v království Českém</str>
+			<str name="date.str">[po roce 1912]</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:773d2805-7b08-49b5-9196-c29c28591b9d</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Pragmatická sankce a její význam pro země koruny České
+				a celé soustátí Habsburské</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Pragmatická sankce a její význam pro země koruny České
+				a celé soustátí Habsburské</str>
+			<str name="date.str">1913</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:ef4812e4-e515-4f9b-8ebb-7724322a8727</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Zájmy českého průmyslu a obchodu při obstarávání potřeb
+				státních drah v obvodu zemí koruny České</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Zájmy českého průmyslu a obchodu při obstarávání potřeb
+				státních drah v obvodu zemí koruny České</str>
+			<str name="date.str">1913</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:4feaa0fc-a4ea-4aec-a6a9-097729da1b6a</str>
+			<str name="model">monograph</str>
+			<str name="title.search">K dějinám českého školství v Dolních Rakousích</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">K dějinám českého školství v Dolních Rakousích</str>
+			<str name="date.str">1912</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:91025b19-7e76-444e-9ef4-11fd7a79f3ae</str>
+			<str name="model">monograph</str>
+			<str name="title.search">V zájmu rovnoprávnosti při železnicích: všem českým
+				obcím, školám, spolkům, závodům, firmám i jednotlivcům k laskavému
+				povšimnutí</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">V zájmu rovnoprávnosti při železnicích: všem českým
+				obcím, školám, spolkům, závodům, firmám i jednotlivcům k laskavému
+				povšimnutí</str>
+			<str name="date.str">1909</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:8e83d21f-3069-4e07-9aaf-bee3e8c7aa30</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Stanovisko Národní rady české v otázce našeho
+				národohospodářského posílení</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Stanovisko Národní rady české v otázce našeho
+				národohospodářského posílení</str>
+			<str name="date.str">1909</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:43c2aa89-e75e-4531-91ee-c6889d6b6d2b</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Were stock during the financial crisis more jumpy: a
+				comparative study</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Were stock during the financial crisis more jumpy: a
+				comparative study</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:853b11d5-3c00-4b9d-8844-8c5a02cc35f4</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Overcoming consumer biases in the choice of pricing
+				schemes: a lab experiment</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Overcoming consumer biases in the choice of pricing
+				schemes: a lab experiment</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:aeff9853-1c21-410c-9109-db5258df68cf</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Second-best trade policies, R&amp;amp;D spillovers and
+				government (in)ability to precommit in an intra-industry trade
+				framework</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Second-best trade policies, R&amp;amp;D spillovers and
+				government (in)ability to precommit in an intra-industry trade
+				framework</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:3b9462cb-9dc4-4cc5-a5d4-742811877580</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Don&amp;apos;t drink and... avoid risky sex of your
+				peers: the influence of alcohol consumption of opposite-gender peers
+				on youth risky sexual behavior</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Don&amp;apos;t drink and... avoid risky sex of your
+				peers: the influence of alcohol consumption of opposite-gender peers
+				on youth risky sexual behavior</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:3b13bcc8-1ba8-43b1-bb5c-62b15364e8cc</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Growth of electoral fraud in non-democracies: the role
+				of uncertainty</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Growth of electoral fraud in non-democracies: the role
+				of uncertainty</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:a3f2c37a-48c5-4c4b-b3da-9ec3d22ce835</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Intergenerational bargaining in technology adoption
+			</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Intergenerational bargaining in technology adoption
+			</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:6f50e9d6-9e5b-4a1e-95cc-700bb227b1e8</str>
+			<str name="model">monograph</str>
+			<str name="title.search">The effect of time in a multi-dimensional marriage
+				market model</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">The effect of time in a multi-dimensional marriage
+				market model</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:1da51d00-d892-4c48-a169-1dbbac37e2e0</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Fairness in risky environments: theory and evidence
+			</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Fairness in risky environments: theory and evidence
+			</str>
+			<str name="date.str">2010</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:ce64aa33-a0c5-45fe-9e39-b9e5b36d185e</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Das allgemeine bürgerliche Gesetzbuch im Lichte der
+				Lehren Kants: eine Untersuchung der philosophischen Grundlagen des
+				österreichischen bürgerlichen Rechts, ihrer Auswirkung im einzelnen
+				und ihrer Bedeutung für die Rechtsentwicklung Mitteleuropas</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Das allgemeine bürgerliche Gesetzbuch im Lichte der
+				Lehren Kants: eine Untersuchung der philosophischen Grundlagen des
+				österreichischen bürgerlichen Rechts, ihrer Auswirkung im einzelnen
+				und ihrer Bedeutung für die Rechtsentwicklung Mitteleuropas</str>
+			<str name="date.str">1926</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:8fbedc17-78fa-4d81-a49c-9986ec025451</str>
+			<str name="model">monograph</str>
+			<str name="title.search">O důležitosti hromadného vyučování v kreslení</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">O důležitosti hromadného vyučování v kreslení</str>
+			<str name="date.str">1917</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:4e53e59a-fb33-4592-a1be-fcb9464a68b0</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Geometrické a věcné motivy ornamentální v ploše i
+				obrysech: příspěvek k vyučování kreslení v I. tř. střední školy
+			</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Geometrické a věcné motivy ornamentální v ploše i
+				obrysech: příspěvek k vyučování kreslení v I. tř. střední školy
+			</str>
+			<str name="date.str">1917</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:4d1c3bcf-dbee-4009-80f0-1f3f08eedba3</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Metodika figurálního kreslení na střední škole</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Metodika figurálního kreslení na střední škole</str>
+			<str name="date.str">[1917?]</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:effd8242-2859-4e35-88bb-61661a94fae8</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Almanach na rok 1914</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Almanach na rok 1914</str>
+			<str name="date.str">1913</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:c10b35af-155c-4901-8d41-4cbc71d5dee0</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Illustrovaný nástin osnov kreslení na středních školách
+			</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Illustrovaný nástin osnov kreslení na středních školách
+			</str>
+			<str name="date.str">[1924]</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:b0f21417-feb5-41a0-8124-82246ac9daee</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Pověsti a obrázky z chrudimského kraje</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Pověsti a obrázky z chrudimského kraje</str>
+			<str name="date.str">1930</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:827c1930-6f52-4fa4-9918-22661cc529f5</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Typologický prozkum žactva české střední školy</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Typologický prozkum žactva české střední školy</str>
+			<str name="date.str">1927</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:7624b5c8-e952-4e9f-ac1b-784f3fa95a85</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Souborná výstava obrazů, kreseb a plastik akademických
+				malířů Josefa Heřmana, Bohumila Liznera a Vojtěcha Sedláčka,
+				akademických sochařů Josefa Škody a Miloslava Vávry</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Souborná výstava obrazů, kreseb a plastik akademických
+				malířů Josefa Heřmana, Bohumila Liznera a Vojtěcha Sedláčka,
+				akademických sochařů Josefa Škody a Miloslava Vávry</str>
+			<str name="date.str">1933</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:73490ebf-97b5-4dba-9478-a6ffc3936300</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Quodlibet: veselé obrázky</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Quodlibet: veselé obrázky</str>
+			<str name="date.str">1927</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:32f56874-cbe1-452d-8528-477cf0891014</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Výstava obrazů Richarda Laudy a plastik Boh. Laudy: v
+				čítárně musejní od 3. do 19. března</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Výstava obrazů Richarda Laudy a plastik Boh. Laudy: v
+				čítárně musejní od 3. do 19. března</str>
+			<str name="date.str">1911</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:1d00b08d-d0d3-4c06-a6fe-9ea9e77c86d3</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Sapientiae primae Usus triertium catholicum
+				appellandus, hoc est, Humanarum, Cogitationum, Sermonum, Operum
+				Scientiam, Artem, Usum, aperiens clavis triuna : sive Amabile
+				Logicae, Grammatgica, Pragmaticaque cum Metaphysica osculum</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Sapientiae primae Usus triertium catholicum
+				appellandus, hoc est, Humanarum, Cogitationum, Sermonum, Operum
+				Scientiam, Artem, Usum, aperiens clavis triuna : sive Amabile
+				Logicae, Grammatgica, Pragmaticaque cum Metaphysica osculum</str>
+			<str name="date.str">1920</str>
+			<arr name="cdk.collection">
+				<str>svkhk</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:50cf7182-7fad-42e9-ac7b-4694416e324d</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Bezvěrci dle práva rakouského: vývoj, právní poměry a
+				jich reformy</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Bezvěrci dle práva rakouského: vývoj, právní poměry a
+				jich reformy</str>
+			<str name="date.str">[1904]</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+		<doc>
+			<str name="pid">uuid:ef00cb65-5b82-4de1-81b2-1b9638317b9e</str>
+			<str name="model">monograph</str>
+			<str name="title.search">Nezvítězíš, Galilejský !: interpelace poslanců soudruha
+				Svěceného a Jaroše na říšské radě ze dne 23. března 1909</str>
+			<str name="accessibility">public</str>
+			<str name="root.title">Nezvítězíš, Galilejský !: interpelace poslanců soudruha
+				Svěceného a Jaroše na říšské radě ze dne 23. března 1909</str>
+			<str name="date.str">1909</str>
+			<arr name="cdk.collection">
+				<str>knav</str>
+			</arr>
+		</doc>
+	</result>
+	<lst name="facet_counts">
+		<lst name="facet_queries" />
+		<lst name="facet_fields">
+			<lst name="keywords.facet">
+				<int name="Česká próza">617</int>
+				<int name="dějiny">590</int>
+				<int name="Zemědělství. Pedologie. Agrotechnika. Agroekologie">337</int>
+				<int name="Biografie">301</int>
+				<int name="pěstování">291</int>
+				<int name="zemědělství">271</int>
+				<int name="poezie">255</int>
+				<int name="Rostlinná výroba">202</int>
+				<int name="Chov zvířat. Živočišná výroba">197</int>
+				<int name="České drama">164</int>
+				<int name="Zahrádkářství">148</int>
+				<int
+					name="Historická věda. Pomocné vědy historické. Archivnictví">141</int>
+				<int name="Lesnictví">139</int>
+				<int name="Staré tisky">139</int>
+				<int name="vlastivěda">129</int>
+				<int name="Ovocnářství">125</int>
+				<int name="Učební osnovy. Vyučovací předměty. Učebnice">121</int>
+				<int name="Česká poezie">118</int>
+				<int name="Česká literatura (o ní)">114</int>
+				<int name="hospodářská zvířata">105</int>
+				<int name="Botanika">104</int>
+				<int name="epithalamia">101</int>
+				<int name="Dějiny Česka a Slovenska">100</int>
+				<int name="Tisky (19. století)">99</int>
+				<int name="slavnosti">97</int>
+				<int name="Ekonomie">95</int>
+				<int name="Tisky (19. stol.)">93</int>
+				<int name="lesnictví">91</int>
+				<int name="Výchova a vzdělávání">87</int>
+				<int name="gratulace">81</int>
+				<int name="hnojení">81</int>
+				<int name="Střední školy">80</int>
+				<int name="spolky">79</int>
+				<int name="dedikace">78</int>
+				<int name="Zoologie">77</int>
+				<int name="česká literatura">76</int>
+				<int name="Zemědělství a příbuzné oblasti vědy a techniky">75</int>
+				<int name="ovocnictví">75</int>
+				<int name="Literatura pro děti a mládež (beletrie)">73</int>
+				<int name="hagiografie">73</int>
+				<int name="náboženství">73</int>
+				<int name="gymnázia">71</int>
+				<int name="ovoce">70</int>
+				<int name="botanika">69</int>
+				<int name="nemoci">69</int>
+				<int name="stromy ovocné">69</int>
+				<int name="rostliny">67</int>
+				<int name="zpracování">67</int>
+				<int name="školství">66</int>
+				<int name="Finance">65</int>
+				<int name="krmení">65</int>
+				<int name="nuptialia">65</int>
+				<int name="zelenina">65</int>
+				<int name="čeští spisovatelé">65</int>
+				<int name="historické prameny">64</int>
+				<int name="ekonomická analýza">63</int>
+				<int name="hospodaření">63</int>
+				<int name="hospodářské rostliny">63</int>
+				<int name="Anglická próza, anglicky psaná">60</int>
+				<int name="Průmysl nápojů. Kvasný průmysl. Průmysl pochutin">60</int>
+				<int name="Potravinářský průmysl">59</int>
+				<int name="výroba">59</int>
+				<int name="Ochrana rostlin. Fytopatologie">58</int>
+				<int name="historiografie">58</int>
+				<int name="history">58</int>
+				<int name="odrůdy">58</int>
+				<int name="Kuchařství. Potraviny. Vařená jídla">57</int>
+				<int name="ilustrace">57</int>
+				<int name="ceny">56</int>
+				<int name="půda">56</int>
+				<int name="Živočišná výroba">55</int>
+				<int name="panegyrika">54</int>
+				<int name="právo">54</int>
+				<int name="umělecké památky">54</int>
+				<int name="školy zemědělské">54</int>
+				<int name="ochrana rostlin">53</int>
+				<int name="čeština">53</int>
+				<int name="Lingvistika. Jazyky">52</int>
+				<int name="architektonické památky">52</int>
+				<int name="dřeviny ovocné">51</int>
+				<int name="Veterinární lékařství">50</int>
+				<int name="filozofové">50</int>
+				<int name="rostlinná výroba">50</int>
+				<int name="skot">49</int>
+				<int name="zahradnictví">49</int>
+				<int name="Právo">48</int>
+				<int name="vzdělávání">48</int>
+				<int name="krmiva">47</int>
+				<int name="malíři">47</int>
+				<int name="včelařství">47</int>
+				<int name="Geografie jako věda. Výzkum. Cestování">46</int>
+				<int name="Malířství">46</int>
+				<int name="filozofie">46</int>
+				<int name="lesní hospodářství">46</int>
+				<int name="lesy">46</int>
+				<int name="Živočišné produkty">46</int>
+				<int
+					name="Křesťanství. Křesťanská církev všeobecně. Eklesiologie">45</int>
+				<int name="Výtvarné umění">45</int>
+				<int name="myslivost">45</int>
+				<int name="hnojiva">44</int>
+			</lst>
+			<lst name="languages.facet">
+				<int name="cze">5178</int>
+				<int name="ger">1009</int>
+				<int name="lat">954</int>
+				<int name="eng">548</int>
+				<int name="fre">168</int>
+				<int name="dut">48</int>
+				<int name="ita">48</int>
+				<int name="slo">45</int>
+				<int name="pol">38</int>
+				<int name="gre">33</int>
+				<int name="rus">26</int>
+				<int name="ukr">13</int>
+				<int name="grc">12</int>
+				<int name="mul">11</int>
+				<int name="spa">8</int>
+				<int name="chi">5</int>
+				<int name="sla">5</int>
+				<int name="ara">4</int>
+				<int name="dan">4</int>
+				<int name="dsb">3</int>
+				<int name="por">3</int>
+				<int name="wen">3</int>
+				<int name="swe">2</int>
+				<int name="Chi">1</int>
+				<int name="alb">1</int>
+				<int name="heb">1</int>
+				<int name="scc">1</int>
+				<int name="srp">1</int>
+			</lst>
+			<lst name="cdk.collection">
+				<int name="knav">3197</int>
+				<int name="svkhk">2898</int>
+				<int name="uzei">2880</int>
+				<int name="svkul">195</int>
+				<int name="mzk">147</int>
+				<int name="kkp">31</int>
+			</lst>
+			<lst name="licenses">
+				<int name="dnnto">36</int>
+			</lst>
+			<lst name="contains_licenses" />
+			<lst name="licenses_of_ancestors" />
+			<lst name="physical_locations.facet">
+				<int name="ABA009">2390</int>
+				<int name="HKA001">2307</int>
+				<int name="ABA007">2158</int>
+				<int name="ABE459">496</int>
+				<int name="ULG001">189</int>
+				<int name="ABA010">166</int>
+				<int name="ABA001">107</int>
+				<int name="NAG001">58</int>
+				<int name="HKE302">50</int>
+				<int name="PAG001">29</int>
+				<int name="BOA001">16</int>
+				<int name="HKG001">11</int>
+				<int name="ABA000">10</int>
+				<int name="KLG001">10</int>
+				<int name="National Library of Sweden">9</int>
+				<int name="ABB060">8</int>
+				<int name="TUE801">6</int>
+				<int name="ABB030">5</int>
+				<int name="ABB005">4</int>
+				<int name="ABA004">3</int>
+				<int name="ABA006">2</int>
+				<int name="JCE301">2</int>
+				<int name="JCG001">2</int>
+				<int name="NAE802">2</int>
+				<int name="TUE301">2</int>
+				<int name="ABA001 ">1</int>
+				<int name="ABA013">1</int>
+				<int name="ABB019">1</int>
+				<int name="ABB083">1</int>
+				<int name="ABB085">1</int>
+				<int name="ABE 459">1</int>
+				<int name="ABE461">1</int>
+				<int name="BOD0022">1</int>
+				<int name="BOD022">1</int>
+				<int name="CRE1402">1</int>
+				<int name="HBG001">1</int>
+				<int name="LZC2">1</int>
+				<int name="LZD13233">1</int>
+				<int name="LZD7368">1</int>
+				<int name="MZD7527">1</int>
+			</lst>
+			<lst name="geographic_names.facet">
+				<int name="Česko">909</int>
+				<int name="Čechy (Česko)">146</int>
+				<int name="Československo">130</int>
+				<int name="Czechia">114</int>
+				<int name="Praha (Česko)">92</int>
+				<int name="Morava (Česko)">91</int>
+				<int name="Nizozemsko">56</int>
+				<int name="Náchod (Česko)">43</int>
+				<int name="Evropa">37</int>
+				<int name="České království">36</int>
+				<int name="Německo">34</int>
+				<int name="Rakousko-Uhersko">33</int>
+				<int name="Ústí nad Labem (Česko)">32</int>
+				<int name="Indonésie">29</int>
+				<int name="Jakarta (Indonésie)">29</int>
+				<int name="Slovensko">29</int>
+				<int name="Kadaň (Česko)">27</int>
+				<int name="Rusko">27</int>
+				<int name="Hradec Králové (Česko)">23</int>
+				<int name="Pardubice (Česko)">23</int>
+				<int name="Spojené státy americké">20</int>
+				<int name="Francie">18</int>
+				<int name="Rakousko">18</int>
+				<int name="Durynsko (Německo)">17</int>
+				<int name="Teplice (Česko)">17</int>
+				<int name="Polsko">15</int>
+				<int name="Čechy východní (Česko)">15</int>
+				<int name="Litoměřice (Česko)">14</int>
+				<int name="Evropa střední">13</int>
+				<int name="Čechy jižní (Česko)">12</int>
+				<int name="Europe">11</int>
+				<int name="Maďarsko">11</int>
+				<int name="Chrudim (Česko)">10</int>
+				<int name="Egypt">10</int>
+				<int name="Jičín (Česko)">10</int>
+				<int name="země světa">10</int>
+				<int name="Ústí nad Labem (Česko : oblast)">10</int>
+				<int name="Anglie">9</int>
+				<int name="Náchod (Česko : oblast)">9</int>
+				<int name="Slezsko (Česko)">9</int>
+				<int name="Tábor (Česko)">9</int>
+				<int name="Czechoslovakia">8</int>
+				<int name="Jindřichův Hradec (Czechia)">8</int>
+				<int name="Jindřichův Hradec (Česko)">8</int>
+				<int name="Slovakia">8</int>
+				<int name="Teplice (Česko : oblast)">8</int>
+				<int name="země Evropské unie">8</int>
+				<int name="Švédsko">8</int>
+				<int name="Amerika">7</int>
+				<int name="Bohemia, Eastern (Czechia)">7</int>
+				<int name="Brno (Česko)">7</int>
+				<int name="Europe, Central">7</int>
+				<int name="Hradec Králové (Česko : oblast)">7</int>
+				<int name="Itálie">7</int>
+				<int name="Jaroměř (Česko)">7</int>
+				<int name="Prague (Czechia)">7</int>
+				<int name="Slezsko">7</int>
+				<int name="Vídeň (Rakousko)">7</int>
+				<int name="starověké Řecko">7</int>
+				<int name="starověký Řím">7</int>
+				<int name="Šanov (Teplice, Česko)">7</int>
+				<int name="Žatec (Louny, Česko)">7</int>
+				<int name="Bulharsko">6</int>
+				<int name="European Union countries">6</int>
+				<int name="Germany">6</int>
+				<int name="Hronov (Česko)">6</int>
+				<int name="Kanada">6</int>
+				<int name="Litomyšl (Česko)">6</int>
+				<int name="Litoměřice (Česko : oblast)">6</int>
+				<int name="Nil (řeka : oblast)">6</int>
+				<int name="Nil River Valley">6</int>
+				<int name="Pardubice (Česko : oblast)">6</int>
+				<int name="Velké Meziříčí (Česko)">6</int>
+				<int name="Čechy severovýchodní (Česko)">6</int>
+				<int name="Austro-Hungarian Monarchy">5</int>
+				<int name="Bohemia (Czechia)">5</int>
+				<int name="Japonsko">5</int>
+				<int name="Krkonoše (Česko a Polsko : pohoří)">5</int>
+				<int name="Mělník (Česko)">5</int>
+				<int name="Nový Bydžov (Česko)">5</int>
+				<int name="Praha (Česko : oblast)">5</int>
+				<int name="Rakousko (1804-1867)">5</int>
+				<int name="Russia">5</int>
+				<int name="Turnov (Česko)">5</int>
+				<int name="Ukrajina">5</int>
+				<int name="Velká Británie">5</int>
+				<int name="Čechy severní (Česko)">5</int>
+				<int name="Brašov (Rumunsko)">4</int>
+				<int name="Chrudim (Česko : oblast)">4</int>
+				<int name="Dánsko">4</int>
+				<int name="France">4</int>
+				<int name="German speaking countries">4</int>
+				<int name="Jena (Německo)">4</int>
+				<int name="Kutná Hora (Česko)">4</int>
+				<int name="Litomyšl (Česko : oblast)">4</int>
+				<int name="Louny (Česko)">4</int>
+				<int name="Morava (řeka)">4</int>
+				<int name="Morava jižní (Česko)">4</int>
+				<int name="Moravia (Czechia)">4</int>
+				<int name="Nová Francie">4</int>
+			</lst>
+			<lst name="authors.facet">
+				<int name="Sovadina, Jan">1</int>
+				<int name="Šílený, Václav">1</int>
+			</lst>
+			<lst name="publishers.facet">
+				<int name="J. Otto">1</int>
+				<int name="JUDr. Václav Šílený">1</int>
+				<int name="Josef Liboslav Ziegler">1</int>
+				<int name="Julius Grégr">1</int>
+			</lst>
+			<lst name="publication_places.facet">
+				<int name="Praha">2</int>
+				<int name="Brno">1</int>
+				<int name="W Praze">1</int>
+				<int name="Xr">1</int>
+			</lst>
+			<lst name="own_model_path">
+				<int name="monograph">8036</int>
+				<int name="monograph/monographunit">746</int>
+				<int name="periodical">397</int>
+				<int name="monograph/monograph">14</int>
+				<int name="map">2</int>
+				<int name="sheetmusic">1</int>
+			</lst>
+			<lst name="genres.facet" />
+		</lst>
+		<lst name="facet_ranges" />
+		<lst name="facet_intervals" />
+		<lst name="facet_heatmaps" />
+	</lst>
+</response>

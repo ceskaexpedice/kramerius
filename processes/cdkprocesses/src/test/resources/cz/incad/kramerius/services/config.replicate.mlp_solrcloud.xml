@@ -1,0 +1,61 @@
+<cdkprocess>
+
+    <!-- Iteration part -->
+    
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
+   <iteration>
+	<url>%s</url>
+    </iteration>
+    <threads>2</threads>
+
+
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <url>http://kramerius4.mlp.cz/search/api/v5.0</url>
+            <endpoint>search</endpoint>
+            <batchsize>20</batchsize>
+
+
+            <checkUrl>http://10.19.6.10:8983/solr/k7_5</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+
+            <composite.id>true</composite.id>
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
+
+            <!-- toto vyresit lip -->
+            <collections.url>
+
+				<elem>
+                    <key>vc:d4b466de-5435-4b76-bff7-2838bbae747b</key>
+                    <value>http://kramerius4.mlp.cz/search</value>
+                </elem>
+
+            </collections.url>
+        </request>
+
+        <destination>
+            <url>http://192.168.10.109:18984/solr-test/kramerius-cdk-test/update</url>
+
+            <!-- on index -->
+            <onindex>
+                <!-- remove from batch document -->
+                <remove.dest.field>
+                    <field name="collection"></field>
+                </remove.dest.field>
+                <!-- append to batch document -->
+                <update.dest.field>
+                    <field name="collection">vc:d4b466de-5435-4b76-bff7-2838bbae747b</field>
+                </update.dest.field>
+            </onindex>
+            <!-- on update -->
+            <onupdate>
+                <update.dest.field>
+                    <field name="collection" update="add-distinct">added-collection</field>
+                </update.dest.field>
+            </onupdate>
+
+        </destination>
+    </worker>
+</cdkprocess>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+	<lst name="responseHeader">
+		<bool name="zkConnected">true</bool>
+		<int name="status">0</int>
+		<int name="QTime">58</int>
+		<lst name="params">
+			<str name="q">pid:"uuid:87f93b08-e35d-410c-a794-b8fe52cc6400"</str>
+			<str name="hl.fragsize">20</str>
+			<arr name="wt">
+				<str>xml</str>
+				<str>xml</str>
+			</arr>
+		</lst>
+	</lst>
+	<result maxScore="7.4334736" name="response" numFound="1"
+		numFoundExact="true" start="0">
+		<doc>
+			<str name="accessibility">private</str>
+			<arr name="authors">
+				<str>Gottlieb, František, 1903-1974</str>
+			</arr>
+			<arr name="authors.facet">
+				<str>Gottlieb, František</str>
+			</arr>
+			<arr name="authors.search">
+				<str>Gottlieb, František</str>
+			</arr>
+			<date name="created">2022-10-10T15:28:13.756Z</date>
+			<date name="date.max">1924-12-31T23:59:59.999Z</date>
+			<date name="date.min">1924-01-01T00:00:00.001Z</date>
+			<str name="date.str">1924</str>
+			<int name="date_range_end.year">1924</int>
+			<int name="date_range_start.year">1924</int>
+			<str name="ds.img_full.mime">image/jpeg</str>
+			<bool name="has_tiles">true</bool>
+			<arr name="id_uuid">
+				<str>87f93b08-e35d-410c-a794-b8fe52cc6400</str>
+			</arr>
+			<date name="indexed">2022-10-12T22:56:54.205Z</date>
+			<int name="indexer_version">13</int>
+			<arr name="languages.facet">
+				<str>cze</str>
+			</arr>
+			<int name="level">1</int>
+			<str name="model">page</str>
+			<date name="modified">2022-10-13T00:29:12.444Z</date>
+			<str name="own_model_path">monograph/page</str>
+			<str name="own_parent.model">monograph</str>
+			<str name="own_parent.pid">uuid:e8686650-d81d-11ec-a96b-005056827e52</str>
+			<str name="own_parent.title">Cesta do Kanaán: verše</str>
+			<str name="own_pid_path">uuid:e8686650-d81d-11ec-a96b-005056827e52/uuid:87f93b08-e35d-410c-a794-b8fe52cc6400
+			</str>
+			<int name="page.index">9</int>
+			<str name="page.number">[6]</str>
+			<str name="page.placement">left</str>
+			<str name="page.type">NormalPage</str>
+			<str name="pid">uuid:87f93b08-e35d-410c-a794-b8fe52cc6400</str>
+			<arr name="pid_paths">
+				<str>uuid:e8686650-d81d-11ec-a96b-005056827e52/uuid:87f93b08-e35d-410c-a794-b8fe52cc6400
+				</str>
+			</arr>
+			<int name="rels_ext_index.sort">8</int>
+			<str name="root.model">monograph</str>
+			<str name="root.pid">uuid:e8686650-d81d-11ec-a96b-005056827e52</str>
+			<str name="root.title">Cesta do Kanaán: verše</str>
+			<str name="root.title.sort">CESTA DO KANAA|N VERS|E</str>
+			<str name="title.search">[6]</str>
+			<str name="title.sort">6</str>
+			<str name="compositeId">uuid:e8686650-d81d-11ec-a96b-005056827e52!uuid:87f93b08-e35d-410c-a794-b8fe52cc6400
+			</str>
+			<arr name="cdk.collection">
+				<str>mzk</str>
+				<str>nkp</str>
+				<str>knav</str>
+			</arr>
+
+			<arr name="physical_locations.facet">
+			<str>ABA001</str>
+			<str>ABB060</str>
+			</arr>
+			
+			<str name="cdk.leader">mzk</str>
+			<long name="_version_">1747194390056534016</long>
+		</doc>
+	</result>
+</response>

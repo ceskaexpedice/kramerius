@@ -78,7 +78,7 @@ public class DeleteServiceImplTest  {
         EasyMock.replay(inst);
 
 
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("akubraFedoraAccess")));
         Assert.assertNotNull(fa);
 
 
@@ -130,7 +130,7 @@ public class DeleteServiceImplTest  {
         EasyMock.replay(inst);
 
 
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("akubraFedoraAccess")));
         Assert.assertNotNull(fa);
 
 

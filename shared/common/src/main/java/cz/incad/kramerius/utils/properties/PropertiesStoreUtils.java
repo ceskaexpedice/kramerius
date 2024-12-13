@@ -63,21 +63,21 @@ public class PropertiesStoreUtils {
      * @return Deserialized properites object
      */
     public static Properties loadProperties(String str) {
-        List<Character> mustBeEscaped = Arrays.asList(new Character('\\'),new Character(';'));
+        List<Character> mustBeEscaped = Arrays.asList('\\',';');
         
         List<String> tokens = new ArrayList<String>();
         StringWriter processWriter = new StringWriter();
         Stack<Character> stckChars = new Stack<Character>();
         char[] charArray = str.toCharArray();
         for (int i = charArray.length-1; i >=0; i--) {
-            stckChars.push(new Character(charArray[i]));
+            stckChars.push(charArray[i]);
         }
         
         while(!stckChars.isEmpty()) {
             Character cChar = stckChars.pop();
-            if ((cChar.equals(new Character('\\')) && (!stckChars.isEmpty()) && (mustBeEscaped.contains(stckChars.peek())))) {
+            if ((cChar.equals('\\') && (!stckChars.isEmpty()) && (mustBeEscaped.contains(stckChars.peek())))) {
                 processWriter.write(stckChars.pop());
-            } else if (cChar.equals(new Character(';'))){
+            } else if (cChar.equals(';')){
                 tokens.add(processWriter.toString());
                 processWriter = new StringWriter();
             } else {

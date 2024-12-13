@@ -1,0 +1,53 @@
+<cdkprocess>
+
+    <!--
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.logfile.LogFileIteratorFactory"></iteratorFactory>
+    -->
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.compare.CompareLogsIteratorFactory"></iteratorFactory>
+    <!--
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    -->
+    <iteration>
+
+        <!--
+        <url>https://kramerius.lib.cas.cz/search/api/v5.0/</url>
+        <url>file:///c:/Users/pavel.stastny/nprojs/_kramerius_akubra/kramerius/kibana.log.fromknav</url>
+        -->
+        <url>file:///c:/Users/pavel.stastny/nprojs/_kramerius_akubra/kramerius/processes/cdkprocesses/src/main/java/cz/incad/kramerius/services/workers/nullworker/logs/</url>
+        <!--
+        <fquery>collection:"vc:c4bb27af-3a51-4ac2-95c7-fd393b477777"</fquery>
+       -->
+        <!--
+        <fquery>created_date:[2009-10-14T15:14:46.102Z TO 2013-10-14T15:14:46.102Z]</fquery>
+        -->
+        <endpoint>search</endpoint>
+
+        <id>PID</id>
+        <rows>100</rows>
+        <type>PAGINATION</type>
+    </iteration>
+
+    <threads>1</threads>
+
+
+    <workerFactory class="cz.incad.kramerius.services.workers.nullworker.NullWorkerFactory"></workerFactory>
+    <worker>
+        <destination>
+            <kibana.log.logfile>c:\Users\pavel.stastny\nprojs\_kramerius_akubra\kramerius\processes\cdkprocesses\src\main\java\cz\incad\kramerius\services\workers\nullworker\diff\difference.log</kibana.log.logfile>
+
+            <!-- on index for logger -> elasticsearch -->
+            <onindex>
+                <update.dest.field>
+                    <logfield>
+                            <![CDATA[
+                            {
+                                "compared":"true"
+                            }
+                            ]]>
+                    </logfield>
+                </update.dest.field>
+            </onindex>
+
+        </destination>
+    </worker>
+</cdkprocess>

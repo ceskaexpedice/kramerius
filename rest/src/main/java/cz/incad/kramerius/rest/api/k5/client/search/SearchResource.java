@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,9 +83,9 @@ public class SearchResource {
     @Inject
     @Named("new-index")
     private SolrAccess solrAccess;
-
-    @Inject
-    private JSONDecoratorsAggregate jsonDecoratorAggregates;
+//
+//    @Inject
+//    private JSONDecoratorsAggregate jsonDecoratorAggregates;
 
     @GET
     @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
@@ -98,6 +99,7 @@ public class SearchResource {
     }
 
     private String getEntityXML(UriInfo uriInfo) {
+        AtomicReference<String> queryRef = new AtomicReference<>();
         try {
             MultivaluedMap<String, String> queryParameters = uriInfo
                     .getQueryParameters();
@@ -114,6 +116,7 @@ public class SearchResource {
                     builder.append("&");
                 }
             }
+            queryRef.set(builder.toString());
             InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), "xml");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -130,7 +133,8 @@ public class SearchResource {
             return strWriter.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
+                LOGGER.log(Level.SEVERE, message);
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
@@ -194,6 +198,7 @@ public class SearchResource {
     }
 
     private String getEntityJSON(UriInfo uriInfo) {
+        AtomicReference<String> queryRef = new AtomicReference<>();
         try {
 
             MultivaluedMap<String, String> queryParameters = uriInfo
@@ -211,6 +216,8 @@ public class SearchResource {
                     builder.append("&");
                 }
             }
+            queryRef.set(builder.toString());
+            
             InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), "json");
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -219,12 +226,15 @@ public class SearchResource {
 
             String uri = UriBuilder.fromResource(SearchResource.class).path("")
                     .build().toString();
-            JSONObject jsonObject = changeJSONResult(rawString, uri, this.jsonDecoratorAggregates.getDecorators());
+            JSONObject jsonObject = changeJSONResult(rawString, uri, new ArrayList<>());
 
             return jsonObject.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                //LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
+                LOGGER.log(Level.SEVERE, message);
+
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);

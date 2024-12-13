@@ -17,11 +17,17 @@
 package cz.incad.kramerius.rest.api.guice;
 
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
+import com.sun.jersey.api.client.Client;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
 import cz.incad.kramerius.rest.apiNew.admin.v70.files.GenerateDownloadLinks;
 import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.proxy.ConnectedInfoResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.impl.SolrReharvestManagerImpl;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RightsResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RolesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.UsersResource;
@@ -30,6 +36,7 @@ import cz.incad.kramerius.rest.apiNew.cdk.v70.CDKForwardResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKUsersResource;
+/*
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.debug.HTTPHeaders;
@@ -40,7 +47,6 @@ import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrMimeDec
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrPolicyDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootModelDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrRootPidDecorate;
-import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.FeederSolrTitleDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrDateDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrISSNDecorate;
 import cz.incad.kramerius.rest.api.k5.client.feeder.decorators.SolrLanguageDecorate;
@@ -49,14 +55,24 @@ import cz.incad.kramerius.rest.api.k5.client.pdf.AsyncPDFResource;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
+*/
+import cz.incad.kramerius.rest.apiNew.client.v70.ClientProvider;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource;
+import cz.incad.kramerius.rest.apiNew.client.v70.filter.DefaultFilter;
+import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.properties.DefaultPropertiesInstances;
 import cz.incad.kramerius.rest.apiNew.exts.v70.ExtsTokensResource;
+import cz.incad.kramerius.timestamps.TimestampStore;
+import cz.incad.kramerius.timestamps.impl.SolrTimestampStore;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.folders.db.FolderDatabase;
 import cz.inovatika.folders.jersey.EndpointFolders;
-import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
+//import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
+import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
+import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
 import cz.incad.kramerius.rest.api.processes.LRResource;
-import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
+//import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyReader;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyWriter;
@@ -77,20 +93,30 @@ public class ApiServletModule extends JerseyServletModule {
     protected void configureServlets() {
         // API Remote 4.6 Resources
         bind(ReplicationsResource.class);
-        bind(CDKReplicationsResource.class);
+        //bind(CDKReplicationsResource.class);
         bind(LRResource.class);
 
         // API Client 5.0 Resources - TODO: disable
-        bind(ClientUserResource.class);
+        
+		boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
+		if (cdkServerMode) {
+			bind(cz.incad.kramerius.rest.apiNew.client.v70.cdk.ClientUserResource.class);
+		} else {
+	        bind(cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource.class);
+		}
+        
+
         //bind(ItemResource.class);
-        bind(FeederResource.class);
-        bind(ClientVirtualCollections.class);
-        bind(SearchResource.class);
-        bind(FeedbackResource.class);
-        bind(ClientRightsResource.class);
-        bind(PDFResource.class);
-        bind(AsyncPDFResource.class);
-        bind(RightsResource.class);
+        //bind(FeederResource.class);
+        //bind(ClientVirtualCollections.class);
+        //bind(SearchResource.class);
+        //bind(FeedbackResource.class);
+        //bind(ClientRightsResource.class);
+        //bind(PDFResource.class);
+        //bind(AsyncPDFResource.class);
+		
+		// Admin resources
+		bind(RightsResource.class);
         bind(UsersResource.class);
         bind(RolesResource.class);
 
@@ -109,7 +135,14 @@ public class ApiServletModule extends JerseyServletModule {
         
         // API Client 7.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.client.v70.InfoResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
+        
+        // cdk server mode
+        if (cdkServerMode) {
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.cdk.ItemsResource.class);
+        } else {
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
+        }
+        
         bind(cz.incad.kramerius.rest.apiNew.client.v70.SearchResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.ConfigResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource.class);
@@ -117,6 +150,11 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.client.v70.LocksResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.res.EmbeddedFilesResource.class);
         
+        
+        bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
+        // only in cdk
+        //bind(cz.incad.kramerius.rest.apiNew.client.v60.ItemsResource.class);
+
         
         
         // API Admin 7.0 Resources
@@ -147,18 +185,33 @@ public class ApiServletModule extends JerseyServletModule {
         bind(KeycloakProxy.class);
 
         // debug resource
-        bind(HTTPHeaders.class);
+        //bind(HTTPHeaders.class);
 
+        	
         bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
-                .asEagerSingleton();
+					.asEagerSingleton();
 
         // simple reader & writer
         bind(SimpleJSONMessageBodyReader.class);
         bind(SimpleJSONMessageBodyWriter.class);
 
         // decorators
-        decorators();
+        //decorators();
 
+        // cdk
+        bind(TimestampStore.class).to(SolrTimestampStore.class).asEagerSingleton();
+        bind(Instances.class).to(DefaultPropertiesInstances.class).asEagerSingleton();
+        bind(ReharvestManager.class).to(SolrReharvestManagerImpl.class).asEagerSingleton();
+        bind(ProxyFilter.class).to(DefaultFilter.class);
+        
+        // config 
+        if (cdkServerMode) {
+            bind(ConnectedInfoResource.class);
+            bind(ReharvestResource.class);
+            bind(ReharvestResource.class);
+        }
+
+        
         // api
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
@@ -169,50 +222,5 @@ public class ApiServletModule extends JerseyServletModule {
         // serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
     }
 
-    // not necessary in k7
-    public static void decoratorsBindings(Multibinder<JSONDecorator> decs) {
-//        // feeder
-//        decs.addBinding().to(SolrISSNDecorate.class);
-//        decs.addBinding().to(SolrDateDecorate.class);
-//        decs.addBinding().to(SolrLanguageDecorate.class);
-//        decs.addBinding().to(FeederSolrRootModelDecorate.class);
-//        decs.addBinding().to(FeederSolrRootPidDecorate.class);
-//        decs.addBinding().to(FeederSolrTitleDecorate.class);
-//        decs.addBinding().to(FeederSolrAuthorDecorate.class);
-//        decs.addBinding().to(FeederSolrPolicyDecorate.class);
-//        decs.addBinding().to(FeederSolrMimeDecorate.class);
-//
-//        // item
-//        decs.addBinding().to(HandleDecorate.class);
-//        decs.addBinding().to(ItemSolrTitleDecorate.class);
-//        decs.addBinding().to(ItemSolrRootModelDecorate.class);
-//        decs.addBinding().to(ItemSolrRootPidDecorate.class);
-//        decs.addBinding().to(SolrContextDecorate.class);
-//        //decs.addBinding().to(SolrDataNode.class);
-//        //decs.addBinding().to(CollectionsDecorator.class);
-//        decs.addBinding().to(ReplicatedFromDecorator.class);
-//        //decs.addBinding().to(SolrRightsFlag.class);
-//        //decs.addBinding().to(DonatorDecorate.class);
-//        //decs.addBinding().to(DNNTDecorator.class);
-//
-//        // item, display
-//        decs.addBinding().to(ZoomDecorate.class);
-//        decs.addBinding().to(PDFDecorate.class);
-//
-//        // item, details
-//        decs.addBinding().to(MonographUnitDecorate.class);
-//        decs.addBinding().to(PageDetailDecorate.class);
-//        decs.addBinding().to(PeriodicalItemDecorate.class);
-//        decs.addBinding().to(PeriodicalVolumeDecorator.class);
-//        decs.addBinding().to(InternalPartDecorate.class);
-//        decs.addBinding().to(InternalPartDecorate.class);
-//        decs.addBinding().to(SupplementDecorator.class);
-    }
-
-    private void decorators() {
-        Multibinder<JSONDecorator> decs = Multibinder.newSetBinder(binder(),
-                JSONDecorator.class);
-        decoratorsBindings(decs);
-    }
 
 }

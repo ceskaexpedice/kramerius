@@ -662,11 +662,6 @@ public class AkubraLowlevelStorage
             }
         }
 
-        @Override
-        protected void finalize() {
-            close();
-        }
-
     }
 
     /**
@@ -703,10 +698,6 @@ public class AkubraLowlevelStorage
             throw new UnsupportedOperationException();
         }
 
-        @Override
-        protected void finalize() {
-            connection.close();
-        }
 
     }
 

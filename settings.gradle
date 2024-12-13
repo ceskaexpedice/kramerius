@@ -1,3 +1,7 @@
+// cdk bridge
+include ':bridge'
+
+
 include	'shared:common'
 // disabled IT tests 
 //include	'shared:common-intest'

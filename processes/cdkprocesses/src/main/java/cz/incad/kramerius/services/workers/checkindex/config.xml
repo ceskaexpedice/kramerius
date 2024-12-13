@@ -1,0 +1,27 @@
+<cdkprocess>
+    <!-- Iteration part -->
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    <iteration>
+        <url></url>
+        <fquery></fquery>
+        <endpoint></endpoint>
+
+        <id></id>
+        <sort></sort>
+        <rows></rows>
+        <type></type>
+    </iteration>
+
+    <threads></threads>
+    <workerFactory class="cz.incad.kramerius.services.workers.checkindex.CheckIndexWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <url> </url>
+            <endpoint></endpoint>
+            <batchsize></batchsize>
+        </request>
+        <destination>
+            <checkindex.type>imported|indexed</checkindex.type>
+        </destination>
+    </worker>
+</cdkprocess>

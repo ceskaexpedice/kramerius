@@ -245,4 +245,6 @@ public interface RepositoryObject {
      * @throws RepositoryException
      */
     public void rebuildProcessingIndex() throws RepositoryException;
+
+   
 }

@@ -2,7 +2,7 @@ package cz.incad.kramerius.solr;
 
 import com.google.inject.*;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
+import com.google.inject.name.Names;import antlr.StringUtils;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrClient;
@@ -35,6 +35,19 @@ public class SolrModule extends AbstractModule {
         String processingSolrHost = KConfiguration.getInstance().getSolrProcessingHost();
         return new ConcurrentUpdateSolrClient.Builder(processingSolrHost).withQueueSize(100).build();
     }
+    
+    @Provides
+    @Named("proxyUpdate")
+    @Singleton
+    public SolrClient proxyUpdateClient() {
+        String proxyUpdateUrl = KConfiguration.getInstance().getSolrUpdatesHost();
+        if (cz.incad.kramerius.utils.StringUtils.isAnyString(proxyUpdateUrl)) {
+            return new ConcurrentUpdateSolrClient.Builder(proxyUpdateUrl).withQueueSize(100).build();
+        } else {
+        	return null;
+        }
+    }
+
 
     //    @Provides
 //    @Named("processingUpdate")
