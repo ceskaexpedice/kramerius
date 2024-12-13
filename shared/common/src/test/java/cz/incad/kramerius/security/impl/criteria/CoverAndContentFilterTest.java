@@ -14,7 +14,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
+import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.security.EvaluatingResultState;
@@ -54,7 +54,7 @@ public class CoverAndContentFilterTest {
 		  HazelcastServerNode.ensureHazelcastNode();
 		  
 		  
-		  FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+		  RepositoryAccessImpl fa4 = createMockBuilder(RepositoryAccessImpl.class)
 		        .withConstructor( feeder, acLog, cacheManager)
 		        .addMockedMethod("getDataStream")
 		        .addMockedMethod("getKrameriusModelName", String.class)
@@ -86,7 +86,7 @@ public class CoverAndContentFilterTest {
 		  return ca.evalute(null);
 	  }
 
-	  private class TestFA extends FedoraAccessAkubraImpl {
+	  private class TestFA extends RepositoryAccessImpl {
 
 
 

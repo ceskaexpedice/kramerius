@@ -7,8 +7,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;

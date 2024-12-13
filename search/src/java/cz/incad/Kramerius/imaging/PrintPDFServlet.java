@@ -31,7 +31,7 @@ import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfWriter;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
@@ -39,7 +39,6 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.ReportedAction;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
@@ -71,7 +70,7 @@ public class PrintPDFServlet extends GuiceServlet {
     public static enum ImageOP {
         CUT {
             @Override
-            protected void imageData(FedoraAccess fa,String pid, HttpServletRequest req, OutputStream os) throws IOException{
+            protected void imageData(RepositoryAccess fa, String pid, HttpServletRequest req, OutputStream os) throws IOException{
                 try {
                     pid = fa.findFirstViewablePid(pid);
                     BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);
@@ -87,7 +86,7 @@ public class PrintPDFServlet extends GuiceServlet {
         
         FULL {
             @Override
-            protected void imageData(FedoraAccess fa,String pid, HttpServletRequest req, OutputStream os) throws IOException {
+            protected void imageData(RepositoryAccess fa, String pid, HttpServletRequest req, OutputStream os) throws IOException {
                     try {
                         pid = fa.findFirstViewablePid(pid);
                         String mimeTypeForStream = fa.getMimeTypeForStream(pid, ImageStreams.IMG_FULL.getStreamName());
@@ -104,13 +103,13 @@ public class PrintPDFServlet extends GuiceServlet {
             }
         };
 
-        protected abstract void imageData(FedoraAccess fa, String pid,HttpServletRequest req,  OutputStream os) throws IOException ;
+        protected abstract void imageData(RepositoryAccess fa, String pid, HttpServletRequest req, OutputStream os) throws IOException ;
 
     }
 
     @Inject
     @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
     @Inject
     @Named("new-index")

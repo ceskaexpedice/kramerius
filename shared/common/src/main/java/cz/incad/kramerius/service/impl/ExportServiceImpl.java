@@ -3,11 +3,10 @@ package cz.incad.kramerius.service.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.service.ExportService;
 import cz.incad.kramerius.utils.IOUtils;
@@ -34,7 +33,7 @@ public class ExportServiceImpl implements ExportService {
 
     @Inject
     @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
     KConfiguration configuration = KConfiguration.getInstance();
     @Inject
@@ -178,7 +177,7 @@ public class ExportServiceImpl implements ExportService {
     public static void main(String[] args) throws IOException, TransformerException, SAXException, ParserConfigurationException {
         LOGGER.info("Export service: " + Arrays.toString(args));
         com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.resourceindex.ResourceIndexModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
-        FedoraAccess fa = injector.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("rawFedoraAccess")));
+        RepositoryAccess fa = injector.getInstance(com.google.inject.Key.get(RepositoryAccess.class, com.google.inject.name.Names.named("rawFedoraAccess")));
         Boolean exportParents = null;
         if (args.length > 1) {
             if (args[args.length - 1].equals("true")) {

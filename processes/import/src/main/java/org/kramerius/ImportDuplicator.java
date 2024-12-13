@@ -45,13 +45,13 @@ import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.XmlContentType;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 //FIXME: looks like duplicate of org.kramerius.Import, is it still used or can we remove it? Also not correctly indexing Convolutes
 public class ImportDuplicator {
 
-    static FedoraAccess fedoraAccess;
+    static RepositoryAccess fedoraAccess;
     static ProcessingIndexFeeder feeder;
     static int counter = 0;
 
@@ -110,7 +110,7 @@ public class ImportDuplicator {
 
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
-        fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        fedoraAccess = injector.getInstance(Key.get(RepositoryAccess.class, Names.named("rawFedoraAccess")));
         feeder = injector.getInstance(ProcessingIndexFeeder.class);
 
 

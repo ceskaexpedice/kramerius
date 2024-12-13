@@ -24,27 +24,21 @@ import java.util.Stack;
 
 import javax.xml.transform.TransformerConfigurationException;
 
-import com.google.inject.*;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.*;
 
 import org.apache.commons.lang3.tuple.Triple;
-import com.google.inject.name.Names;
-import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Scopes;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessStackAware;
@@ -63,7 +57,7 @@ public class Consistency {
     
     @Inject
     @Named("rawFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
 
    /**
@@ -106,11 +100,11 @@ public class Consistency {
      */
     static class TreeProcess implements TreeNodeProcessor, TreeNodeProcessStackAware{
         
-        private final FedoraAccess fa;
+        private final RepositoryAccess fa;
         private List<NotConsistentRelation> relations = new ArrayList<Consistency.NotConsistentRelation>();
         private Stack<String> pidsStack = null;
         
-        public TreeProcess(FedoraAccess fa) {
+        public TreeProcess(RepositoryAccess fa) {
             super();
             this.fa = fa;
         }

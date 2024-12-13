@@ -28,17 +28,13 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.utils.XMLUtils;
-
-import javax.swing.JOptionPane;
 
 public class ModsUtils {
 
@@ -61,7 +57,7 @@ public class ModsUtils {
 //    }
     
 
-    public static Map<String, String> getTitleInfo(String pid, FedoraAccess fedoraAccess) throws XPathExpressionException, IOException {
+    public static Map<String, String> getTitleInfo(String pid, RepositoryAccess fedoraAccess) throws XPathExpressionException, IOException {
         Map<String, String> map = new HashMap<String, String>();
         Document biblioMods = fedoraAccess.getBiblioMods(pid);
         XPath xpath = FACTORY.newXPath();

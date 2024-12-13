@@ -19,15 +19,14 @@ package cz.incad.kramerius.security.impl;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 
 public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFactory {
     
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
     private SolrAccess solrAccessNewIndex;
     private UserManager userManager;
     
@@ -38,12 +37,12 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
         super();
     }
 
-    public FedoraAccess getFedoraAccess() {
+    public RepositoryAccess getFedoraAccess() {
         return fedoraAccess;
     }
 
     @Inject
-    public void setFedoraAccess(@Named("securedFedoraAccess")FedoraAccess fedoraAccess) {
+    public void setFedoraAccess(@Named("securedFedoraAccess") RepositoryAccess fedoraAccess) {
         this.fedoraAccess = fedoraAccess;
     }
     

@@ -48,7 +48,7 @@ import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfWriter;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.AbstractPage;
@@ -78,7 +78,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
     @Inject
     @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
     @Inject
     TextsService textsService;

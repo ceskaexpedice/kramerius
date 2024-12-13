@@ -17,14 +17,11 @@
 
 package cz.incad.kramerius.imaging.lp;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import org.apache.commons.io.FileUtils;
 import org.w3c.dom.DOMException;
 
 import com.google.inject.Guice;
@@ -32,7 +29,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
@@ -40,7 +37,6 @@ import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.imaging.paths.DirPath;
 import cz.incad.kramerius.imaging.paths.Path;
-import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -58,7 +54,7 @@ public class DeleteGeneratedDeepZoomCache {
     public static void main(String[] args) throws IOException, ProcessSubtreeException {
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            RepositoryAccess fa = injector.getInstance(Key.get(RepositoryAccess.class, Names.named("rawFedoraAccess")));
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
             deleteCacheForPID(args[0], fa, discStruct);
             
@@ -79,7 +75,7 @@ public class DeleteGeneratedDeepZoomCache {
      * @throws IOException IO error has been occurred
      * @throws ProcessSubtreeException Error in tree walking 
      */
-    public static void deleteCacheForPID(String pid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
+    public static void deleteCacheForPID(String pid, final RepositoryAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
         if (fedoraAccess.isImageFULLAvailable(pid)) {
             try {
                 deleteFolder(pid, discStruct);

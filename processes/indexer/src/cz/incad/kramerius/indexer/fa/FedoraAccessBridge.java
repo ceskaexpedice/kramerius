@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
@@ -32,10 +32,10 @@ public class FedoraAccessBridge {
 
     public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
     
     @Inject
-    public FedoraAccessBridge(@Named("rawFedoraAccess") FedoraAccess fedoraAccess) {
+    public FedoraAccessBridge(@Named("rawFedoraAccess") RepositoryAccess fedoraAccess) {
         super();
         this.fedoraAccess = fedoraAccess;
     }

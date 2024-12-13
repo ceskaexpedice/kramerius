@@ -20,9 +20,6 @@
 package cz.incad.kramerius.imaging.impl;
 
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Arrays;
 
 import junit.framework.Assert;
 
@@ -36,13 +33,8 @@ import com.google.inject.Injector;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.imaging.DeepZoomCacheService;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
-import cz.incad.kramerius.imaging.DiscStrucutreForStore;
-import cz.incad.kramerius.imaging.impl.FileSystemCacheServiceImplTest._Module;
-import cz.incad.kramerius.imaging.paths.DirPath;
 
 /**
  * @author pavels
@@ -96,12 +88,12 @@ public class TileSupportImplTest extends AbstractGuiceTestCase {
             TileSupportImpl tis = EasyMock.createMockBuilder(TileSupportImpl.class).withConstructor()
                 .addMockedMethod("getTileSize").createMock();
             
-            FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
+            RepositoryAccess fa = EasyMock.createMock(RepositoryAccess.class);
 
             EasyMock.replay(tis,fa);
 
             bind(DeepZoomTileSupport.class).toInstance(tis);
-            bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fa);
+            bind(RepositoryAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fa);
         }
     }
 

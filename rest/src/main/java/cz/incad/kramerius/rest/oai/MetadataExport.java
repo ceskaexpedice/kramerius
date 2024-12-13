@@ -33,9 +33,8 @@ import org.w3c.dom.Element;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownRelations;
 import cz.incad.kramerius.rest.oai.metadata.DrKrameriusUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.RelsExtHelper;
@@ -43,19 +42,14 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
-import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade.KnownDatastreams;
 
 import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
@@ -63,11 +57,7 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.IPAddressUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
 
 public enum MetadataExport {
 
@@ -79,7 +69,7 @@ public enum MetadataExport {
         //public abstract Element perform(HttpServletRequest request, ProxyItemHandler handler, Document owningDocument, String oaiIdentifier, OAISet set);
     	
 		@Override
-		public Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier,OAISet set) {
+		public Element perform(HttpServletRequest request, RepositoryAccess fa, Document owningDocument, String oaiIdentifier, OAISet set) {
 			try {
 				String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
 				Document dc = fa.getDC(pid);
@@ -123,8 +113,8 @@ public enum MetadataExport {
 
 
 		@Override
-        public Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument,
-                String oaiIdentifier,OAISet set) {
+        public Element perform(HttpServletRequest request, RepositoryAccess fa, Document owningDocument,
+                               String oaiIdentifier, OAISet set) {
 
             try {
                 
@@ -355,7 +345,7 @@ public enum MetadataExport {
             "http://www.europeana.eu/schemas/ese/") {
 			
 			@Override
-            public Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier,OAISet set) {
+            public Element perform(HttpServletRequest request, RepositoryAccess fa, Document owningDocument, String oaiIdentifier, OAISet set) {
                     try {
                         String baseUrl = ApplicationURL.applicationURL(request);
                         String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
@@ -485,8 +475,8 @@ public enum MetadataExport {
 				}
 
 				@Override
-                public Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument,
-                        String oaiIdentifier, OAISet set) {
+                public Element perform(HttpServletRequest request, RepositoryAccess fa, Document owningDocument,
+                                       String oaiIdentifier, OAISet set) {
                     try {
                         
                         //hasIntCompPart
@@ -652,7 +642,7 @@ public enum MetadataExport {
     public abstract Element performOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,   Document owningDocument, OAIRecord oaiRec, OAISet set);
     
 	/** Local kramerius */
-    public abstract Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier, OAISet set);
+    public abstract Element perform(HttpServletRequest request, RepositoryAccess fa, Document owningDocument, String oaiIdentifier, OAISet set);
 
     //public abstract Element perform(HttpServletRequest request, ProxyItemHandler handler, Document owningDocument, String oaiIdentifier, OAISet set);
 

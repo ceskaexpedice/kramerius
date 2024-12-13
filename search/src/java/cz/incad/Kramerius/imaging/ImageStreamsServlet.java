@@ -35,7 +35,7 @@ import org.w3c.dom.Document;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.Kramerius.imaging.utils.FileNameUtils;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraIOException;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -221,7 +221,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
          */
         TRANSCODE {
             @Override
-            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
+            void doPerform(ImageStreamsServlet imageStreamsServlet, RepositoryAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
                     throws IOException, SecurityException, XPathExpressionException {
                 OutputFormats outputFormat = OutputFormats.JPEG;
                 String outputFormatParam = req.getParameter(OUTPUT_FORMAT_PARAMETER);
@@ -242,7 +242,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
          */
         SCALE {
             @Override
-            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
+            void doPerform(ImageStreamsServlet imageStreamsServlet, RepositoryAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
                     throws IOException, SecurityException, XPathExpressionException {
                 BufferedImage image = imageStreamsServlet.rawImage(pid, stream, req, page);
                 if (image != null) {
@@ -263,7 +263,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
          */
         GETRAW {
             @Override
-            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
+            void doPerform(ImageStreamsServlet imageStreamsServlet, RepositoryAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
                     throws IOException, SecurityException, XPathExpressionException {
                 InputStream is = null;
                 if (stream.equals(FedoraUtils.IMG_THUMB_STREAM)) {
@@ -306,7 +306,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
             }
         };
 
-        abstract void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse response)
+        abstract void doPerform(ImageStreamsServlet imageStreamsServlet, RepositoryAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse response)
                 throws IOException, SecurityException, XPathExpressionException;
     }
 

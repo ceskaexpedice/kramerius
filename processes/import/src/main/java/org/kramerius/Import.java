@@ -9,7 +9,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.AkubraRepository;
@@ -137,7 +137,7 @@ public class Import {
 
         
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        RepositoryAccess fa = injector.getInstance(Key.get(RepositoryAccess.class, Names.named("rawFedoraAccess")));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
         
@@ -198,11 +198,11 @@ public class Import {
         }
     }
 
-    public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
+    public static void run(RepositoryAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
         run(fa, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null, null);
     }
 
-    public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken, String addcollections) throws IOException, SolrServerException {
+    public static void run(RepositoryAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken, String addcollections) throws IOException, SolrServerException {
         log.info("INGEST - url:" + url + " user:" + user + " importRoot:" + importRoot);
         sortingService = sortingServiceParam;
         // system property 
@@ -391,11 +391,11 @@ public class Import {
         of = new ObjectFactory();
     }
 
-    private static void visitAllDirsAndFiles(FedoraAccess fa, File importFile, Set<TitlePidTuple> classicRoots, 
-            Set<TitlePidTuple> convolutes, 
-            Set<TitlePidTuple> collections, 
-            
-            Set<String> sortRelations, boolean updateExisting) {
+    private static void visitAllDirsAndFiles(RepositoryAccess fa, File importFile, Set<TitlePidTuple> classicRoots,
+                                             Set<TitlePidTuple> convolutes,
+                                             Set<TitlePidTuple> collections,
+
+                                             Set<String> sortRelations, boolean updateExisting) {
         if (importFile == null) {
             return;
         }
@@ -778,7 +778,7 @@ public class Import {
         }
     }
 
-    private static void addCollection(FedoraAccess fa, String collectionPid,Set<TitlePidTuple> classicRoots, Set<TitlePidTuple> collectionsToReindex, String authToken) {
+    private static void addCollection(RepositoryAccess fa, String collectionPid, Set<TitlePidTuple> classicRoots, Set<TitlePidTuple> collectionsToReindex, String authToken) {
         Client c = Client.create();
 
         List<String> rootPids = new ArrayList<>();

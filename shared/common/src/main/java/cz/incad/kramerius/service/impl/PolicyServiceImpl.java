@@ -46,7 +46,7 @@ import org.w3c.dom.ls.LSSerializer;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.PolicyService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -58,7 +58,7 @@ public class PolicyServiceImpl implements PolicyService {
 
     @Inject
     @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
     KConfiguration configuration = KConfiguration.getInstance();
 
@@ -179,11 +179,11 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
 
-    public FedoraAccess getFedoraAccess() {
+    public RepositoryAccess getFedoraAccess() {
         return fedoraAccess;
     }
 
-    public void setFedoraAccess(FedoraAccess fedoraAccess) {
+    public void setFedoraAccess(RepositoryAccess fedoraAccess) {
         this.fedoraAccess = fedoraAccess;
     }
 
@@ -231,7 +231,7 @@ public class PolicyServiceImpl implements PolicyService {
         PolicyServiceImpl inst = new PolicyServiceImpl();
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-        inst.fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        inst.fedoraAccess = injector.getInstance(Key.get(RepositoryAccess.class, Names.named("rawFedoraAccess")));
 
         inst.configuration = KConfiguration.getInstance();
         if (args.length >= 3) {

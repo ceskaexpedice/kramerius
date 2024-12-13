@@ -33,7 +33,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
+import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
@@ -57,7 +57,7 @@ import com.google.inject.Provides;
 import com.google.inject.name.Names;
 import com.lowagie.text.DocumentException;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
@@ -71,7 +71,6 @@ import cz.incad.kramerius.pdf.impl.FirstPagePDFServiceImpl.DetailItem;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.service.impl.TextsServiceImpl;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -201,7 +200,7 @@ public class FirstPagePDFServiceImplTest {
 
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa4 = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
@@ -270,14 +269,14 @@ public class FirstPagePDFServiceImplTest {
         HazelcastServerNode.ensureHazelcastNode();
 
         // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa4 = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getDC")
                 .addMockedMethod("getBiblioMods")
-                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
+                .addMockedMethod(RepositoryAccessImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
 
@@ -350,14 +349,14 @@ public class FirstPagePDFServiceImplTest {
 
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa4 = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getDC")
                 .addMockedMethod("getBiblioMods")
-                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
+                .addMockedMethod(RepositoryAccessImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
 
@@ -460,14 +459,14 @@ public class FirstPagePDFServiceImplTest {
 
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa4 = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getDC")
                 .addMockedMethod("getBiblioMods")
-                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
+                .addMockedMethod(RepositoryAccessImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
 
@@ -578,14 +577,14 @@ public class FirstPagePDFServiceImplTest {
 
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa4 = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isImageFULLAvailable")
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getDC")
                 .addMockedMethod("getBiblioMods")
-                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
+                .addMockedMethod(RepositoryAccessImpl.class.getMethod("getKrameriusModelName", String.class))
                 .createMock();
 
 
@@ -701,12 +700,12 @@ public class FirstPagePDFServiceImplTest {
     class _Module extends AbstractModule {
 
         private Locale locale;
-        private FedoraAccess fedoraAccess;
+        private RepositoryAccess fedoraAccess;
         private ResourceBundleService resourceBundleService;
         private SolrAccess solrAccess;
 
 
-        public _Module(Locale locale, FedoraAccess fedoraAccess, ResourceBundleService resourceBundleService,SolrAccess solrAccess) {
+        public _Module(Locale locale, RepositoryAccess fedoraAccess, ResourceBundleService resourceBundleService, SolrAccess solrAccess) {
             super();
             this.locale = locale;
             this.fedoraAccess = fedoraAccess;
@@ -716,7 +715,7 @@ public class FirstPagePDFServiceImplTest {
 
         @Override
         protected void configure() {
-            bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(this.fedoraAccess);
+            bind(RepositoryAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(this.fedoraAccess);
             bind(SolrAccess.class).toInstance(this.solrAccess);
             bind(ResourceBundleService.class).toInstance(this.resourceBundleService);
             bind(TextsService.class).to(TextsServiceImpl.class);

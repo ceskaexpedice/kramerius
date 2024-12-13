@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
@@ -16,7 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 
 public class MimeTypeServlet extends GuiceServlet {
 
@@ -25,7 +24,7 @@ public class MimeTypeServlet extends GuiceServlet {
 	
 	@Inject
 	@Named("securedFedoraAccess")
-	FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

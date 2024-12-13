@@ -3,7 +3,7 @@ package cz.incad.Kramerius;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.ServletException;
@@ -23,7 +23,7 @@ public class ProxyDatastreamsServlet extends GuiceServlet {
 
     @Inject
     @Named("securedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
+    private transient RepositoryAccess fedoraAccess;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

@@ -19,8 +19,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.json.JSONObject;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.sun.jersey.api.client.Client;
@@ -28,7 +26,6 @@ import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;

@@ -17,7 +17,7 @@
 package cz.incad.kramerius.audio.urlMapping;
 
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.XpathEvaluator;
@@ -62,7 +62,7 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
 
     @Inject
     @Named("securedFedoraAccess")
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
 
     private final CacheManager cacheManager;
 

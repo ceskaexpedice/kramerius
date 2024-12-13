@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.DCConent;
@@ -49,7 +49,7 @@ public class DCContentUtils {
      * @return map map of {@link DCConent} chains
      * @throws IOException IO error has been occurred
      */
-    public static Map<String, List<DCConent>> getDCS(FedoraAccess fedoraAccess, SolrAccess solrAccess, List<String> pids) throws IOException {
+    public static Map<String, List<DCConent>> getDCS(RepositoryAccess fedoraAccess, SolrAccess solrAccess, List<String> pids) throws IOException {
         Map<String, List<DCConent>> maps = new HashMap<String, List<DCConent>>();
         for (String pid : pids) {
             ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);

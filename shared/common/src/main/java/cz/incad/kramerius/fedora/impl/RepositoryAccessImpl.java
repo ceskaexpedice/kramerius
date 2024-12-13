@@ -5,7 +5,7 @@ import com.google.inject.name.Named;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.StreamHeadersObserver;
-import cz.incad.kramerius.fedora.AbstractFedoraAccess;
+import cz.incad.kramerius.fedora.AbstractRepositoryAccess;
 import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
+public class RepositoryAccessImpl extends AbstractRepositoryAccess {
 
     private AkubraDOManager manager;
     private AkubraRepository repository;
@@ -36,7 +36,7 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
 
 
     @Inject
-    public FedoraAccessAkubraImpl( ProcessingIndexFeeder feeder, @Nullable AggregatedAccessLogs accessLog, @Named("akubraCacheManager") CacheManager cacheManager) throws IOException {
+    public RepositoryAccessImpl(ProcessingIndexFeeder feeder, @Nullable AggregatedAccessLogs accessLog, @Named("akubraCacheManager") CacheManager cacheManager) throws IOException {
         super( accessLog);
         try {
             this.manager = new AkubraDOManager(cacheManager);

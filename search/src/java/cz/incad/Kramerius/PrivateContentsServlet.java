@@ -17,13 +17,13 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 
 public class PrivateContentsServlet extends GuiceServlet {
 
     @Inject
     @Named("securedFedoraAccess")
-    transient FedoraAccess fedoraAccess;
+    transient RepositoryAccess fedoraAccess;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

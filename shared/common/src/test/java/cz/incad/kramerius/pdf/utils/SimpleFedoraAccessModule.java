@@ -18,16 +18,14 @@ package cz.incad.kramerius.pdf.utils;
 
 import com.google.inject.AbstractModule;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
-import cz.incad.kramerius.impl.SolrAccessImpl;
+import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
 
 public class SimpleFedoraAccessModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(FedoraAccess.class).to(FedoraAccessAkubraImpl.class);
+        bind(RepositoryAccess.class).to(RepositoryAccessImpl.class);
         //bind(SolrAccess.class).to(SolrAccessImpl.class);
     }
 }

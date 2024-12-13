@@ -57,7 +57,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(GeneratePDFServiceImpl.class.getName());
 
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
     private Provider<Locale> localeProvider;
     private TextsService textsService;
     private ResourceBundleService resourceBundleService;
@@ -68,7 +68,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
 
     @Inject
     public GeneratePDFServiceImpl(
-            @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
+            @Named("securedFedoraAccess") RepositoryAccess fedoraAccess,
             @Named("new-index")SolrAccess solrAccess,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService,
@@ -370,7 +370,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
         return tmpFile;
     }
 
-    public String xslt(FedoraAccess fa, File styleSheet, String uuid)
+    public String xslt(RepositoryAccess fa, File styleSheet, String uuid)
             throws IOException, TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf

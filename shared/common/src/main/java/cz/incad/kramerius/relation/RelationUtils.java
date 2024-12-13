@@ -17,7 +17,7 @@
 
 package cz.incad.kramerius.relation;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.impl.RelationModelImpl;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -43,19 +43,19 @@ public final class RelationUtils {
         return new RelationModelImpl(pid, kind);
     }
 
-    public static Document getDC(String pid, FedoraAccess fa) throws IOException {
+    public static Document getDC(String pid, RepositoryAccess fa) throws IOException {
         return getDataStream(pid, "DC", fa);
     }
 
-    public static Document getRelsExt(String pid, FedoraAccess fa) throws IOException {
+    public static Document getRelsExt(String pid, RepositoryAccess fa) throws IOException {
         return getDataStream(pid, "RELS-EXT", fa);
     }
 
-    public static Document getMods(String pid, FedoraAccess fa) throws IOException {
+    public static Document getMods(String pid, RepositoryAccess fa) throws IOException {
         return getDataStream(pid, "BIBLIO_MODS", fa);
     }
 
-    private static Document getDataStream(String pid, String streamName, FedoraAccess fa) throws IOException {
+    private static Document getDataStream(String pid, String streamName, RepositoryAccess fa) throws IOException {
         InputStream dataStream = fa.getDataStream(pid, streamName);
         try {
             return XMLUtils.parseDocument(dataStream, true);

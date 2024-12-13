@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Martin Rumanek
  */
-public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwareness {
+public class CachedFedoraAccessImpl  implements RepositoryAccess, FedoraCacheAwareness {
 
     private static Cache<String, Document> xmlscache;
     private static Cache<String, Boolean> existsCache;
@@ -43,10 +43,10 @@ public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwarene
     private static final String LAST_MODIFIED_CACHE_ALIAS = "FedoraLastmodifiedCache";
 
 
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
 
     @Inject
-    public CachedFedoraAccessImpl( @Named("rawFedoraAccess") FedoraAccess fedoraAccess,
+    public CachedFedoraAccessImpl( @Named("rawFedoraAccess") RepositoryAccess fedoraAccess,
                                   CacheManager cacheManager) throws IOException {
 
         this.fedoraAccess = fedoraAccess;

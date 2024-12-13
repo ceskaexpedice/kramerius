@@ -1,12 +1,10 @@
 package cz.incad.Kramerius;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.imaging.utils.ImageUtils;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -15,18 +13,9 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
-import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
-import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.*;
-import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
-import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
-import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
 
 import javax.inject.Inject;
@@ -49,7 +38,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.sql.SQLException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -59,7 +47,6 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.utils.*;
-import org.apache.http.nio.IOControl;
 
 public abstract class AbstractImageServlet extends GuiceServlet {
 
@@ -89,7 +76,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
     @Inject
     @Named("securedFedoraAccess")
-    protected transient FedoraAccess fedoraAccess;
+    protected transient RepositoryAccess fedoraAccess;
 
     @Inject
     protected transient HttpAsyncClient client;
@@ -202,11 +189,11 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         }
     }
 
-    public FedoraAccess getFedoraAccess() {
+    public RepositoryAccess getFedoraAccess() {
         return fedoraAccess;
     }
 
-    public void setFedoraAccess(FedoraAccess fedoraAccess) {
+    public void setFedoraAccess(RepositoryAccess fedoraAccess) {
         this.fedoraAccess = fedoraAccess;
     }
 
@@ -301,7 +288,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
     public static void setStringTemplateModel(String uuid,
                                               String dataStreamPath, StringTemplate template,
-                                              FedoraAccess fedoraAccess) throws UnsupportedEncodingException,
+                                              RepositoryAccess fedoraAccess) throws UnsupportedEncodingException,
             IOException {
 
         List<String> folderList = new ArrayList<String>();

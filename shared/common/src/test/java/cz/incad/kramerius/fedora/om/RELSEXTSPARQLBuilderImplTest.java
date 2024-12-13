@@ -1,7 +1,5 @@
 package cz.incad.kramerius.fedora.om;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilderImpl;
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
@@ -11,9 +9,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by pstastny on 11/1/2017.

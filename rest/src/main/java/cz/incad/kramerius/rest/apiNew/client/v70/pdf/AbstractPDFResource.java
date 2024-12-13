@@ -36,7 +36,6 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,7 +62,7 @@ public class AbstractPDFResource {
 
     @Inject
     @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
 
     KConfiguration configuration = KConfiguration.getInstance();

@@ -27,7 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.utils.FedoraUtils;
 import junit.framework.Assert;
 
@@ -42,7 +42,6 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.PreparedDocument;
-import cz.incad.kramerius.document.model.OutlineItem;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -183,7 +182,7 @@ public class DocumentServiceTest {
         
         DocumentService docService = injector.getInstance(DocumentService.class);
 
-        FedoraAccess fa4 = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
+        RepositoryAccess fa4 = injector.getInstance(Key.get(RepositoryAccess.class, Names.named("securedFedoraAccess")));
 
         boolean imageFULLAvailable = fa4.isImageFULLAvailable("uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6");
         Document relsExt = fa4.getRelsExt("uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6");

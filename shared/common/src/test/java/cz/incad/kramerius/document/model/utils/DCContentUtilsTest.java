@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -48,7 +48,7 @@ public class DCContentUtilsTest {
         
         List<String> pids = generatePIDS();
         
-        FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
+        RepositoryAccess fa = EasyMock.createMock(RepositoryAccess.class);
         for (int i = 0; i < MAX; i++) {
             EasyMock.expect(fa.getDC(pids.get(i))).andReturn(dcDocument).anyTimes();
         }

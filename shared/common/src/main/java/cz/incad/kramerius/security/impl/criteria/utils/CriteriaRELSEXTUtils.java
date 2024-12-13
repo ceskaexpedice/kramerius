@@ -1,6 +1,6 @@
 package cz.incad.kramerius.security.impl.criteria.utils;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumContext;
@@ -40,7 +40,7 @@ public class CriteriaRELSEXTUtils {
 
     public static EvaluatingResultState evaluateState(RightCriteriumContext ctx, String path, String expectedValue) {
         try {
-            FedoraAccess fa = ctx.getFedoraAccess();
+            RepositoryAccess fa = ctx.getFedoraAccess();
             String requestedPID = ctx.getRequestedPid();
             if (!requestedPID.equals(SpecialObjects.REPOSITORY.getPid())) {
                 Document relsExt = fa.getRelsExt(requestedPID);

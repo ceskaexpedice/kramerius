@@ -6,7 +6,7 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraObject;
@@ -69,7 +69,7 @@ public class ProcessingIndexRebuild {
             ProcessStarter.updateName("Přebudování Processing indexu");
         }
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-        final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        final RepositoryAccess fa = injector.getInstance(Key.get(RepositoryAccess.class, Names.named("rawFedoraAccess")));
         final ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
 
         long start = System.currentTimeMillis();

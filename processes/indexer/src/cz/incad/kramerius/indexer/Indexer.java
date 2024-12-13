@@ -16,21 +16,12 @@ import java.io.FileReader;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
-import javax.swing.JComboBox.KeySelectionManager;
-
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.indexer.guice.GuiceModelInjector;
 
 // TODO: Rewrite it !!

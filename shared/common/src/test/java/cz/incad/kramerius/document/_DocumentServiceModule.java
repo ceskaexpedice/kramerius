@@ -6,21 +6,20 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.impl.DocumentServiceImpl;
 import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 class _DocumentServiceModule extends AbstractModule {
 
     private Locale locale;
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
     private ResourceBundleService resourceBundleService;
     private SolrAccess solrAccess;
 
     
-    public _DocumentServiceModule(Locale locale, FedoraAccess fedoraAccess, ResourceBundleService resourceBundleService, SolrAccess solrAccess) {
+    public _DocumentServiceModule(Locale locale, RepositoryAccess fedoraAccess, ResourceBundleService resourceBundleService, SolrAccess solrAccess) {
         super();
         this.locale = locale;
         this.fedoraAccess = fedoraAccess;
@@ -31,7 +30,7 @@ class _DocumentServiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(this.fedoraAccess);
+        bind(RepositoryAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(this.fedoraAccess);
         bind(SolrAccess.class).toInstance(this.solrAccess);
         bind(ResourceBundleService.class).toInstance(this.resourceBundleService);
         

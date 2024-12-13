@@ -1,6 +1,6 @@
 package cz.incad.kramerius.repository;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
@@ -17,10 +17,10 @@ import java.util.List;
 @Deprecated
 public class KrameriusRepositoryAccessAdapter {
 
-    private final FedoraAccess repository;
+    private final RepositoryAccess repository;
     private final IResourceIndex resourceIndex;
 
-    public KrameriusRepositoryAccessAdapter(FedoraAccess repository, IResourceIndex resourceIndex) {
+    public KrameriusRepositoryAccessAdapter(RepositoryAccess repository, IResourceIndex resourceIndex) {
         this.repository = repository;
         this.resourceIndex = resourceIndex;
     }

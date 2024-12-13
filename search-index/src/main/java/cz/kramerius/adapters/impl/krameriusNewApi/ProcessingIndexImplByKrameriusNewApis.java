@@ -6,17 +6,12 @@ import com.google.gson.JsonObject;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.ExtractStructureHelper;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.kramerius.shared.IoUtils;
 import cz.kramerius.adapters.impl.ProcessingIndexImplAbstract;
 import cz.kramerius.shared.Pair;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -1,7 +1,5 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.admin.v70.FoxmlBuilder;
 import cz.incad.kramerius.utils.StringUtils;
 
@@ -14,7 +12,6 @@ import org.dom4j.QName;
 import java.text.BreakIterator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;

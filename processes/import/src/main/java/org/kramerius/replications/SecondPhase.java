@@ -24,7 +24,7 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
@@ -66,7 +66,6 @@ import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -226,7 +225,7 @@ public class SecondPhase extends AbstractPhase  {
         //Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
         try {
 
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            RepositoryAccess fa = injector.getInstance(Key.get(RepositoryAccess.class, Names.named("rawFedoraAccess")));
             Import.ingest(fa.getInternalAPI(), foxmlfile, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
         } catch (RuntimeException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
@@ -334,7 +333,7 @@ public class SecondPhase extends AbstractPhase  {
     }
 
     public boolean findPid(String pid) throws LexerException, IOException {
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        RepositoryAccess fa = injector.getInstance(Key.get(RepositoryAccess.class, Names.named("rawFedoraAccess")));
         String objectId = pidParseAndGetObjectId(pid);
         return (fa.isObjectAvailable(objectId) &&  fa.isStreamAvailable(objectId, FedoraUtils.RELS_EXT_STREAM));
     }

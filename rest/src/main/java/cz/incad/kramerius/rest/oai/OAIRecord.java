@@ -17,47 +17,34 @@
 package cz.incad.kramerius.rest.oai;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URLEncoder;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.XMLUtils;
 
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.IPAddressUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
 public class OAIRecord {
@@ -169,7 +156,7 @@ public class OAIRecord {
     }
 
     /** render metadata */
-    public Element toMetadataOnLocal(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export, OAISet set) {
+    public Element toMetadataOnLocal(HttpServletRequest request, RepositoryAccess fa, Document doc, MetadataExport export, OAISet set) {
         return export.perform(request, fa, doc, identifier, set);
     }
     public Element toMetadataOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,   Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set) {
@@ -219,7 +206,7 @@ public class OAIRecord {
         return header;
 	}
 	
-    public Element toHeaderOnLocal(Document doc, FedoraAccess fa, OAISet set ) throws IOException {
+    public Element toHeaderOnLocal(Document doc, RepositoryAccess fa, OAISet set ) throws IOException {
         Element header = doc.createElement("header");
 
         Element identifier = doc.createElement("identifier");

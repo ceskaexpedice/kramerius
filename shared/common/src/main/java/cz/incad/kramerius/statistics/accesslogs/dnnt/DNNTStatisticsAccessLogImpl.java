@@ -20,10 +20,8 @@ import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -72,7 +70,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
     @Inject
     @Named("cachedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -128,7 +126,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         return sAuthors;
     }
 
-    public static List<String> dcPublishers(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) throws IOException {
+    public static List<String> dcPublishers(ObjectPidsPath[] paths, RepositoryAccess fedoraAccess) throws IOException {
         List<String> dcPublishers = new ArrayList<>();
         for (int i = 0, ll = paths.length; i < ll; i++) {
             if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -182,7 +180,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         return null;
     }
 
-    public static String findModsDate(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) {
+    public static String findModsDate(ObjectPidsPath[] paths, RepositoryAccess fedoraAccess) {
         for (ObjectPidsPath path : paths) {
             String[] pathFromLeafToRoot = path.getPathFromLeafToRoot();
             for (String detailPid : pathFromLeafToRoot) {
@@ -194,7 +192,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         return null;
     }
 
-    public static Map<String, List<String>> identifiers(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) throws IOException {
+    public static Map<String, List<String>> identifiers(ObjectPidsPath[] paths, RepositoryAccess fedoraAccess) throws IOException {
         try {
             Map<String, List<String>> retmap = new HashMap<>();
             for (ObjectPidsPath path : paths) {
@@ -219,7 +217,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     }
 
 
-    private static String findModsDateOfPid(String pid, FedoraAccess fedoraAccess) {
+    private static String findModsDateOfPid(String pid, RepositoryAccess fedoraAccess) {
         Document biblioMods;
         try {
             biblioMods = fedoraAccess.getBiblioMods(pid);

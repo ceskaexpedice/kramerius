@@ -32,7 +32,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
+import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import org.easymock.EasyMock;
 import org.w3c.dom.Attr;
@@ -42,7 +42,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -147,7 +147,7 @@ public class ImportDataPrepare {
     };
     
 
-    public static void narodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
+    public static void narodniListyRelsExt(RepositoryAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             String pid = NARODNI_LISTY[i];
             expect(fa.isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)).andReturn(true).anyTimes();
@@ -155,7 +155,7 @@ public class ImportDataPrepare {
         }        
     }
     
-    public static void notConsistentNarodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
+    public static void notConsistentNarodniListyRelsExt(RepositoryAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         List<String> alist = Arrays.asList(NARODNI_LISTY_NOT_EXISTS);
 
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
@@ -174,34 +174,34 @@ public class ImportDataPrepare {
 
     }
 
-    public static void drobnustkyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
+    public static void drobnustkyRelsExt(RepositoryAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
             String pid = DROBNUSTKY_PIDS[i];
             relsExt(fa, pid);
         }        
     }
 
-    public static void relsExt(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
+    public static void relsExt(RepositoryAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
         PIDParser pidParser = new PIDParser(pid);
         pidParser.objectPid();
         String objectId = pidParser.getObjectId();
         
         String path = "/org/kramerius/fedora/res/"+objectId+".xml";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+        InputStream resStream = RepositoryAccessImpl.class.getResourceAsStream(path);
         expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
     }
 
-    public static void notConsistentRelsExt(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
+    public static void notConsistentRelsExt(RepositoryAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
         PIDParser pidParser = new PIDParser(pid);
         pidParser.objectPid();
         String objectId = pidParser.getObjectId();
         
         String path = "/org/kramerius/fedora/res/"+objectId+".nonconsistent.xml";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+        InputStream resStream = RepositoryAccessImpl.class.getResourceAsStream(path);
         expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
     }
 
-    public static void narodniListyIMGFULL(FedoraAccess fa) throws IOException, LexerException {
+    public static void narodniListyIMGFULL(RepositoryAccess fa) throws IOException, LexerException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             String pid = NARODNI_LISTY[i];
             String model = MODELS_MAPPING.get(pid);
@@ -218,7 +218,7 @@ public class ImportDataPrepare {
         
     }
     
-    public static void drobnustkyWithIMGFULL(FedoraAccess fa) throws IOException {
+    public static void drobnustkyWithIMGFULL(RepositoryAccess fa) throws IOException {
         for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
             if (DROBNUSTKY_PIDS[i].equals("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")) {
                 expect(fa.isImageFULLAvailable(DROBNUSTKY_PIDS[i])).andReturn(false).anyTimes();
@@ -228,64 +228,64 @@ public class ImportDataPrepare {
         }
     }
 
-    public static void narodniListyDCs(FedoraAccess fa) throws LexerException, ParserConfigurationException, SAXException, IOException {
+    public static void narodniListyDCs(RepositoryAccess fa) throws LexerException, ParserConfigurationException, SAXException, IOException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             dc(fa,NARODNI_LISTY[i]);
         }
     }
 
-    public static void drobnustkyDCS(FedoraAccess fa) throws IOException, LexerException, ParserConfigurationException, SAXException {
+    public static void drobnustkyDCS(RepositoryAccess fa) throws IOException, LexerException, ParserConfigurationException, SAXException {
         for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
             dc(fa,DROBNUSTKY_PIDS[i]);
         }
     }
     
-    public static void narodniListyMods(FedoraAccess fa) throws LexerException, ParserConfigurationException, SAXException, IOException {
+    public static void narodniListyMods(RepositoryAccess fa) throws LexerException, ParserConfigurationException, SAXException, IOException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             mods(fa,NARODNI_LISTY[i]);
         }
     }
     
-    public static void drobnustkyMODS(FedoraAccess fa) throws IOException, LexerException, ParserConfigurationException, SAXException {
+    public static void drobnustkyMODS(RepositoryAccess fa) throws IOException, LexerException, ParserConfigurationException, SAXException {
         for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
             mods(fa,DROBNUSTKY_PIDS[i]);
         }
     }
     
     
-    public static void drobnustkyWithOutIMGFULL(FedoraAccess fa) throws IOException {
+    public static void drobnustkyWithOutIMGFULL(RepositoryAccess fa) throws IOException {
         for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
             expect(fa.isImageFULLAvailable(DROBNUSTKY_PIDS[i])).andReturn(false);
         }
     }
 
     
-    public static void dc(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
+    public static void dc(RepositoryAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
         PIDParser pidParser = new PIDParser(pid);
         pidParser.objectPid();
 
         String path = "/org/kramerius/fedora/res/"+pidParser.getObjectId()+".dc.xml";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+        InputStream resStream = RepositoryAccessImpl.class.getResourceAsStream(path);
         Document document = XMLUtils.parseDocument(resStream, true);
         EasyMock.expect(fa.getDC(pid)).andReturn(document).anyTimes();
     }
     
-    public static void mods(FedoraAccess fa, String pid) throws LexerException, ParserConfigurationException, SAXException, IOException {
+    public static void mods(RepositoryAccess fa, String pid) throws LexerException, ParserConfigurationException, SAXException, IOException {
         PIDParser pidParser = new PIDParser(pid);
         pidParser.objectPid();
 
         String path = "/org/kramerius/fedora/res/"+pidParser.getObjectId()+".mods.xml";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+        InputStream resStream = RepositoryAccessImpl.class.getResourceAsStream(path);
         Document document = XMLUtils.parseDocument(resStream, true);
         EasyMock.expect(fa.getBiblioMods(pid)).andReturn(document).anyTimes();
     }
     
-    public static void dataStreams(FedoraAccess fa, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
+    public static void dataStreams(RepositoryAccess fa, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
         PIDParser pidParser = new PIDParser(pid);
         pidParser.objectPid();
 
         String path = "/org/kramerius/fedora/res/"+pidParser.getObjectId()+".datastreams.xml";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+        InputStream resStream = RepositoryAccessImpl.class.getResourceAsStream(path);
         expect(fa.getFedoraDataStreamsList(pid)).andReturn(resStream);
     }
         

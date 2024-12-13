@@ -1,6 +1,6 @@
 package cz.incad.kramerius.rest.api.k5.client.utils;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
@@ -15,7 +15,7 @@ public class BiblioModsUtils {
 
 
     public static Document getBiblioModsDocument(String pid,
-                                                 Map<String, Object> context, FedoraAccess fedoraAccess)
+                                                 Map<String, Object> context, RepositoryAccess fedoraAccess)
             throws IOException {
         String key = BIBLIOMODS_PID_DOCUMENT_KEY + "_" + pid;
         if (!context.containsKey(key)) {

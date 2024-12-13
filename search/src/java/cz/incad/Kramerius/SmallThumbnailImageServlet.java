@@ -1,6 +1,6 @@
 package cz.incad.Kramerius;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.ApplicationURL;
@@ -91,11 +91,11 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
         IOUtils.copy(is, resp.getOutputStream());
     }
 
-    public FedoraAccess getFedoraAccess() {
+    public RepositoryAccess getFedoraAccess() {
         return fedoraAccess;
     }
 
-    public void setFedoraAccess(FedoraAccess fedoraAccess) {
+    public void setFedoraAccess(RepositoryAccess fedoraAccess) {
         this.fedoraAccess = fedoraAccess;
     }
 

@@ -44,7 +44,7 @@ public class AkubraRepositoryImpl implements AkubraRepository {
     private ProcessingIndexFeeder feeder;
 
 
-    private AkubraRepositoryImpl(ProcessingIndexFeeder feeder, AkubraDOManager manager) throws RepositoryException {
+    private AkubraRepositoryImpl() throws RepositoryException {
         super();
         this.feeder = feeder;
         this.manager = manager;
@@ -58,7 +58,7 @@ public class AkubraRepositoryImpl implements AkubraRepository {
      * @return
      * @throws RepositoryException
      */
-    public static final AkubraRepository build(ProcessingIndexFeeder feeder, AkubraDOManager manager) throws RepositoryException {
+    public static final AkubraRepository build() throws RepositoryException {
         return new AkubraRepositoryImpl(feeder, manager);
     }
 

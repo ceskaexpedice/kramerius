@@ -17,7 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import cz.cas.lib.knav.indexer.CollectPidForIndexing;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -54,8 +54,8 @@ public class ApplyMWUtils {
      * @throws RightCriteriumException
      * @throws XPathExpressionException
      */
-    public static void applyMWOverPidsArray(FedoraAccess fa, SolrAccess sa,
-            CollectPidForIndexing coll, String userValue, String mode, String[] pids)
+    public static void applyMWOverPidsArray(RepositoryAccess fa, SolrAccess sa,
+                                            CollectPidForIndexing coll, String userValue, String mode, String[] pids)
             throws IOException, RightCriteriumException,
             XPathExpressionException, RepositoryException {
         String title = ApplyMWUtils.updateMovingWallTitle(pids, sa);
@@ -140,8 +140,8 @@ public class ApplyMWUtils {
      * @throws RightCriteriumException
      * @throws XPathExpressionException
      */
-    public static void movingWallOnTree(String masterPid, String userValue, String mode, FedoraAccess fa, SolrAccess sa,
-            CollectPidForIndexing coll) throws IOException,
+    public static void movingWallOnTree(String masterPid, String userValue, String mode, RepositoryAccess fa, SolrAccess sa,
+                                        CollectPidForIndexing coll) throws IOException,
             RightCriteriumException, XPathExpressionException, RepositoryException {
         String firstModel = null;
         String firstPid = null;
@@ -184,9 +184,9 @@ public class ApplyMWUtils {
      * @throws RightCriteriumException
      * @throws XPathExpressionException
      */
-    public static void process(FedoraAccess fa, SolrAccess sa, String onePid,
-            String firstPid, String firstModel, String userValue, String mode,
-            CollectPidForIndexing coll) throws IOException,
+    public static void process(RepositoryAccess fa, SolrAccess sa, String onePid,
+                               String firstPid, String firstModel, String userValue, String mode,
+                               CollectPidForIndexing coll) throws IOException,
             RightCriteriumException, XPathExpressionException, RepositoryException {
         ProcessCriteriumContext ctx = new ProcessCriteriumContext(onePid, fa,
                 sa);
@@ -223,7 +223,7 @@ public class ApplyMWUtils {
         }
     }
 
-    public static String disectFlagFromRELSEXT(String onePid, FedoraAccess fa)
+    public static String disectFlagFromRELSEXT(String onePid, RepositoryAccess fa)
             throws IOException, XPathExpressionException {
         Document relsExtDocument = fa.getRelsExt(onePid);
         XPathFactory xpfactory = XPathFactory.newInstance();
@@ -243,7 +243,7 @@ public class ApplyMWUtils {
      *            FedraAccess
      * @throws IOException
      */
-    public static void setPolicyFlag(String pid, boolean b, FedoraAccess fa,
+    public static void setPolicyFlag(String pid, boolean b, RepositoryAccess fa,
             String previousState, CollectPidForIndexing coll)
             throws IOException, RepositoryException {
         if (ApplyMWUtils.detectChange(b, previousState)) {

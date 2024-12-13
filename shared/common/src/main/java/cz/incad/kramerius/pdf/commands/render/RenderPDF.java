@@ -42,7 +42,7 @@ import com.lowagie.text.pdf.PdfPageEventHelper;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.pdf.commands.AbstractITextCommand.Hyphenation;
 import cz.incad.kramerius.pdf.commands.ITextCommand;
 import cz.incad.kramerius.pdf.commands.ITextCommandProcessListener;
@@ -51,7 +51,6 @@ import cz.incad.kramerius.pdf.commands.Image;
 import cz.incad.kramerius.pdf.commands.Line;
 import cz.incad.kramerius.pdf.commands.List;
 import cz.incad.kramerius.pdf.commands.ListItem;
-import cz.incad.kramerius.pdf.commands.LogoImage;
 import cz.incad.kramerius.pdf.commands.PageBreak;
 import cz.incad.kramerius.pdf.commands.Paragraph;
 import cz.incad.kramerius.pdf.commands.Text;
@@ -70,9 +69,9 @@ public class RenderPDF {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(RenderPDF.class.getName());
 
     private FontMap fontMap;
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
 
-    public RenderPDF(FontMap fontMap, FedoraAccess fedoraAccess) {
+    public RenderPDF(FontMap fontMap, RepositoryAccess fedoraAccess) {
         super();
         this.fontMap = fontMap;
         this.fedoraAccess = fedoraAccess;
@@ -212,15 +211,15 @@ public class RenderPDF {
 
         private Document pdfDoc;
         private PdfWriter pdfWriter;
-        private FedoraAccess fedoraAccess;
+        private RepositoryAccess fedoraAccess;
 
         private Stack<Element> createdElm = new Stack<>();
 
         private final String footer;
         private final String header;
 
-        public Processor(Document pdfDoc, PdfWriter pdfWriter, FedoraAccess fedoraAccess, String footer,
-                String header) {
+        public Processor(Document pdfDoc, PdfWriter pdfWriter, RepositoryAccess fedoraAccess, String footer,
+                         String header) {
             super();
             this.pdfDoc = pdfDoc;
             this.pdfWriter = pdfWriter;

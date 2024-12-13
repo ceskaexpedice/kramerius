@@ -16,12 +16,9 @@
  */
 package cz.incad.kramerius.security;
 
-import java.net.Inet4Address;
 import java.util.Map;
 
-import org.w3c.dom.Document;
-
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
@@ -74,7 +71,7 @@ public interface RightCriteriumContext {
      * Fedora access
      * @return
      */
-    public FedoraAccess getFedoraAccess();
+    public RepositoryAccess getFedoraAccess();
 
 
     /**

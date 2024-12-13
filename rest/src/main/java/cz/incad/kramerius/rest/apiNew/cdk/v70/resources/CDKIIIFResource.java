@@ -24,18 +24,14 @@ import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Scopes;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.rest.IIPImagesSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
-import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.IIFUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
 import cz.incad.kramerius.rest.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
@@ -43,7 +39,6 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Provides support for IIIF endpoints
@@ -72,7 +67,7 @@ public class CDKIIIFResource extends AbstractTileResource {
 
     @Inject
     @Named("cachedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
+    private transient RepositoryAccess fedoraAccess;
 
 
     @Inject

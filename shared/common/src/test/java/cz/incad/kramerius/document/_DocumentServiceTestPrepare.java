@@ -14,7 +14,7 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
+import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
@@ -44,7 +44,7 @@ public class _DocumentServiceTestPrepare {
             LexerException {
         AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
         Locale locale = Locale.getDefault();
-        FedoraAccessAkubraImpl fa4 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
+        RepositoryAccessImpl fa4 = _DocumentServiceTestPrepare.prepareFedoraAccess(acLog);
 
 
         ResourceBundleService bundleService = _DocumentServiceTestPrepare.prepareBundleService(locale);
@@ -74,7 +74,7 @@ public class _DocumentServiceTestPrepare {
         return solrAccess;
     }
 
-    public static FedoraAccessAkubraImpl prepareFedoraAccess(StatisticsAccessLog acLog)
+    public static RepositoryAccessImpl prepareFedoraAccess(StatisticsAccessLog acLog)
             throws NoSuchMethodException, IOException,
             ParserConfigurationException, SAXException, LexerException {
 
@@ -83,7 +83,7 @@ public class _DocumentServiceTestPrepare {
         cacheManager.init();
         HazelcastServerNode.ensureHazelcastNode();
 
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa4 = createMockBuilder(RepositoryAccessImpl.class)
 
         .withConstructor( feeder ,acLog, cacheManager)
         //.addMockedMethod("getFedoraDescribeStream")
@@ -92,7 +92,7 @@ public class _DocumentServiceTestPrepare {
         .addMockedMethod("isStreamAvailable")
         .addMockedMethod("getDC")
         .addMockedMethod("getBiblioMods")
-        .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
+        .addMockedMethod(RepositoryAccessImpl.class.getMethod("getKrameriusModelName", String.class))
         .createMock();
         
         

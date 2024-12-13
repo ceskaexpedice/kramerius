@@ -1,6 +1,6 @@
 package cz.incad.kramerius.indexer;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.indexer.date.BiblioModsDateParser;
 import cz.incad.kramerius.indexer.date.DateQuintet;
@@ -63,7 +63,7 @@ public class ExtendedFields {
     PDDocument pdDoc = null;
     String pdfPid = "";
 
-    FedoraAccess fa;
+    RepositoryAccess fa;
     FedoraOperations fo;
     // dnnt flag
     private String dnnt;

@@ -33,22 +33,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.oai.exceptions.OAIException;
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
-import cz.incad.kramerius.rest.oai.exceptions.OAIException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public enum OAIVerb {
@@ -56,7 +51,7 @@ public enum OAIVerb {
     ListMetadataFormats {
 
 		@Override
-        public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnLocal(ConfigManager configManager, RepositoryAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 
             Element requestElement = OAITools.requestElement(doc, OAIVerb.ListMetadataFormats,null,ApplicationURL.applicationURL(request),null);
             doc.getDocumentElement().appendChild(requestElement);
@@ -121,7 +116,7 @@ public enum OAIVerb {
     },
     ListSets {
 		@Override
-        public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnLocal(ConfigManager configManager, RepositoryAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
             try {
                 Element requestElement = OAITools.requestElement(doc, OAIVerb.ListSets, null,ApplicationURL.applicationURL(request), null);
                 doc.getDocumentElement().appendChild(requestElement);
@@ -213,7 +208,7 @@ public enum OAIVerb {
     Identify {
 
 		@Override
-        public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException {
+        public void performOnLocal(ConfigManager configManager, RepositoryAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException {
 
             try {
                 String url = ApplicationURL.applicationURL(request);
@@ -381,7 +376,7 @@ public enum OAIVerb {
     ListRecords {
 			
 		@Override
-        public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnLocal(ConfigManager configManager, RepositoryAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 
             OAISet selectedSet =  null;
             MetadataExport selectedMetadata = null;
@@ -661,7 +656,7 @@ public enum OAIVerb {
     },
     ListIdentifiers {
         
-		public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+		public void performOnLocal(ConfigManager configManager, RepositoryAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 			OAISet selectedSet =  null;
             MetadataExport selectedMetadata = null;
             try {
@@ -1020,7 +1015,7 @@ public enum OAIVerb {
 	
     GetRecord {
         @Override
-        public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnLocal(ConfigManager configManager, RepositoryAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 			MetadataExport selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
@@ -1137,7 +1132,7 @@ public enum OAIVerb {
     private static final String REPOSITORY_NAME = "oai.repositoryName";
     private static final String REPOSITORY_ROWS_IN_RESULTS = "oai.rowsInResults";
 
-    public abstract void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws Exception;
+    public abstract void performOnLocal(ConfigManager configManager, RepositoryAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws Exception;
     
     
     // Perform on CDK side 

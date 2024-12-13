@@ -8,36 +8,32 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.IOUtils;
-import org.w3c.dom.Document;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.utils.RelsExtHelper;
 
 public class IIIFUtils {
 
     public static final Logger LOGGER = Logger.getLogger(IIIFUtils.class.getName());
     
-    public static String iiifImageEndpoint(String pid, FedoraAccess fedoraAccess) throws IOException {
+    public static String iiifImageEndpoint(String pid, RepositoryAccess fedoraAccess) throws IOException {
         try {
             String url = RelsExtHelper.getRelsExtTilesUrl(pid, fedoraAccess);
             if (url == null)

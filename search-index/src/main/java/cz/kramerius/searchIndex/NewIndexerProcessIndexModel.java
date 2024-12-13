@@ -10,10 +10,6 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
-import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -116,7 +112,7 @@ public class NewIndexerProcessIndexModel {
         
 
         //Injector injector = Guice.createInjector(new SearchIndexModule(), new NullStatisticsModule(), new SolrModule(), new RepoModule());
-        cz.incad.kramerius.FedoraAccess rawRepository = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
+        cz.incad.kramerius.RepositoryAccess rawRepository = injector.getInstance(Key.get(cz.incad.kramerius.RepositoryAccess.class, Names.named("rawFedoraAccess")));
         RepositoryAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepository);
 
         //access to processing index through new public APIs

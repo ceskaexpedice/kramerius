@@ -1,19 +1,15 @@
 package cz.incad.kramerius.fedora.impl;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import junit.framework.Assert;
 import org.easymock.EasyMock;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.core.EhcacheManager;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -41,7 +37,7 @@ public class FedoraAccess4xImplTest {
         cacheManager.init();
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
@@ -68,7 +64,7 @@ public class FedoraAccess4xImplTest {
         cacheManager.init();
         HazelcastServerNode.ensureHazelcastNode();
         // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor(feeder, aclog, cacheManager)
                 .addMockedMethod("isStreamAvailable")
                 .addMockedMethod("getRelsExt")
@@ -94,7 +90,7 @@ public class FedoraAccess4xImplTest {
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
         HazelcastServerNode.ensureHazelcastNode();
-        FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, aclog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
@@ -147,7 +143,7 @@ public class FedoraAccess4xImplTest {
 
         final List<Integer> order = new ArrayList<Integer>();
 
-        FedoraAccessAkubraImpl fa = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, aclog,cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")

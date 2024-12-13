@@ -5,14 +5,12 @@ import com.lizardtech.djvu.DjVuOptions;
 import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuImage;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.fedora.utils.Handler;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
@@ -28,7 +26,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.List;
 
 public class KrameriusImageSupport {
 
@@ -44,7 +41,7 @@ public class KrameriusImageSupport {
     
     
     
-    public static BufferedImage readImage(String pid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
+    public static BufferedImage readImage(String pid, String stream, RepositoryAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
         String mimetype = fedoraAccess.getMimeTypeForStream(pid, stream);
         LOGGER.fine("mimetype for pid '"+pid+"' is '"+mimetype+"'");
         ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
@@ -52,11 +49,11 @@ public class KrameriusImageSupport {
         return readImage(url, loadFromMimeType, page);
     }
 
-    public static Dimension readDimension(String pid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
+    public static Dimension readDimension(String pid, String stream, RepositoryAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
         return readDimension(pid, stream,fedoraAccess,page,false);
     }
 
-    public static Dimension readDimension(String pid, String stream, FedoraAccess fedoraAccess, int page, boolean forceread) throws XPathExpressionException, IOException {
+    public static Dimension readDimension(String pid, String stream, RepositoryAccess fedoraAccess, int page, boolean forceread) throws XPathExpressionException, IOException {
         String mimetype = fedoraAccess.getMimeTypeForStream(pid, stream);
         ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
         URL url = new URL("fedora", "", 0, pid + "/" + stream, new Handler(fedoraAccess));

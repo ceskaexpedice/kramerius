@@ -35,7 +35,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
@@ -67,14 +67,14 @@ public class DocumentServiceImpl implements DocumentService {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(DocumentServiceImpl.class.getName());
 
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
     private Provider<Locale> localeProvider;
     private ResourceBundleService resourceBundleService;
     private SolrAccess solrAccess;
 
     @Inject
     public DocumentServiceImpl(
-            @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
+            @Named("securedFedoraAccess") RepositoryAccess fedoraAccess,
             @Named("new-index") SolrAccess solrAccess,
             Provider<Locale> localeProvider,
             ResourceBundleService resourceBundleService

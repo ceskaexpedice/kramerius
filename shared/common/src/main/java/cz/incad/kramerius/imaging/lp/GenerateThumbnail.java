@@ -18,7 +18,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.fedora.om.AkubraRepository;
@@ -44,14 +44,14 @@ public class GenerateThumbnail {
         System.out.println("Generate thumbnails :" + Arrays.asList(args));
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
+            RepositoryAccess fa = injector.getInstance(Key.get(RepositoryAccess.class, Names.named("securedFedoraAccess")));
             DeepZoomTileSupport tileSupport = injector.getInstance(DeepZoomTileSupport.class);
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
             prepareCacheForUUID(args[0], fa, discStruct, tileSupport);
         }
     }
 
-    public static void prepareCacheForUUID(String pid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct, final DeepZoomTileSupport tileSupport) throws IOException {
+    public static void prepareCacheForUUID(String pid, final RepositoryAccess fedoraAccess, final DiscStrucutreForStore discStruct, final DeepZoomTileSupport tileSupport) throws IOException {
         if (fedoraAccess.isImageFULLAvailable(pid)) {
             try {
                 
@@ -139,7 +139,7 @@ public class GenerateThumbnail {
         }
     }
 
-    public static void prepareThumbnail(String pid, FedoraAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException, LexerException, RepositoryException {
+    public static void prepareThumbnail(String pid, RepositoryAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException, LexerException, RepositoryException {
         PIDParser pidParser = new PIDParser(pid);
         pidParser.objectPid();
         String uuid = pidParser.getObjectId();
@@ -176,7 +176,7 @@ public class GenerateThumbnail {
 
     }
 
-    public static BufferedImage scaleToFullThumb(String pid, FedoraAccess fedoraAccess, DeepZoomTileSupport tileSupport) throws XPathExpressionException, IOException {
+    public static BufferedImage scaleToFullThumb(String pid, RepositoryAccess fedoraAccess, DeepZoomTileSupport tileSupport) throws XPathExpressionException, IOException {
         BufferedImage img = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
         if (img != null) {
             Dimension dim = new Dimension(img.getWidth(), img.getHeight());

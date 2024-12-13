@@ -9,7 +9,7 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
+import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.security.EvaluatingResultState;
@@ -28,8 +28,6 @@ import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
 public class WindowTest {
@@ -62,7 +60,7 @@ public class WindowTest {
         cacheManager.init();
 
         HazelcastServerNode.ensureHazelcastNode();
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa4 = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")

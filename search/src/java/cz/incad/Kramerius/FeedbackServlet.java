@@ -11,7 +11,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.service.Mailer;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -39,7 +39,7 @@ public class FeedbackServlet extends GuiceServlet {
     
     @Inject
     @Named("rawFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
     KConfiguration configuration = KConfiguration.getInstance();
 

@@ -17,17 +17,16 @@
 package cz.incad.kramerius.pdf.utils;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 
 public class FedoraDescribeUtils {
 
-    public static String getLabel(String pid, FedoraAccess fedoraAccess) throws XPathExpressionException, IOException {
+    public static String getLabel(String pid, RepositoryAccess fedoraAccess) throws XPathExpressionException, IOException {
         Document objectProfile = fedoraAccess.getObjectProfile(pid);
 
         return "";

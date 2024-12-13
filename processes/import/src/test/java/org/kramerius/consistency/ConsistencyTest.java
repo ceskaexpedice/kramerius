@@ -33,7 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
+import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
@@ -53,7 +53,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
@@ -74,7 +74,7 @@ public class ConsistencyTest {
         cacheManager.init();
 
         HazelcastServerNode.ensureHazelcastNode();
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa4 = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
@@ -116,7 +116,7 @@ public class ConsistencyTest {
         cacheManager.init();
         HazelcastServerNode.ensureHazelcastNode();
 
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+        RepositoryAccessImpl fa4 = createMockBuilder(RepositoryAccessImpl.class)
                 .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")
                 .addMockedMethod("isStreamAvailable")
@@ -152,11 +152,11 @@ public class ConsistencyTest {
 
     static class _Module extends AbstractModule {
 
-        private FedoraAccess fedoraAccess;
+        private RepositoryAccess fedoraAccess;
         private SolrAccess solrAccess;
         
         
-        public _Module(FedoraAccess fedoraAccess, SolrAccess solrAccess) {
+        public _Module(RepositoryAccess fedoraAccess, SolrAccess solrAccess) {
             super();
             this.fedoraAccess = fedoraAccess;
             this.solrAccess = solrAccess;
@@ -165,7 +165,7 @@ public class ConsistencyTest {
 
         @Provides
         @Named("rawFedoraAccess")
-        public FedoraAccess getFedoraAccess() {
+        public RepositoryAccess getFedoraAccess() {
             return this.fedoraAccess;
         }
 

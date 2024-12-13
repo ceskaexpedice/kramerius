@@ -2,7 +2,6 @@ package cz.incad.kramerius.indexer;
 
 import com.google.inject.name.Named;
 import cz.incad.kramerius.*;
-import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.resourceindex.ResourceIndexService;
@@ -72,10 +71,10 @@ public class SolrOperations {
     
     //private FedoraAccessBridge fa;
     private FedoraOperations fedoraOperations;
-    private FedoraAccess fa;
+    private RepositoryAccess fa;
 
     @Inject
-    public SolrOperations(@Named("rawFedoraAccess") FedoraAccess fa, FedoraOperations _fedoraOperations, IResourceIndex resourceIndex) throws IOException {
+    public SolrOperations(@Named("rawFedoraAccess") RepositoryAccess fa, FedoraOperations _fedoraOperations, IResourceIndex resourceIndex) throws IOException {
         fedoraOperations = _fedoraOperations;
         this.fa = fa;
         this.rindex = resourceIndex;

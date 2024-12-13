@@ -64,7 +64,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.lowagie.text.DocumentException;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
@@ -93,7 +93,7 @@ public class PrintingServiceImpl implements PrintingService {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PrintingServiceImpl.class.getName());
 
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
     private KConfiguration configuration = KConfiguration.getInstance();
 
     private SolrAccess solrAccess;
@@ -105,7 +105,7 @@ public class PrintingServiceImpl implements PrintingService {
     private Provider<Locale> localesProvider;
     
     @Inject
-    public PrintingServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, @Named("new-index") SolrAccess solrAccess, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService, Provider<User> userProvider) {
+    public PrintingServiceImpl(@Named("securedFedoraAccess") RepositoryAccess fedoraAccess, @Named("new-index") SolrAccess solrAccess, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService, Provider<User> userProvider) {
         super();
         this.fedoraAccess = fedoraAccess;
         this.solrAccess = solrAccess;
@@ -263,12 +263,12 @@ public class PrintingServiceImpl implements PrintingService {
 
         private PreparedDocument document;
         private String imgServletUrl;
-        private FedoraAccess fedoraAccess;
+        private RepositoryAccess fedoraAccess;
 
         private Dimension page;
         private int dpi;
 
-        public PrintableDoc(FedoraAccess fedoraAccess, PreparedDocument document, String imgServletUrl, Dimension page, int dpi) {
+        public PrintableDoc(RepositoryAccess fedoraAccess, PreparedDocument document, String imgServletUrl, Dimension page, int dpi) {
             super();
             this.fedoraAccess = fedoraAccess;
             this.document = document;

@@ -1,6 +1,5 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import org.dom4j.*;
 

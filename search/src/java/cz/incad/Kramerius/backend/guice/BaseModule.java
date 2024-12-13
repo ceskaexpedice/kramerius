@@ -8,7 +8,7 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.Constants;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.CacheLifeCycleHook;
@@ -32,13 +32,9 @@ import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
 import cz.incad.kramerius.service.impl.METSServiceImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.impl.*;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.Collection;
-import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.ehcache.CacheManager;
 
@@ -55,8 +51,8 @@ public class BaseModule extends AbstractModule {
 	
 	@Override
     protected void configure() {
-        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
-        bind(FedoraAccess.class).annotatedWith(Names.named("cachedFedoraAccess")).to(CachedFedoraAccessImpl.class).in(Scopes.SINGLETON);
+        bind(RepositoryAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
+        bind(RepositoryAccess.class).annotatedWith(Names.named("cachedFedoraAccess")).to(CachedFedoraAccessImpl.class).in(Scopes.SINGLETON);
 
 
 

@@ -21,8 +21,7 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.RepositoryAccess;
 
 /**
  * Dedicated for getting RELS_EXT, storing it in the context and return it
@@ -33,7 +32,7 @@ public class RELSEXTDecoratorUtils {
 
 
     public static Document getRELSEXTPidDocument(String pid,
-            Map<String, Object> context, FedoraAccess fedoraAccess)
+            Map<String, Object> context, RepositoryAccess fedoraAccess)
             throws IOException {
         String key = RELSEXT_PID_DOCUMENT_KEY + "_" + pid;
         if (!context.containsKey(key)) {

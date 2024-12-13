@@ -13,8 +13,6 @@ import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.RelsExtHelper;
@@ -97,7 +95,7 @@ public class DeleteTreeProcess {
         
         
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ResourceIndexModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        RepositoryAccess fa = injector.getInstance(Key.get(RepositoryAccess.class, Names.named("rawFedoraAccess")));
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
 
         KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
@@ -120,7 +118,7 @@ public class DeleteTreeProcess {
         }
     }
 
-    public static boolean deleteTree(String pid, boolean deletionRoot, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex, FedoraAccess fa, boolean ignoreIncosistencies) throws ResourceIndexException, RepositoryException, IOException, SolrServerException {
+    public static boolean deleteTree(String pid, boolean deletionRoot, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex, RepositoryAccess fa, boolean ignoreIncosistencies) throws ResourceIndexException, RepositoryException, IOException, SolrServerException {
         LOGGER.info(String.format("deleting own tree of %s", pid));
         boolean someProblem = false;
         //
@@ -222,7 +220,7 @@ public class DeleteTreeProcess {
         }
     }
 
-    private static void deleteObject(String pid, boolean isCollection, KrameriusRepositoryApi repository, SolrIndexAccess indexerAccess, FedoraAccess fa) throws RepositoryException, IOException, SolrServerException {
+    private static void deleteObject(String pid, boolean isCollection, KrameriusRepositoryApi repository, SolrIndexAccess indexerAccess, RepositoryAccess fa) throws RepositoryException, IOException, SolrServerException {
         LOGGER.info(String.format("deleting object %s", pid));
         LOGGER.info(String.format("deleting %s from repository", pid));
         if (!DRY_RUN) {

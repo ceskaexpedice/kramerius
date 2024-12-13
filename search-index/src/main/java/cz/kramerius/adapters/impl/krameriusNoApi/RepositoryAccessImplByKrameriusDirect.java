@@ -1,6 +1,6 @@
 package cz.kramerius.adapters.impl.krameriusNoApi;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.kramerius.adapters.impl.RepositoryAccessImplAbstract;
 
 import java.io.IOException;
@@ -14,9 +14,9 @@ public class RepositoryAccessImplByKrameriusDirect extends RepositoryAccessImplA
     //@Inject
     //@Named("rawFedoraAccess")
     //@Named("securedFedoraAccess")
-    private final FedoraAccess fedoraAccess;
+    private final RepositoryAccess fedoraAccess;
 
-    public RepositoryAccessImplByKrameriusDirect(FedoraAccess fedoraAccess) {
+    public RepositoryAccessImplByKrameriusDirect(RepositoryAccess fedoraAccess) {
         this.fedoraAccess = fedoraAccess;
     }
 

@@ -23,7 +23,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.RightsResolver;
@@ -37,7 +37,7 @@ public class ActionAllowedServlet extends GuiceServlet {
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MimeTypeServlet.class.getName());
     @Inject
     @Named("rawFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
     @Inject
     SolrAccess solrAccess;
     @Inject

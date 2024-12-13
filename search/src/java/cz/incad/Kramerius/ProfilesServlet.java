@@ -35,7 +35,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.users.ProfilePrepareUtils;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
@@ -47,7 +47,7 @@ public class ProfilesServlet extends GuiceServlet {
     
     @Inject
     @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
 
     KConfiguration configuration = KConfiguration.getInstance();

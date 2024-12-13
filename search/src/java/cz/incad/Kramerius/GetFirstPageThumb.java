@@ -5,25 +5,14 @@
 package cz.incad.Kramerius;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.utils.IKeys;
-import java.io.IOException;
-import java.io.PrintWriter;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import cz.incad.kramerius.RepositoryAccess;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -34,7 +23,6 @@ import java.util.ArrayList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -49,7 +37,7 @@ public class GetFirstPageThumb extends GuiceServlet {
 
     @Inject
 	@Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -134,11 +122,11 @@ public class GetFirstPageThumb extends GuiceServlet {
     }// </editor-fold>
 
     
-	public FedoraAccess getFedoraAccess() {
+	public RepositoryAccess getFedoraAccess() {
 		return fedoraAccess;
 	}
 
-	public void setFedoraAccess(FedoraAccess fedoraAccess) {
+	public void setFedoraAccess(RepositoryAccess fedoraAccess) {
 		this.fedoraAccess = fedoraAccess;
 	}
 

@@ -26,18 +26,18 @@ import java.util.Set;
 
 import org.antlr.stringtemplate.StringTemplate;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 
 public class TitlesUtils {
 
-    public static String title(String uuid, SolrAccess solrAccess, FedoraAccess fa, ResourceBundle bundle) throws IOException {
+    public static String title(String uuid, SolrAccess solrAccess, RepositoryAccess fa, ResourceBundle bundle) throws IOException {
         return title(uuid, solrAccess, fa, true, bundle);
     }
         
     
-    public static String title(String pid, SolrAccess solrAccess, FedoraAccess fa, boolean renderModel, ResourceBundle resourceBundle) throws IOException {
+    public static String title(String pid, SolrAccess solrAccess, RepositoryAccess fa, boolean renderModel, ResourceBundle resourceBundle) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 
         
@@ -63,7 +63,7 @@ public class TitlesUtils {
     }
 
 
-    public static Map<String, String> translateModels(FedoraAccess fa, String[] path, ResourceBundle resourceBundle) throws IOException {
+    public static Map<String, String> translateModels(RepositoryAccess fa, String[] path, ResourceBundle resourceBundle) throws IOException {
         Map<String, String> nmodels = new HashMap<String, String>();
         Map<String, String> mapModels = TitlesMapUtils.mapModels(fa, path);
         

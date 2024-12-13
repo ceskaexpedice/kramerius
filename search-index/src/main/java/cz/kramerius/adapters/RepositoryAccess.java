@@ -11,10 +11,10 @@ import java.io.InputStream;
  * Společně s abstraktní implementací implementující dummy metodami vše
  * tak mohou implementace cz.kramerius.adapters.FedoraAccess používat jen vybrané metody z minulosti, přítomnosti a budoucnosti.
  *
- * @see cz.incad.kramerius.FedoraAccess
+ * @see cz.incad.kramerius.RepositoryAccess
  * @see RepositoryAccessImplAbstract
  */
-public interface RepositoryAccess extends cz.incad.kramerius.FedoraAccess {
+public interface RepositoryAccess extends cz.incad.kramerius.RepositoryAccess {
 
     public InputStream getFoxml(String pid) throws IOException;
 

@@ -20,7 +20,7 @@ package cz.incad.Kramerius.oai;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
@@ -84,7 +84,7 @@ public class OaiServlet extends GuiceServlet {
     RelationService relService;
     @Inject
     @Named("rawFedoraAccess")
-    FedoraAccess fedora;
+    RepositoryAccess fedora;
     private XMLOutputFactory outFactory;
     private XMLEventFactory eventFactory;
     private XMLInputFactory inFactory;

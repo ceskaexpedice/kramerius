@@ -14,14 +14,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.http.nio.client.HttpAsyncClient;
 import org.json.JSONException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.IIPImagesSupport;
@@ -55,7 +54,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
 
     @Inject
     @Named("cachedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
+    private transient RepositoryAccess fedoraAccess;
 
 
     @Inject

@@ -26,7 +26,6 @@ import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -66,7 +65,6 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.database.JDBCCommand;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
@@ -95,7 +93,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
 
     @Inject
     @Named("cachedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;

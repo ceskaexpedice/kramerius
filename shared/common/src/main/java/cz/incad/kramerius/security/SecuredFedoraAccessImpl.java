@@ -41,10 +41,10 @@ import java.util.Map;
  * Secured fedora access
  * @author pavels
  */
-public class SecuredFedoraAccessImpl implements FedoraAccess {
+public class SecuredFedoraAccessImpl implements RepositoryAccess {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecuredFedoraAccessImpl.class.getName());
-    private FedoraAccess rawAccess;
+    private RepositoryAccess rawAccess;
     private RightsResolver rightsResolver;
     private SolrAccess solrAccess;
     @Inject
@@ -52,7 +52,7 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     private DiscStrucutreForStore discStrucutreForStore;
 
     @Inject
-    public SecuredFedoraAccessImpl(@Named("cachedFedoraAccess") FedoraAccess rawAccess, DiscStrucutreForStore discStrucutreForStore, @Named("new-index")SolrAccess solrAccess, RightsResolver rightsResolver) {
+    public SecuredFedoraAccessImpl(@Named("cachedFedoraAccess") RepositoryAccess rawAccess, DiscStrucutreForStore discStrucutreForStore, @Named("new-index")SolrAccess solrAccess, RightsResolver rightsResolver) {
         super();
         this.rawAccess = rawAccess;
         this.discStrucutreForStore = discStrucutreForStore;

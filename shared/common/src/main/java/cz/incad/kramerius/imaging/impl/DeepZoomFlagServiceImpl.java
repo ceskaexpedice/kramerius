@@ -27,7 +27,7 @@ import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
@@ -39,7 +39,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     
     @Inject
     @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
     
     public void deleteFlagToPID(final String pid) throws IOException {
         if (fedoraAccess.isImageFULLAvailable(pid)) {

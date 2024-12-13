@@ -21,7 +21,6 @@ import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,14 +28,10 @@ import java.util.List;
 
 import cz.incad.kramerius.utils.XMLUtils;
 import org.easymock.EasyMock;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
@@ -282,7 +277,7 @@ public class ObjectPidsPathTest {
         CollectionsManager colGet = EasyMock.createMock(CollectionsManager.class);
 
 
-        FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
+        RepositoryAccess fa = EasyMock.createMock(RepositoryAccess.class);
         EasyMock.expect(fa.getRelsExt("uuid:periodical")).andReturn(document).anyTimes();
         EasyMock.expect(fa.getRelsExt("uuid:periodicalvolume")).andReturn(document).anyTimes();
         EasyMock.expect(fa.getRelsExt("uuid:periodicalitem")).andReturn(document).anyTimes();
@@ -315,7 +310,7 @@ public class ObjectPidsPathTest {
         ObjectPidsPath p = new ObjectPidsPath();
 
         CollectionsManager colGet = EasyMock.createMock(CollectionsManager.class);
-        FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
+        RepositoryAccess fa = EasyMock.createMock(RepositoryAccess.class);
 
         replay( colGet, fa);
         ObjectPidsPath cols = p.injectCollections(colGet);

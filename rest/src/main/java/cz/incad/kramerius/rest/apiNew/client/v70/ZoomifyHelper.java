@@ -2,13 +2,12 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RelsExtHelper;
@@ -23,7 +22,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -72,7 +70,7 @@ public class ZoomifyHelper {
 
     @javax.inject.Inject
     @Named("securedFedoraAccess")
-    protected transient FedoraAccess fedoraAccess;
+    protected transient RepositoryAccess fedoraAccess;
 
     public Response buildImagePropertiesResponse(String pid, HttpServletRequest req) throws IOException, XPathExpressionException {
         try {

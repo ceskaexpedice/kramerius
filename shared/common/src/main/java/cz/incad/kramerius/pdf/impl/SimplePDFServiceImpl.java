@@ -22,25 +22,19 @@ import javax.xml.xpath.XPathExpressionException;
 import org.antlr.stringtemplate.StringTemplate;
 import org.xml.sax.SAXException;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.Font;
 import com.lowagie.text.pdf.PdfWriter;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.ImagePage;
 import cz.incad.kramerius.document.model.PreparedDocument;
-import cz.incad.kramerius.document.model.TextPage;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.commands.ITextCommand;
@@ -60,7 +54,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
 
     public static final Logger LOGGER  = Logger.getLogger(SimplePDFService.class.getName());
     
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
     private Provider<Locale> localeProvider;
     private TextsService textsService;
     private ResourceBundleService resourceBundleService;
@@ -69,7 +63,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
 
     @Inject
     public SimplePDFServiceImpl(
-            @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
+            @Named("securedFedoraAccess") RepositoryAccess fedoraAccess,
             @Named("new-index") SolrAccess solrAccess,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService) {
@@ -134,7 +128,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
         }
     }
 
-    public static String template(PreparedDocument rdoc, FedoraAccess fa, TextsService textsService, Locale locale) throws IOException,
+    public static String template(PreparedDocument rdoc, RepositoryAccess fa, TextsService textsService, Locale locale) throws IOException,
             FileNotFoundException {
         StringWriter strWriter = new StringWriter();
 

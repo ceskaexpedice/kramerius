@@ -8,15 +8,14 @@ import java.net.URLStreamHandler;
 
 import com.google.inject.Inject;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.fedora.utils.FedoraURLConnection;
+import cz.incad.kramerius.RepositoryAccess;
 
 public class Handler extends URLStreamHandler {
 
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
 
     @Inject
-    public Handler(FedoraAccess fedoraAccess) {
+    public Handler(RepositoryAccess fedoraAccess) {
         super();
         this.fedoraAccess = fedoraAccess;
     }

@@ -58,7 +58,7 @@ public final class RelationServiceImpl implements RelationService {
 
     @Inject
     @Named("rawFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
     @Override
     public RelationModel load(String pid) throws IOException {

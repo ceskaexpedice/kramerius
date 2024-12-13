@@ -3,13 +3,10 @@ package cz.incad.kramerius.indexer;
 import com.google.inject.Key;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.indexer.fa.FedoraAccessBridge;
 import cz.incad.kramerius.indexer.guice.GuiceModelInjector;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
-import cz.incad.kramerius.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.UTFSort;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -21,7 +18,6 @@ import org.w3c.dom.Element;
 
 import com.google.inject.Inject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -44,12 +40,12 @@ public class FedoraOperations {
     protected String dsText;
     protected String[] params = null;
     String foxmlFormat;
-    FedoraAccess  fa;
+    RepositoryAccess fa;
     IResourceIndex rindex;
     UTFSort utfSort;
 
    @Inject
-    public FedoraOperations(@Named("rawFedoraAccess") FedoraAccess fa, IResourceIndex resourceIndex) throws Exception {
+    public FedoraOperations(@Named("rawFedoraAccess") RepositoryAccess fa, IResourceIndex resourceIndex) throws Exception {
         this.fa = fa;
         this.rindex = resourceIndex;
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
@@ -60,7 +56,7 @@ public class FedoraOperations {
 
     public FedoraOperations() throws IOException {
         this.rindex = GuiceModelInjector.injector().getInstance(IResourceIndex.class);
-        this.fa = GuiceModelInjector.injector().getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        this.fa = GuiceModelInjector.injector().getInstance(Key.get(RepositoryAccess.class, Names.named("rawFedoraAccess")));
         foxmlFormat = KConfiguration.getInstance().getConfiguration().getString("FOXMLFormat");
         utfSort = new UTFSort();
     }

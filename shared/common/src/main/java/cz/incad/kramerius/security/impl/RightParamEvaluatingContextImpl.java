@@ -22,7 +22,7 @@ import java.util.Map;
 
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 
@@ -34,7 +34,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private String requestedStream;
     private String associatedPID;
     private User user;
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
     //private SolrAccess solrAccess;
     private SolrAccess solrAccessNewIndex;
 
@@ -84,7 +84,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     }
 
     @Override
-    public FedoraAccess getFedoraAccess() {
+    public RepositoryAccess getFedoraAccess() {
         return this.fedoraAccess;
     }
 
@@ -159,7 +159,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
 
         protected String associatedPID;
         protected User user;
-        protected FedoraAccess fedoraAccess;
+        protected RepositoryAccess fedoraAccess;
         protected SolrAccess solrAccess;
         private SolrAccess solrAccessNewIndex;
         protected UserManager userManager;
@@ -196,7 +196,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
             return this;
         }
 
-        public Builder setFedoraAccess(FedoraAccess fa) {
+        public Builder setFedoraAccess(RepositoryAccess fa) {
             this.fedoraAccess = fa;
             return this;
         }

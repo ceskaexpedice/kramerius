@@ -6,16 +6,16 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.StringTokenizer;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 
 public class FedoraURLConnection extends URLConnection {
 
     public static final String IMG_FULL = "IMG_FULL";
     public static final String IMG_THUMB = "IMG_THUMB";
 
-    private FedoraAccess fedoraAccess;
+    private RepositoryAccess fedoraAccess;
 
-    FedoraURLConnection(URL url, FedoraAccess fedoraAccess) {
+    FedoraURLConnection(URL url, RepositoryAccess fedoraAccess) {
         super(url);
         this.fedoraAccess = fedoraAccess;
     }

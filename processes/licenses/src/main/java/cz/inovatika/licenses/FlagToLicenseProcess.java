@@ -23,9 +23,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.dom4j.Document;
-import org.dom4j.Node;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
@@ -33,14 +30,9 @@ import org.xml.sax.SAXException;
 
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.processes.SetPolicyProcess;
-import cz.incad.kramerius.processes.SetPolicyProcess.Policy;
 import cz.incad.kramerius.processes.SetPolicyProcess.Scope;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
-import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.IterationUtils;
 import cz.incad.kramerius.utils.IterationUtils.Endpoint;
 import cz.incad.kramerius.utils.XMLUtils;

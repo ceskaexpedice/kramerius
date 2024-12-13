@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
 
@@ -55,7 +55,7 @@ public class BenevolentModelFilter  extends AbstractCriterium implements RightCr
      */
     static EvaluatingResultState evaluateInternal(Object[] params, RightCriteriumContext ctx) {
         try {
-            FedoraAccess fa = ctx.getFedoraAccess();
+            RepositoryAccess fa = ctx.getFedoraAccess();
             ObjectPidsPath[] pathsToRoot = ctx
                     .getPathsToRoot();
             for (ObjectPidsPath pth : pathsToRoot) {

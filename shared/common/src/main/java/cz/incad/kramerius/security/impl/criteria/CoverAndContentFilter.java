@@ -1,6 +1,6 @@
 package cz.incad.kramerius.security.impl.criteria;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
@@ -40,7 +40,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     @Override
     public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         try {
-            FedoraAccess fedoraAccess = getEvaluateContext().getFedoraAccess();
+            RepositoryAccess fedoraAccess = getEvaluateContext().getFedoraAccess();
             //getEvaluateContext().getSolrAccess();
             String pid = getEvaluateContext().getRequestedPid();
             if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {

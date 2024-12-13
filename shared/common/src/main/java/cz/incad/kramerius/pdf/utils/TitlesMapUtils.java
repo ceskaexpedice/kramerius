@@ -22,11 +22,7 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.utils.DCUtils;
 
 public class TitlesMapUtils {
@@ -39,7 +35,7 @@ public class TitlesMapUtils {
      * @throws IOException
      * TODO: Zmenit, pouziva  deprecated api
      */
-    public static Map<String, String> mapModels(FedoraAccess fa, String[] path) throws IOException {
+    public static Map<String, String> mapModels(RepositoryAccess fa, String[] path) throws IOException {
         Map<String, String> map = new HashMap<String, String>();
         for (String u : path) {
             String modelName = fa.getKrameriusModelName(fa.getRelsExt(u));
@@ -55,7 +51,7 @@ public class TitlesMapUtils {
      * @return Vraci mapu uuid->model
      * @throws IOException
      */
-    public static Map<String, String> mapTitlesToUUID(FedoraAccess fa, String[] path) throws IOException {
+    public static Map<String, String> mapTitlesToUUID(RepositoryAccess fa, String[] path) throws IOException {
         Map<String, String> map = new HashMap<String, String>();
         for (String u : path) {
             Document dc = fa.getDC(u);

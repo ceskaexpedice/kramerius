@@ -1,6 +1,6 @@
 package cz.incad.kramerius.indexer.dnnt;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -25,7 +25,7 @@ public class DnntSingleton {
         return _INSTANCE;
     }
 
-    public synchronized Document getRelsExt(String pid, FedoraAccess fa) throws IOException {
+    public synchronized Document getRelsExt(String pid, RepositoryAccess fa) throws IOException {
         if (!relsExts.containsKey(pid)) {
             relsExts.put(pid, fa.getRelsExt(pid));
         }
@@ -33,7 +33,7 @@ public class DnntSingleton {
     }
 
 
-    public synchronized String dnnt(String pid, FedoraAccess fa) throws IOException, XPathExpressionException {
+    public synchronized String dnnt(String pid, RepositoryAccess fa) throws IOException, XPathExpressionException {
         String sxpath = "//kramerius:dnnt/text()";
 
         XPathFactory xPathFactory = XPathFactory.newInstance();
@@ -45,7 +45,7 @@ public class DnntSingleton {
         return value;
     }
 
-    public synchronized List<String> dnntLabels(String pid, FedoraAccess fa) throws IOException, XPathExpressionException {
+    public synchronized List<String> dnntLabels(String pid, RepositoryAccess fa) throws IOException, XPathExpressionException {
         List<String> list = new ArrayList<>();
         String sxpath = "//kramerius:dnnt-label";
 

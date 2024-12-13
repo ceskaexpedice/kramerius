@@ -17,7 +17,7 @@
 
 package cz.incad.Kramerius.oai;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
@@ -66,7 +66,7 @@ public class DrKrameriusV4Writer implements OaiWriter {
     private final XMLEventFactory eventFactory;
     private final XMLInputFactory inFactory;
     private final RelationService relService;
-    private final FedoraAccess fedora;
+    private final RepositoryAccess fedora;
     private final Set<KrameriusModels> topLevelRelations;
     private ExclusiveBuffer buffer;
     private final String pid;
@@ -74,7 +74,7 @@ public class DrKrameriusV4Writer implements OaiWriter {
 
     public DrKrameriusV4Writer(String pid,
             XMLOutputFactory outFactory, XMLEventFactory eventFactory,
-            XMLInputFactory inFactory, RelationService relService, FedoraAccess fedora,
+            XMLInputFactory inFactory, RelationService relService, RepositoryAccess fedora,
             Set<KrameriusModels> topLevelRelations) {
         this.pid = pid;
         this.outFactory = outFactory;

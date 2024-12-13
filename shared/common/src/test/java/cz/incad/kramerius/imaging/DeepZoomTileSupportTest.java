@@ -15,7 +15,7 @@ import com.google.inject.Injector;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
 
 @Ignore
@@ -52,7 +52,7 @@ public class DeepZoomTileSupportTest extends AbstractGuiceTestCase {
 
         @Override
         protected void configure() {
-            FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
+            RepositoryAccess fa = EasyMock.createMock(RepositoryAccess.class);
             TileSupportImpl tis = EasyMock.createMockBuilder(TileSupportImpl.class).withConstructor()
             .addMockedMethod("getTileSize").createMock();
             
@@ -61,7 +61,7 @@ public class DeepZoomTileSupportTest extends AbstractGuiceTestCase {
             EasyMock.replay(fa,tis);
             
             
-            bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fa);
+            bind(RepositoryAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fa);
             bind(DeepZoomTileSupport.class).toInstance(tis);
             
             

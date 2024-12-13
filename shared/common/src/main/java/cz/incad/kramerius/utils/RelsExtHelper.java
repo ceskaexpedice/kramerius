@@ -19,9 +19,7 @@ package cz.incad.kramerius.utils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -39,13 +37,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.KrameriusModels;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownRelations;
-import cz.incad.kramerius.utils.database.SQLFilter.Tripple;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
@@ -97,7 +91,7 @@ public class RelsExtHelper {
 
     
     /** Returns replicatedFrom url from given  RELS-EXT element*/
-    public static String getReplicatedFromUrl(String uuid, FedoraAccess fedoraAccess) throws IOException, XPathExpressionException {
+    public static String getReplicatedFromUrl(String uuid, RepositoryAccess fedoraAccess) throws IOException, XPathExpressionException {
         Document relsExt = fedoraAccess.getRelsExt(uuid);
         return getReplicatedFromUrl(relsExt);
     }
@@ -114,7 +108,7 @@ public class RelsExtHelper {
     }
 
     /** Returns replicatedFrom url from given  RELS-EXT element */
-    public static String getRelsExtTilesUrl(String uuid, FedoraAccess fedoraAccess) throws IOException, XPathExpressionException {
+    public static String getRelsExtTilesUrl(String uuid, RepositoryAccess fedoraAccess) throws IOException, XPathExpressionException {
         Document relsExt = fedoraAccess.getRelsExt(uuid);
         return getRelsExtTilesUrl(relsExt.getDocumentElement());
     }

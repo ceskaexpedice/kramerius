@@ -43,7 +43,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -62,7 +62,6 @@ import cz.incad.kramerius.statistics.accesslogs.LogRecord;
 import cz.incad.kramerius.statistics.accesslogs.LogRecordDetail;
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
@@ -87,7 +86,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
     @Inject
     @Named("cachedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    RepositoryAccess fedoraAccess;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;

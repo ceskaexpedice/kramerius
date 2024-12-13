@@ -4,10 +4,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.client.Client;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.StreamHeadersObserver;
-import cz.incad.kramerius.fedora.AbstractFedoraAccess;
+import cz.incad.kramerius.fedora.AbstractRepositoryAccess;
 import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
@@ -25,12 +25,12 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
+public class FedoraAccessProxyAkubraImpl extends AbstractRepositoryAccess {
 
 
     public static final Logger LOGGER = Logger.getLogger(FedoraAccessProxyAkubraImpl.class.getName());
 
-    private FedoraAccess akubra;
+    private RepositoryAccess akubra;
     private SolrAccess solrAccess;
     private Client client;
     OnDemandIngest onDemandIngest;
@@ -38,7 +38,7 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
 
 
     @Inject
-    public FedoraAccessProxyAkubraImpl(@Nullable AggregatedAccessLogs accessLog, @Named("akubraFedoraAccess")FedoraAccess acc, @Named("new-index")SolrAccess solrAccess, Provider<HttpServletRequest> provider, OnDemandIngest onDemIng) throws IOException {
+    public FedoraAccessProxyAkubraImpl(@Nullable AggregatedAccessLogs accessLog, @Named("akubraFedoraAccess") RepositoryAccess acc, @Named("new-index")SolrAccess solrAccess, Provider<HttpServletRequest> provider, OnDemandIngest onDemIng) throws IOException {
         super( accessLog);
         this.akubra = acc;
         this.solrAccess = solrAccess;

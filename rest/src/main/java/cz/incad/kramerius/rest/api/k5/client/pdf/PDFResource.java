@@ -45,8 +45,6 @@ import cz.incad.kramerius.utils.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Image;
@@ -54,7 +52,6 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfWriter;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
