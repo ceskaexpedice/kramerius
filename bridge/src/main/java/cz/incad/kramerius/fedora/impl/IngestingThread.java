@@ -4,7 +4,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
@@ -28,7 +28,6 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 
 public class IngestingThread extends Thread {
@@ -37,7 +36,7 @@ public class IngestingThread extends Thread {
 
     private static Logger LOGGER = Logger.getLogger(IngestingThread.class.getName());
 
-    private Repository internalAPI;
+    private AkubraRepository internalAPI;
     private SolrAccess solrAccess;
     private CollectionsManager collectionsManager;
     private Client client;
@@ -45,7 +44,7 @@ public class IngestingThread extends Thread {
 
     private CyclicBarrier barrier;
 
-    public IngestingThread(Repository internalAPI, SolrAccess solrAccess, CollectionsManager collectionsManager, Client client, String pid, CyclicBarrier barrier) {
+    public IngestingThread(AkubraRepository internalAPI, SolrAccess solrAccess, CollectionsManager collectionsManager, Client client, String pid, CyclicBarrier barrier) {
         this.internalAPI = internalAPI;
         this.solrAccess = solrAccess;
         this.collectionsManager = collectionsManager;

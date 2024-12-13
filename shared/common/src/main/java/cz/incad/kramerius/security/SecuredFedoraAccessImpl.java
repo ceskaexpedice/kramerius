@@ -19,7 +19,7 @@ package cz.incad.kramerius.security;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.*;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
@@ -387,12 +387,12 @@ public class SecuredFedoraAccessImpl implements FedoraAccess {
     }
 
     @Override
-    public Repository getInternalAPI() throws RepositoryException {
+    public AkubraRepository getInternalAPI() throws RepositoryException {
         return rawAccess.getInternalAPI();
     }
 
     @Override
-    public Repository getTransactionAwareInternalAPI() throws RepositoryException {
+    public AkubraRepository getTransactionAwareInternalAPI() throws RepositoryException {
         return rawAccess.getTransactionAwareInternalAPI();
     }
 }

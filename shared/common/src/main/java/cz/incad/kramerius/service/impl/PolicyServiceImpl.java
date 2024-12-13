@@ -6,7 +6,6 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,11 +26,10 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -195,7 +193,7 @@ public class PolicyServiceImpl implements PolicyService {
     private static final String INFO = "info:fedora/";
 
     private void setPolicyRELS_EXT(String pid, String policyName) throws RepositoryException {
-        Repository repo = fedoraAccess.getInternalAPI();
+        AkubraRepository repo = fedoraAccess.getInternalAPI();
         if (repo.getObject(pid).relationsExists("policy", FedoraNamespaces.KRAMERIUS_URI)) {
             repo.getObject(pid).removeRelationsByNameAndNamespace("policy", FedoraNamespaces.KRAMERIUS_URI);
         }

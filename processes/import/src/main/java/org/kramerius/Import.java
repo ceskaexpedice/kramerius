@@ -10,10 +10,9 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
@@ -30,13 +29,10 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.fcrepo.common.rdf.FedoraNamespace;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
@@ -555,7 +551,7 @@ public class Import {
         }
     }
 
-    public static void ingest(Repository repo, InputStream is, String filename, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, RepositoryException, JAXBException, LexerException, TransformerException {
+    public static void ingest(AkubraRepository repo, InputStream is, String filename, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, RepositoryException, JAXBException, LexerException, TransformerException {
         long start = System.currentTimeMillis();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copyStreams(is, bos);
@@ -625,7 +621,7 @@ public class Import {
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
-    public static void ingest(Repository repo, File file, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
+    public static void ingest(AkubraRepository repo, File file, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
         try (FileInputStream is = new FileInputStream(file)) {
             ingest(repo, is, file.getName(),sortRelations, roots, updateExisting);
         } catch (Exception ex) {
@@ -634,7 +630,7 @@ public class Import {
         }
     }
 
-    private static boolean merge(Repository repo, byte[] ingestedBytes) throws RepositoryException {
+    private static boolean merge(AkubraRepository repo, byte[] ingestedBytes) throws RepositoryException {
         List<RDFTuple> ingested = readRDF(ingestedBytes);
         if (ingested.isEmpty()) {
             return false;
@@ -920,7 +916,7 @@ public class Import {
      * @param pid requested PID
      * @return true if given object exists
      */
-    public static boolean objectExists(Repository repo, String pid) throws RepositoryException {
+    public static boolean objectExists(AkubraRepository repo, String pid) throws RepositoryException {
         return repo.objectExists(pid);
     }
 }

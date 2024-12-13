@@ -20,7 +20,7 @@ package cz.incad.kramerius.fedora.om.impl;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.ObjectPropertiesType;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
@@ -35,16 +35,16 @@ import java.util.logging.Logger;
 /**
  * @author pavels
  */
-public class AkubraRepository extends Repository {
+public class AkubraRepositoryImpl implements AkubraRepository {
 
 
-    public static final Logger LOGGER = Logger.getLogger(AkubraRepository.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(AkubraRepositoryImpl.class.getName());
 
     private AkubraDOManager manager;
     private ProcessingIndexFeeder feeder;
 
 
-    private AkubraRepository(ProcessingIndexFeeder feeder, AkubraDOManager manager) throws RepositoryException {
+    private AkubraRepositoryImpl(ProcessingIndexFeeder feeder, AkubraDOManager manager) throws RepositoryException {
         super();
         this.feeder = feeder;
         this.manager = manager;
@@ -58,8 +58,8 @@ public class AkubraRepository extends Repository {
      * @return
      * @throws RepositoryException
      */
-    public static final Repository build(ProcessingIndexFeeder feeder, AkubraDOManager manager) throws RepositoryException {
-        return new AkubraRepository(feeder, manager);
+    public static final AkubraRepository build(ProcessingIndexFeeder feeder, AkubraDOManager manager) throws RepositoryException {
+        return new AkubraRepositoryImpl(feeder, manager);
     }
 
 

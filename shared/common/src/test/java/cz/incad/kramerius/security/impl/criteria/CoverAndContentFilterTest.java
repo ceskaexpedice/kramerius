@@ -3,41 +3,23 @@ package cz.incad.kramerius.security.impl.criteria;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.net.URL;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.easymock.EasyMock;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.AbstractObjectPath;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectModelsPath;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.StreamHeadersObserver;
-import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
-import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.pid.LexerException;

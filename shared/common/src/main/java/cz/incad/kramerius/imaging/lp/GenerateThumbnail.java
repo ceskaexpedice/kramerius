@@ -21,10 +21,9 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
@@ -153,7 +152,7 @@ public class GenerateThumbnail {
             try {
                 KrameriusImageSupport.writeImageToStream(scaled, "jpeg", fos);
 
-                Repository repo = fedoraAccess.getInternalAPI();
+                AkubraRepository repo = fedoraAccess.getInternalAPI();
                 Lock writeLock = AkubraDOManager.getWriteLock(pid);
                 try {
                     if (fedoraAccess.isFullthumbnailAvailable(pid)) {

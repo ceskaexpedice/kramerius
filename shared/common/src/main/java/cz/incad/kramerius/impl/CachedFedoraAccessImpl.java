@@ -1,7 +1,7 @@
 package cz.incad.kramerius.impl;
 
 import cz.incad.kramerius.*;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -268,7 +268,7 @@ public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwarene
     }
 
     @Override
-    public Repository getInternalAPI() throws RepositoryException {
+    public AkubraRepository getInternalAPI() throws RepositoryException {
         // clear caches
         return this.fedoraAccess.getInternalAPI();
     }
@@ -382,7 +382,7 @@ public class CachedFedoraAccessImpl  implements FedoraAccess, FedoraCacheAwarene
     }
 
     @Override
-    public Repository getTransactionAwareInternalAPI() throws RepositoryException {
+    public AkubraRepository getTransactionAwareInternalAPI() throws RepositoryException {
         return this.fedoraAccess.getTransactionAwareInternalAPI();
     }
 

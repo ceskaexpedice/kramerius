@@ -19,7 +19,6 @@ package cz.incad.kramerius.imaging.impl;
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 
-import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;

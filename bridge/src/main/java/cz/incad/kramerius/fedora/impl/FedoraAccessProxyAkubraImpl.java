@@ -8,10 +8,9 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.fedora.AbstractFedoraAccess;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import org.w3c.dom.Document;
@@ -344,12 +343,12 @@ public class FedoraAccessProxyAkubraImpl extends AbstractFedoraAccess {
     }
 
     @Override
-    public Repository getInternalAPI() throws RepositoryException {
+    public AkubraRepository getInternalAPI() throws RepositoryException {
         return this.akubra.getInternalAPI();
     }
 
     @Override
-    public Repository getTransactionAwareInternalAPI() throws RepositoryException {
+    public AkubraRepository getTransactionAwareInternalAPI() throws RepositoryException {
         return this.akubra.getTransactionAwareInternalAPI();
     }
 

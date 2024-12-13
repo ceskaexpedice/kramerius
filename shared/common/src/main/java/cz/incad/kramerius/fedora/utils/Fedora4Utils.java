@@ -1,7 +1,7 @@
 package cz.incad.kramerius.fedora.utils;
 
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -17,13 +17,11 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -194,7 +192,7 @@ public class Fedora4Utils {
 //    }
 
     // it doesn't make sense - processing index contains everything
-    public static void doWithProcessingIndexCommit(Repository rep, OperationsHandler op) throws RepositoryException {
+    public static void doWithProcessingIndexCommit(AkubraRepository rep, OperationsHandler op) throws RepositoryException {
         try {
             op.operations(rep);
         } finally {
@@ -208,7 +206,7 @@ public class Fedora4Utils {
         }
     }
 
-    public static List<Triple<String,String,String>> triplesToDeleteByHref(Repository repo, Document metadata, final String relation, final String namespace, String target) throws RepositoryException, IOException {
+    public static List<Triple<String,String,String>> triplesToDeleteByHref(AkubraRepository repo, Document metadata, final String relation, final String namespace, String target) throws RepositoryException, IOException {
         // update sparql
         List<Triple<String,String,String>> deletingTriples = new ArrayList<>();
         deletingTriples.add(new ImmutableTriple<>("<>","<"+namespace+relation+">", "<"+target+">"));
@@ -218,7 +216,7 @@ public class Fedora4Utils {
         return deletingTriples;
     }
 
-    public static List<Triple<String,String,String>> triplesToDeleteByPid(Repository repo, Document metadata, final String relation, final String namespace, String target) throws RepositoryException, IOException {
+    public static List<Triple<String,String,String>> triplesToDeleteByPid(AkubraRepository repo, Document metadata, final String relation, final String namespace, String target) throws RepositoryException, IOException {
         final String targetFullPath = repo.getObject(target).getFullPath();
         String toRemoveReference = targetFullPath;
         boolean indirectReference = false;
@@ -251,6 +249,6 @@ public class Fedora4Utils {
     }
 
     public static interface OperationsHandler {
-        public void operations(Repository rep) throws RepositoryException;
+        public void operations(AkubraRepository rep) throws RepositoryException;
     }
 }

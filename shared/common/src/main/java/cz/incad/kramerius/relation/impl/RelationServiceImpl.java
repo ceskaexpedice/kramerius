@@ -20,10 +20,8 @@ package cz.incad.kramerius.relation.impl;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.*;
-import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
@@ -42,7 +40,6 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
@@ -83,7 +80,7 @@ public final class RelationServiceImpl implements RelationService {
                 // XXX use also timestamp or checksum to detect concurrent modifications
                 String dsContent = Saver.save(relsExt, model);
 
-                Repository repo = fedoraAccess.getInternalAPI();
+                AkubraRepository repo = fedoraAccess.getInternalAPI();
                 Lock writeLock = AkubraDOManager.getWriteLock(pid);
                 try {
                     if (repo.getObject(pid).streamExists(FedoraUtils.RELS_EXT_STREAM)) {

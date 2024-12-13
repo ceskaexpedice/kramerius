@@ -1,15 +1,12 @@
 package cz.incad.kramerius.fedora.impl;
 
-import com.google.inject.name.Named;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.repository.RepositoryApiImpl;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.cdk.K7SearchIndexChildrenSupport;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.java.Pair;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.virtualcollections.CollectionException;
@@ -34,7 +31,7 @@ public class KrameriusRepositoryApiProxyImpl extends KrameriusRepositoryApiImpl 
     private OnDemandIngest onDemandIngest;
 
     @Inject
-    private Repository akubra;
+    private AkubraRepository akubra;
     @Inject
     private SolrAccess solrAccess;
 

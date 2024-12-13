@@ -7,10 +7,9 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
-import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -47,7 +46,7 @@ public class OnDemandIngest {
         this.client = Client.create();
     }
         // on demand request
-    void onDemandIngest(String pid, Repository internalAPI) throws CollectionException, LexerException, IOException, RepositoryException, JAXBException, TransformerException {
+    void onDemandIngest(String pid, AkubraRepository internalAPI) throws CollectionException, LexerException, IOException, RepositoryException, JAXBException, TransformerException {
         FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Requesting info %s", pid));
         try {
             long start = System.currentTimeMillis();
@@ -93,7 +92,7 @@ public class OnDemandIngest {
         }
     }
 
-    public void ingestWholePathNecessary(Repository internalAPI, String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
+    public void ingestWholePathNecessary(AkubraRepository internalAPI, String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
         if (!pid.startsWith(PIDParser.VC_PREFIX)) {
             ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
             for (ObjectPidsPath path : pidPaths) {
@@ -103,13 +102,13 @@ public class OnDemandIngest {
         }
     }
 
-    public void ingestIfNecessary(Repository internalAPI, String... pids) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
+    public void ingestIfNecessary(AkubraRepository internalAPI, String... pids) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
         for (String pid : pids) {
             ingestIfNecessary(internalAPI, pid);
         }
     }
 
-    public void ingestIfNecessary(Repository internalAPI, String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
+    public void ingestIfNecessary(AkubraRepository internalAPI, String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
         if (!pid.startsWith(PIDParser.VC_PREFIX)) {
             //Repository internalAPI = fedoraAccessProxyAkubra.getInternalAPI();
             if (!internalAPI.objectExists(pid)) {

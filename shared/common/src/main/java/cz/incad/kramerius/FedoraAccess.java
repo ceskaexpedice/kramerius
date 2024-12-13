@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius;
 
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 
@@ -331,9 +331,9 @@ public interface FedoraAccess {
     public boolean isContentAccessible(String pid) throws IOException;
 
 
-    public Repository getInternalAPI() throws RepositoryException;
+    public AkubraRepository getInternalAPI() throws RepositoryException;
 
-    public Repository getTransactionAwareInternalAPI() throws RepositoryException;
+    public AkubraRepository getTransactionAwareInternalAPI() throws RepositoryException;
 
 
     /**

@@ -6,23 +6,20 @@ import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.fedora.AbstractFedoraAccess;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.om.impl.AkubraRepository;
+import cz.incad.kramerius.fedora.om.impl.AkubraRepositoryImpl;
 import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import org.ehcache.CacheManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.annotation.Nullable;
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +30,7 @@ import java.util.stream.Collectors;
 public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
 
     private AkubraDOManager manager;
-    private Repository repository;
+    private AkubraRepository repository;
     private ProcessingIndexFeeder feeder;
     private AggregatedAccessLogs accessLog;
 
@@ -44,7 +41,7 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
         try {
             this.manager = new AkubraDOManager(cacheManager);
             this.feeder = feeder;
-            this.repository = AkubraRepository.build(feeder, this.manager);
+            this.repository = AkubraRepositoryImpl.build(feeder, this.manager);
             this.accessLog = accessLog;
 
         } catch (Exception e) {
@@ -54,12 +51,12 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
 
 
     @Override
-    public Repository getInternalAPI() throws RepositoryException {
+    public AkubraRepository getInternalAPI() throws RepositoryException {
         return this.repository;
     }
 
     @Override
-    public Repository getTransactionAwareInternalAPI() throws RepositoryException {
+    public AkubraRepository getTransactionAwareInternalAPI() throws RepositoryException {
         throw new RepositoryException("Transactions not supported in Akubra");
     }
 

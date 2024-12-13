@@ -6,7 +6,7 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.fedora.om.AkubraRepository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -25,7 +25,7 @@ public class ProcessingIndexCheck {
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-        final Repository repo = fa.getInternalAPI();
+        final AkubraRepository repo = fa.getInternalAPI();
         final ProcessingIndexFeeder instance = injector.getInstance(ProcessingIndexFeeder.class);
 
         List<String> pidsToDelete = new ArrayList<>();
