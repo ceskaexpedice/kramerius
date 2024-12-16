@@ -3,17 +3,14 @@
  * and open the template in the editor.
  */
 
-package cz.incad.kramerius.resourceindex;
+package cz.incad.kramerius.fedora.om.resourceindex;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import cz.incad.kramerius.ObjectPidsPath;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.w3c.dom.Document;
 
 /**

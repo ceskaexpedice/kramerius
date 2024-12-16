@@ -57,11 +57,11 @@ import com.google.inject.name.Names;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;

@@ -34,8 +34,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.om.repository.impl.HazelcastServerNode;
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 
 import junit.framework.Assert;
@@ -57,7 +57,7 @@ import com.google.inject.Provides;
 import com.google.inject.name.Names;
 import com.lowagie.text.DocumentException;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;

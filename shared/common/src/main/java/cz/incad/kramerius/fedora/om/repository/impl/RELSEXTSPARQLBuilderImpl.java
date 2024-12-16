@@ -1,6 +1,6 @@
-package cz.incad.kramerius.fedora.om.impl;
+package cz.incad.kramerius.fedora.om.repository.impl;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.utils.StringUtils;

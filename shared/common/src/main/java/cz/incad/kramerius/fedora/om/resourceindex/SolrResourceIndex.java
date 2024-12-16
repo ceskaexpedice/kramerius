@@ -1,4 +1,4 @@
-package cz.incad.kramerius.resourceindex;
+package cz.incad.kramerius.fedora.om.resourceindex;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

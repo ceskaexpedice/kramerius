@@ -1,6 +1,6 @@
 package cz.incad.kramerius.indexer;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.indexer.date.BiblioModsDateParser;
 import cz.incad.kramerius.indexer.date.DateQuintet;

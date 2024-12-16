@@ -1,6 +1,6 @@
 package cz.kramerius.adapters.impl.krameriusNoApi;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.kramerius.adapters.impl.RepositoryAccessImplAbstract;
 
 import java.io.IOException;

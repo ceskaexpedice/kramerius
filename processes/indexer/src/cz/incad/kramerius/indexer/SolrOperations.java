@@ -2,9 +2,10 @@ package cz.incad.kramerius.indexer;
 
 import com.google.inject.name.Named;
 import cz.incad.kramerius.*;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.incad.kramerius.resourceindex.ResourceIndexService;
+import cz.incad.kramerius.fedora.RepositoryAccess;
+import cz.incad.kramerius.fedora.om.resourceindex.IResourceIndex;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexException;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexService;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;

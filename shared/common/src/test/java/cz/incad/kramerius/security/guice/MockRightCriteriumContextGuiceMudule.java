@@ -21,7 +21,7 @@ import org.easymock.EasyMock;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.SolrAccess;
 
 public class MockRightCriteriumContextGuiceMudule extends AbstractModule {

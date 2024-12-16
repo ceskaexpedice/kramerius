@@ -34,7 +34,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import biz.sourcecode.base64Coder.Base64Coder;
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
 import cz.incad.kramerius.security.RightsResolver;

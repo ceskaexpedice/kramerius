@@ -5,7 +5,7 @@
 package cz.incad.Kramerius;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 
 import java.io.IOException;
 import java.io.PrintWriter;

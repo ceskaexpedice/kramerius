@@ -1,13 +1,13 @@
-package cz.incad.kramerius.resourceindex;
+package cz.incad.kramerius.fedora.om.resourceindex;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.AkubraRepository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.solr.client.solrj.SolrServerException;

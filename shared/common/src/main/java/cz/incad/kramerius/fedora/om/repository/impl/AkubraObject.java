@@ -14,26 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.fedora.om.impl;
+package cz.incad.kramerius.fedora.om.repository.impl;
 
 import com.qbizm.kramerius.imp.jaxb.*;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.fedora.om.NotFoundInRepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryDatastream;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
+import cz.incad.kramerius.fedora.om.repository.RepositoryDatastream;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryObject;
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.utils.AkubraUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.XMLUtils.ElementsFilter;
 import cz.incad.kramerius.utils.pid.PIDParser;
-import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.StringTemplateGroup;
-import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -47,11 +42,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.nio.charset.Charset;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,36 +54,48 @@ import java.util.stream.Collectors;
  */
 public class AkubraObject implements RepositoryObject {
 
-    public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    public static final Logger LOGGER = Logger.getLogger(AkubraObject.class.getName());
-    public static final String RDF_DESCRIPTION_ELEMENT = "Description";
-    public static final String RDF_CONTAINS_ELEMENT = "contains";
-    public static final String RDF_TYPE_ELEMENT = "type";
-    public static final String RDF_ELEMENT = "RDF";
-    private AkubraDOManager manager;
-    private String pid;
-    DigitalObject digitalObject;
-    private ProcessingIndexFeeder feeder;
+    //public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private static final Logger LOGGER = Logger.getLogger(AkubraObject.class.getName());
+    private static final String RDF_DESCRIPTION_ELEMENT = "Description";
+    //public static final String RDF_CONTAINS_ELEMENT = "contains";
+    //public static final String RDF_TYPE_ELEMENT = "type";
+    private static final String RDF_ELEMENT = "RDF";
+    //private AkubraDOManager manager;
+    //private String pid;
+    private DigitalObject digitalObject;
+    private AkubraRepository akubraRepository;
+    //private ProcessingIndexFeeder feeder;
 
 
-    public AkubraObject(AkubraDOManager manager, String pid, DigitalObject digitalObject, ProcessingIndexFeeder feeder) {
+    public AkubraObject(DigitalObject digitalObject, AkubraRepository akubraRepository) {
         super();
         this.manager = manager;
         this.pid = pid;
         this.feeder = feeder;
         this.digitalObject = digitalObject;
+        this.akubraRepository = akubraRepository;
     }
 
-
-    public String getPid() {
-        return pid;
+    @Override
+    public List<RepositoryDatastream> getStreams() throws RepositoryException {
+        List<RepositoryDatastream> list = new ArrayList<>();
+        List<DatastreamType> datastreamList = digitalObject.getDatastream();
+        for (DatastreamType datastreamType : datastreamList) {
+            list.add(new AkubraDatastream(manager, datastreamType, datastreamType.getID(), controlGroup2Type(datastreamType.getCONTROLGROUP())));
+        }
+        return list;
     }
-
 
     @Override
     public String getPath() {
-        return pid;
+        return digitalObject.getPID();
     }
+
+
+    private String getPid() {
+        return digitalObject.getPID();
+    }
+
 
 
     private DatastreamType createDatastreamHeader(String streamId, String mimeType, String controlGroup) throws RepositoryException {
@@ -142,16 +145,6 @@ public class AkubraObject implements RepositoryObject {
         }
     }
 
-
-    @Override
-    public List<RepositoryDatastream> getStreams() throws RepositoryException {
-        List<RepositoryDatastream> list = new ArrayList<>();
-        List<DatastreamType> datastreamList = digitalObject.getDatastream();
-        for (DatastreamType datastreamType : datastreamList) {
-            list.add(new AkubraDatastream(manager, datastreamType, datastreamType.getID(), controlGroup2Type(datastreamType.getCONTROLGROUP())));
-        }
-        return list;
-    }
 
 
     private AkubraDatastream.Type controlGroup2Type(String controlGroup) {

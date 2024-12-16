@@ -4,8 +4,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
+import cz.incad.kramerius.fedora.utils.EhCacheProvider;
 import org.ehcache.CacheManager;
 
 /**

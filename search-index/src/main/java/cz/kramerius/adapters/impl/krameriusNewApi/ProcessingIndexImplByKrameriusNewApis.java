@@ -4,9 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.repository.ExtractStructureHelper;
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexException;
 import cz.kramerius.shared.IoUtils;
 import cz.kramerius.adapters.impl.ProcessingIndexImplAbstract;
 import cz.kramerius.shared.Pair;

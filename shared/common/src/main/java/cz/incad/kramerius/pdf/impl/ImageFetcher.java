@@ -7,7 +7,7 @@ import java.net.URL;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;

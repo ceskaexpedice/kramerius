@@ -33,7 +33,7 @@ import org.easymock.EasyMock;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;

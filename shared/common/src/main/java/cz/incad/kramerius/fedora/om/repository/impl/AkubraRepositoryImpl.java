@@ -15,15 +15,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cz.incad.kramerius.fedora.om.impl;
+package cz.incad.kramerius.fedora.om.repository.impl;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.ObjectPropertiesType;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
-import cz.incad.kramerius.fedora.om.AkubraRepository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryObject;
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.utils.AkubraUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 
 import java.io.IOException;
@@ -62,29 +63,6 @@ public class AkubraRepositoryImpl implements AkubraRepository {
         return new AkubraRepositoryImpl(feeder, manager);
     }
 
-
-    /* (non-Javadoc)
-     * @see cz.incad.fcrepo.Repository#commitTransaction()
-     */
-    @Override
-    public void commitTransaction() throws RepositoryException {
-        try {
-            //to avoid temporary inconsistency between Akubra and Processing index
-            this.feeder.commit();
-        } catch (IOException | SolrServerException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see cz.incad.fcrepo.Repository#rollbackTransaction()
-     */
-    @Override
-    public void rollbackTransaction() throws RepositoryException {
-        throw new RepositoryException("Transactions not supported in Akubra");
-    }
-
-
     /* (non-Javadoc)
      * @see cz.incad.fcrepo.Repository#createOrFindObject(java.lang.String)
      */
@@ -113,21 +91,6 @@ public class AkubraRepositoryImpl implements AkubraRepository {
         }
     }
 
-    private DigitalObject createEmptyDigitalObject(String pid) {
-        DigitalObject retval = new DigitalObject();
-        retval.setPID(pid);
-        retval.setVERSION("1.1");
-        ObjectPropertiesType objectPropertiesType = new ObjectPropertiesType();
-        List<PropertyType> propertyTypeList = objectPropertiesType.getProperty();
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#state", "Active"));
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#ownerId", "fedoraAdmin"));
-        String currentTime = AkubraUtils.currentTimeString();
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", currentTime));
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate", currentTime));
-        retval.setObjectProperties(objectPropertiesType);
-        return retval;
-    }
-
     @Override
     public RepositoryObject ingestObject(DigitalObject contents) throws RepositoryException {
         if (objectExists(contents.getPID())) {
@@ -145,10 +108,33 @@ public class AkubraRepositoryImpl implements AkubraRepository {
 
     }
 
+    @Override
+    public boolean objectExists(String ident) throws RepositoryException {
+        try {
+            return manager.readObjectFromStorage(ident) != null;
+        } catch (Exception e) {
+            throw new RepositoryException(e);
+        }
+    }
+
+    @Override
+    public RepositoryObject getObject(String ident) throws RepositoryException {
+        try {
+            DigitalObject digitalObject = this.manager.readObjectFromStorage(ident);
+            if (digitalObject == null) {
+                //otherwise later causes NPE at places like AkubraUtils.streamExists(DigitalObject object, String streamID)
+                throw new RepositoryException("object not consistently found in storage: " + ident);
+            }
+            AkubraObject obj = new AkubraObject(this.manager, ident, digitalObject, this.feeder);
+            return obj;
+        } catch (IOException e) {
+            throw new RepositoryException(e);
+        }
+    }
 
     @Override
     public void iterateObjects(Consumer<String> consumer) throws RepositoryException,  IOException {
-        /*
+        /* TODO
         Stack<String> stack = new Stack<>();
         StringBuilder builder = new StringBuilder(endpoint()).append("/").append(Fedora4Utils.DATA_PREFIX_PATH);
         stack.push(builder.toString());
@@ -218,21 +204,52 @@ public class AkubraRepositoryImpl implements AkubraRepository {
         deleteObject(pid, true, true);
     }
 
+    /* (non-Javadoc)
+     * @see cz.incad.fcrepo.Repository#commitTransaction()
+     */
+    @Override
+    public void commitTransaction() throws RepositoryException {
+        try {
+            //to avoid temporary inconsistency between Akubra and Processing index
+            this.feeder.commit();
+        } catch (IOException | SolrServerException e) {
+            throw new RepositoryException(e);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see cz.incad.fcrepo.Repository#rollbackTransaction()
+     */
+    @Override
+    public void rollbackTransaction() throws RepositoryException {
+        throw new RepositoryException("Transactions not supported in Akubra");
+    }
+
+    private DigitalObject createEmptyDigitalObject(String pid) {
+        DigitalObject retval = new DigitalObject();
+        retval.setPID(pid);
+        retval.setVERSION("1.1");
+        ObjectPropertiesType objectPropertiesType = new ObjectPropertiesType();
+        List<PropertyType> propertyTypeList = objectPropertiesType.getProperty();
+        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#state", "Active"));
+        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#ownerId", "fedoraAdmin"));
+        String currentTime = AkubraUtils.currentTimeString();
+        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", currentTime));
+        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate", currentTime));
+        retval.setObjectProperties(objectPropertiesType);
+        return retval;
+    }
+
+    /* TODO
     @Override
     public ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException {
         return this.feeder;
     }
 
-    @Override
-    public boolean objectExists(String ident) throws RepositoryException {
-        try {
-            return manager.readObjectFromStorage(ident) != null;
-        } catch (Exception e) {
-            throw new RepositoryException(e);
-        }
-    }
+     */
 
-    /*
+
+    /* TODO
 
     public static final String DELETE_LITERAL( String relation,String namespace, String value) throws IOException {
         StringTemplate deleteRelation = RELSEXTSPARQLBuilderImpl.SPARQL_TEMPLATES().getInstanceOf("deleteliteral_sparql");
@@ -268,23 +285,10 @@ public class AkubraRepositoryImpl implements AkubraRepository {
     }
     */
 
+    /* TODO
     @Override
     public String getBoundContext() throws RepositoryException {
         throw new RepositoryException("BOUND CONTEXT not supported in Akubra");
-    }
+    }*/
 
-    @Override
-    public RepositoryObject getObject(String ident) throws RepositoryException {
-        try {
-            DigitalObject digitalObject = this.manager.readObjectFromStorage(ident);
-            if (digitalObject == null) {
-                //otherwise later causes NPE at places like AkubraUtils.streamExists(DigitalObject object, String streamID)
-                throw new RepositoryException("object not consistently found in storage: " + ident);
-            }
-            AkubraObject obj = new AkubraObject(this.manager, ident, digitalObject, this.feeder);
-            return obj;
-        } catch (IOException e) {
-            throw new RepositoryException(e);
-        }
-    }
 }

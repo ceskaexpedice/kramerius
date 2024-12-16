@@ -9,18 +9,18 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.AkubraRepository;
-import cz.incad.kramerius.fedora.om.RepositoryDatastream;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
+import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
+import cz.incad.kramerius.fedora.om.repository.RepositoryDatastream;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryObject;
+import cz.incad.kramerius.fedora.om.repository.impl.AkubraDOManager;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
@@ -570,7 +570,7 @@ public class Import {
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
             repo.ingestObject(obj);
-        } catch (cz.incad.kramerius.fedora.om.RepositoryException sfex) {
+        } catch (RepositoryException sfex) {
             if (objectExists(repo, pid)) {
                 if (updateExisting) {
                     log.info("Replacing existing object " + pid);
@@ -586,7 +586,7 @@ public class Import {
                             repo.ingestObject(obj);
                         }
                         log.info("Ingested new object " + pid);
-                    } catch (cz.incad.kramerius.fedora.om.RepositoryException rsfex) {
+                    } catch (RepositoryException rsfex) {
                         log.severe("Replace ingest SOAP fault:" + rsfex);
                         throw new RuntimeException(rsfex);
                     }

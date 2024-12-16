@@ -1,4 +1,4 @@
-package cz.incad.kramerius.fedora.om;
+package cz.incad.kramerius.fedora.om.repository;
 
 /**
  * Created by pstastny on 11/3/2017.

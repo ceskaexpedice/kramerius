@@ -1,7 +1,7 @@
 package cz.kramerius.adapters.impl;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexException;
 import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.shared.Pair;
 import org.w3c.dom.Document;

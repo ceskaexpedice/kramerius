@@ -27,7 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.utils.FedoraUtils;
 import junit.framework.Assert;
 

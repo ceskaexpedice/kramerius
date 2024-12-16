@@ -39,6 +39,7 @@ import javax.xml.xpath.*;
 
 import cz.incad.kramerius.*;
 import cz.incad.kramerius.database.VersionService;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;

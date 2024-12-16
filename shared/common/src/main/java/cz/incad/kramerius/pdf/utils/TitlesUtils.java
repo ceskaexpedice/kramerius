@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.antlr.stringtemplate.StringTemplate;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 

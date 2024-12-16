@@ -7,6 +7,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.fedora.om.resourceindex.SPARQLUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 

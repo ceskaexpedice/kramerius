@@ -18,7 +18,7 @@ package cz.incad.kramerius.security;
 
 import java.util.Map;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;

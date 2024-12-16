@@ -3,15 +3,14 @@ package cz.incad.migration;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import org.akubraproject.map.IdMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.io.FileUtils;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.fcrepo.common.Constants;
 import org.fcrepo.common.FaultException;
 import org.fcrepo.common.PID;
@@ -35,7 +34,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static cz.incad.kramerius.resourceindex.ProcessingIndexRebuild.rebuildProcessingIndex;
+import static cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexRebuild.rebuildProcessingIndex;
 import static cz.incad.migration.Utils.DOMIMPL;
 import static cz.incad.migration.Utils.SERIALIZER;
 

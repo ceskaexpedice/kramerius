@@ -20,7 +20,7 @@ import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.ibm.icu.text.Collator;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.Relation;

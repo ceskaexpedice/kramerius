@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.rest.oai.metadata.DrKrameriusUtils;
 import cz.incad.kramerius.utils.ApplicationURL;

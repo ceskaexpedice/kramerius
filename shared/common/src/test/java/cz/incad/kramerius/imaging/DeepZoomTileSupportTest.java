@@ -15,7 +15,7 @@ import com.google.inject.Injector;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
 
 @Ignore

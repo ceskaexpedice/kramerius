@@ -1,26 +1,14 @@
-package cz.incad.kramerius.fedora.om.impl;
+package cz.incad.kramerius.fedora.om.repository.impl;
 
 import com.qbizm.kramerius.imp.jaxb.DatastreamType;
-import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.fedora.om.NotFoundInRepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryDatastream;
-import cz.incad.kramerius.fedora.om.RepositoryDatastream.Type;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
-import cz.incad.kramerius.utils.XMLUtils;
-import org.apache.commons.io.IOUtils;
+import cz.incad.kramerius.fedora.om.repository.RepositoryDatastream;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
+import cz.incad.kramerius.fedora.utils.AkubraUtils;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.net.URI;
-import java.text.ParseException;
 import java.util.Date;
-import java.util.List;
 import java.util.logging.Logger;
-
-import static cz.incad.kramerius.fedora.utils.Fedora4Utils.endpoint;
 
 /**
  * Created by pstastny on 10/13/2017.

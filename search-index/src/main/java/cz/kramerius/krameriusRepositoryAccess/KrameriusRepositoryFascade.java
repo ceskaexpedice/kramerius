@@ -1,6 +1,6 @@
 package cz.kramerius.krameriusRepositoryAccess;
 
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexException;
 import cz.kramerius.adapters.RepositoryAccess;
 import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.shared.IoUtils;

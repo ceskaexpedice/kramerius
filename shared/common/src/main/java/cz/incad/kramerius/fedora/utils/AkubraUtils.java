@@ -1,9 +1,10 @@
-package cz.incad.kramerius.fedora.om.impl;
+package cz.incad.kramerius.fedora.utils;
 
 import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
+import cz.incad.kramerius.fedora.om.repository.impl.AkubraDOManager;
 import cz.incad.kramerius.utils.SafeSimpleDateFormat;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -28,7 +29,6 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;

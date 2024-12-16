@@ -1,4 +1,4 @@
-package cz.incad.kramerius.fedora.om.impl;
+package cz.incad.kramerius.fedora.om.repository.impl;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;

@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cz.incad.kramerius.fedora.om;
+package cz.incad.kramerius.fedora.om.repository;
 
 /**
  * Represents a repo operation error

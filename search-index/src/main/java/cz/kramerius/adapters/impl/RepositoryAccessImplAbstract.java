@@ -4,8 +4,8 @@ import cz.kramerius.adapters.RepositoryAccess;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.fedora.om.AkubraRepository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

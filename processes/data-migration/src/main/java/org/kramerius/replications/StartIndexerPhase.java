@@ -1,21 +1,11 @@
 package org.kramerius.replications;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
-import cz.incad.kramerius.solr.SolrModule;
-import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.solr.client.solrj.SolrServerException;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 

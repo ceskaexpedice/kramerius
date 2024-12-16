@@ -1,6 +1,7 @@
 package cz.incad.kramerius.fedora.om;
 
-import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilderImpl;
+import cz.incad.kramerius.fedora.om.repository.impl.RELSEXTSPARQLBuilderImpl;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;

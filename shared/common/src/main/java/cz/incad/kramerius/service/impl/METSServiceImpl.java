@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

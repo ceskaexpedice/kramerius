@@ -1,6 +1,6 @@
 package cz.kramerius.searchIndex.indexer.nodes;
 
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexException;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.shared.AuthorInfo;

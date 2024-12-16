@@ -12,17 +12,13 @@ import org.json.JSONObject;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.impl.criteria.Licenses;
-import cz.incad.kramerius.security.impl.criteria.LicensesGEOIPFiltered;
-import cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered;
 import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.utils.LicensesCriteriaList;
 

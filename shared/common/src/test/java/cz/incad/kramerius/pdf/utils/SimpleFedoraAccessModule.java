@@ -18,7 +18,7 @@ package cz.incad.kramerius.pdf.utils;
 
 import com.google.inject.AbstractModule;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
 
 public class SimpleFedoraAccessModule extends AbstractModule {

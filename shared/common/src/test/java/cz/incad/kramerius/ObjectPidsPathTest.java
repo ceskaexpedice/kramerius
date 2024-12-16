@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.easymock.EasyMock;
 import org.json.JSONException;

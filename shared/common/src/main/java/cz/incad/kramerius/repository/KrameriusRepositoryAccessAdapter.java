@@ -1,9 +1,9 @@
 package cz.incad.kramerius.repository;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.repository.utils.Utils;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.incad.kramerius.fedora.om.resourceindex.IResourceIndex;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexException;
 import org.dom4j.Document;
 
 import java.io.IOException;

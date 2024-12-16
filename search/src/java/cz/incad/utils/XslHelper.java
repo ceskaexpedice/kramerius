@@ -2,7 +2,7 @@ package cz.incad.utils;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.utils.FedoraUtils;
 
 import java.io.IOException;

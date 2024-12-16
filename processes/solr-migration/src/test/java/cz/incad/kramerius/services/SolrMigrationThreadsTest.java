@@ -9,7 +9,7 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
+import cz.incad.kramerius.fedora.om.repository.impl.HazelcastServerNode;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.w3c.dom.Document;

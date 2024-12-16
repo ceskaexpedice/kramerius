@@ -5,13 +5,12 @@ import com.google.inject.name.Named;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.StreamHeadersObserver;
-import cz.incad.kramerius.fedora.AbstractRepositoryAccess;
-import cz.incad.kramerius.fedora.om.AkubraRepository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.om.impl.AkubraRepositoryImpl;
-import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.impl.AkubraDOManager;
+import cz.incad.kramerius.fedora.om.repository.impl.AkubraRepositoryImpl;
+import cz.incad.kramerius.fedora.utils.AkubraUtils;
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -49,17 +48,7 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
         }
     }
 
-
-    @Override
-    public AkubraRepository getInternalAPI() throws RepositoryException {
-        return this.repository;
-    }
-
-    @Override
-    public AkubraRepository getTransactionAwareInternalAPI() throws RepositoryException {
-        throw new RepositoryException("Transactions not supported in Akubra");
-    }
-
+    // -------------  TODO manager.readObjectFromStorage(pid)
     @Override
     public Document getBiblioMods(String pid) throws IOException {
         try {
@@ -78,7 +67,6 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
         }
     }
 
-
     @Override
     public InputStream getSmallThumbnail(String pid) throws IOException {
         try {
@@ -86,11 +74,6 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
         } catch (LexerException e) {
             throw new IOException(e);
         }
-    }
-
-    @Override
-    public String getFedoraVersion() throws IOException {
-        return "Akubra";
     }
 
     @Override
@@ -104,36 +87,14 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
     }
 
     @Override
-    public Document getSmallThumbnailProfile(String pid) throws IOException {
-        throw new UnsupportedOperationException("unsupported");
-    }
-
-    @Override
-    public Document getImageFULLProfile(String pid) throws IOException {
-        throw new UnsupportedOperationException("unsupported");
-    }
-
-    @Override
-    public Document getStreamProfile(String pid, String stream) throws IOException {
-        throw new UnsupportedOperationException("unsupported");
-    }
-
-
-    @Override
-    public boolean isImageFULLAvailable(String pid) throws IOException {
-        return super.isImageFULLAvailable(pid);
-    }
-
-
-    @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
-			
-			pid = makeSureObjectPid(pid);
+
+            pid = makeSureObjectPid(pid);
             if (this.accessLog != null && this.accessLog.isReportingAccess(pid, datastreamName)) {
                 reportAccess(pid, datastreamName);
             }
-			
+
             DigitalObject object = manager.readObjectFromStorage(pid);
             if (object != null) {
                 DatastreamVersionType stream = AkubraUtils.getLastStreamVersion(object, datastreamName);
@@ -150,7 +111,6 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
         }
     }
 
-
     @Override
     public Document getDC(String pid) throws IOException {
         try {
@@ -160,16 +120,9 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
         }
     }
 
-
     @Override
     public InputStream getImageFULL(String pid) throws IOException {
         return getDataStream(pid, FedoraUtils.IMG_FULL_STREAM);
-    }
-
-
-    @Override
-    public InputStream getFedoraDataStreamsList(String pid) throws IOException {
-        throw new UnsupportedOperationException("this is unsupported");
     }
 
     @Override
@@ -191,17 +144,31 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
         throw new IOException("Object not found: " + pid);
     }
 
-
-
     @Override
-    public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {
-        throw new UnsupportedOperationException("this is unsupported");
+    public String getFullThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
+        return getMimeTypeForStream(pid, FedoraUtils.IMG_PREVIEW_STREAM);
     }
 
     @Override
-    public InputStream getDataStreamXml(String pid, String datastreamName) throws IOException {
-        throw new UnsupportedOperationException("this is unsupported");
+    public String getImageFULLMimeType(String pid) throws IOException, XPathExpressionException {
+        return getMimeTypeForStream(pid, FedoraUtils.IMG_FULL_STREAM);
     }
+
+    @Override
+    public String getMimeTypeForStream(String pid, String streamName) throws IOException {
+        DigitalObject object = manager.readObjectFromStorage(pid);
+        if (object != null) {
+
+            DatastreamVersionType stream = AkubraUtils.getLastStreamVersion(object, streamName);
+
+            if (stream != null) {
+                return stream.getMIMETYPE();
+            }
+            throw new IOException("Datastream not found: " + pid + " - " + streamName);
+        }
+        throw new IOException("Object not found: " + pid);
+    }
+
 
     private Document getStream(String pid, String streamName) throws IOException {
 
@@ -236,44 +203,6 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
         //   throw new IOException(e);
 
     }
-
-
-    @Override
-    public Document getFedoraDataStreamsListAsDocument(String pid) throws IOException {
-        throw new UnsupportedOperationException("this is unsupported");
-    }
-
-    @Override
-    public String getFullThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
-        return getMimeTypeForStream(pid, FedoraUtils.IMG_PREVIEW_STREAM);
-    }
-
-    @Override
-    public String getImageFULLMimeType(String pid) throws IOException, XPathExpressionException {
-        return getMimeTypeForStream(pid, FedoraUtils.IMG_FULL_STREAM);
-    }
-
-    @Override
-    public String getMimeTypeForStream(String pid, String streamName) throws IOException {
-        DigitalObject object = manager.readObjectFromStorage(pid);
-        if (object != null) {
-
-            DatastreamVersionType stream = AkubraUtils.getLastStreamVersion(object, streamName);
-
-            if (stream != null) {
-                return stream.getMIMETYPE();
-            }
-            throw new IOException("Datastream not found: " + pid + " - " + streamName);
-        }
-        throw new IOException("Object not found: " + pid);
-    }
-
-
-    @Override
-    public Document getObjectProfile(String pid) throws IOException {
-        throw new UnsupportedOperationException("this is unsupported");
-    }
-
     @Override
     public String getSmallThumbnailMimeType(String pid) throws IOException, XPathExpressionException {
         return getMimeTypeForStream(pid, FedoraUtils.IMG_THUMB_STREAM);
@@ -346,11 +275,6 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
     }
 
     @Override
-    public boolean isFullthumbnailAvailable(String pid) throws IOException {
-        return this.isStreamAvailable(pid, FedoraUtils.IMG_PREVIEW_STREAM);
-    }
-
-    @Override
     public boolean isStreamAvailable(String pid, String streamName) throws IOException {
         try {
             DigitalObject object = manager.readObjectFromStorage(pid);
@@ -361,26 +285,9 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
     }
 
     @Override
-    public boolean isContentAccessible(String pid) throws IOException {
-        return true;
+    public boolean isFullthumbnailAvailable(String pid) throws IOException {
+        return this.isStreamAvailable(pid, FedoraUtils.IMG_PREVIEW_STREAM);
     }
-
-    @Override
-    public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver)
-            throws IOException {
-        throw new UnsupportedOperationException("unsupported operation");
-
-    }
-
-    @Override
-    public boolean isObjectAvailable(String pid) throws IOException {
-        try {
-            return this.repository.objectExists(pid);
-        } catch (RepositoryException e) {
-            throw new IOException(e);
-        }
-    }
-
 
     @Override
     public InputStream getFoxml(String pid, boolean archive) throws IOException {
@@ -395,6 +302,92 @@ public class RepositoryAccessImpl extends AbstractRepositoryAccess {
         } catch (Exception e) {
             throw new IOException(e);
         }
+    }
+
+
+    //--------------------------------------
+
+    @Override
+    public boolean isObjectAvailable(String pid) throws IOException {
+        try {
+            return this.repository.objectExists(pid);
+        } catch (RepositoryException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public boolean isImageFULLAvailable(String pid) throws IOException {
+        return super.isImageFULLAvailable(pid);
+    }
+
+    @Override
+    public boolean isContentAccessible(String pid) throws IOException {
+        return true;
+    }
+
+    @Override
+    public String getFedoraVersion() throws IOException {
+        return "Akubra";
+    }
+
+    @Override
+    public AkubraRepository getInternalAPI() throws RepositoryException {
+        return this.repository;
+    }
+
+    @Override
+    public AkubraRepository getTransactionAwareInternalAPI() throws RepositoryException {
+        throw new RepositoryException("Transactions not supported in Akubra");
+    }
+
+    @Override
+    public Document getSmallThumbnailProfile(String pid) throws IOException {
+        throw new UnsupportedOperationException("unsupported");
+    }
+
+    @Override
+    public Document getImageFULLProfile(String pid) throws IOException {
+        throw new UnsupportedOperationException("unsupported");
+    }
+
+    @Override
+    public Document getStreamProfile(String pid, String stream) throws IOException {
+        throw new UnsupportedOperationException("unsupported");
+    }
+
+    @Override
+    public InputStream getFedoraDataStreamsList(String pid) throws IOException {
+        throw new UnsupportedOperationException("this is unsupported");
+    }
+
+
+    @Override
+    public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {
+        throw new UnsupportedOperationException("this is unsupported");
+    }
+
+    @Override
+    public InputStream getDataStreamXml(String pid, String datastreamName) throws IOException {
+        throw new UnsupportedOperationException("this is unsupported");
+    }
+
+
+    @Override
+    public Document getFedoraDataStreamsListAsDocument(String pid) throws IOException {
+        throw new UnsupportedOperationException("this is unsupported");
+    }
+
+    @Override
+    public Document getObjectProfile(String pid) throws IOException {
+        throw new UnsupportedOperationException("this is unsupported");
+    }
+
+    @Override
+    public void observeStreamHeaders(String pid, String datastreamName, StreamHeadersObserver streamObserver)
+            throws IOException {
+        throw new UnsupportedOperationException("unsupported operation");
+
     }
 
     @Override

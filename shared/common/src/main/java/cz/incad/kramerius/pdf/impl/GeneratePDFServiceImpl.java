@@ -10,6 +10,7 @@ import com.lowagie.text.pdf.*;
 import cz.incad.kramerius.*;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.*;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.Break;
 import cz.incad.kramerius.pdf.GeneratePDFService;

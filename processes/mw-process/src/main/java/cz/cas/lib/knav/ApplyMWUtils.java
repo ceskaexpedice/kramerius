@@ -10,14 +10,14 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import cz.cas.lib.knav.indexer.CollectPidForIndexing;
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.SolrAccess;

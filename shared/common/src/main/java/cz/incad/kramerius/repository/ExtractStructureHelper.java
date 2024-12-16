@@ -17,7 +17,7 @@ import org.dom4j.Namespace;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.utils.java.Pair;
 
 // helper utility used for extracting structure information 

@@ -8,12 +8,13 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.Constants;
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.CacheLifeCycleHook;
 import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
+import cz.incad.kramerius.fedora.impl.CachedRepositoryAccessImpl;
 import cz.incad.kramerius.impl.*;
 import cz.incad.kramerius.processes.GCScheduler;
 import cz.incad.kramerius.processes.ProcessScheduler;
@@ -52,7 +53,7 @@ public class BaseModule extends AbstractModule {
 	@Override
     protected void configure() {
         bind(RepositoryAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
-        bind(RepositoryAccess.class).annotatedWith(Names.named("cachedFedoraAccess")).to(CachedFedoraAccessImpl.class).in(Scopes.SINGLETON);
+        bind(RepositoryAccess.class).annotatedWith(Names.named("cachedFedoraAccess")).to(CachedRepositoryAccessImpl.class).in(Scopes.SINGLETON);
 
 
 

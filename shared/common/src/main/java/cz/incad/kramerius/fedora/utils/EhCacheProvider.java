@@ -1,4 +1,4 @@
-package cz.incad.kramerius.fedora;
+package cz.incad.kramerius.fedora.utils;
 
 import com.google.inject.Provider;
 

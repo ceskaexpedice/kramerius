@@ -1,4 +1,4 @@
-package cz.incad.kramerius.fedora;
+package cz.incad.kramerius.fedora.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,14 +25,15 @@ import javax.xml.xpath.XPathFactory;
 
 import com.google.inject.name.Named;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.fedora.om.RepositoryDatastream;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.om.impl.AkubraRepositoryImpl;
+import cz.incad.kramerius.fedora.RepositoryAccess;
+import cz.incad.kramerius.fedora.om.repository.RepositoryDatastream;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryObject;
+import cz.incad.kramerius.fedora.om.repository.impl.AkubraDOManager;
+import cz.incad.kramerius.fedora.om.repository.impl.AkubraRepositoryImpl;
 import cz.incad.kramerius.repository.utils.NamespaceRemovingVisitor;
 import cz.incad.kramerius.repository.utils.Utils;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.StringUtils;
@@ -52,7 +53,6 @@ import org.w3c.dom.NodeList;
 
 import com.google.inject.Inject;
 
-import cz.incad.kramerius.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;

@@ -8,7 +8,7 @@ import java.net.URLStreamHandler;
 
 import com.google.inject.Inject;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 
 public class Handler extends URLStreamHandler {
 

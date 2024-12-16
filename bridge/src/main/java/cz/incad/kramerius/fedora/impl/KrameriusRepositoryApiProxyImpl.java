@@ -1,8 +1,8 @@
 package cz.incad.kramerius.fedora.impl;
 
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.AkubraRepository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.cdk.K7SearchIndexChildrenSupport;
 import cz.incad.kramerius.utils.java.Pair;

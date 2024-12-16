@@ -22,7 +22,7 @@ import java.util.logging.Level;
 
 import javax.xml.bind.JAXBException;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.kramerius.Convert;
 import org.xml.sax.SAXException;

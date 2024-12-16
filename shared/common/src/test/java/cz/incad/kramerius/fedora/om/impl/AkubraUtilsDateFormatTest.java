@@ -1,5 +1,6 @@
 package cz.incad.kramerius.fedora.om.impl;
 
+import cz.incad.kramerius.fedora.utils.AkubraUtils;
 import cz.incad.kramerius.utils.SafeSimpleDateFormat;
 import org.junit.Test;
 

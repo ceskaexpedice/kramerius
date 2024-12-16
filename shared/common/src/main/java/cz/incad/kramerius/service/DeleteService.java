@@ -1,8 +1,8 @@
 package cz.incad.kramerius.service;
 
-import cz.incad.kramerius.fedora.om.AkubraRepository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexException;
 import org.apache.solr.client.solrj.SolrServerException;
 
 import java.io.IOException;

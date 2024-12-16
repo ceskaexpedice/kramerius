@@ -1,7 +1,7 @@
 package cz.incad.kramerius.rest.api.iiif;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;

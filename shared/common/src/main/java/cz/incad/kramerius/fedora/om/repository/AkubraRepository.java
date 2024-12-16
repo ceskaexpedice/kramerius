@@ -15,10 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cz.incad.kramerius.fedora.om;
+package cz.incad.kramerius.fedora.om.repository;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -31,35 +30,12 @@ import java.util.function.Consumer;
 public interface AkubraRepository {
 
     /**
-     * Returns true if object objectExists and if it is raw kramerius object
-     * @param ident
-     * @return
-     * @throws RepositoryException
-     */
-    public abstract boolean  objectExists(String ident) throws RepositoryException;
-
-
-    public abstract String getBoundContext() throws RepositoryException;
-
-    /**
-     * Commits current transaction
-     * @throws RepositoryException
-     */
-    public abstract void commitTransaction() throws RepositoryException;
-
-    /**
-     * Rolls back current transaction
-     * @throws RepositoryException
-     */
-    public abstract void rollbackTransaction()throws RepositoryException;
-
-    /**
      * Creates an empty object or finds existing object
      * @param ident Identification of the object
      * @return
      * @throws RepositoryException
      */
-    public abstract RepositoryObject createOrFindObject(String ident) throws RepositoryException;
+    RepositoryObject createOrFindObject(String ident) throws RepositoryException;
 
     /**
      * Ingest new digital object from the provided object representation
@@ -67,9 +43,15 @@ public interface AkubraRepository {
      * @return
      * @throws RepositoryException
      */
-    public abstract RepositoryObject ingestObject(DigitalObject contents) throws RepositoryException;
+    RepositoryObject ingestObject(DigitalObject contents) throws RepositoryException;
 
-
+    /**
+     * Returns true if object objectExists and if it is raw kramerius object
+     * @param ident
+     * @return
+     * @throws RepositoryException
+     */
+    boolean  objectExists(String ident) throws RepositoryException;
 
     /**
      * Returns object
@@ -77,14 +59,16 @@ public interface AkubraRepository {
      * @return
      * @throws RepositoryException
      */
-    public abstract RepositoryObject getObject(String ident) throws RepositoryException;
+    RepositoryObject getObject(String ident) throws RepositoryException;
+
+    void iterateObjects(Consumer<String> consumer ) throws RepositoryException,  IOException;
 
     /**
      * Deletes object
      * @param pid
      * @throws RepositoryException
      */
-    public abstract void deleteObject(String pid) throws RepositoryException;
+    void deleteObject(String pid) throws RepositoryException;
 
     /**
      * Deletes object, possibly without removing relations pointing at this object (from Resource index)
@@ -95,18 +79,27 @@ public interface AkubraRepository {
      *
      * @throws RepositoryException
      */
-    public abstract void deleteObject(String pid, boolean deleteDataOfManagedDatastreams, boolean deleteRelationsWithThisAsTarget) throws RepositoryException;
+    void deleteObject(String pid, boolean deleteDataOfManagedDatastreams, boolean deleteRelationsWithThisAsTarget) throws RepositoryException;
+
+    /**
+     * Commits current transaction
+     * @throws RepositoryException
+     */
+    void commitTransaction() throws RepositoryException;
+
+    /**
+     * Rolls back current transaction
+     * @throws RepositoryException
+     */
+    void rollbackTransaction()throws RepositoryException;
+
+    // TODO public abstract String getBoundContext() throws RepositoryException;
 
     /**
      * Returns processing index feeder
      * @return
      * @throws RepositoryException
      */
-    public abstract ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException;
-
-
-
-
-    public abstract void iterateObjects(Consumer<String> consumer ) throws RepositoryException,  IOException;
+    // TODO public abstract ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException;
 
 }

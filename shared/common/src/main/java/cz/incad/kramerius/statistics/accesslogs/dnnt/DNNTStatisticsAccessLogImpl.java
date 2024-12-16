@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.*;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.pdf.utils.ModsUtils;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SpecialObjects;

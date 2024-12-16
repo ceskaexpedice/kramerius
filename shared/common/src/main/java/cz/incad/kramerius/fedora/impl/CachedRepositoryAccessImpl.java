@@ -1,8 +1,9 @@
-package cz.incad.kramerius.impl;
+package cz.incad.kramerius.fedora.impl;
 
 import cz.incad.kramerius.*;
-import cz.incad.kramerius.fedora.om.AkubraRepository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.fedora.RepositoryAccess;
+import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ehcache.Cache;
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Martin Rumanek
  */
-public class CachedFedoraAccessImpl  implements RepositoryAccess, FedoraCacheAwareness {
+public class CachedRepositoryAccessImpl implements RepositoryAccess, FedoraCacheAwareness {
 
     private static Cache<String, Document> xmlscache;
     private static Cache<String, Boolean> existsCache;
@@ -46,8 +47,8 @@ public class CachedFedoraAccessImpl  implements RepositoryAccess, FedoraCacheAwa
     private RepositoryAccess fedoraAccess;
 
     @Inject
-    public CachedFedoraAccessImpl( @Named("rawFedoraAccess") RepositoryAccess fedoraAccess,
-                                  CacheManager cacheManager) throws IOException {
+    public CachedRepositoryAccessImpl(@Named("rawFedoraAccess") RepositoryAccess fedoraAccess,
+                                      CacheManager cacheManager) throws IOException {
 
         this.fedoraAccess = fedoraAccess;
 

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package cz.incad.kramerius.resourceindex;
+package cz.incad.kramerius.fedora.om.resourceindex;
 
 
 import com.google.inject.Guice;

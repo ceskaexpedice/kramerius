@@ -1,5 +1,6 @@
 package cz.incad.kramerius.resourceindex;
 
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexRebuildFromFoxmlByPid;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

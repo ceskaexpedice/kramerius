@@ -2,8 +2,8 @@ package cz.incad.kramerius.fedora.impl;
 
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.om.repository.impl.HazelcastServerNode;
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.pid.LexerException;
 import junit.framework.Assert;

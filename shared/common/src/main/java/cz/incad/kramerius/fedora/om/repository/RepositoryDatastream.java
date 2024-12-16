@@ -1,4 +1,4 @@
-package cz.incad.kramerius.fedora.om;
+package cz.incad.kramerius.fedora.om.repository;
 
 import org.w3c.dom.Document;
 

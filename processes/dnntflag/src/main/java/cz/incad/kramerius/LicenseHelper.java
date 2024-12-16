@@ -1,8 +1,8 @@
 package cz.incad.kramerius;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.impl.AkubraDOManager;
+import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.kramerius.adapters.ProcessingIndex;
 import org.dom4j.Document;

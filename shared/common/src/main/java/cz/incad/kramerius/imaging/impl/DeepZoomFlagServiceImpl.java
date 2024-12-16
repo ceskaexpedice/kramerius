@@ -19,15 +19,15 @@ package cz.incad.kramerius.imaging.impl;
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
+import cz.incad.kramerius.fedora.om.repository.RepositoryException;
+import cz.incad.kramerius.fedora.om.repository.RepositoryObject;
+import cz.incad.kramerius.fedora.om.repository.impl.AkubraDOManager;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;

@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import junit.framework.Assert;
 
 import org.junit.Ignore;

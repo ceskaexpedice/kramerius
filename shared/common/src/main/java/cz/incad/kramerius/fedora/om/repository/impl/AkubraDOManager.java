@@ -1,4 +1,4 @@
-package cz.incad.kramerius.fedora.om.impl;
+package cz.incad.kramerius.fedora.om.repository.impl;
 
 import ca.thoughtwire.lock.DistributedLockService;
 import com.hazelcast.client.HazelcastClient;
@@ -7,6 +7,7 @@ import com.hazelcast.client.config.XmlClientConfigBuilder;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.core.*;
 import com.qbizm.kramerius.imp.jaxb.*;
+import cz.incad.kramerius.fedora.utils.AkubraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.akubraproject.BlobStore;
 import org.akubraproject.fs.FSBlobStore;

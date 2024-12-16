@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 import com.google.inject.Provider;
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.RepositoryAccess;
+import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.oai.exceptions.OAIException;

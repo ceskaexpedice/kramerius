@@ -10,8 +10,8 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
+import cz.incad.kramerius.fedora.om.repository.impl.HazelcastServerNode;
+import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.Assert;

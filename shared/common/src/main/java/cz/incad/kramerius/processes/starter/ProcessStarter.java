@@ -36,14 +36,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.WarningException;
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.logging.LoggingLoader;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.fedora.om.repository.impl.AkubraDOManager;
 
 /**
  * Process starting point

@@ -1,4 +1,4 @@
-package cz.incad.kramerius.resourceindex;
+package cz.incad.kramerius.fedora.om.resourceindex;
 
 import java.util.ArrayList;
 import java.util.List;
