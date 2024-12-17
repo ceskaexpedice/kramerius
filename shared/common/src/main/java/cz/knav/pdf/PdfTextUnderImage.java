@@ -1,5 +1,14 @@
 package cz.knav.pdf;
 
+import java.awt.Color;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import com.lowagie.text.Document;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
@@ -8,17 +17,9 @@ import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.ColumnText;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfWriter;
+
 import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import java.awt.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Creates searchable PDF (with text under images) from images and ALTO
@@ -28,7 +29,7 @@ public class PdfTextUnderImage {
 
     public static final Logger LOGGER = Logger.getLogger(PdfTextUnderImage.class.getName());
 
-    public static HashMap<String, String> REMAP_FAMILIES = new HashMap<String, String>();
+    public static HashMap<String, String> REMAP_FAMILIES = new HashMap<>();
 
     static {
         REMAP_FAMILIES.put("arial", "arial ce");
@@ -55,10 +56,9 @@ public class PdfTextUnderImage {
     public static void registerFontDirectories(List<String> fontDirectories) {
         FontFactory.registerDirectories();
         if (fontDirectories != null) {
-            for (Iterator<String> iterator = fontDirectories.iterator(); iterator.hasNext();) {
-                String s = iterator.next();
+            for (String s : fontDirectories) {
                 int number = FontFactory.registerDirectory(s);
-                LOGGER.log(Level.INFO, "registred fonts " + number);
+                LOGGER.log(Level.INFO, "registred fonts {0}", number);
             }
         }
         registerFontDirectoriesDone = true;
@@ -108,10 +108,13 @@ public class PdfTextUnderImage {
                 if (REMAP_FAMILIES.containsKey(fontFamily.toLowerCase())) {
                     fontFamily = REMAP_FAMILIES.get(fontFamily.toLowerCase());
                 }
-
-                Font font = FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.EMBEDDED,
-                        getFontSize(element, alto, options), fontStyle, fontColor);
-                //font.setSize(16f);
+                Font font;
+                Float fontSize = getFontSize(element, alto, options);
+                if(fontFamily.equals("Courier"))
+                    font= FontFactory.getFont(FontFactory.COURIER, fontSize, fontStyle, fontColor);
+                else
+                    font = FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.EMBEDDED,
+                    fontSize, fontStyle, fontColor);
                 Phrase phrase = new Phrase(text, font);
                 ColumnText.showTextAligned(canvas, com.lowagie.text.Element.ALIGN_LEFT, phrase,
                         getLowerLeftHorizontal(element, options.getScaleFactor(), options.getXoffset()),
@@ -134,10 +137,10 @@ public class PdfTextUnderImage {
         }
         if (r == null) {
             if (isSP(element) || isHYP(element)) {
-                r = "Arial";
+                r = "Courier";
             } else {
                 if (ignoreSizeAndStyle) {
-                    r = "Arial";
+                    r = "Courier";
                 } else {
                     throwPdfTextUnderImageException();
                 }
@@ -163,22 +166,18 @@ public class PdfTextUnderImage {
         if (r == null) {
             if (isSP(element) || isHYP(element)) {
                 r = 10f;
+            } else if (ignoreSizeAndStyle) {
+                //r = 10f;//Default - but bad
+                String t = element.getAttribute("CONTENT");
+                int width = Integer.parseInt(element.getAttribute("WIDTH"));
+                Float r2 = (((float)width)/t.length())/0.6f;//Courier's width is 60% of its height
+                //Float r1 = Float.valueOf(element.getAttribute("HEIGHT"));//We don't want to extend to other lines
+                r = r2;//Math.min(r1,r2);
             } else {
-                if (ignoreSizeAndStyle) {
-                    //r = 10f;//Default - but bad
-					//String t = element.getAttribute("CONTENT");
-					//int width = Integer.parseInt(element.getAttribute("WIDTH"));
-					//r = ((float)width)/t.length();
-                    r = Float.valueOf(element.getAttribute("HEIGHT"));
-
-					//TODO: analyse from size
-
-                } else {
-                    throwPdfTextUnderImageException();
-                }
+                throwPdfTextUnderImageException();
             }
-        }
 
+        }
         return r * options.getScaleFactor();
     }
 
@@ -217,10 +216,10 @@ public class PdfTextUnderImage {
         } else {
             throwPdfTextUnderImageException();
         }
-        if (scale.floatValue() == 1.0) {
+        if (scale == 1.0) {
             return r;
         } else {
-            return r * scale.floatValue();
+            return r * scale;
         }
     }
 
@@ -240,12 +239,8 @@ public class PdfTextUnderImage {
         float r = 0;
         final String rotation = "ROTATION";
         Element e = element;
-        while (!e.hasAttribute(rotation) && e.getParentNode() != null) {
-            if (e.getParentNode() instanceof Element) {
-                e = (Element) e.getParentNode();
-            } else {
-                break;
-            }
+        while (!e.hasAttribute(rotation) && e.getParentNode() != null && e.getParentNode() instanceof Element) {
+            e = (Element) e.getParentNode();
         }
         if (e.hasAttribute(rotation)) {
             r = Float.parseFloat(e.getAttribute("rotation"));
