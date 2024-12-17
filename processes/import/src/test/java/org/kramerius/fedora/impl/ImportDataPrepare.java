@@ -33,7 +33,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import cz.incad.kramerius.fedora.impl.RepositoryAccessImpl;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import org.easymock.EasyMock;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -46,8 +46,8 @@ import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 /** Testing data  for FedoraAccess and SolrAccess*/
 public class ImportDataPrepare {

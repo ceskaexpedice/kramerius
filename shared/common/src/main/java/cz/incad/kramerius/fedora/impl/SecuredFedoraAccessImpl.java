@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.security;
+package cz.incad.kramerius.fedora.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -25,7 +25,10 @@ import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.fedora.om.resourceindex.IResourceIndex;
 import cz.incad.kramerius.fedora.om.resourceindex.ResourceIndexException;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
+import cz.incad.kramerius.security.RightsResolver;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -91,7 +94,7 @@ public class SecuredFedoraAccessImpl implements RepositoryAccess {
                 return rawAccess.getImageFULL(pid);
             }
         }
-        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, pid, FedoraUtils.IMG_FULL_STREAM));
+        throw new cz.incad.kramerius.security.SecurityException(new cz.incad.kramerius.security.SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, pid, FedoraUtils.IMG_FULL_STREAM));
     }
 
     @Override
@@ -230,7 +233,7 @@ public class SecuredFedoraAccessImpl implements RepositoryAccess {
                 return rawAccess.getFoxml(pid, archive);
             }
         }
-        throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, pid, null));
+        throw new cz.incad.kramerius.security.SecurityException(new cz.incad.kramerius.security.SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, pid, null));
     }
 
     private ObjectPidsPath[] ensurePidPathForUnindexedObjects(String pid, ObjectPidsPath[] paths) throws IOException {
@@ -255,7 +258,7 @@ public class SecuredFedoraAccessImpl implements RepositoryAccess {
                 }
             }
 
-            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, pid, datastreamName));
+            throw new cz.incad.kramerius.security.SecurityException(new cz.incad.kramerius.security.SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, pid, datastreamName));
         } else {
             String[] securedStreamsExtension = KConfiguration.getInstance().getSecuredAditionalStreams();
             int indexOf = Arrays.asList(securedStreamsExtension).indexOf(datastreamName);
@@ -267,7 +270,7 @@ public class SecuredFedoraAccessImpl implements RepositoryAccess {
                         return rawAccess.getDataStream(pid, datastreamName);
                     }
                 }
-                throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, pid, datastreamName));
+                throw new cz.incad.kramerius.security.SecurityException(new cz.incad.kramerius.security.SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, pid, datastreamName));
             } else {
                 return rawAccess.getDataStream(pid, datastreamName);
             }
@@ -324,7 +327,7 @@ public class SecuredFedoraAccessImpl implements RepositoryAccess {
                 throw new IOException("preview not found");
             }
         } else {
-            throw new SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, pid, FedoraUtils.IMG_PREVIEW_STREAM));
+            throw new cz.incad.kramerius.security.SecurityException(new SecurityException.SecurityExceptionInfo(SecuredActions.A_READ, pid, FedoraUtils.IMG_PREVIEW_STREAM));
         }
     }
 

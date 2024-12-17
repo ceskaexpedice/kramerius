@@ -24,7 +24,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;

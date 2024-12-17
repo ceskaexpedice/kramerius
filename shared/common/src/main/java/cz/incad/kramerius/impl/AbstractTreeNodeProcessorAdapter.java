@@ -18,8 +18,8 @@ package cz.incad.kramerius.impl;
 
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 /**
  * Adapter class for receving informations about processing uuids.  

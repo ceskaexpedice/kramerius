@@ -48,7 +48,7 @@ import com.google.inject.Injector;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 
 public class ThirdPhase extends AbstractPhase {
 

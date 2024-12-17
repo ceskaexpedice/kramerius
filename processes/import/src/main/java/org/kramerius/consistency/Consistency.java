@@ -45,7 +45,7 @@ import cz.incad.kramerius.TreeNodeProcessStackAware;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 
 /**
  * Constitency check process

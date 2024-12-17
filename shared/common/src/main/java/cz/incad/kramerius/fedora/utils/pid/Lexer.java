@@ -1,6 +1,6 @@
-package cz.incad.kramerius.utils.pid;
+package cz.incad.kramerius.fedora.utils.pid;
 
-import cz.incad.kramerius.utils.pid.Token.TokenType;
+import cz.incad.kramerius.fedora.utils.pid.Token.TokenType;
 
 
 /**

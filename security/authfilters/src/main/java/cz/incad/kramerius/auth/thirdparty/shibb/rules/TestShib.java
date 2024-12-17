@@ -16,27 +16,16 @@
  */
 package cz.incad.kramerius.auth.thirdparty.shibb.rules;
 
-import java.awt.BorderLayout;
-import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.util.List;
-
-import javax.swing.JFrame;
 
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.Expr;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.MatchRule;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.ShibRules;
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.Value;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.pid.Token.TokenType;
 
 
 import antlr.RecognitionException;
-import antlr.Token;
 import antlr.TokenStreamException;
-import antlr.collections.AST;
-import antlr.debug.misc.JTreeASTModel;
-import antlr.debug.misc.JTreeASTPanel;
 
 public class TestShib {
     

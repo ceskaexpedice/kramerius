@@ -31,7 +31,7 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 
 public class V5RedirectHandler extends ProxyItemHandler {
 

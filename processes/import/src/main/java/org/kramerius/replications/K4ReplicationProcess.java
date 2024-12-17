@@ -27,8 +27,8 @@ import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 /**
  * K4 replication process 

@@ -24,7 +24,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 
 /**
  * 

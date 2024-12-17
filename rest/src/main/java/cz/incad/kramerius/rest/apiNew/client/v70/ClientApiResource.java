@@ -89,7 +89,7 @@ public abstract class ClientApiResource extends ApiResource {
 
 
 
-    //see cz.incad.kramerius.security.SecuredFedoraAccessImpl.getDataStream(String pid, String datastreamName)
+    //see cz.incad.kramerius.fedora.impl.SecuredFedoraAccessImpl.getDataStream(String pid, String datastreamName)
     private boolean userIsAllowedToRead(User user, String pid) throws IOException {
         return userIsAllowedToRead(this.rightsResolver, user, pid);
     }

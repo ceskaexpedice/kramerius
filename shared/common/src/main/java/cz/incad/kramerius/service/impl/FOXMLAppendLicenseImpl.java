@@ -17,11 +17,9 @@
 package cz.incad.kramerius.service.impl;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -33,10 +31,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -52,13 +48,11 @@ import org.xml.sax.SAXException;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 
 import static cz.incad.kramerius.utils.RelsExtHelper.*;
 

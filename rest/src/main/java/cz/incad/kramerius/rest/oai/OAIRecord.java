@@ -45,7 +45,7 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 
 public class OAIRecord {
     public static final Logger LOGGER = Logger.getLogger(OAIRecord.class.getName());

@@ -1,4 +1,4 @@
-package cz.incad.kramerius.utils.pid;
+package cz.incad.kramerius.fedora.utils.pid;
 
 /**
  * @author pavels

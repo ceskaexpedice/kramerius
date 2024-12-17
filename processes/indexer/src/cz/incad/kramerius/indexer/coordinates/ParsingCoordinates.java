@@ -1,18 +1,16 @@
 package cz.incad.kramerius.indexer.coordinates;
 
 import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.utils.pid.Lexer;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.Token;
+import cz.incad.kramerius.fedora.utils.pid.Lexer;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.Token;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import javax.xml.xpath.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

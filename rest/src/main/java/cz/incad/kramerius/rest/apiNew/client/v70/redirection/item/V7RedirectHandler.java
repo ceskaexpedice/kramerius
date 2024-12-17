@@ -13,13 +13,10 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler.RequestMethodName;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.pid.LexerException;
 
 public class V7RedirectHandler extends ProxyItemHandler{
 

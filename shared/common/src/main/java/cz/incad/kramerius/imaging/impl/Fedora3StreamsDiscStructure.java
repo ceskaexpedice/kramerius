@@ -21,7 +21,7 @@ import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.paths.Path;
 import cz.incad.kramerius.imaging.paths.impl.DirPathImpl;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 
 /**
  * Manage same structure for storing objects as fedora 3.<br>  

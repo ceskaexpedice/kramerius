@@ -7,7 +7,7 @@ import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.indexer.guice.GuiceModelInjector;
 import cz.incad.kramerius.fedora.om.resourceindex.IResourceIndex;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import cz.incad.kramerius.utils.UTFSort;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;

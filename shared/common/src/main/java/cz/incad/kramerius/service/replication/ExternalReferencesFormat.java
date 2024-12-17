@@ -20,23 +20,16 @@
 package cz.incad.kramerius.service.replication;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,10 +41,8 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.IOUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * Explore given FOXML data and replace all <code>file:///</code> external referenced datastreams  into internal type datastream (type M)

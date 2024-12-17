@@ -59,7 +59,7 @@ import cz.incad.kramerius.pdf.commands.lists.GreekList;
 import cz.incad.kramerius.pdf.commands.lists.RomanList;
 import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.knav.pdf.PdfTextUnderImage;

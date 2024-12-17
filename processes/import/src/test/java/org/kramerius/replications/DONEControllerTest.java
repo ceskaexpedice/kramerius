@@ -19,17 +19,7 @@
  */
 package org.kramerius.replications;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import junit.framework.Assert;
-
-import org.easymock.EasyMock;
 import org.junit.Ignore;
-import org.junit.Test;
-
-import cz.incad.kramerius.utils.pid.LexerException;
 
 
 /**

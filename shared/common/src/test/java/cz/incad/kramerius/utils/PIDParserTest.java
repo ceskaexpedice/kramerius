@@ -3,8 +3,8 @@ package cz.incad.kramerius.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 public class PIDParserTest {
 

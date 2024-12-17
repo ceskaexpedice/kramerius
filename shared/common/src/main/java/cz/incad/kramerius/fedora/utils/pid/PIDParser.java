@@ -1,10 +1,10 @@
-package cz.incad.kramerius.utils.pid;
+package cz.incad.kramerius.fedora.utils.pid;
 
 import java.util.Arrays;
 import java.util.List;
 
 
-import cz.incad.kramerius.utils.pid.Token.TokenType;
+import cz.incad.kramerius.fedora.utils.pid.Token.TokenType;
 
 /**
  * Simple parser for PID

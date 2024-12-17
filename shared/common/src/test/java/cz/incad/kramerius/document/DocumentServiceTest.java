@@ -28,7 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepositoryAccess;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import junit.framework.Assert;
 
 import org.junit.Ignore;
@@ -44,7 +44,7 @@ import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.pdf.OutOfRangeException;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 
 @Ignore
 public class DocumentServiceTest {

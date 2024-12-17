@@ -16,29 +16,6 @@
  */
 package cz.incad.kramerius.impl;
 
-import cz.incad.kramerius.AbstractObjectPath;
-import cz.incad.kramerius.ObjectModelsPath;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
-import cz.incad.kramerius.utils.solr.SolrUtils;
-import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
-import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Based on depreceted index -> deprecated
  */

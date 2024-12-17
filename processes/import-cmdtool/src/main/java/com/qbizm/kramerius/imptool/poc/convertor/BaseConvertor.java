@@ -8,7 +8,7 @@ import com.qbizm.kramerius.imptool.poc.utils.XSLTransformer;
 import com.qbizm.kramerius.imptool.poc.valueobj.*;
 import cz.incad.kramerius.service.XSLService;
 import cz.incad.kramerius.service.impl.XSLServiceImpl;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.PathEncoder;
 import cz.incad.kramerius.utils.conf.KConfiguration;

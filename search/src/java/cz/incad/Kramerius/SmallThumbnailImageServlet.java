@@ -4,7 +4,7 @@ import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import org.apache.commons.io.IOUtils;

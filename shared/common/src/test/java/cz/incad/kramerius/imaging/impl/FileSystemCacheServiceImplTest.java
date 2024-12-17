@@ -62,7 +62,7 @@ import cz.incad.kramerius.imaging.paths.DirPath;
 import cz.incad.kramerius.imaging.paths.FilePath;
 import cz.incad.kramerius.imaging.paths.Path;
 import cz.incad.kramerius.imaging.paths.PathFilter;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 
 @Ignore
 public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {

@@ -24,7 +24,7 @@ import org.easymock.EasyMock;
 import com.google.inject.AbstractModule;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 
 public class MockGuiceSecurityHTTPModule extends AbstractModule {
 

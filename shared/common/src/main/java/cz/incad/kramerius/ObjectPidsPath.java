@@ -23,17 +23,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 import cz.incad.kramerius.virtualcollections.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,8 +39,6 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * Represents objects path

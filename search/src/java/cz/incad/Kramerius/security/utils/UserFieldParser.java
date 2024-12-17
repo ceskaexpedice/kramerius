@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import cz.incad.kramerius.utils.pid.Lexer;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.Token;
-import cz.incad.kramerius.utils.pid.Token.TokenType;
+import cz.incad.kramerius.fedora.utils.pid.Lexer;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.Token;
+import cz.incad.kramerius.fedora.utils.pid.Token.TokenType;
 
 public class UserFieldParser {
 

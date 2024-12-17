@@ -22,11 +22,10 @@ import java.net.URL;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import junit.framework.TestCase;
 

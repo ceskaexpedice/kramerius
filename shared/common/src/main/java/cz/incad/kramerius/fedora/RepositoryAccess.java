@@ -21,7 +21,7 @@ import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
 import cz.incad.kramerius.fedora.om.repository.RepositoryException;
-import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
+import cz.incad.kramerius.fedora.impl.SecuredFedoraAccessImpl;
 
 import java.io.IOException;
 import java.io.InputStream;

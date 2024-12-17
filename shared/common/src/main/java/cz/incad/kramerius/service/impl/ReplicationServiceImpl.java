@@ -47,7 +47,7 @@ import cz.incad.kramerius.service.ReplicationService;
 import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.service.replication.ReplicationFormat;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 public class ReplicationServiceImpl implements ReplicationService{
 

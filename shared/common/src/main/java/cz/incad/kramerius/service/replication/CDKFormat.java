@@ -23,10 +23,10 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 /**
  * CDK format

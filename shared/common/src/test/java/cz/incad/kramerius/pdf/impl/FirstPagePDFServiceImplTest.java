@@ -73,8 +73,8 @@ import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.service.impl.TextsServiceImpl;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 @Ignore
 // TODO: Rewrite; new index

@@ -39,8 +39,8 @@ import cz.incad.kramerius.imaging.paths.DirPath;
 import cz.incad.kramerius.imaging.paths.Path;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 /**
  * Delete generated deep zoom cache

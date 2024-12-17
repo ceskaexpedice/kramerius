@@ -34,7 +34,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 
 public class SecuredContentTag extends BodyTagSupport {
     

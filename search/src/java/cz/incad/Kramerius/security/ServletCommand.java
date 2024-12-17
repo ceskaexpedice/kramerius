@@ -47,8 +47,8 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.users.NotActivatedUsersSingleton;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 public abstract class ServletCommand {
 

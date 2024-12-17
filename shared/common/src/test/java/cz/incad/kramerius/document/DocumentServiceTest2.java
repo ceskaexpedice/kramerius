@@ -18,7 +18,7 @@ import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.pdf.OutOfRangeException;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 
 @Ignore
 public class DocumentServiceTest2 {

@@ -16,9 +16,7 @@ import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.service.ReplicateException;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class ExternalReferencesAndRemoveCollectionsFormat extends ExternalReferencesFormat {
 

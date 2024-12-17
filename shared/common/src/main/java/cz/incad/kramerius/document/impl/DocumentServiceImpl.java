@@ -55,7 +55,7 @@ import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.mods.PageNumbersBuilder;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 
 /**
  * Default document service implementation

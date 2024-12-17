@@ -5,7 +5,7 @@ import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.fedora.om.repository.impl.HazelcastServerNode;
 import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 import junit.framework.Assert;
 import org.easymock.EasyMock;
 import org.ehcache.CacheManager;

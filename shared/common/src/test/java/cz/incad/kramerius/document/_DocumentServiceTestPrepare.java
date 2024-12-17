@@ -34,8 +34,8 @@ import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 public class _DocumentServiceTestPrepare {
 

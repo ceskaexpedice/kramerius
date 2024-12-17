@@ -6,7 +6,7 @@ import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;

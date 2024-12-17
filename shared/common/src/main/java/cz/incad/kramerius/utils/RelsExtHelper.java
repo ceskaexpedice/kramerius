@@ -30,6 +30,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
@@ -40,8 +41,8 @@ import org.w3c.dom.Text;
 import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.LexerException;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 public class RelsExtHelper {
 

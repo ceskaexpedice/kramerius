@@ -4,7 +4,7 @@ import cz.incad.kramerius.*;
 import cz.incad.kramerius.fedora.RepositoryAccess;
 import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
 import cz.incad.kramerius.fedora.om.repository.RepositoryException;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;

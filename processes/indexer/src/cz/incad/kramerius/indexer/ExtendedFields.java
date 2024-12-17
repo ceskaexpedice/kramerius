@@ -5,7 +5,7 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.indexer.date.BiblioModsDateParser;
 import cz.incad.kramerius.indexer.date.DateQuintet;
 import cz.incad.kramerius.indexer.dnnt.DnntSingleton;
-import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.indexer.coordinates.ParsingCoordinates;

@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.security;
 
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.incad.kramerius.fedora.utils.pid.PIDParser;
 
 /**
  * Enumeration for special objects used in security system
