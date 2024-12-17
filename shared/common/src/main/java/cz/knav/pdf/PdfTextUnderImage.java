@@ -29,14 +29,13 @@ public class PdfTextUnderImage {
 
     public static final Logger LOGGER = Logger.getLogger(PdfTextUnderImage.class.getName());
 
-    public static HashMap<String, String> REMAP_FAMILIES = new HashMap<>();
-
-    static {
-        REMAP_FAMILIES.put("arial", "arial ce");
-        REMAP_FAMILIES.put("times new roman", "gentium plus");
-    }
+    public static HashMap<String, String> REMAP_FAMILIES = new HashMap<String, String>(){{
+        put("arial", "arial ce");
+        put("times new roman", "gentium plus");
+    }};
 
     private static boolean registerFontDirectoriesDone = false;
+
 
     private Color fontColor = Color.black;
     private boolean debug = false;
@@ -87,7 +86,7 @@ public class PdfTextUnderImage {
             Element element = (Element) nodeList.item(i);
             if (isString(element) || isSP(element) || isHYP(element)) {
                 String text;
-                int fontStyle = Font.NORMAL;
+                int fontStyle;
 
                 if (isString(element)) {
                     text = element.getAttribute("CONTENT");
@@ -150,7 +149,6 @@ public class PdfTextUnderImage {
     }
 
     private Float getFontSize(Element element, org.w3c.dom.Document alto, ScaledImageOptions options) {
-        //TODO: change it
         boolean ignoreSizeAndStyle = KConfiguration.getInstance()
                 .getConfiguration()
                 .getBoolean("pdfQueue.ignoreMissingSizeAndStyle", true);
@@ -167,7 +165,6 @@ public class PdfTextUnderImage {
             if (isSP(element) || isHYP(element)) {
                 r = 10f;
             } else if (ignoreSizeAndStyle) {
-                //r = 10f;//Default - but bad
                 String t = element.getAttribute("CONTENT");
                 int width = Integer.parseInt(element.getAttribute("WIDTH"));
                 Float r2 = (((float)width)/t.length())/0.6f;//Courier's width is 60% of its height
@@ -196,13 +193,13 @@ public class PdfTextUnderImage {
     private static int getFontStyle(String fontStylesType) {
         int r = Font.NORMAL;
         if (fontStylesType.contains("bold")) {
-            r = r | Font.BOLD;
+            r |= Font.BOLD;
         }
         if (fontStylesType.contains("italics")) {
-            r = r | Font.ITALIC;
+            r |= Font.ITALIC;
         }
         if (fontStylesType.contains("underline")) {
-            r = r | Font.UNDERLINE;
+            r |= Font.UNDERLINE;
         }
         return r;
     }
@@ -216,11 +213,8 @@ public class PdfTextUnderImage {
         } else {
             throwPdfTextUnderImageException();
         }
-        if (scale == 1.0) {
-            return r;
-        } else {
-            return r * scale;
-        }
+        return r * scale;
+
     }
 
     private static float getHeight(Element element, Float scale) {
@@ -295,12 +289,11 @@ public class PdfTextUnderImage {
 
     private static float pxOrPtOr(String s, boolean ptToPx) {
         float r = Float.parseFloat(s);
-        //float r = (new Float(s)).floatValue();
         if (ptToPx) {
             r = 15 * r / 4;
-        } else {
+        } /*else {
             //bad: r = 4 * r / 15;
-        }
+        }*/
         return r;
         /* bad:
     	float r = (new Float(s)).floatValue();
