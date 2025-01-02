@@ -91,7 +91,7 @@ allprojects {
     compileJava.options.encoding = 'UTF-8'
 	compileTestJava.options.encoding = 'UTF-8'
 
-    ext.guiceversion ='4.2.2'
+    ext.guiceversion ='6.0.0'
 
     ext.postgresversion = '42.3.9'
     ext.slf4jversion='1.7.35'
@@ -120,7 +120,6 @@ allprojects {
         // guice to all subprojects
        
   	    api ("com.google.inject:guice:${guiceversion}") {exclude group: 'com.google.guava', module: 'guava'}
-        api ("com.google.inject.extensions:guice-multibindings:${guiceversion}"){exclude group: 'com.google.guava', module: 'guava'}
         api ("com.google.inject.extensions:guice-servlet:${guiceversion}"){exclude group: 'com.google.guava', module: 'guava'}
         api "com.google.inject.extensions:guice-assistedinject:${guiceversion}"
         api "javax.inject:javax.inject:1"
