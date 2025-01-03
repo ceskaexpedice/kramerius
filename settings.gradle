@@ -8,6 +8,7 @@ include	'shared:common'
 include	'rest'
 include	'search'
 include 'folders'
+include 'repository'
 
 include	'processes:import'
 include	'processes:import-cmdtool'

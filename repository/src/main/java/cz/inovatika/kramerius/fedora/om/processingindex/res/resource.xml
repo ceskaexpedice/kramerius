@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><sparql xmlns="http://www.w3.org/2001/sw/DataAccess/rf1/result">
+  <head>
+    <variable name="object"/>
+    <variable name="title"/>
+    <variable name="date"/>
+  </head>
+  <results>
+    <result>
+      <object uri="info:fedora/uuid:430d7f60-b03b-11dd-82fa-000d606f5dc6"/>
+      <title>[3]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:17.979Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:43101770-b03b-11dd-8673-000d606f5dc6"/>
+      <title>[5]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:18.116Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6"/>
+      <title>[2]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:18.946Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4a8a8630-af36-11dd-ae9c-000d606f5dc6"/>
+      <title>[14]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:19.577Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4314ab50-b03b-11dd-89db-000d606f5dc6"/>
+      <title>[7]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:18.241Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:431e4840-b03b-11dd-8818-000d606f5dc6"/>
+      <title>[13]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:18.724Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6"/>
+      <title>[1]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:17.77Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4320e050-b03b-11dd-9b4a-000d606f5dc6"/>
+      <title>[15]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:18.839Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6"/>
+      <title>[4]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:19.055Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4a8cf730-af36-11dd-ae88-000d606f5dc6"/>
+      <title>[16]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:19.705Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4a80c230-af36-11dd-ace4-000d606f5dc6"/>
+      <title>[8]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:19.189Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:43171c50-b03b-11dd-b0c2-000d606f5dc6"/>
+      <title>[9]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:18.408Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4a85f250-af36-11dd-8535-000d606f5dc6"/>
+      <title>[12]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:19.439Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4a835a40-af36-11dd-b951-000d606f5dc6"/>
+      <title>[10]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:19.314Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4319b460-b03b-11dd-83ca-000d606f5dc6"/>
+      <title>[11]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-09-30T08:34:18.611Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:a6b230fc-069f-11e4-9517-001b63bd97ba"/>
+      <title>2</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:21.864Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:b79aeafd-069e-11e4-a864-001b63bd97ba"/>
+      <title>4</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:35.965Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:a6b27f1e-069f-11e4-9517-001b63bd97ba"/>
+      <title>4</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:26.795Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:b79a4eba-069e-11e4-a864-001b63bd97ba"/>
+      <title>1</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:30.362Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:69439c29-06a0-11e4-ad58-001b63bd97ba"/>
+      <title>5</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:18.015Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:a6b2580d-069f-11e4-9517-001b63bd97ba"/>
+      <title>3</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:24.269Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:e620ee2c-069c-11e4-b2d9-001b63bd97ba"/>
+      <title>4</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:46.557Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:e62051e9-069c-11e4-b2d9-001b63bd97ba"/>
+      <title>1</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:39.891Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:b79ac3eb-069e-11e4-a864-001b63bd97ba"/>
+      <title>2</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:32.148Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:694326f5-06a0-11e4-ad58-001b63bd97ba"/>
+      <title>1</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:09.718Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:a6b1e2db-069f-11e4-9517-001b63bd97ba"/>
+      <title>1</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:20.059Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:69437516-06a0-11e4-ad58-001b63bd97ba"/>
+      <title>2</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:12.362Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:b79aeafe-069e-11e4-a864-001b63bd97ba"/>
+      <title>5</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:38.09Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:e620ee2d-069c-11e4-b2d9-001b63bd97ba"/>
+      <title>5</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:49.77Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:69439c28-06a0-11e4-ad58-001b63bd97ba"/>
+      <title>4</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:16.232Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:e620c71a-069c-11e4-b2d9-001b63bd97ba"/>
+      <title>2</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:42.039Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:a6b27f1f-069f-11e4-9517-001b63bd97ba"/>
+      <title>5</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:28.921Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:e620ee2b-069c-11e4-b2d9-001b63bd97ba"/>
+      <title>3</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:44.054Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:69439c27-06a0-11e4-ad58-001b63bd97ba"/>
+      <title>3</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:14.229Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:b79ac3ec-069e-11e4-a864-001b63bd97ba"/>
+      <title>3</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:18:34.127Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:ab4352b3-51a6-45d3-9291-00255d1ff92c"/>
+      <title>[2]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:34.862Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:a9221f76-0e89-46c1-a70a-ad935f05f4bf"/>
+      <title>9</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.18Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:8750edbf-8522-4643-95ba-0c7b13806d00"/>
+      <title>8</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.136Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:9b26fa00-7a44-4daf-8ce5-cd8d83894a01"/>
+      <title>7</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.081Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:fce78e00-ac07-4567-9b80-b2c2a85f4dfb"/>
+      <title>[1]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:34.811Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:5fd068f0-d061-4794-a300-165bd5c5e2d1"/>
+      <title>13</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.385Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:3f630d71-91e7-47a3-a601-4a997de9563f"/>
+      <title>19</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.743Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:158436a6-2216-498f-9f9f-01b56b30d074"/>
+      <title>[25]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:36.052Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:12993b4a-71b4-4f19-8953-0701243cc25d"/>
+      <title>[1a]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:34.712Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:ed4765c8-20c4-45c9-b809-4933afceb6b1"/>
+      <title>[31]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:36.3Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:d7af9a4e-a889-43bd-bac1-30567e0de5ba"/>
+      <title>[29]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:36.22Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:f80d5a2f-c546-4d21-ae64-9845afb324a6"/>
+      <title>[1b]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:34.767Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:70347d7e-2f03-491d-99c3-cd5073387af1"/>
+      <title>[28]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:36.183Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:e64f9af3-21b1-48ad-aa6c-feb8ea903fcf"/>
+      <title>11</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.285Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:24f0d1ee-cde1-4ba7-9571-87ef76c88222"/>
+      <title>10</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.224Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:2bfba27c-f849-4843-8283-663dbaa2bfcf"/>
+      <title>20</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.786Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:442f0a7e-4d83-48b3-8a61-284343ed25cd"/>
+      <title>[34]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:36.441Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:8b7ad793-3fb7-4d99-8c11-636f9fbb9798"/>
+      <title>21</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.843Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:139c40bd-ef72-4b8f-9beb-c40bc3c2304e"/>
+      <title>22</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.898Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:8a2c74be-b1da-437d-887d-7832e2150e8c"/>
+      <title>14</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.458Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:bed77e96-c96d-488c-83e6-9e99d838cbe4"/>
+      <title>24</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.992Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:05aa3058-2b8f-455f-84fe-3b2f3a7a4ccd"/>
+      <title>6</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.036Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:fcdf5a31-0def-4610-bc9e-7778504f7e63"/>
+      <title>16</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.592Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:48f2efc6-9885-41e3-9e2f-9d2f9ed9b650"/>
+      <title>[33]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:36.402Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:59214633-55ba-4ec9-87d7-87e1d06d0a20"/>
+      <title>5</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:34.987Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:b1239398-da95-4563-b3ef-db7cc7bef504"/>
+      <title>12</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.328Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:a7fef00e-2372-4783-8cae-f368cd4f97f1"/>
+      <title>[30]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:36.26Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:59bff0e2-6e42-4b0a-964e-1f0a126b3ab2"/>
+      <title>[27]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:36.146Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:1741748c-7373-4e61-8b41-186f49d5db21"/>
+      <title>17</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.649Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:6ec4a1bd-2dd8-4904-80f6-7c7dd602fb9a"/>
+      <title>3</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:34.905Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:bf691c79-1ae3-42c4-a798-ecfd42ac4038"/>
+      <title>18</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.7Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:d0653a4c-b4f1-414c-85e9-597047739b7c"/>
+      <title>[26]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:36.1Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:94375287-d103-43ad-a5dc-f95657e9bd24"/>
+      <title>23</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.946Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:3f5748df-47c7-4961-a850-c15bccf9b336"/>
+      <title>15</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:35.544Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4ca1e377-5812-41c1-bf1d-1733a1ea4193"/>
+      <title>[32]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:36.351Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:86c0425f-11fd-406b-8def-6726ad87982b"/>
+      <title>4</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-24T10:10:34.944Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:226c9317-0997-4fb2-a2d4-f64e7e8b3580"/>
+      <title>[68]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:28:46.235Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:1940ff0a-40aa-418b-8174-8e533558244b"/>
+      <title>[4]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:23:16.863Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:153a1466-4dfe-4340-93b8-d0064f024f4f"/>
+      <title>23</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:23:59.182Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:07d477a3-4706-4c62-9eca-6b6196ec7041"/>
+      <title>6</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:23:20.761Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:10bfd972-6f8b-4bc5-803a-d59c8148b16b"/>
+      <title>24</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:00.824Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:be102015-1c10-4be7-ab05-c45a35ec596e"/>
+      <title>10</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:23:29.754Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:fc303a33-98eb-4d27-9d07-71fc1845b13d"/>
+      <title>[53]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:54.904Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:0eba62eb-02fc-47e0-b740-54ded1967b6f"/>
+      <title>44</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:42.135Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:773fbcc6-7dba-4437-b912-c2fc005b1a84"/>
+      <title>36</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:25.543Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:310d41c1-325f-4b07-8912-f6242c96321b"/>
+      <title>48</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:48.484Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:c8d498e5-ac60-4bdd-9fd0-ed0d573aee0e"/>
+      <title>57</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:25:41.588Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:7657bb89-0db8-43bd-b9f2-0574371c10c1"/>
+      <title>66</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:28:26.683Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:0b837a0d-ccbe-4c49-9b40-33c6d85ac535"/>
+      <title>32</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:17.781Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:3c2598a7-92df-4898-a31c-151b47bbbd13"/>
+      <title>37</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:29.931Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:bccdafd8-76c2-4c9f-a154-958576a708d9"/>
+      <title>62</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:27:17.406Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:54ff716c-25b7-4608-8aa3-b5ac8b77b197"/>
+      <title>47</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:46.301Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:8154d632-ed95-4c1d-88c0-760bb4a0456c"/>
+      <title>[26]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:03.754Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:3de92b7c-f895-4f77-89e8-59af9579b0b8"/>
+      <title>17</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:23:46.007Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:7c91a5d1-9e2d-4675-9866-ad18fe1e809d"/>
+      <title>54</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:57.42Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:7d0c25b7-26f0-4f94-8c14-acbdd7c12ec5"/>
+      <title>34</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:22.616Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:57f18787-d6c6-4a19-938c-77b9723163ac"/>
+      <title>27</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:05.941Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:1e6c7648-c260-4f2a-b09b-b886104b3ca7"/>
+      <title>65</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:28:12.538Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:b2a44b19-0757-4fd1-9585-ce2225adc3cf"/>
+      <title>13</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:23:36.484Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:1c8ab5b9-b4e3-4a01-a15e-93b1bd6745e4"/>
+      <title>11</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:23:32.648Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:4e4b569b-d784-4341-9266-4bf564d28595"/>
+      <title>15</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:23:41.416Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:eada1c31-0dd7-4367-bb0b-117331cf6e94"/>
+      <title>[25]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:02.256Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:76d02a48-e684-4f47-b303-4322aa0dfa2b"/>
+      <title>41</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:24:35.91Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:e74b568b-894c-4720-9b2d-48648ae365fe"/>
+      <title>[1a]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:22:46.376Z</date>
+    </result>
+    <result>
+      <object uri="info:fedora/uuid:3b6a3b6e-22f4-442c-87d3-4bd403bb87fc"/>
+      <title>[1j]</title>
+      <date datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-10-13T11:23:12.117Z</date>
+    </result>
+  </results>
+</sparql>
