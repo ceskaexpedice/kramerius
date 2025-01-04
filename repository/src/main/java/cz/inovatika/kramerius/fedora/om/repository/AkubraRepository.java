@@ -18,8 +18,7 @@
 package cz.inovatika.kramerius.fedora.om.repository;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryObject;
+import cz.inovatika.kramerius.fedora.om.processingindex.ProcessingIndexFeeder;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -102,6 +101,6 @@ public interface AkubraRepository {
      * @return
      * @throws RepositoryException
      */
-    // TODO public abstract ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException;
+    ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException;
 
 }

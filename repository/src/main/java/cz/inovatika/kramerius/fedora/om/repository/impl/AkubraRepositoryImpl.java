@@ -17,15 +17,23 @@
 
 package cz.inovatika.kramerius.fedora.om.repository.impl;
 
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.ObjectPropertiesType;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
-import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
-import cz.incad.kramerius.fedora.om.repository.RepositoryException;
-import cz.incad.kramerius.fedora.om.repository.RepositoryObject;
-import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.fedora.utils.AkubraUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.kramerius.fedora.om.repository.AkubraRepository;
+import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
+import cz.inovatika.kramerius.fedora.om.repository.RepositoryObject;
+import cz.inovatika.kramerius.fedora.om.processingindex.ProcessingIndexFeeder;
+import cz.inovatika.kramerius.fedora.utils.AkubraUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.ehcache.CacheManager;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,23 +53,12 @@ public class AkubraRepositoryImpl implements AkubraRepository {
     private ProcessingIndexFeeder feeder;
 
 
-    private AkubraRepositoryImpl() throws RepositoryException {
+    public AkubraRepositoryImpl(ProcessingIndexFeeder feeder, AkubraDOManager manager) throws RepositoryException {
         super();
         this.feeder = feeder;
         this.manager = manager;
     }
 
-    /**
-     * Create new repository object
-     *
-     * @param feeder  Feeder instance
-     * @param manager
-     * @return
-     * @throws RepositoryException
-     */
-    public static final AkubraRepository build() throws RepositoryException {
-        return new AkubraRepositoryImpl(feeder, manager);
-    }
 
     /* (non-Javadoc)
      * @see cz.incad.fcrepo.Repository#createOrFindObject(java.lang.String)
@@ -240,14 +237,10 @@ public class AkubraRepositoryImpl implements AkubraRepository {
         return retval;
     }
 
-    /* TODO
     @Override
     public ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException {
         return this.feeder;
     }
-
-     */
-
 
     /* TODO
 

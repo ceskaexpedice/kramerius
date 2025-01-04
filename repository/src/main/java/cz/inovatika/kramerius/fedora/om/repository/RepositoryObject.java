@@ -17,8 +17,6 @@
 
 package cz.inovatika.kramerius.fedora.om.repository;
 
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryDatastream;
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
 import org.apache.commons.lang3.tuple.Triple;
 import org.w3c.dom.Document;
 

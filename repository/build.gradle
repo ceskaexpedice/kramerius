@@ -1,42 +1,42 @@
-description "Remote API"
+description "Repository"
 
 
 dependencies {
 
     api project(':shared:common')
-    api project(':security:oauth')
-    api project(':search-index')
+    //api project(':security:oauth')
+    //api project(':search-index')
 
-    api project(':folders')
+    //api project(':folders')
 
 
     // sdnnt
-    api project(':processes:sdnnt')              //TODO: Move
+    //api project(':processes:sdnnt')              //TODO: Move
 
-    api group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+    //api group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
 
-    api name:"iiif-presentation-model-api-3.2.5"
-    api name:"iiif-presentation-model-impl-3.2.5"
-    api 'org.apache.httpcomponents:httpasyncclient:4.1.3'
+    //api name:"iiif-presentation-model-api-3.2.5"
+    //api name:"iiif-presentation-model-impl-3.2.5"
+    //api 'org.apache.httpcomponents:httpasyncclient:4.1.3'
 
     // jackson dependency
-    api 'com.fasterxml.jackson.core:jackson-annotations:2.8.1'
-    api 'com.fasterxml.jackson.core:jackson-core:2.8.1'
-    api 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
+    //api 'com.fasterxml.jackson.core:jackson-annotations:2.8.1'
+    //api 'com.fasterxml.jackson.core:jackson-core:2.8.1'
+    //api 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
 
-    api 'commons-codec:commons-codec:1.5'
+    //api 'commons-codec:commons-codec:1.5'
 
-    api "org.keycloak:keycloak-servlet-filter-adapter:${keycloakversion}"
-    api "org.keycloak:keycloak-authz-client:${keycloakversion}"
+    //api "org.keycloak:keycloak-servlet-filter-adapter:${keycloakversion}"
+    //api "org.keycloak:keycloak-authz-client:${keycloakversion}"
 
     //dom4j
-    implementation 'jaxen:jaxen:1.2.0'
-    implementation 'org.dom4j:dom4j:2.1.1'
+    //implementation 'jaxen:jaxen:1.2.0'
+    //implementation 'org.dom4j:dom4j:2.1.1'
 }
 
-configurations.findAll {!it.name.endsWith('json-lib')}.each { conf ->
-    conf.exclude group: "net.sf.json-lib", module: "json-lib"
-}
+//configurations.findAll {!it.name.endsWith('json-lib')}.each { conf ->
+//  conf.exclude group: "net.sf.json-lib", module: "json-lib"
+//}
 
 
 
