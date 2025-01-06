@@ -17,11 +17,10 @@ import java.io.IOException;
 
 public class HazelcastServerNode implements ServletContextListener {
 
-
     private static final ILogger LOGGER = Logger.getLogger(HazelcastServerNode.class);
     private static HazelcastInstance hzInstance;
 
-    public static synchronized void ensureHazelcastNode() {
+    static synchronized void ensureHazelcastNode() {
         if (hzInstance == null) {
             Config config = null;
             File configFile = KConfiguration.getInstance().findConfigFile("hazelcast.config");

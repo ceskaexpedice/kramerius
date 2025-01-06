@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  * It is basic tool for ingesting also it is basic point for FedoraAccess facade
  * @author pavels
  */
-public interface AkubraRepository {
+public interface Repository {
 
     /**
      * Creates an empty object or finds existing object

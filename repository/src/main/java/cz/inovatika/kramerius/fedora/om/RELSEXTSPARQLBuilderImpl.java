@@ -1,13 +1,13 @@
-package cz.inovatika.kramerius.fedora.om.repository.impl;
+package cz.inovatika.kramerius.fedora.om;
 
-import cz.incad.kramerius.fedora.om.repository.RepositoryException;
-import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.fedora.om.repository.impl.RELSEXTSPARQLBuilderListener;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.fedora.utils.pid.PIDParser;
+import cz.inovatika.kramerius.fedora.om.repository.FedoraNamespaceContext;
+import cz.inovatika.kramerius.fedora.om.repository.FedoraNamespaces;
+import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
+import cz.inovatika.kramerius.fedora.om.repository.impl.RELSEXTSPARQLBuilderListener;
+import cz.inovatika.kramerius.fedora.utils.pid.PIDParser;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -26,8 +26,7 @@ import java.util.*;
 /**
  * Created by pstastny on 10/11/2017.
  */
-public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
-
+class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
 
     private FedoraNamespaceContext namespaceContext = new FedoraNamespaceContext();
 
@@ -38,7 +37,6 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
     @Override
     public String sparqlProps(String relsExt, RELSEXTSPARQLBuilderListener listener) throws IOException, SAXException, ParserConfigurationException, RepositoryException {
         StringTemplateGroup strGroup = SPARQL_TEMPLATES();
-
 
         Document document = XMLUtils.parseDocument(new StringReader(relsExt), true);
         Element description = XMLUtils.findElement(document.getDocumentElement(), "Description", FedoraNamespaces.RDF_NAMESPACE_URI);
@@ -111,10 +109,5 @@ public class RELSEXTSPARQLBuilderImpl implements RELSEXTSPARQLBuilder {
         String string = org.apache.commons.io.IOUtils.toString(stream, Charset.forName("UTF-8"));
         return new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
     }
-
-
-
-
-
 
 }

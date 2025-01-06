@@ -7,7 +7,6 @@ import com.hazelcast.client.config.XmlClientConfigBuilder;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.core.*;
 import com.qbizm.kramerius.imp.jaxb.*;
-import cz.inovatika.kramerius.fedora.utils.AkubraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.akubraproject.BlobStore;
 import org.akubraproject.fs.FSBlobStore;
@@ -48,33 +47,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AkubraDOManager {
-    public static final Logger LOGGER = Logger.getLogger(AkubraDOManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AkubraDOManager.class.getName());
     private KConfiguration configuration = KConfiguration.getInstance();
     private ILowlevelStorage storage;
 
     private static HazelcastInstance hzInstance;
-    //private static IMap<String, Integer> pidLocks;
-
-    private static DistributedLockService lockService ;
+    private static DistributedLockService lockService;
     private static ITopic<String> cacheInvalidator;
 
     private static Cache<String, DigitalObject> objectCache;
     private static final String DIGITALOBJECT_CACHE_ALIAS = "DigitalObjectCache";
 
-    private static Unmarshaller unmarshaller = null;
-    private static Marshaller marshaller = null;
+    private static Unmarshaller unmarshaller;
+    private static Marshaller marshaller;
 
     static {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
-
             unmarshaller = jaxbContext.createUnmarshaller();
-
-
             //JAXBContext jaxbdatastreamContext = JAXBContext.newInstance(DatastreamType.class);
             marshaller = jaxbContext.createMarshaller();
-
-
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Cannot init JAXB", e);
             throw new RuntimeException(e);
@@ -95,7 +87,6 @@ public class AkubraDOManager {
             groupConfig.setName(KConfiguration.getInstance().getConfiguration().getString("hazelcast.user"));
         }
         hzInstance = HazelcastClient.newHazelcastClient(config);
-        //pidLocks = hzInstance.getMap("pidlocks");
         lockService = DistributedLockService.newHazelcastLockService(hzInstance);
         cacheInvalidator = hzInstance.getTopic("cacheInvalidator");
         cacheInvalidator.addMessageListener(new MessageListener<String>() {
@@ -108,7 +99,7 @@ public class AkubraDOManager {
         });
     }
 
-    public AkubraDOManager( CacheManager cacheManager) throws IOException {
+    public AkubraDOManager(CacheManager cacheManager) throws IOException {
         try {
             this.storage = initLowLevelStorage();
             if (cacheManager != null) {
@@ -116,7 +107,7 @@ public class AkubraDOManager {
                 if (objectCache == null) {
                     objectCache = cacheManager.createCache(DIGITALOBJECT_CACHE_ALIAS,
                             CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, DigitalObject.class,
-                                    ResourcePoolsBuilder.heap(3000))
+                                            ResourcePoolsBuilder.heap(3000))
                                     .withExpiry(Expirations.timeToLiveExpiration(
                                             Duration.of(configuration.getCacheTimeToLiveExpiration(), TimeUnit.SECONDS))).build());
                 }
@@ -181,22 +172,24 @@ public class AkubraDOManager {
 
     /**
      * Loads and unmarshalls DigitalObject from Akubra storage, using cache if possible
+     *
      * @param pid
      * @return
      * @throws IOException
      */
-    public DigitalObject readObjectFromStorage(String pid) throws IOException {
+    DigitalObject readObjectFromStorage(String pid) throws IOException {
         return readObjectFromStorageOrCache(pid, true);
     }
 
     /**
      * Loads and unmarshalls fresh copy of DigitalObject from Akubra storage, bypassing the cache
      * Intended for use in FedoraAccess.getFoxml, which resolves internal managed datastreams to base64 binary content
+     *
      * @param pid
      * @return
      * @throws IOException
      */
-    public DigitalObject readObjectCloneFromStorage(String pid) throws IOException {
+    DigitalObject readObjectCloneFromStorage(String pid) throws IOException {
         return readObjectFromStorageOrCache(pid, false);
     }
 
@@ -205,7 +198,7 @@ public class AkubraDOManager {
         if (retval == null) {
             Object obj = null;
             Lock lock = getReadLock(pid);
-            try (InputStream inputStream = this.storage.retrieveObject(pid);){
+            try (InputStream inputStream = this.storage.retrieveObject(pid);) {
                 synchronized (unmarshaller) {
                     obj = unmarshaller.unmarshal(inputStream);
                 }
@@ -224,7 +217,7 @@ public class AkubraDOManager {
         return retval;
     }
 
-    public InputStream retrieveDatastream(String dsKey) throws IOException {
+    InputStream retrieveDatastream(String dsKey) throws IOException {
         try {
             return storage.retrieveDatastream(dsKey);
         } catch (LowlevelStorageException e) {
@@ -232,7 +225,7 @@ public class AkubraDOManager {
         }
     }
 
-    public InputStream retrieveObject(String objectKey) throws IOException {
+    InputStream retrieveObject(String objectKey) throws IOException {
         Lock lock = getReadLock(objectKey);
         try {
             return storage.retrieveObject(objectKey);
@@ -243,11 +236,11 @@ public class AkubraDOManager {
         }
     }
 
-    public void deleteObject(String pid, boolean includingManagedDatastreams) throws IOException {
+    void deleteObject(String pid, boolean includingManagedDatastreams) throws IOException {
         Lock lock = getWriteLock(pid);
         try {
             DigitalObject object = readObjectFromStorage(pid);
-            if(includingManagedDatastreams) {
+            if (includingManagedDatastreams) {
                 for (DatastreamType datastreamType : object.getDatastream()) {
                     removeManagedStream(datastreamType);
                 }
@@ -263,7 +256,7 @@ public class AkubraDOManager {
         }
     }
 
-    public void deleteStream(String pid, String streamId) throws IOException {
+    void deleteStream(String pid, String streamId) throws IOException {
         Lock lock = getWriteLock(pid);
         try {
             DigitalObject object = readObjectFromStorage(pid);
@@ -286,7 +279,7 @@ public class AkubraDOManager {
                 addOrReplaceObject(pid, new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
 
             } catch (Exception e) {
-                LOGGER.severe("Could not replace object in Akubra: " + e+", pid:'"+pid+"'");
+                LOGGER.severe("Could not replace object in Akubra: " + e + ", pid:'" + pid + "'");
             }
         } finally {
             invalidateCache(pid);
@@ -308,7 +301,7 @@ public class AkubraDOManager {
         }
     }
 
-    public void commit(DigitalObject object, String streamId) throws IOException {
+    void commit(DigitalObject object, String streamId) throws IOException {
         Lock lock = getWriteLock(object.getPID());
         try {
             List<DatastreamType> datastreamList = object.getDatastream();
@@ -342,7 +335,7 @@ public class AkubraDOManager {
         }
     }
 
-    public InputStream marshallObject(DigitalObject object) {
+    private InputStream marshallObject(DigitalObject object) {
         try {
             StringWriter stringWriter = new StringWriter();
             synchronized (marshaller) {
@@ -361,13 +354,13 @@ public class AkubraDOManager {
         List<PropertyType> propertyTypeList = object.getObjectProperties().getProperty();
         for (PropertyType propertyType : propertyTypeList) {
             if ("info:fedora/fedora-system:def/view#lastModifiedDate".equals(propertyType.getNAME())) {
-                propertyType.setVALUE(AkubraUtils.currentTimeString());
+                propertyType.setVALUE(RepositoryUtils.currentTimeString());
                 propertyExists = true;
                 break;
             }
         }
         if (!propertyExists) {
-            propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate", AkubraUtils.currentTimeString()));
+            propertyTypeList.add(RepositoryUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate", RepositoryUtils.currentTimeString()));
         }
     }
 
@@ -381,7 +374,7 @@ public class AkubraDOManager {
             }
         }
         if (!propertyExists) {
-            propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", AkubraUtils.currentTimeString()));
+            propertyTypeList.add(RepositoryUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", RepositoryUtils.currentTimeString()));
         }
     }
 
@@ -395,7 +388,7 @@ public class AkubraDOManager {
             }
         }
         if (!propertyExists) {
-            propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#state", "Active"));
+            propertyTypeList.add(RepositoryUtils.createProperty("info:fedora/fedora-system:def/model#state", "Active"));
         }
     }
 
@@ -404,7 +397,7 @@ public class AkubraDOManager {
             for (DatastreamVersionType datastreamVersion : datastream.getDatastreamVersion()) {
                 XMLGregorianCalendar created = datastreamVersion.getCREATED();
                 if (created == null) {
-                    datastreamVersion.setCREATED(AkubraUtils.getCurrentXMLGregorianCalendar());
+                    datastreamVersion.setCREATED(RepositoryUtils.getCurrentXMLGregorianCalendar());
                 }
             }
         }
@@ -430,7 +423,7 @@ public class AkubraDOManager {
         }
     }
 
-    public void resolveArchivedDatastreams(DigitalObject object) {
+    private void resolveArchivedDatastreams(DigitalObject object) {
         for (DatastreamType datastreamType : object.getDatastream()) {
             resolveArchiveManagedStream(datastreamType);
         }
@@ -451,7 +444,7 @@ public class AkubraDOManager {
         }
     }
 
-    public void addOrReplaceObject(String pid, InputStream content) throws LowlevelStorageException {
+    void addOrReplaceObject(String pid, InputStream content) throws LowlevelStorageException {
         if (((ICheckable) storage).objectExists(pid)) {
             storage.replaceObject(pid, content, null);
         } else {
@@ -459,7 +452,7 @@ public class AkubraDOManager {
         }
     }
 
-    public void addOrReplaceDatastream(String pid, InputStream content) throws LowlevelStorageException {
+    void addOrReplaceDatastream(String pid, InputStream content) throws LowlevelStorageException {
         if (storage instanceof AkubraLowlevelStorage) {
             if (((AkubraLowlevelStorage) storage).datastreamExists(pid)) {
                 storage.replaceDatastream(pid, content, null);
@@ -476,7 +469,7 @@ public class AkubraDOManager {
     }
 
 
-    public static Lock getWriteLock(String pid) {
+    static Lock getWriteLock(String pid) {
         if (pid == null) {
             throw new IllegalArgumentException("pid cannot be null");
         }
@@ -485,7 +478,7 @@ public class AkubraDOManager {
         return lock.writeLock();
     }
 
-    public static Lock getReadLock(String pid) {
+    static Lock getReadLock(String pid) {
         if (pid == null) {
             throw new IllegalArgumentException("pid cannot be null");
         }
@@ -499,7 +492,7 @@ public class AkubraDOManager {
     }
 
 
-    public static void shutdown() {
+    static void shutdown() {
         if (lockService != null) {
             lockService.shutdown();
         }

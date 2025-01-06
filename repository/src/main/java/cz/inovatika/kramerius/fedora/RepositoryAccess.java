@@ -20,7 +20,7 @@ import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.StreamHeadersObserver;
 import cz.incad.kramerius.TreeNodeProcessor;
 import cz.inovatika.kramerius.fedora.impl.SecuredFedoraAccessImpl;
-import cz.inovatika.kramerius.fedora.om.repository.AkubraRepository;
+import cz.inovatika.kramerius.fedora.om.repository.Repository;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -339,9 +339,9 @@ public interface RepositoryAccess {
     public boolean isContentAccessible(String pid) throws IOException;
 
 
-    public AkubraRepository getInternalAPI() throws RepositoryException;
+    public Repository getInternalAPI() throws RepositoryException;
 
-    public AkubraRepository getTransactionAwareInternalAPI() throws RepositoryException;
+    public Repository getTransactionAwareInternalAPI() throws RepositoryException;
 
 
     /**

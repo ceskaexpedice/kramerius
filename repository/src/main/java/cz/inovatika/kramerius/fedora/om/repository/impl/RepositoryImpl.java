@@ -17,23 +17,14 @@
 
 package cz.inovatika.kramerius.fedora.om.repository.impl;
 
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.ObjectPropertiesType;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.inovatika.kramerius.fedora.om.repository.AkubraRepository;
+import cz.inovatika.kramerius.fedora.om.repository.Repository;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryObject;
 import cz.inovatika.kramerius.fedora.om.processingindex.ProcessingIndexFeeder;
-import cz.inovatika.kramerius.fedora.utils.AkubraUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.ehcache.CacheManager;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,21 +35,18 @@ import java.util.logging.Logger;
 /**
  * @author pavels
  */
-public class AkubraRepositoryImpl implements AkubraRepository {
+public class RepositoryImpl implements Repository {
 
-
-    public static final Logger LOGGER = Logger.getLogger(AkubraRepositoryImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(RepositoryImpl.class.getName());
 
     private AkubraDOManager manager;
     private ProcessingIndexFeeder feeder;
 
-
-    public AkubraRepositoryImpl(ProcessingIndexFeeder feeder, AkubraDOManager manager) throws RepositoryException {
+    public RepositoryImpl(ProcessingIndexFeeder feeder, AkubraDOManager manager) throws RepositoryException {
         super();
         this.feeder = feeder;
         this.manager = manager;
     }
-
 
     /* (non-Javadoc)
      * @see cz.incad.fcrepo.Repository#createOrFindObject(java.lang.String)
@@ -67,20 +55,21 @@ public class AkubraRepositoryImpl implements AkubraRepository {
     public RepositoryObject createOrFindObject(String ident) throws RepositoryException {
         if (objectExists(ident)) {
             try {
-                AkubraObject obj = new AkubraObject(this.manager, ident, this.manager.readObjectFromStorage(ident), this.feeder);
+                RepositoryObjectImpl obj = new RepositoryObjectImpl(this.manager.readObjectFromStorage(ident), this.manager, this.feeder);
                 return obj;
             } catch (IOException e) {
                 throw new RepositoryException(e);
             }
         } else {
             try {
-                AkubraObject obj = new AkubraObject(this.manager, ident, createEmptyDigitalObject(ident), this.feeder);
-                manager.commit(obj.digitalObject, null);
+                DigitalObject emptyDigitalObject = createEmptyDigitalObject(ident);
+                manager.commit(emptyDigitalObject, null);
                 try {
-                    obj.deleteProcessingIndex();
+                    feeder.deleteByPid(emptyDigitalObject.getPID());
                 }catch (Throwable th) {
                     LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ ident + " - reindex manually.", th);
                 }
+                RepositoryObjectImpl obj = new RepositoryObjectImpl(emptyDigitalObject, this.manager, this.feeder);
                 return obj;
             } catch (IOException e) {
                 throw new RepositoryException(e);
@@ -94,8 +83,8 @@ public class AkubraRepositoryImpl implements AkubraRepository {
             throw new RepositoryException("Ingested object exists:" + contents.getPID());
         } else {
             try {
-                AkubraObject obj = new AkubraObject(this.manager, contents.getPID(), contents, this.feeder);
-                manager.commit(obj.digitalObject, null);
+                RepositoryObjectImpl obj = new RepositoryObjectImpl(contents, this.manager, this.feeder);
+                manager.commit(obj.getDigitalObject(), null);
                 obj.rebuildProcessingIndex();
                 return obj;
             } catch (IOException e) {
@@ -122,7 +111,7 @@ public class AkubraRepositoryImpl implements AkubraRepository {
                 //otherwise later causes NPE at places like AkubraUtils.streamExists(DigitalObject object, String streamID)
                 throw new RepositoryException("object not consistently found in storage: " + ident);
             }
-            AkubraObject obj = new AkubraObject(this.manager, ident, digitalObject, this.feeder);
+            RepositoryObjectImpl obj = new RepositoryObjectImpl(digitalObject, this.manager, this.feeder);
             return obj;
         } catch (IOException e) {
             throw new RepositoryException(e);
@@ -228,11 +217,11 @@ public class AkubraRepositoryImpl implements AkubraRepository {
         retval.setVERSION("1.1");
         ObjectPropertiesType objectPropertiesType = new ObjectPropertiesType();
         List<PropertyType> propertyTypeList = objectPropertiesType.getProperty();
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#state", "Active"));
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#ownerId", "fedoraAdmin"));
-        String currentTime = AkubraUtils.currentTimeString();
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", currentTime));
-        propertyTypeList.add(AkubraUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate", currentTime));
+        propertyTypeList.add(RepositoryUtils.createProperty("info:fedora/fedora-system:def/model#state", "Active"));
+        propertyTypeList.add(RepositoryUtils.createProperty("info:fedora/fedora-system:def/model#ownerId", "fedoraAdmin"));
+        String currentTime = RepositoryUtils.currentTimeString();
+        propertyTypeList.add(RepositoryUtils.createProperty("info:fedora/fedora-system:def/model#createdDate", currentTime));
+        propertyTypeList.add(RepositoryUtils.createProperty("info:fedora/fedora-system:def/view#lastModifiedDate", currentTime));
         retval.setObjectProperties(objectPropertiesType);
         return retval;
     }

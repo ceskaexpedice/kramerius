@@ -17,20 +17,17 @@
 package cz.inovatika.kramerius.fedora.om.repository.impl;
 
 import com.qbizm.kramerius.imp.jaxb.*;
-import cz.incad.kramerius.FedoraNamespaces;
-import cz.inovatika.kramerius.fedora.om.repository.AkubraRepository;
+import cz.inovatika.kramerius.fedora.om.RELSEXTSPARQLBuilder;
+import cz.inovatika.kramerius.fedora.om.RELSEXTSPARQLBuilderImpl;
+import cz.inovatika.kramerius.fedora.om.processingindex.ProcessingIndexFeeder;
+import cz.inovatika.kramerius.fedora.om.repository.FedoraNamespaces;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryDatastream;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryObject;
-import cz.inovatika.kramerius.fedora.om.repository.impl.AkubraDatastream;
-import cz.inovatika.kramerius.fedora.om.repository.impl.RELSEXTSPARQLBuilder;
-import cz.inovatika.kramerius.fedora.om.repository.impl.RELSEXTSPARQLBuilderImpl;
-import cz.inovatika.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.fedora.utils.AkubraUtils;
-import cz.incad.kramerius.fedora.utils.FedoraUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.fedora.utils.pid.PIDParser;
+import cz.inovatika.kramerius.fedora.utils.FedoraUtils;
+import cz.inovatika.kramerius.fedora.utils.pid.PIDParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
@@ -55,28 +52,19 @@ import java.util.stream.Collectors;
 /**
  * @author pavels
  */
-public class AkubraObject implements RepositoryObject {
-
-    //public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    private static final Logger LOGGER = Logger.getLogger(AkubraObject.class.getName());
+class RepositoryObjectImpl implements RepositoryObject {
+    private static final Logger LOGGER = Logger.getLogger(RepositoryObjectImpl.class.getName());
     private static final String RDF_DESCRIPTION_ELEMENT = "Description";
-    //public static final String RDF_CONTAINS_ELEMENT = "contains";
-    //public static final String RDF_TYPE_ELEMENT = "type";
     private static final String RDF_ELEMENT = "RDF";
-    //private AkubraDOManager manager;
-    //private String pid;
+    private AkubraDOManager manager;
     private DigitalObject digitalObject;
-    private AkubraRepository akubraRepository;
-    //private ProcessingIndexFeeder feeder;
+    private ProcessingIndexFeeder feeder;
 
-
-    public AkubraObject(DigitalObject digitalObject, AkubraRepository akubraRepository) {
+    RepositoryObjectImpl(DigitalObject digitalObject, AkubraDOManager manager, ProcessingIndexFeeder feeder) {
         super();
         this.manager = manager;
-        this.pid = pid;
         this.feeder = feeder;
         this.digitalObject = digitalObject;
-        this.akubraRepository = akubraRepository;
     }
 
     @Override
@@ -84,7 +72,7 @@ public class AkubraObject implements RepositoryObject {
         List<RepositoryDatastream> list = new ArrayList<>();
         List<DatastreamType> datastreamList = digitalObject.getDatastream();
         for (DatastreamType datastreamType : datastreamList) {
-            list.add(new AkubraDatastream(manager, datastreamType, datastreamType.getID(), controlGroup2Type(datastreamType.getCONTROLGROUP())));
+            list.add(new RepositoryDatastreamImpl(manager, datastreamType, datastreamType.getID(), controlGroup2Type(datastreamType.getCONTROLGROUP())));
         }
         return list;
     }
@@ -94,12 +82,9 @@ public class AkubraObject implements RepositoryObject {
         return digitalObject.getPID();
     }
 
-
     private String getPid() {
         return digitalObject.getPID();
     }
-
-
 
     private DatastreamType createDatastreamHeader(String streamId, String mimeType, String controlGroup) throws RepositoryException {
         List<DatastreamType> datastreamList = digitalObject.getDatastream();
@@ -118,7 +103,7 @@ public class AkubraObject implements RepositoryObject {
         List<DatastreamVersionType> datastreamVersion = datastreamType.getDatastreamVersion();
         DatastreamVersionType datastreamVersionType = new DatastreamVersionType();
         datastreamVersionType.setID(streamId + ".0");
-        datastreamVersionType.setCREATED(AkubraUtils.getCurrentXMLGregorianCalendar());
+        datastreamVersionType.setCREATED(RepositoryUtils.getCurrentXMLGregorianCalendar());
         datastreamVersionType.setMIMETYPE(mimeType);
         String formatUri = FedoraUtils.getFormatUriForDS(streamId);
         if (formatUri != null) {
@@ -132,13 +117,12 @@ public class AkubraObject implements RepositoryObject {
     @Override
     public RepositoryDatastream createRedirectedStream(String streamId, String url, String mimeType) throws RepositoryException {
         DatastreamType datastreamType = createDatastreamHeader(streamId, mimeType, "E");
-
         ContentLocationType contentLocationType = new ContentLocationType();
         contentLocationType.setTYPE("URL");
         contentLocationType.setREF(url);
         datastreamType.getDatastreamVersion().get(0).setContentLocation(contentLocationType);
 
-        RepositoryDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, RepositoryDatastream.Type.INDIRECT);
+        RepositoryDatastream ds = new RepositoryDatastreamImpl(manager, datastreamType, streamId, RepositoryDatastream.Type.INDIRECT);
 
         try {
             manager.commit(digitalObject, streamId);
@@ -148,9 +132,7 @@ public class AkubraObject implements RepositoryObject {
         }
     }
 
-
-
-    private AkubraDatastream.Type controlGroup2Type(String controlGroup) {
+    private RepositoryDatastreamImpl.Type controlGroup2Type(String controlGroup) {
         if ("E".equals(controlGroup) || "R".equals(controlGroup)) {
             return RepositoryDatastream.Type.INDIRECT;
         } else {
@@ -158,23 +140,21 @@ public class AkubraObject implements RepositoryObject {
         }
     }
 
-
     @Override
     public void deleteStream(String streamId) throws RepositoryException {
         try {
-            manager.deleteStream(pid, streamId);
+            manager.deleteStream(getPid(), streamId);
             if (streamId.equals(FedoraUtils.RELS_EXT_STREAM)) {
                 try {
                     this.feeder.deleteByRelationsForPid(this.getPid());
                 } catch (Throwable th) {
-                    LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ pid + " - reindex manually.", th);
+                    LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ getPid() + " - reindex manually.", th);
                 }
             }
         } catch (IOException e) {
             throw new RepositoryException("Cannot delete  streamId " + streamId, e);
         }
     }
-
 
     @Override
     public RepositoryDatastream createStream(String streamId, String mimeType, InputStream input) throws RepositoryException {
@@ -184,18 +164,18 @@ public class AkubraObject implements RepositoryObject {
         xmlContentType.getAny().add(elementFromInputStream(input));
         datastreamType.getDatastreamVersion().get(0).setXmlContent(xmlContentType);
 
-        RepositoryDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, RepositoryDatastream.Type.DIRECT);
+        RepositoryDatastream ds = new RepositoryDatastreamImpl(manager, datastreamType, streamId, RepositoryDatastream.Type.DIRECT);
 
         try {
             manager.commit(digitalObject, streamId);
             if (streamId.equals(FedoraUtils.RELS_EXT_STREAM)) {
                 try {
                     // process rels-ext and create all children and relations
-                    this.feeder.deleteByRelationsForPid(pid);
+                    this.feeder.deleteByRelationsForPid(getPid());
                     input.reset();
                     rebuildProcessingIndexImpl(input);
                 } catch (Throwable th) {
-                    LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ pid + " - reindex manually.", th);
+                    LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ getPid() + " - reindex manually.", th);
                 }
             }
             return ds;
@@ -204,8 +184,8 @@ public class AkubraObject implements RepositoryObject {
         }
     }
 
-    public static Element elementFromInputStream(InputStream in) {
-        DocumentBuilderFactory factory = null;
+    private static Element elementFromInputStream(InputStream in) {
+        DocumentBuilderFactory factory;
         DocumentBuilder builder = null;
         Document ret = null;
 
@@ -231,16 +211,13 @@ public class AkubraObject implements RepositoryObject {
         }
     }
 
-
+    @Override
     public RepositoryDatastream createManagedStream(String streamId, String mimeType, InputStream input) throws RepositoryException {
         DatastreamType datastreamType = createDatastreamHeader(streamId, mimeType, "M");
 
         try {
             datastreamType.getDatastreamVersion().get(0).setBinaryContent(IOUtils.toByteArray(input));
-
-            RepositoryDatastream ds = new AkubraDatastream(manager, datastreamType, streamId, RepositoryDatastream.Type.DIRECT);
-
-
+            RepositoryDatastream ds = new RepositoryDatastreamImpl(manager, datastreamType, streamId, RepositoryDatastream.Type.DIRECT);
             manager.commit(digitalObject, streamId);
             return ds;
         } catch (Exception ex) {
@@ -251,7 +228,7 @@ public class AkubraObject implements RepositoryObject {
     /**
      * Process one relation and feed processing index
      */
-    public void processRELSEXTRelationAndFeedProcessingIndex(String object, String localName) throws RepositoryException {
+    private void processRELSEXTRelationAndFeedProcessingIndex(String object, String localName) {
         if (localName.equals("hasModel")) {
             try {
                 boolean dcStreamExists = this.streamExists(FedoraUtils.DC_STREAM);
@@ -288,13 +265,13 @@ public class AkubraObject implements RepositoryObject {
                     this.indexDescription(object, "");
                 }
             } catch (Throwable th) {
-                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ pid + " - reindex manually.", th);
+                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ getPid() + " - reindex manually.", th);
             }
         } else {
             try {
                 this.indexRelation(localName, object);
             } catch (Throwable th) {
-                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ pid + " - reindex manually.", th);
+                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ getPid() + " - reindex manually.", th);
             }
         }
     }
@@ -349,20 +326,16 @@ public class AkubraObject implements RepositoryObject {
     }
 
     private void indexDescription(String model, String title, ProcessingIndexFeeder.TitleType ttype) throws IOException, SolrServerException {
-        this.feeder.feedDescriptionDocument(this.getPid(), model, title.trim(), AkubraUtils.getAkubraInternalId(this.getPid()), new Date(), ttype);
+        this.feeder.feedDescriptionDocument(this.getPid(), model, title.trim(), RepositoryUtils.getAkubraInternalId(this.getPid()), new Date(), ttype);
     }
 
     private void indexDescription(String model, String title) throws IOException, SolrServerException {
-        this.feeder.feedDescriptionDocument(this.getPid(), model, title.trim(), AkubraUtils.getAkubraInternalId(this.getPid()), new Date());
-    }
-
-    public void deleteProcessingIndex() throws IOException, SolrServerException {
-        feeder.deleteByPid(this.getPid());
+        this.feeder.feedDescriptionDocument(this.getPid(), model, title.trim(), RepositoryUtils.getAkubraInternalId(this.getPid()), new Date());
     }
 
     @Override
     public boolean streamExists(String streamId) throws RepositoryException {
-        return AkubraUtils.streamExists(digitalObject, streamId);
+        return RepositoryUtils.streamExists(digitalObject, streamId);
     }
 
     @Override
@@ -370,7 +343,7 @@ public class AkubraObject implements RepositoryObject {
         List<DatastreamType> datastreamList = digitalObject.getDatastream();
         for (DatastreamType datastreamType : datastreamList) {
             if (streamId.equals(datastreamType.getID())) {
-                return new AkubraDatastream(manager, datastreamType, datastreamType.getID(), controlGroup2Type(datastreamType.getCONTROLGROUP()));
+                return new RepositoryDatastreamImpl(manager, datastreamType, datastreamType.getID(), controlGroup2Type(datastreamType.getCONTROLGROUP()));
             }
         }
         return null;
@@ -384,7 +357,7 @@ public class AkubraObject implements RepositoryObject {
     @Override
     public Date getLastModified() throws RepositoryException {
         try {
-            return AkubraUtils.getLastModified(digitalObject);
+            return RepositoryUtils.getLastModified(digitalObject);
         } catch (IOException e) {
             throw new RepositoryException(e);
         }
@@ -399,7 +372,7 @@ public class AkubraObject implements RepositoryObject {
     @Override
     public InputStream getFoxml() throws RepositoryException {
         try {
-            return manager.retrieveObject(pid);
+            return manager.retrieveObject(getPid());
         } catch (IOException e) {
             throw new RepositoryException(e);
         }
@@ -556,7 +529,7 @@ public class AkubraObject implements RepositoryObject {
         final String targetPID = targetRelation.startsWith(PIDParser.INFO_FEDORA_PREFIX) ? targetRelation : PIDParser.INFO_FEDORA_PREFIX + targetRelation;
         RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
         if (stream == null) {
-            throw new RepositoryException("FOXML object " + this.pid + "does not have RELS-EXT stream ");
+            throw new RepositoryException("FOXML object " + this.getPid() + "does not have RELS-EXT stream ");
         }
         Document document = null;
         try {
@@ -775,5 +748,9 @@ public class AkubraObject implements RepositoryObject {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    DigitalObject getDigitalObject() {
+        return digitalObject;
     }
 }

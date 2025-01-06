@@ -1,13 +1,12 @@
-package cz.inovatika.kramerius.fedora.utils;
+package cz.inovatika.kramerius.fedora.om.repository.impl;
 
 import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
-import cz.inovatika.kramerius.fedora.om.repository.impl.AkubraDOManager;
-import cz.inovatika.kramerius.utils.SafeSimpleDateFormat;
-import cz.inovatika.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.SafeSimpleDateFormat;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.akubraproject.map.IdMapper;
 import org.apache.commons.io.IOUtils;
 import org.fcrepo.common.PID;
@@ -34,14 +33,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
-public class AkubraUtils {
-    private static final Logger LOGGER = Logger.getLogger(AkubraUtils.class.getName());
+class RepositoryUtils {
+    private static final Logger LOGGER = Logger.getLogger(RepositoryUtils.class.getName());
     public static final SafeSimpleDateFormat DATE_FORMAT = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'");
 
-    private AkubraUtils() {
+    private RepositoryUtils() {
     }
 
-    public static DatastreamVersionType getLastStreamVersion(DigitalObject object, String streamID) {
+    static DatastreamVersionType getLastStreamVersion(DigitalObject object, String streamID) {
         for (DatastreamType datastreamType : object.getDatastream()) {
             if (streamID.equals(datastreamType.getID())) {
                 return getLastStreamVersion(datastreamType);
@@ -50,7 +49,7 @@ public class AkubraUtils {
         return null;
     }
 
-    public static DatastreamVersionType getLastStreamVersion(DatastreamType datastreamType) {
+    static DatastreamVersionType getLastStreamVersion(DatastreamType datastreamType) {
         List<DatastreamVersionType> datastreamVersionList = datastreamType.getDatastreamVersion();
         if (datastreamVersionList == null || datastreamVersionList.isEmpty()) {
             return null;
@@ -59,7 +58,7 @@ public class AkubraUtils {
         }
     }
 
-    public static boolean streamExists(DigitalObject object, String streamID) {
+    static boolean streamExists(DigitalObject object, String streamID) {
         for (DatastreamType datastreamType : object.getDatastream()) {
             if (datastreamType == null) {
                 LOGGER.log(Level.SEVERE, "Repository inconsistency: object %s has datastream %s that is null", new String[]{object.getPID(), streamID});
@@ -76,7 +75,7 @@ public class AkubraUtils {
     private static final String LOCAL_REF_PREFIX = "http://local.fedora.server/fedora/get/";
 
 
-    public static InputStream getStreamContent(DatastreamVersionType stream, AkubraDOManager manager) throws TransformerException, IOException {
+    static InputStream getStreamContent(DatastreamVersionType stream, AkubraDOManager manager) throws TransformerException, IOException {
         if (stream.getXmlContent() != null) {
             StringWriter wrt = new StringWriter();
             for (Element element : stream.getXmlContent().getAny()) {
@@ -121,7 +120,7 @@ public class AkubraUtils {
         }
     }
 
-    public static XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
+    static XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
         try {
             return DatatypeFactory.newInstance().newXMLGregorianCalendar(DATE_FORMAT.format(new Date()));
         } catch (DatatypeConfigurationException e) {
@@ -142,7 +141,7 @@ public class AkubraUtils {
      * @param pid PID of the FOXML object (uuid:xxxxxx...)
      * @return internal file path relative to object store root, depends ob the property objectStore.pattern
      */
-    public static String getAkubraInternalId(String pid) {
+    static String getAkubraInternalId(String pid) {
         if (pid == null) {
             return "";
         }
@@ -150,7 +149,7 @@ public class AkubraUtils {
         return getAkubraInternalIdWitPattern(pid, objectPattern);
     }
 
-    public  static String getAkubraInternalIdWitPattern(String pid, String objectPattern) {
+    static String getAkubraInternalIdWitPattern(String pid, String objectPattern) {
         IdMapper mapper = new HashPathIdMapper(objectPattern);
         URI extUri = null;
         try {
@@ -163,7 +162,7 @@ public class AkubraUtils {
         return internalId.toString();
     }
 
-    public static Date getLastModified(DigitalObject object) throws IOException {
+    static Date getLastModified(DigitalObject object) throws IOException {
         for (PropertyType propertyType : object.getObjectProperties().getProperty()) {
             if ("info:fedora/fedora-system:def/view#lastModifiedDate".equals(propertyType.getNAME())) {
                 try {
@@ -176,11 +175,11 @@ public class AkubraUtils {
         return null;
     }
 
-    public static String currentTimeString() {
+    static String currentTimeString() {
         return DATE_FORMAT.format(new Date());
     }
 
-    public static PropertyType createProperty(String name, String value) {
+    static PropertyType createProperty(String name, String value) {
         PropertyType propertyType = new PropertyType();
         propertyType.setNAME(name);
         propertyType.setVALUE(value);

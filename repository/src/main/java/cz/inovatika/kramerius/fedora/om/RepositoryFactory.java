@@ -19,13 +19,14 @@ package cz.inovatika.kramerius.fedora.om;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.kramerius.fedora.om.processingindex.ProcessingIndexFeeder;
-import cz.inovatika.kramerius.fedora.om.repository.AkubraRepository;
+import cz.inovatika.kramerius.fedora.om.repository.Repository;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
 import cz.inovatika.kramerius.fedora.om.repository.impl.AkubraDOManager;
-import cz.inovatika.kramerius.fedora.om.repository.impl.AkubraRepositoryImpl;
+import cz.inovatika.kramerius.fedora.om.repository.impl.RepositoryImpl;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheManagerBuilder;
 
 import java.io.IOException;
 
@@ -33,21 +34,26 @@ import java.io.IOException;
  * AkubraRepositoryFactory
  * @author ppodsednik
  */
-public final class AkubraRepositoryFactory {
+public final class RepositoryFactory {
 
-  private AkubraRepositoryFactory() {
+  private RepositoryFactory() {
   }
 
-  public static AkubraRepository createAkubraRepository() throws RepositoryException {
-    // TODO cache manager
+  public static Repository createAkubraRepository() throws RepositoryException {
     try {
-      ProcessingIndexFeeder processingIndexFeeder = new ProcessingIndexFeeder(processingUpdateClient());
-      AkubraDOManager akubraDOManager = new AkubraDOManager(cacheManager);
-      return new AkubraRepositoryImpl(processingIndexFeeder, akubraDOManager);
+      ProcessingIndexFeeder processingIndexFeeder = new ProcessingIndexFeeder(createProcessingUpdateClient());
+      AkubraDOManager akubraDOManager = new AkubraDOManager(createCacheManager());
+      return new RepositoryImpl(processingIndexFeeder, akubraDOManager);
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
 
+  }
+
+  private static CacheManager createCacheManager() {
+    CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+    cacheManager.init();
+    return cacheManager;
   }
 
   /* TODO
@@ -56,7 +62,7 @@ public final class AkubraRepositoryFactory {
     return new HttpSolrClient.Builder(processingSolrHost).build();
   }*/
 
-  private static SolrClient processingUpdateClient() {
+  private static SolrClient createProcessingUpdateClient() {
     String processingSolrHost = KConfiguration.getInstance().getSolrProcessingHost();
     return new ConcurrentUpdateSolrClient.Builder(processingSolrHost).withQueueSize(100).build();
   }

@@ -1,7 +1,7 @@
-package cz.inovatika.kramerius.fedora.om.repository.impl;
+package cz.inovatika.kramerius.fedora.om;
 
-import cz.incad.kramerius.fedora.om.repository.RepositoryException;
-import cz.incad.kramerius.fedora.om.repository.impl.RELSEXTSPARQLBuilderListener;
+import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
+import cz.inovatika.kramerius.fedora.om.repository.impl.RELSEXTSPARQLBuilderListener;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -11,7 +11,7 @@ import java.io.IOException;
  * Builder is able to prepare SPARQL update script
  * @see RELSEXTSPARQLBuilderListener
  */
-public interface RELSEXTSPARQLBuilder {
+interface RELSEXTSPARQLBuilder {
 
     /**
      * Generate update sparql
@@ -23,5 +23,5 @@ public interface RELSEXTSPARQLBuilder {
      * @throws ParserConfigurationException
      * @throws RepositoryException
      */
-    public String sparqlProps(String relsExt, RELSEXTSPARQLBuilderListener listener) throws IOException, SAXException, ParserConfigurationException, RepositoryException;
+    String sparqlProps(String relsExt, RELSEXTSPARQLBuilderListener listener) throws IOException, SAXException, ParserConfigurationException, RepositoryException;
 }

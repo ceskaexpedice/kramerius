@@ -3,7 +3,6 @@ package cz.inovatika.kramerius.fedora.om.repository.impl;
 import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryDatastream;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
-import cz.inovatika.kramerius.fedora.utils.AkubraUtils;
 import org.w3c.dom.Document;
 
 import java.io.*;
@@ -13,9 +12,9 @@ import java.util.logging.Logger;
 /**
  * Created by pstastny on 10/13/2017.
  */
-public class AkubraDatastream implements RepositoryDatastream {
+class RepositoryDatastreamImpl implements RepositoryDatastream {
 
-    public static final Logger LOGGER = Logger.getLogger(AkubraDatastream.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(RepositoryDatastreamImpl.class.getName());
 
     private final AkubraDOManager manager;
     private final DatastreamType datastream;
@@ -26,7 +25,7 @@ public class AkubraDatastream implements RepositoryDatastream {
     private String transactionId;
 
 
-    public AkubraDatastream(AkubraDOManager manager, DatastreamType datastream, String name, Type type) {
+    RepositoryDatastreamImpl(AkubraDOManager manager, DatastreamType datastream, String name, Type type) {
         super();
         this.manager = manager;
         this.datastream = datastream;
@@ -34,25 +33,23 @@ public class AkubraDatastream implements RepositoryDatastream {
         this.type = type;
     }
 
-    public AkubraDatastream(AkubraDOManager manager, DatastreamType datastream, String name) {
+    RepositoryDatastreamImpl(AkubraDOManager manager, DatastreamType datastream, String name) {
         this(manager,datastream, name, Type.DIRECT);
     }
-
-
 
     @Override
     public String getName() throws RepositoryException {
         return this.name;
     }
 
+    @Override
     public InputStream getContent() throws RepositoryException {
         try {
-            return AkubraUtils.getStreamContent(AkubraUtils.getLastStreamVersion(datastream), manager);
+            return RepositoryUtils.getStreamContent(RepositoryUtils.getLastStreamVersion(datastream), manager);
         } catch (Exception e) {
             throw new RepositoryException(e);
         }
     }
-
 
     @Override
     public Document getMetadata() throws RepositoryException {
@@ -61,10 +58,8 @@ public class AkubraDatastream implements RepositoryDatastream {
 
     @Override
     public String getMimeType() throws RepositoryException {
-        return AkubraUtils.getLastStreamVersion(datastream).getMIMETYPE();
+        return RepositoryUtils.getLastStreamVersion(datastream).getMIMETYPE();
     }
-
-
 
     @Override
     public Type getStreamType() throws RepositoryException {
@@ -73,7 +68,7 @@ public class AkubraDatastream implements RepositoryDatastream {
 
     @Override
     public Date getLastModified() throws RepositoryException {
-        return AkubraUtils.getLastStreamVersion(datastream).getCREATED().toGregorianCalendar().getTime();
+        return RepositoryUtils.getLastStreamVersion(datastream).getCREATED().toGregorianCalendar().getTime();
     }
 
     @Override
