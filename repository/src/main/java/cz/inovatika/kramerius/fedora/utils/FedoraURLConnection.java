@@ -1,6 +1,7 @@
 package cz.inovatika.kramerius.fedora.utils;
 
-import cz.incad.kramerius.fedora.RepositoryAccess;
+
+import cz.inovatika.kramerius.fedora.RepositoryAccess;
 
 import java.io.IOException;
 import java.io.InputStream;

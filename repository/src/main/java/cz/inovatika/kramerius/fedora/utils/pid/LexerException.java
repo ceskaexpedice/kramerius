@@ -6,19 +6,19 @@ package cz.inovatika.kramerius.fedora.utils.pid;
  
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class LexerException extends Exception {
+class LexerException extends Exception {
 
 	/**
 	 * 
 	 */
-	public LexerException() {
+	LexerException() {
 		super();
 		
 	}
 	/**
 	 * @param message
 	 */
-	public LexerException(String message) {
+	LexerException(String message) {
 		super(message);
 		
 	}
@@ -26,14 +26,14 @@ public class LexerException extends Exception {
 	 * @param message
 	 * @param cause
 	 */
-	public LexerException(String message, Throwable cause) {
+	LexerException(String message, Throwable cause) {
 		super(message, cause);
 		
 	}
 	/**
 	 * @param cause
 	 */
-	public LexerException(Throwable cause) {
+	LexerException(Throwable cause) {
 		super(cause);
 		
 	}

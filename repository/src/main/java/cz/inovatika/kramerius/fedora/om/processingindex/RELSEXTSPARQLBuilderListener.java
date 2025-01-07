@@ -1,4 +1,4 @@
-package cz.inovatika.kramerius.fedora.om;
+package cz.inovatika.kramerius.fedora.om.processingindex;
 
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
 

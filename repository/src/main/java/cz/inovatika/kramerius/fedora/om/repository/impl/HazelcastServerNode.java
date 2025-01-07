@@ -47,9 +47,12 @@ public class HazelcastServerNode implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        /* TODO
         AkubraDOManager.shutdown();
         if (hzInstance != null) {
             hzInstance.shutdown();
         }
+
+         */
     }
 }

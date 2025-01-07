@@ -914,8 +914,6 @@ public interface RepositoryAccess {
 
     public boolean isPidAvailable(String pid) throws IOException, RepositoryException;
 
-    public boolean isStreamAvailable(String pid, String dsId) throws IOException, RepositoryException;
-
     /**
      * @param pid Persistent identifier of the object
      * @return latest version of object's datastream OCR_TEXT provided it is stored as inline XML (control-group X), null otherwise

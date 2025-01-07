@@ -3,6 +3,13 @@ package cz.inovatika.kramerius.fedora.om.processingindex;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.kramerius.fedora.FedoraNamespaces;
+import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
+import cz.inovatika.kramerius.fedora.om.repository.RepositoryObject;
+import cz.inovatika.kramerius.fedora.utils.FedoraUtils;
+import cz.inovatika.kramerius.fedora.om.repository.impl.RepositoryUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrClient;
@@ -13,13 +20,20 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CursorMarkParams;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * This is the helper. It is dedicated for creating supporting index which should replace
@@ -234,6 +248,132 @@ public class ProcessingIndexFeeder {
         return response;
     }
 
+    public void rebuildProcessingIndex(RepositoryObject repositoryObject, InputStream content) throws RepositoryException {
+        try {
+            String s = IOUtils.toString(content, "UTF-8");
+            RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
+            sparqlBuilder.sparqlProps(s.trim(), (object, localName) -> {
+                processRELSEXTRelationAndFeedProcessingIndex(repositoryObject, object, localName);
+                return object;
+            });
+        } catch (IOException e) {
+            throw new RepositoryException(e);
+        } catch (SAXException e) {
+            throw new RepositoryException(e);
+        } catch (ParserConfigurationException e) {
+            throw new RepositoryException(e);
+        } finally {
+            try {
+                this.commit();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (SolrServerException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
+     * Process one relation and feed processing index
+     */
+    private void processRELSEXTRelationAndFeedProcessingIndex(RepositoryObject repositoryObject, String object, String localName) {
+        if (localName.equals("hasModel")) {
+            try {
+                boolean dcStreamExists = repositoryObject.streamExists(FedoraUtils.DC_STREAM);
+                // TODO: Biblio mods ukladat jinam ??
+                boolean modsStreamExists = repositoryObject.streamExists(FedoraUtils.BIBLIO_MODS_STREAM);
+                if (dcStreamExists || modsStreamExists) {
+                    try {
+                        //LOGGER.info("DC or BIBLIOMODS exists");
+                        if (dcStreamExists) {
+                            List<String> dcTList = dcTitle(repositoryObject);
+                            if (dcTList != null && !dcTList.isEmpty()) {
+                                this.indexDescription(repositoryObject.getPath(), object, dcTList.stream().collect(Collectors.joining(" ")));
+                            } else {
+                                this.indexDescription(repositoryObject.getPath(), object, "");
+                            }
+                        } else if (modsStreamExists) {
+                            // czech title or default
+                            List<String> modsTList = modsTitle(repositoryObject, "cze");
+                            if (modsTList != null && !modsTList.isEmpty()) {
+                                this.indexDescription(repositoryObject.getPath(), object, modsTList.stream().collect(Collectors.joining(" ")), ProcessingIndexFeeder.TitleType.mods);
+                            } else {
+                                this.indexDescription(repositoryObject.getPath(), object, "");
+                            }
+                        }
+                    } catch (ParserConfigurationException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        this.indexDescription(repositoryObject.getPath(), object, "");
+                    } catch (SAXException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        this.indexDescription(repositoryObject.getPath(), object, "");
+                    }
+                } else {
+                    LOGGER.info("Index description without dc or mods");
+                    this.indexDescription(repositoryObject.getPath(), object, "");
+                }
+            } catch (Throwable th) {
+                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ repositoryObject.getPath() + " - reindex manually.", th);
+            }
+        } else {
+            try {
+                this.feedRelationDocument(repositoryObject.getPath(), localName, object);
+            } catch (Throwable th) {
+                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ repositoryObject.getPath() + " - reindex manually.", th);
+            }
+        }
+    }
+
+    private void indexDescription(String pid, String model, String title, ProcessingIndexFeeder.TitleType ttype) throws IOException, SolrServerException {
+        this.feedDescriptionDocument(pid, model, title.trim(), RepositoryUtils.getAkubraInternalId(pid), new Date(), ttype);
+    }
+
+    private void indexDescription(String pid, String model, String title) throws IOException, SolrServerException {
+        this.feedDescriptionDocument(pid, model, title.trim(), RepositoryUtils.getAkubraInternalId(pid), new Date());
+    }
+
+    private List<String> dcTitle(RepositoryObject repositoryObject) throws RepositoryException, ParserConfigurationException, SAXException, IOException {
+        InputStream stream = repositoryObject.getStream(FedoraUtils.DC_STREAM).getContent();
+        Element title = XMLUtils.findElement(XMLUtils.parseDocument(stream, true).getDocumentElement(), "title", FedoraNamespaces.DC_NAMESPACE_URI);
+        return title != null ? Arrays.asList(title.getTextContent()) : new ArrayList<>();
+    }
+
+    private List<String> modsTitle(RepositoryObject repositoryObject, String lang) throws RepositoryException, ParserConfigurationException, SAXException, IOException {
+        InputStream stream = repositoryObject.getStream(FedoraUtils.BIBLIO_MODS_STREAM).getContent();
+        Element docElement = XMLUtils.parseDocument(stream, true).getDocumentElement();
+
+        List<Element> elements = XMLUtils.getElementsRecursive(docElement, new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                if (element.getNamespaceURI().equals(FedoraNamespaces.BIBILO_MODS_URI)) {
+                    if (element.getLocalName().equals("title") && element.hasAttribute("lang") && element.getAttribute("lang").equals("cze")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+
+        if (elements.isEmpty()) {
+            elements = XMLUtils.getElementsRecursive(docElement, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    if (element.getNamespaceURI().equals(FedoraNamespaces.BIBILO_MODS_URI)) {
+                        // TODO: Change it
+                        if (element.getLocalName().equals("title")) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+
+        }
+
+        return elements.stream().map(Element::getTextContent).collect(Collectors.toList());
+
+    }
     // commit to solr
     public void commit() throws IOException, SolrServerException {
         this.solrClient.commit();

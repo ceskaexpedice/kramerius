@@ -10,7 +10,7 @@ import java.io.StringReader;
  * @author pavels
  *
  */
-public class CharBuffer {
+class CharBuffer {
 
 	private int[] buffer = null;	
 	private int[] positions = null;
@@ -18,7 +18,7 @@ public class CharBuffer {
 	private StringReader input = null;
 	private int counter = 0;
 	
-	public CharBuffer(String inputString, int depth) throws LexerException {
+	CharBuffer(String inputString, int depth) throws LexerException {
 		try {
 			this.input = new StringReader(inputString);
 			this.depth = depth;
@@ -34,19 +34,19 @@ public class CharBuffer {
 		}
 	}
 	
-	public int la(int pos) throws LexerException {
+	int la(int pos) throws LexerException {
 		if ((pos >=1) && (pos <= this.depth)) {
 			return this.buffer[pos - 1];
 		} else throw new LexerException("cannot look ahead to '"+pos+"' position");
 	}
 	
-	public int position(int pos) throws LexerException {
+	int position(int pos) throws LexerException {
 		if ((pos >=1) && (pos <= this.depth)) {
 			return this.positions[pos - 1];
 		} else throw new LexerException("cannot look ahead to '"+pos+"' position");
 	}
 	
-	public void consume() throws LexerException {
+	void consume() throws LexerException {
 		try {
 			for (int i = 0; i < this.depth-1; i++) {
 				this.buffer[i] = this.buffer[i+1];

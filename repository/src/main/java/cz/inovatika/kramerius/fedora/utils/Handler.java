@@ -1,8 +1,7 @@
 package cz.inovatika.kramerius.fedora.utils;
 
 import com.google.inject.Inject;
-import cz.incad.kramerius.fedora.RepositoryAccess;
-import cz.incad.kramerius.fedora.utils.FedoraURLConnection;
+import cz.inovatika.kramerius.fedora.RepositoryAccess;
 
 import java.io.IOException;
 import java.net.Proxy;

@@ -1,4 +1,4 @@
-package cz.inovatika.kramerius.fedora.om.repository;
+package cz.inovatika.kramerius.fedora;
 
 /**
  * Namespaces in fedora

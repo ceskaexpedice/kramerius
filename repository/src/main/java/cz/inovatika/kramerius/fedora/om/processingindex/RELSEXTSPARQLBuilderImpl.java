@@ -1,12 +1,11 @@
-package cz.inovatika.kramerius.fedora.om;
+package cz.inovatika.kramerius.fedora.om.processingindex;
 
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.inovatika.kramerius.fedora.om.repository.FedoraNamespaceContext;
-import cz.inovatika.kramerius.fedora.om.repository.FedoraNamespaces;
+import cz.inovatika.kramerius.fedora.FedoraNamespaceContext;
+import cz.inovatika.kramerius.fedora.FedoraNamespaces;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
-import cz.inovatika.kramerius.fedora.om.repository.impl.RELSEXTSPARQLBuilderListener;
 import cz.inovatika.kramerius.fedora.utils.pid.PIDParser;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;

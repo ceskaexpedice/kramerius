@@ -33,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
-class RepositoryUtils {
+public class RepositoryUtils {
     private static final Logger LOGGER = Logger.getLogger(RepositoryUtils.class.getName());
     public static final SafeSimpleDateFormat DATE_FORMAT = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'");
 
@@ -141,7 +141,7 @@ class RepositoryUtils {
      * @param pid PID of the FOXML object (uuid:xxxxxx...)
      * @return internal file path relative to object store root, depends ob the property objectStore.pattern
      */
-    static String getAkubraInternalId(String pid) {
+    public static String getAkubraInternalId(String pid) {
         if (pid == null) {
             return "";
         }

@@ -10,18 +10,18 @@ import cz.inovatika.kramerius.fedora.utils.pid.Token.TokenType;
  
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class Lexer {
+class Lexer {
 
-	public static final int LOOK_AHEAD_DEPTH = 5;
+	private static final int LOOK_AHEAD_DEPTH = 5;
 	
 	// char buffer with lookahead support
 	private CharBuffer buffer = null;
 	
-	public Lexer(String inputString) throws LexerException {
+	Lexer(String inputString) throws LexerException {
 		this.buffer = new CharBuffer(inputString, LOOK_AHEAD_DEPTH);
 	}
 	
-	public Lexer(String inputString, int lookAhead) throws LexerException {
+	Lexer(String inputString, int lookAhead) throws LexerException {
 		this.buffer = new CharBuffer(inputString, lookAhead);
 	}
 	
@@ -32,7 +32,7 @@ public class Lexer {
 	 * @return char 
 	 * @throws SQLLexerException throws when the s
 	 */	
-	protected char charLookAhead(int charPosition) throws LexerException {
+	char charLookAhead(int charPosition) throws LexerException {
 		char ch = (char)this.buffer.la(charPosition);
 		return ch;
 	}
@@ -42,7 +42,7 @@ public class Lexer {
 	 * @return int
 	 * @throws SQLLexerException
 	 */
-	protected int charPosition(int charPosition) throws LexerException {
+	int charPosition(int charPosition) throws LexerException {
 		return this.buffer.position(charPosition);
 	}
 	
@@ -50,7 +50,7 @@ public class Lexer {
 	 * Consume char and read new char into buffer
 	 * @throws SQLLexerException
 	 */
-	protected void consumeChar() throws LexerException {
+	void consumeChar() throws LexerException {
 		this.buffer.consume();
 	}
 	
@@ -59,23 +59,19 @@ public class Lexer {
 	 * @param expectingChar
 	 * @throws SQLLexerException
 	 */
-	protected void matchChar(char expectingChar) throws LexerException {
+	void matchChar(char expectingChar) throws LexerException {
 		if (charLookAhead(1) == expectingChar) {
 			this.consumeChar();
 		} else throw new LexerException("i am expecting '"+expectingChar+"' but got '"+charLookAhead(1)+"'");
 	}
-	
-	
 
-	protected Token matchALPHA() throws LexerException {
+	Token matchALPHA() throws LexerException {
 		int ch = this.buffer.la(1);
         this.consumeChar();
         return new Token(TokenType.ALPHA, ""+(char)ch);
 	}
 	
-	
-	
-	public boolean hexDigitPostfix(char ch) {
+	boolean hexDigitPostfix(char ch) {
 		switch(ch) {
 			case 'A':
 			case 'B': 
@@ -95,7 +91,7 @@ public class Lexer {
 		}			
 	}
 	
-	public Token matchHexDigit() throws LexerException {
+	Token matchHexDigit() throws LexerException {
 		StringBuffer buffer = new StringBuffer();
 		char ch = charLookAhead(1);
 		if (!Character.isDigit(ch)) throw new LexerException("Expecting Digit !");
@@ -108,7 +104,7 @@ public class Lexer {
 		return new Token(TokenType.HEXDIGIT, buffer.toString());
 	}
 
-	public Token matchDigit() throws LexerException {
+	Token matchDigit() throws LexerException {
 		StringBuffer buffer = new StringBuffer();
 		char ch = charLookAhead(1);
 		if (!Character.isDigit(ch)) throw new LexerException("Expecting Digit !");
@@ -117,14 +113,14 @@ public class Lexer {
 		return new Token(TokenType.DIGIT, buffer.toString());
 	}
 	
-	public void matchString(String str) throws LexerException {
+	void matchString(String str) throws LexerException {
 		char[] chrs = str.toCharArray();
 		for (int i = 0; i < chrs.length; i++) {
 			matchChar(chrs[i]);
 		}
 	}
 	
-	public Token readToken() throws LexerException {
+	Token readToken() throws LexerException {
 		char ch = charLookAhead(1);
 		if (ch == 65535) return new Token(TokenType.EOI, "eoi");
 		switch(ch) {

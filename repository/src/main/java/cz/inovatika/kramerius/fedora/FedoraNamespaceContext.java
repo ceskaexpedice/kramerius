@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.inovatika.kramerius.fedora.om.repository;
+package cz.inovatika.kramerius.fedora;
 
 import javax.xml.namespace.NamespaceContext;
 import java.util.*;

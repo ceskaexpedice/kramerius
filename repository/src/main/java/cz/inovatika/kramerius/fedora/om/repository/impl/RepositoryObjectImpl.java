@@ -17,10 +17,8 @@
 package cz.inovatika.kramerius.fedora.om.repository.impl;
 
 import com.qbizm.kramerius.imp.jaxb.*;
-import cz.inovatika.kramerius.fedora.om.RELSEXTSPARQLBuilder;
-import cz.inovatika.kramerius.fedora.om.RELSEXTSPARQLBuilderImpl;
 import cz.inovatika.kramerius.fedora.om.processingindex.ProcessingIndexFeeder;
-import cz.inovatika.kramerius.fedora.om.repository.FedoraNamespaces;
+import cz.inovatika.kramerius.fedora.FedoraNamespaces;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryDatastream;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryObject;
@@ -31,7 +29,6 @@ import cz.inovatika.kramerius.fedora.utils.pid.PIDParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -173,7 +170,7 @@ class RepositoryObjectImpl implements RepositoryObject {
                     // process rels-ext and create all children and relations
                     this.feeder.deleteByRelationsForPid(getPid());
                     input.reset();
-                    rebuildProcessingIndexImpl(input);
+                    feeder.rebuildProcessingIndex(this, input);
                 } catch (Throwable th) {
                     LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ getPid() + " - reindex manually.", th);
                 }
@@ -223,114 +220,6 @@ class RepositoryObjectImpl implements RepositoryObject {
         } catch (Exception ex) {
             throw new RepositoryException(ex);
         }
-    }
-
-    /**
-     * Process one relation and feed processing index
-     */
-    private void processRELSEXTRelationAndFeedProcessingIndex(String object, String localName) {
-        if (localName.equals("hasModel")) {
-            try {
-                boolean dcStreamExists = this.streamExists(FedoraUtils.DC_STREAM);
-                // TODO: Biblio mods ukladat jinam ??
-                boolean modsStreamExists = this.streamExists(FedoraUtils.BIBLIO_MODS_STREAM);
-                if (dcStreamExists || modsStreamExists) {
-                    try {
-                        //LOGGER.info("DC or BIBLIOMODS exists");
-                        if (dcStreamExists) {
-                            List<String> dcTList = dcTitle();
-                            if (dcTList != null && !dcTList.isEmpty()) {
-                                this.indexDescription(object, dcTList.stream().collect(Collectors.joining(" ")));
-                            } else {
-                                this.indexDescription(object, "");
-                            }
-                        } else if (modsStreamExists) {
-                            // czech title or default
-                            List<String> modsTList = modsTitle("cze");
-                            if (modsTList != null && !modsTList.isEmpty()) {
-                                this.indexDescription(object, modsTList.stream().collect(Collectors.joining(" ")), ProcessingIndexFeeder.TitleType.mods);
-                            } else {
-                                this.indexDescription(object, "");
-                            }
-                        }
-                    } catch (ParserConfigurationException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                        this.indexDescription(object, "");
-                    } catch (SAXException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                        this.indexDescription(object, "");
-                    }
-                } else {
-                    LOGGER.info("Index description without dc or mods");
-                    this.indexDescription(object, "");
-                }
-            } catch (Throwable th) {
-                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ getPid() + " - reindex manually.", th);
-            }
-        } else {
-            try {
-                this.indexRelation(localName, object);
-            } catch (Throwable th) {
-                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ getPid() + " - reindex manually.", th);
-            }
-        }
-    }
-
-
-    private List<String> dcTitle() throws RepositoryException, ParserConfigurationException, SAXException, IOException {
-        InputStream stream = this.getStream(FedoraUtils.DC_STREAM).getContent();
-        Element title = XMLUtils.findElement(XMLUtils.parseDocument(stream, true).getDocumentElement(), "title", FedoraNamespaces.DC_NAMESPACE_URI);
-        return title != null ? Arrays.asList(title.getTextContent()) : new ArrayList<>();
-    }
-
-    private List<String> modsTitle(String lang) throws RepositoryException, ParserConfigurationException, SAXException, IOException {
-        InputStream stream = this.getStream(FedoraUtils.BIBLIO_MODS_STREAM).getContent();
-        Element docElement = XMLUtils.parseDocument(stream, true).getDocumentElement();
-
-        List<Element> elements = XMLUtils.getElementsRecursive(docElement, new XMLUtils.ElementsFilter() {
-            @Override
-            public boolean acceptElement(Element element) {
-                if (element.getNamespaceURI().equals(FedoraNamespaces.BIBILO_MODS_URI)) {
-                    if (element.getLocalName().equals("title") && element.hasAttribute("lang") && element.getAttribute("lang").equals("cze")) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-
-
-        if (elements.isEmpty()) {
-            elements = XMLUtils.getElementsRecursive(docElement, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    if (element.getNamespaceURI().equals(FedoraNamespaces.BIBILO_MODS_URI)) {
-                        // TODO: Change it  
-                        if (element.getLocalName().equals("title")) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-            });
-
-        }
-
-        return elements.stream().map(Element::getTextContent).collect(Collectors.toList());
-
-    }
-
-
-    private void indexRelation(String localName, String object) throws IOException, SolrServerException {
-        this.feeder.feedRelationDocument(this.getPid(), localName, object);
-    }
-
-    private void indexDescription(String model, String title, ProcessingIndexFeeder.TitleType ttype) throws IOException, SolrServerException {
-        this.feeder.feedDescriptionDocument(this.getPid(), model, title.trim(), RepositoryUtils.getAkubraInternalId(this.getPid()), new Date(), ttype);
-    }
-
-    private void indexDescription(String model, String title) throws IOException, SolrServerException {
-        this.feeder.feedDescriptionDocument(this.getPid(), model, title.trim(), RepositoryUtils.getAkubraInternalId(this.getPid()), new Date());
     }
 
     @Override
@@ -531,7 +420,7 @@ class RepositoryObjectImpl implements RepositoryObject {
         if (stream == null) {
             throw new RepositoryException("FOXML object " + this.getPid() + "does not have RELS-EXT stream ");
         }
-        Document document = null;
+        Document document;
         try {
             document = XMLUtils.parseDocument(stream.getContent(), true);
         } catch (ParserConfigurationException e) {
@@ -722,33 +611,9 @@ class RepositoryObjectImpl implements RepositoryObject {
     public void rebuildProcessingIndex() throws RepositoryException {
         RepositoryDatastream stream = this.getStream(FedoraUtils.RELS_EXT_STREAM);
         InputStream content = stream.getContent();
-        rebuildProcessingIndexImpl(content);
+        feeder.rebuildProcessingIndex(this, content);
     }
 
-    private void rebuildProcessingIndexImpl(InputStream content) throws RepositoryException {
-        try {
-            String s = IOUtils.toString(content, "UTF-8");
-            RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
-            sparqlBuilder.sparqlProps(s.trim(), (object, localName) -> {
-                processRELSEXTRelationAndFeedProcessingIndex(object, localName);
-                return object;
-            });
-        } catch (IOException e) {
-            throw new RepositoryException(e);
-        } catch (SAXException e) {
-            throw new RepositoryException(e);
-        } catch (ParserConfigurationException e) {
-            throw new RepositoryException(e);
-        } finally {
-            try {
-                this.feeder.commit();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (SolrServerException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 
     DigitalObject getDigitalObject() {
         return digitalObject;
