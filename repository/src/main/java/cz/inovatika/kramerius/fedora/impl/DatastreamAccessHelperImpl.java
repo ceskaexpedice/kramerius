@@ -31,7 +31,7 @@ import java.util.Stack;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 
-public class DatastreamAccessImpl implements DatastreamAccess {
+public class DatastreamAccessHelperImpl implements DatastreamAccess {
     @Override
     public InputStream getImgFull(String pid) throws IOException, RepositoryException {
         this.accessLog.reportAccess(pid, RepositoryAccess.KnownDatastreams.IMG_FULL.toString());

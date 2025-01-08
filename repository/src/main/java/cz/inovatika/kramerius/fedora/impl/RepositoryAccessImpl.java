@@ -1,28 +1,14 @@
 package cz.inovatika.kramerius.fedora.impl;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.fedora.DatastreamAccess;
-import cz.incad.kramerius.fedora.ObjectAccess;
-import cz.incad.kramerius.fedora.ProcessingIndexAccess;
-import cz.incad.kramerius.fedora.RepositoryAccess;
-import cz.incad.kramerius.fedora.om.repository.AkubraRepository;
-import cz.incad.kramerius.fedora.om.repository.RepositoryDatastream;
-import cz.incad.kramerius.fedora.om.repository.RepositoryException;
-import cz.incad.kramerius.fedora.om.repository.RepositoryObject;
-import cz.incad.kramerius.fedora.om.repository.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.om.repository.impl.AkubraRepositoryImpl;
-import cz.incad.kramerius.fedora.om.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import cz.inovatika.kramerius.fedora.*;
+import cz.inovatika.kramerius.fedora.om.repository.Repository;
 import org.apache.solr.common.SolrDocument;
 import org.dom4j.Attribute;
 import org.dom4j.QName;
-import org.ehcache.CacheManager;
 import org.w3c.dom.Document;
 
-import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
@@ -39,11 +25,20 @@ import java.util.stream.Collectors;
 
 public class RepositoryAccessImpl implements RepositoryAccess {
 
+    private Repository repository;
+    /*
     private AkubraDOManager manager;
     private AkubraRepository repository;
     private ProcessingIndexFeeder feeder;
     private AggregatedAccessLogs accessLog;
 
+     */
+
+    public RepositoryAccessImpl(Repository repository) {
+        this.repository = repository;
+    }
+
+    /*
     @Inject
     public RepositoryAccessImpl(ProcessingIndexFeeder feeder, @Nullable AggregatedAccessLogs accessLog, @Named("akubraCacheManager") CacheManager cacheManager) throws IOException {
         super( accessLog);
@@ -56,18 +51,21 @@ public class RepositoryAccessImpl implements RepositoryAccess {
         } catch (Exception e) {
             throw new IOException(e);
         }
-    }
+    }*/
 
     //-------- Object ------------------------------------------
-    // TODO result
+
     @Override
-    public boolean isObjectAvailable(String pid) throws IOException {
-        try {
-            return this.repository.objectExists(pid);
-        } catch (RepositoryException e) {
-            throw new IOException(e);
-        }
+    public ObjectAccessHelper getObjectAccessHelper(){
+        return null;
     }
+
+    @Override
+    public boolean isObjectAvailable(String pid) {
+        return this.repository.objectExists(pid);
+    }
+
+    @Override
     public RepositoryObjectWrapper getFoxml(String pid) {
         SupportedFormats supportedFormat = determineSupportedFormat(pid);
         // Retrieve content as bytes
@@ -79,12 +77,15 @@ public class RepositoryAccessImpl implements RepositoryAccess {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
     public <T> T  getProperty(String pid, String propertyName, Class<T> returnType) {
         org.dom4j.Document objectFoxml = getFoxml(pid);
         return objectFoxml == null ? null : extractProperty(objectFoxml, propertyName);
     }
+
     @Override
-    public void ingestObject(org.dom4j.Document foxmlDoc, String pid) throws RepositoryException, IOException {
+    public void ingestObject(org.dom4j.Document foxmlDoc, String pid) {
         DigitalObject digitalObject = foxmlDocToDigitalObject(foxmlDoc);
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
@@ -94,8 +95,9 @@ public class RepositoryAccessImpl implements RepositoryAccess {
             writeLock.unlock();
         }
     }
+
     @Override
-    public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams) throws RepositoryException, IOException {
+    public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams) {
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
             akubraRepositoryImpl.deleteObject(pid, deleteDataOfManagedDatastreams, true);
@@ -104,31 +106,41 @@ public class RepositoryAccessImpl implements RepositoryAccess {
             writeLock.unlock();
         }
     }
-    public ObjectAccess getObjectAccessHelper(){
+
+    // --- -- Object stream ---------------------------------------------------
+
+    @Override
+    public DatastreamAccessHelper getDatastreamAccessHelper(){
         return null;
     }
 
-    // --- -- Object stream ---------------------------------------------------
-    public boolean isDatastreamAvailable(String pid, KnownDatastreams dsId) {
+    @Override
+    public boolean datastreamExists(String pid, KnownDatastreams dsId) {
         boolean exists = this.repositoryApi.datastreamExists(pid, dsId);
         return exists;
     }
+
     // TODO archive format.. kdo to pouziva a proc
     // TODO versions - nepouziva se, ale je treba zkontrolovat, ze se bere urcite posledni verze
+    @Override
     public <T> T getDatastreamFoxmlElement(String pid, KnownDatastreams dsId) {
         return null;
     }
 
+    @Override
     public <T> T getDatastreamProperty(String pid, KnownDatastreams dsId, String propertyName, Class<T> returnType) {
         org.dom4j.Document objectFoxml = getFoxml(pid);
         return objectFoxml == null ? null : extractProperty(objectFoxml, propertyName);
     }
+
     // TODO nazev, Triplet, Tuple, ????????
+    @Override
     public <T> T getRDFSimpleProperty(String pid, String propertyName, Class<T> returnType) {
         org.dom4j.Document objectFoxml = getFoxml(pid);
         return objectFoxml == null ? null : extractProperty(objectFoxml, propertyName);
     }
 
+    @Override
     public DatastreamContentWrapper getDatastreamContent(String pid, KnownDatastreams dsId) {
         SupportedFormats supportedFormat = determineSupportedFormat(dsId);
         // Retrieve content as bytes
@@ -141,6 +153,7 @@ public class RepositoryAccessImpl implements RepositoryAccess {
         }
     }
 
+    @Override
     public List<String> getDatastreamNames(String pid) {
         Lock readLock = AkubraDOManager.getReadLock(pid);
         try {
@@ -158,8 +171,9 @@ public class RepositoryAccessImpl implements RepositoryAccess {
             readLock.unlock();
         }
     }
+
     @Override
-    public void updateInlineXmlDatastream(String pid, String dsId, org.dom4j.Document streamDoc, String formatUri) throws RepositoryException, IOException {
+    public void updateInlineXmlDatastream(String pid, KnownDatastreams dsId, org.dom4j.Document streamDoc, String formatUri) throws RepositoryException, IOException {
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
             RepositoryObject object = akubraRepositoryImpl.getObject(pid);
@@ -171,7 +185,9 @@ public class RepositoryAccessImpl implements RepositoryAccess {
             writeLock.unlock();
         }
     }
-    public void updateBinaryDatastream(String pid, String streamName, String mimeType, byte[] byteArray) throws RepositoryException {
+
+    @Override
+    public void updateBinaryDatastream(String pid, KnownDatastreams dsId, String mimeType, byte[] byteArray) throws RepositoryException {
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
             RepositoryObject object = akubraRepositoryImpl.getObject(pid);
@@ -186,8 +202,9 @@ public class RepositoryAccessImpl implements RepositoryAccess {
             writeLock.unlock();
         }
     }
+
     @Override
-    public void setDatastreamXml(String pid, String dsId, org.dom4j.Document ds) throws RepositoryException, IOException {
+    public void setDatastreamXml(String pid, KnownDatastreams dsId, org.dom4j.Document ds) {
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
             org.dom4j.Document foxml = getFoxml(pid);
@@ -205,7 +222,9 @@ public class RepositoryAccessImpl implements RepositoryAccess {
             writeLock.unlock();
         }
     }
-    public void deleteDatastream(String pid, String streamName) throws RepositoryException {
+
+    @Override
+    public void deleteDatastream(String pid, KnownDatastreams dsId) {
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
             RepositoryObject object = akubraRepositoryImpl.getObject(pid);
@@ -250,12 +269,15 @@ public class RepositoryAccessImpl implements RepositoryAccess {
         }
     }
      */
-    public DatastreamAccess getDatastreamAccessHelper(){
+
+    //------Processing index----------------------------------------------------
+    @Override
+    public ProcessingIndexAccessHelper getProcessingIndexAccessHelper(){
         return null;
     }
 
-    //------Processing index----------------------------------------------------
-    public <T> T queryProcessingIndex(ProcessingIndexQueryParameters params, ResultMapper<T> mapper) {
+    @Override
+    public <T> T queryProcessingIndex(ProcessingIndexQueryParameters params, ProcessingIndexResultMapper<T> mapper) {
         org.apache.commons.lang3.tuple.Pair<Long, List<SolrDocument>> cp =
                 akubraRepositoryImpl.getProcessingIndexFeeder().getPageSortedByTitle(
                         params.getQueryString(),
@@ -267,9 +289,6 @@ public class RepositoryAccessImpl implements RepositoryAccess {
         // Use the provided mapper to convert results
         return mapper.map(cp.getRight(), cp.getLeft());
     };
-    public ProcessingIndexAccess getProcessingIndexAccessHelper(){
-        return null;
-    }
 
     @Override
     public void shutdown() {

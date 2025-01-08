@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ProcessingIndexAccessImpl implements ProcessingIndexAccess {
+public class ProcessingIndexAccessHelperImpl implements ProcessingIndexAccess {
 
     // 1 ------------- description + model
     @Override

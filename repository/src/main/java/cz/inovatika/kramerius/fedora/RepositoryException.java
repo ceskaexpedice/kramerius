@@ -15,13 +15,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cz.inovatika.kramerius.fedora.om.repository;
+package cz.inovatika.kramerius.fedora;
 
 /**
  * Represents a repo operation error
  * @author pavels
  */
-public class RepositoryException extends Exception {
+public class RepositoryException extends RuntimeException {
 
     public RepositoryException() {
         super();

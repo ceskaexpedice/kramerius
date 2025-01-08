@@ -18,9 +18,9 @@
 package cz.inovatika.kramerius.fedora.om.repository;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
+import cz.inovatika.kramerius.fedora.RepositoryException;
 import cz.inovatika.kramerius.fedora.om.processingindex.ProcessingIndexFeeder;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
@@ -29,14 +29,29 @@ import java.util.function.Consumer;
  * @author pavels
  */
 public interface Repository {
-
     /**
-     * Creates an empty object or finds existing object
-     * @param ident Identification of the object
+     * Returns true if object objectExists and if it is raw kramerius object
+     * @param pid
      * @return
      * @throws RepositoryException
      */
-    RepositoryObject createOrFindObject(String ident) throws RepositoryException;
+    boolean  objectExists(String pid);
+
+    /**
+     * Returns object
+     * @param pid
+     * @return
+     * @throws RepositoryException
+     */
+    RepositoryObject getObject(String pid);
+
+    /**
+     * Creates an empty object or finds existing object
+     * @param pid Identification of the object
+     * @return
+     * @throws RepositoryException
+     */
+    RepositoryObject createOrFindObject(String pid);
 
     /**
      * Ingest new digital object from the provided object representation
@@ -44,32 +59,14 @@ public interface Repository {
      * @return
      * @throws RepositoryException
      */
-    RepositoryObject ingestObject(DigitalObject contents) throws RepositoryException;
-
-    /**
-     * Returns true if object objectExists and if it is raw kramerius object
-     * @param ident
-     * @return
-     * @throws RepositoryException
-     */
-    boolean  objectExists(String ident) throws RepositoryException;
-
-    /**
-     * Returns object
-     * @param ident
-     * @return
-     * @throws RepositoryException
-     */
-    RepositoryObject getObject(String ident) throws RepositoryException;
-
-    void iterateObjects(Consumer<String> consumer ) throws RepositoryException,  IOException;
+    RepositoryObject ingestObject(DigitalObject contents);
 
     /**
      * Deletes object
      * @param pid
      * @throws RepositoryException
      */
-    void deleteObject(String pid) throws RepositoryException;
+    void deleteObject(String pid);
 
     /**
      * Deletes object, possibly without removing relations pointing at this object (from Resource index)
@@ -80,27 +77,25 @@ public interface Repository {
      *
      * @throws RepositoryException
      */
-    void deleteObject(String pid, boolean deleteDataOfManagedDatastreams, boolean deleteRelationsWithThisAsTarget) throws RepositoryException;
+    void deleteObject(String pid, boolean deleteDataOfManagedDatastreams, boolean deleteRelationsWithThisAsTarget);
 
     /**
      * Commits current transaction
      * @throws RepositoryException
      */
-    void commitTransaction() throws RepositoryException;
+    void commitTransaction();
 
     /**
      * Rolls back current transaction
      * @throws RepositoryException
      */
-    void rollbackTransaction()throws RepositoryException;
-
-    // TODO public abstract String getBoundContext() throws RepositoryException;
+    void rollbackTransaction();
 
     /**
      * Returns processing index feeder
      * @return
      * @throws RepositoryException
      */
-    ProcessingIndexFeeder getProcessingIndexFeeder() throws RepositoryException;
+    ProcessingIndexFeeder getProcessingIndexFeeder();
 
 }

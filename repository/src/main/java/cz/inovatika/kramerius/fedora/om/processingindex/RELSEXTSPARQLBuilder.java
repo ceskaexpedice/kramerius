@@ -1,6 +1,6 @@
 package cz.inovatika.kramerius.fedora.om.processingindex;
 
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
+import cz.inovatika.kramerius.fedora.RepositoryException;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;

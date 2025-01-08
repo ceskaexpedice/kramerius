@@ -1,4 +1,4 @@
 package cz.inovatika.kramerius.fedora;
 
-public interface DatastreamAccess {
+public interface ObjectAccessHelper {
 }

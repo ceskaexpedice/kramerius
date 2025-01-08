@@ -1,4 +1,4 @@
-package cz.inovatika.kramerius.fedora.impl.tmp;
+package cz.inovatika.kramerius.fedora;
 
 import java.util.ArrayList;
 import java.util.List;

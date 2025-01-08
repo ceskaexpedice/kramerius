@@ -20,7 +20,7 @@ package cz.inovatika.kramerius.fedora.om;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.kramerius.fedora.om.processingindex.ProcessingIndexFeeder;
 import cz.inovatika.kramerius.fedora.om.repository.Repository;
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
+import cz.inovatika.kramerius.fedora.RepositoryException;
 import cz.inovatika.kramerius.fedora.om.repository.impl.AkubraDOManager;
 import cz.inovatika.kramerius.fedora.om.repository.impl.RepositoryImpl;
 import org.apache.solr.client.solrj.SolrClient;

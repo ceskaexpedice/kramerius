@@ -1,5 +1,6 @@
 package cz.inovatika.kramerius.fedora.om.repository;
 
+import cz.inovatika.kramerius.fedora.RepositoryException;
 import org.w3c.dom.Document;
 
 import java.io.InputStream;

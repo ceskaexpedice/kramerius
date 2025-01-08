@@ -21,7 +21,7 @@ import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.ObjectPropertiesType;
 import com.qbizm.kramerius.imp.jaxb.PropertyType;
 import cz.inovatika.kramerius.fedora.om.repository.Repository;
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
+import cz.inovatika.kramerius.fedora.RepositoryException;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryObject;
 import cz.inovatika.kramerius.fedora.om.processingindex.ProcessingIndexFeeder;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -66,8 +66,8 @@ public class RepositoryImpl implements Repository {
                 manager.commit(emptyDigitalObject, null);
                 try {
                     feeder.deleteByPid(emptyDigitalObject.getPID());
-                }catch (Throwable th) {
-                    LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ ident + " - reindex manually.", th);
+                } catch (Throwable th) {
+                    LOGGER.log(Level.SEVERE, "Cannot update processing index for " + ident + " - reindex manually.", th);
                 }
                 RepositoryObjectImpl obj = new RepositoryObjectImpl(emptyDigitalObject, this.manager, this.feeder);
                 return obj;
@@ -119,43 +119,6 @@ public class RepositoryImpl implements Repository {
     }
 
     @Override
-    public void iterateObjects(Consumer<String> consumer) throws RepositoryException,  IOException {
-        /* TODO
-        Stack<String> stack = new Stack<>();
-        StringBuilder builder = new StringBuilder(endpoint()).append("/").append(Fedora4Utils.DATA_PREFIX_PATH);
-        stack.push(builder.toString());
-        while(!stack.isEmpty()) {
-            String url = stack.pop();
-            try (FcrepoResponse response = new GetBuilder(URI.create(url), client).accept("application/rdf+xml").perform()) {
-                if (response.getStatusCode() == 200) {
-                    InputStream body = response.getBody();
-                    Document document = XMLUtils.parseDocument(body, true);
-                    Element hasModel = XMLUtils.findElement(document.getDocumentElement(), "hasModel", FedoraNamespaces.FEDORA_MODELS_URI);
-                    if (hasModel != null ) {
-                        Element pidElm = XMLUtils.findElement(document.getDocumentElement(), "PID", FedoraNamespaces.FEDORA_FOXML_URI);
-                        consumer.accept(pidElm.getTextContent());
-                    } else {
-                        List<String> ldp = XMLUtils.getElementsRecursive(document.getDocumentElement(), (element) -> {
-                            String localName = element.getLocalName();
-                            String namespace = element.getNamespaceURI();
-                            if (localName.equals("contains") && namespace.equals(FedoraNamespaces.LDP_NAMESPACE_URI)) {
-                                return true;
-                            } else return false;
-                        }).stream().map((element) -> {
-                            return element.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
-                        }).collect(Collectors.toList());
-                        ldp.stream().forEach(u-> stack.push(u));
-                    }
-                }
-            } catch (SAXException e) {
-                throw new RepositoryException(e.getMessage());
-            } catch (ParserConfigurationException e) {
-                throw new RepositoryException(e.getMessage());
-            }
-        } */ //TODO iterovat cele repository a consumerovi predavat pid
-    }
-
-    @Override
     public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams, boolean deleteRelationsWithThisAsTarget) throws RepositoryException {
         try {
             this.manager.deleteObject(pid, deleteDataOfManagedDatastreams);
@@ -169,14 +132,14 @@ public class RepositoryImpl implements Repository {
                 // delete this object's description
                 this.feeder.deleteDescriptionByPid(pid);
             } catch (Throwable th) {
-                LOGGER.log(Level.SEVERE, "Cannot update processing index for "+ pid + " - reindex manually.", th);
+                LOGGER.log(Level.SEVERE, "Cannot update processing index for " + pid + " - reindex manually.", th);
             }
         } catch (Exception e) {
             throw new RepositoryException(e);
-        }finally {
+        } finally {
             try {
                 this.feeder.commit();
-                LOGGER.info("CALLED PROCESSING INDEX COMMIT AFTER DELETE "+pid);
+                LOGGER.info("CALLED PROCESSING INDEX COMMIT AFTER DELETE " + pid);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (SolrServerException e) {

@@ -5,7 +5,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.fedora.FedoraNamespaces;
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
+import cz.inovatika.kramerius.fedora.RepositoryException;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryObject;
 import cz.inovatika.kramerius.fedora.utils.FedoraUtils;
 import cz.inovatika.kramerius.fedora.om.repository.impl.RepositoryUtils;

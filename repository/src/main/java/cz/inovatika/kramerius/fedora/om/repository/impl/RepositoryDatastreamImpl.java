@@ -2,7 +2,7 @@ package cz.inovatika.kramerius.fedora.om.repository.impl;
 
 import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryDatastream;
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
+import cz.inovatika.kramerius.fedora.RepositoryException;
 import org.w3c.dom.Document;
 
 import java.io.*;

@@ -16,13 +16,9 @@
  */
 package cz.inovatika.kramerius.fedora;
 
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.StreamHeadersObserver;
-import cz.incad.kramerius.TreeNodeProcessor;
 import cz.inovatika.kramerius.fedora.impl.SecuredFedoraAccessImpl;
+import cz.inovatika.kramerius.fedora.impl.SupportedFormats;
 import cz.inovatika.kramerius.fedora.om.repository.Repository;
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
-import cz.incad.kramerius.utils.java.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,6 +44,46 @@ import java.util.Map;
  */
 public interface RepositoryAccess {
 
+    // object
+
+    ObjectAccessHelper getObjectAccessHelper();
+
+    boolean objectExists(String pid);
+
+    RepositoryObjectWrapper getFoxml(String pid);
+
+    void ingestObject(org.dom4j.Document foxmlDoc, String pid);
+
+    void deleteObject(String pid, boolean deleteDataOfManagedDatastreams);
+
+    // datastream
+
+    DatastreamAccessHelper getDatastreamAccessHelper();
+
+    boolean datastreamExists(String pid, KnownDatastreams dsId);
+
+    DatastreamContentWrapper getDatastreamContent(String pid, KnownDatastreams dsId);
+
+    List<String> getDatastreamNames(String pid);
+
+    void updateInlineXmlDatastream(String pid, KnownDatastreams dsId, org.dom4j.Document streamDoc, String formatUri);
+
+    /**
+     * @param ds part of FOXML that contains definition of the datastream. I.e. root element datastream with subelement(s) datastreamVersion.
+     */
+    void setDatastreamXml(String pid, KnownDatastreams dsId, org.dom4j.Document ds);
+
+    public void updateBinaryDatastream(String pid, KnownDatastreams dsId, String mimeType, byte[] byteArray);
+
+    public void deleteDatastream(String pid, KnownDatastreams dsId);
+
+    // Processing index
+    ProcessingIndexAccessHelper getProcessingIndexAccessHelper();
+
+    <T> T queryProcessingIndex(ProcessingIndexQueryParameters params, ProcessingIndexResultMapper<T> mapper);
+
+    //------------------------------------------------------------
+    //public org.dom4j.Document getFoxml(String pid) throws RepositoryException, IOException;
 
     /**
      * Returns parsed RELS-EXT
@@ -527,10 +563,8 @@ public interface RepositoryAccess {
     //TODO: methods for updating datastreams (new versions)
 
     //CREATE
-    public void ingestObject(org.dom4j.Document foxmlDoc, String pid) throws RepositoryException, IOException;
 
     //READ
-    public boolean objectExists(String pid) throws RepositoryException;
 
     public String getProperty(String pid, String propertyName) throws IOException, RepositoryException;
 
@@ -540,9 +574,8 @@ public interface RepositoryAccess {
 
     public LocalDateTime getPropertyLastModified(String pid) throws IOException, RepositoryException;
 
-    public org.dom4j.Document getFoxml(String pid) throws RepositoryException, IOException;
 
-    public boolean datastreamExists(String pid, String dsId) throws RepositoryException, IOException;
+    //public boolean datastreamExists(String pid, String dsId) throws RepositoryException, IOException;
 
     public String getDatastreamMimetype(String pid, String dsId) throws RepositoryException, IOException;
 
@@ -585,25 +618,9 @@ public interface RepositoryAccess {
     public List<RepositoryApi.Triplet> getTripletSources(String targetPid) throws RepositoryException, IOException, SolrServerException;
 
 
-    public List<String> getDatastreamNames(String pid) throws RepositoryException, IOException, SolrServerException;
 
-
-    //UPDATE
-    public void updateInlineXmlDatastream(String pid, String dsId, org.dom4j.Document streamDoc, String formatUri) throws RepositoryException, IOException;
-
-    public void updateBinaryDatastream(String pid, String streamName, String mimeType, byte[] byteArray) throws RepositoryException;
-
-
-    public void deleteDatastream(String pid, String streamName) throws RepositoryException;
-
-    /**
-     * @param ds part of FOXML that contains definition of the datastream. I.e. root element datastream with subelement(s) datastreamVersion.
-     */
-    public void setDatastreamXml(String pid, String dsId, org.dom4j.Document ds) throws RepositoryException, IOException;
 
     //DELETE
-    public void deleteObject(String pid, boolean deleteDataOfManagedDatastreams) throws RepositoryException, IOException;
-
 
     class Triplet {
         public final String source;

@@ -1,4 +1,4 @@
-package cz.inovatika.kramerius.fedora.impl.tmp;
+package cz.inovatika.kramerius.fedora.impl;
 
 public class SupportedFormats {
     private final boolean supportsString;

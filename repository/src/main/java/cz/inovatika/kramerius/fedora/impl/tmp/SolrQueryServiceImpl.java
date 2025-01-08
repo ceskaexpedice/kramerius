@@ -2,6 +2,8 @@ package cz.inovatika.kramerius.fedora.impl.tmp;
 
 import cz.incad.kramerius.fedora.om.repository.RepositoryException;
 import cz.incad.kramerius.utils.java.Pair;
+import cz.inovatika.kramerius.fedora.ProcessingIndexQueryParameters;
+import cz.inovatika.kramerius.fedora.ProcessingIndexResultMapper;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 
@@ -12,7 +14,7 @@ import java.util.stream.Collectors;
 public class SolrQueryServiceImpl implements SolrQueryService {
 
     @Override
-    public <T> T query(ProcessingIndexQueryParameters params, ResultMapper<T> mapper)
+    public <T> T query(ProcessingIndexQueryParameters params, ProcessingIndexResultMapper<T> mapper)
             throws RepositoryException, IOException, SolrServerException {
 
         // Build query string from parameters

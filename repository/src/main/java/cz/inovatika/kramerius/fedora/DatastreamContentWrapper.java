@@ -1,6 +1,7 @@
-package cz.inovatika.kramerius.fedora.impl.tmp;
+package cz.inovatika.kramerius.fedora;
 
-import cz.incad.kramerius.fedora.om.repository.RepositoryObject;
+import cz.incad.kramerius.fedora.om.repository.RepositoryDatastream;
+import cz.inovatika.kramerius.fedora.impl.SupportedFormats;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -9,11 +10,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-public class RepositoryObjectWrapper {
-    private final RepositoryObject content;
+public class DatastreamContentWrapper {
+    private final RepositoryDatastream content;
     private final SupportedFormats supportedFormat;
 
-    public RepositoryObjectWrapper(RepositoryObject content, SupportedFormats supportedFormat) {
+    public DatastreamContentWrapper(RepositoryDatastream content, SupportedFormats supportedFormat) {
         this.content = content;
         this.supportedFormat = supportedFormat;
     }

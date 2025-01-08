@@ -1,10 +1,8 @@
 package cz.inovatika.kramerius.fedora.impl;
 
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.fedora.ObjectAccess;
-import cz.incad.kramerius.fedora.om.repository.RepositoryException;
-import cz.incad.kramerius.fedora.utils.AkubraUtils;
 import cz.incad.kramerius.utils.Dom4jUtils;
+import cz.inovatika.kramerius.fedora.ObjectAccessHelper;
 import org.apache.solr.client.solrj.SolrServerException;
 
 import java.io.IOException;
@@ -13,7 +11,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Map;
 
-public class ObjectAccessImpl implements ObjectAccess {
+public class ObjectAccessHelperImpl implements ObjectAccessHelper {
 
     //-------- get object property
     @Override

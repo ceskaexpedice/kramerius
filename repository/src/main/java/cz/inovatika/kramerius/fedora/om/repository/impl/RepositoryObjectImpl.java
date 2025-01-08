@@ -20,7 +20,7 @@ import com.qbizm.kramerius.imp.jaxb.*;
 import cz.inovatika.kramerius.fedora.om.processingindex.ProcessingIndexFeeder;
 import cz.inovatika.kramerius.fedora.FedoraNamespaces;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryDatastream;
-import cz.inovatika.kramerius.fedora.om.repository.RepositoryException;
+import cz.inovatika.kramerius.fedora.RepositoryException;
 import cz.inovatika.kramerius.fedora.om.repository.RepositoryObject;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
