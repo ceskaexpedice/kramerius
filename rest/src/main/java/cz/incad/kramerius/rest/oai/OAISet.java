@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.oai;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URLEncoder;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,9 @@ import org.xml.sax.SAXException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.SearchResource;
+
+import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
+
 import cz.incad.kramerius.solr.SolrFieldsMapping;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
@@ -149,8 +153,7 @@ public class OAISet {
         }
     }
     
-    
-    public int numberOfDoc(SolrAccess solrAccess) throws IOException, ParserConfigurationException, SAXException {
+    public int numberOfDocOnLocal(SolrAccess solrAccess) throws IOException, ParserConfigurationException, SAXException {
         String query = String.format("q=%s&fl=pid&rows=%d&sort=pid+asc", this.filterQuery,  0);
         String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
         Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
@@ -167,11 +170,47 @@ public class OAISet {
         }
         
         return -1;
-    }
-    
-    public OAIResults findRecords(SolrAccess solrAccess,String cursor, String metadataPrefix, int configuredMaxRows, String fromParameter, String untilParameter) throws IOException, ParserConfigurationException, SAXException {
-        String query = String.format("q=%s&cursorMark=%s&fl=pid+indexed&rows=%d&sort="+getSortField()+"+asc", this.filterQuery, cursor, configuredMaxRows);
+	}
+
+    public int numberOfDocOnCDKSide(ProxyFilter proxyFilter, SolrAccess solrAccess) throws IOException, ParserConfigurationException, SAXException {
+        String query = String.format("q=%s&fl=pid&rows=%d&sort=pid+asc", this.filterQuery,  0);
+        if (proxyFilter.newFilter() != null) {
+            query = query + String.format("&fq=%s",  URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
+        }
+        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
+        Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
+        Element result = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                return element.getNodeName().equals("result");
+            }
+        });
         
+        if (result != null) {
+            String number = result.getAttribute("numFound");
+            return Integer.parseInt(number);
+        }
+        
+        return -1;
+    }
+
+	private String queryOnCDKSide(String cursor, int rows) {
+        String query =  String.format("q=%s&cursorMark=%s&fl=pid+cdk.collection+cdk.leader+indexed&rows=%d&sort=compositeId+asc", this.filterQuery, cursor, rows);
+		return query;
+	}
+	
+	private String queryOnLocal(String cursor, int rows) {
+        String query = String.format("q=%s&cursorMark=%s&fl=pid+indexed&rows=%d&sort="+getSortField()+"+asc", this.filterQuery, cursor, rows);
+		return query;
+	}		
+
+    public OAIResults findRecordsOnCDKSide(ProxyFilter proxyFilter, SolrAccess solrAccess,String cursor, String metadataPrefix, int rows,String fromParameter, String untilParameter) throws IOException, ParserConfigurationException, SAXException {
+        String fq = proxyFilter.newFilter();
+        String query =  String.format("q=%s&cursorMark=%s&fl=pid+cdk.collection+cdk.leader+indexed&rows=%d&sort="+getSortField()+"+asc", this.filterQuery, cursor, rows);
+        if (fq != null) {
+            String encodedFq =  URLEncoder.encode(fq, "UTF-8");
+            query = query + String.format("&fq=%s", encodedFq);
+        }
         if (StringUtils.isAnyString(fromParameter) && StringUtils.isAnyString(untilParameter)) {
             ZonedDateTime fromDate = OAITools.parseISO8601Date(fromParameter);
             ZonedDateTime untilDate = OAITools.parseISO8601Date(untilParameter);
@@ -180,11 +219,6 @@ public class OAISet {
         if (StringUtils.isAnyString(fromParameter)) {
             ZonedDateTime fromDate = OAITools.parseISO8601Date(fromParameter);
             query = query +String.format("&fq=indexed:[%s+TO+*]", OAITools.formatForSolr(fromDate)); 
-        }
-        
-        if (StringUtils.isAnyString(untilParameter)) {
-            ZonedDateTime untilDate = OAITools.parseISO8601Date(untilParameter);
-            query = query +String.format("&fq=indexed:[*+TO+%s]", OAITools.formatForSolr(untilDate)); 
         }
 
         String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
@@ -220,19 +254,148 @@ public class OAISet {
             });
 
             List<OAIRecord> records = docs.stream().map(doc-> {
-                Element pidElm = XMLUtils.findElement(doc, "str");
-                Element dateElm = XMLUtils.findElement(doc, "date");
+
+                Element pidElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("pid");
+                        
+                    }
+                });
+                
+                
+                List<Element> collections  = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("cdk.collection");
+                        
+                    }
+                });
+
+                Element dateElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("indexed");
+                        
+                    }
+                });
+
+                
+                List<String> cdkCollections = collections.stream().map(Element::getTextContent).collect(Collectors.toList());
                 String oaiIdentifier =  OAITools.oaiIdentfier(host, pidElm.getTextContent());
-                return new OAIRecord(pidElm.getTextContent(), oaiIdentifier, dateElm != null ? dateElm.getTextContent() : "");
+                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier,dateElm != null ? dateElm.getTextContent() : "");
+                oaiRecord.setCdkCollections(cdkCollections);
+
+                
+                return oaiRecord;
             }).collect(Collectors.toList());
             
+            String nextCursor = records.size() == rows && solrNextCursor != null ? solrNextCursor+":"+this.setSpec+":"+metadataPrefix : null; 
+            OAIResults results = new OAIResults(Integer.parseInt(number), nextCursor, metadataPrefix, records);
             
-            int rowsInResults = records.size();
-            String resumptionToken = OAITools.generateResumptionToken(metadataPrefix, configuredMaxRows, rowsInResults, solrNextCursor, this.setSpec, fromParameter, untilParameter); 
-            OAIResults results = new OAIResults(Integer.parseInt(number), resumptionToken, metadataPrefix, records);
             return results;
         } else {
             return null;
         }
-    }
+	}
+
+    public OAIResults findRecordsOnLocal(SolrAccess solrAccess,String cursor, String metadataPrefix, int rows, String fromParameter, String untilParameter) throws IOException, ParserConfigurationException, SAXException {
+        String query = String.format("q=%s&cursorMark=%s&fl=pid+indexed&rows=%d&sort="+getSortField()+"+asc", this.filterQuery, cursor, rows);
+//		if (fq != null) {
+//            String encodedFq =  URLEncoder.encode(fq, "UTF-8");
+//            query = query + String.format("&fq=%s", encodedFq);
+//        }
+        if (StringUtils.isAnyString(fromParameter) && StringUtils.isAnyString(untilParameter)) {
+            ZonedDateTime fromDate = OAITools.parseISO8601Date(fromParameter);
+            ZonedDateTime untilDate = OAITools.parseISO8601Date(untilParameter);
+            query = query +String.format("&fq=indexed:[%s+TO+%s]", OAITools.formatForSolr(fromDate), OAITools.formatForSolr(untilDate)); 
+        }
+        if (StringUtils.isAnyString(fromParameter)) {
+            ZonedDateTime fromDate = OAITools.parseISO8601Date(fromParameter);
+            query = query +String.format("&fq=indexed:[%s+TO+*]", OAITools.formatForSolr(fromDate)); 
+        }
+
+            String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
+        Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
+        
+        Element result = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                return element.getNodeName().equals("result");
+            }
+        });
+        
+        if (result != null) {
+
+            String number = result.getAttribute("numFound");
+            
+            String solrNextCursor = null;
+            Element cursorElement = XMLUtils.findElement(document.getDocumentElement(), (element) -> {
+                if (element.getNodeName().equals("str") && element.getAttribute("name").equals("nextCursorMark")) {
+                    return true;
+                } else return false;
+            });
+                
+            if (cursorElement != null) {
+                solrNextCursor = cursorElement.getTextContent();
+            }
+
+            List<Element> docs = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    return element.getNodeName().equals("doc");
+                }
+            });
+
+            List<OAIRecord> records = docs.stream().map(doc-> {
+
+                Element pidElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("pid");
+                        
+                    }
+                });
+                
+                
+                List<Element> collections  = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("cdk.collection");
+                        
+                    }
+                });
+
+                Element dateElm = XMLUtils.findElement(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) { 
+                        String name = element.getAttribute("name");
+                        return name.equals("indexed");
+                        
+                    }
+                });
+
+                
+                List<String> cdkCollections = collections.stream().map(Element::getTextContent).collect(Collectors.toList());
+                String oaiIdentifier =  OAITools.oaiIdentfier(host, pidElm.getTextContent());
+                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier,dateElm != null ? dateElm.getTextContent() : "");
+                oaiRecord.setCdkCollections(cdkCollections);
+
+                
+                return oaiRecord;
+            }).collect(Collectors.toList());
+            
+            String nextCursor = records.size() == rows && solrNextCursor != null ? solrNextCursor+":"+this.setSpec+":"+metadataPrefix : null; 
+            OAIResults results = new OAIResults(Integer.parseInt(number), nextCursor, metadataPrefix, records);
+            
+            return results;
+        } else {
+            return null;
+        }
+	}
 }

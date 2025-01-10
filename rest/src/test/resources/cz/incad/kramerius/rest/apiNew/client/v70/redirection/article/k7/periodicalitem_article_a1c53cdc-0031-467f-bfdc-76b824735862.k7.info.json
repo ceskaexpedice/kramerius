@@ -1,0 +1,905 @@
+{
+	"image": {
+		"type": "none"
+	},
+	"providedByLicenses": [],
+	"data": {
+		"image": {
+			"preview": false,
+			"thumb": false,
+			"full": false
+		},
+		"metadata": {
+			"mods": true,
+			"dc": true
+		},
+		"audio": {
+			"mp3": false,
+			"wav": false,
+			"ogg": false
+		},
+		"ocr": {
+			"text": false,
+			"alto": false
+		}
+	},
+	"structure": {
+		"children": {
+			"own": [
+				{
+					"pid": "uuid:fe1191ba-98a7-4f21-b201-3c147fedc88e",
+					"relation": "hasIntCompPart"
+				},
+				{
+					"pid": "uuid:4f1bf3b3-2068-4197-857c-75822c5dc739",
+					"relation": "hasIntCompPart"
+				},
+				{
+					"pid": "uuid:d969dd79-94ca-4cb3-8617-ced01cfde5ba",
+					"relation": "hasIntCompPart"
+				},
+				{
+					"pid": "uuid:3af05ebd-33f9-401e-8fe5-7cde601a3eb1",
+					"relation": "hasIntCompPart"
+				},
+				{
+					"pid": "uuid:7e613801-8a59-4dd7-849f-79a97f5a25b4",
+					"relation": "hasIntCompPart"
+				},
+				{
+					"pid": "uuid:a8b0bc7d-4c31-40c2-b7bb-902f7a7a26e1",
+					"relation": "hasIntCompPart"
+				},
+				{
+					"pid": "uuid:58dd6637-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58ddb458-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58ddb459-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dddb6a-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dddb6b-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dddb6c-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dddb6d-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dddb6e-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dddb6f-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dddb70-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dddb71-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de0282-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de0283-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de0284-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de0285-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de0286-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de0287-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de0288-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de0289-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de299a-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de299b-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de299c-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de299d-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de299e-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de299f-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de29a0-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de29a1-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de4fb2-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de4fb3-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de4fb4-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de4fb5-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de4fb6-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de4fb7-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de4fb8-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de4fb9-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de76ca-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de76cb-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de76cc-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de76cd-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de76ce-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de76cf-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de76d0-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de76d1-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de9de2-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de9de3-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de9de4-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de9de5-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de9de6-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de9de7-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58de9de8-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dec4f9-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dec4fa-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dec4fb-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dec4fc-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dec4fd-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dec4fe-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dec4ff-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dec500-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58deec11-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58deec12-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58deec13-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58deec14-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58deec15-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58deec16-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58deec17-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58deec18-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df1329-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df132a-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df132b-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df132c-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df132d-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df132e-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df132f-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df1330-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df3a41-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df3a42-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df3a43-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df3a44-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df3a45-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df3a46-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df3a47-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df3a48-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df6159-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df615a-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df615b-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df615c-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df615d-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df615e-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df615f-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df6160-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df8871-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df8872-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df8873-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df8874-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df8875-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df8876-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58df8877-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfaf88-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfaf89-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfaf8a-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfaf8b-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfaf8c-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfaf8d-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfaf8e-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfaf8f-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfd6a0-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfd6a1-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfd6a2-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfd6a3-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfd6a4-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfd6a5-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfd6a6-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dfd6a7-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dffdb8-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dffdb9-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dffdba-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dffdbb-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dffdbc-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dffdbd-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dffdbe-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58dffdbf-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e024d0-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e024d1-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e024d2-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e024d3-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e024d4-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e024d5-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e024d6-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e024d7-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e04be8-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e04be9-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e04bea-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e04beb-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e04bec-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e04bed-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e04bee-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e072ff-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e07300-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e07301-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e07302-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e07303-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e07304-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e07305-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e07306-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e09a17-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e09a18-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e09a19-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e09a1a-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e09a1b-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e09a1c-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e09a1d-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e09a1e-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0c12f-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0c130-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0c131-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0c132-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0c133-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0c134-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0c135-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0e846-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0e847-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0e848-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0e849-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0e84a-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0e84b-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e0e84c-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e10f5d-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e10f5e-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e10f5f-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e10f60-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e10f61-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e10f62-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e10f63-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e10f64-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e13675-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e13676-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e13677-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e13678-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e13679-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1367a-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1367b-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e15d8c-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e15d8d-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e15d8e-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e15d8f-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e15d90-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e15d91-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e15d92-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e15d93-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e184a4-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e184a5-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e184a6-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e184a7-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e184a8-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e184a9-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e184aa-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e184ab-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1abbc-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1abbd-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1abbe-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1abbf-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1abc0-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1abc1-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1abc2-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1abc3-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1d2d4-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1d2d5-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1d2d6-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1d2d7-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				},
+				{
+					"pid": "uuid:58e1d2d8-d295-11e1-8393-0050569d679d",
+					"relation": "hasPage"
+				}
+			],
+			"foster": []
+		},
+		"model": "periodicalitem",
+		"parents": {
+			"own": {
+				"pid": "uuid:4da8778b-0056-4fb3-a8b7-a00634a5f816",
+				"relation": "hasItem"
+			},
+			"foster": []
+		}
+	}
+}

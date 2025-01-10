@@ -822,7 +822,7 @@ public class DatabaseRightsManager implements RightsManager {
                 returnsList.add(map);
                 return true;
             }
-        }.executeQuery(template.toString(), new Integer(paramId));
+        }.executeQuery(template.toString(), paramId);
         return vals;
     }
 
@@ -842,7 +842,7 @@ public class DatabaseRightsManager implements RightsManager {
                 returnsList.add(map);
                 return true;
             }
-        }.executeQuery(template.toString(), new Integer(labelid));
+        }.executeQuery(template.toString(), labelid);
         return  vals;
     }
 }

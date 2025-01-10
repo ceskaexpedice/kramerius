@@ -39,7 +39,6 @@ import cz.incad.kramerius.statistics.impl.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
-import cz.incad.kramerius.virtualcollections.impl.fedora.FedoraCollectionsManagerImpl;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.ehcache.CacheManager;
 
@@ -98,9 +97,9 @@ public class BaseModule extends AbstractModule {
         bind(MostDesirable.class).to(MostDesirableImpl.class);
 
         // 
-        bind(Collection.class).toProvider(VirtualCollectionProvider.class);
+        //bind(Collection.class).toProvider(VirtualCollectionProvider.class);
         
-        bind(CollectionsManager.class).annotatedWith(Names.named("fedora")).to(FedoraCollectionsManagerImpl.class);
+        //bind(CollectionsManager.class).annotatedWith(Names.named("fedora")).to(FedoraCollectionsManagerImpl.class);
 
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(GoogleAnalytics.class).to(GoogleAnalyticsImpl.class).in(Scopes.SINGLETON);
@@ -114,6 +113,8 @@ public class BaseModule extends AbstractModule {
         Multibinder<LifeCycleHook> lfhooks = Multibinder.newSetBinder(binder(), LifeCycleHook.class);
         lfhooks.addBinding().to(CacheLifeCycleHook.class);
         lfhooks.addBinding().to(HttpAsyncClientLifeCycleHook.class);
+//        lfhooks.addBinding().to(AudioLifeCycleHook.class);
+        
     }
 
     @Provides

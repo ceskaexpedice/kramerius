@@ -1,0 +1,84 @@
+<cdkprocess>
+	
+	<source-name>knav</source-name>
+	<name>knav-update</name>
+	<type>update</type>
+	
+	<timestamp>$timestamp.url$</timestamp>
+    <threads>1</threads>
+
+    <!-- Iteration part -->
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    <iteration>
+        <url>$iteration.url$</url>
+        <endpoint>select</endpoint>
+        <id>PID</id>
+        <type>CURSOR</type>
+
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
+
+		<!--  timestamp field  -->
+        <timestamp_field>modified_date</timestamp_field>
+
+    	
+    </iteration>
+
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <url>$iteration.url$</url>
+            <endpoint>select</endpoint>
+            <batchsize>20</batchsize>
+
+	        <user>$iteration.user$</user>
+	        <pass>$iteration.pass$</pass>
+
+	        <id>PID</id>
+
+            <!--  construct composite id   -->
+            <composite.id>true</composite.id>
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
+            
+            <!--  zjisteni jiz naindexovanych pidu  --> 
+            <checkUrl>$destination.url$</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+
+            <!-- cdk source field -->
+            <collection>cdk.collection</collection>
+
+            <trasfrom>K7</trasfrom>
+
+        </request>
+
+        <destination>
+            <url>$destination.url$/update</url>
+
+            <!-- on index -->
+            <onindex>
+                <!-- remove from batch document -->
+                <remove.dest.field>
+                    <field name="collection"></field>
+                </remove.dest.field>
+                <!-- append to batch document -->
+                <update.dest.field>
+                    <field name="cdk.collection">knav</field>
+                    <field name="cdk.leader">knav</field>
+                </update.dest.field>
+            </onindex>
+
+            <!-- on update; disabled for now -->
+            <onupdate>
+
+                <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels </fieldlist>
+
+                <update.dest.field>
+                    <field name="cdk.collection" update="add-distinct">knav</field>
+                    <field name="cdk.leader" update="set">knav</field>
+                </update.dest.field>
+            </onupdate>
+
+        </destination>
+    </worker>
+</cdkprocess>

@@ -303,26 +303,7 @@ public class CDKFormat implements ReplicationFormat {
         return new URL(imgServ);
     }
 
-//    private void makeReferencedDatastreams(Document document, Element dataStreamElm)
-//            throws ReplicateException {
-//        String idAttr = dataStreamElm.getAttribute("ID");
-//        List<Element> versions = versions(dataStreamElm);
-//
-//        for (Element version : versions) {
-//            try {
-//                URL url = makeURL(document,  idAttr);
-//                changeDataStream(document, dataStreamElm, version, url);
-//            } catch (MalformedURLException e) {
-//                throw new ReplicateException(e);
-//            } catch (IOException e) {
-//                throw new ReplicateException(e);
-//            } catch (DOMException e) {
-//                throw new ReplicateException(e);
-//            } catch (URISyntaxException e) {
-//                throw new ReplicateException(e);
-//            }
-//        }
-//    }
+
 
 
     //api/client/v7.0/items/uuid:b1f0b7d2-7313-417f-8f9d-012844808ea2/image/zoomify/ImageProperties.xml

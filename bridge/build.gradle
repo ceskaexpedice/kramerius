@@ -1,0 +1,12 @@
+
+
+dependencies {
+    api project(':rest')
+    api project(':shared:common')
+    api project(':processes:import')
+    api project(':processes:solr-migration')
+
+  
+}
+
+

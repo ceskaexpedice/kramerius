@@ -26,6 +26,7 @@ import java.nio.channels.FileChannel;
 
 import javax.ws.rs.core.MediaType;
 
+import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
 

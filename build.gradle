@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <`http://www.gnu.org/licenses/>.
  */
 
 /*plugins {
@@ -30,7 +30,7 @@ buildScan {
 
 
 plugins {
-    id 'com.google.cloud.tools.jib' version '3.3.1' apply false
+    id 'com.google.cloud.tools.jib' version '3.4.4' apply false
 }
 
 if (!hasProperty('buildProfile')) ext.buildProfile = 'docker'  //supported profiles: dist, docker
@@ -55,6 +55,11 @@ configurations.all {
 }
 
 
+/*
+if(JavaVersion.current() != JavaVersion.VERSION_1_8){
+	println JavaVersion.current()
+	throw new GradleException("This build must be run with java 8")
+}*/
 
 dependencies {
     // editor dependency
@@ -71,11 +76,11 @@ repositories {
 
 
 
-
 /**
  * Inject to all subprojects
  */
 allprojects {
+
 
     apply plugin:'java'
     apply plugin:'java-library'
@@ -86,12 +91,15 @@ allprojects {
     compileJava.options.encoding = 'UTF-8'
 	compileTestJava.options.encoding = 'UTF-8'
 
-    ext.guiceversion ='4.2.2'
+    ext.guiceversion ='6.0.0'
+
     ext.postgresversion = '42.3.9'
     ext.slf4jversion='1.7.35'
+
     //ext.jerseyversion = '1.17.1'
     ext.jerseyversion = '1.19.4'
     ext.keycloakversion = '20.0.2' 
+
 
     ext.generatedSources = "generated-sources"
 
@@ -110,8 +118,8 @@ allprojects {
         database "org.postgresql:postgresql:${postgresversion}"
 
         // guice to all subprojects
-        api ("com.google.inject:guice:${guiceversion}") {exclude group: 'com.google.guava', module: 'guava'}
-        api ("com.google.inject.extensions:guice-multibindings:${guiceversion}"){exclude group: 'com.google.guava', module: 'guava'}
+       
+  	    api ("com.google.inject:guice:${guiceversion}") {exclude group: 'com.google.guava', module: 'guava'}
         api ("com.google.inject.extensions:guice-servlet:${guiceversion}"){exclude group: 'com.google.guava', module: 'guava'}
         api "com.google.inject.extensions:guice-assistedinject:${guiceversion}"
         api "javax.inject:javax.inject:1"
@@ -134,9 +142,17 @@ allprojects {
         api "org.apache.logging.log4j:log4j-to-slf4j:2.17.1"
 
         //junit to all subprojects
-        testImplementation 'junit:junit:4.13.2'
-        testImplementation "org.easymock:easymock:3.0"
+        //testImplementation 'junit:junit:4.13.2'
+        //testImplementation "org.easymock:easymock:3.0"
 
+        //dom4j
+        implementation 'jaxen:jaxen:1.2.0'
+        implementation 'org.dom4j:dom4j:2.1.1'
+
+        //junit to all subprojects
+        testImplementation "junit:junit:4.4"
+        //testCompile "org.easymock:easymock:3.0"
+        testImplementation "org.easymock:easymock:4.3"
     }
 
     repositories {
@@ -189,6 +205,14 @@ allprojects {
         maven {
             url "https://maven.atlassian.com/content/groups/public"
         }*/
+		
+		maven {
+            url "https://jbig2-imageio.googlecode.com/svn/maven-repository"
+        }
+
+        maven {
+            url "https://jbig2-imageio.googlecode.com/svn/maven-repository"
+        }
 
         maven {
             url "https://jitpack.io"
@@ -236,8 +260,6 @@ allprojects {
 //    }
 
 
-    task printAllDependencies(type: DependencyReportTask) {}
-
 }
 
 allprojects {
@@ -284,6 +306,7 @@ allprojects {
 
     }
 
+	task printAllDependencies(type: DependencyReportTask) {}
 
     javadoc {
         if(JavaVersion.current().isJava9Compatible()) {
@@ -358,6 +381,7 @@ task zipInstallDir(type:Zip) {
 
 
 // disabled distributions
+/*
 task zipAllJavadocs(type: Zip) {
     String[] _spr = ["shared:common","rest","search"];
     description "create javadocs for ${_spr} and zip it"
@@ -369,5 +393,6 @@ task zipAllJavadocs(type: Zip) {
         }
 
     }
-}
+}*/
+
 

@@ -67,6 +67,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
+
+
 /**
  * IiiPresentationApi
  *
@@ -262,5 +265,4 @@ public class IiifAPI {
             throw new PIDNotFound("error while parsing pid (" + pid + ")");
         }
     }
-
 }

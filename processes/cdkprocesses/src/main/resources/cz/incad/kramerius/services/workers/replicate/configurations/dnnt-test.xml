@@ -1,0 +1,75 @@
+<!--  
+	
+	k7 inovatika dev
+ -->
+<cdkprocess>
+	
+
+    <!-- Iteration part -->
+    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    <iteration>
+        <url>$iteration.url$</url>
+        <endpoint>search</endpoint>
+
+    	<fquery>root_pid:"uuid:61847cca-0425-4fe7-890d-b7fb5a8724f8"</fquery>
+
+        <id>PID</id>
+        <type>CURSOR</type>
+    </iteration>
+
+    <threads>1</threads>
+
+    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+            <endpoint>search</endpoint>
+            <batchsize>20</batchsize>
+
+            <url>$iteration.url$</url>
+
+            <user>$iteration.user$</user>
+            <pass>$iteration.pass$</pass>
+
+
+            <composite.id>true</composite.id>
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
+
+
+            <checkUrl>$destination.url$</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+
+            <!-- cdk source field -->
+            <collection>cdk.collection</collection>
+
+            <trasfrom>K7</trasfrom>
+
+        </request>
+
+        <destination>
+            <url>$destination.url$/update</url>
+
+            <!-- on index -->
+            <onindex>
+                <!-- remove from batch document -->
+                <remove.dest.field>
+                    <field name="collection"></field>
+                </remove.dest.field>
+                <!-- append to batch document -->
+                <update.dest.field>
+                    <field name="cdk.collection">knav-test</field>
+                    <field name="cdk.leader">knav-test</field>
+                </update.dest.field>
+            </onindex>
+
+            <!-- on update; disabled for now -->
+            <onupdate>
+                <update.dest.field>
+                    <field name="cdk.collection" update="add-distinct">knav-test</field>
+                    <field name="cdk.leader" update="set">knav-test</field>
+                </update.dest.field>
+            </onupdate>
+
+        </destination>
+    </worker>
+</cdkprocess>

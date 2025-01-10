@@ -22,6 +22,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.annotation.Nullable;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -126,6 +127,7 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
         return super.isImageFULLAvailable(pid);
     }
 
+
     @Override
     public InputStream getDataStream(String pid, String datastreamName) throws IOException {
         try {
@@ -191,6 +193,8 @@ public class FedoraAccessAkubraImpl extends AbstractFedoraAccess {
         }
         throw new IOException("Object not found: " + pid);
     }
+
+
 
     @Override
     public Document getDataStreamXmlAsDocument(String pid, String datastreamName) throws IOException {

@@ -20,11 +20,13 @@ import com.google.inject.Inject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
+import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.solr.SolrKeys;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -41,6 +43,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -51,6 +54,7 @@ import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -67,6 +71,9 @@ public class SearchResource {
     
     private static final String[] CONTROLLED_SIZE_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
 
+    private static final int DEFAULT_FRAG_SIZE = 20; //see api.search.highlight.defaultfragsize for old index
+    private static final int MAX_FRAG_SIZE = 120; //see api.search.highlight.maxfragsize for old index
+    
     @Inject
     private LicensesManager licensesManager;
     
@@ -74,8 +81,14 @@ public class SearchResource {
     @Named("new-index")
     private SolrAccess solrAccess;
 
+//    @Inject
+//    private JSONDecoratorsAggregate jsonDecoratorAggregates; //TODO: do we need the decorators, and which are injected?
+
     @Inject
-    private JSONDecoratorsAggregate jsonDecoratorAggregates; //TODO: do we need the decorators, and which are injected?
+    ProxyFilter proxyFilter;
+    
+    @javax.inject.Inject
+    Provider<User> userProvider;
 
     @GET
     public Response get(@Context UriInfo uriInfo, @Context HttpHeaders headers, @QueryParam("wt") String wt) {
@@ -110,15 +123,23 @@ public class SearchResource {
     }
 
     private String buildSearchResponseJson(UriInfo uriInfo) {
+        AtomicReference<String> queryRef = new AtomicReference<>();
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
+            queryRef.set(solrQuery);
+            // filter
             String solrResponseJson = this.solrAccess.requestWithSelectReturningString(solrQuery, "json");
             String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
-            JSONObject jsonObject = buildJsonFromRawSolrResponse(solrResponseJson, uri, this.jsonDecoratorAggregates.getDecorators());
+            JSONObject jsonObject = buildJsonFromRawSolrResponse(solrResponseJson, uri, new ArrayList<>());
             return jsonObject.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                String reasonPhrase = e.getReasonPhrase();
+                
+                String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
+                LOGGER.log(Level.SEVERE, message);
+                LOGGER.log(Level.SEVERE, String.format("Reason phrase %s", reasonPhrase));
+                
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
@@ -134,8 +155,11 @@ public class SearchResource {
     }
 
     private String buildSearchResponseXml(UriInfo uriInfo) {
+        AtomicReference<String> queryRef = new AtomicReference<>();
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
+            queryRef.set(solrQuery);
+
             String solrResponseXml = this.solrAccess.requestWithSelectReturningString(solrQuery, "xml");
             Document domObject = buildXmlFromRawSolrResponse(solrResponseXml);
             StringWriter strWriter = new StringWriter();
@@ -143,7 +167,11 @@ public class SearchResource {
             return strWriter.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+                //LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
+
+                String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
+                LOGGER.log(Level.SEVERE, message);
+
                 throw new BadRequestException(e.getMessage());
             } else {
                 LOGGER.log(Level.INFO, e.getMessage(), e);
@@ -165,10 +193,18 @@ public class SearchResource {
     }
 
     private String buildSearchSolrQueryString(UriInfo uriInfo) throws UnsupportedEncodingException {
-        int snippets = -1;
-        int fragsize = -1;
+        //int snippets = -1;
+        //int fragsize = -1;
         
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+
+        int snippets = -1;
+        int fragsize = -1;
+
+        boolean fqFound = false;
+    	
+    	//MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+
         StringBuilder builder = new StringBuilder();
         Set<String> keys = queryParameters.keySet();
         
@@ -178,6 +214,10 @@ public class SearchResource {
                 if (k.equals("fl")) {
                     checkFlValueDoesNotContainFilteredField(value);
                 }
+                if (k.equals("fq")) {
+                	value = this.proxyFilter.enhancedFilter(value);
+                }
+                
                 if (k.equals("hl.fragsize")) {
                     value = validateHighlightFragsize(value).toString();
                     fragsize = Integer.parseInt( value );
@@ -186,7 +226,11 @@ public class SearchResource {
                     value = validateHighlightSnippets(value).toString();
                     snippets = Integer.parseInt( value );
                 }
-                
+                if (k.equals("hl.snippets")) {
+                    value = validateHighlightSnippets(value).toString();
+                    snippets = Integer.parseInt( value );
+                }
+
                 builder.append(k).append("=").append(URLEncoder.encode(value, "UTF-8"));
                 builder.append("&");
             }
@@ -194,6 +238,19 @@ public class SearchResource {
         if (snippets>-1 && fragsize >-1) {
             validateHLCombination(fragsize, snippets);
         }
+        
+        if (!fqFound) {
+            builder.append("&");
+            builder.append("fq=");
+            String newFilter = proxyFilter.newFilter();
+            if (newFilter != null) builder.append(URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
+        }
+        
+        String eFT = this.proxyFilter.enhanceFacetsTerms();
+        if (eFT != null) {
+            builder.append("&facet.excludeTerms="+eFT);
+        }
+
         return builder.toString();
     }
 
@@ -208,6 +265,16 @@ public class SearchResource {
             }
         }
     }
+
+//    private Integer normalizeHighlightFragsize(String value) {
+//        try {
+//            Integer hlFragSize = Integer.valueOf(value);
+//            return hlFragSize > MAX_FRAG_SIZE ? MAX_FRAG_SIZE : hlFragSize;
+//        } catch (NumberFormatException e) {
+//            throw new BadRequestException(e.getMessage());
+//        }
+//    }
+
 
     private Integer validateHighlightFragsize(String value) {
         try {
@@ -243,7 +310,6 @@ public class SearchResource {
             throw new BadRequestException(String.format("The combination of the parameters hl.snippet and hl.fragsize is too high (%d*%d). The maximum allowed value is %d.", snippets,fragsize, SolrKeys.MAX_HL_COMBINATION));
         }
     }
-  
     /**
      * Build XML document from SOLR response as a raw String
      *
@@ -259,6 +325,8 @@ public class SearchResource {
         });
         for (Element docE : elms) {
             filterOutFieldsFromDOM(docE);
+            
+            this.proxyFilter.filterValue(docE);
         }
         return doc;
     }
@@ -290,6 +358,7 @@ public class SearchResource {
      * @param rawString SOLR response
      */
     private JSONObject buildJsonFromRawSolrResponse(String rawString, String context, List<JSONDecorator> decs) throws UnsupportedEncodingException, JSONException {
+	//TODO: CDK Change
         List<String> sortedLicenses = new ArrayList<>();
         try {
             List<License> allLicenses = this.licensesManager.getAllLicenses();
@@ -299,7 +368,6 @@ public class SearchResource {
         }
         
         List<JSONArray> docsArrays = new ArrayList<JSONArray>();
-
         JSONObject resultJSONObject = new JSONObject(rawString);
         Stack<JSONObject> prcStack = new Stack<JSONObject>();
         prcStack.push(resultJSONObject);
@@ -348,6 +416,9 @@ public class SearchResource {
                         }
                     }
                 }
+                // decorators
+                //applyDecorators(context, decs, docJSON);
+                this.proxyFilter.filterValue(docJSON);
             }
         }
         
@@ -400,6 +471,7 @@ public class SearchResource {
                 jsonObj.remove(filteredFieldName);
             }
         }
+        
     }
 
     @GET

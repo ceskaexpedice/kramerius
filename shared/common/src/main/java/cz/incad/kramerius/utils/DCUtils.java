@@ -131,6 +131,12 @@ public class DCUtils {
         else return null;
     }
 
+    public static String sourceFromDC(org.w3c.dom.Document dc) {
+        ArrayList<String> dates = findElmTexts(dc, "source");
+        if (!dates.isEmpty()) return dates.get(0);
+        else return null;
+    }
+
     public static String languageFromDC(org.w3c.dom.Document dc) {
         ArrayList<String> dates = findElmTexts(dc, "language");
         if (!dates.isEmpty()) return dates.get(0);

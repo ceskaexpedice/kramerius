@@ -2,7 +2,7 @@ package org.kramerius.importmets.convertor;
 
 import com.lizardtech.djvu.DjVuOptions;
 import com.qbizm.kramerius.imp.jaxb.*;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+//import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import cz.incad.kramerius.service.XSLService;
 import cz.incad.kramerius.service.impl.XSLServiceImpl;
 import cz.incad.kramerius.utils.FedoraUtils;

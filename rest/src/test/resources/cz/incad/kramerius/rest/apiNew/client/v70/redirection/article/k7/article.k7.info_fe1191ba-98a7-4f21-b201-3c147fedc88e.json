@@ -1,0 +1,149 @@
+{
+	"image": {
+		"type": "none"
+	},
+	"providedByLicenses": [],
+	"data": {
+		"image": {
+			"preview": false,
+			"thumb": false,
+			"full": false
+		},
+		"metadata": {
+			"mods": true,
+			"dc": true
+		},
+		"audio": {
+			"mp3": false,
+			"wav": false,
+			"ogg": false
+		},
+		"ocr": {
+			"text": false,
+			"alto": false
+		}
+	},
+	"structure": {
+		"children": {
+			"own": [],
+			"foster": [
+				{
+					"pid": "uuid:58ddb459-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58dddb6a-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58dddb6b-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58dddb6c-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58dddb6d-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58dddb6e-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58dddb6f-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58dddb70-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58dddb71-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de0282-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de0283-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de0284-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de0285-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de0286-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de0287-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de0288-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de0289-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de299a-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de299b-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de299c-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de299d-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de299e-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de299f-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de29a0-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de29a1-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de4fb2-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				},
+				{
+					"pid": "uuid:58de4fb3-d295-11e1-8393-0050569d679d",
+					"relation": "isOnPage"
+				}
+			]
+		},
+		"model": "article",
+		"parents": {
+			"own": {
+				"pid": "uuid:a1c53cdc-0031-467f-bfdc-76b824735862",
+				"relation": "hasIntCompPart"
+			},
+			"foster": []
+		}
+	}
+}

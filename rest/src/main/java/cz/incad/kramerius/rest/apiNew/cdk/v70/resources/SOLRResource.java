@@ -59,8 +59,8 @@ import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.virtualcollections.Collection;
-import cz.incad.kramerius.virtualcollections.CollectionUtils;
+//import cz.incad.kramerius.virtualcollections.Collection;
+//import cz.incad.kramerius.virtualcollections.CollectionUtils;
 
 public class SOLRResource {
 
