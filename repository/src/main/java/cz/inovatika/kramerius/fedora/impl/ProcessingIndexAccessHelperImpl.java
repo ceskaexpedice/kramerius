@@ -320,4 +320,10 @@ public class ProcessingIndexAccessHelperImpl implements ProcessingIndexAccess {
         return pids;
     }
 
+    @Override
+    public String getModel(String objectPid) throws RepositoryException, IOException, SolrServerException {
+        Map<String, String> description = repositoryApi.getDescription(objectPid);
+        String model = description.get("model");
+        return model == null ? null : model.substring("model:".length());
+    }
 }

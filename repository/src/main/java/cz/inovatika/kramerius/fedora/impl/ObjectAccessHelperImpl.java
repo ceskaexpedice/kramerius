@@ -19,10 +19,6 @@ public class ObjectAccessHelperImpl implements ObjectAccessHelper {
         org.dom4j.Document objectFoxml = getFoxml(pid);
         return objectFoxml == null ? null : extractProperty(objectFoxml, propertyName);
     }
-    private String extractProperty(org.dom4j.Document foxmlDoc, String name) {
-        org.dom4j.Node node = Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='%s']/@VALUE", name)).selectSingleNode(foxmlDoc);
-        return node == null ? null : Dom4jUtils.toStringOrNull(node);
-    }
     @Override
     public String getPropertyLabel(String pid) throws IOException, RepositoryException {
         return getProperty(pid, "info:fedora/fedora-system:def/model#label");
@@ -59,12 +55,7 @@ public class ObjectAccessHelperImpl implements ObjectAccessHelper {
         }
         throw new IOException("Object not found: " + pid);
     }
-    @Override
-    public String getModel(String objectPid) throws RepositoryException, IOException, SolrServerException {
-        Map<String, String> description = repositoryApi.getDescription(objectPid);
-        String model = description.get("model");
-        return model == null ? null : model.substring("model:".length());
-    }
+
     /*
         @Override
     public InputStream getFoxml(String pid, boolean archive) throws IOException {

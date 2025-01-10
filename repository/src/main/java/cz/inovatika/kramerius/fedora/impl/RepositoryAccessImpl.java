@@ -13,6 +13,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
@@ -61,7 +62,7 @@ public class RepositoryAccessImpl implements RepositoryAccess {
     }
 
     @Override
-    public boolean isObjectAvailable(String pid) {
+    public boolean objectExists(String pid) {
         return this.repository.objectExists(pid);
     }
 
@@ -79,8 +80,8 @@ public class RepositoryAccessImpl implements RepositoryAccess {
     }
 
     @Override
-    public <T> T  getProperty(String pid, String propertyName, Class<T> returnType) {
-        org.dom4j.Document objectFoxml = getFoxml(pid);
+    public String  getProperty(String pid, String propertyName) {
+        org.dom4j.Document objectFoxml = getFoxml(pid).asXml();
         return objectFoxml == null ? null : extractProperty(objectFoxml, propertyName);
     }
 
@@ -107,12 +108,15 @@ public class RepositoryAccessImpl implements RepositoryAccess {
         }
     }
 
-    // --- -- Object stream ---------------------------------------------------
+    // ----- Stream ---------------------------------------------------
 
     @Override
     public DatastreamAccessHelper getDatastreamAccessHelper(){
         return null;
     }
+
+    @Override
+    public String getTypeOfDatastream(String pid, String dsId) {return null;};
 
     @Override
     public boolean datastreamExists(String pid, KnownDatastreams dsId) {
@@ -127,11 +131,20 @@ public class RepositoryAccessImpl implements RepositoryAccess {
         return null;
     }
 
+    /**
+     * @return part of FOXML that contains definition of the datastream. I.e. root element datastream with subelement(s) datastreamVersion.
+     */
+    @Override
+    public org.dom4j.Document getDatastreamXml(String pid, KnownDatastreams dsId){return null;}
+
     @Override
     public <T> T getDatastreamProperty(String pid, KnownDatastreams dsId, String propertyName, Class<T> returnType) {
         org.dom4j.Document objectFoxml = getFoxml(pid);
         return objectFoxml == null ? null : extractProperty(objectFoxml, propertyName);
     }
+
+    @Override
+    public String getDatastreamMimetype(String pid, KnownDatastreams dsId){return null;}
 
     // TODO nazev, Triplet, Tuple, ????????
     @Override
@@ -152,6 +165,37 @@ public class RepositoryAccessImpl implements RepositoryAccess {
             throw new RuntimeException(e);
         }
     }
+    /**
+     * TODO: Not Used
+     * Returns xml containing datastream data
+     *
+     * @param pid pid of reqested object
+     * @param datastreamName datastream name
+     * @return datastream xml as stored in Fedora
+     * @throws IOException IO error has been occurred
+     */
+    public InputStream getDataStreamXml(String pid, String datastreamName) {return null;};
+    /**
+     * Returns xml containing datastream data
+     *
+     * @param pid pid of reqested object
+     * @param datastreamName datastream name
+     * @return datastream xml as stored in Fedora
+     * @throws IOException IO error has been occurred
+     */
+    public Document getDataStreamXmlAsDocument(String pid, String datastreamName){return null;};
+    InputStream getLatestVersionOfDatastream(String pid, String dsId){return null;};
+    org.dom4j.Document getLatestVersionOfInlineXmlDatastream(String pid, String dsId){return null;};
+    String getLatestVersionOfManagedTextDatastream(String pid, String dsId){return null;};
+    /**
+     * Returns data from datastream
+     *
+     * @param pid pid of reqested object
+     * @param datastreamName datastream name
+     * @return data
+     * @throws IOException IO error has been occurred
+     */
+    public InputStream getDataStream(String pid, String datastreamName) throws IOException{return null;};
 
     @Override
     public List<String> getDatastreamNames(String pid) {
@@ -387,4 +431,8 @@ public class RepositoryAccessImpl implements RepositoryAccess {
         return maxVersion;
     }
 
+    private String extractProperty(org.dom4j.Document foxmlDoc, String name) {
+        org.dom4j.Node node = Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='%s']/@VALUE", name)).selectSingleNode(foxmlDoc);
+        return node == null ? null : Dom4jUtils.toStringOrNull(node);
+    }
 }

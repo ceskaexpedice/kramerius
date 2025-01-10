@@ -5,18 +5,9 @@ import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.TreeNodeProcessor;
-import cz.incad.kramerius.fedora.DatastreamAccess;
-import cz.incad.kramerius.fedora.RepositoryAccess;
-import cz.incad.kramerius.fedora.impl.tmp.TmpAbstractRepositoryAccess;
-import cz.incad.kramerius.fedora.om.repository.RepositoryDatastream;
-import cz.incad.kramerius.fedora.om.repository.RepositoryException;
-import cz.incad.kramerius.fedora.om.repository.RepositoryObject;
-import cz.incad.kramerius.fedora.om.repository.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.utils.AkubraUtils;
-import cz.incad.kramerius.fedora.utils.FedoraUtils;
-import cz.incad.kramerius.fedora.utils.pid.LexerException;
 import cz.incad.kramerius.repository.utils.NamespaceRemovingVisitor;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.kramerius.fedora.DatastreamAccessHelper;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,7 +22,25 @@ import java.util.Stack;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 
-public class DatastreamAccessHelperImpl implements DatastreamAccess {
+public class DatastreamAccessHelperImpl implements DatastreamAccessHelper {
+    @Override
+    public org.dom4j.Document getRelsExt(String pid, boolean namespaceAware) throws IOException, RepositoryException {
+        org.dom4j.Document doc = getLatestVersionOfInlineXmlDatastream(pid, RepositoryAccess.KnownDatastreams.RELS_EXT.toString());
+        if (doc != null && !namespaceAware) {
+            doc.accept(new NamespaceRemovingVisitor(true, true));
+        }
+        return doc;
+    }
+    @Override
+    public Document getRelsExt(String pid) throws IOException {
+        try {
+            // consider to change to metadata
+            return getStream(makeSureObjectPid(pid), FedoraUtils.RELS_EXT_STREAM);
+        } catch (LexerException e) {
+            throw new IOException(e);
+        }
+    }
+
     @Override
     public InputStream getImgFull(String pid) throws IOException, RepositoryException {
         this.accessLog.reportAccess(pid, RepositoryAccess.KnownDatastreams.IMG_FULL.toString());
@@ -84,23 +93,7 @@ public class DatastreamAccessHelperImpl implements DatastreamAccess {
     public String getOcrText(String pid) throws IOException, RepositoryException {
         return getLatestVersionOfManagedTextDatastream(pid, RepositoryAccess.KnownDatastreams.OCR_TEXT.toString());
     }
-    @Override
-    public org.dom4j.Document getRelsExt(String pid, boolean namespaceAware) throws IOException, RepositoryException {
-        org.dom4j.Document doc = getLatestVersionOfInlineXmlDatastream(pid, RepositoryAccess.KnownDatastreams.RELS_EXT.toString());
-        if (doc != null && !namespaceAware) {
-            doc.accept(new NamespaceRemovingVisitor(true, true));
-        }
-        return doc;
-    }
-    @Override
-    public Document getRelsExt(String pid) throws IOException {
-        try {
-            // consider to change to metadata
-            return getStream(makeSureObjectPid(pid), FedoraUtils.RELS_EXT_STREAM);
-        } catch (LexerException e) {
-            throw new IOException(e);
-        }
-    }
+
     @Override
     public org.dom4j.Document getMods(String pid, boolean namespaceAware) throws IOException, RepositoryException {
         org.dom4j.Document doc = getLatestVersionOfInlineXmlDatastream(pid, RepositoryAccess.KnownDatastreams.BIBLIO_MODS.toString());
