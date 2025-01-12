@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.*;
+import com.qbizm.kramerius.imptool.poc.valueobj.RelsExt;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -35,11 +36,14 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.fcrepo.common.rdf.FedoraNamespace;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -48,21 +52,22 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathExpressionException;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
@@ -71,6 +76,7 @@ import java.util.logging.Logger;
 import cz.incad.kramerius.utils.*;
 
 
+import static cz.incad.kramerius.fedora.om.impl.AkubraUtils.getCurrentXMLGregorianCalendar;
 import static cz.incad.kramerius.utils.XMLUtils.*;
 import static cz.incad.kramerius.FedoraNamespaces.*;
 
@@ -94,12 +100,18 @@ public class Import {
     private static SortingService sortingService;
     private static Map<String, List<String>> updateMap = new HashMap<String, List<String>>();
 
+    private static String imgTreePath = "";
+    private static String imgTreeUrl = "";
+    private static DocumentBuilder docBuilder;
+
     static {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
             unmarshaller = jaxbContext.createUnmarshaller();
             JAXBContext jaxbdatastreamContext = JAXBContext.newInstance(DatastreamType.class);
             datastreamMarshaller = jaxbdatastreamContext.createMarshaller();
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            docBuilder = documentBuilderFactory.newDocumentBuilder();
         } catch (Exception e) {
             log.log(Level.SEVERE, "Cannot init JAXB", e);
             throw new RuntimeException(e);
@@ -108,6 +120,10 @@ public class Import {
         if (classicRootModels == null) {
             classicRootModels = new ArrayList<>();
         }
+        if (useImageServer()) {
+            setImgTree(); //set imgTreePath and imgTreeUrl for export to imageserver
+        }
+
     }
 
     /**
@@ -128,24 +144,24 @@ public class Import {
         //process params
         String importDirFromArgs = args.length > argsIndex ? args[argsIndex++] : null;
         log.info(String.format("Import directory %s", importDirFromArgs));
-        
-        
+
+
         Boolean startIndexerFromArgs = args.length > argsIndex ? Boolean.valueOf(args[argsIndex++]) : null;
-        
+
         String license = null;
         String addCollection = null;
-        if (startIndexerFromArgs) { 
-            license = args.length > argsIndex ? args[argsIndex++] : null; 
-            addCollection = args.length > argsIndex ? args[argsIndex++] : null; 
+        if (startIndexerFromArgs != null && startIndexerFromArgs) {
+            license = args.length > argsIndex ? args[argsIndex++] : null;
+            addCollection = args.length > argsIndex ? args[argsIndex++] : null;
         }
 
-        
+
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
-        
-        
+
+
         //priority: 1. args, 2. System property, 3. KConfiguration, 4. explicit defalut value
         String importDirectory = KConfiguration.getInstance().getProperty("import.directory");
         if (importDirFromArgs != null) {
@@ -153,23 +169,22 @@ public class Import {
         } else if (System.getProperties().containsKey("import.directory")) {
             importDirectory = System.getProperty("import.directory");
         }
-        
+
         Boolean startIndexer = Boolean.valueOf(KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
         if (startIndexerFromArgs != null) {
             startIndexer = startIndexerFromArgs;
         } else if (System.getProperties().containsKey("ingest.startIndexer")) {
             startIndexer = Boolean.valueOf(System.getProperty("ingest.startIndexer"));
         }
-        
-        
+
 
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        
+
         if (license != null && !license.equals(NON_KEYWORD)) {
 
             File importFolder = new File(importDirectory);
             File importParentFolder = importFolder.getParentFile();
-            File licensesImportFile = new File(importParentFolder, importFolder.getName()+"-"+license);
+            File licensesImportFile = new File(importParentFolder, importFolder.getName() + "-" + license);
             licensesImportFile.mkdirs();
             log.info(String.format("Copy data from  %s to %s", importFolder.getAbsolutePath(), licensesImportFile.getAbsolutePath()));
             FileUtils.copyDirectory(importFolder, licensesImportFile);
@@ -178,20 +193,21 @@ public class Import {
             log.info(String.format("Applying license %s", license));
             try {
                 foxmlService.appendLicense(licensesImportFile.getAbsolutePath(), license);
-            } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException | LexerException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException |
+                     LexerException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
 
             ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
             log.info("import dir: " + licensesImportFile);
             log.info("start indexer: " + startIndexer);
             log.info("license : " + license);
-            
-            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken,addCollection);
 
-            log.info( String.format("Deleting import folder %s", licensesImportFile));
+            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection);
+
+            log.info(String.format("Deleting import folder %s", licensesImportFile));
             FileUtils.deleteDirectory(licensesImportFile);
-            
+
         } else {
 
             ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
@@ -288,7 +304,7 @@ public class Import {
             }
 
             if (startIndexer) {
-                
+
                 List<String> addCollectionList = new ArrayList<>();
                 if (StringUtils.isAnyString(addcollections)) {
                     Arrays.stream(addcollections.split(";")).forEach(addCollectionList::add);
@@ -298,9 +314,8 @@ public class Import {
                         }
                     }
                 }
-                
-                
-                
+
+
                 if (collections.isEmpty()) {
                     log.info("NO COLLECTIONS FOR INDEXING FOUND.");
                 } else {
@@ -312,7 +327,7 @@ public class Import {
 
                         if (authToken != null) {
                             for (TitlePidTuple col : collections) {
-                                
+
                                 ProcessScheduler.scheduleIndexation(col.pid, col.title, false, authToken);
                             }
                             log.info("ALL COLLECTIONS SCHEDULED FOR INDEXING.");
@@ -324,7 +339,7 @@ public class Import {
                     }
                 }
 
-                
+
                 if (convolutes.isEmpty()) {
                     log.info("NO CONVOLUTES FOR INDEXING FOUND.");
                 } else {
@@ -346,7 +361,7 @@ public class Import {
                         log.log(Level.WARNING, e.getMessage(), e);
                     }
                 }
-                
+
                 if (classicRoots.isEmpty()) {
                     log.info("NO ROOT OBJECTS FOR INDEXING FOUND.");
                 } else {
@@ -364,7 +379,7 @@ public class Import {
                                 } else {
                                     LOGGER.warning(String.format("Object '%s' does not exist in the repository. ", root.pid));
                                 }
-                                
+
                             }
                             log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
                         } else {
@@ -395,11 +410,11 @@ public class Import {
         of = new ObjectFactory();
     }
 
-    private static void visitAllDirsAndFiles(FedoraAccess fa, File importFile, Set<TitlePidTuple> classicRoots, 
-            Set<TitlePidTuple> convolutes, 
-            Set<TitlePidTuple> collections, 
-            
-            Set<String> sortRelations, boolean updateExisting) {
+    private static void visitAllDirsAndFiles(FedoraAccess fa, File importFile, Set<TitlePidTuple> classicRoots,
+                                             Set<TitlePidTuple> convolutes,
+                                             Set<TitlePidTuple> collections,
+
+                                             Set<String> sortRelations, boolean updateExisting) {
         if (importFile == null) {
             return;
         }
@@ -514,7 +529,7 @@ public class Import {
 
                     ingest(fa.getInternalAPI(), importFile, sortRelations, classicRoots, updateExisting);
                     checkModelIsClassicRoot(transactionDigitalObject, classicRoots);
-                    checkModelIsConvoluteOrCollection(transactionDigitalObject, convolutes, collections,classicRoots);
+                    checkModelIsConvoluteOrCollection(transactionDigitalObject, convolutes, collections, classicRoots);
                 }
             } catch (Throwable t) {
                 log.severe("Error when ingesting PID: " + dobj.getPID() + ", " + t.getMessage());
@@ -563,14 +578,17 @@ public class Import {
         DigitalObject obj = null;
         try {
             synchronized (marshallingLock) {
-                 obj = (DigitalObject) unmarshaller.unmarshal(new ByteArrayInputStream(bytes));
+                obj = (DigitalObject) unmarshaller.unmarshal(new ByteArrayInputStream(bytes));
             }
         } catch (Exception e) {
             log.info("Skipping file " + filename + " - not an FOXML object.");
             log.log(Level.INFO, "Underlying error was:", e);
             return;
         }
-        String pid =  obj.getPID();
+        if (useImageServer()) {
+            convertForImageServer(obj);
+        }
+        String pid = obj.getPID();
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
             repo.ingestObject(obj);
@@ -627,7 +645,7 @@ public class Import {
 
     public static void ingest(Repository repo, File file, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
         try (FileInputStream is = new FileInputStream(file)) {
-            ingest(repo, is, file.getName(),sortRelations, roots, updateExisting);
+            ingest(repo, is, file.getName(), sortRelations, roots, updateExisting);
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Ingestion error ", ex);
             throw new RuntimeException(ex);
@@ -655,7 +673,7 @@ public class Import {
             }
             IOUtils.copyStreams(repo.getObject(pid).getStream("RELS-EXT").getContent(), bos);
         } catch (IOException e) {
-            log.log(Level.SEVERE,"Cannot copy streams in merge", e);
+            log.log(Level.SEVERE, "Cannot copy streams in merge", e);
             throw new RuntimeException(e);
         }
         byte[] existingBytes = bos.toByteArray();
@@ -681,8 +699,139 @@ public class Import {
         return touched;
     }
 
+    public static boolean useImageServer() {
+        boolean useImageServer = System.getProperties().containsKey("convert.useImageServer")
+                ? Boolean.valueOf(System.getProperty("convert.useImageServer")) :
+                KConfiguration.getInstance().getConfiguration().getBoolean("convert.useImageServer", false);
+        return useImageServer;
+    }
+
+    public static void setImgTree(){
+        Calendar now = Calendar.getInstance();
+        int intyear = now.get(Calendar.YEAR);
+        int intmonth = now.get(Calendar.MONTH)+1;
+        int intday = now.get(Calendar.DAY_OF_MONTH);
+        String year =  String.format("%04d", intyear);
+        String month =  String.format("%02d", intmonth);
+        String day =  String.format("%02d", intday);
+        imgTreePath = System.getProperty("file.separator")+year+System.getProperty("file.separator")+month+System.getProperty("file.separator")+day;
+        imgTreeUrl = "/"+year+"/"+month+"/"+day;
+
+    }
+
+    public static String getImgTreePath() {
+        return imgTreePath;
+    }
+
+    public static String getImgTreeUrl() {
+        return imgTreeUrl;
+    }
+
+    private static void convertForImageServer(DigitalObject obj) {
+        for (DatastreamType ds : obj.getDatastream()) {
+            if ("IMG_FULL".equals(ds.getID()) && "M".equals(ds.getCONTROLGROUP())) {
+                List<DatastreamVersionType> versions = ds.getDatastreamVersion();
+                if (versions != null) {
+                    DatastreamVersionType ver = versions.get(versions.size() - 1);
+                    if ("image/jp2".equals(ver.getMIMETYPE())) {
+                        byte[] binaryContent = ver.getBinaryContent();
+                        String filename = obj.getPID().replace("uuid:", "") + ".jp2";
+                        convertFullStream(binaryContent, filename, obj,ds, ver);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void convertFullStream(byte[] img, String filename, DigitalObject obj, DatastreamType stream, DatastreamVersionType version) {
+        try {
+            stream.setCONTROLGROUP("E");
+            stream.setVERSIONABLE(false);
+            stream.setSTATE(StateType.A);
+            version.setCREATED(getCurrentXMLGregorianCalendar());
+
+            String externalImagesDirectory = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory");
+            String binaryDirectory = externalImagesDirectory + getImgTreePath();
+            File dir = IOUtils.checkDirectory(binaryDirectory);
+            // Write file to imageserver directory
+            File target = new File(dir, filename);
+            Files.write(target.toPath(), img);
+            ContentLocationType cl = new ContentLocationType();
+            String tilesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerTilesURLPrefix") + getImgTreeUrl();
+            String imagesPrefix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerImagesURLPrefix") + getImgTreeUrl();
+            String suffix = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.big");
+
+            if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerSuffix.removeFilenameExtensions", false)) {
+                String pageFileNameWithoutExtension = FilenameUtils.removeExtension(filename);
+                cl.setREF(imagesPrefix + "/" + PathEncoder.encPath( pageFileNameWithoutExtension) + suffix);
+
+                //Adjust RELS-EXT
+                 String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
+                adjustRELSEXT(obj, tilesPrefix + "/" + PathEncoder.encPath( pageFileNameWithoutExtension) + suffixTiles);
+            } else {
+                cl.setREF(imagesPrefix + "/" + PathEncoder.encPath( filename) + suffix);
+
+                //Adjust RELS-EXT
+                String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
+                adjustRELSEXT(obj,tilesPrefix + "/" + PathEncoder.encPath(filename) + suffixTiles);
+            }
+            cl.setTYPE("URL");
+            version.setContentLocation(cl);
+            version.setBinaryContent(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private static void adjustRELSEXT(DigitalObject obj, String tilesUrlValue){
+        for (DatastreamType ds : obj.getDatastream()) {
+            if ("RELS-EXT".equals(ds.getID())) {
+                List<DatastreamVersionType> versions = ds.getDatastreamVersion();
+                if (versions != null) {
+                    DatastreamVersionType ver = versions.get(versions.size() - 1);
+                    XmlContentType xmlContent = ver.getXmlContent();
+                    Node element = xmlContent.getAny().get(0).getFirstChild();
+                   // printElement(element);
+                    Document document = element.getOwnerDocument();
+                    Element relElement = appendChildNS(document, element, NS_KRAMERIUS,  "kramerius:tiles-url" , tilesUrlValue);
+                    //printElement(element);
+                }
+            }
+        }
+    }
+    private static final String NS_KRAMERIUS = "http://www.nsdl.org/ontologies/relationships#";
+
+    private static Element appendChildNS(Document d, Node parent, String prefix, String name, String value) {
+        Element e = d.createElementNS(prefix, name);
+        e.setTextContent(value);
+        parent.appendChild(e);
+        return e;
+    }
+
+    public static void printElement(Node element) {
+        try {
+            // Set up a transformer to convert the element to a string
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+            // Create a DOMSource for the Element
+            DOMSource source = new DOMSource(element);
+
+            // Print to console
+            StreamResult result = new StreamResult(System.out);
+            transformer.transform(source, result);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private static List<RDFTuple> readRDF(byte[] bytes) {
         XMLInputFactory f = XMLInputFactory.newInstance();
+
         List<RDFTuple> retval = new ArrayList<RDFTuple>();
         String subject = null;
         boolean inRdf = false;
@@ -782,25 +931,27 @@ public class Import {
         }
     }
 
-    private static void addCollection(FedoraAccess fa, String collectionPid,Set<TitlePidTuple> classicRoots, Set<TitlePidTuple> collectionsToReindex, String authToken) {
+    private static void addCollection(FedoraAccess fa, String collectionPid, Set<TitlePidTuple> classicRoots, Set<TitlePidTuple> collectionsToReindex, String authToken) {
         Client c = Client.create();
 
         List<String> rootPids = new ArrayList<>();
         classicRoots.forEach(clRoot -> rootPids.add(clRoot.pid));
-        
+
         List<String> pidsToCollection = new ArrayList<>();
-        
-        
+
+
         String adminPoint = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point");
-        if (!adminPoint.endsWith("/")) adminPoint = adminPoint +"/";
-        String collectionDescUrl = adminPoint +String.format("collections/%s", collectionPid);
+        if (!adminPoint.endsWith("/")) adminPoint = adminPoint + "/";
+        String collectionDescUrl = adminPoint + String.format("collections/%s", collectionPid);
         WebResource collectionResource = c.resource(collectionDescUrl);
-        String collectionJSON = collectionResource.header("parent-process-auth-token",authToken).accept(MediaType.APPLICATION_JSON).get(String.class);
+        String collectionJSON = collectionResource.header("parent-process-auth-token", authToken).accept(MediaType.APPLICATION_JSON).get(String.class);
         JSONObject collectionObject = new JSONObject(collectionJSON);
-        
-        JSONArray alreadyInCollection =  collectionObject.getJSONArray("items");
+
+        JSONArray alreadyInCollection = collectionObject.getJSONArray("items");
         List<String> alreadyInCollectionList = new ArrayList<String>();
-        for (int i = 0; i < alreadyInCollection.length(); i++) { alreadyInCollectionList.add(alreadyInCollection.getString(i));}
+        for (int i = 0; i < alreadyInCollection.length(); i++) {
+            alreadyInCollectionList.add(alreadyInCollection.getString(i));
+        }
 
         for (String pidToAdd : rootPids) {
             if (!alreadyInCollectionList.contains(pidToAdd)) {
@@ -809,28 +960,28 @@ public class Import {
                 LOGGER.info(String.format("Pid %s has been already added to %s", pidToAdd, collectionPid));
             }
         }
-        
-        String collectionsUrl = adminPoint +String.format("collections/%s/items?indexation=false", collectionPid);
+
+        String collectionsUrl = adminPoint + String.format("collections/%s/items?indexation=false", collectionPid);
         WebResource r = c.resource(collectionsUrl);
         for (String pidToCollection : pidsToCollection) {
             LOGGER.info(String.format("Adding %s  to collection %s", pidToCollection, collectionPid));
-            ClientResponse clientResponse = r.accept(MediaType.TEXT_PLAIN_TYPE).header("parent-process-auth-token",authToken).entity(pidToCollection, MediaType.TEXT_PLAIN_TYPE).post(ClientResponse.class);
+            ClientResponse clientResponse = r.accept(MediaType.TEXT_PLAIN_TYPE).header("parent-process-auth-token", authToken).entity(pidToCollection, MediaType.TEXT_PLAIN_TYPE).post(ClientResponse.class);
             if (clientResponse.getStatus() != 200 && clientResponse.getStatus() != 201) {
                 String responseBody = clientResponse.getEntity(String.class);
                 throw new RuntimeException(String.format("Status code %d, %s", clientResponse.getStatus(), responseBody));
             }
         }
-        
+
         TitlePidTuple npt = new TitlePidTuple("Sbírka", collectionPid);
         collectionsToReindex.add(npt);
     }
-    
+
     /**
      * Parse FOXML file and if it has model "convolute", add its
      * PID to convolutes list. Objects in the convolutes list then will be submitted to
      * Indexer (object-only indexation)
      */
-    private static void checkModelIsConvoluteOrCollection(DigitalObject dobj, Set<TitlePidTuple> convolutes,  Set<TitlePidTuple> collections, Set<TitlePidTuple> roots) {
+    private static void checkModelIsConvoluteOrCollection(DigitalObject dobj, Set<TitlePidTuple> convolutes, Set<TitlePidTuple> collections, Set<TitlePidTuple> roots) {
         try {
             boolean isConvolute = false;
             boolean isCollection = false;
@@ -878,7 +1029,7 @@ public class Import {
                                     return equals;
                                 }
                             });
-                            for (int i = 0; i < pids.size();i++) {
+                            for (int i = 0; i < pids.size(); i++) {
                                 String attributeNS = pids.get(i).getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
                                 if (attributeNS.contains("info:fedora/")) {
                                     String rootPid = attributeNS.substring("info:fedora/".length());
@@ -905,7 +1056,7 @@ public class Import {
                     collections.add(npt);
                     log.info("Found (collection) object for indexing - " + npt);
                 }
-                
+
             }
 
         } catch (Exception ex) {

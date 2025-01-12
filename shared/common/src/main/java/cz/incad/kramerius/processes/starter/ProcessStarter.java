@@ -239,12 +239,8 @@ public class ProcessStarter {
             }
                 
             NAME_UPDATED_BY_ME = ProcessUpdatingChannel.getChannel().updateName(name);
-        } catch (ClassNotFoundException e) {
-            throw new IOException(e);
-        } catch (IllegalAccessException e) {
-            throw new IOException(e);
-        } catch (InstantiationException e) {
-            throw new IOException(e);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "COuld not update process name: "+e.getMessage(), e);
         }
     }
 
