@@ -32,6 +32,7 @@ public class PdfTextUnderImage {
     public static HashMap<String, String> REMAP_FAMILIES = new HashMap<String, String>(){{
         put("arial", "arial ce");
         put("times new roman", "gentium plus");
+        put("courier","courier new");
     }};
 
     private static boolean registerFontDirectoriesDone = false;
@@ -107,17 +108,21 @@ public class PdfTextUnderImage {
                 if (REMAP_FAMILIES.containsKey(fontFamily.toLowerCase())) {
                     fontFamily = REMAP_FAMILIES.get(fontFamily.toLowerCase());
                 }
-                Font font;
                 Float fontSize = getFontSize(element, alto, options);
-                if(fontFamily.equals("Courier"))
-                    font= FontFactory.getFont(FontFactory.COURIER, fontSize, fontStyle, fontColor);
-                else
-                    font = FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.EMBEDDED,
-                    fontSize, fontStyle, fontColor);
+                Font font = FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.EMBEDDED,
+                fontSize, fontStyle, fontColor);
                 Phrase phrase = new Phrase(text, font);
+                Float LLV = getLowerLeftVertical(document, element, options.getScaleFactor(), options.getYoffset());
+                Float trueSize = fontSize;
+                if (element.hasAttribute("HEIGHT"))trueSize = Float.parseFloat(element.getAttribute("HEIGHT"))*options.getScaleFactor();
+                if(trueSize>fontSize){
+                    LLV+=(trueSize-fontSize);//Courier does not have letters extending bellow the line. Alto however does take it into consideration. This attempts to center it a little
+                }
+
                 ColumnText.showTextAligned(canvas, com.lowagie.text.Element.ALIGN_LEFT, phrase,
                         getLowerLeftHorizontal(element, options.getScaleFactor(), options.getXoffset()),
-                        getLowerLeftVertical(document, element, options.getScaleFactor(), options.getYoffset()), getRotation(element));
+                        LLV,//getLowerLeftVertical(document, element, options.getScaleFactor(), options.getYoffset()),
+                        getRotation(element));
             }
         }
     }
@@ -168,8 +173,8 @@ public class PdfTextUnderImage {
                 String t = element.getAttribute("CONTENT");
                 int width = Integer.parseInt(element.getAttribute("WIDTH"));
                 Float r2 = (((float)width)/t.length())/0.6f;//Courier's width is 60% of its height
-                //Float r1 = Float.valueOf(element.getAttribute("HEIGHT"));//We don't want to extend to other lines
-                r = r2;//Math.min(r1,r2);
+                Float r1 = Float.valueOf(element.getAttribute("HEIGHT"));
+                r = Math.min(r1,r2);
             } else {
                 throwPdfTextUnderImageException();
             }
@@ -238,7 +243,6 @@ public class PdfTextUnderImage {
         }
         if (e.hasAttribute(rotation)) {
             r = Float.parseFloat(e.getAttribute("rotation"));
-            //r = (new Float(e.getAttribute(rotation))).floatValue();
         }
         return r;
     }
