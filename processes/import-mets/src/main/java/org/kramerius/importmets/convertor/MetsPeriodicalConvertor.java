@@ -190,6 +190,9 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
     private Multimap<String, FileDescriptor> audioFilesMap = ArrayListMultimap.create();
 
     private void collectAudioFiles(DivType pageDiv){
+        if (pageDiv.getDiv() != null){
+            pageDiv.getDiv().forEach(this::collectAudioFiles);
+        }
         for (Fptr fptr : pageDiv.getFptr()) {
             FileType fileId = (FileType) fptr.getFILEID();
             FileDescriptor fileDesc = fileMap.get(fileId.getID());
@@ -214,7 +217,13 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             Foxml page = new Foxml();
             page.setPid(pid(generateUUID()));
             page.setTitle(pageTitle);
-            String modsId = pageDiv.getID().replaceFirst("DIV_P", "MODSMD");
+            String pageDivID = pageDiv.getID();
+            String modsId = "";
+            if (pageDivID.startsWith("DIV_PAGE")){
+                modsId = pageDiv.getID().replaceFirst("DIV", "MODSMD");
+            } else {
+                modsId = pageDiv.getID().replaceFirst("DIV_P", "MODSMD");
+            }
 
 
             ModsDefinition pageMods = modsMap.get(modsId);
@@ -384,11 +393,11 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         foxml.setRe(re);
         if (parent != null) {
             String parentRelation = mapParentRelation(model);
-            if (RelsExt.CONTAINS_TRACK.equalsIgnoreCase(parentRelation)&& MODEL_SOUND_RECORDING.equalsIgnoreCase(parentModel)){
-                parent.getRe().addRelation(RelsExt.HAS_TRACK, pid, false);
-            } else {
+//            if (RelsExt.CONTAINS_TRACK.equalsIgnoreCase(parentRelation)&& MODEL_SOUND_RECORDING.equalsIgnoreCase(parentModel)){
+//                parent.getRe().addRelation(RelsExt.HAS_TRACK, pid, false);
+//            } else {
                 parent.getRe().addRelation(parentRelation, pid, false);
-            }
+//            }
         }
         String divID = div.getID();
         objects.put(divID, foxml);
@@ -642,9 +651,39 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                     }
                 } else if(from.startsWith("SOUNDCOLLECTION")|| from.startsWith("SOUNDRECORDING") || from.startsWith("SOUNDPART")){
                     if (to.startsWith("DIV_STOPA") || to.startsWith("DIV_AUDIO")){
-                        Collection<FileDescriptor> fileDescriptors = audioFilesMap.get(to);
-                        for (FileDescriptor fileDescriptor : fileDescriptors) {
-                            part.addFiles(fileDescriptor);
+                        if (from.startsWith("SOUNDPART")) {
+                            Collection<FileDescriptor> fileDescriptors = audioFilesMap.get(to);
+                            for (FileDescriptor fileDescriptor : fileDescriptors) {
+                                if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.userAudio", true)) {
+                                    if (StreamFileType.MASTER_AUDIO.equals(fileDescriptor.getFileType())) {
+                                        continue;
+                                    }
+                                } else {
+                                    if (StreamFileType.USER_AUDIO.equals(fileDescriptor.getFileType())) {
+                                        continue;
+                                    }
+                                }
+                                part.addFiles(fileDescriptor);
+                            }
+                        } else if (from.startsWith("SOUNDRECORDING")) {
+                            Collection<FileDescriptor> fileDescriptors = audioFilesMap.get(to);
+                            Foxml track = createTrack(part);
+                            for (FileDescriptor fileDescriptor : fileDescriptors) {
+                                if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.userAudio", true)) {
+                                    if (StreamFileType.MASTER_AUDIO.equals(fileDescriptor.getFileType())) {
+                                        continue;
+                                    }
+                                } else {
+                                    if (StreamFileType.USER_AUDIO.equals(fileDescriptor.getFileType())) {
+                                        continue;
+                                    }
+                                }
+                                track.addFiles(fileDescriptor);
+                            }
+
+                        } else if (from.startsWith("SOUNDCOLLECTION")) {
+                            log.warn("Invalid structLink from: " + from + " to: " + to);
+                            continue;
                         }
 
                     } else {
@@ -655,6 +694,25 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                 }
             }
         }
+    }
+
+    private Foxml createTrack(Foxml part) {
+        String uuid = generateUUID();
+        String pid = pid(uuid);
+        String title = getTitlefromMods(part.getMods());
+        Foxml track = new Foxml();
+        track.setPid(pid);
+        track.setTitle(title);
+        OaiDcType trackDc = createDC(pid, title);
+        setDCModelAndPolicy(trackDc, MODEL_TRACK, policyID);
+        track.setDc(trackDc);
+        track.setMods(part.getMods());
+        RelsExt re = new RelsExt(pid, MODEL_TRACK);
+        re.addRelation(RelsExt.POLICY, policyID, true);
+        track.setRe(re);
+        part.getRe().addRelation(RelsExt.CONTAINS_TRACK, pid, false);
+        objects.put(pid, track);
+        return track;
     }
 
 
