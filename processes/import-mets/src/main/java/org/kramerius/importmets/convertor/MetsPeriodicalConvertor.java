@@ -687,7 +687,11 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                         }
 
                     } else {
-                        part.getRe().addRelation(RelsExt.HAS_PAGE, target.getPid(), false);
+                        if (pagesFirst) {
+                            part.getRe().insertPage(target.getPid());
+                        } else {
+                            part.getRe().addRelation(RelsExt.HAS_PAGE, target.getPid(), false);
+                        }
                     }
                 } else {
                     part.getRe().addRelation(RelsExt.IS_ON_PAGE, target.getPid(), false);
