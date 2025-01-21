@@ -154,7 +154,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             for (FileType file : fGrp.getFile()) {
                 String id = file.getID();
                 String declaredMimetype = file.getMIMETYPE();
-                
+
                 groupType = makeSureOCRGRP(grpId, declaredMimetype, groupType);
 
                 FLocat fl = firstItem(file.getFLocat());
@@ -189,8 +189,8 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
     private Map<String, String> filePageMap = new HashMap<String, String>();
     private Multimap<String, FileDescriptor> audioFilesMap = ArrayListMultimap.create();
 
-    private void collectAudioFiles(DivType pageDiv){
-        if (pageDiv.getDiv() != null){
+    private void collectAudioFiles(DivType pageDiv) {
+        if (pageDiv.getDiv() != null) {
             pageDiv.getDiv().forEach(this::collectAudioFiles);
         }
         for (Fptr fptr : pageDiv.getFptr()) {
@@ -199,7 +199,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             if (fileDesc == null) {
                 throw new ServiceException("Invalid audiofile pointer:" + fileId.getID());
             }
-            audioFilesMap.put(pageDiv.getID(),fileDesc);
+            audioFilesMap.put(pageDiv.getID(), fileDesc);
         }
     }
 
@@ -207,7 +207,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         DivType issueDiv = sm.getDiv();
         for (DivType pageDiv : issueDiv.getDiv()) {
             String type = pageDiv.getTYPE();
-            if (type != null && (type.equalsIgnoreCase("sound")|| type.equalsIgnoreCase("soundpart"))){
+            if (type != null && (type.equalsIgnoreCase("sound") || type.equalsIgnoreCase("soundpart"))) {
                 collectAudioFiles(pageDiv);
                 continue;
             }
@@ -219,7 +219,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             page.setTitle(pageTitle);
             String pageDivID = pageDiv.getID();
             String modsId = "";
-            if (pageDivID.startsWith("DIV_PAGE")){
+            if (pageDivID.startsWith("DIV_PAGE")) {
                 modsId = pageDiv.getID().replaceFirst("DIV", "MODSMD");
             } else {
                 modsId = pageDiv.getID().replaceFirst("DIV_P", "MODSMD");
@@ -336,7 +336,8 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
         if ("SOUNDCOLLECTION".equalsIgnoreCase(divType)) {
             soundCollectionId = div.getID();
         }
-        if ("PAGE".equalsIgnoreCase(divType)) return null;//divs for PAGES are processed from physical map and structlinks
+        if ("PAGE".equalsIgnoreCase(divType))
+            return null;//divs for PAGES are processed from physical map and structlinks
         MdSecType modsIdObj = (MdSecType) firstItem(div.getDMDID());
         //if ("PICTURE".equalsIgnoreCase(divType)) return null;//divs for PICTURE are not supported in K4
         if ("MONOGRAPH".equalsIgnoreCase(divType) && modsIdObj == null) {//special hack to ignore extra div for single volume monograph
@@ -344,11 +345,11 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             List<DivType> volumeDivs = div.getDiv();
             if (volumeDivs == null) return null;
             if (volumeDivs.size() == 1) {//process volume as top level
-                processDiv(null, null,volumeDivs.get(0));
+                processDiv(null, null, volumeDivs.get(0));
                 return null;
             }
             if (volumeDivs.size() > 1) {//if monograph div contains more subdivs, first is supposed to be the volume, the rest are supplements that will be nested in the volume.
-                Foxml volume = processDiv(null, null,volumeDivs.get(0));
+                Foxml volume = processDiv(null, null, volumeDivs.get(0));
                 for (int i = 1; i < volumeDivs.size(); i++) {
                     processDiv(volume, null, volumeDivs.get(i));
                 }
@@ -401,7 +402,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
 //            if (RelsExt.CONTAINS_TRACK.equalsIgnoreCase(parentRelation)&& MODEL_SOUND_RECORDING.equalsIgnoreCase(parentModel)){
 //                parent.getRe().addRelation(RelsExt.HAS_TRACK, pid, false);
 //            } else {
-                parent.getRe().addRelation(parentRelation, pid, false);
+            parent.getRe().addRelation(parentRelation, pid, false);
 //            }
         }
         String divID = div.getID();
@@ -414,6 +415,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
     }
 
     private boolean singleVolumeEMonograph = true;
+
     private Foxml processElectronicDiv(Foxml parent, DivType div) {
         String divType = div.getTYPE();
         MdSecType modsIdObj = (MdSecType) firstItem(div.getDMDID());
@@ -476,7 +478,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             parent.getRe().addRelation(parentRelation, pid, false);
         }
         String divID = div.getID();
-        objects.put(divID,foxml);
+        objects.put(divID, foxml);
 
         for (DivType partDiv : div.getDiv()) {
             processElectronicDiv(foxml, partDiv);
@@ -559,7 +561,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return RelsExt.HAS_UNIT;
         } else if (MODEL_SOUND_UNIT.equalsIgnoreCase(model)) {
             return RelsExt.HAS_SOUND_UNIT;
-        }else if (MODEL_TRACK.equalsIgnoreCase(model)) {
+        } else if (MODEL_TRACK.equalsIgnoreCase(model)) {
             return RelsExt.CONTAINS_TRACK;
         }
         throw new ServiceException("Unsupported model mapping in logical structure: " + model);
@@ -649,13 +651,22 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                     continue;
                 }
                 if (from.startsWith("ISSUE") || from.startsWith("VOLUME") || from.startsWith("SUPPLEMENT")) {
+                    if (isReprePage(target.getMods())) {
+                        if (part.getFiles() == null || part.getFiles().isEmpty()) {
+                            for (FileDescriptor targetFile : target.getFiles()) {
+                                if (StreamFileType.USER_IMAGE.equals(targetFile.getFileType()) || StreamFileType.MASTER_IMAGE.equals(targetFile.getFileType())) {
+                                    part.addFiles(targetFile);
+                                }
+                            }
+                        }
+                    }
                     if (pagesFirst) {
                         part.getRe().insertPage(target.getPid());
                     } else {
                         part.getRe().addRelation(RelsExt.HAS_PAGE, target.getPid(), false);
                     }
-                } else if(from.startsWith("SOUNDCOLLECTION")|| from.startsWith("SOUNDRECORDING") || from.startsWith("SOUNDPART")){
-                    if (to.startsWith("DIV_STOPA") || to.startsWith("DIV_AUDIO")){
+                } else if (from.startsWith("SOUNDCOLLECTION") || from.startsWith("SOUNDRECORDING") || from.startsWith("SOUNDPART")) {
+                    if (to.startsWith("DIV_STOPA") || to.startsWith("DIV_AUDIO")) {
                         if (from.startsWith("SOUNDPART")) {
                             Collection<FileDescriptor> fileDescriptors = audioFilesMap.get(to);
                             for (FileDescriptor fileDescriptor : fileDescriptors) {
@@ -700,7 +711,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                     }
                 } else {
                     part.getRe().addRelation(RelsExt.IS_ON_PAGE, target.getPid(), false);
-                    if (soundCollectionId != null ) {
+                    if (soundCollectionId != null) {
                         Foxml soundCollection = objects.get(soundCollectionId);
                         if (soundCollection != null) {
                             if (pagesFirst) {

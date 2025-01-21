@@ -942,6 +942,20 @@ public abstract class BaseConvertor {
         return Genre.NONE;
     }
 
+    protected boolean isReprePage(ModsDefinition mods) {
+        for (Object mg : mods.getModsGroup()) {
+            if (mg instanceof GenreDefinition) {
+                GenreDefinition genreDefinition = (GenreDefinition) mg;
+                String gdString = genreDefinition.getValue();
+                if ("reprePage".equalsIgnoreCase(gdString)) {
+                    return true;
+                }
+
+            }
+        }
+        return false;
+    }
+
     /**
      * Encapsulate given String value into DC ElementType (used in JAXB DC object creation)
      *
