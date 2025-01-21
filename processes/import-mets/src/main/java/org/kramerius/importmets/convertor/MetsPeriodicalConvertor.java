@@ -329,8 +329,13 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
 
     private boolean singleVolumeMonograph = false;
 
+    private String soundCollectionId = null;  //root sound collection id for sound recordings, used in processStructLink for adding missing page relations
+
     private Foxml processDiv(Foxml parent, String parentModel, DivType div) {
         String divType = div.getTYPE();
+        if ("SOUNDCOLLECTION".equalsIgnoreCase(divType)) {
+            soundCollectionId = div.getID();
+        }
         if ("PAGE".equalsIgnoreCase(divType)) return null;//divs for PAGES are processed from physical map and structlinks
         MdSecType modsIdObj = (MdSecType) firstItem(div.getDMDID());
         //if ("PICTURE".equalsIgnoreCase(divType)) return null;//divs for PICTURE are not supported in K4
@@ -695,6 +700,16 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                     }
                 } else {
                     part.getRe().addRelation(RelsExt.IS_ON_PAGE, target.getPid(), false);
+                    if (soundCollectionId != null ) {
+                        Foxml soundCollection = objects.get(soundCollectionId);
+                        if (soundCollection != null) {
+                            if (pagesFirst) {
+                                soundCollection.getRe().insertPage(target.getPid());
+                            } else {
+                                soundCollection.getRe().addRelation(RelsExt.HAS_PAGE, target.getPid(), false);
+                            }
+                        }
+                    }
                 }
             }
         }
