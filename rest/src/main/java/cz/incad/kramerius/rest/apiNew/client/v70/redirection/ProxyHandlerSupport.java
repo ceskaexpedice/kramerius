@@ -402,7 +402,8 @@ public abstract class ProxyHandlerSupport {
         LOGGER.fine(String.format("Requesting %s", url));
         WebResource r = client.resource(url);
         if (headers) {
-            LOGGER.info("CDK_TOKEN_PARAMETERS = " + header);
+            String message = String.format("URL(%s), CDK_TOKEN_PARAMETERS(%s)", url, header);
+            LOGGER.fine(message);
             return r.header("CDK_TOKEN_PARAMETERS", header);
         } else {
             return r.getRequestBuilder();

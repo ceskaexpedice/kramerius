@@ -52,6 +52,13 @@ public class V7ForwardUserHandler extends ProxyUserHandler {
             String baseurl = forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/user";
             ClientResponse fResponse = super.forwardedResponse(url);
+
+            if (fResponse.getStatus() != 200) {
+                String errorMessage = "Chyba při volání API: Status code " + fResponse.getStatus() + ", URL: " + url;
+                LOGGER.log(Level.SEVERE, errorMessage);
+                throw new ProxyHandlerException(errorMessage);
+            }
+
             String entity = fResponse.getEntity(String.class);
             JSONObject jObject = new JSONObject(entity);
             return userFromJSON(jObject);

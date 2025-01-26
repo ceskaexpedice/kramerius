@@ -182,11 +182,13 @@ public class ClientUserResource {
                     Pair<User,List<String>> retval = proxyUserHandler.user();
                     if (retval != null) {
                         licenses.addAll(retval.getValue());
-                        Map<String, String> sessionAttributes = retval.getKey().getSessionAttributes();
-                        sessionAttributes.keySet().forEach(key-> {
-                            user.addSessionAttribute(oneInstance.getName()+"_"+key, sessionAttributes.get(key));
-                        });
-                    
+                        /** disabled attributes
+                         *
+                         * Map<String, String> sessionAttributes = retval.getKey().getSessionAttributes();
+                         * sessionAttributes.keySet().forEach(key-> {
+                         * user.addSessionAttribute(oneInstance.getName()+"_"+key, sessionAttributes.get(key));
+                         * });
+                         */
                     }
                 } catch (ProxyHandlerException e) {
                     LOGGER.log(Level.SEVERE,e.getMessage());
