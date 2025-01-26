@@ -14,6 +14,7 @@ import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.spi.KeycloakAccount;
@@ -111,7 +112,24 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
                 keycloack3rdUser.setProperty(key, object.toString());
             }
         });
-        
+
+        /** K5 instance */
+        boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode", false);
+        if (cdkServerMode) {
+            Set<String> allKeys = keycloack3rdUser.getPropertyKeys();
+            if (allKeys.contains("eduPersonScopedAffiliation") && !allKeys.contains("affiliation")) {
+                keycloack3rdUser.setProperty("affiliation", keycloack3rdUser.getProperty("eduPersonScopedAffiliation"));
+            }
+            if (allKeys.contains("eduPersonEntitlement") && !allKeys.contains("entitlement")) {
+                keycloack3rdUser.setProperty("entitlement", keycloack3rdUser.getProperty("eduPersonEntitlement"));
+            }
+            if (allKeys.contains("preffered_user_name") && !allKeys.contains("remote_user")) {
+                keycloack3rdUser.setProperty("remote_user", keycloack3rdUser.getProperty("preffered_user_name"));
+
+
+            }
+        }
+
         /** standard dnnt user role */
         StandardDNNTUsersSupport.makeSureDNNTUsersRole(keycloack3rdUser);
         

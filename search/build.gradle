@@ -220,10 +220,6 @@ jib {
     }
     to {
         image = "ceskaexpedice/kramerius:${version}"
-		auth {
-            username = 'pavelstastny'
-            password = 'armoAoito1.'
-        }
     }
     container {
         appRoot = '/usr/local/tomcat/webapps/search'
