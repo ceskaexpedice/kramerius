@@ -172,8 +172,8 @@ public class ReharvestResource {
                         errorObject.put("error", "No pid");
                         return Response.status(Response.Status.BAD_REQUEST).entity(errorObject.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
                     }
-                case delete_tree:    
-                case root:
+
+                case delete_tree:
                 case children:
                     if (item != null && StringUtils.isAnyString(item.getRootPid()) && StringUtils.isAnyString(item.getOwnPidPath())) {
                         item.setTimestamp(Instant.now());
@@ -184,7 +184,9 @@ public class ReharvestResource {
                         errorObject.put("error", "No root pid or own_pid_path");
                         return Response.status(Response.Status.BAD_REQUEST).entity(errorObject.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
                     }
-                
+
+
+                case root:
                 case new_root:
                     if (item != null && StringUtils.isAnyString(item.getRootPid())) {
                         item.setTimestamp(Instant.now());
@@ -195,6 +197,7 @@ public class ReharvestResource {
                         errorObject.put("error", "No root pid");
                         return Response.status(Response.Status.BAD_REQUEST).entity(errorObject.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
                     }
+
                 default:
                     throw new IllegalStateException(String.format("Uknown type of reharvest %s", item.getTypeOfReharvest()));
                 }
