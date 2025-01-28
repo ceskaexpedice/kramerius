@@ -1,5 +1,6 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
+import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
@@ -7,6 +8,8 @@ import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.resourceindex.IResourceIndex;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -20,6 +23,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
@@ -42,6 +46,7 @@ import javax.ws.rs.core.StreamingOutput;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,6 +59,7 @@ public class ItemsResource extends AdminApiResource {
 
     private static final Integer DEFAULT_OFFSET = 0;
     private static final Integer DEFAULT_LIMIT = 10;
+    private final Client client;
 
 
     @javax.inject.Inject
@@ -76,6 +82,16 @@ public class ItemsResource extends AdminApiResource {
     @Inject
     IResourceIndex resourceIndex;
 
+
+    //TODO: Do it better; divide into two classes
+    @Inject
+    private Instances libraries;
+
+
+    public ItemsResource() {
+        super();
+        this.client = Client.create();
+    }
 
 
     /**
@@ -236,6 +252,36 @@ public class ItemsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+
+    @GET
+    @Path("{pid}/solr/instintrospect")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response introspectPidInInstances(@PathParam("pid") String pid) {
+        try {
+            boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
+            if (cdkServerMode) {
+                User user = this.userProvider.get();
+
+                if (!userIsAllowedToRead(this.rightsResolver, user, SpecialObjects.REPOSITORY.getPid())) {
+                    throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
+                }
+                try {
+                    JSONObject obj = IntrospectUtils.introspectSolr(this.client, this.libraries, pid);
+                    return Response.ok(obj.toString()).build();
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    throw new InternalErrorException(e.getMessage());
+                }
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
 
     @GET
     @Path("{pid}/foxml")
