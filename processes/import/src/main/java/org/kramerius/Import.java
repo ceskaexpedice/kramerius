@@ -81,6 +81,9 @@ import static cz.incad.kramerius.utils.XMLUtils.*;
 import static cz.incad.kramerius.FedoraNamespaces.*;
 
 
+/**
+ * Import
+ */
 public class Import {
 
     public static final String NON_KEYWORD = "-none-";
