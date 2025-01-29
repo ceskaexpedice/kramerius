@@ -1,3 +1,6 @@
+![Build](https://img.shields.io/github/actions/workflow/status/ceskaexpedice/kramerius/build.yml?branch=main&style=flat-square)
+
+
 ## Novinky 
 
 Aktuální distribuční verze je k dispozici v sekci Releases na projektovém serveru GitHub (https://github.com/ceskaexpedice/kramerius/releases/latest) 
