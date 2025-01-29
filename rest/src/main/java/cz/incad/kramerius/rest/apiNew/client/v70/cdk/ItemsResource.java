@@ -19,7 +19,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.json.JSONObject;
+import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
+import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -131,10 +132,14 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     Instances instances;
-    
+
+    @Inject
+    APICallMonitor apiCallMonitor;
+
     @HEAD
     @Path("{pid}")
     public Response checkItemExists(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s",pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             return Response.ok().build();
@@ -143,6 +148,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -150,9 +159,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfo(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info",pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.info();
             } else {
                 return Response.ok().build();
@@ -162,6 +173,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -169,9 +184,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/info")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfo(@PathParam("pid") String pid, @PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/info", source,pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.info();
             } else {
                 return Response.ok().build();
@@ -181,15 +198,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     @GET
     @Path("{pid}/info/data")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoData(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/data", pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoData();
             } else {
                 return Response.ok().build();
@@ -199,6 +222,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -207,9 +234,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/info/data")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoData(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/info/data", source, pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoData();
             } else {
                 return Response.ok().build();
@@ -219,6 +248,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -229,9 +262,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/providedByLicenses")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProvidingLicenses(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/providedByLicenses", pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.providedByLicenses();
             } else {
                 return Response.ok().build();
@@ -241,6 +276,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -248,10 +287,12 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/info/providedByLicenses")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProvidingLicenses(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/info/providedByLicenses",source, pid), "", "GET", pid);
         // must be redirected
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.providedByLicenses();
             } else {
                 return Response.ok().build();
@@ -261,6 +302,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -274,9 +319,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/structure")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoStructure(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/structure",pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoStructure();
             } else {
                 return Response.ok().build();
@@ -286,6 +333,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -293,9 +344,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/info/structure")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoStructure(@PathParam("pid") String pid, @PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/info/structure",pid,source), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoStructure();
             } else {
                 return Response.ok().build();
@@ -305,6 +358,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -316,9 +373,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/image")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/image",pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoImage();
             } else {
                 return Response.ok().build();
@@ -328,6 +387,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -335,9 +398,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/info/image")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/info/image",source,pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoImage();
             } else {
                 return Response.ok().build();
@@ -347,6 +412,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -355,10 +424,12 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/metadata/mods")
     public Response isMetadataModsAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/mods",pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.mods(head);
             } else {
                 return Response.ok().build();
@@ -369,16 +440,22 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{source}/{pid}/metadata/mods")
     public Response isMetadataModsAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/metadata/mods", source,pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.mods(head);
             } else {
                 return Response.ok().build();
@@ -389,6 +466,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     
@@ -396,11 +477,13 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/metadata/mods")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataMods(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/mods",pid), "", "GET", pid);
         try {
         	// redirect
         	checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.mods(get);
             } else {
                 return Response.ok().build();
@@ -411,6 +494,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     
@@ -444,11 +531,13 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/metadata/mods")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataMods(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/metadata/mods",source,pid), "", "GET", pid);
         try {
         	// redirect
         	checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.mods(get);
             } else {
                 return Response.ok().build();
@@ -459,6 +548,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -466,11 +559,13 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/metadata/dc")
     public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/dc",pid), "", "HEAD", pid);
         try {
         	// redirect
             checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.dc(head);
             } else {
                 return Response.ok().build();
@@ -480,17 +575,23 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     
     @HEAD
     @Path("{source}/{pid}/metadata/dc")
     public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/metadata/dc",source,pid), "", "HEAD", pid);
         try {
         	// redirect
             checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.dc(head);
             } else {
                 return Response.ok().build();
@@ -500,6 +601,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -507,10 +612,12 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/metadata/dc")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataDublinCore(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/dc",pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.dc(get);
             } else {
                 return Response.ok().build();
@@ -520,6 +627,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -527,10 +638,12 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/metadata/dc")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataDublinCore(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/metadata/dc", source,pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.dc(get);
             } else {
                 return Response.ok().build();
@@ -540,15 +653,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/text", pid), "", "HEAD", pid);
     	try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.textOCR(head);
             } else {
                 return Response.ok().build();
@@ -558,6 +677,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -565,9 +688,11 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{source}/{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/ocr/text", source, pid), "", "HEAD", pid);
     	try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.textOCR(head);
             } else {
                 return Response.ok().build();
@@ -578,6 +703,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -585,9 +714,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/ocr/text")
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
     public Response getOcrText(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/text", pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.textOCR(get);
             } else {
                 return Response.ok().build();
@@ -597,6 +728,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -604,9 +739,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/ocr/text")
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
     public Response getOcrText(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/ocr/text", source, pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.textOCR(get);
             } else {
                 return Response.ok().build();
@@ -616,15 +753,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{pid}/ocr/alto")
     public Response isOcrAltoAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/alto", pid), "", "HEAD", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.altoOCR(head);
             } else {
                 return Response.ok().build();
@@ -634,15 +777,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{source}/{pid}/ocr/alto")
     public Response isOcrAltoAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/ocr/alto",source, pid), "", "HEAD", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.altoOCR(head);
             } else {
                 return Response.ok().build();
@@ -652,6 +801,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -659,9 +812,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/ocr/alto")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getDatastreamOcrAlto(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/alto", pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.altoOCR(get);
             } else {
                 return Response.ok().build();
@@ -672,6 +827,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -679,9 +838,11 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/ocr/alto")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getDatastreamOcrAlto(@PathParam("pid") String pid, @PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/ocr/alto", source, pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.altoOCR(get);
             } else {
                 return Response.ok().build();
@@ -692,6 +853,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -701,9 +866,11 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/image")
     public Response isImgFullAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image",  pid), "", "HEAD", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
             	return redirectHandler.image(head);
             } else {
                 return Response.ok().build();
@@ -713,16 +880,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{source}/{pid}/image")
     public Response isImgFullAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/image", source,  pid), "", "HEAD", pid);
         try {
-
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
             	return redirectHandler.image(head);
             } else {
                 return Response.ok().build();
@@ -732,6 +904,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     
@@ -768,6 +944,7 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/image")
     public Response getImgFull(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image",  pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
@@ -775,6 +952,7 @@ public class ItemsResource extends ClientApiResource {
 
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
             	return redirectHandler.image(get);
             } else {
                 return Response.ok().build();
@@ -784,17 +962,22 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @GET
     @Path("{source}/{pid}/image")
     public Response getImgFull(@PathParam("pid") String pid, @PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/image", source,  pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
-
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
             	return redirectHandler.image(get);
             } else {
                 return Response.ok().build();
@@ -804,6 +987,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     /***
@@ -814,14 +1001,13 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/image/zoomify/ImageProperties.xml")
     public Response getZoomifyImageProperties(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image/ImageProperties.xml", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
-//            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-//            checkObjectAndDatastreamExist(pid, dsId);
 
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                //return sendRedirect(redirectHandler.zoomifyImageProperties());
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.zoomifyImageProperties(get);
             } else {
                 return Response.ok().build();
@@ -829,15 +1015,19 @@ public class ItemsResource extends ClientApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
-            e.printStackTrace();
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @GET
     @Path("{source}/{pid}/image/zoomify/ImageProperties.xml")
     public Response getZoomifyImageProperties(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/image/zoomify/ImageProperties.xml", source, pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
@@ -845,7 +1035,7 @@ public class ItemsResource extends ClientApiResource {
 
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-                //return sendRedirect(redirectHandler.zoomifyImageProperties());
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.zoomifyImageProperties(get);
             } else {
                 return Response.ok().build();
@@ -853,9 +1043,12 @@ public class ItemsResource extends ClientApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
-            e.printStackTrace();
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -867,6 +1060,7 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/image/zoomify/{tileGroup}/{tile}")
     public Response getZoomifyTile(@PathParam("pid") String pid, @PathParam("tileGroup") String tileGroupStr, @PathParam("tile") String tileStr) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image/zoomify/%s/%s",  pid,tileGroupStr, tileStr), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             if (!tileGroupStr.matches("TileGroup[0-9]+")) {
@@ -884,6 +1078,7 @@ public class ItemsResource extends ClientApiResource {
 
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.zoomifyTile(tileGroupStr, tileStr);
             } else {
                 return Response.ok().build();
@@ -891,15 +1086,19 @@ public class ItemsResource extends ClientApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
-            e.printStackTrace();
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @GET
     @Path("{source}/{pid}/image/zoomify/{tileGroup}/{tile}")
     public Response getZoomifyTile(@PathParam("pid") String pid,@PathParam("source") String source, @PathParam("tileGroup") String tileGroupStr, @PathParam("tile") String tileStr) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/image/zoomify/%s/%s", source,  pid,tileGroupStr, tileStr), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             if (!tileGroupStr.matches("TileGroup[0-9]+")) {
@@ -917,6 +1116,7 @@ public class ItemsResource extends ClientApiResource {
 
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.zoomifyTile(tileGroupStr, tileStr);
             } else {
                 return Response.ok().build();
@@ -924,9 +1124,12 @@ public class ItemsResource extends ClientApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
-            e.printStackTrace();
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -937,29 +1140,40 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/image/thumb")
     public Response getImgThumb(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image/thumb",  pid), "", "GET", pid);
         try {
         	checkSupportedObjectPid(pid);
-            //checkObjectExists(pid);
-            
+
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
-            return redirectHandler.imageThumb(get);
-            
+            if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
+                return redirectHandler.imageThumb(get);
+            } else {
+                return Response.ok().build();
+            }
+
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     
     @GET
     @Path("{source}/{pid}/image/thumb")
     public Response getImgThumb(@PathParam("pid") String pid, @PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/image/thumb", source,  pid), "", "GET", pid);
         try {
         	checkSupportedObjectPid(pid);
             //checkObjectExists(pid);
             
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
+            event.addLabel(redirectHandler.getSource());
             return redirectHandler.imageThumb(get);
             
         } catch (WebApplicationException e) {
@@ -967,6 +1181,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -977,9 +1195,11 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{source}/{pid}/image/preview")
     public Response getImgPreview(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/image/preview", source,  pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.imagePreview(get);
             } else {
                 return Response.ok().build();
@@ -989,15 +1209,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @GET
     @Path("{pid}/image/preview")
     public Response getImgPreview(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image/preview", pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.imagePreview(get);
             } else {
                 return Response.ok().build();
@@ -1007,15 +1233,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     
     @HEAD
     @Path("{pid}/audio/mp3")
     public Response isAudioMp3Available(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/audio/mp3", pid), "", "HEAD", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioMP3();
             } else {
                 return Response.ok().build();
@@ -1025,15 +1257,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{source}/{pid}/audio/mp3")
     public Response isAudioMp3Available(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/audio/mp3", source, pid), "", "HEAD", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioMP3();
             } else {
                 return Response.ok().build();
@@ -1043,6 +1281,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     /***
@@ -1052,9 +1294,11 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/audio/mp3")
     public Response getAudioMp3(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/audio/mp3",  pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioMP3();
             } else {
                 return Response.ok().build();
@@ -1065,15 +1309,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @GET
     @Path("{source}/{pid}/audio/mp3")
     public Response getAudioMp3(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/audio/mp3", source, pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioMP3();
             } else {
                 return Response.ok().build();
@@ -1083,15 +1333,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{pid}/audio/ogg")
     public Response isAudioOggAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/audio/ogg",  pid), "", "HEAD", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioOGG();
             } else {
                 return Response.ok().build();
@@ -1101,15 +1357,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{source}/{pid}/audio/ogg")
     public Response isAudioOggAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/audio/ogg", source,  pid), "", "HEAD", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioOGG();
             } else {
                 return Response.ok().build();
@@ -1119,6 +1381,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -1129,9 +1395,11 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/audio/ogg")
     public Response getAudioOgg(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/audio/ogg",   pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioOGG();
             } else {
                 return Response.ok().build();
@@ -1141,15 +1409,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @GET
     @Path("{source}/{pid}/audio/ogg")
     public Response getAudioOgg(@PathParam("pid") String pid, @PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/audio/ogg", source,   pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioOGG();
             } else {
                 return Response.ok().build();
@@ -1159,15 +1433,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{pid}/audio/wav")
     public Response isAudioWavAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/audio/wav",  pid), "", "HEAD", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioOGG();
             } else {
                 return Response.ok().build();
@@ -1177,15 +1457,21 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{source}/{pid}/audio/wav")
     public Response isAudioWavAvailable(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/audio/wav", source,   pid), "", "HEAD", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioOGG();
             } else {
                 return Response.ok().build();
@@ -1195,6 +1481,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -1205,9 +1495,11 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/audio/wav")
     public Response getAudioWav(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/audio/wav",   pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioOGG();
             } else {
                 return Response.ok().build();
@@ -1217,6 +1509,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -1224,9 +1520,11 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{source}/{pid}/audio/wav")
     public Response getAudioWav(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/audio/wav", source,   pid), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.audioOGG();
             } else {
                 return Response.ok().build();
@@ -1236,6 +1534,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -1244,10 +1546,12 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/image/iiif/info.json")
     @Produces("application/ld+json")
     public Response iiiFManifest(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image/iiif/info.json",   pid), "", "GET", pid);
         try {
-            LOGGER.info(String.format("Rendering  iiif info.json (%s)", pid));
+            LOGGER.fine(String.format("Rendering  iiif info.json (%s)", pid));
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.iiifInfo(RequestMethodName.get, pid);
             } else {
                 return Response.ok().build();
@@ -1257,6 +1561,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -1264,10 +1572,12 @@ public class ItemsResource extends ClientApiResource {
     @Path("{source}/{pid}/image/iiif/info.json")
     @Produces("application/ld+json")
     public Response iiiFManifest(@PathParam("pid") String pid,@PathParam("source") String source) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/image/iiif/info.json", source,   pid), "", "GET", pid);
         try {
             LOGGER.info(String.format("Rendering  iiif info.json (%s,%s)", pid,source));
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.iiifInfo(RequestMethodName.get, pid);
             } else {
                 return Response.ok().build();
@@ -1277,6 +1587,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     
@@ -1292,10 +1606,11 @@ public class ItemsResource extends ClientApiResource {
             @PathParam("qualityformat") String qf
             ) {
 
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image/%s/%s/%s/%s",  pid, region, size, rotation, qf), "", "GET", pid);
         try {
-
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation,qf);
             } else {
                 return Response.ok().build();
@@ -1306,6 +1621,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -1319,9 +1638,12 @@ public class ItemsResource extends ClientApiResource {
             @PathParam("rotation") String rotation, 
             @PathParam("qualityformat") String qf
             ) {
+
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/image/%s/%s/%s/%s", source,  pid, region, size, rotation, qf), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
                 return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation,qf);
             } else {
                 return Response.ok().build();
@@ -1332,6 +1654,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 

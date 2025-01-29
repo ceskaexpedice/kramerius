@@ -75,13 +75,15 @@ import cz.incad.kramerius.security.utils.SortingRightsUtils;
 import cz.incad.kramerius.users.UserProfileManager;
 
 
-
-//@Path("/v5.0/user")
+/**
+ * Client user's resource
+ */
 @Path("/client/v7.0/user")
 public class ClientUserResource {
 
     public static final Logger LOGGER  = Logger.getLogger(ClientUserResource.class.getName());
 
+    /** Criteria for licenses associations */
     public static final String[] LICENSES_CRITERIA = new String[]{
             "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels",
             "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered",
@@ -440,7 +442,4 @@ public class ClientUserResource {
         httpServletRequest.getSession().invalidate();
         return Response.ok().entity("{}").build();
     }
-    
-
-
 }

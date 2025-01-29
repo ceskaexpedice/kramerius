@@ -2,6 +2,8 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import com.google.inject.Inject;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
+import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.StringUtils;
@@ -48,9 +50,15 @@ public class InfoResource extends ClientApiResource {
     @Inject
     private ResourceBundleService resourceBundleService;
 
+    @Inject
+    APICallMonitor apiCallMonitor;
+
+
+
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getItems(@QueryParam("language") String langCode) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/info", "/client/v7.0/info", "", "GET");
         try {
             JSONObject json = new JSONObject();
             json.put("pdfMaxRange", getPdfMaxRange());
@@ -92,6 +100,10 @@ public class InfoResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 

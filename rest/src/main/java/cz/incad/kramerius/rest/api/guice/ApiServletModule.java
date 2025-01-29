@@ -24,6 +24,7 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
 import cz.incad.kramerius.rest.apiNew.admin.v70.files.GenerateDownloadLinks;
 import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.monitor.APIMonitorResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.proxy.ConnectedInfoResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestResource;
@@ -120,7 +121,11 @@ public class ApiServletModule extends JerseyServletModule {
         bind(UsersResource.class);
         bind(RolesResource.class);
 
+        // statistics
         bind(StatisticsResource.class);
+        // api monitoring
+        bind(APIMonitorResource.class);
+
         bind(LicensesResource.class);
 
         // CDK Client 7.0 Resources

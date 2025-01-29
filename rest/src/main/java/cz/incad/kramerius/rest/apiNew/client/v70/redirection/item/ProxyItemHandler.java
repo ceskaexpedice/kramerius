@@ -25,14 +25,15 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
- * The class is responsible for handling requests from client
+ * This class is responsible for handing requests from client and pass through to kramerius instance
  */
 public abstract class ProxyItemHandler extends ProxyHandlerSupport {
 
 	public static final Logger LOGGER = Logger.getLogger(ProxyItemHandler.class.getName());
 	
 	public static final Boolean DEBUG_SESSION_ATTRIBUTES = true;
-	
+
+    /** Represents type of forward request HEAD or GET */
 	public static enum RequestMethodName {
 		head,get
 	}
@@ -44,13 +45,52 @@ public abstract class ProxyItemHandler extends ProxyHandlerSupport {
     	this.source = source;
         this.pid = pid;
     }
-    
+
+
+    /**
+     * Returns forward response of IMG_FULL stream
+     * @param method Request method
+     * @return Returns Jersey response
+     * @throws ProxyHandlerException
+     */
     public abstract Response image(RequestMethodName method) throws ProxyHandlerException;
+
+    /**
+     * Returns forward response of IMG_PREVIEW stream
+     * @param method Request method
+     * @return
+     * @throws ProxyHandlerException
+     */
     public abstract Response imagePreview(RequestMethodName method) throws ProxyHandlerException;
+
+    /**
+     * Returns forward response of IMG_THUMB stream
+     * @param method Request method
+     * @return
+     * @throws ProxyHandlerException
+     */
     public abstract Response imageThumb(RequestMethodName method) throws ProxyHandlerException;
 
-    
+    /**
+     * Returns forward response of IIIF descriptor
+     * @param method Request method
+     * @param pid
+     * @return
+     * @throws ProxyHandlerException
+     */
     public abstract Response iiifInfo(RequestMethodName method, String pid) throws ProxyHandlerException;
+
+    /**
+     * Returns forward response of IIIF tile
+     * @param method Req
+     * @param pid
+     * @param region
+     * @param size
+     * @param rotation
+     * @param qf
+     * @return
+     * @throws ProxyHandlerException
+     */
     public abstract Response iiifTile(RequestMethodName method, String pid,  String region,  String size, String rotation, String qf) throws ProxyHandlerException;
     
     

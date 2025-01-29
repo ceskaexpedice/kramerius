@@ -6,9 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The map contains information about physical locations of works
+ */
 public class PhysicalLocationMap {
-    
+
+    // Mapping class - acronym of DL and values are SIGLAS
     private static final Map<String,List<String>> MAPPING = new HashMap<>();
+    // Mapping class - SIGLA and Human readable name of library
     private static final Map<String,String> DESCRIPTIONS = new HashMap<>();
 
     
@@ -111,8 +116,12 @@ public class PhysicalLocationMap {
     }
     
     public PhysicalLocationMap() {}
-    
-    
+
+    /**
+     * Find acronym by SIGLA
+     * @param sigla
+     * @return
+     */
     public String findBySigla(String sigla) {
         for (String key : MAPPING.keySet()) {
             if (MAPPING.get(key).contains(sigla)) {
@@ -122,9 +131,20 @@ public class PhysicalLocationMap {
         return null;
     }
 
+    /**
+     * Gets description by sigla
+     * @param sigla
+     * @return
+     */
     public String getDescription(String sigla) {
         return DESCRIPTIONS.get(sigla);
     }
+
+    /**
+     * Returns all associated libraries
+     * @param acronym
+     * @return
+     */
     public List<String> getAssocations(String acronym) {
         if (MAPPING.containsKey(acronym)) {
             return MAPPING.get(acronym);
