@@ -1,4 +1,6 @@
 ![Build](https://img.shields.io/github/actions/workflow/status/ceskaexpedice/kramerius/build.yml?branch=master&style=flat-square)
+![Build](https://img.shields.io/github/actions/workflow/status/ceskaexpedice/kramerius/gradle-push.yml?branch=master)
+
 
 
 ## Novinky 
