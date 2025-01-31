@@ -91,6 +91,11 @@ public abstract class ProxyHandlerSupport {
         }
     }
 
+    public String getSource() {
+        return source;
+    }
+
+
     /**
      * Build rewsponse with HEAD method
      * 

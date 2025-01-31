@@ -1,10 +1,10 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.pdf;
 
+import com.google.inject.Inject;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfWriter;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.pdf.OutOfRangeException;
-import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
@@ -12,6 +12,8 @@ import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 //TODO: move exceptions from cz.incad.kramerius.rest.api.k5
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceBadRequestException;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceNotReadyException;
+import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
+import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -32,9 +34,12 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * replaces cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource
@@ -42,6 +47,7 @@ import java.util.logging.Logger;
 @Path("/client/v7.0/pdf")
 public class PDFResource extends AbstractPDFResource {
     public static Logger LOGGER = Logger.getLogger(PDFResource.class.getName());
+
 
     /**
      * Paper size
@@ -81,6 +87,9 @@ public class PDFResource extends AbstractPDFResource {
         }
     }
 
+    @Inject
+    APICallMonitor apiCallMonitor;
+
     /**
      * Returns information about resource (how many pages can be generated and if resource is busy)
      *
@@ -89,6 +98,9 @@ public class PDFResource extends AbstractPDFResource {
     @GET
     @Produces({"application/json"})
     public Response info() {
+
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/pdf", "/client/v7.0/pdf", "", "GET");
+
         try {
             if (PDF_ENDPOINTS_DISABLED) {
                 return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
@@ -120,6 +132,10 @@ public class PDFResource extends AbstractPDFResource {
         } catch (JSONException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new GenericApplicationException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -152,6 +168,27 @@ public class PDFResource extends AbstractPDFResource {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
             if (acquired) {
                 if (pid != null) {
+                    List<String> params = new ArrayList<>();
+                    if (StringUtils.isAnyString(pid)) {
+                        params.add(String.format("pid=%s", pid));
+                    }
+                    if (StringUtils.isAnyString(xpos)) {
+                        params.add(String.format("xpos=%s", xpos));
+                    }
+                    if (StringUtils.isAnyString(ypos)) {
+                        params.add(String.format("ypos=%s", ypos));
+                    }
+                    if (StringUtils.isAnyString(width)) {
+                        params.add(String.format("width=%s", width));
+                    }
+                    if (StringUtils.isAnyString(height)) {
+                        params.add(String.format("height=%s", height));
+                    }
+                    if (StringUtils.isAnyString(format)) {
+                        params.add(String.format("format=%s", format));
+                    }
+                    ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/pdf", "/client/v7.0/pdf/part", params.stream().collect(Collectors.joining("&")), "GET");
+
                     File fileToDelete = null;
                     try {
                         pid = this.fedoraAccess.findFirstViewablePid(pid);
@@ -191,7 +228,12 @@ public class PDFResource extends AbstractPDFResource {
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         throw new GenericApplicationException(e.getMessage());
+                    } finally {
+                        if (event != null) {
+                            this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+                        }
                     }
+
                 } else {
                     LOGGER.log(Level.SEVERE, "No pid defined");
                     throw new BadRequestException("No pid defined");
@@ -228,7 +270,19 @@ public class PDFResource extends AbstractPDFResource {
         try {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
             if (acquired) {
+                List<String> params = new ArrayList<>();
+                if (StringUtils.isAnyString(pidsParam)) {
+                    params.add(String.format("pids=%s", pidsParam));
+                }
+                if (StringUtils.isAnyString(firstPageType)) {
+                    params.add(String.format("firstPageType=%s", firstPageType));
+                }
+                if (StringUtils.isAnyString(format)) {
+                    params.add(String.format("format=%s", format));
+                }
+                ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/pdf", "/client/v7.0/pdf/selection", params.stream().collect(Collectors.joining("&")), "GET");
                 try {
+
                     FirstPageType fistPageTypeEn = extractFirstPageType(firstPageType);
                     if (StringUtils.isAnyString(pidsParam)) {
                         String[] pids = pidsParam.split(",");
@@ -277,7 +331,12 @@ public class PDFResource extends AbstractPDFResource {
                 } catch (SecurityException e) {
                     LOGGER.log(Level.INFO, e.getMessage());
                     throw new ActionNotAllowed(e.getMessage());
+                } finally {
+                    if (event != null) {
+                        this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+                    }
                 }
+
             } else {
                 throw new PDFResourceNotReadyException("not ready");
             }
@@ -310,7 +369,22 @@ public class PDFResource extends AbstractPDFResource {
         try {
             acquired = PDFExlusiveGenerateSupport.PDF_SEMAPHORE.tryAcquire();
             if (acquired) {
+                List<String> params = new ArrayList<>();
+                if (StringUtils.isAnyString(pid)) {
+                    params.add(String.format("pid=%s", pid));
+                }
+                if (StringUtils.isAnyString(numberOfPages)) {
+                    params.add(String.format("numberOfPages=%s", numberOfPages));
+                }
+                if (StringUtils.isAnyString(firstPageType)) {
+                    params.add(String.format("firstPageType=%s", firstPageType));
+                }
+                if (StringUtils.isAnyString(format)) {
+                    params.add(String.format("format=%s", format));
+                }
+                ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/pdf", "/client/v7.0/pdf/parent", params.stream().collect(Collectors.joining("&")), "GET");
                 try {
+
                     FirstPageType firstPageTypeEn = extractFirstPageType(firstPageType);
 
                     // max number test
@@ -362,7 +436,12 @@ public class PDFResource extends AbstractPDFResource {
                 } catch (SecurityException e1) {
                     LOGGER.log(Level.INFO, e1.getMessage());
                     throw new ActionNotAllowed(e1.getMessage());
+                } finally {
+                    if (event != null) {
+                        this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+                    }
                 }
+
             } else {
                 throw new PDFResourceNotReadyException("not ready");
             }

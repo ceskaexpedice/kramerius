@@ -35,11 +35,10 @@ import javax.ws.rs.core.Response;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.imaging.ImageStreams;
+import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
+import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.DatabaseRightsManager;
-import cz.incad.kramerius.security.impl.RoleImpl;
-import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -70,7 +69,6 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.PasswordDigest;
-import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
 
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
@@ -128,21 +126,20 @@ public class ClientUserResource {
     @Named("forward-client")
     Provider<Client> clientProvider;
 
-    
+
+    @Inject
+    APICallMonitor apiCallMonitor;
+
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response info(@QueryParam("sessionAttributes") String sessionAttributes) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/user", "/client/v7.0/user", String.format("sessionAttributes=%s",sessionAttributes), "GET");
         try {
         	Boolean flag  = Boolean.valueOf(sessionAttributes);
         	if (flag == null) {
         		flag = false;
         	}
         	User user = this.userProvider.get();
-//        	if (DEBUG) {
-//        		UserImpl useri = new UserImpl(1, "Pavel", "Stastny", "pavel.stastny@gmail.com", 0);
-//        		useri.setGroups(new Role[] {new RoleImpl("common_users")});
-//        		user = useri;
-//        	}
     		LOGGER.fine(String.format("Returning principal %s (%s)", user.getLoginname(), user.getGroups() != null ? Arrays.asList(user.getGroups()).stream().map(Role::getName).collect(Collectors.joining(",")): ""));
             if (user != null) {
             	if (user.getId() > -1) {
@@ -158,6 +155,10 @@ public class ClientUserResource {
             }
         } catch (JSONException e) {
             throw new GenericApplicationException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -204,14 +205,14 @@ public class ClientUserResource {
     @Path("actions")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response allowedActions(@QueryParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/user", "/client/v7.0/user/actions", String.format("pid=%s",pid), "GET");
         User user;
         try {
             user = this.userProvider.get();
             if (pid == null || !StringUtils.isAnyString(pid)) {
                 pid = SpecialObjects.REPOSITORY.getPid();
             }
-            
-            
+
             ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
             user = this.userProvider.get();
             
@@ -241,7 +242,11 @@ public class ClientUserResource {
             throw new GenericApplicationException(e.getMessage());
         } catch (IOException e) {
             throw new GenericApplicationException(e.getMessage());
-		}
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
+        }
     }
 
     private Set<String> actionsForPid(String pid, ObjectPidsPath[] pidPaths, SecuredActions[] values) {

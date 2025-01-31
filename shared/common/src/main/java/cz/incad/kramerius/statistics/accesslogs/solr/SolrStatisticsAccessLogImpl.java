@@ -27,6 +27,7 @@ import javax.xml.xpath.XPathFactory;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpResponseException;
@@ -76,6 +77,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
 
     private static final String SOLR_POINT = "k7.log.solr.point";
+    private static final String SOLR_POINT_NEW = "api.log.point";
 
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
@@ -299,9 +301,22 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             try {
-                String loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/logs");
-                String updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
-                
+
+                String loggerPoint = null;
+                String updateUrl = null;
+
+
+                Configuration config = KConfiguration.getInstance().getConfiguration();
+                if (config.containsKey(SOLR_POINT)) {
+                    loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/logs");
+                    updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
+                } else if (config.containsKey(SOLR_POINT_NEW)) {
+                    loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT_NEW,"http://localhost:8983/solr/logs");
+                    updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
+                }
+
+
+
                 LOGGER.fine("Log record is "+logRecord.toString());
                 
                 Document batch = logRecord.toSolrBatch(this.documentBuilderFactory);

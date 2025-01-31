@@ -3867,3 +3867,657 @@ paths:
         '404':
           description: Proces s daným UUID nebyl nalezen.
 
+
+  ## Akubra pristup
+#  /repository/getObjectXML:
+#    get:
+#      summary: Získaní objektu z repozitáře
+#      description: Získá foxml reprezentaci objektu  z repozitáře.
+#      operationId: getObjectXML
+#      parameters:
+#        - name: pid
+#          in: query
+#          required: true
+#          description: Identifikátor objektu
+#          schema:
+#            type: string
+#      responses:
+#        '200':
+#          description: Úspěšné získání objektu
+#          content:
+#            application/xml:
+#              schema:
+#                type: string
+#                format: binary
+#                description: FOXML reprezentace objektu
+#        '400':
+#          description: Nevalidní parametry http dotazu
+#        '404':
+#          description: Objekt není nalezen
+#      tags:
+#        - akubra
+
+
+  /repository/export:
+    get:
+      summary: Export objektu ve formě archivního FOXML
+      description: Exports an object from the Fedora repository as an XML representation based on the object’s PID and selected format.
+      operationId: export
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu
+          schema:
+            type: string
+        - name: format
+          in: query
+          required: true
+          description: Formát exportu FOXML
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Úspěšný export objektu
+          content:
+            application/xml:
+              schema:
+                type: string
+                format: binary
+                description: FOXML reprezentace objektu
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra
+
+  /repository/getDatastreamContent:
+    get:
+      summary: Získání datastreamu z repozitáře.
+      description: Získá datastream z akubra repozitáře .
+      operationId: getDatastreamContent
+      parameters:
+
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu.
+          schema:
+            type: string
+
+        - name: dsID
+          in: query
+          required: true
+          description: Identifikátor datastreamu.
+          schema:
+            type: string
+
+
+      responses:
+        '200':
+          description: Úspěšné získání datastreamu
+          content:
+            application/octet-stream:
+              description:  Binární obsah streamu .
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Datastream nebo objekt není nalezen
+      tags:
+        - akubra
+
+  /repository/getDatastreamMetadata:
+    get:
+      summary: Získání datastreamu z repozitáře.
+      description: Získá datastream z akubra repozitáře .
+      operationId: getDatastreamContent
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu.
+          schema:
+            type: string
+
+        - name: dsID
+          in: query
+          required: true
+          description: Identifikátor datastreamu.
+          schema:
+            type: string
+
+
+      responses:
+        '200':
+          description: Úspěšné získání datastreamu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datastream:
+                    type: object
+                    properties:
+                      controlGroup:
+                        type: string
+                        description: Kontrolní skupina datastreamu
+                      id:
+                        type: string
+                        description: Identifikátor datastreamu
+                      mimeType:
+                        type: string
+                        description: Mimetype datastreamu
+                      createDate:
+                        type: string
+                        format: date-time
+                        description: Datum vytvoření datastreamu
+                      size:
+                        type: integer
+                        description: Velikost datastreamu v bytech
+                      location:
+                        type: string
+                        description: Reference na datastream.
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Datastream nebo objekt není nalezen
+      tags:
+        - akubra
+
+
+  /repository/getDatastreamNames:
+    get:
+      summary: Získání seznamu datastreamů objektů.
+      description: Získání seznamu datastreamu objektů.
+      operationId: getDatastreams
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Úspěšné seznamu datastreamů
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Datastream nebo objekt není nalezen
+      tags:
+        - akubra
+
+
+  /repository/getRelationships:
+    get:
+      summary: Získání všech relací objektu
+      description: Získání všech relací objektu
+      operationId: getRelationships
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Seznam všech relací
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    relationshiptuple:
+                      type: object
+                      properties:
+                        subject:
+                          type: string
+                          description: Subjekt
+
+                        predicate:
+                          type: string
+                          description: Predikát
+
+                        predicateNS:
+                          type: string
+                          description: Namespace predikatu
+
+                        object:
+                          type: string
+                          description: Objekt
+
+                        isLiteral:
+                          type: boolean
+                          description: Příznak, který říká, zda relace je pouze literál
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra
+
+
+  /repository/ingest:
+    post:
+      summary: Ingest objektu do repozitáře.
+      description: Ingest objektu do repozitáře.
+      operationId: ingest
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            description:  Binární obsah streamu .
+      parameters:
+        - name: format
+          in: query
+          required: true
+          description: Formát - mimetype objektu
+          schema:
+            type: string
+        - name: logMessage
+          in: query
+          required: true
+          description: Logovací hláška.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Úspěšný ingest do repozitáře
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  objectPID:
+                    type: string
+                    description: PID identifikátor objektu
+        '400':
+          description: Špatný dotaz
+        '500':
+          description: Chyba serveru
+      tags:
+        - akubra
+
+
+  /repository/modifyObject:
+    post:
+      summary: Modifikace objektu
+      description: Modifikace metadata objektu v repozitáři.
+      operationId: modifyObject
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Persistentní identifikátor objektu
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          description: Nový stav objektu
+          schema:
+            type: string
+        - name: logMessage
+          in: query
+          required: true
+          description: Logovací hláška specifikující důvod modifikace objektu.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Úspěšná modifikace objektu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modifiedDate:
+                    type: string
+                    description: Datum modifikace objektu
+        '400':
+          description: Nevalidní parametry http dotazu
+      tags:
+        - akubra
+
+
+
+
+
+  /repository/purgeObject:
+    delete:
+      summary: Smazani objektu z repozitáře
+      description: Permanentni smazani objektu z repozitáře
+      operationId: purgeObject
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu
+          schema:
+            type: string
+        - name: logMessage
+          in: query
+          required: true
+          description: Logovací hláška reprezentující opearci smazání
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Objekt úspěšně smazaný
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purgedDate:
+                    type: string
+                    description: Datum kdy byl stream smazán
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra
+
+
+  /repository/addDatastream:
+    post:
+      summary: Přidání datastreamu do fedory
+      description: Plřidání datastreamu do fedory
+      operationId: addDatastream
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: PID identifikátor objektu
+          schema:
+            type: string
+        - name: dsID
+          in: query
+          required: true
+          description: Identifikátor datastreamu
+          schema:
+            type: string
+        - name: versionable
+          in: query
+          required: true
+          description: Příznak určující zda je datastream verzovatelný
+          schema:
+            type: boolean
+        - name: MIMEType
+          in: query
+          required: true
+          description: Mimetype datastreamu
+          schema:
+            type: string
+        - name: dsLocation
+          in: query
+          required: true
+          description: Reference na datastream
+          schema:
+            type: string
+        - name: controlGroup
+          in: query
+          required: true
+          description: Kontrolní skupina pro stream. (M) Managed, (R) Referenced, (X) XML Inline.
+          schema:
+            type: string
+        - name: dsState
+          in: query
+          required: true
+          description: Stav datastreamu = (A)Aktivní vs (I)Neaktivní.
+          schema:
+            type: string
+        - name: checksumType
+          in: query
+          required: true
+          description: Typ kontrolního součtu. (`SHA-1`, `MD5`).
+          schema:
+            type: string
+        - name: checksum
+          in: query
+          required: true
+          description: Hodnota kontrolního součtu.
+          schema:
+            type: string
+        - name: logMessage
+          in: query
+          required: true
+          description: Logovací hláška popisující přidání datastreamu.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Úspěšné přidání streamu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datastreamID:
+                    type: string
+                    description:  ID přidaný datastream.
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra
+
+  /repository/modifyDatastreamByReference:
+    put:
+      summary:  Modifikace datastreamu referencí
+      description: Modifikace existujícího datastreamu refrencí na data. (Soubor nebo http odkaz)
+      operationId: modifyDatastreamByReference
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Persistentní identifikátor objektu
+          schema:
+            type: string
+        - name: dsID
+          in: query
+          required: true
+          description: ID datastreamu
+          schema:
+            type: string
+        - name: MIMEType
+          in: query
+          required: true
+          description: Mimetype datastreamu
+          schema:
+            type: string
+        - name: dsLocation
+          in: query
+          required: true
+          description: Reference na data
+          schema:
+            type: string
+        - name: checksumType
+          in: query
+          required: true
+          description: Typ kontrolního součtu (e.g., `SHA-1`, `MD5`).
+          schema:
+            type: string
+        - name: checksum
+          in: query
+          required: true
+          description: Kontrolní součet
+          schema:
+            type: string
+        - name: logMessage
+          in: query
+          required: true
+          description: Logovací hláška popisující modifikaci datastreamu
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Úspěšná modifikace datastreamu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modifiedDate:
+                    type: string
+                    description:  Datuim a čas modifikace.
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra
+
+  /repository/modifyDatastreamByValue:
+    put:
+      summary: Modifikace datastreamu hodnotou
+      description: Modifikace datastreamu uploadováním nového binárního obsahu
+      operationId: modifyDatastreamByValue
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: PID identifikátor objektu.
+          schema:
+            type: string
+        - name: dsID
+          in: query
+          required: true
+          description: ID identifikátor datastreamu.
+          schema:
+            type: string
+        - name: MIMEType
+          in: query
+          required: true
+          description: Mimetype objektu.
+          schema:
+            type: string
+        - name: checksumType
+          in: query
+          required: true
+          description: Typ kontrolního součtu (e.g., `SHA-1`, `MD5`).
+          schema:
+            type: string
+        - name: checksum
+          in: query
+          required: true
+          description: Hodnota kontrolního součtu.
+          schema:
+            type: string
+        - name: logMessage
+          in: query
+          required: true
+          description: Logovací hláška popisující modifikaci objektu.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            description: Nový binární obsah datastreamu.
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Datastream úspěšně modifikován
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modifiedDate:
+                    type: string
+                    description: Datum a čas modifikace
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Datastream nebo objekt nenalezen
+      tags:
+        - akubra
+
+
+  /repository/purgeRelationship:
+    put:
+      summary: Smazání konkrétní relace z objektu
+      description: Smazání konkrétní relace z objektu
+      operationId: prugeRelationship
+
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu.
+          schema:
+            type: string
+
+      requestBody:
+        description: JSON reprezentace
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  relationshiptuple:
+                    type: object
+                    properties:
+                      subject:
+                        type: string
+                        description: Subjekt
+                      predicate:
+                        type: string
+                        description: Predikát
+                      object:
+                        type: string
+                        description: Objekt
+                      isLiteral:
+                        type: boolean
+                        description: Příznak, který říká, zda relace je pouze literál
+
+
+
+      responses:
+        '200':
+          description: Seznam všech relací
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    relationshiptuple:
+                      type: object
+                      properties:
+                        subject:
+                          type: string
+                          description: Subjekt
+                        predicate:
+                          type: string
+                          description: Predikát
+                        object:
+                          type: string
+                          description: Objekt
+                        isLiteral:
+                          type: boolean
+                          description: Příznak, který říká, zda relace je pouze literál
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra

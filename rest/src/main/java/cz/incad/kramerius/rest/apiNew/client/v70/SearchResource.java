@@ -19,17 +19,17 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 import com.google.inject.Inject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
-import cz.incad.kramerius.rest.api.k5.client.JSONDecoratorsAggregate;
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
+import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.solr.SolrKeys;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -53,6 +53,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -81,6 +82,7 @@ public class SearchResource {
     @Named("new-index")
     private SolrAccess solrAccess;
 
+
 //    @Inject
 //    private JSONDecoratorsAggregate jsonDecoratorAggregates; //TODO: do we need the decorators, and which are injected?
 
@@ -90,8 +92,27 @@ public class SearchResource {
     @javax.inject.Inject
     Provider<User> userProvider;
 
+    @Inject
+    APICallMonitor apiCallMonitor;
+
+
     @GET
     public Response get(@Context UriInfo uriInfo, @Context HttpHeaders headers, @QueryParam("wt") String wt) {
+
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        String queryString = queryParameters.entrySet().stream()
+                .flatMap(entry -> entry.getValue().stream()
+                        .map(value -> {
+                            try {
+                                return entry.getKey() + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+                            } catch (Exception e) {
+                                LOGGER.log(Level.WARNING, e.getMessage());
+                                return "";
+                            }
+                        }))
+                .collect(Collectors.joining("&"));
+
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/search", "/client/v7.0/search", queryString, "GET");
         try {
             if ("json".equals(wt)) {
                 return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
@@ -119,6 +140,10 @@ public class SearchResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
