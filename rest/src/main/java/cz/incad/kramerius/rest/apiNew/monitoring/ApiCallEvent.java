@@ -25,6 +25,7 @@ public class ApiCallEvent {
     private int statusCode;
     private String userId;
     private String pid;
+    private String ipAddress;
 
 
     public ApiCallEvent(String resource, String endpoint, String queryPart, String httpMethod) {
@@ -108,6 +109,14 @@ public class ApiCallEvent {
         return pid;
     }
 
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
     /**
      * Converts the ApiCallEvent object into a Solr-compatible XML document.
      *
@@ -140,6 +149,8 @@ public class ApiCallEvent {
         addField(doc, rootElement, "duration", String.valueOf(getDuration()));
         addField(doc, rootElement, "statusCode", String.valueOf(statusCode));
         addField(doc, rootElement, "userId", userId);
+        addField(doc, rootElement, "ipaddress", this.ipAddress);
+
 
         if (!labels.isEmpty()) {
             for (String label : labels) {

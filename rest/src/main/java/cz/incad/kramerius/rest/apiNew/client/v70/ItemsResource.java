@@ -24,6 +24,8 @@ import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
+import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
+import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
 import cz.incad.kramerius.rest.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.Role;
@@ -215,7 +217,9 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     protected transient HttpAsyncClient client;
 
-    
+    @Inject
+    APICallMonitor apiCallMonitor;
+
     private Client c;
 
     public ItemsResource() {
@@ -225,7 +229,6 @@ public class ItemsResource extends ClientApiResource {
         this.c.setReadTimeout(10000);
     }
 
-    
     public static Map<String, String> IIIF_SUPPORTED_MIMETYPES = new HashMap<>();
     static  {
         ItemsResource.IIIF_SUPPORTED_MIMETYPES.put("jpg", "image/jpeg");
@@ -236,11 +239,11 @@ public class ItemsResource extends ClientApiResource {
         ItemsResource.IIIF_SUPPORTED_MIMETYPES.put("webp", "image/webp");
     }
 
-    
 
     @HEAD
     @Path("{pid}")
     public Response checkItemExists(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s",pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -250,6 +253,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -257,6 +264,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfo(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info",pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -279,6 +287,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -286,6 +298,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/data")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoData(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/data", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -295,6 +308,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -302,6 +319,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/providedByLicenses")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProvidingLicenses(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/providedByLicenses", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -314,6 +332,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -326,6 +348,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/structure")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoStructure(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/structure",pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -335,6 +358,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -346,6 +373,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/image")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/image",pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -355,6 +383,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -424,6 +456,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/metadata/mods")
     public Response isMetadataModsAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/mods",pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
@@ -433,6 +466,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -440,6 +477,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/metadata/mods")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataMods(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/mods",pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
@@ -452,12 +490,17 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{pid}/metadata/dc")
     public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/dc",pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
@@ -467,6 +510,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -474,6 +521,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/metadata/dc")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataDublinCore(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/dc",pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
@@ -484,12 +532,17 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/text", pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
@@ -501,6 +554,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -508,6 +565,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/ocr/text")
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
     public Response getOcrText(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/text", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
@@ -520,12 +578,17 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
     @HEAD
     @Path("{pid}/ocr/alto")
     public Response isOcrAltoAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/alto", pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
@@ -537,6 +600,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -545,6 +612,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getDatastreamOcrAlto(@PathParam("pid") String pid) {
         //TODO: pořádně otestovat datastreamy s různými controlgroups (M,E,R) a s odkazy typu URL, path
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/alto", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
@@ -557,6 +625,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -566,6 +638,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/image")
     public Response isImgFullAvailable(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image",  pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
@@ -577,6 +650,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
 
@@ -588,6 +665,7 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/image")
     public Response getImgFull(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image",  pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
@@ -637,6 +715,10 @@ public class ItemsResource extends ClientApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
         }
     }
     
