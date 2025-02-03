@@ -1,10 +1,13 @@
 package cz.incad.kramerius.rest.apiNew.monitoring.impl;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
 import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
+import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
 import org.apache.http.client.HttpResponseException;
@@ -12,6 +15,7 @@ import org.json.JSONException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -33,6 +37,9 @@ public class SolrAPICallMonitor implements APICallMonitor  {
     private Client client;
     private DocumentBuilderFactory documentBuilderFactory;
 
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
+
     public SolrAPICallMonitor() {
         this.client = Client.create();
         this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -41,11 +48,17 @@ public class SolrAPICallMonitor implements APICallMonitor  {
         client.setConnectTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
     }
 
+
+
     @Override
     public ApiCallEvent start( String resource, String endpoint, String queryString, String httpMethod) {
         List<Object> labels = KConfiguration.getInstance().getConfiguration().getList("labels");
         ApiCallEvent event = new ApiCallEvent(resource, endpoint, queryString, httpMethod);
         event.setLabels(labels.stream().map(Object::toString).collect(Collectors.toList()));
+        if (this.requestProvider != null) {
+            HttpServletRequest req = this.requestProvider.get();
+            event.setIpAddress(IPAddressUtils.getRemoteAddress(req));
+        }
         return event;
     }
 
@@ -54,6 +67,10 @@ public class SolrAPICallMonitor implements APICallMonitor  {
         List<Object> labels = KConfiguration.getInstance().getConfiguration().getList("labels");
         ApiCallEvent event = new ApiCallEvent(resource, endpoint, queryString, httpMethod, pid);
         event.setLabels(labels.stream().map(Object::toString).collect(Collectors.toList()));
+        if (this.requestProvider != null) {
+            HttpServletRequest req = this.requestProvider.get();
+            event.setIpAddress(IPAddressUtils.getRemoteAddress(req));
+        }
         return event;
     }
 
