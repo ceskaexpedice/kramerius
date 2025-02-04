@@ -120,12 +120,14 @@ public class FlagToLicenseProcess {
         Map<String, String> topLevelModelsMap = new HashMap<>();
         Map<String, List<Pair<String,String>>> subLevelModelsMap = new HashMap<>();
         Map<String, Triple<String, String, String>> details = new HashMap<>();
-        
+
+        List<String> alreadyLicensedPids = new ArrayList<>();
+
         List<String> publicPids = new ArrayList<>();
         List<String> privatePids = new ArrayList<>();
         
         
-        IterationUtils.cursorIteration(new IterationUtils.FieldsProvider(getSortField(), "pid","root.pid","accessibility","model"), Endpoint.select, client, KConfiguration.getInstance().getSolrSearchHost() , encodedQ, (elm, iter)-> {
+        IterationUtils.cursorIteration(new IterationUtils.FieldsProvider(getSortField(), "pid","root.pid","accessibility","model","licenses"), Endpoint.select, client, KConfiguration.getInstance().getSolrSearchHost() , encodedQ, (elm, iter)-> {
             try {
                 List<Element> docs = XMLUtils.getElementsRecursive(elm, new XMLUtils.ElementsFilter() {
                     
@@ -143,7 +145,9 @@ public class FlagToLicenseProcess {
                     AtomicReference<String> model = new AtomicReference<>();
                     AtomicReference<String> pid = new AtomicReference<>();
                     AtomicReference<String> rootPid = new AtomicReference<>();
-                    
+
+                    AtomicReference<List<String>>  lics = new AtomicReference<>();
+
                     XMLUtils.getElements(doc).forEach(e-> {
                         String name = e.getAttribute("name");
                         switch(name) {
@@ -159,6 +163,11 @@ public class FlagToLicenseProcess {
                             case "root.pid":
                                 rootPid.set(e.getTextContent());
                             break;
+                            case "licenses":
+                                List<Element> elements = XMLUtils.getElements(e);
+                                List<String> collectedLicenses = elements.stream().map(Element::getTextContent).collect(Collectors.toList());
+                                lics.set(collectedLicenses);
+                                break;
                         }
                     });
 
@@ -175,6 +184,11 @@ public class FlagToLicenseProcess {
                         list.add( Pair.of(pid.get(), accessibility.get()) );
                     }
                     details.put(pid.get(), Triple.of(model.get(), accessibility.get(), pid.get()));
+
+
+                    if (lics.get() != null && (lics.get().contains(CzechEmbeddedLicenses.PUBLIC_LICENSE.getName()) || lics.get().contains(CzechEmbeddedLicenses.ONSITE_LICENSE.getName()))) {
+                        alreadyLicensedPids.add(pid.get());
+                    }
                 });
                 
             } catch (Exception e) {
@@ -200,9 +214,18 @@ public class FlagToLicenseProcess {
                 });
             }
         });
-        
-        
-        // public batches 
+
+        // remove from public list & private list
+        alreadyLicensedPids.forEach(pid-> {
+            publicPids.remove(pid);
+            privatePids.remove(pid);
+        });
+
+        LOGGER.info(String.format("Number of already licensed pids: %d", alreadyLicensedPids.size()));
+        LOGGER.info(String.format("To public license: %d", publicPids.size()));
+        LOGGER.info(String.format("To onsite license: %d", privatePids.size()));
+
+        // public batches
         scheduleSetLicenses(publicPids, CzechEmbeddedLicenses.PUBLIC_LICENSE.getName(), authToken);
 
         // private batches

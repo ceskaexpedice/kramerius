@@ -111,6 +111,7 @@ public class SetLicenseProcess {
         // IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(repository, ProcessUtils.getCoreBaseUrl());
         ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(repository, ProcessUtils.getCoreBaseUrl());
 
+        List<String> brokenPids = new ArrayList<>();
         switch (action) {
             case ADD:
                 ProcessStarter.updateName(String.format("Přidání licence '%s' pro %s", license, target));
@@ -118,6 +119,7 @@ public class SetLicenseProcess {
                     try {
                         addLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess);
                     } catch (Exception ex) {
+                        brokenPids.add(pid);
                         LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                         LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
                     }
@@ -129,12 +131,18 @@ public class SetLicenseProcess {
                     try {
                         removeLicense(license, pid, repository, processingIndex, searchIndex, indexerAccess, authToken);
                     } catch (Exception ex) {
+                        brokenPids.add(pid);
                         LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                         LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
                     }
                 }
                 break;
         }
+
+        if (!brokenPids.isEmpty()) {
+            throw new RuntimeException("All problematic pids:"+brokenPids);
+        }
+
     }
 
     private static List<String> extractPids(String target) {
@@ -209,15 +217,21 @@ public class SetLicenseProcess {
         }
     }
 
-    private static List<String> getPidsOfOwnAncestors(String targetPid, ProcessingIndex processingIndex) throws ResourceIndexException {
-        List<String> result = new ArrayList<>();
-        String pidOfCurrentNode = targetPid;
-        String pidOfCurrentNodesOwnParent;
-        while ((pidOfCurrentNodesOwnParent = processingIndex.getPidsOfParents(pidOfCurrentNode).getFirst()) != null) {
-            result.add(pidOfCurrentNodesOwnParent);
-            pidOfCurrentNode = pidOfCurrentNodesOwnParent;
+    private static List<String> getPidsOfOwnAncestors(String targetPid, ProcessingIndex processingIndex)  {
+
+        try {
+            List<String> result = new ArrayList<>();
+            String pidOfCurrentNode = targetPid;
+            String pidOfCurrentNodesOwnParent;
+            while ((pidOfCurrentNodesOwnParent = processingIndex.getPidsOfParents(pidOfCurrentNode).getFirst()) != null) {
+                result.add(pidOfCurrentNodesOwnParent);
+                pidOfCurrentNode = pidOfCurrentNodesOwnParent;
+            }
+            return result;
+        } catch (ResourceIndexException e) {
+            // trhow runtime exception = FAILED state
+            throw new RuntimeException(e);
         }
-        return result;
     }
 
    /* private static List<String> getPidsOfAllAncestors(String targetPid, SolrAccess searchIndex) throws IOException {
