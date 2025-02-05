@@ -97,7 +97,6 @@ public class DefaultPropertiesInstances implements Instances {
             typeOfChange = TypeOfChangedStatus.valueOf(properties.get(keyTypeofStatus));
         }
 
-
         names.add(acronym);
 
         DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(this.configManager,this.reharvestManager, this, acronym,
