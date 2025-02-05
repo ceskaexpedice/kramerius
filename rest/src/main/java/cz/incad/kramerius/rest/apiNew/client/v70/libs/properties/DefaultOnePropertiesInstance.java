@@ -6,6 +6,7 @@ import java.util.Map;
 import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
@@ -19,6 +20,7 @@ import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.ProxyUserHandl
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V5ForwardUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V7ForwardUserHandler;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class DefaultOnePropertiesInstance implements OneInstance {
@@ -26,16 +28,25 @@ public class DefaultOnePropertiesInstance implements OneInstance {
     private Instances instances;
     private ReharvestManager reharvestManager;
     private String instanceAcronym;
-    private boolean connected = true;
-    private TypeOfChangedStatus typeOfChangedStatus = TypeOfChangedStatus.automat;
-    
+    private ConfigManager configManager;
+
     private Map<String, String> info = new HashMap<>();
-    
-    public DefaultOnePropertiesInstance(ReharvestManager reharvestManager, Instances instances, String instanceAcronym) {
+
+    private boolean connectedState = true;
+    private TypeOfChangedStatus typeOfChangedStatus;
+
+    public DefaultOnePropertiesInstance( ConfigManager configManager, ReharvestManager reharvestManager,
+                                        Instances instances,
+                                        String instanceAcronym,
+                                        boolean connectedState,
+                                        TypeOfChangedStatus typeOfChangedStatus) {
         super();
         this.reharvestManager = reharvestManager;
         this.instanceAcronym = instanceAcronym;
         this.instances = instances;
+        this.connectedState = connectedState;
+        this.typeOfChangedStatus = typeOfChangedStatus;
+        this.configManager = configManager;
     }
 
     @Override
@@ -119,18 +130,21 @@ public class DefaultOnePropertiesInstance implements OneInstance {
 
     @Override
     public boolean isConnected() {
-        return this.connected;
+        return this.connectedState;
     }
 
     @Override
     public void setConnected(boolean connected, TypeOfChangedStatus type) {
-        this.connected = connected;
-        this.typeOfChangedStatus = type;
+        String keyConnected = String.format("cdk.collections.sources.%s.enabled", this.instanceAcronym);
+        String keyTypeofStatus = String.format("cdk.collections.sources.%s.status", this.instanceAcronym );
+        configManager.setProperty(keyConnected, ""+connected);
+        configManager.setProperty(keyTypeofStatus, type.name());
+        this.instances.refresh();
     }
 
     @Override
     public TypeOfChangedStatus getType() {
-        return this.typeOfChangedStatus;
+        return typeOfChangedStatus;
     }
 
     @Override

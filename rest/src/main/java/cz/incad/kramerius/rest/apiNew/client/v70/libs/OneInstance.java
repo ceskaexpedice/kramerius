@@ -5,6 +5,7 @@ import java.util.Map;
 import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.ProxyUserHandler;
 import cz.incad.kramerius.security.User;

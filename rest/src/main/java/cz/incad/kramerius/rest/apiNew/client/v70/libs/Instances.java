@@ -29,6 +29,8 @@ public interface Instances {
      */
     public List<OneInstance> disabledInstances();
 
+
+
     /**
      * Finds a specific instance by its acronym.
      * The acronym is a unique identifier for each instance.
@@ -37,6 +39,7 @@ public interface Instances {
      * @return The instance with the specified acronym, or null if not found.
      */
     public OneInstance find(String acronym);
+
 
     /**
      * Checks if any instances are currently disabled.
@@ -51,6 +54,8 @@ public interface Instances {
      */
     public boolean isEnabledInstance(String acronym);
 
+    /** reload all items */
+    public void refresh();
 
     public void cronRefresh();
 

@@ -38,7 +38,27 @@ public class ConfigManager {
     @Named("kramerius4")
     private Provider<Connection> connectionProvider;
 
-    
+
+    public List<Pair<String,String>> getPropertiesByRegularExpression(String regexp) {
+
+        LOGGER.info( String.format("Returning properties by regexp %s", regexp));
+
+        List<Pair<String,String>> keys = new JDBCQueryTemplate<Pair<String,String>>(this.connectionProvider.get(), true) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Pair<String, String>> returnsList)
+                    throws SQLException {
+                String key = rs.getString("key");
+                String value = rs.getString("value");
+                Pair<String,String> pair = Pair.of(key, value);
+                LOGGER.info(String.format("Adding pair %s", pair.toString()));
+                returnsList.add(pair);
+                return true;
+            }
+        }.executeQuery("SELECT * FROM config WHERE key ~ ? ",regexp);
+        return keys;
+
+    }
+
     public List<String> getKeysByRegularExpression(String regexp) {
         List<String> keys = new JDBCQueryTemplate<String>(this.connectionProvider.get(), true) {
             @Override
