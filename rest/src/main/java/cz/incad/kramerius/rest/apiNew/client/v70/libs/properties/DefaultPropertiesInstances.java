@@ -17,7 +17,9 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 
+import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,19 +43,29 @@ public class DefaultPropertiesInstances implements Instances {
     
     public static final Logger LOGGER = Logger.getLogger(DefaultPropertiesInstances.class.getName());
 
-    private List<OneInstance> instances = new ArrayList<>();
-    private Set<String> names = new HashSet<>();
-    private ReharvestManager reharvestManager;
-    
+    private final List<OneInstance> instances = new ArrayList<>();
+    private final Set<String> names = new HashSet<>();
+    private final ReharvestManager reharvestManager;
+    private final ConfigManager configManager;
+
+
     @Inject
-    public DefaultPropertiesInstances(ReharvestManager reharvestManager) {
+    public DefaultPropertiesInstances(ReharvestManager reharvestManager, ConfigManager configManager) {
         super();
         this.reharvestManager = reharvestManager;
+        this.configManager = configManager;
         LOGGER.info("Refreshing configuration with reharvestManager "+this.reharvestManager);
-        refreshingConfiguration();
+        refresh();
     }
+    @Override
+    public void refresh() {
+        this.instances.clear(); this.names.clear();
 
-    protected void refreshingConfiguration() {
+        Map<String,String> properties = new HashMap<>();
+        this.configManager.getPropertiesByRegularExpression("cdk.collections.sources.*").stream().forEach(it-> {
+            properties.put(it.getKey(),it.getValue());
+        });
+
         Configuration configuration = KConfiguration.getInstance().getConfiguration();
         Iterator<String> keys = configuration.getKeys("cdk.collections.sources");
         while (keys.hasNext()) {
@@ -63,35 +75,52 @@ public class DefaultPropertiesInstances implements Instances {
                 if (rest.lastIndexOf(".") > 0) {
                     String acronym = rest.substring(0, rest.lastIndexOf("."));
                     if (!names.contains(acronym)) {
-                        addOneInstance(acronym);
+                        addOneInstance(acronym, properties);
                     }
                 }
             }
         }
     }
 
-    private void addOneInstance(String acronym) {
+
+    private void addOneInstance(String acronym, Map<String,String> properties) {
         LOGGER.info(String.format("Adding library %s with reharvestManager %s", acronym, reharvestManager.toString()));
+
+        String keyConnected = String.format("cdk.collections.sources.%s.enabled",acronym);
+        String keyTypeofStatus = String.format("cdk.collections.sources.%s.status", acronym);
+        boolean connected = true;
+        TypeOfChangedStatus typeOfChange = TypeOfChangedStatus.automat;
+        if (properties.containsKey(keyConnected)) {
+            connected = Boolean.parseBoolean(properties.get(keyConnected));
+        }
+        if (properties.containsKey(keyTypeofStatus)) {
+            typeOfChange = TypeOfChangedStatus.valueOf(properties.get(keyTypeofStatus));
+        }
+
         names.add(acronym);
-        DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(this.reharvestManager, this, acronym);
+
+        DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(this.configManager,this.reharvestManager, this, acronym,
+                connected, typeOfChange);
         instances.add(di);
     }
     
     @Override
     public List<OneInstance> allInstances() {
-        this.refreshingConfiguration();
+        this.refresh();
         return this.instances;
     }
 
     @Override
     public List<OneInstance> enabledInstances() {
-        this.refreshingConfiguration();
-        return this.instances.stream().filter(OneInstance::isConnected).collect(Collectors.toList());
+        this.refresh();
+        return this.instances.stream().filter(it-> {
+            return it.isConnected();
+        }).collect(Collectors.toList());
     }
 
     @Override
     public List<OneInstance> disabledInstances() {
-        this.refreshingConfiguration();
+        this.refresh();
         return this.instances.stream().filter(it -> {
             return !it.isConnected();
         }).collect(Collectors.toList());
@@ -99,14 +128,14 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public boolean isAnyDisabled() {
-        this.refreshingConfiguration();
+        this.refresh();
         List<OneInstance> eInsts = this.enabledInstances();
         return this.allInstances().size() != eInsts.size();
     }
 
     @Override
     public OneInstance find(String acronym) {
-        this.refreshingConfiguration();
+        this.refresh();
         List<OneInstance> collect = this.instances.stream().filter(it -> {
             return it.getName().equals(acronym);
         }).collect(Collectors.toList());
@@ -118,12 +147,9 @@ public class DefaultPropertiesInstances implements Instances {
         }
     }
 
-    
-    
-    
     @Override
     public boolean isEnabledInstance(String acronym) {
-        this.refreshingConfiguration();
+        this.refresh();
         Optional<OneInstance> found = instances.stream().filter(instance -> instance.getName().equals(acronym)).findFirst();
         if (found.isPresent()) {
             return found.get().isConnected();
@@ -134,7 +160,7 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public void cronRefresh() {
-        this.refreshingConfiguration();
+        this.refresh();
         try {
             
             
@@ -196,20 +222,12 @@ public class DefaultPropertiesInstances implements Instances {
         }
     }
 
-    
-    
-    
-    
-    
     protected String registerData(Client client, String url) throws IOException {
         WebResource r = client.resource(url);
         InputStream inputStream = r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
         String string = org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
         return string;
     }
-
-    
-    
 }
 
 

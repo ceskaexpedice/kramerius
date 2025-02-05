@@ -39,212 +39,6 @@ import cz.incad.kramerius.utils.XMLUtils;
 public class DefaultFilterTest {
 
 
-//    @Test
-//    public void testFilterNew() {
-//        DefaultPropertiesInstances inst = createMockBuilder(DefaultPropertiesInstances.class)
-//                .withConstructor()
-//                .addMockedMethod("allInstances")
-//                .addMockedMethod("enabledInstances")
-//                .addMockedMethod("disabledInstances")
-//                .addMockedMethod("find")
-//                .addMockedMethod("isAnyDisabled")
-//                .createMock();
-//
-//        
-//        DefaultOnePropertiesInstance mzk = new DefaultOnePropertiesInstance(inst,"mzk");
-//        DefaultOnePropertiesInstance nkp = new DefaultOnePropertiesInstance(inst,"nkp");
-//        DefaultOnePropertiesInstance knav = new DefaultOnePropertiesInstance(inst,"knav");
-//        knav.setConnected(true, TypeOfChangedStatus.user);
-//        
-//        
-//        List<OneInstance> allInstances = new ArrayList<>();
-//        allInstances.add(mzk);
-//        allInstances.add(nkp);
-//        allInstances.add(knav);
-//        
-//        
-//        EasyMock.expect(inst.allInstances()).andReturn(allInstances).anyTimes();
-//        EasyMock.expect(inst.enabledInstances()).andReturn(allInstances).anyTimes();
-//        
-//        EasyMock.expect(inst.find("mzk")).andReturn(mzk).anyTimes();
-//        EasyMock.expect(inst.find("nkp")).andReturn(nkp).anyTimes();
-//        EasyMock.expect(inst.find("knav")).andReturn(knav).anyTimes();
-//        EasyMock.expect(inst.isAnyDisabled()).andReturn(true).anyTimes();
-//        
-//        EasyMock.replay(inst); 
-//        
-//        ProxyFilter pf = new DefaultFilter(inst);
-//        String newFilter = pf.newFilter();
-//        Assert.assertEquals("cdk.collection:(mzk OR nkp OR knav)",newFilter);
-//    }
-//	
-//	@Test
-//	public void testFilterApply() {
-//        DefaultPropertiesInstances inst = createMockBuilder(DefaultPropertiesInstances.class)
-//                .withConstructor()
-//                .addMockedMethod("allInstances")
-//                .addMockedMethod("enabledInstances")
-//                .addMockedMethod("disabledInstances")
-//                .addMockedMethod("find")
-//                .addMockedMethod("isAnyDisabled")
-//                .createMock();
-//
-//        
-//        DefaultOnePropertiesInstance mzk = new DefaultOnePropertiesInstance(inst,"mzk");
-//        DefaultOnePropertiesInstance nkp = new DefaultOnePropertiesInstance(inst,"nkp");
-//        DefaultOnePropertiesInstance knav = new DefaultOnePropertiesInstance(inst,"knav");
-//        knav.setConnected(true, TypeOfChangedStatus.user);
-//        
-//        
-//        List<OneInstance> allInstances = new ArrayList<>();
-//        allInstances.add(mzk);
-//        allInstances.add(nkp);
-//        allInstances.add(knav);
-//        
-//        
-//        EasyMock.expect(inst.allInstances()).andReturn(allInstances).anyTimes();
-//        EasyMock.expect(inst.enabledInstances()).andReturn(allInstances).anyTimes();
-//        
-//        EasyMock.expect(inst.find("mzk")).andReturn(mzk).anyTimes();
-//        EasyMock.expect(inst.find("nkp")).andReturn(nkp).anyTimes();
-//        EasyMock.expect(inst.find("knav")).andReturn(knav).anyTimes();
-//        EasyMock.expect(inst.isAnyDisabled()).andReturn(true).anyTimes();
-//        
-//        EasyMock.replay(inst); 
-//
-//        ProxyFilter pf = new DefaultFilter(inst);
-//        
-//        
-//        String eFilter = pf.enhancedFilter("model:monograph AND titles.search:*");
-//        Assert.assertEquals("model:monograph AND titles.search:* AND cdk.collection:(mzk OR nkp OR knav)",eFilter);
-//	}
-//
-//    
-//    @Test
-//    public void testValueDocXML() throws IOException, ParserConfigurationException, SAXException, TransformerException {
-//
-//        DefaultPropertiesInstances inst = createMockBuilder(DefaultPropertiesInstances.class)
-//                .withConstructor()
-//                .addMockedMethod("allInstances")
-//                .addMockedMethod("enabledInstances")
-//                .addMockedMethod("disabledInstances")
-//                .addMockedMethod("find")
-//                .addMockedMethod("isAnyDisabled")
-//                .createMock();
-//
-//        
-//        DefaultOnePropertiesInstance mzk = new DefaultOnePropertiesInstance(inst,"mzk");
-//        DefaultOnePropertiesInstance nkp = new DefaultOnePropertiesInstance(inst,"nkp");
-//        DefaultOnePropertiesInstance knav = new DefaultOnePropertiesInstance(inst,"knav");
-//        knav.setConnected(false, TypeOfChangedStatus.user);
-//        
-//        
-//        List<OneInstance> allInstances = new ArrayList<>();
-//        allInstances.add(mzk);
-//        allInstances.add(nkp);
-//        allInstances.add(knav);
-//        
-//        List<OneInstance> enabledInstances = new ArrayList<>();
-//        enabledInstances.add(nkp);
-//        enabledInstances.add(mzk);
-//        
-//        
-//        List<OneInstance> disabledInstances = new ArrayList<>();
-//        disabledInstances.add(knav);
-//        
-//        
-//        EasyMock.expect(inst.allInstances()).andReturn(allInstances).anyTimes();
-//        EasyMock.expect(inst.enabledInstances()).andReturn(enabledInstances).anyTimes();
-//        EasyMock.expect(inst.disabledInstances()).andReturn(disabledInstances).anyTimes();
-//        
-//        EasyMock.expect(inst.find("mzk")).andReturn(mzk).anyTimes();
-//        EasyMock.expect(inst.find("nkp")).andReturn(nkp).anyTimes();
-//        EasyMock.expect(inst.find("knav")).andReturn(knav).anyTimes();
-//        EasyMock.expect(inst.isAnyDisabled()).andReturn(true).anyTimes();
-//        
-//        EasyMock.replay(inst); 
-//
-//
-//        ProxyFilter pf = new DefaultFilter(inst);
-//    
-//        InputStream stream = DefaultFilterTest.class.getResourceAsStream("filter_simple.xml");
-//        String xml = IOUtils.toString(stream,"UTF-8");
-//        List<Element> respXML = respXML(xml);
-//        Assert.assertTrue(respXML.size() == 1);
-//        
-//        Assert.assertTrue(cdkCollectionFromDoc(respXML).equals(Arrays.asList("mzk", "nkp", "knav")));
-//        
-//        for (Element doc : respXML) {
-//             pf.filterValue(doc);
-//
-//             XMLUtils.print(doc, System.out);
-//
-//             Assert.assertTrue(cdkCollectionFromDoc(respXML).equals(Arrays.asList("mzk", "nkp")));
-//        }
-//    }
-
-    
-//    @Test
-//    public void testValueDocXMLWithPhysical() throws IOException, ParserConfigurationException, SAXException, TransformerException {
-//
-//        DefaultPropertiesInstances inst = createMockBuilder(DefaultPropertiesInstances.class)
-//                .withConstructor()
-//                .addMockedMethod("allInstances")
-//                .addMockedMethod("enabledInstances")
-//                .addMockedMethod("disabledInstances")
-//                .addMockedMethod("find")
-//                .addMockedMethod("isAnyDisabled")
-//                .createMock();
-//
-//        
-//        DefaultOnePropertiesInstance mzk = new DefaultOnePropertiesInstance(inst,"mzk");
-//        DefaultOnePropertiesInstance nkp = new DefaultOnePropertiesInstance(inst,"nkp");
-//        DefaultOnePropertiesInstance knav = new DefaultOnePropertiesInstance(inst,"knav");
-//        knav.setConnected(false, TypeOfChangedStatus.user);
-//        
-//        
-//        List<OneInstance> allInstances = new ArrayList<>();
-//        allInstances.add(mzk);
-//        allInstances.add(nkp);
-//        allInstances.add(knav);
-//        
-//        List<OneInstance> enabledInstances = new ArrayList<>();
-//        enabledInstances.add(nkp);
-//        enabledInstances.add(mzk);
-//        
-//        
-//        List<OneInstance> disabledInstances = new ArrayList<>();
-//        disabledInstances.add(knav);
-//        
-//        
-//        EasyMock.expect(inst.allInstances()).andReturn(allInstances).anyTimes();
-//        EasyMock.expect(inst.enabledInstances()).andReturn(enabledInstances).anyTimes();
-//        EasyMock.expect(inst.disabledInstances()).andReturn(disabledInstances).anyTimes();
-//        
-//        EasyMock.expect(inst.find("mzk")).andReturn(mzk).anyTimes();
-//        EasyMock.expect(inst.find("nkp")).andReturn(nkp).anyTimes();
-//        EasyMock.expect(inst.find("knav")).andReturn(knav).anyTimes();
-//        EasyMock.expect(inst.isAnyDisabled()).andReturn(true).anyTimes();
-//        
-//        EasyMock.replay(inst); 
-//
-//
-//        ProxyFilter pf = new DefaultFilter(inst);
-//    
-//        InputStream stream = DefaultFilterTest.class.getResourceAsStream("filter_simple_physicalfacets.xml");
-//        String xml = IOUtils.toString(stream,"UTF-8");
-//        List<Element> respXML = respXML(xml);
-//        Assert.assertTrue(respXML.size() == 1);
-//        
-//        Assert.assertTrue(cdkCollectionFromDoc(respXML).equals(Arrays.asList("mzk", "nkp", "knav")));
-//        
-//        for (Element doc : respXML) {
-//             pf.filterValue(doc);
-//             XMLUtils.print(doc, System.out);
-//             
-//             //Assert.assertTrue(cdkCollectionFromDoc(respXML).equals(Arrays.asList("mzk", "nkp")));
-//        }
-//    }
 
     private List<String> cdkCollectionFromDoc(List<Element> respXML) {
         Element cdkCollection = XMLUtils.findElement(respXML.get(0), new  XMLUtils.ElementsFilter() {
@@ -262,10 +56,13 @@ public class DefaultFilterTest {
     }
     
     
+
+    
 //    @Test
-//    public void testValueDocJSON() throws IOException {
+//    public void testValueDocWithPhysicalLocationJSON() throws IOException {
+//        ReharvestManager reharvest = new MemoryReharvestManagerImpl();
 //        DefaultPropertiesInstances inst = createMockBuilder(DefaultPropertiesInstances.class)
-//                .withConstructor()
+//                .withConstructor(reharvest)
 //                .addMockedMethod("allInstances")
 //                .addMockedMethod("enabledInstances")
 //                .addMockedMethod("disabledInstances")
@@ -273,40 +70,40 @@ public class DefaultFilterTest {
 //                .addMockedMethod("isAnyDisabled")
 //                .createMock();
 //
-//        
-//        DefaultOnePropertiesInstance mzk = new DefaultOnePropertiesInstance(inst,"mzk");
-//        DefaultOnePropertiesInstance nkp = new DefaultOnePropertiesInstance(inst,"nkp");
-//        DefaultOnePropertiesInstance knav = new DefaultOnePropertiesInstance(inst,"knav");
+//
+//        DefaultOnePropertiesInstance mzk = new DefaultOnePropertiesInstance(null,null, inst,"mzk");
+//        DefaultOnePropertiesInstance nkp = new DefaultOnePropertiesInstance(null, inst,"nkp");
+//        DefaultOnePropertiesInstance knav = new DefaultOnePropertiesInstance(null,inst,"knav");
 //        knav.setConnected(false, TypeOfChangedStatus.user);
-//        
-//        
+//
+//
 //        List<OneInstance> allInstances = new ArrayList<>();
 //        allInstances.add(mzk);
 //        allInstances.add(nkp);
 //        allInstances.add(knav);
-//        
+//
 //        List<OneInstance> enabledInstances = new ArrayList<>();
 //        enabledInstances.add(nkp);
-//        enabledInstances.add(mzk);
-//        
-//        
+//        enabledInstances.add(knav);
+//
+//
 //        List<OneInstance> disabledInstances = new ArrayList<>();
-//        disabledInstances.add(knav);
+//        disabledInstances.add(mzk);
 //
 //        EasyMock.expect(inst.allInstances()).andReturn(allInstances).anyTimes();
 //        EasyMock.expect(inst.enabledInstances()).andReturn(enabledInstances).anyTimes();
 //        EasyMock.expect(inst.disabledInstances()).andReturn(disabledInstances).anyTimes();
-//  
+//
 //        EasyMock.expect(inst.find("mzk")).andReturn(mzk).anyTimes();
 //        EasyMock.expect(inst.find("nkp")).andReturn(nkp).anyTimes();
 //        EasyMock.expect(inst.find("knav")).andReturn(knav).anyTimes();
 //        EasyMock.expect(inst.isAnyDisabled()).andReturn(true).anyTimes();
-//  
-//        EasyMock.replay(inst); 
 //
-//        ProxyFilter pf = new DefaultFilter(inst);
+//        EasyMock.replay(inst);
 //
-//        InputStream stream = DefaultFilterTest.class.getResourceAsStream("filter_simple.json");
+//        ProxyFilter pf = new DefaultFilter(inst,null);
+//
+//        InputStream stream = DefaultFilterTest.class.getResourceAsStream("filter_simple_physicalfacets.json");
 //        String json = IOUtils.toString(stream,"UTF-8");
 //        List<JSONArray> arrs = respJSON(json);
 //        for (JSONArray oneArray : arrs) {
@@ -314,106 +111,11 @@ public class DefaultFilterTest {
 //                JSONObject doc = oneArray.getJSONObject(i);
 //                pf.filterValue(doc);
 //                JSONArray cdkCol = doc.getJSONArray("cdk.collection");
-//            }
-//        }
-//        
-//        stream = DefaultFilterTest.class.getResourceAsStream("filter_groups.json");
-//        json = IOUtils.toString(stream,"UTF-8");
-//        arrs = respJSON(json);
-//        for (JSONArray oneArray : arrs) {
-//            for (int i = 0; i < oneArray.length(); i++) {
-//                JSONObject doc = oneArray.getJSONObject(i);
-//                pf.filterValue(doc);
-//                JSONArray cdkCol = doc.getJSONArray("cdk.collection");
-//                if (cdkCol.length() == 1) {
-//                    Assert.assertTrue(cdkCol.getString(0).equals("mzk"));
-//                } else {
-//                    Assert.assertTrue(cdkCol.length() == 2 );
-//                    Assert.assertTrue(cdkCol.getString(0).equals("mzk"));
-//                }
+//                //Assert.assertTrue(cdkCol);
+//
 //            }
 //        }
 //    }
-
-    
-    @Test
-    public void testValueDocWithPhysicalLocationJSON() throws IOException {
-        
-        
-        ReharvestManager reharvest = new MemoryReharvestManagerImpl();
-        
-        DefaultPropertiesInstances inst = createMockBuilder(DefaultPropertiesInstances.class)
-                .withConstructor(reharvest)
-                .addMockedMethod("allInstances")
-                .addMockedMethod("enabledInstances")
-                .addMockedMethod("disabledInstances")
-                .addMockedMethod("find")
-                .addMockedMethod("isAnyDisabled")
-                .createMock();
-
-        
-        DefaultOnePropertiesInstance mzk = new DefaultOnePropertiesInstance(null, inst,"mzk");
-        DefaultOnePropertiesInstance nkp = new DefaultOnePropertiesInstance(null, inst,"nkp");
-        DefaultOnePropertiesInstance knav = new DefaultOnePropertiesInstance(null,inst,"knav");
-        knav.setConnected(false, TypeOfChangedStatus.user);
-        
-        
-        List<OneInstance> allInstances = new ArrayList<>();
-        allInstances.add(mzk);
-        allInstances.add(nkp);
-        allInstances.add(knav);
-        
-        List<OneInstance> enabledInstances = new ArrayList<>();
-        enabledInstances.add(nkp);
-        enabledInstances.add(knav);
-        
-        
-        List<OneInstance> disabledInstances = new ArrayList<>();
-        disabledInstances.add(mzk);
-
-        EasyMock.expect(inst.allInstances()).andReturn(allInstances).anyTimes();
-        EasyMock.expect(inst.enabledInstances()).andReturn(enabledInstances).anyTimes();
-        EasyMock.expect(inst.disabledInstances()).andReturn(disabledInstances).anyTimes();
-  
-        EasyMock.expect(inst.find("mzk")).andReturn(mzk).anyTimes();
-        EasyMock.expect(inst.find("nkp")).andReturn(nkp).anyTimes();
-        EasyMock.expect(inst.find("knav")).andReturn(knav).anyTimes();
-        EasyMock.expect(inst.isAnyDisabled()).andReturn(true).anyTimes();
-  
-        EasyMock.replay(inst); 
-
-        ProxyFilter pf = new DefaultFilter(inst,null);
-
-        InputStream stream = DefaultFilterTest.class.getResourceAsStream("filter_simple_physicalfacets.json");
-        String json = IOUtils.toString(stream,"UTF-8");
-        List<JSONArray> arrs = respJSON(json);
-        for (JSONArray oneArray : arrs) {
-            for (int i = 0; i < oneArray.length(); i++) {
-                JSONObject doc = oneArray.getJSONObject(i);
-                pf.filterValue(doc);
-                JSONArray cdkCol = doc.getJSONArray("cdk.collection");
-                //Assert.assertTrue(cdkCol);
-                
-            }
-        }
-        
-//        stream = DefaultFilterTest.class.getResourceAsStream("filter_groups.json");
-//        json = IOUtils.toString(stream,"UTF-8");
-//        arrs = respJSON(json);
-//        for (JSONArray oneArray : arrs) {
-//            for (int i = 0; i < oneArray.length(); i++) {
-//                JSONObject doc = oneArray.getJSONObject(i);
-//                pf.filterValue(doc);
-//                JSONArray cdkCol = doc.getJSONArray("cdk.collection");
-//                if (cdkCol.length() == 1) {
-//                    Assert.assertTrue(cdkCol.getString(0).equals("mzk"));
-//                } else {
-//                    Assert.assertTrue(cdkCol.length() == 2 );
-//                    Assert.assertTrue(cdkCol.getString(0).equals("mzk"));
-//                }
-//            }
-//        }
-    }
 
     private List<Element>  respXML(String rawString) throws ParserConfigurationException, SAXException, IOException {
         Document doc = XMLUtils.parseDocument(new StringReader(rawString));

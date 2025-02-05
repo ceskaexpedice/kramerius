@@ -74,16 +74,6 @@ public class ConnectedInfoResource {
         this.libraries.allInstances().forEach(library -> {
             JSONObject json = libraryJSON(library);
             retval.put(library.getName(), json);
-            
-            /*
-            boolean healthCheck = Boolean.valueOf(health);
-            LOGGER.info(String.format("Parameter health '%b'", healthCheck));
-            if (healthCheck) {
-                JSONObject channel = new JSONObject();
-                channelHealth(library.getName(), channel);
-                json.put("channel", channel);
-                LOGGER.info(String.format("Channel json is '%s'", channel.toString()));
-            }*/
         });
         return Response.ok(retval).build();
     }
