@@ -266,7 +266,7 @@ public class ItemsResource extends AdminApiResource {
                     throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
                 }
                 try {
-                    JSONObject obj = IntrospectUtils.introspectSolr(this.client, this.libraries, pid);
+                    JSONObject obj = IntrospectUtils.introspectSolr(this.client, this.libraries, pid, true);
                     return Response.ok(obj.toString()).build();
                 } catch (UnsupportedEncodingException | JSONException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);

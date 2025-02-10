@@ -14,23 +14,41 @@ import org.json.JSONObject;
 
 import cz.incad.kramerius.utils.StringUtils;
 
-/** 
- * Represents new Reharvest item
- * @author happy
+/**
+ * Represents an item that requires reharvesting in the digital library system.
+ * This class stores metadata about a document that should be updated due to various reasons
+ * such as outdated content, deletion, or conflicts.
+ * It allows conversion between object representation and JSON format.
+ *
+ * @author Pavel Šťastný
  */
 public class ReharvestItem {
-    
+
+    /**
+     * Enumeration of reharvest operation types.
+     * Defines the scope of reharvesting such as entire document, children, or specific entities.
+     */
     public static enum TypeOfReharvset {
-        
-        root, // kompletni reharvest celeho titulu
-        children, // reharvest titulu a potomku
-        
-        new_children, // dilo v cdk smazano a je potreba stahnout z krameriu informace o detech a titulu a pak pomoci own_pid_path 
-        new_root, // dilo je v cdk smazano a je potreba stahnot z krameriu informace o korenovem dile
-        
+
+        /** Complete reharvest of the entire title */
+        root,
+
+        /** Reharvest of the title and its children */
+        children,
+
+        /** The item was removed from CDK, reharvest its children */
+        new_children,
+
+        /** The root item was removed from CDK, requiring reharvest */
+        new_root,
+
+        /** Reharvest only a specific PID */
         only_pid, // pouze jeden pid
-        
+
+        /** Delete a single PID */
         delete_pid,
+
+        /** Delete the entire document tree */
         delete_tree;
     }
 
@@ -49,11 +67,9 @@ public class ReharvestItem {
     public static final String LIBRARIES_KEYWORD = "libraries";
     public static final String ERROR_MESSAGE_KEYWORD="error";
     
-    // unique identifier 
     private String id;
     private String name;
     private String state;
-    //private String type;
     private String pid;
     private String rootPid;
     private String ownPidPath;
@@ -64,8 +80,17 @@ public class ReharvestItem {
     private String podname;
     
     private List<String> libraries = new ArrayList<>();
-    
-    
+
+
+    /**
+     * Constructs a new ReharvestItem.
+     *
+     * @param id Unique identifier.
+     * @param name Name of the document.
+     * @param state Current state of the document.
+     * @param pid Persistent identifier.
+     * @param ownPidPath Path to the document within the system.
+     */
     public ReharvestItem(String id, String name, String state, String pid, String ownPidPath) {
         super();
         this.id = id;
@@ -75,6 +100,11 @@ public class ReharvestItem {
         this.ownPidPath = ownPidPath;
     }
 
+    /**
+     * Constructs a ReharvestItem with an ID only.
+     *
+     * @param id Unique identifier.
+     */
     public ReharvestItem(String id) {
         super();
         this.id = id;
@@ -84,83 +114,67 @@ public class ReharvestItem {
     public String getId() {
         return id;
     }
-    
     public String getName() {
         return name;
     }
     public void setName(String name) {
         this.name = name;
     }
-    
     public String getState() {
         return state;
     }
-    
     public void setState(String state) {
         this.state = state;
     }
-    
     public String getPid() {
         return this.pid;
     }
-    
-    
     public void setPid(String pid) {
         this.pid = pid;
     }
-    
     public List<String> getLibraries() {
         return libraries;
     }
-    
     public void setLibraries(List<String> libraries) {
         this.libraries = libraries;
-        
     }
     public Instant getTimestamp() {
         return timestamp;
     }
-    
     public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
-    
-    
     public void setPodname(String podname) {
         this.podname = podname;
     }
-    
     public String getPodname() {
         return podname;
     }
-    
     public String getOwnPidPath() {
         return ownPidPath;
     }
-    
     public void setOwnPidPath(String ownPidPath) {
         this.ownPidPath = ownPidPath;
     }
-    
     public TypeOfReharvset getTypeOfReharvest() {
         return typeOfReharvest;
     }
-    
-    
     public void setTypeOfReharvest(TypeOfReharvset typeOfReharvest) {
         this.typeOfReharvest = typeOfReharvest;
     }
-    
-    
     public String getRootPid() {
         return rootPid;
     }
-    
     public void setRootPid(String rootPid) {
         this.rootPid = rootPid;
     }
-    
-    
+
+
+    /**
+     * Converts the ReharvestItem into a JSON representation.
+     *
+     * @return JSONObject containing the item's properties.
+     */
     public JSONObject toJSON() {
         JSONObject obj  = new JSONObject();
         obj.put(ID_KEYWORD, this.id);
@@ -198,7 +212,14 @@ public class ReharvestItem {
 
         return obj;
     }
-    
+
+    /**
+     * Creates a ReharvestItem from a JSON object.
+     *
+     * @param json The JSONObject containing item data.
+     * @return A new ReharvestItem object populated from JSON data.
+     * @throws ParseException If parsing timestamp fails.
+     */
     public static ReharvestItem fromJSON(JSONObject json) throws ParseException {
         String id = json.getString(ID_KEYWORD);
         String name= json.getString(NAME_KEYWORD);
@@ -238,7 +259,6 @@ public class ReharvestItem {
             for (int i = 0; i < libsArray.length(); i++) { libs.add(libsArray.getString(i));}
             item.setLibraries(libs);
         }
-        
         return item;
     }
 }

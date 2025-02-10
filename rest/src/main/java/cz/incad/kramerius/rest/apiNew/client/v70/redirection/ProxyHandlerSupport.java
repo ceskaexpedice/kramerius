@@ -135,45 +135,50 @@ public abstract class ProxyHandlerSupport {
     public Response buildForwardResponseGET(String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders)
             throws ProxyHandlerException {
         WebResource.Builder b = buidForwardResponse(url, shibHeaders);
-        ClientResponse response = b.get(ClientResponse.class);
-        LOGGER.info("Status code response "+response.getStatus() + ",Mimetype "+mimetype+", pid "+pid+", deleteTrigger "+deleteTrigger+", shibHeaders "+shibHeaders);
-        if (response.getStatus() == 200) {
-            String responseMimeType = response.getType().toString();
-            InputStream is = response.getEntityInputStream();
-            MultivaluedMap<String, String> headers = response.getHeaders();
+        ClientResponse response =null;
+        try {
+            response = b.get(ClientResponse.class);
+            LOGGER.info("Status code response "+response.getStatus() + ",Mimetype "+mimetype+", pid "+pid+", deleteTrigger "+deleteTrigger+", shibHeaders "+shibHeaders);
+            if (response.getStatus() == 200) {
+                String responseMimeType = response.getType().toString();
+                InputStream is = response.getEntityInputStream();
+                MultivaluedMap<String, String> headers = response.getHeaders();
 
-            StreamingOutput stream = new StreamingOutput() {
-                public void write(OutputStream output) throws IOException, WebApplicationException {
-                    try {
-                        IOUtils.copy(is, output);
-                    } catch (Exception e) {
-                        throw new WebApplicationException(e);
+                StreamingOutput stream = new StreamingOutput() {
+                    public void write(OutputStream output) throws IOException, WebApplicationException {
+                        try {
+                            IOUtils.copy(is, output);
+                        } catch (Exception e) {
+                            throw new WebApplicationException(e);
+                        }
                     }
+                };
+                ResponseBuilder respEntity = null;
+                if (mimetype != null) {
+                    respEntity = Response.status(200).entity(stream).type(mimetype);
+                } else if (responseMimeType != null) {
+                    respEntity = Response.status(200).entity(stream).type(responseMimeType);
+                } else {
+                    respEntity = Response.status(200).entity(stream);
                 }
-            };
-            ResponseBuilder respEntity = null;
-            if (mimetype != null) {
-                respEntity = Response.status(200).entity(stream).type(mimetype);
-            } else if (responseMimeType != null) {
-                respEntity = Response.status(200).entity(stream).type(responseMimeType);
+
+                /*
+                 * Disable header forward headers.keySet().forEach(key -> { List<String> values
+                 * = headers.get(key); values.stream().forEach(val -> { respEntity.header(key,
+                 * val); }); });
+                 */
+
+                return respEntity.build();
             } else {
-                respEntity = Response.status(200).entity(stream);
+                // event for reharvest
+                if (response.getStatus() == 404) {
+                    if (deleteTrigger)
+                        deleteTriggeToReharvest(pid);
+                }
+                return Response.status(response.getStatus()).build();
             }
-
-            /*
-             * Disable header forward headers.keySet().forEach(key -> { List<String> values
-             * = headers.get(key); values.stream().forEach(val -> { respEntity.header(key,
-             * val); }); });
-             */
-
-            return respEntity.build();
-        } else {
-            // event for reharvest
-            if (response.getStatus() == 404) {
-                if (deleteTrigger)
-                    deleteTriggeToReharvest(pid);
-            }
-            return Response.status(response.getStatus()).build();
+        } finally {
+            if (response != null) response.close();
         }
     }
 
@@ -237,7 +242,7 @@ public abstract class ProxyHandlerSupport {
 
                         Map<String, JSONObject> map = new HashMap<>();
                         
-                        JSONObject jsonResult = IntrospectUtils.introspectSolr(this.client, this.instances, ownParentPidText);
+                        JSONObject jsonResult = IntrospectUtils.introspectSolr(this.client, this.instances, ownParentPidText,false);
                         Set keys = jsonResult.keySet();
                         for (Object keyObj : keys) {
                             String key = keyObj.toString();

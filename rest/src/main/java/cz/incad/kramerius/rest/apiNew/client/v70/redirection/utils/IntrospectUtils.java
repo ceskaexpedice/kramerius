@@ -60,13 +60,15 @@ public class IntrospectUtils {
     }
 
     /** introspect utils */
-    public static JSONObject introspectSolr(Client client, Instances libraries, String pid) throws UnsupportedEncodingException {
+    public static JSONObject introspectSolr(Client client, Instances libraries, String pid, boolean cdkInclude) throws UnsupportedEncodingException {
         JSONObject obj = new JSONObject();
 
         /** cdk request */
-        String solrSearchHost = KConfiguration.getInstance().getSolrSearchHost();
-        String response = ChannelUtils.solrChannelPidExistence(client, null, solrSearchHost, "v7", pid);
-        obj.put("_cdk_", new JSONObject(response));
+        if (cdkInclude) {
+            String solrSearchHost = KConfiguration.getInstance().getSolrSearchHost();
+            String response = ChannelUtils.solrChannelPidExistence(client, null, solrSearchHost, "v7", pid);
+            obj.put("_cdk_", new JSONObject(response));
+        }
 
 
         /** instances request */
