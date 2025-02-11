@@ -141,11 +141,11 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             doc.open();
 
             doc.newPage();
-            int pocetStranek = 0;
-            List<AbstractPage> pages = new ArrayList<AbstractPage>(
+            //int pocetStranek = 0;
+            List<AbstractPage> pages = new ArrayList<>(
                     rdoc.getPages());
             while (!pages.isEmpty()) {
-                pocetStranek += 1;
+                //pocetStranek += 1;
                 AbstractPage page = pages.remove(0);
                 doc.newPage();
                 if (page instanceof ImagePage) {
@@ -186,25 +186,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             doc.close();
             os.flush();
 
-        } catch (DocumentException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (TransformerException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (InstantiationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (SAXException e) {
+        } catch (DocumentException | XPathExpressionException | TransformerException | InstantiationException | IllegalAccessException | ParserConfigurationException | SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e.getMessage());
         }
@@ -230,7 +212,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                     ImagePage iPage = (ImagePage) page;
                     insertImage(iPage.getUuid(), writer, doc, (float) 1.0,
                             imgServletUrl, fetcher, pdfContext.getFontMap()
-                                    .getRegistredFont("normal"));
+                                    .getRegistredFont("normal"),false);//TODO: pass the rotation properly
                 } else {
                     TextPage tPage = (TextPage) page;
                     if (tPage.getOutlineTitle().trim().equals(""))
@@ -251,25 +233,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             doc.close();
             os.flush();
 
-        } catch (DocumentException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (TransformerException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (InstantiationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        } catch (SAXException e) {
+        } catch (DocumentException | XPathExpressionException | TransformerException | InstantiationException | IllegalAccessException | ParserConfigurationException | SAXException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e.getMessage());
         }
@@ -322,10 +286,8 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
 
         PreparedDocument restOfDoc = documentService
                 .buildDocumentAsTree(path, path.getLeaf(), rect);
-        OutputStream os = null;
-        boolean konec = false;
-        while (!konec) {
-            if (!restOfDoc.getPages().isEmpty()) {
+        OutputStream os;
+        while (!restOfDoc.getPages().isEmpty()) {
                 os = streams.newOutputStream();
                 // ImageFetcher process = ImageFetcher.PROCESS;
                 ImageFetcher fetcher = ImageFetcher.WEB; // no security in the
@@ -336,10 +298,6 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                 StringBuffer buffer = new StringBuffer();
                 restOfDoc.getOutlineItemRoot().debugInformations(buffer, 1);
                 os.close();
-            } else {
-                konec = true;
-                break;
-            }
         }
     }
 
@@ -408,7 +366,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
         String pageNumber = page.getPageNumber();
         insertImage(page.getUuid(), pdfWriter, document, 0.7f,
                 pdfContext.getDjvuUrl(), fetcher, pdfContext.getFontMap()
-                        .getRegistredFont(FontMap.NORMAL_FONT));
+                        .getRegistredFont(FontMap.NORMAL_FONT),false);//TODO: pass the rotation properly
 
         // Font font = createFont();
         Font font = pdfContext.getFontMap().getRegistredFont(
@@ -484,10 +442,25 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             pdfPTable.addCell(" - ");
         }
     }
-
+    public BufferedImage rotateImage(BufferedImage image, double angle) {
+        double radian = Math.toRadians(angle);
+        double sin = Math.abs(Math.sin(radian));
+        double cos = Math.abs(Math.cos(radian));
+    
+        int width = image.getWidth();
+        int height = image.getHeight();
+    
+        int nWidth = (int) Math.floor((double) width * cos + (double) height * sin);
+        int nHeight = (int) Math.floor((double) height * cos + (double) width * sin);
+    
+        BufferedImage rotatedImage = new BufferedImage(
+                nWidth, nHeight, BufferedImage.TYPE_INT_ARGB);
+    
+        return rotatedImage;
+    }
     public void insertImage(String uuid, PdfWriter pdfWriter,
             Document document, float percentage, String imgServletUrl,
-            ImageFetcher fetcher, Font font) throws XPathExpressionException,
+            ImageFetcher fetcher, Font font,boolean enableRotation) throws XPathExpressionException,
             IOException, DocumentException {
         try {
             if (fedoraAccess.isImageFULLAvailable(uuid)) {
@@ -495,13 +468,11 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                 // String imgUrl = createIMGFULL(uuid, imgServletUrl);
                 // kdyz je pdf, musi
                 String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
-                ImageMimeType mimetype = ImageMimeType
-                        .loadFromMimeType(mimetypeString);
+                ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
                 if (mimetype != null && (!ImageMimeType.PDF.equals(mimetype))) {
-                    BufferedImage javaImg = fetcher.fetch(uuid, imgServletUrl,
-                            mimetype, this.fedoraAccess);
-                    boolean textocr = this.fedoraAccess.isStreamAvailable(uuid,
-                            FedoraUtils.ALTO_STREAM);
+                    BufferedImage javaImg = fetcher.fetch(uuid, imgServletUrl, mimetype, this.fedoraAccess);
+                    if (enableRotation && javaImg.getWidth()>javaImg.getHeight())javaImg = rotateImage(javaImg, 90);
+                    boolean textocr = this.fedoraAccess.isStreamAvailable(uuid, FedoraUtils.ALTO_STREAM);
                     boolean useAlto = KConfiguration.getInstance()
                             .getConfiguration()
                             .getBoolean("pdfQueue.useAlto", true);
@@ -513,10 +484,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                                                     FedoraUtils.ALTO_STREAM));
                             insertJavaImageWithOCR(document, percentage,
                                     pdfWriter, alto, javaImg);
-                        } catch (ParserConfigurationException e) {
-                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                            insertJavaImage(document, percentage, javaImg);
-                        } catch (SAXException e) {
+                        } catch (ParserConfigurationException | SAXException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(), e);
                             insertJavaImage(document, percentage, javaImg);
                         }
@@ -577,6 +545,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
         return dir;
     }
 
+    @Override
     public File fontsFolder() {
         File dir = this.fontDirectory.get();
         if (!dir.exists()) {
