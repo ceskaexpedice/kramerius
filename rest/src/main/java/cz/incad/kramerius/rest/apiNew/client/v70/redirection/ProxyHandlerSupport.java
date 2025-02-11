@@ -134,6 +134,7 @@ public abstract class ProxyHandlerSupport {
 
     public Response buildForwardResponseGET(String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders)
             throws ProxyHandlerException {
+        // tady se konstruuje klient, predavaji se hlavicky
         WebResource.Builder b = buidForwardResponse(url, shibHeaders);
         ClientResponse response =null;
         try {
@@ -328,7 +329,7 @@ public abstract class ProxyHandlerSupport {
                             reharvestItem.setLibraries(new ArrayList<>( map.keySet()) );
                             //reharvestItem.setLibraries(pair.getRight());
                             reharvestItem.setState("waiting_for_approve");
-                            this.reharvestManager.register(reharvestItem);
+                            this.reharvestManager.register(reharvestItem,false);
                         }
                     } catch (DOMException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -409,6 +410,7 @@ public abstract class ProxyHandlerSupport {
             header = prefixHeaders + header;
         }
 
+        
         LOGGER.fine(String.format("Requesting %s", url));
         WebResource r = client.resource(url);
         if (headers) {

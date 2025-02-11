@@ -16,9 +16,10 @@ public interface ReharvestManager {
      * Registers a new reharvest item.
      *
      * @param item The ReharvestItem to be registered.
+     * @param registerIfAlreadyExists  TA flag indicating whether registration is allowed if the PID is already in the reharvesting list.
      * @throws AlreadyRegistedPidsException If the PID is already registered.
      */
-    public void register(ReharvestItem item) throws AlreadyRegistedPidsException;
+    public void register(ReharvestItem item, boolean registerIfAlreadyExists ) throws AlreadyRegistedPidsException;
 
     /**
      * Updates an existing reharvest item.
