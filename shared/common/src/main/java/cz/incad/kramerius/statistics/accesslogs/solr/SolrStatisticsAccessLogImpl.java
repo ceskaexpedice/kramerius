@@ -313,6 +313,9 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 } else if (config.containsKey(SOLR_POINT_NEW)) {
                     loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT_NEW,"http://localhost:8983/solr/logs");
                     updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
+                }  else {
+                    loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/logs");
+                    updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
                 }
 
 
