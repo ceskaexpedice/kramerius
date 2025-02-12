@@ -47,11 +47,11 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
     }
 
     @Override
-    public void register(ReharvestItem item) throws AlreadyRegistedPidsException {
+    public void register(ReharvestItem item, boolean registerIfAlreadyExists ) throws AlreadyRegistedPidsException {
         try {
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
             List<String> pids = findAllRegistredPids(reharvest);
-            if (!pids.contains(item.getPid())) {
+            if (!pids.contains(item.getPid()) || registerIfAlreadyExists ) {
                 WebResource updateResource = this.client.resource(reharvest + "/update/json/docs?split=/&commit=true");
                 String updated = updateResource.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON)
                         .entity(item.toJSON().toString(), MediaType.APPLICATION_JSON).post(String.class);

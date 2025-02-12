@@ -1,38 +1,24 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.filter;
 
-import static org.easymock.EasyMock.createMockBuilder;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
-import org.apache.commons.io.IOUtils;
-import org.easymock.EasyMock;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
-import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.impl.MemoryReharvestManagerImpl;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.TypeOfChangedStatus;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.properties.DefaultOnePropertiesInstance;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.properties.DefaultPropertiesInstances;
 import cz.incad.kramerius.utils.XMLUtils;
 
 

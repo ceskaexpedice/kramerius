@@ -65,12 +65,14 @@ dependencies {
 
     api "com.sun.jersey:jersey-server:${jerseyversion}"
     api "com.sun.jersey:jersey-servlet:${jerseyversion}"
-    api "com.sun.jersey:jersey-client:${jerseyversion}"
     api "com.sun.jersey:jersey-json:${jerseyversion}"
 
     api 'com.sun.jersey.contribs:jersey-multipart:1.19.4'
-    api "com.sun.jersey.contribs:jersey-apache-client:${jerseyversion}"
     api "com.sun.jersey.contribs:jersey-guice:${jerseyversion}"
+
+    api "com.sun.jersey:jersey-client:${jerseyversion}"
+    api "com.sun.jersey.contribs:jersey-apache-client:${jerseyversion}"
+
 
     // for audio support 
     api 'org.ehcache:ehcache:3.3.0'
