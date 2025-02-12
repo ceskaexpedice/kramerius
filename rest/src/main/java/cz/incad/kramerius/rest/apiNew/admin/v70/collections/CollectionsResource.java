@@ -1135,7 +1135,8 @@ public class CollectionsResource extends AdminApiResource {
                 collection.clippingItems =  CutItem.fromJSONArray(jsonArray);
                 collection.clippingItems.forEach(cl-> {
                     try {
-                        cl.initGeneratedThumbnail(krameriusRepositoryApi.getLowLevelApi(), pid);
+                        // TODO AK_NEWcl.initGeneratedThumbnail(krameriusRepositoryApi.getLowLevelApi(), pid);
+                        cl.initGeneratedThumbnail(null, pid);
                     } catch (NoSuchAlgorithmException | RepositoryException | IOException e) {
                         LOGGER.log(Level.SEVERE,e.getMessage(),e);
                     }

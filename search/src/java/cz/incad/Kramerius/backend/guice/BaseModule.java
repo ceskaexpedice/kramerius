@@ -14,6 +14,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.CacheLifeCycleHook;
 import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
+import cz.incad.kramerius.fedora.AkubraRepositoryProvider;
 import cz.incad.kramerius.impl.*;
 import cz.incad.kramerius.processes.GCScheduler;
 import cz.incad.kramerius.processes.ProcessScheduler;
@@ -38,10 +39,8 @@ import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAcces
 import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.impl.*;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.Collection;
-import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ehcache.CacheManager;
 
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
@@ -91,6 +90,7 @@ public class BaseModule extends AbstractModule {
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
 
         bind(Locale.class).toProvider(LocalesProvider.class);
+        bind(AkubraRepository.class).toProvider(AkubraRepositoryProvider.class).in(Scopes.SINGLETON);
 
         bind(ProcessScheduler.class).to(ProcessSchedulerImpl.class).in(Scopes.SINGLETON);
         bind(GCScheduler.class).to(GCSchedulerImpl.class).in(Scopes.SINGLETON);

@@ -9,7 +9,11 @@ import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.ProcessingIndexRelation;
+import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -18,7 +22,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.utils.java.Pair;
 
 // helper utility used for extracting structure information 
 public class ExtractStructureHelper {
@@ -34,31 +37,31 @@ public class ExtractStructureHelper {
         return json;
     }
 
-    public static JSONObject extractStructureInfo(KrameriusRepositoryApi krameriusRepositoryApi, String pid) throws RepositoryException, SolrServerException, IOException {
+    public static JSONObject extractStructureInfo(AkubraRepository akubraRepository, String pid) throws RepositoryException, SolrServerException, IOException {
         JSONObject structure = new JSONObject();
         //parents
         JSONObject parents = new JSONObject();
-        Pair<RepositoryApi.Triplet, List<RepositoryApi.Triplet>> parentsTpls = krameriusRepositoryApi.getParents(pid);
-        if (parentsTpls.getFirst() != null) {
-            parents.put("own", pidAndRelationToJson(parentsTpls.getFirst().source, parentsTpls.getFirst().relation));
+
+        org.apache.commons.lang3.tuple.Pair<ProcessingIndexRelation, List<ProcessingIndexRelation>> parentsTpls = ProcessingIndexUtils.getParents(pid, akubraRepository);
+        if (parentsTpls.getLeft() != null) {
+            parents.put("own", pidAndRelationToJson(parentsTpls.getLeft().getSource(), parentsTpls.getLeft().getRelation()));
         }
         JSONArray fosterParents = new JSONArray();
-        for (RepositoryApi.Triplet fosterParentTpl : parentsTpls.getSecond()) {
-            fosterParents.put(pidAndRelationToJson(fosterParentTpl.source, fosterParentTpl.relation));
+        for (ProcessingIndexRelation fosterParentTpl : parentsTpls.getRight()) {
+            fosterParents.put(pidAndRelationToJson(fosterParentTpl.getSource(), fosterParentTpl.getRelation()));
         }
         parents.put("foster", fosterParents);
         structure.put("parents", parents);
+        
+        Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(akubraRepository.getDatastreamContent(pid, KrameriusRepositoryApi.KnownDatastreams.RELS_EXT.toString()), false);
 
-        
-        Document relsExt = krameriusRepositoryApi.getRelsExt(pid, true);
-        
         JSONObject children = new JSONObject();
-        Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> childrenTpls = krameriusRepositoryApi.getChildren(pid);
+        Pair<List<ProcessingIndexRelation>, List<ProcessingIndexRelation>> childrenTpls = ProcessingIndexUtils.getChildren(pid, akubraRepository);
         JSONArray ownChildren = new JSONArray();
         Map<String, JSONObject> mapping = new HashMap<>();
         
-        for (RepositoryApi.Triplet ownChildTpl : childrenTpls.getFirst()) {
-            mapping.put(ownChildTpl.target, pidAndRelationToJson(ownChildTpl.target, ownChildTpl.relation));
+        for (ProcessingIndexRelation ownChildTpl : childrenTpls.getLeft()) {
+            mapping.put(ownChildTpl.getTarget(), pidAndRelationToJson(ownChildTpl.getTarget(), ownChildTpl.getRelation()));
         }        
         
         
@@ -86,15 +89,15 @@ public class ExtractStructureHelper {
         
         children.put("own", ownChildren);
         JSONArray fosterChildren = new JSONArray();
-        for (RepositoryApi.Triplet fosterChildTpl : childrenTpls.getSecond()) {
-            fosterChildren.put(pidAndRelationToJson(fosterChildTpl.target, fosterChildTpl.relation));
+        for (ProcessingIndexRelation fosterChildTpl : childrenTpls.getRight()) {
+            fosterChildren.put(pidAndRelationToJson(fosterChildTpl.getTarget(), fosterChildTpl.getRelation()));
         }
         
         structure.put("children", children);
         children.put("foster", fosterChildren);
         
         //model
-        String model = krameriusRepositoryApi.getModel(pid);
+        String model = ProcessingIndexUtils.getModel(pid, akubraRepository);
         structure.put("model", model);
     
         return structure;

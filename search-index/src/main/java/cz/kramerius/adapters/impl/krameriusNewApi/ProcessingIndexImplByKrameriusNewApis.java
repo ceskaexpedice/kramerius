@@ -112,7 +112,8 @@ public class ProcessingIndexImplByKrameriusNewApis extends ProcessingIndexImplAb
     
     private JsonObject fetchStructure(String pid) throws ResourceIndexException {
         try {
-            JSONObject extractStructureInfo = ExtractStructureHelper.extractStructureInfo(this.krameriusRepositoryApi, pid);
+            // TODO AK_NEW JSONObject extractStructureInfo = ExtractStructureHelper.extractStructureInfo(this.krameriusRepositoryApi, pid);
+            JSONObject extractStructureInfo = ExtractStructureHelper.extractStructureInfo(null, pid);
             return IoUtils.stringToJsonObject(extractStructureInfo.toString());
         } catch (RepositoryException  | SolrServerException | IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
