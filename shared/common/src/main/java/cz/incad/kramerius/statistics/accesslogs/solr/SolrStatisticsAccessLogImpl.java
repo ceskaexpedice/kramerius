@@ -80,7 +80,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     private static final String SOLR_POINT_NEW = "api.log.point";
 
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
+    static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
 
 
     @Inject
@@ -106,12 +106,12 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     @Inject
     VersionService versionService;
 
-    private XPathFactory xpfactory;
+    //private XPathFactory xpfactory;
     private Client client;
     private DocumentBuilderFactory documentBuilderFactory;
     
     public SolrStatisticsAccessLogImpl() {
-        this.xpfactory = XPathFactory.newInstance();
+        //this.xpfactory = XPathFactory.newInstance();
         
         this.client = Client.create();
         this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -203,12 +203,13 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             logRecord.setDbVersion(versionService.getVersion());
             // pokud je user != null -> tokenid
             // jinak sessionid
-            if (user != null) {
+            // - user is accessed before - would have thrown exception already. Will never be null here.
+            /*if (user != null) {
                 //user.get
             } else {
                 String sessionId = requestProvider.get().getSession().getId();
                 logRecord.setSessionToken(sessionId);
-            }
+            }*/
 
             // Issue #1046
             Object dateFromSolr = SElemUtils.selem("str", DATE_STR_FIELD, solrDoc);
@@ -239,7 +240,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                     try {
                         dc = fedoraAccess.getDC(detailPid);
                     } catch (IOException e) {
-                        LOGGER.fine("datastream DC not found for " + detailPid + ", ignoring statistics");
+                        LOGGER.log(Level.FINE, "datastream DC not found for {0}, ignoring statistics", detailPid);
                     }
                     if (dc != null) {
                         Object dateFromDC = DCUtils.dateFromDC(dc);
@@ -259,7 +260,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                             logDetail.setTitle(title.toString());
                         }
                         Document mods = fedoraAccess.getBiblioMods(detailPid);
-                        Map<String, List<String>> identifiers = null;
+                        Map<String, List<String>> identifiers;
                         try {
                             identifiers = ModsUtils.identifiersFromMods(mods);
                             for (String key : identifiers.keySet()) {
@@ -302,8 +303,8 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         } finally {
             try {
 
-                String loggerPoint = null;
-                String updateUrl = null;
+                String loggerPoint;
+                String updateUrl;
 
 
                 Configuration config = KConfiguration.getInstance().getConfiguration();
@@ -312,6 +313,9 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                     updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
                 } else if (config.containsKey(SOLR_POINT_NEW)) {
                     loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT_NEW,"http://localhost:8983/solr/logs");
+                    updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
+                }  else {
+                    loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/logs");
                     updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
                 }
 
@@ -323,7 +327,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 try {
                     StringWriter writer = new StringWriter();
                     XMLUtils.print(batch, writer);
-                    LOGGER.fine("Update doc  => "+writer.toString());
+                    LOGGER.log(Level.FINE, "Update doc  => {0}", writer.toString());
                 } catch (TransformerException e1) {
                     LOGGER.log(Level.SEVERE,e1.getMessage(),e1);
                 }
@@ -398,9 +402,10 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             try (CloseableHttpResponse response = client.execute(httpPost)) {
                 if (response.getStatusLine().getStatusCode() == SC_OK) {
-                    HttpEntity respEntity = response.getEntity();
-                    InputStream content = respEntity.getContent();
-                    String resp = IOUtils.toString(content, "UTF-8");
+                   // HttpEntity respEntity = response.getEntity();
+                    //InputStream content = respEntity.getContent();
+                    //String resp = IOUtils.toString(content, "UTF-8");
+                    //resp is not used
                     return 0;
                 } else {
                     throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
