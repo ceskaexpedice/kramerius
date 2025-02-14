@@ -4,10 +4,6 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownDatastreams;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownXmlFormatUris;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.Collection.ThumbnailbStateEnum;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.ClientIIIFGenerator;
@@ -21,7 +17,6 @@ import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -40,7 +35,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.LockOperation;
 import org.ceskaexpedice.akubra.ObjectProperties;
 import org.ceskaexpedice.akubra.ProcessingIndexRelation;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.core.repository.KnownRelations;
+import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.dom4j.Attribute;
@@ -250,7 +247,7 @@ public class CollectionsResource extends AdminApiResource {
                     checkSupportedObjectPid(itemPid);
                     checkObjectExists(itemPid);
                     //  not support rows and page
-                    pids = ProcessingIndexUtils.getTripletSources(KrameriusRepositoryApi.KnownRelations.CONTAINS.toString(), itemPid, akubraRepository);
+                    pids = ProcessingIndexUtils.getTripletSources(KnownRelations.CONTAINS.toString(), itemPid, akubraRepository);
                 } else {
                     pids = ProcessingIndexUtils.getPidsOfObjectsByModel("collection", akubraRepository);
                 }
@@ -470,7 +467,7 @@ public class CollectionsResource extends AdminApiResource {
                 //extract relsExt and update by adding new relation
                 InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT.toString());
                 Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
-                boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+                boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
                 if (!addedNow) {
                     throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
                 }
@@ -565,7 +562,7 @@ public class CollectionsResource extends AdminApiResource {
                 Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
                 boolean atLeastOneAdded = false;
                 for (String itemPid : pidsToBeAdded) {
-                    boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+                    boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
                     if (addedNow) {
                         pidsAdded.add(itemPid);
                         atLeastOneAdded = true;
@@ -686,8 +683,7 @@ public class CollectionsResource extends AdminApiResource {
                     checkObjectExists(itemPid);
                     checkCanRemoveItemFromCollection(itemPid, collectionPid);
                     // extract relsExt and update by removing relation
-                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt,
-                            KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
                     if (!removed) {
                         throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
                     } else {
@@ -760,7 +756,7 @@ public class CollectionsResource extends AdminApiResource {
                 //extract relsExt and update by removing relation
                 InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT.toString());
                 Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
-                boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KrameriusRepositoryApi.KnownRelations.CONTAINS, itemPid);
+                boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
                 if (!removed) {
                     throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
                 }

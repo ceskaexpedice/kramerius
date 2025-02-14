@@ -11,7 +11,6 @@ import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.ExtractStructureHelper;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownDatastreams;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.repository.utils.Utils;
 import cz.incad.kramerius.rest.IIPImagesSupport;
@@ -39,7 +38,6 @@ import cz.incad.kramerius.service.replication.FormatType;
 import cz.incad.kramerius.service.replication.ReplicationUtils;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.ApplicationURL;
-import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.StringUtils;
@@ -55,6 +53,8 @@ import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RelsExtWrapper;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.codehaus.jettison.json.JSONArray;
 import org.dom4j.Attribute;
@@ -1331,7 +1331,7 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response introspect(@PathParam("pid") String pid) {
         try {
-            List<String> knownDataStreams = Arrays.stream(KrameriusRepositoryApi.KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
+            List<String> knownDataStreams = Arrays.stream(KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
             JSONArray result = new JSONArray();
             List<String> datastreamNames = akubraRepository.getDatastreamNames(pid);
             for (String dataStreamName : datastreamNames) {
@@ -1354,7 +1354,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/introspect/{data}")
     public Response introspect(@PathParam("pid") String pid,@PathParam("data") String data) {
         try {
-            List<String> knownDataStreams = Arrays.stream(KrameriusRepositoryApi.KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
+            List<String> knownDataStreams = Arrays.stream(KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
             boolean knownDatastream = knownDataStreams.contains(data);
             if (knownDatastream) {
                 return Response.status(Response.Status.BAD_REQUEST).build();
