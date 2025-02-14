@@ -22,9 +22,8 @@ public abstract class ApiResource {
     protected static final Pattern PID_PATTERN = Pattern.compile("([A-Za-z0-9]|-|\\.)+:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+");
 
     // TODO AK_NEW
-    @Inject
-    //TODO should be interface, but then guice would need bind(KrameriusRepository.class).to(KrameriusRepositoryApiImpl) somewhere
-    public KrameriusRepositoryApiImpl krameriusRepositoryApi;
+//    @Inject
+//    public KrameriusRepositoryApiImpl krameriusRepositoryApi;
 
     @Inject
     public AkubraRepository akubraRepository;
