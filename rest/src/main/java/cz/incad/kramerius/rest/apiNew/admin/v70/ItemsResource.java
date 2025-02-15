@@ -23,8 +23,8 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
@@ -170,19 +170,25 @@ public class ItemsResource extends AdminApiResource {
                     throw new BadRequestException("limit must be a number, '%s' is not", limit);
                 }
             }
-            RepositoryApi.TitlePidPairs titlePidPairsByModel = cursor != null ?
-                    krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModelWithCursor(model, ascendingOrder, cursor, limitInt) :
-                    krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModel(model, ascendingOrder, offsetInt, limitInt);
+            String nextCursorMark = null;
+            List<org.apache.commons.lang3.tuple.Pair<String, String>> titlePidPairs;
+            if (cursor != null) {
+                org.apache.commons.lang3.tuple.Pair pair = ProcessingIndexUtils.getPidsOfObjectsWithTitlesByModelWithCursor(model, ascendingOrder, cursor, limitInt, akubraRepository);
+                nextCursorMark = (String) pair.getRight();
+                titlePidPairs = (List<org.apache.commons.lang3.tuple.Pair<String, String>>) pair.getLeft();
+            }else{
+                titlePidPairs = ProcessingIndexUtils.getPidsOfObjectsWithTitlesByModel(model, ascendingOrder, offsetInt, limitInt, akubraRepository);
+            }
             JSONObject json = new JSONObject();
             json.put("model", model);
-            if (titlePidPairsByModel.nextCursorMark != null) {
-                json.put("nextCursor", titlePidPairsByModel.nextCursorMark);
+            if (nextCursorMark != null) {
+                json.put("nextCursor", nextCursorMark);
             }
             JSONArray items = new JSONArray();
-            for (Pair<String, String> pidAndTitle : titlePidPairsByModel.titlePidPairs) {
+            for (Pair<String, String> pidAndTitle : titlePidPairs) {
                 JSONObject item = new JSONObject();
-                item.put("title", pidAndTitle.getFirst());
-                item.put("pid", pidAndTitle.getSecond());
+                item.put("title", pidAndTitle.getLeft());
+                item.put("pid", pidAndTitle.getRight());
                 items.put(item);
             }
             json.put("items", items);
