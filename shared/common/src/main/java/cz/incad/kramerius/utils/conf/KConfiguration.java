@@ -32,16 +32,21 @@ public class KConfiguration {
         workingDir = newWorkingDir;
     }
 
-    public synchronized static KConfiguration getInstance() {
-        if (_sharedInstance == null) {
-            if (workingDir == null){
-                workingDir = WORKING_DIR;
-            }
-            _sharedInstance = new KConfiguration(workingDir);
+    public static KConfiguration getInstance() {
+        if (_sharedInstance == null || workingDir == null) {
+            setUpInstance();
         }
         return _sharedInstance;
     }
 
+    public static synchronized void setUpInstance() {
+        if (_sharedInstance == null) {
+            if (workingDir == null) {
+                workingDir = WORKING_DIR;
+            }
+            _sharedInstance = new KConfiguration(workingDir);
+        }
+    }
 
     private Configuration allConfigurations;
     private String configDir = null;
