@@ -3,21 +3,15 @@ package cz.incad.kramerius;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.incad.kramerius.utils.Dom4jUtils;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.adapters.ProcessingIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -28,14 +22,18 @@ import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
 import cz.kramerius.shared.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
+import org.ceskaexpedice.akubra.utils.Dom4jUtils;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,7 +64,7 @@ public class DeleteTreeProcess {
      * args[1] - pid of root object, for example "uuid:df693396-9d3f-4b3b-bf27-3be0aaa2aadf"
      * args[2-...] - optional title of the root object
      */
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException, ResourceIndexException {
+    public static void main(String[] args) throws IOException, SolrServerException, ResourceIndexException {
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -95,36 +93,31 @@ public class DeleteTreeProcess {
             ignoreIncosistencies =  Boolean.valueOf(args[argsIndex++]);
         }
         
-        
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ResourceIndexModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-        KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
-
-        KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
+        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
-        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusApiRepository, ProcessUtils.getCoreBaseUrl());
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
-
+        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, ProcessUtils.getCoreBaseUrl());
         //check object exists in repository
         // pokud je 
         //boolean existsInProcessingIndex = processingIndex.existsPid(pid);
         
-        if (!repository.getLowLevelApi().objectExists(pid) && !ignoreIncosistencies) {
+        if (!akubraRepository.objectExists(pid) && !ignoreIncosistencies) {
             throw new RuntimeException(String.format("object %s not found in repository", pid));
         }
 
-        boolean noErrors = deleteTree(pid, true, repository, processingIndex, indexerAccess, searchIndex, fa, ignoreIncosistencies);
+        boolean noErrors = deleteTree(pid, true, akubraRepository, processingIndex, indexerAccess, searchIndex, ignoreIncosistencies);
         if (!noErrors) {
             throw new WarningException("failed to delete some objects");
         }
     }
 
-    public static boolean deleteTree(String pid, boolean deletionRoot, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex, FedoraAccess fa, boolean ignoreIncosistencies) throws ResourceIndexException, RepositoryException, IOException, SolrServerException {
+    public static boolean deleteTree(String pid, boolean deletionRoot, AkubraRepository repository, ProcessingIndex processingIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex, boolean ignoreIncosistencies) throws ResourceIndexException, SolrServerException, IOException {
         LOGGER.info(String.format("deleting own tree of %s", pid));
         boolean someProblem = false;
         //
-        boolean skipP = ignoreIncosistencies && !repository.getLowLevelApi().objectExists(pid);
+        boolean skipP = ignoreIncosistencies && !repository.objectExists(pid);
         
         String myModel = "";
         if (!skipP) {
@@ -133,7 +126,7 @@ public class DeleteTreeProcess {
             Pair<List<String>, List<String>> pidsOfChildren = processingIndex.getPidsOfChildren(pid);
             //1.a. smaz vlastni potomky
             for (String ownChild : pidsOfChildren.getFirst()) {
-                someProblem &= deleteTree(ownChild, false, repository, processingIndex, indexerAccess, searchIndex, fa, ignoreIncosistencies);
+                someProblem &= deleteTree(ownChild, false, repository, processingIndex, indexerAccess, searchIndex, ignoreIncosistencies);
             }
 
             //1.b. pokud jsem sbirka a mam nevlastni potomky, odeber celym jejich stromum nalezitost do sbirky (mne) ve vyhledavacim indexu
@@ -164,16 +157,13 @@ public class DeleteTreeProcess {
             LOGGER.warning(String.format("object %s is not found in repository, skipping 1b", pid));
         }
 
-
         //4. smaz me z repozitare i vyhledavaciho indexu
-        deleteObject(pid, "collection".equals(myModel), repository, indexerAccess, fa);
-        
-        
-        
+        deleteObject(pid, "collection".equals(myModel), repository, indexerAccess);
+
         return !someProblem;
     }
 
-    private static void updateLicenseFlagsForAncestors(String pid, KrameriusRepositoryApi repository, ProcessingIndex resourceIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException, ResourceIndexException {
+    private static void updateLicenseFlagsForAncestors(String pid, AkubraRepository repository, ProcessingIndex resourceIndex, SolrIndexAccess indexerAccess) throws ResourceIndexException, IOException {
         List<String> licences = LicenseHelper.getLicensesByRelsExt(pid, repository);
         for (String license : licences) {
             //Z rels-ext vsech (vlastnich) predku se odebere containsLicence=L, pokud tam je.
@@ -222,22 +212,25 @@ public class DeleteTreeProcess {
         }
     }
 
-    private static void deleteObject(String pid, boolean isCollection, KrameriusRepositoryApi repository, SolrIndexAccess indexerAccess, FedoraAccess fa) throws RepositoryException, IOException, SolrServerException {
+    private static void deleteObject(String pid, boolean isCollection, AkubraRepository repository, SolrIndexAccess indexerAccess) throws SolrServerException, IOException {
         LOGGER.info(String.format("deleting object %s", pid));
         LOGGER.info(String.format("deleting %s from repository", pid));
         if (!DRY_RUN) {
 
             String tilesUrl = null;
             try {
-                tilesUrl = RelsExtHelper.getRelsExtTilesUrl(pid, fa);
-            } catch (XPathExpressionException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
+                tilesUrl = RelsExtUtils.getRelsExtTilesUrl(pid, repository);
+            } catch (RepositoryException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
             
-            if (repository.getLowLevelApi().objectExists(pid)) {
-                repository.getLowLevelApi().deleteObject(pid, !isCollection); //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
+            if (repository.objectExists(pid)) {
+                repository.doWithWriteLock(pid, () -> {
+                    //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
+                    repository.deleteObject(pid, !isCollection, true);
+                    repository.commitProcessingIndex();
+                    return null;
+                });
             }
             if (tilesUrl != null) {
                 boolean deleteFromImageServer = KConfiguration.getInstance().getConfiguration().getBoolean("delete.fromImageServer", false);
@@ -293,24 +286,25 @@ public class DeleteTreeProcess {
     }
 
 
-    private static void deleteRelationFromForsterParent(String pid, String fosterParentPid, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    private static void deleteRelationFromForsterParent(String pid, String fosterParentPid, AkubraRepository repository) {
         LOGGER.info(String.format("removing foster-parent relation %s -> %s", fosterParentPid, pid));
         removeAnyRelsExtRelation(fosterParentPid, pid, repository);
     }
 
-    private static void deleteRelationFromOwnParent(String pid, String ownParentPid, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    private static void deleteRelationFromOwnParent(String pid, String ownParentPid, AkubraRepository repository)  {
         LOGGER.info(String.format("removing own-parent relationship %s -> %s", ownParentPid, pid));
         removeAnyRelsExtRelation(ownParentPid, pid, repository);
     }
 
 
-    private static boolean removeAnyRelsExtRelation(String srcPid, String targetPid, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    private static boolean removeAnyRelsExtRelation(String srcPid, String targetPid, AkubraRepository repository) {
         Lock writeLock = AkubraDOManager.getWriteLock(srcPid);
         try {
-            if (!repository.isRelsExtAvailable(srcPid)) {
+            if (!repository.datastreamExists(srcPid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + srcPid);
             }
-            Document relsExt = repository.getRelsExt(srcPid, true);
+            InputStream inputStream = repository.getDatastreamContent(srcPid, KnownDatastreams.RELS_EXT.toString());
+            Document relsExt = Dom4jUtils.streamToDocument(inputStream,true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             boolean relsExtNeedsToBeUpdated = false;
 
@@ -329,7 +323,12 @@ public class DeleteTreeProcess {
             //update RELS-EXT in repository if there was a change
             if (relsExtNeedsToBeUpdated) {
                 if (!DRY_RUN) {
-                    repository.updateRelsExt(srcPid, relsExt);
+                    repository.doWithWriteLock(srcPid, () -> {
+                        repository.deleteDatastream(srcPid, KnownDatastreams.RELS_EXT.toString());
+                        ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                        repository.createXMLDatastream(srcPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+                        return null;
+                    });
                 }
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", srcPid));
             }

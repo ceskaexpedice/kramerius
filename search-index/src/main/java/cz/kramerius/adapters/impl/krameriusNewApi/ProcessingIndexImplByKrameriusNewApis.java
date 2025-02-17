@@ -22,18 +22,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONObject;
 
 public class ProcessingIndexImplByKrameriusNewApis extends ProcessingIndexImplAbstract {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessingIndexImplByKrameriusNewApis.class.getName());
 
-    private final KrameriusRepositoryApi krameriusRepositoryApi;
+    private final AkubraRepository akubraRepository;
     public final String coreBaseUrl;
 
-    public ProcessingIndexImplByKrameriusNewApis(KrameriusRepositoryApi repositoryApi, String coreBaseUrl) {
+    public ProcessingIndexImplByKrameriusNewApis(AkubraRepository akubraRepository, String coreBaseUrl) {
         this.coreBaseUrl = coreBaseUrl;
-        this.krameriusRepositoryApi = repositoryApi;
+        this.akubraRepository = akubraRepository;
     }
 
     //cache (TODO: just temporary, we don't want to break api (FedoraAccess) now)
@@ -110,10 +111,9 @@ public class ProcessingIndexImplByKrameriusNewApis extends ProcessingIndexImplAb
     }
     
     
-    private JsonObject fetchStructure(String pid) throws ResourceIndexException {
+    private JsonObject fetchStructure(String pid) {
         try {
-            // TODO AK_NEW JSONObject extractStructureInfo = ExtractStructureHelper.extractStructureInfo(this.krameriusRepositoryApi, pid);
-            JSONObject extractStructureInfo = ExtractStructureHelper.extractStructureInfo(null, pid);
+            JSONObject extractStructureInfo = ExtractStructureHelper.extractStructureInfo(akubraRepository, pid);
             return IoUtils.stringToJsonObject(extractStructureInfo.toString());
         } catch (RepositoryException  | SolrServerException | IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

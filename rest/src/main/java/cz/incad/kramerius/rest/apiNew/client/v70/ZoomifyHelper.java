@@ -8,10 +8,8 @@ import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -23,7 +21,10 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -70,9 +71,14 @@ public class ZoomifyHelper {
     //@javax.inject.Inject
     //protected transient HttpAsyncClient client;
 
+    /* TODO AK_NEW
     @javax.inject.Inject
     @Named("securedFedoraAccess")
     protected transient FedoraAccess fedoraAccess;
+
+     */
+    @javax.inject.Inject
+    AkubraRepository akubraRepository;
 
     public Response buildImagePropertiesResponse(String pid, HttpServletRequest req) throws IOException, XPathExpressionException {
         try {
@@ -87,7 +93,7 @@ public class ZoomifyHelper {
         if (imageNotModified(req, imgFullLastModified)) {
             return Response.notModified().build();
         }
-        String tilesUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
+        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(pid, akubraRepository);
         //no tiles-url
         if (tilesUrl == null || tilesUrl.isEmpty()) {
             throw new NotFoundException("no tiles-url available for object %s", pid);
@@ -95,7 +101,7 @@ public class ZoomifyHelper {
         Response.ResponseBuilder resp = Response.ok();
         setNoCacheDateHeaders(resp);
 
-        if (tilesUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
+        if (tilesUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
             return renderEmbededDZIDescriptor(pid, resp);
         } else {//http://imageserver.mzk.cz/NDK/2017/08/540eec00-7200-11e7-aab4-005056827e52/uc_540eec00-7200-11e7-aab4-005056827e52_0002
             return renderImagePropertiesXml(pid, resp, tilesUrl);
@@ -108,7 +114,7 @@ public class ZoomifyHelper {
         if (imageNotModified(req, imgFullLastModified)) {
             return Response.notModified().build();
         }
-        String tilesUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
+        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(pid, akubraRepository);
         //no tiles-url
         if (tilesUrl == null || tilesUrl.isEmpty()) {
             throw new NotFoundException("no tiles-url available for object %s", pid);
@@ -116,7 +122,7 @@ public class ZoomifyHelper {
         Response.ResponseBuilder resp = Response.ok();
         setDateHeaders(resp, imgFullLastModified);
 
-        if (tilesUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
+        if (tilesUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
             return renderEmbededTile(pid, level, x, y, resp);
         } else { //http://imageserver.mzk.cz/NDK/2017/08/540eec00-7200-11e7-aab4-005056827e52/uc_540eec00-7200-11e7-aab4-005056827e52_0002
             return renderTile(pid, tileGroup, level, x, y, resp, tilesUrl);
@@ -126,7 +132,7 @@ public class ZoomifyHelper {
     private Response renderEmbededTile(String pid, int requestedLevel, int scol, int srow, Response.ResponseBuilder resp) throws IOException {
         try {
             if (!cacheService.isResolutionFilePresent(pid)) {
-                Dimension rawDim = KrameriusImageSupport.readDimension(pid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
+                Dimension rawDim = KrameriusImageSupport.readDimension(pid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
                 cacheService.writeResolution(pid, rawDim);
             }
 
@@ -205,12 +211,13 @@ public class ZoomifyHelper {
     }
 
     private Date lastModified(String pid, String stream) throws IOException {
-        return this.fedoraAccess.getStreamLastmodifiedFlag(pid, stream);
+        return this.akubraRepository.getDatastreamMetadata(pid, stream).getLastModified();
     }
 
     private Response renderImagePropertiesXml(String uuid, Response.ResponseBuilder resp, String tilesUrl) throws IOException {
         if (useFromReplicated()) { //use zoom servlet from replicated instance
-            Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT.toString());
+            Document relsEXT = DomUtils.streamToDocument(inputStream);
             tilesUrl = getZoomifyBaseUrlFromSomeReplicationSource(relsEXT, uuid);
         }
         if (tilesUrl == null) {
@@ -302,7 +309,7 @@ public class ZoomifyHelper {
     private Response renderEmbededDZIDescriptor(String uuid, Response.ResponseBuilder resp) throws IOException, XPathExpressionException {
         //<IMAGE_PROPERTIES WIDTH="8949" HEIGHT="6684" NUMTILES="945" NUMIMAGES="1" VERSION="1.8" TILESIZE="256" />
         if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
-            Dimension rawDim = KrameriusImageSupport.readDimension(uuid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
+            Dimension rawDim = KrameriusImageSupport.readDimension(uuid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
             cacheService.writeDeepZoomDescriptor(uuid, rawDim, tileSupport.getTileSize());
             cacheService.writeResolution(uuid, rawDim);
         }
@@ -360,7 +367,8 @@ public class ZoomifyHelper {
 
     private Response renderTile(String uuid, int tileGroup, int level, int x, int y, Response.ResponseBuilder resp, String tilesUrl) throws IOException {
         if (useFromReplicated()) {
-            Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT.toString());
+            Document relsEXT = DomUtils.streamToDocument(inputStream);
             tilesUrl = getZoomifyBaseUrlFromSomeReplicationSource(relsEXT, uuid);
         }
         if (tilesUrl == null) {

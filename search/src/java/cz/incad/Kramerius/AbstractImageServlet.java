@@ -2,11 +2,10 @@ package cz.incad.Kramerius;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.imaging.utils.ImageUtils;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.SafeSimpleDateFormat;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -14,34 +13,23 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
-import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
-import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.*;
-import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.nio.AsyncRequestProducer;
-import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
-import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.nio.AsyncRequestProducer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
@@ -49,7 +37,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.sql.SQLException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -57,9 +44,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
-
-import cz.incad.kramerius.utils.*;
-import org.apache.http.nio.IOControl;
 
 public abstract class AbstractImageServlet extends GuiceServlet {
 
@@ -87,9 +71,13 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
     protected transient KConfiguration configuration = KConfiguration.getInstance();
 
+    /* TODO AK_NEW
     @Inject
     @Named("securedFedoraAccess")
     protected transient FedoraAccess fedoraAccess;
+     */
+    @Inject
+    protected transient AkubraRepository akubraRepository;
 
     @Inject
     protected transient HttpAsyncClient client;
@@ -143,22 +131,19 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     protected BufferedImage rawThumbnailImage(String uuid, int page)
             throws XPathExpressionException, IOException, SecurityException,
             SQLException {
-        return KrameriusImageSupport.readImage(uuid,
-                FedoraUtils.IMG_THUMB_STREAM, this.fedoraAccess, page);
+        return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_THUMB_STREAM, this.akubraRepository, page);
     }
 
     protected BufferedImage rawFullImage(String uuid,
                                          HttpServletRequest request, int page) throws IOException,
             MalformedURLException, XPathExpressionException {
-        return KrameriusImageSupport.readImage(uuid,
-                FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, page);
+        return KrameriusImageSupport.readImage(uuid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, page);
     }
 
     protected BufferedImage rawImage(String uuid, String stream,
                                      HttpServletRequest request, int page) throws IOException,
             MalformedURLException, XPathExpressionException {
-        return KrameriusImageSupport.readImage(uuid, stream, this.fedoraAccess,
-                page);
+        return KrameriusImageSupport.readImage(uuid, stream, akubraRepository, page);
     }
 
     protected void writeImage(HttpServletRequest req, HttpServletResponse resp,
@@ -185,8 +170,8 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     }
 
     private Date lastModified(String pid, String stream) throws IOException {
-        return this.fedoraAccess.getStreamLastmodifiedFlag(pid, stream);
-
+        Date lastModified = akubraRepository.getDatastreamMetadata(pid, stream).getLastModified();
+        return lastModified;
     }
 
     protected void setResponseCode(String pid, String streamName,
@@ -202,12 +187,12 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         }
     }
 
-    public FedoraAccess getFedoraAccess() {
-        return fedoraAccess;
+    public AkubraRepository getAkubraRepository() {
+        return akubraRepository;
     }
 
-    public void setFedoraAccess(FedoraAccess fedoraAccess) {
-        this.fedoraAccess = fedoraAccess;
+    public void setAkubraRepository(AkubraRepository akubraRepository) {
+        this.akubraRepository = akubraRepository;
     }
 
     public abstract ScalingMethod getScalingMethod();

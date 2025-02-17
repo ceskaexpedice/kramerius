@@ -17,11 +17,15 @@
 package cz.incad.kramerius.document.model.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 
 import cz.incad.kramerius.FedoraAccess;
@@ -43,13 +47,13 @@ public class DCContentUtils {
     
     /**
      * Creates map of {@link DCConent} chains
-     * @param fedoraAccess FedoraAccess object
-     * @param solrAccess SolrAccess object 
+     * @param akubraRepository FedoraAccess object
+     * @param solrAccess SolrAccess object
      * @param pids Input pids
      * @return map map of {@link DCConent} chains
      * @throws IOException IO error has been occurred
      */
-    public static Map<String, List<DCConent>> getDCS(FedoraAccess fedoraAccess, SolrAccess solrAccess, List<String> pids) throws IOException {
+    public static Map<String, List<DCConent>> getDCS(AkubraRepository akubraRepository, SolrAccess solrAccess, List<String> pids) throws IOException {
         Map<String, List<DCConent>> maps = new HashMap<String, List<DCConent>>();
         for (String pid : pids) {
             ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
@@ -60,7 +64,8 @@ public class DCContentUtils {
                     String pidFromPath = pathFromLeaf[i];
                     if (!pidFromPath.equals(SpecialObjects.REPOSITORY.getPid()))  {
                         if (!cacheContains(pidFromPath)) {
-                            Document dcl = fedoraAccess.getDC(pidFromPath);
+                            InputStream inputStream = akubraRepository.getDatastreamContent(pidFromPath, KnownDatastreams.BIBLIO_DC.toString());
+                            Document dcl = DomUtils.streamToDocument(inputStream);
                             DCConent content = DCUtils.contentFromDC(dcl);
                             putIntoCache(pidFromPath, content);
                         }

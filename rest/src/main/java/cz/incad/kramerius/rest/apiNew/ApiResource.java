@@ -14,16 +14,11 @@ public abstract class ApiResource {
     /**
      * převzato z Fedory
      *
-     * @see org.kramerius.importmets.convertor.BaseConvertor.PID_PATTERN
      * Striktně pro PID nad UUID by mělo být toto: uuid:[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}
      * Nicméně historicky jsou v repozitářích i PIDy neplatných UUID, tudíž je tady tolerovat, omezení by mělo být jen u importu.
      * Toto rozvolnění způsobí přijetí i ne-objektových PIDů jako uuid:123e4567-e89b-12d3-a456-426655440000_0, uuid:123e4567-e89b-12d3-a456-426655440000_1, ... (stránky z pdf, jen ve vyhledávácím indexu, nemají foxml objekt)
      */
     protected static final Pattern PID_PATTERN = Pattern.compile("([A-Za-z0-9]|-|\\.)+:(([A-Za-z0-9])|-|\\.|~|_|(%[0-9A-F]{2}))+");
-
-    // TODO AK_NEW
-//    @Inject
-//    public KrameriusRepositoryApiImpl krameriusRepositoryApi;
 
     @Inject
     public AkubraRepository akubraRepository;

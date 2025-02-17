@@ -1,16 +1,20 @@
 package cz.incad.kramerius;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.kramerius.adapters.ProcessingIndex;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
+import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -39,13 +43,14 @@ public class LicenseHelper {
     static String SOLR_FIELD_CONTAINS_LICENSES = "contains_licenses";
     static String SOLR_FIELD_LICENSES_OF_ANCESTORS = "licenses_of_ancestors";
 
-    static boolean removeRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    static boolean removeRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, AkubraRepository repository) {
         Lock writeLock = AkubraDOManager.getWriteLock(pid);
         try {
-            if (!repository.isRelsExtAvailable(pid)) {
+            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            Document relsExt = repository.getRelsExt(pid, true);
+            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             boolean relsExtNeedsToBeUpdated = false;
 
@@ -66,7 +71,12 @@ public class LicenseHelper {
             //update RELS-EXT in repository if there was a change
             if (relsExtNeedsToBeUpdated) {
                 //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
-                repository.updateRelsExt(pid, relsExt);
+                repository.doWithWriteLock(pid, () -> {
+                    repository.deleteDatastream(pid, KnownDatastreams.RELS_EXT.toString());
+                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                    repository.createXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+                    return null;
+                });
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
             }
             return relsExtNeedsToBeUpdated;
@@ -94,13 +104,14 @@ public class LicenseHelper {
         return updated;
     }
 
-    static boolean ownsLicenseByRelsExt(String pid, String license, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    static boolean ownsLicenseByRelsExt(String pid, String license, AkubraRepository repository) throws RepositoryException, IOException {
         Lock readLock = AkubraDOManager.getReadLock(pid);
         try {
-            if (!repository.isRelsExtAvailable(pid)) {
+            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            Document relsExt = repository.getRelsExt(pid, true);
+            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             //look for rels-ext:license
             for (Node relationEl : Dom4jUtils.buildXpath("rel:" + RELS_EXT_RELATION_LICENSE).selectNodes(rootEl)) {
@@ -127,13 +138,14 @@ public class LicenseHelper {
         }
     }
 
-    static List<String> getLicensesByRelsExt(String pid, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    static List<String> getLicensesByRelsExt(String pid, AkubraRepository repository)  {
         Lock readLock = AkubraDOManager.getReadLock(pid);
         try {
-            if (!repository.isRelsExtAvailable(pid)) {
+            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            Document relsExt = repository.getRelsExt(pid, true);
+            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             List<String> result = new ArrayList<>();
             //look for rels-ext:license
@@ -157,13 +169,14 @@ public class LicenseHelper {
         }
     }
 
-    static boolean containsLicenseByRelsExt(String pid, String license, KrameriusRepositoryApi repository) throws RepositoryException, IOException {
+    static boolean containsLicenseByRelsExt(String pid, String license, AkubraRepository repository) throws RepositoryException, IOException {
         Lock readLock = AkubraDOManager.getReadLock(pid);
         try {
-            if (!repository.isRelsExtAvailable(pid)) {
+            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            Document relsExt = repository.getRelsExt(pid, true);
+            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
 
             //look for rels-ext:containsLicense
@@ -195,7 +208,7 @@ public class LicenseHelper {
      * Returns list of pids of own ancestors of an object (@param pid), that don't have another source of license but this object (@param pid)
      * Object is never source of license for itself. Meaning that if it has rels-ext:license, but no rels-ext:containsLicense, it is considered not having source of license.
      */
-    static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, KrameriusRepositoryApi repository, ProcessingIndex processingIndex, String license) throws IOException, ResourceIndexException, RepositoryException {
+    static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, AkubraRepository repository, ProcessingIndex processingIndex, String license) throws ResourceIndexException, IOException {
         List<String> result = new ArrayList<>();
         String pidOfChild = pid;
         String pidOfParent;
@@ -226,7 +239,7 @@ public class LicenseHelper {
      *                                      This is because we are looking for ANOTHER source of license, not this object. But the source can be even somewhere in this object's subtree.
      * @param pidOfChildToBeIgnored         this object will be completely ignored, i.e. it's ownership of the license won't be checked and it's subtree won't be searched. Because it has been analyzed already.
      */
-    static boolean hasAnotherSourceOfLicense(String pid, String pidOfObjectNotCountedAsSource, String pidOfChildToBeIgnored, String license, KrameriusRepositoryApi repository, ProcessingIndex processingIndex) throws ResourceIndexException, RepositoryException, IOException {
+    static boolean hasAnotherSourceOfLicense(String pid, String pidOfObjectNotCountedAsSource, String pidOfChildToBeIgnored, String license, AkubraRepository repository, ProcessingIndex processingIndex) throws ResourceIndexException, IOException {
         List<String> pidsOfOwnChildren = processingIndex.getPidsOfChildren(pid).getFirst();
         for (String pidOfChild : pidsOfOwnChildren) {
             if (!pidOfChild.equals(pidOfChildToBeIgnored)) { //this one will be completly ignored, because it has already been analyzed

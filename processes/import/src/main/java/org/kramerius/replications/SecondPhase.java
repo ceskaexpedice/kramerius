@@ -34,7 +34,6 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -42,6 +41,7 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
@@ -66,7 +66,6 @@ import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -175,7 +174,7 @@ public class SecondPhase extends AbstractPhase  {
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(foxml);
-            String relsExt = RelsExtHelper.getRelsExtTilesUrl(document); // url of tiles
+            String relsExt = RelsExtUtils.getRelsExtTilesUrl(document); // url of tiles
 
             if (relsExt != null) {
                 InputStream stream = orignalImgData(pid, url);

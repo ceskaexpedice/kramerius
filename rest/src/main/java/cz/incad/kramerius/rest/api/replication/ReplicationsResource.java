@@ -16,11 +16,7 @@
  */
 package cz.incad.kramerius.rest.api.replication;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -40,12 +36,15 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import cz.incad.kramerius.utils.RelsExtHelper;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.pdfbox.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,10 +90,15 @@ public class ReplicationsResource {
     @Inject
     Provider<Locale> localesProvider;
     
+    /* TODO AK_NEW
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
-    
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
+
     @Inject
     @Named("new-index")
     SolrAccess solrAccess;
@@ -119,8 +123,8 @@ public class ReplicationsResource {
     public Response getExportedDescription(@PathParam("pid") String pid) throws ReplicateException {
         try {
             if (checkPermission(pid)) {
-                if (this.fedoraAccess.getDC(pid) != null) {
-                    Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(fedoraAccess, solrAccess, Arrays.asList(pid));
+                if (akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_DC.toString())) {
+                    Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(akubraRepository, solrAccess, Arrays.asList(pid));
                     List<DCConent> list = dcs.get(pid);
                     DCConent dcConent = DCConent.collectFirstWin(list);
                     String appURL = ApplicationURL.applicationURL(this.requestProvider.get());
@@ -175,7 +179,7 @@ public class ReplicationsResource {
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
             if (checkPermission(pid)) {
-                if (this.fedoraAccess.getRelsExt(pid) != null) {
+                if (akubraRepository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                     // raw generate to request writer
                 	boolean collectionFlag = Boolean.parseBoolean(replicateCollections);
                 	List<String> pidList = replicationService.prepareExport(pid,collectionFlag);
@@ -267,7 +271,8 @@ public class ReplicationsResource {
     @Path("img_original")
     @Produces("image/jp2")
     public Response getOriginalImage(@PathParam("pid") String pid) throws XPathExpressionException, IOException {
-        String tilesUrl = RelsExtHelper.getRelsExtTilesUrl(fedoraAccess.getRelsExt(pid));
+        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(DomUtils.streamToDocument(inputStream));
         if (tilesUrl == null) return Response.status(Response.Status.NOT_FOUND).build();
 
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {

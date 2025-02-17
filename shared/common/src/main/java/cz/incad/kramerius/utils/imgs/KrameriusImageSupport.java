@@ -6,15 +6,14 @@ import com.lizardtech.djvu.DjVuPage;
 import com.lizardtech.djvubean.DjVuImage;
 
 import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.fedora.utils.Handler;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.utils.RepositoryURLStreamHandler;
 
 import javax.imageio.*;
 import javax.imageio.stream.ImageInputStream;
@@ -28,7 +27,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.List;
 
 public class KrameriusImageSupport {
 
@@ -44,22 +42,22 @@ public class KrameriusImageSupport {
     
     
     
-    public static BufferedImage readImage(String pid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
-        String mimetype = fedoraAccess.getMimeTypeForStream(pid, stream);
+    public static BufferedImage readImage(String pid, String stream, AkubraRepository akubraRepository, int page) throws XPathExpressionException, IOException {
+        String mimetype = akubraRepository.getDatastreamMetadata(pid, stream).getMimetype();
         LOGGER.fine("mimetype for pid '"+pid+"' is '"+mimetype+"'");
         ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
-        URL url = new URL("fedora", "", 0, pid + "/" + stream, new Handler(fedoraAccess));
+        URL url = new URL("fedora", "", 0, pid + "/" + stream, new RepositoryURLStreamHandler(akubraRepository));
         return readImage(url, loadFromMimeType, page);
     }
 
-    public static Dimension readDimension(String pid, String stream, FedoraAccess fedoraAccess, int page) throws XPathExpressionException, IOException {
-        return readDimension(pid, stream,fedoraAccess,page,false);
+    public static Dimension readDimension(String pid, String stream, AkubraRepository akubraRepository, int page) throws XPathExpressionException, IOException {
+        return readDimension(pid, stream,akubraRepository,page,false);
     }
 
-    public static Dimension readDimension(String pid, String stream, FedoraAccess fedoraAccess, int page, boolean forceread) throws XPathExpressionException, IOException {
-        String mimetype = fedoraAccess.getMimeTypeForStream(pid, stream);
+    public static Dimension readDimension(String pid, String stream, AkubraRepository akubraRepository, int page, boolean forceread) throws XPathExpressionException, IOException {
+        String mimetype = akubraRepository.getDatastreamMetadata(pid, stream).getMimetype();
         ImageMimeType loadFromMimeType = ImageMimeType.loadFromMimeType(mimetype);
-        URL url = new URL("fedora", "", 0, pid + "/" + stream, new Handler(fedoraAccess));
+        URL url = new URL("fedora", "", 0, pid + "/" + stream, new RepositoryURLStreamHandler(akubraRepository));
         return readDimension(url, loadFromMimeType, forceread);
     }
 
