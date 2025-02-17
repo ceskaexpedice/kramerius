@@ -25,7 +25,7 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
     protected UserManager usersManager;
     //protected LoggedUsersSingleton loggedUsersSingleton;
 
-    public synchronized HttpServletRequest updateRequest(final HttpServletRequest req) {
+    public HttpServletRequest updateRequest(final HttpServletRequest req) {
         final Object userName = req.getSession().getAttribute(UserUtils.USER_NAME_PARAM);
         final Object password = req.getSession().getAttribute(UserUtils.PSWD_PARAM);
         if (userName != null && password != null) {
@@ -68,6 +68,7 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
     @Override
     public void disconnectUser(String userName) {
         this.credentials.remove(userName);
+        this.userLocks.remove(userName);
     }
     
     @Override
