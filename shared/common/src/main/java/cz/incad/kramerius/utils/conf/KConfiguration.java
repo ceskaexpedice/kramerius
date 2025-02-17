@@ -214,6 +214,10 @@ public class KConfiguration {
         return getProperty("jdbcUserPass");
     }
 
+    public int getUnmarshallerPoolSize() {
+        return getConfiguration().getInt("unmarshallerPoolSize", 16);
+    }
+
     public String getProperty(String key) {
         return allConfigurations.getString(key);
     }
