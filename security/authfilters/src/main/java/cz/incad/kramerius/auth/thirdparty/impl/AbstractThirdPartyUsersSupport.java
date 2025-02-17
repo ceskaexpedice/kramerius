@@ -4,6 +4,8 @@ import java.security.Principal;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -18,7 +20,8 @@ import cz.incad.kramerius.users.LoggedUsersSingleton;
 
 public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> implements ThirdPartyUsersSupport {
 
-    protected Map<String, String> credentials = new HashMap<String, String>();
+    protected Map<String, String> credentials = new ConcurrentHashMap<String, String>();
+    private final ConcurrentHashMap<String, ReentrantLock> userLocks = new ConcurrentHashMap<>();
     protected UserManager usersManager;
     //protected LoggedUsersSingleton loggedUsersSingleton;
 
@@ -63,12 +66,12 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
     }
     
     @Override
-    public synchronized void disconnectUser(String userName) {
+    public void disconnectUser(String userName) {
         this.credentials.remove(userName);
     }
     
     @Override
-    public synchronized String getUserPassword(String userName) {
+    public String getUserPassword(String userName) {
         return this.credentials.get(userName);
     }
 
@@ -101,19 +104,24 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
     protected abstract T createUserWrapper(HttpServletRequest req, String userName) throws Exception;
 
     
-    public synchronized String storeUserPropertiesToSession(HttpServletRequest req, String userName) throws Exception {
+    public String storeUserPropertiesToSession(HttpServletRequest req, String userName) throws Exception {
         String password = null;
         T wrapper = createUserWrapper(req, userName);
 
+        ReentrantLock lock = userLocks.computeIfAbsent(userName, k -> new ReentrantLock());
         
-        if (checkIfUserExists(userName)) {
-            password = updateExistingUser(userName, wrapper);
-        } else {
-            password = createNewUser(userName, wrapper);
+        lock.lock();
+        try {
+            if (checkIfUserExists(userName)) {
+                password = updateExistingUser(userName, wrapper);
+            } else {
+                password = createNewUser(userName, wrapper);
+            }
+        } finally {
+            lock.unlock();
         }
     
         this.credentials.put(userName, password);
-
 
         req.getSession().setAttribute(UserUtils.USER_NAME_PARAM, userName);
         req.getSession().setAttribute(UserUtils.PSWD_PARAM, password);
@@ -146,8 +154,6 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
             }
         }
 
-        
-        
         return password;
     }
 
