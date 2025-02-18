@@ -28,22 +28,31 @@ import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.TreeNodeProcessor;
+
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
+import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
 
 public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DeepZoomFlagServiceImpl.class.getName());
     
+    /* TODO AK_NEW
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
-    
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
+
     public void deleteFlagToPID(final String pid) throws IOException {
-        if (fedoraAccess.isImageFULLAvailable(pid)) {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
             try {
                 deleteFlagToPIDInternal(pid);
             } catch (RepositoryException e) {
@@ -53,7 +62,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
  
             try {
 
-                fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
+                RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
                     
                     @Override
                     public void process(String pid, int level) throws ProcessSubtreeException {
@@ -74,7 +83,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                     public boolean breakProcessing(String pid, int level) {
                         return false;
                     }
-                });
+                }, akubraRepository);
 
                 
             } catch (Exception e) {
@@ -89,7 +98,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     
     @Override
     public void setFlagToPID(final String pid, final String tilesUrl) throws IOException {
-        if (fedoraAccess.isImageFULLAvailable(pid)) {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
             try {
                 setFlagToPIDInternal(pid, tilesUrl);
             } catch (RepositoryException e) {
@@ -97,7 +106,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
             }
         } else {
             try {
-                fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
+                RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
                     @Override
                     public void process(String pid, int level) throws ProcessSubtreeException {
                         try {
@@ -117,7 +126,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                     public boolean breakProcessing(String pid, int level) {
                         return false;
                     }
-                });
+                }, akubraRepository);
                 
             } catch (Exception e) {
                 if ((e.getCause() != null) && (e.getCause() instanceof IOException)) {
@@ -130,15 +139,13 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
     void deleteFlagToPIDInternal(String pid) throws RepositoryException {
         LOGGER.info("deleting deep zoom url for '"+pid+"'");
-        Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(), (repo)->{
+        Fedora4Utils.doWithProcessingIndexCommit(akubraRepository, (repo)->{
             if (repo.objectExists(pid)) {
                 Lock writeLock = AkubraDOManager.getWriteLock(pid);
                 try {
-                    RepositoryObject object = repo.getObject(pid);
-
-                    boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                    boolean flag = akubraRepository.relsExtRelationExists(pid,"tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
                     if (flag) {
-                        object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                        akubraRepository.relsExtRemoveRelationsByNameAndNamespace(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
                     }
                 }finally{
                     writeLock.unlock();
@@ -149,16 +156,15 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
    }
     
     void setFlagToPIDInternal(String pid, String tilesUrl) throws RepositoryException {
-        Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getInternalAPI(), (repo)->{
+        Fedora4Utils.doWithProcessingIndexCommit(akubraRepository, (repo)->{
             if (repo.objectExists(pid)) {
                 Lock writeLock = AkubraDOManager.getWriteLock(pid);
                 try {
-                    RepositoryObject object = repo.getObject(pid);
-                    boolean flag = object.relationsExists("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                    boolean flag = akubraRepository.relsExtRelationExists(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
                     if (flag) {
-                        object.removeRelationsByNameAndNamespace("tiles-url", FedoraNamespaces.KRAMERIUS_URI);
+                        akubraRepository.relsExtRemoveRelationsByNameAndNamespace(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
                     }
-                    object.addLiteral("tiles-url", FedoraNamespaces.KRAMERIUS_URI, tilesUrl);
+                    akubraRepository.relsExtAddLiteral(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI, tilesUrl);
                 }finally{
                     writeLock.unlock();
                 }

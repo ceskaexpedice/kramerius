@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
@@ -83,7 +84,7 @@ public class IiifAPI {
     @Inject
     private SolrMemoization solrMemoization;
 
-    private FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
 
     private SolrAccess solrAccess;
 
@@ -94,10 +95,12 @@ public class IiifAPI {
     private HttpAsyncClient asyncClient;
 
     @Inject
-    public IiifAPI(SolrMemoization solrMemoization, @Named("cachedFedoraAccess") FedoraAccess fedoraAccess,
+    public IiifAPI(SolrMemoization solrMemoization,
+                   // TODO AK_NEW @Named("cachedFedoraAccess") FedoraAccess fedoraAccess,
+                   AkubraRepository akubraRepository,
                    @Named("new-index") SolrAccess solrAccess, Provider<HttpServletRequest> requestProvider, HttpAsyncClient asyncClient) {
         this.solrMemoization = solrMemoization;
-        this.fedoraAccess = fedoraAccess;
+        this.akubraRepository = akubraRepository;
         this.solrAccess = solrAccess;
         this.requestProvider = requestProvider;
         this.asyncClient = asyncClient;
@@ -197,7 +200,7 @@ public class IiifAPI {
                 .map(pid -> CompletableFuture.runAsync(() -> {
                     String iiifEndpoint = null;
                     try {
-                        iiifEndpoint = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+                        iiifEndpoint = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage());
                     }
@@ -255,12 +258,10 @@ public class IiifAPI {
         try {
             if (PIDSupport.isComposedPID(pid)) {
                 String p = PIDSupport.first(pid);
-                this.fedoraAccess.getRelsExt(p);
+                // TODO AK_NEW this.fedoraAccess.getRelsExt(p);
             } else {
-                this.fedoraAccess.getRelsExt(pid);
+                // TODO AK_NEW this.fedoraAccess.getRelsExt(pid);
             }
-        } catch (IOException e) {
-            throw new PIDNotFound("pid not found");
         } catch (Exception e) {
             throw new PIDNotFound("error while parsing pid (" + pid + ")");
         }

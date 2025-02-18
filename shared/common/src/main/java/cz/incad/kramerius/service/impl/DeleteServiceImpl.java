@@ -15,7 +15,6 @@ import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.utils.DCContentUtils;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
@@ -30,6 +29,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -42,10 +46,14 @@ import java.util.logging.Logger;
 public class DeleteServiceImpl implements DeleteService {
 
 
+    /* TODO AK_NEW
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
 
+     */
+    @Inject
+    AkubraRepository akubraRepository;
 
     @Inject
     IResourceIndex resourceIndex;
@@ -62,15 +70,15 @@ public class DeleteServiceImpl implements DeleteService {
     private static final String INFO = "info:fedora/";
 
     @Override
-    public void deleteTree(Repository repo, String pid, String pidPath, String message, boolean deleteEmptyParents, boolean spawnIndexer) throws IOException, RepositoryException, ResourceIndexException, SolrServerException {
+    public void deleteTree(AkubraRepository repo, String pid, String pidPath, String message, boolean deleteEmptyParents, boolean spawnIndexer) throws IOException, RepositoryException, ResourceIndexException, SolrServerException {
 
-        List<String> pids = fedoraAccess.getPids(pid);
+        List<String> pids = RelsExtUtils.getPids(pid, akubraRepository);
         for (String deletingPids : pids) {
-            List<Pair<String, String>> pairs = repo.getProcessingIndexFeeder().findByTargetPid(pid);
+            List<Pair<String, String>> pairs = ProcessingIndexUtils.findByTargetPid(pid, akubraRepository);
             for (Pair<String, String> p : pairs) {
                 String right = p.getRight();
                 String left = p.getLeft();
-                repo.getObject(left).removeRelation(right, FedoraNamespaces.KRAMERIUS_URI, deletingPids);
+                repo.relsExtRemoveRelation(left, right, RepositoryNamespaces.KRAMERIUS_URI, deletingPids);
             }
         }
 
@@ -80,7 +88,7 @@ public class DeleteServiceImpl implements DeleteService {
             if (purge) {
                 LOGGER.info("Purging object: " + p);
                 try {
-                    fedoraAccess.getInternalAPI().deleteObject(p);
+                    akubraRepository.deleteObject(p);
                 } catch (RepositoryException e) {
                     LOGGER.log(Level.WARNING, "Error while deleting " + p + " due " + e.getMessage(), e);
                 }
@@ -97,12 +105,12 @@ public class DeleteServiceImpl implements DeleteService {
         for (String parentPid : parents) {
             boolean parentRemoved = false;
 
-            List<Triple<String, String, String>> relations = repo.getObject(parentPid).getRelations(FedoraNamespaces.KRAMERIUS_URI);
-            for (Triple<String, String, String> triple : relations) {
-                if (triple.getRight().equals(pid)) {
-                    repo.getObject(parentPid).removeRelation(triple.getLeft(), triple.getMiddle(), pid);
+            String finalParentPid = parentPid;
+            akubraRepository.relsExtGet(parentPid).getRelations(RepositoryNamespaces.KRAMERIUS_URI).forEach(rel -> {
+                if (rel.getResource().equals(pid)) {
+                    akubraRepository.relsExtRemoveRelation(finalParentPid, rel.getNamespace(), rel.getLocalName(), pid);
                 }
-            }
+            });
 
             if (deleteEmptyParents) {
                 parentPid = parentPid.replace(INFO, "");
@@ -142,19 +150,20 @@ public class DeleteServiceImpl implements DeleteService {
         SolrAccess solrAccess = new SolrAccessImplNewIndex();
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-        inst.fedoraAccess = fa;
+        // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
+        inst.akubraRepository = akubraRepository;
         inst.predicates = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates"), Functions.toStringFunction());
         inst.resourceIndex = injector.getInstance(IResourceIndex.class);
         inst.solrAccess = solrAccess;
 
-        Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.fedoraAccess, solrAccess, Arrays.asList(args[0]));
+        Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.akubraRepository, solrAccess, Arrays.asList(args[0]));
         List<DCConent> list = dcs.get(args[0]);
         DCConent dcConent = DCConent.collectFirstWin(list);
         ProcessStarter.updateName("Mazání objektu '" + (dcConent != null ? dcConent.getTitle() : "bez názvu") + "'");
 
 
-        Fedora4Utils.doWithProcessingIndexCommit(inst.fedoraAccess.getInternalAPI(), (repo) -> {
+        Fedora4Utils.doWithProcessingIndexCommit(inst.akubraRepository, (repo) -> {
             try {
                 inst.deleteTree(repo, args[0], args[1], "Marked as deleted", args.length > 2 ? Boolean.parseBoolean(args[2]) : false, args.length > 3 ? Boolean.parseBoolean(args[3]) : true);
             } catch (IOException e) {

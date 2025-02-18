@@ -8,16 +8,17 @@ import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.virtualcollections.CollectionException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
+import org.ceskaexpedice.akubra.utils.pid.PIDParser;
 import org.kramerius.Import;
 import org.w3c.dom.Document;
 
@@ -47,7 +48,7 @@ public class OnDemandIngest {
         this.client = Client.create();
     }
         // on demand request
-    void onDemandIngest(String pid, Repository internalAPI) throws CollectionException, LexerException, IOException, RepositoryException, JAXBException, TransformerException {
+    void onDemandIngest(String pid, AkubraRepository internalAPI) throws CollectionException, LexerException, IOException, RepositoryException, JAXBException, TransformerException {
         FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Requesting info %s", pid));
         try {
             long start = System.currentTimeMillis();
@@ -109,7 +110,7 @@ public class OnDemandIngest {
         }
     }
 
-    public void ingestIfNecessary(Repository internalAPI, String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
+    public void ingestIfNecessary(AkubraRepository internalAPI, String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
         if (!pid.startsWith(PIDParser.VC_PREFIX)) {
             //Repository internalAPI = fedoraAccessProxyAkubra.getInternalAPI();
             if (!internalAPI.objectExists(pid)) {

@@ -27,6 +27,7 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -61,9 +62,14 @@ public class AbstractPDFResource {
     @Named("IMAGE")
     FirstPagePDFService imageFirstPage;
 
+    /* TODO AK_NEW
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
 
 
     KConfiguration configuration = KConfiguration.getInstance();

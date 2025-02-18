@@ -37,6 +37,11 @@ import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.commons.lang3.tuple.Triple;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.RelsExtLiteral;
+import org.ceskaexpedice.akubra.RelsExtRelation;
+import org.ceskaexpedice.akubra.RelsExtWrapper;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -51,8 +56,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 //FIXME: looks like duplicate of org.kramerius.Import, is it still used or can we remove it? Also not correctly indexing Convolutes
 public class ImportDuplicator {
 
-    static FedoraAccess fedoraAccess;
-    static ProcessingIndexFeeder feeder;
+    static AkubraRepository akubraRepository;
     static int counter = 0;
 
     private static final Logger log = Logger.getLogger(ImportDuplicator.class.getName());
@@ -110,10 +114,8 @@ public class ImportDuplicator {
 
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
-        fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-        feeder = injector.getInstance(ProcessingIndexFeeder.class);
-
-
+        // TODO AK_NEW fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         List<TitlePidTuple> roots = new ArrayList<TitlePidTuple>();
         if (importFile.isDirectory()){
@@ -238,7 +240,7 @@ public class ImportDuplicator {
 
             String pid = "";
             try {
-                Import.ingest(fedoraAccess.getInternalAPI(), new ByteArrayInputStream(bytes),null,  null, null,false);
+                Import.ingest(akubraRepository, new ByteArrayInputStream(bytes),null,  null, null,false);
             } catch (SOAPFaultException sfex) {
 
                 if (sfex.getMessage().contains("ObjectExistsException")) {
@@ -248,7 +250,7 @@ public class ImportDuplicator {
                     throw new RuntimeException(sfex);
                 }
             } finally {
-                if (feeder != null) feeder.commit();
+                if (akubraRepository != null) akubraRepository.commitProcessingIndex();
             }
             counter++;
             //log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:"+counter);
@@ -267,20 +269,20 @@ public class ImportDuplicator {
             return;
         }
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
-        Fedora4Utils.doWithProcessingIndexCommit(fedoraAccess.getTransactionAwareInternalAPI(), (repo)->{
-            List<Triple<String, String, String>> relations = repo.getObject(pid).getRelations(null);
-            List<Triple<String, String, String>> literals = repo.getObject(pid).getLiterals(null);
+        Fedora4Utils.doWithProcessingIndexCommit(akubraRepository, (repo)->{
+            RelsExtWrapper relsExtWrapper = akubraRepository.relsExtGet(pid);
+            List<RelsExtRelation> relations = relsExtWrapper.getRelations(null);
+            List<RelsExtLiteral> literals = relsExtWrapper.getLiterals(null);
 
             List<RDFTuple> existing = new ArrayList<>();
-            for (Triple<String,String,String> t : relations) {
-                existing.add(new RDFTuple(t.getLeft(), t.getMiddle(), t.getRight()));
+            for (RelsExtRelation t : relations) {
+                existing.add(new RDFTuple(t.getNamespace(), t.getLocalName(), t.getResource()));
             }
             ingested.removeAll(existing);
             for (RDFTuple t : ingested) {
                 if (t.object != null){
                     try{
-
-                        repo.getObject(pid).addRelation(t.predicate, FedoraNamespaces.KRAMERIUS_URI, t.object);
+                        akubraRepository.relsExtAddRelation(pid, t.predicate, RepositoryNamespaces.KRAMERIUS_URI, t.object);
                     }catch (Exception ex){
                         log.severe("WARNING- could not add relationship:"+t+"("+ex+")");
                     }

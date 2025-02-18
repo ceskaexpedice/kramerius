@@ -18,12 +18,13 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
 import org.kramerius.Import;
 import org.kramerius.ImportModule;
 import org.kramerius.importmets.convertor.MetsPeriodicalConvertor;
@@ -163,7 +164,8 @@ public class MetsConvertor {
             throw new RuntimeException("No valid PSP found.");
         }
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+// TODO AK_NEW        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
@@ -174,12 +176,12 @@ public class MetsConvertor {
             try {
                 foxmlService.appendLicense(exportRoot, license);
             } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException
-                    | LexerException e) {
+                     | LexerException e) {
                 log.error(e.getMessage(), e);
             }
         }
         
-        Import.run(fa, feeder, sortingServiceLocal,
+        Import.run(akubraRepository, feeder, sortingServiceLocal,
                 KConfiguration.getInstance().getProperty("ingest.url"),
                 KConfiguration.getInstance().getProperty("ingest.user"),
                 KConfiguration.getInstance().getProperty("ingest.password"),

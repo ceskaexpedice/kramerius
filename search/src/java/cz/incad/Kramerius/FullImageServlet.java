@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
@@ -68,7 +70,7 @@ public class FullImageServlet extends AbstractImageServlet {
         try {
             // dotaz na image type
             if (imageType != null) {
-                String type = this.fedoraAccess.getImageFULLMimeType(uuid);
+                String type = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
                 // resp.setContentType("plain/text");
                 resp.getWriter().print(type);
                 // pozadavek na zmenseni (prsou?)
@@ -90,17 +92,18 @@ public class FullImageServlet extends AbstractImageServlet {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 // transformace
             } else {
-                InputStream is = this.fedoraAccess.getImageFULL(uuid);
+                InputStream is = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.IMG_FULL.toString());
                 if (outputFormat.equals(OutputFormats.RAW)) {
                     String asFileParam = req.getParameter("asFile");
-                    String mimeType = this.fedoraAccess.getImageFULLMimeType(uuid);
+                    String mimeType = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
                     if (mimeType == null)
                         mimeType = DEFAULT_MIMETYPE;
                     resp.setContentType(mimeType);
                     setDateHaders(uuid, FedoraUtils.IMG_FULL_STREAM, resp);
                     setResponseCode(uuid,FedoraUtils.IMG_FULL_STREAM, req, resp);
                     if ((asFileParam != null) && (asFileParam.equals("true"))) {
-                        Document dc = this.fedoraAccess.getDC(uuid);
+                        InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.BIBLIO_DC.toString());
+                        Document dc = DomUtils.streamToDocument(inputStream);
                         String title = DCUtils.titleFromDC(dc);
                         if (title == null) {
                             title = "unnamed";

@@ -11,9 +11,9 @@ import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.cdk.K7SearchIndexChildrenSupport;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.java.Pair;
-import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
 import org.dom4j.Document;
 import org.xml.sax.SAXException;
 

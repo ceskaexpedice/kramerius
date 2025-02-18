@@ -17,6 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONException;
 
 import com.google.inject.Inject;
@@ -71,10 +74,10 @@ public class PrintPDFServlet extends GuiceServlet {
     public static enum ImageOP {
         CUT {
             @Override
-            protected void imageData(FedoraAccess fa,String pid, HttpServletRequest req, OutputStream os) throws IOException{
+            protected void imageData(AkubraRepository akubraRepository,String pid, HttpServletRequest req, OutputStream os) throws IOException{
                 try {
-                    pid = fa.findFirstViewablePid(pid);
-                    BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);
+                    pid = RelsExtUtils.findFirstViewablePid(pid, akubraRepository);
+                    BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), akubraRepository, 0);
                     BufferedImage subImage = ImageCutServlet.partOfImage(bufferedImage, req,  pid);
                     KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), os);
                 } catch (XPathExpressionException | JSONException e) {
@@ -85,15 +88,15 @@ public class PrintPDFServlet extends GuiceServlet {
         
         FULL {
             @Override
-            protected void imageData(FedoraAccess fa,String pid, HttpServletRequest req, OutputStream os) throws IOException {
+            protected void imageData(AkubraRepository akubraRepository,String pid, HttpServletRequest req, OutputStream os) throws IOException {
                     try {
-                        pid = fa.findFirstViewablePid(pid);
-                        String mimeTypeForStream = fa.getMimeTypeForStream(pid, ImageStreams.IMG_FULL.getStreamName());
+                        pid = RelsExtUtils.findFirstViewablePid(pid, akubraRepository);
+                        String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
                         ImageMimeType mimeType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
                         if ((!mimeType.equals(ImageMimeType.DJVU)) && (!mimeType.equals(ImageMimeType.XDJVU))&& (!mimeType.equals(ImageMimeType.VNDDJVU)) && (!mimeType.equals(ImageMimeType.PDF))) {
-                            IOUtils.copyStreams(fa.getImageFULL(pid), os);
+                            IOUtils.copyStreams(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL.toString()), os);
                         } else {
-                            BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);
+                            BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), akubraRepository, 0);
                             KrameriusImageSupport.writeImageToStream(bufferedImage, ImageMimeType.PNG.getDefaultFileExtension(), os);
                         }
                     } catch (XPathExpressionException e) {
@@ -102,13 +105,18 @@ public class PrintPDFServlet extends GuiceServlet {
             }
         };
 
-        protected abstract void imageData(FedoraAccess fa, String pid,HttpServletRequest req,  OutputStream os) throws IOException ;
+        protected abstract void imageData(AkubraRepository akubraRepository, String pid, HttpServletRequest req, OutputStream os) throws IOException ;
 
     }
 
+    /* TODO AK_NEW
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
 
     @Inject
     @Named("new-index")
@@ -146,7 +154,7 @@ public class PrintPDFServlet extends GuiceServlet {
                     File renderedFile = File.createTempFile("local", "print");
                     filesToDelete.add(renderedFile);
                     FileOutputStream fos = new FileOutputStream(renderedFile);
-                    ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pid, req, fos);
+                    ImageOP.valueOf(imgop).imageData(akubraRepository, pid, req, fos);
                     
                     Image image = Image.getInstance(renderedFile.toURI().toURL());
 
@@ -185,7 +193,7 @@ public class PrintPDFServlet extends GuiceServlet {
                         filesToDelete.add(nfile);
                         reportAccess(pds[i]);
                         FileOutputStream fos = new FileOutputStream(nfile);
-                        ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pds[i], req, fos);
+                        ImageOP.valueOf(imgop).imageData(akubraRepository, pds[i], req, fos);
                         Image image = Image.getInstance(nfile.toURI().toURL());
                         image.scaleToFit(
                                 rect.getWidth()//document.getPageSize().getWidth() - document.leftMargin()    - document.rightMargin()

@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 /**
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (new_indexer_index_object)
@@ -118,9 +119,9 @@ public class NewIndexerProcessIndexObject {
         cz.incad.kramerius.FedoraAccess rawRepository = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
         RepositoryAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepository);
 
-        KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         //access to resource index through new public APIs
-        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusApiRepository, ProcessUtils.getCoreBaseUrl());
+        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, ProcessUtils.getCoreBaseUrl());
 
         KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, processingIndex);
         Indexer indexer = new Indexer(krameriusRepositoryFascade, solrConfig, System.out, ignoreInconsistentObjects);

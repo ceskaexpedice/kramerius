@@ -27,7 +27,6 @@ import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
@@ -41,6 +40,8 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
@@ -224,13 +225,13 @@ public class SecondPhase extends AbstractPhase  {
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
         //Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
         try {
-
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-            Import.ingest(fa.getInternalAPI(), foxmlfile, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
-        } catch (RuntimeException e) {
+            // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
+            Import.ingest(akubraRepository, foxmlfile, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
+        } catch (RepositoryException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
             else throw new PhaseException(this,e);
-        } catch (RepositoryException e) {
+        } catch (RuntimeException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
             else throw new PhaseException(this,e);
         }

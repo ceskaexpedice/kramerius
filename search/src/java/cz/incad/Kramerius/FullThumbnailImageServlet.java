@@ -21,6 +21,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 
 public class FullThumbnailImageServlet extends AbstractImageServlet {
 
@@ -52,15 +53,17 @@ public class FullThumbnailImageServlet extends AbstractImageServlet {
 	    try {
             String pid = req.getParameter(UUID_PARAMETER);
                 
-            if (fedoraAccess.isFullthumbnailAvailable(pid)) {
-                String mimeType = this.fedoraAccess.getFullThumbnailMimeType(pid);
+            if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW.toString())) {
+                String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW.toString()).getMimetype();
                 resp.setContentType(mimeType);
                 setDateHaders(pid,FedoraUtils.IMG_PREVIEW_STREAM, resp);
                 setResponseCode(pid,FedoraUtils.IMG_PREVIEW_STREAM, req, resp);
-                copyStreams(fedoraAccess.getFullThumbnail(pid), resp.getOutputStream());
+                copyStreams(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW.toString()), resp.getOutputStream());
             } else {
-                if (fedoraAccess.isContentAccessible(pid)) {
-                    BufferedImage scaled = GenerateThumbnail.scaleToFullThumb(pid, fedoraAccess, tileSupport);
+                // TODO AK_NEW
+                boolean accessible = true;
+                if (accessible) {
+                    BufferedImage scaled = GenerateThumbnail.scaleToFullThumb(pid, akubraRepository, tileSupport);
                     resp.setContentType(ImageMimeType.JPEG.getValue());
                     setDateHaders(pid, FedoraUtils.IMG_PREVIEW_STREAM, resp);
                     setResponseCode(pid, FedoraUtils.IMG_PREVIEW_STREAM, req, resp);

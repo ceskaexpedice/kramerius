@@ -1,8 +1,6 @@
 package cz.incad.kramerius.fedora.utils;
 
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -10,6 +8,8 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 /**
  * Created by pstastny on 10/10/2017.
  */
+// TODO AK_NEW
 public class Fedora4Utils {
 
 
@@ -40,7 +41,7 @@ public class Fedora4Utils {
     public static final int MAX_DIVS_PART = 3;
 
     // cannot be configured; part of relative paths
-    public static final String BOUND_CONTEXT= "rest";
+    public static final String BOUND_CONTEXT = "rest";
 
     // prefixes used in repo for string stuff
     public static final String DATA_PREFIX_PATH = "data";
@@ -48,11 +49,12 @@ public class Fedora4Utils {
     public static final String DONATORS_PREFIX_PATH = "donator";
     public static final String COLLECTIONS_PREFIX_PATH = "collections";
 
-    public static final Map<String,String> PREFIX_PATH_MAPPING = new HashMap<>();
+    public static final Map<String, String> PREFIX_PATH_MAPPING = new HashMap<>();
+
     static {
-        PREFIX_PATH_MAPPING.put("vc",COLLECTIONS_PREFIX_PATH);
-        PREFIX_PATH_MAPPING.put("model",MODELS_PREFIX_PATH);
-        PREFIX_PATH_MAPPING.put("donator",DONATORS_PREFIX_PATH);
+        PREFIX_PATH_MAPPING.put("vc", COLLECTIONS_PREFIX_PATH);
+        PREFIX_PATH_MAPPING.put("model", MODELS_PREFIX_PATH);
+        PREFIX_PATH_MAPPING.put("donator", DONATORS_PREFIX_PATH);
 
     }
 
@@ -61,7 +63,6 @@ public class Fedora4Utils {
 
 //    /** DEFAULT Date formatter*/
 //    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
 
 
     /**
@@ -73,13 +74,13 @@ public class Fedora4Utils {
         if (pid.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
             pid = StringUtils.minus(pid, PIDParser.INFO_FEDORA_PREFIX);
         }
-        String prefix =  DATA_PREFIX_PATH;
+        String prefix = DATA_PREFIX_PATH;
         String[] splitted = pid.split(":");
         if (splitted.length > 1 && PREFIX_PATH_MAPPING.containsKey(splitted[0])) {
             prefix = PREFIX_PATH_MAPPING.get(splitted[0]);
         }
         if (pid.contains(":")) {
-            pid = pid.substring(pid.indexOf(':')+1);
+            pid = pid.substring(pid.indexOf(':') + 1);
         }
         return prefix.equals(DATA_PREFIX_PATH) ? dividePid(pid, prefix) : notDividedPid(pid, prefix);
     }
@@ -91,7 +92,9 @@ public class Fedora4Utils {
      * @return
      */
     public static final String path(List<String> parts) {
-        return parts.stream().reduce("", (p,s)-> {return p=p+"/"+s;});
+        return parts.stream().reduce("", (p, s) -> {
+            return p = p + "/" + s;
+        });
     }
 
     /**
@@ -106,13 +109,13 @@ public class Fedora4Utils {
 
     private static List<String> dividePid(String pid, String prefix) {
 
-        pid =  pid.replaceAll("-","");
+        pid = pid.replaceAll("-", "");
         List<String> list = new ArrayList<>(Arrays.asList(prefix));
         StringBuilder sbuilder = new StringBuilder();
         char[] chars = pid.toCharArray();
         int divparts = 0;
         for (int j = 0; j < chars.length; j++) {
-            if (j % DIVIDE_FACTOR == 0 && divparts< MAX_DIVS_PART) {
+            if (j % DIVIDE_FACTOR == 0 && divparts < MAX_DIVS_PART) {
                 if (sbuilder.length() > 0) {
                     list.add(sbuilder.toString());
                 }
@@ -134,7 +137,7 @@ public class Fedora4Utils {
      */
     public static String endpoint() {
         String fedoraHost = KConfiguration.getInstance().getConfiguration().getString("fedora4Host");
-        return fedoraHost + (fedoraHost.endsWith("/")? "" : "/") + BOUND_CONTEXT;
+        return fedoraHost + (fedoraHost.endsWith("/") ? "" : "/") + BOUND_CONTEXT;
     }
 
     public static String pathInEndpoint() throws MalformedURLException {
@@ -142,7 +145,7 @@ public class Fedora4Utils {
         URL url = new URL(fedoraHost);
         String path = url.getPath();
         if (path.endsWith("/")) {
-            return path.substring(0, path.length()-1);
+            return path.substring(0, path.length() - 1);
         } else return path;
     }
 
@@ -151,9 +154,9 @@ public class Fedora4Utils {
         String endpoint = endpoint();
         link = StringUtils.minus(link, endpoint);
         if (link.endsWith("/")) {
-            link = StringUtils.minus(link, "/"+BOUND_CONTEXT+"/");
+            link = StringUtils.minus(link, "/" + BOUND_CONTEXT + "/");
         } else {
-            link = StringUtils.minus(link, "/"+BOUND_CONTEXT);
+            link = StringUtils.minus(link, "/" + BOUND_CONTEXT);
         }
         if (link.startsWith("/")) link = link.substring(1);
         return Arrays.asList(link.split("/"));
@@ -194,36 +197,31 @@ public class Fedora4Utils {
 //    }
 
     // it doesn't make sense - processing index contains everything
-    public static void doWithProcessingIndexCommit(Repository rep, OperationsHandler op) throws RepositoryException {
+    public static void doWithProcessingIndexCommit(AkubraRepository rep, OperationsHandler op) throws RepositoryException {
         try {
             op.operations(rep);
         } finally {
-            try {
-                rep.getProcessingIndexFeeder().commit();
-            } catch (IOException e) {
-                throw new RepositoryException(e);
-            } catch (SolrServerException e) {
-                throw new RepositoryException(e);
-            }
+            rep.commitProcessingIndex();
         }
     }
 
-    public static List<Triple<String,String,String>> triplesToDeleteByHref(Repository repo, Document metadata, final String relation, final String namespace, String target) throws RepositoryException, IOException {
+    public static List<Triple<String, String, String>> triplesToDeleteByHref(AkubraRepository repo, Document metadata, final String relation, final String namespace, String target) throws RepositoryException, IOException {
         // update sparql
-        List<Triple<String,String,String>> deletingTriples = new ArrayList<>();
-        deletingTriples.add(new ImmutableTriple<>("<>","<"+namespace+relation+">", "<"+target+">"));
+        List<Triple<String, String, String>> deletingTriples = new ArrayList<>();
+        deletingTriples.add(new ImmutableTriple<>("<>", "<" + namespace + relation + ">", "<" + target + ">"));
         if (target.contains("#")) {
-            deletingTriples.add(new ImmutableTriple<>("<"+target+">","?anyRelation", "?anyValue "));
+            deletingTriples.add(new ImmutableTriple<>("<" + target + ">", "?anyRelation", "?anyValue "));
         }
         return deletingTriples;
     }
 
-    public static List<Triple<String,String,String>> triplesToDeleteByPid(Repository repo, Document metadata, final String relation, final String namespace, String target) throws RepositoryException, IOException {
+    /* TODO AK_NEW
+    public static List<Triple<String, String, String>> triplesToDeleteByPid(AkubraRepository repo, Document metadata, final String relation, final String namespace, String target) throws RepositoryException, IOException {
         final String targetFullPath = repo.getObject(target).getFullPath();
         String toRemoveReference = targetFullPath;
         boolean indirectReference = false;
         // get metadata - detect reference
-        Element sameAsElement = XMLUtils.findElement(metadata.getDocumentElement(), (element)->{
+        Element sameAsElement = XMLUtils.findElement(metadata.getDocumentElement(), (element) -> {
             String elocalName = element.getLocalName();
             String enamespace = element.getNamespaceURI();
             if (elocalName.equals("sameAs") && enamespace.equals("http://www.w3.org/2002/07/owl#")) {
@@ -235,22 +233,24 @@ public class Fedora4Utils {
         });
 
         if (sameAsElement != null) {
-            String about = ((Element)sameAsElement.getParentNode()).getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "about");
+            String about = ((Element) sameAsElement.getParentNode()).getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "about");
             if (about != null) {
                 toRemoveReference = about;
                 indirectReference = true;
             }
         }
         // update sparql
-        List<Triple<String,String,String>> deletingTriples = new ArrayList<>();
-        deletingTriples.add(new ImmutableTriple<>("<>","<"+namespace+relation+">", "<"+toRemoveReference+">"));
+        List<Triple<String, String, String>> deletingTriples = new ArrayList<>();
+        deletingTriples.add(new ImmutableTriple<>("<>", "<" + namespace + relation + ">", "<" + toRemoveReference + ">"));
         if (indirectReference) {
-            deletingTriples.add(new ImmutableTriple<>("<"+toRemoveReference+">","?anyRelation", "?anyValue "));
+            deletingTriples.add(new ImmutableTriple<>("<" + toRemoveReference + ">", "?anyRelation", "?anyValue "));
         }
         return deletingTriples;
     }
 
+     */
+
     public static interface OperationsHandler {
-        public void operations(Repository rep) throws RepositoryException;
+        public void operations(AkubraRepository rep) throws RepositoryException;
     }
 }

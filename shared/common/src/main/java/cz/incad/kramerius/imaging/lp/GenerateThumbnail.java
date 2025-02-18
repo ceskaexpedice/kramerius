@@ -3,10 +3,8 @@ package cz.incad.kramerius.imaging.lp;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
@@ -16,15 +14,9 @@ import javax.xml.xpath.XPathExpressionException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
@@ -36,6 +28,12 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.LockOperation;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
+import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
 
 public class GenerateThumbnail {
 
@@ -45,18 +43,18 @@ public class GenerateThumbnail {
         System.out.println("Generate thumbnails :" + Arrays.asList(args));
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
+            AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
+            // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("securedFedoraAccess")));
             DeepZoomTileSupport tileSupport = injector.getInstance(DeepZoomTileSupport.class);
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
-            prepareCacheForUUID(args[0], fa, discStruct, tileSupport);
+            prepareCacheForUUID(args[0], akubraRepository, discStruct, tileSupport);
         }
     }
 
-    public static void prepareCacheForUUID(String pid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct, final DeepZoomTileSupport tileSupport) throws IOException {
-        if (fedoraAccess.isImageFULLAvailable(pid)) {
+    public static void prepareCacheForUUID(String pid, final AkubraRepository akubraRepository, final DiscStrucutreForStore discStruct, final DeepZoomTileSupport tileSupport) throws IOException {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
             try {
-                
-                prepareThumbnail(pid, fedoraAccess, discStruct, tileSupport);
+                prepareThumbnail(pid, akubraRepository, discStruct, tileSupport);
             } catch (XPathExpressionException e) {
                 LOGGER.severe(e.getMessage());
             } catch (LexerException e) {
@@ -66,13 +64,13 @@ public class GenerateThumbnail {
             }
         } else {
             try {
-                fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
+                RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
                     
                     @Override
                     public void process(String pid, int level) throws ProcessSubtreeException {
                         try {
-                            if (fedoraAccess.isImageFULLAvailable(pid)) {
-                                prepareThumbnail(pid, fedoraAccess, discStruct, tileSupport);
+                            if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+                                prepareThumbnail(pid, akubraRepository, discStruct, tileSupport);
                             }
                         } catch (XPathExpressionException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(),e);
@@ -96,7 +94,7 @@ public class GenerateThumbnail {
                         // TODO Auto-generated method stub
                         return false;
                     }
-                });
+                }, akubraRepository);
             } catch (ProcessSubtreeException e1) {
                 LOGGER.log(Level.SEVERE,e1.getMessage(),e1);
             }
@@ -140,35 +138,31 @@ public class GenerateThumbnail {
         }
     }
 
-    public static void prepareThumbnail(String pid, FedoraAccess fedoraAccess, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException, LexerException, RepositoryException {
+    public static void prepareThumbnail(String pid, AkubraRepository akubraRepository, DiscStrucutreForStore discStruct, DeepZoomTileSupport tileSupport) throws IOException, XPathExpressionException, LexerException, RepositoryException {
         PIDParser pidParser = new PIDParser(pid);
         pidParser.objectPid();
         String uuid = pidParser.getObjectId();
 
-        BufferedImage scaled = scaleToFullThumb(pid, fedoraAccess, tileSupport);
+        BufferedImage scaled = scaleToFullThumb(pid, akubraRepository, tileSupport);
         if (scaled != null) {
             File tmpFile = File.createTempFile("img_preview", ""+System.currentTimeMillis());
             tmpFile.deleteOnExit();
             FileOutputStream fos = new FileOutputStream(tmpFile);
             try {
                 KrameriusImageSupport.writeImageToStream(scaled, "jpeg", fos);
-
-                Repository repo = fedoraAccess.getInternalAPI();
-                Lock writeLock = AkubraDOManager.getWriteLock(pid);
-                try {
-                    if (fedoraAccess.isFullthumbnailAvailable(pid)) {
+                akubraRepository.doWithWriteLock(pid, () -> {
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW.toString())) {
                         LOGGER.info("Purge previous IMG_PREVIEW datastream ... for pid " + pid);
-
-                        if (repo.getObject(pid).streamExists(FedoraUtils.IMG_PREVIEW_STREAM)) {
-                            repo.getObject(pid).deleteStream(FedoraUtils.IMG_PREVIEW_STREAM);
-                        }
-                        repo.getObject(pid).deleteStream(FedoraUtils.IMG_PREVIEW_STREAM);
+                        akubraRepository.deleteDatastream(pid, KnownDatastreams.IMG_PREVIEW.toString());
                     }
                     LOGGER.info("Adding new IMG_PREVIEW datastream ... for pid " + pid);
-                    repo.getObject(pid).createManagedStream(FedoraUtils.IMG_PREVIEW_STREAM, "image/jpeg", new FileInputStream(tmpFile));
-                }finally{
-                    writeLock.unlock();
-                }
+                    try {
+                        akubraRepository.createManagedDatastream(pid, KnownDatastreams.IMG_PREVIEW.toString(), "image/jpeg", new FileInputStream(tmpFile));
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return null;
+                });
             } finally {
                 fos.close();
                 tmpFile.delete();
@@ -177,8 +171,8 @@ public class GenerateThumbnail {
 
     }
 
-    public static BufferedImage scaleToFullThumb(String pid, FedoraAccess fedoraAccess, DeepZoomTileSupport tileSupport) throws XPathExpressionException, IOException {
-        BufferedImage img = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
+    public static BufferedImage scaleToFullThumb(String pid, AkubraRepository akubraRepository, DeepZoomTileSupport tileSupport) throws XPathExpressionException, IOException {
+        BufferedImage img = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
         if (img != null) {
             Dimension dim = new Dimension(img.getWidth(), img.getHeight());
             return scaleByHeight(img, new Rectangle(dim), KConfiguration.getInstance().getConfiguration().getInt("preview.height",700), null);

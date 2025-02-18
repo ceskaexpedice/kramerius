@@ -5,16 +5,17 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
+import org.ceskaexpedice.akubra.utils.pid.PIDParser;
 import org.kramerius.Import;
 import org.w3c.dom.Document;
 
@@ -37,7 +38,7 @@ public class IngestingThread extends Thread {
 
     private static Logger LOGGER = Logger.getLogger(IngestingThread.class.getName());
 
-    private Repository internalAPI;
+    private AkubraRepository internalAPI;
     private SolrAccess solrAccess;
     private CollectionsManager collectionsManager;
     private Client client;
@@ -45,7 +46,7 @@ public class IngestingThread extends Thread {
 
     private CyclicBarrier barrier;
 
-    public IngestingThread(Repository internalAPI, SolrAccess solrAccess, CollectionsManager collectionsManager, Client client, String pid, CyclicBarrier barrier) {
+    public IngestingThread(AkubraRepository internalAPI, SolrAccess solrAccess, CollectionsManager collectionsManager, Client client, String pid, CyclicBarrier barrier) {
         this.internalAPI = internalAPI;
         this.solrAccess = solrAccess;
         this.collectionsManager = collectionsManager;
@@ -86,7 +87,7 @@ public class IngestingThread extends Thread {
                 } else throw new IOException("Cannot read data from "+ collection.getUrl()+".  Missing property "+"cdk.collections.sources." + objectId + ".username or "+"cdk.collections.sources." + objectId + ".pswd  for pid  "+pid);
 
             }
-        } catch (IOException | JAXBException | TransformerException | LexerException | RepositoryException |CollectionException e) {
+        } catch (IOException | JAXBException | TransformerException | LexerException | RepositoryException | CollectionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
         } finally {
             try {

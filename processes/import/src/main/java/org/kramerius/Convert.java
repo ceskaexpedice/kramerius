@@ -18,6 +18,7 @@ import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.xml.sax.SAXException;
 
 import com.qbizm.kramerius.imptool.poc.Main;
@@ -43,10 +44,11 @@ public class Convert {
         String uuid = Main.convert(convertDirectory, convertTargetDirectory, false, visible, null);
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        // TODO AK_NEW
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class, Names.named("rawFedoraAccess")));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-        Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), convertTargetDirectory);
+        Import.run(akubraRepository, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), convertTargetDirectory);
 
         /*if (!KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){
             Download.startIndexing("converted", uuid);

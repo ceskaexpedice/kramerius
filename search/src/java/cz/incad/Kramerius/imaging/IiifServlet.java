@@ -17,6 +17,7 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,9 +48,14 @@ public class IiifServlet extends AbstractImageServlet {
     @Inject
     private Provider<User> userProvider;
 
+    /* TODO AK_NEW
     @Inject
     @Named("cachedFedoraAccess")
     private transient FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    private AkubraRepository akubraRepository;
 
 
 //    @Inject
@@ -86,7 +92,7 @@ public class IiifServlet extends AbstractImageServlet {
             if (permited) {
                 try {
                     
-                    String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+                    String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
                     if (u != null) {
                         StringBuilder url = new StringBuilder(u);
                         while (tokenizer.hasMoreTokens()) {

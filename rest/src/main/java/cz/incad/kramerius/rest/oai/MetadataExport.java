@@ -509,9 +509,6 @@ public enum MetadataExport {
                 record.appendChild(drDescriptor);
                 return record;
 
-            } catch (XPathExpressionException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                throw new RuntimeException(e.getMessage());
             } catch (LexerException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw new RuntimeException(e.getMessage());

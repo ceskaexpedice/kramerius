@@ -28,6 +28,9 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.knav.pdf.PdfTextUnderImage;
 
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -57,7 +60,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(GeneratePDFServiceImpl.class.getName());
 
-    private FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
     private Provider<Locale> localeProvider;
     private TextsService textsService;
     private ResourceBundleService resourceBundleService;
@@ -68,14 +71,15 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
 
     @Inject
     public GeneratePDFServiceImpl(
-            @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
+            // TODO AK_NEW @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
+            AkubraRepository akubraRepository,
             @Named("new-index")SolrAccess solrAccess,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService,
             DocumentService documentService,
             @Named("fontsDir") Provider<File> fontDirectoryProvider) {
         super();
-        this.fedoraAccess = fedoraAccess;
+        this.akubraRepository = akubraRepository;
         this.localeProvider = localeProvider;
         this.textsService = textsService;
         this.resourceBundleService = resourceBundleService;
@@ -370,12 +374,12 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
         return tmpFile;
     }
 
-    public String xslt(FedoraAccess fa, File styleSheet, String uuid)
+    public String xslt(AkubraRepository akubraRepository, File styleSheet, String uuid)
             throws IOException, TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer transformer = tf
-                .newTransformer(new StreamSource(styleSheet));
-        org.w3c.dom.Document biblioMods = fa.getBiblioMods(uuid);
+        Transformer transformer = tf.newTransformer(new StreamSource(styleSheet));
+        InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.BIBLIO_MODS.toString());
+        org.w3c.dom.Document biblioMods = DomUtils.streamToDocument(inputStream);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         transformer.transform(new DOMSource(biblioMods), new StreamResult(bos));
         return new String(bos.toByteArray(), Charset.forName("UTF-8"));
@@ -388,7 +392,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             IllegalAccessException, ParserConfigurationException, SAXException {
         File styleSheet = prepareXSLStyleSheet(localeProvider.get(),
                 pdfContext.getI18nUrl(), title, page.getModel(), page.getUuid());
-        String text = xslt(this.fedoraAccess, styleSheet, page.getUuid());
+        String text = xslt(akubraRepository, styleSheet, page.getUuid());
 
         ITextCommands cmnds = new ITextCommands();
         cmnds.load(
@@ -397,7 +401,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                                 .forName("UTF-8"))), true).getDocumentElement(),
                 cmnds);
 
-        RenderPDF render = new RenderPDF(pdfContext.getFontMap(), fedoraAccess);
+        RenderPDF render = new RenderPDF(pdfContext.getFontMap(), akubraRepository);
         render.render(document, pdfWriter, cmnds);
 
     }
@@ -440,32 +444,28 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
         try {
             String uuidToFirstPage = null;
             if ((model.getUuidTitlePage() != null)
-                    && (fedoraAccess.isImageFULLAvailable(model
-                            .getUuidTitlePage()))) {
+                    && (akubraRepository.datastreamExists(model.getUuidTitlePage(), KnownDatastreams.IMG_FULL.toString()))) {
                 uuidToFirstPage = model.getUuidTitlePage();
             }
             if ((uuidToFirstPage == null)
                     && (model.getUuidFrontCover() != null)
-                    && (fedoraAccess.isImageFULLAvailable(model
-                            .getUuidFrontCover()))) {
+                    && (akubraRepository.datastreamExists(model.getUuidFrontCover(), KnownDatastreams.IMG_FULL.toString()))) {
                 uuidToFirstPage = model.getUuidFrontCover();
 
             }
             if ((uuidToFirstPage == null)
                     && (model.getFirstPage() != null)
-                    && (fedoraAccess.isImageFULLAvailable(model.getFirstPage()))) {
+                    && (akubraRepository.datastreamExists(model.getFirstPage(), KnownDatastreams.IMG_FULL.toString()))) {
                 uuidToFirstPage = model.getFirstPage();
 
             }
             if (uuidToFirstPage != null) {
-                String mimetypeString = fedoraAccess
-                        .getImageFULLMimeType(uuidToFirstPage);
+                String mimetypeString = akubraRepository.getDatastreamMetadata(uuidToFirstPage, KnownDatastreams.IMG_FULL.toString()).getMimetype();
                 ImageMimeType mimetype = ImageMimeType
                         .loadFromMimeType(mimetypeString);
                 if (mimetype != null) {
                     float smallImage = 0.2f;
-                    BufferedImage javaImg = fetcher.fetch(uuidToFirstPage,
-                            djvuUrl, mimetype, this.fedoraAccess);
+                    BufferedImage javaImg = fetcher.fetch(uuidToFirstPage, djvuUrl, mimetype, akubraRepository);
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     writeImageToStream(javaImg, "jpeg", bos);
 
@@ -490,33 +490,27 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             ImageFetcher fetcher, Font font) throws XPathExpressionException,
             IOException, DocumentException {
         try {
-            if (fedoraAccess.isImageFULLAvailable(uuid)) {
+            if (akubraRepository.datastreamExists(uuid, KnownDatastreams.IMG_FULL.toString())) {
                 // bypass
                 // String imgUrl = createIMGFULL(uuid, imgServletUrl);
                 // kdyz je pdf, musi
-                String mimetypeString = fedoraAccess.getImageFULLMimeType(uuid);
+                String mimetypeString = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
                 ImageMimeType mimetype = ImageMimeType
                         .loadFromMimeType(mimetypeString);
                 if (mimetype != null && (!ImageMimeType.PDF.equals(mimetype))) {
                     BufferedImage javaImg = fetcher.fetch(uuid, imgServletUrl,
-                            mimetype, this.fedoraAccess);
-                    boolean textocr = this.fedoraAccess.isStreamAvailable(uuid,
-                            FedoraUtils.ALTO_STREAM);
+                            mimetype, akubraRepository);
+                    boolean textocr = akubraRepository.datastreamExists(uuid, KnownDatastreams.OCR_ALTO.toString());
                     boolean useAlto = KConfiguration.getInstance()
                             .getConfiguration()
                             .getBoolean("pdfQueue.useAlto", true);
                     if (textocr && useAlto) {
                         try {
-                            org.w3c.dom.Document alto = XMLUtils
-                                    .parseDocument(this.fedoraAccess
-                                            .getDataStream(uuid,
-                                                    FedoraUtils.ALTO_STREAM));
+                            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.OCR_ALTO.toString());
+                            org.w3c.dom.Document alto = DomUtils.streamToDocument(inputStream);
                             insertJavaImageWithOCR(document, percentage,
                                     pdfWriter, alto, javaImg);
-                        } catch (ParserConfigurationException e) {
-                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                            insertJavaImage(document, percentage, javaImg);
-                        } catch (SAXException e) {
+                        } catch (Exception e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(), e);
                             insertJavaImage(document, percentage, javaImg);
                         }

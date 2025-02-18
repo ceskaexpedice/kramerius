@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -70,9 +71,15 @@ public class CDKIIIFResource extends AbstractTileResource {
     @Inject
     Provider<HttpServletResponse> responseProvider;
 
+    // TODO AK_NEW
+    /*
     @Inject
     @Named("cachedFedoraAccess")
     private transient FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
 
 
     @Inject
@@ -98,7 +105,7 @@ public class CDKIIIFResource extends AbstractTileResource {
             if (permited) {
                 try {
                     reportAccess(aggregatedAccessLogs, pid);
-                    String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+                    String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
                     if (u != null) {
                         if (!u.endsWith("/")) { u = u+"/"; }
                         u = u +"info.json";
@@ -157,7 +164,7 @@ public class CDKIIIFResource extends AbstractTileResource {
     }
 
     public void iiifTile(String pid, String region, String size, String rotation,String qf) throws IOException {
-        String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+        String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
         if(u != null) {
 
             String defaultMime = ItemsResource.IIIF_SUPPORTED_MIMETYPES.get("jpg");

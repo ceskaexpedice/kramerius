@@ -28,6 +28,7 @@ import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,7 +57,7 @@ public enum OAIVerb {
     ListMetadataFormats {
 
 		@Override
-        public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnLocal(ConfigManager configManager, AkubraRepository fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 
             Element requestElement = OAITools.requestElement(doc, OAIVerb.ListMetadataFormats,null,ApplicationURL.applicationURL(request),null);
             doc.getDocumentElement().appendChild(requestElement);
@@ -121,7 +122,7 @@ public enum OAIVerb {
     },
     ListSets {
 		@Override
-        public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnLocal(ConfigManager configManager, AkubraRepository fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
             try {
                 Element requestElement = OAITools.requestElement(doc, OAIVerb.ListSets, null,ApplicationURL.applicationURL(request), null);
                 doc.getDocumentElement().appendChild(requestElement);
@@ -213,7 +214,7 @@ public enum OAIVerb {
     Identify {
 
 		@Override
-        public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException {
+        public void performOnLocal(ConfigManager configManager, AkubraRepository fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException {
 
             try {
                 String url = ApplicationURL.applicationURL(request);
@@ -381,7 +382,7 @@ public enum OAIVerb {
     ListRecords {
 			
 		@Override
-        public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnLocal(ConfigManager configManager, AkubraRepository fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 
             OAISet selectedSet =  null;
             MetadataExport selectedMetadata = null;
@@ -460,7 +461,7 @@ public enum OAIVerb {
                                 record.appendChild(header);
 
                                 String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
-                                if (fa.isObjectAvailable(pid)) {
+                                if (fa.objectExists(pid)) {
                                     Element metadata = doc.createElement("metadata");
                                     metadata.appendChild(oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata,selectedSet));
                                     record.appendChild(metadata);
@@ -481,7 +482,7 @@ public enum OAIVerb {
                                     record.appendChild(header);
 
                                     String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
-                                    if (fa.isObjectAvailable(pid)) {
+                                    if (fa.objectExists(pid)) {
                                         Element metadata = doc.createElement("metadata");
                                         metadata.appendChild(oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata,selectedSet));
                                         record.appendChild(metadata);
@@ -661,7 +662,7 @@ public enum OAIVerb {
     },
     ListIdentifiers {
         
-		public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+		public void performOnLocal(ConfigManager configManager, AkubraRepository fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 			OAISet selectedSet =  null;
             MetadataExport selectedMetadata = null;
             try {
@@ -1020,7 +1021,7 @@ public enum OAIVerb {
 	
     GetRecord {
         @Override
-        public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnLocal(ConfigManager configManager, AkubraRepository fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 			MetadataExport selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
@@ -1050,7 +1051,7 @@ public enum OAIVerb {
                         
                         
                         String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
-                        if (fa.isObjectAvailable(pid)) {
+                        if (fa.objectExists(pid)) {
                             Element metadata = doc.createElement("metadata");
                             metadata.appendChild(oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata,null));
                             record.appendChild(metadata);
@@ -1137,7 +1138,7 @@ public enum OAIVerb {
     private static final String REPOSITORY_NAME = "oai.repositoryName";
     private static final String REPOSITORY_ROWS_IN_RESULTS = "oai.rowsInResults";
 
-    public abstract void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws Exception;
+    public abstract void performOnLocal(ConfigManager configManager, AkubraRepository akubraRepository, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws Exception;
     
     
     // Perform on CDK side 

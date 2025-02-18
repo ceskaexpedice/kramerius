@@ -43,6 +43,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kramerius.Import;
@@ -448,11 +449,12 @@ public class FromK5Instance {
     
     public static void importTmpDir(String exportRoot, boolean startIndexer, String authToken) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+// TODO AK_NEW        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
     
-        Import.run(fa, feeder, sortingServiceLocal,
+        Import.run(akubraRepository, feeder, sortingServiceLocal,
                 KConfiguration.getInstance().getProperty("ingest.url"),
                 KConfiguration.getInstance().getProperty("ingest.user"),
                 KConfiguration.getInstance().getProperty("ingest.password"),

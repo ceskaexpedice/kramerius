@@ -20,6 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.xml.sax.SAXException;
 
 import net.sf.json.JSONArray;
@@ -60,7 +61,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
 
     public static final Logger LOGGER  = Logger.getLogger(SimplePDFService.class.getName());
     
-    private FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
     private Provider<Locale> localeProvider;
     private TextsService textsService;
     private ResourceBundleService resourceBundleService;
@@ -69,12 +70,13 @@ public class SimplePDFServiceImpl implements SimplePDFService {
 
     @Inject
     public SimplePDFServiceImpl(
-            @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
+            // TODO AK_NEW @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
+            AkubraRepository akubraRepository,
             @Named("new-index") SolrAccess solrAccess,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService) {
         super();
-        this.fedoraAccess = fedoraAccess;
+        this.akubraRepository = akubraRepository;
         this.localeProvider = localeProvider;
         this.textsService = textsService;
         this.resourceBundleService = resourceBundleService;
@@ -89,7 +91,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
         
         ITextCommands cmnds = null;
         try {
-            String template = template(rdoc, this.fedoraAccess, this.textsService, this.localeProvider.get());
+            String template = template(rdoc, this.akubraRepository, this.textsService, this.localeProvider.get());
 
             Document doc = DocumentUtils.createDocument(rdoc);
             PdfWriter pdfWriter = PdfWriter.getInstance(doc, os);
@@ -98,7 +100,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
             cmnds = new ITextCommands();
             cmnds.load(XMLUtils.parseDocument(new StringReader(template)).getDocumentElement(), cmnds);
 
-            RenderPDF render = new RenderPDF(fontMap, this.fedoraAccess);
+            RenderPDF render = new RenderPDF(fontMap, akubraRepository);
             render.render(doc, pdfWriter, cmnds);
 
             doc.close();
@@ -134,7 +136,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
         }
     }
 
-    public static String template(PreparedDocument rdoc, FedoraAccess fa, TextsService textsService, Locale locale) throws IOException,
+    public static String template(PreparedDocument rdoc, AkubraRepository akubraRepository, TextsService textsService, Locale locale) throws IOException,
             FileNotFoundException {
         StringWriter strWriter = new StringWriter();
 
@@ -160,7 +162,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
                 try {
 
                     // image 
-                    BufferedImage javaImg = KrameriusImageSupport.readImage(pid,ImageStreams.IMG_FULL.getStreamName(), fa,0);
+                    BufferedImage javaImg = KrameriusImageSupport.readImage(pid,ImageStreams.IMG_FULL.getStreamName(), akubraRepository,0);
                     String imgPath = writeImage(javaImg);
                     StringTemplate template = new StringTemplate(IOUtils.readAsString(SimplePDFServiceImpl.class.getResourceAsStream("templates/_image_page.st"), Charset.forName("UTF-8"), true));
                     template.setAttribute("imgpath", imgPath);

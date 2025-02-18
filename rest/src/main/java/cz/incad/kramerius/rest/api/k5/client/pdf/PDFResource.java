@@ -42,6 +42,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.utils.StringUtils;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -183,9 +184,9 @@ public class PDFResource extends AbstractPDFResource  {
                 if (pid != null) {
                     File fileToDelete = null;
                     try {
-                        pid = this.fedoraAccess.findFirstViewablePid(pid);
+                        pid = RelsExtUtils.findFirstViewablePid(pid, akubraRepository);
                         
-                        BufferedImage bufImage = KrameriusImageSupport.readImage(pid,FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
+                        BufferedImage bufImage = KrameriusImageSupport.readImage(pid,FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
 
                         double xPerctDouble = Double.parseDouble(xpos);
                         double yPerctDouble = Double.parseDouble(ypos);

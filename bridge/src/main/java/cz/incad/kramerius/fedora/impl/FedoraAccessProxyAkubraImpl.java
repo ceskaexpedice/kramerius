@@ -12,8 +12,8 @@ import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.virtualcollections.CollectionException;
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
 import org.w3c.dom.Document;
 
 import javax.annotation.Nullable;

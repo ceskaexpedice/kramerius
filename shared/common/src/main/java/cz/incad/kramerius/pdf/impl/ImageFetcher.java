@@ -11,12 +11,13 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 public enum ImageFetcher {
 
     PROCESS {
         @Override
-        public BufferedImage fetch(String pid, String imgServlet, ImageMimeType imageMimeType, FedoraAccess fedoraAccess) throws IOException{
+        public BufferedImage fetch(String pid, String imgServlet, ImageMimeType imageMimeType, AkubraRepository akubraRepository) throws IOException{
             try {
                 BufferedImage javaImg = KrameriusImageSupport.readImage(new URL(createIMGFULL(pid, imgServlet)), imageMimeType, 0);
                 return javaImg;
@@ -27,9 +28,9 @@ public enum ImageFetcher {
     }, 
     WEB {
         @Override
-        public BufferedImage fetch(String pid, String imgServlet, ImageMimeType imageMimeType, FedoraAccess fedoraAccess) throws IOException {
+        public BufferedImage fetch(String pid, String imgServlet, ImageMimeType imageMimeType, AkubraRepository akubraRepository) throws IOException {
             try {
-                BufferedImage img = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.name(), fedoraAccess, 0);
+                BufferedImage img = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.name(), akubraRepository, 0);
                 return img;
             } catch (XPathExpressionException e) {
                 throw new IOException(e);
@@ -42,5 +43,5 @@ public enum ImageFetcher {
         return imgUrl;
     }
 
-    public abstract BufferedImage fetch(String pid, String imgServlet, ImageMimeType mimeType, FedoraAccess fedoraAccess) throws IOException;
+    public abstract BufferedImage fetch(String pid, String imgServlet, ImageMimeType mimeType, AkubraRepository akubraRepository) throws IOException;
 }

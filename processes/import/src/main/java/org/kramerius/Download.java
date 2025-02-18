@@ -17,6 +17,7 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 import javax.net.ssl.*;
 
@@ -116,10 +117,12 @@ public class Download {
             String uuid = Main.convert(migrationDirectory, targetDirectory, true, visible, rep.getID());
 
             Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            // TODO AK_NEW
+//            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
             ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-            Import.run(fa,feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
+            Import.run(akubraRepository,feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
 
             logSuccess(rep.getID(), uuid);
             /*if (!KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){

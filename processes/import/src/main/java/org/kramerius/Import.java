@@ -4,21 +4,15 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import com.qbizm.kramerius.imp.jaxb.*;
 import com.qbizm.kramerius.imptool.poc.valueobj.RelsExt;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.om.RepositoryObject;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
@@ -32,13 +26,16 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.fcrepo.common.rdf.FedoraNamespace;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
+import org.ceskaexpedice.fedoramodel.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -67,6 +64,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -160,7 +158,8 @@ public class Import {
 
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
 
@@ -206,7 +205,7 @@ public class Import {
             log.info("start indexer: " + startIndexer);
             log.info("license : " + license);
 
-            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection);
+            Import.run(akubraRepository, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection);
 
             log.info(String.format("Deleting import folder %s", licensesImportFile));
             FileUtils.deleteDirectory(licensesImportFile);
@@ -217,15 +216,15 @@ public class Import {
             log.info("import dir: " + importDirectory);
             log.info("start indexer: " + startIndexer);
 
-            Import.run(fa, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection);
+            Import.run(akubraRepository, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection);
         }
     }
 
-    public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
-        run(fa, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null, null);
+    public static void run(AkubraRepository akubraRepository, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
+        run(akubraRepository, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null, null);
     }
 
-    public static void run(FedoraAccess fa, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken, String addcollections) throws IOException, SolrServerException {
+    public static void run(AkubraRepository akubraRepository, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken, String addcollections) throws IOException, SolrServerException {
         log.info("INGEST - url:" + url + " user:" + user + " importRoot:" + importRoot);
         sortingService = sortingServiceParam;
         // system property 
@@ -256,7 +255,7 @@ public class Import {
 
             Set<String> sortRelations = new HashSet<String>();
             if (importFile.isDirectory()) {
-                visitAllDirsAndFiles(fa, importFile, classicRoots, convolutes, collections, sortRelations, updateExisting);
+                visitAllDirsAndFiles(akubraRepository, importFile, classicRoots, convolutes, collections, sortRelations, updateExisting);
             } else {
                 BufferedReader reader = null;
                 try {
@@ -280,7 +279,7 @@ public class Import {
                             continue;
                         }
                         log.info("Importing " + importItem.getAbsolutePath());
-                        visitAllDirsAndFiles(fa, importItem, classicRoots, convolutes, collections, sortRelations, updateExisting);
+                        visitAllDirsAndFiles(akubraRepository, importItem, classicRoots, convolutes, collections, sortRelations, updateExisting);
                     }
                     reader.close();
                 } catch (IOException e) {
@@ -313,7 +312,7 @@ public class Import {
                     Arrays.stream(addcollections.split(";")).forEach(addCollectionList::add);
                     for (String pid : addCollectionList) {
                         if (!pid.trim().equals(NON_KEYWORD)) {
-                            addCollection(fa, pid, classicRoots, collections, authToken);
+                            addCollection(akubraRepository, pid, classicRoots, collections, authToken);
                         }
                     }
                 }
@@ -377,7 +376,7 @@ public class Import {
                         if (authToken != null) {
                             for (TitlePidTuple root : classicRoots) {
 
-                                if (fa.isObjectAvailable(root.pid)) {
+                                if (akubraRepository.objectExists(root.pid)) {
                                     ProcessScheduler.scheduleIndexation(root.pid, root.title, true, authToken);
                                 } else {
                                     LOGGER.warning(String.format("Object '%s' does not exist in the repository. ", root.pid));
@@ -413,7 +412,7 @@ public class Import {
         of = new ObjectFactory();
     }
 
-    private static void visitAllDirsAndFiles(FedoraAccess fa, File importFile, Set<TitlePidTuple> classicRoots,
+    private static void visitAllDirsAndFiles(AkubraRepository akubraRepository, File importFile, Set<TitlePidTuple> classicRoots,
                                              Set<TitlePidTuple> convolutes,
                                              Set<TitlePidTuple> collections,
 
@@ -436,7 +435,7 @@ public class Import {
                 Arrays.sort(children);
             }
             for (int i = 0; i < children.length; i++) {
-                visitAllDirsAndFiles(fa, children[i], classicRoots, convolutes, collections, sortRelations, updateExisting);
+                visitAllDirsAndFiles(akubraRepository, children[i], classicRoots, convolutes, collections, sortRelations, updateExisting);
             }
         } else {
             DigitalObject dobj = null;
@@ -491,32 +490,26 @@ public class Import {
                                     final DigitalObject transactionDigitalObject = dobj;
 
 
-                                    String mimeType = "text/xml";
-                                    Lock writeLock = AkubraDOManager.getWriteLock(transactionDigitalObject.getPID());
-                                    try {
-                                        if (fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).streamExists(ds.getID())) {
-                                            mimeType = fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
-                                            fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
+                                    final String[] mimeType = {"text/xml"};
+                                    akubraRepository.doWithWriteLock(transactionDigitalObject.getPID(), () -> {
+                                        if (akubraRepository.datastreamExists(transactionDigitalObject.getPID(), ds.getID())) {
+                                            mimeType[0] = akubraRepository.getDatastreamMetadata(transactionDigitalObject.getPID(), ds.getID()).getMimetype();
+                                            akubraRepository.deleteDatastream(transactionDigitalObject.getPID(), ds.getID());
                                         }
-                                        fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).createStream(ds.getID(), mimeType, new ByteArrayInputStream(outputStream.toByteArray()));
-                                    } finally {
-                                        writeLock.unlock();
-                                    }
-
+                                        akubraRepository.createXMLDatastream(transactionDigitalObject.getPID(), ds.getID(), mimeType[0], new ByteArrayInputStream(outputStream.toByteArray()));
+                                        return null;
+                                    });
                                 } else if (dsversion.getBinaryContent() != null) {
                                     throw new RuntimeException("Update of managed binary datastream content is not supported.");
                                 } else if (dsversion.getContentLocation() != null) {
 
                                     final DigitalObject transactionDigitalObject = dobj;
-                                    Lock writeLock = AkubraDOManager.getWriteLock(transactionDigitalObject.getPID());
-                                    try {
-                                        String mimeType = fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).getStream(ds.getID()).getMimeType();
-                                        fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).deleteStream(ds.getID());
-                                        fa.getInternalAPI().getObject(transactionDigitalObject.getPID()).createRedirectedStream(ds.getID(), dsversion.getContentLocation().getREF(), mimeType);
-                                    } finally {
-                                        writeLock.unlock();
-                                    }
-
+                                    akubraRepository.doWithWriteLock(transactionDigitalObject.getPID(), () -> {
+                                        String mimeType = akubraRepository.getDatastreamMetadata(transactionDigitalObject.getPID(), ds.getID()).getMimetype();
+                                        akubraRepository.deleteDatastream(transactionDigitalObject.getPID(), ds.getID());
+                                        akubraRepository.createRedirectedDatastream(transactionDigitalObject.getPID(), ds.getID(), dsversion.getContentLocation().getREF(), mimeType);
+                                        return null;
+                                    });
                                 }
                             }
                         }
@@ -530,7 +523,7 @@ public class Import {
                 } else {
                     final DigitalObject transactionDigitalObject = dobj;
 
-                    ingest(fa.getInternalAPI(), importFile, sortRelations, classicRoots, updateExisting);
+                    ingest(akubraRepository, importFile, sortRelations, classicRoots, updateExisting);
                     checkModelIsClassicRoot(transactionDigitalObject, classicRoots);
                     checkModelIsConvoluteOrCollection(transactionDigitalObject, convolutes, collections, classicRoots);
                 }
@@ -573,7 +566,7 @@ public class Import {
         }
     }
 
-    public static void ingest(Repository repo, InputStream is, String filename, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, RepositoryException, JAXBException, LexerException, TransformerException {
+    public static void ingest(AkubraRepository akubraRepository, InputStream is, String filename, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) throws IOException, RepositoryException, JAXBException, LexerException, TransformerException {
         long start = System.currentTimeMillis();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copyStreams(is, bos);
@@ -592,61 +585,62 @@ public class Import {
             convertForImageServer(obj);
         }
         String pid = obj.getPID();
-        Lock writeLock = AkubraDOManager.getWriteLock(pid);
-        try {
-            repo.ingestObject(obj);
-        } catch (cz.incad.kramerius.fedora.om.RepositoryException sfex) {
-            if (objectExists(repo, pid)) {
-                if (updateExisting) {
-                    log.info("Replacing existing object " + pid);
-                    try {
-                        repo.deleteObject(pid, true, false);
-                        log.info("purged old object " + pid);
-                    } catch (Exception ex) {
-                        log.severe("Cannot purge object " + pid + ", skipping: " + ex);
-                        throw new RuntimeException(ex);
-                    }
-                    try {
-                        if (obj != null) {
-                            repo.ingestObject(obj);
+        DigitalObject finalObj = obj;
+        akubraRepository.doWithWriteLock(pid, () -> {
+            try {
+                akubraRepository.ingest(finalObj);
+            } catch (RepositoryException sfex) {
+                if (objectExists(akubraRepository, pid)) {
+                    if (updateExisting) {
+                        log.info("Replacing existing object " + pid);
+                        try {
+                            akubraRepository.deleteObject(pid, true, false);
+                            log.info("purged old object " + pid);
+                        } catch (Exception ex) {
+                            log.severe("Cannot purge object " + pid + ", skipping: " + ex);
+                            throw new RuntimeException(ex);
                         }
-                        log.info("Ingested new object " + pid);
-                    } catch (cz.incad.kramerius.fedora.om.RepositoryException rsfex) {
-                        log.severe("Replace ingest SOAP fault:" + rsfex);
-                        throw new RuntimeException(rsfex);
-                    }
-                    if (roots != null) {
-                        TitlePidTuple npt = new TitlePidTuple("", pid);
-                        roots.add(npt);
-                        log.info("Added replaced object for indexing:" + pid);
-                    }
-                } else {
-                    log.info("Merging with existing object " + pid);
-                    if (merge(repo, bytes)) {
-                        if (sortRelations != null) {
-                            sortRelations.add(pid);
-                            log.info("Added merged object for sorting relations:" + pid);
+                        try {
+                            if (finalObj != null) {
+                                akubraRepository.ingest(finalObj);
+                            }
+                            log.info("Ingested new object " + pid);
+                        } catch (RepositoryException rsfex) {
+                            log.severe("Replace ingest SOAP fault:" + rsfex);
+                            throw new RuntimeException(rsfex);
                         }
                         if (roots != null) {
                             TitlePidTuple npt = new TitlePidTuple("", pid);
                             roots.add(npt);
-                            log.info("Added merged object for indexing:" + pid);
+                            log.info("Added replaced object for indexing:" + pid);
+                        }
+                    } else {
+                        log.info("Merging with existing object " + pid);
+                        if (merge(akubraRepository, bytes)) {
+                            if (sortRelations != null) {
+                                sortRelations.add(pid);
+                                log.info("Added merged object for sorting relations:" + pid);
+                            }
+                            if (roots != null) {
+                                TitlePidTuple npt = new TitlePidTuple("", pid);
+                                roots.add(npt);
+                                log.info("Added merged object for indexing:" + pid);
+                            }
                         }
                     }
+                } else {
+                    log.severe("Ingest fault:" + sfex);
+                    throw new RuntimeException(sfex);
                 }
-            } else {
-                log.severe("Ingest fault:" + sfex);
-                throw new RuntimeException(sfex);
             }
-        } finally {
-            writeLock.unlock();
-        }
+            return null;
+        });
 
         counter++;
         log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:" + counter);
     }
 
-    public static void ingest(Repository repo, File file, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
+    public static void ingest(AkubraRepository repo, File file, Set<String> sortRelations, Set<TitlePidTuple> roots, boolean updateExisting) {
         try (FileInputStream is = new FileInputStream(file)) {
             ingest(repo, is, file.getName(), sortRelations, roots, updateExisting);
         } catch (Exception ex) {
@@ -655,7 +649,7 @@ public class Import {
         }
     }
 
-    private static boolean merge(Repository repo, byte[] ingestedBytes) throws RepositoryException {
+    private static boolean merge(AkubraRepository repo, byte[] ingestedBytes) throws RepositoryException {
         List<RDFTuple> ingested = readRDF(ingestedBytes);
         if (ingested.isEmpty()) {
             return false;
@@ -663,18 +657,20 @@ public class Import {
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            RepositoryObject existingObject = repo.getObject(pid);
+            DigitalObject existingObject = repo.getObject(pid);
             if (existingObject == null) {
                 throw new IllegalStateException("Cannot merge object: " + pid + " - object not in repository");
             }
-            RepositoryDatastream existingRelsext = existingObject.getStream("RELS-EXT");
-            if (existingRelsext == null) {
+            if (!repo.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new IllegalStateException("Cannot merge object: " + pid + " - object does not have RELS-EXT stream");
             }
+            /* TODO AK_NEW
             if (existingRelsext.getContent() == null) {
                 throw new IllegalStateException("Cannot merge object: " + pid + " - object has empty RELS-EXT stream");
             }
-            IOUtils.copyStreams(repo.getObject(pid).getStream("RELS-EXT").getContent(), bos);
+
+             */
+            IOUtils.copyStreams(repo.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString()), bos);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Cannot copy streams in merge", e);
             throw new RuntimeException(e);
@@ -688,9 +684,9 @@ public class Import {
             if (t.object != null) {
                 try {
                     if (t.literal) {
-                        repo.getObject(pid).addLiteral(t.predicate, t.namespace, t.object);
+                        repo.relsExtAddLiteral(pid, t.predicate, t.namespace, t.object);
                     } else {
-                        repo.getObject(pid).addRelation(t.predicate, t.namespace, t.object);
+                        repo.relsExtAddRelation(pid, t.predicate, t.namespace, t.object);
                     }
                     //port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, t.literal, null);
                     touched = true;
@@ -709,16 +705,16 @@ public class Import {
         return useImageServer;
     }
 
-    public static void setImgTree(){
+    public static void setImgTree() {
         Calendar now = Calendar.getInstance();
         int intyear = now.get(Calendar.YEAR);
-        int intmonth = now.get(Calendar.MONTH)+1;
+        int intmonth = now.get(Calendar.MONTH) + 1;
         int intday = now.get(Calendar.DAY_OF_MONTH);
-        String year =  String.format("%04d", intyear);
-        String month =  String.format("%02d", intmonth);
-        String day =  String.format("%02d", intday);
-        imgTreePath = System.getProperty("file.separator")+year+System.getProperty("file.separator")+month+System.getProperty("file.separator")+day;
-        imgTreeUrl = "/"+year+"/"+month+"/"+day;
+        String year = String.format("%04d", intyear);
+        String month = String.format("%02d", intmonth);
+        String day = String.format("%02d", intday);
+        imgTreePath = System.getProperty("file.separator") + year + System.getProperty("file.separator") + month + System.getProperty("file.separator") + day;
+        imgTreeUrl = "/" + year + "/" + month + "/" + day;
 
     }
 
@@ -739,7 +735,7 @@ public class Import {
                     if ("image/jp2".equals(ver.getMIMETYPE())) {
                         byte[] binaryContent = ver.getBinaryContent();
                         String filename = obj.getPID().replace("uuid:", "") + ".jp2";
-                        convertFullStream(binaryContent, filename, obj,ds, ver);
+                        convertFullStream(binaryContent, filename, obj, ds, ver);
                     }
                 }
             }
@@ -766,17 +762,17 @@ public class Import {
 
             if (KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerSuffix.removeFilenameExtensions", false)) {
                 String pageFileNameWithoutExtension = FilenameUtils.removeExtension(filename);
-                cl.setREF(imagesPrefix + "/" + PathEncoder.encPath( pageFileNameWithoutExtension) + suffix);
-
-                //Adjust RELS-EXT
-                 String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
-                adjustRELSEXT(obj, tilesPrefix + "/" + PathEncoder.encPath( pageFileNameWithoutExtension) + suffixTiles);
-            } else {
-                cl.setREF(imagesPrefix + "/" + PathEncoder.encPath( filename) + suffix);
+                cl.setREF(imagesPrefix + "/" + PathEncoder.encPath(pageFileNameWithoutExtension) + suffix);
 
                 //Adjust RELS-EXT
                 String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
-                adjustRELSEXT(obj,tilesPrefix + "/" + PathEncoder.encPath(filename) + suffixTiles);
+                adjustRELSEXT(obj, tilesPrefix + "/" + PathEncoder.encPath(pageFileNameWithoutExtension) + suffixTiles);
+            } else {
+                cl.setREF(imagesPrefix + "/" + PathEncoder.encPath(filename) + suffix);
+
+                //Adjust RELS-EXT
+                String suffixTiles = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerSuffix.tiles");
+                adjustRELSEXT(obj, tilesPrefix + "/" + PathEncoder.encPath(filename) + suffixTiles);
             }
             cl.setTYPE("URL");
             version.setContentLocation(cl);
@@ -787,7 +783,7 @@ public class Import {
     }
 
 
-    private static void adjustRELSEXT(DigitalObject obj, String tilesUrlValue){
+    private static void adjustRELSEXT(DigitalObject obj, String tilesUrlValue) {
         for (DatastreamType ds : obj.getDatastream()) {
             if ("RELS-EXT".equals(ds.getID())) {
                 List<DatastreamVersionType> versions = ds.getDatastreamVersion();
@@ -795,14 +791,15 @@ public class Import {
                     DatastreamVersionType ver = versions.get(versions.size() - 1);
                     XmlContentType xmlContent = ver.getXmlContent();
                     Node element = xmlContent.getAny().get(0).getFirstChild();
-                   // printElement(element);
+                    // printElement(element);
                     Document document = element.getOwnerDocument();
-                    Element relElement = appendChildNS(document, element, NS_KRAMERIUS,  "kramerius:tiles-url" , tilesUrlValue);
+                    Element relElement = appendChildNS(document, element, NS_KRAMERIUS, "kramerius:tiles-url", tilesUrlValue);
                     //printElement(element);
                 }
             }
         }
     }
+
     private static final String NS_KRAMERIUS = "http://www.nsdl.org/ontologies/relationships#";
 
     private static Element appendChildNS(Document d, Node parent, String prefix, String name, String value) {
@@ -934,7 +931,7 @@ public class Import {
         }
     }
 
-    private static void addCollection(FedoraAccess fa, String collectionPid, Set<TitlePidTuple> classicRoots, Set<TitlePidTuple> collectionsToReindex, String authToken) {
+    private static void addCollection(AkubraRepository akubraRepository, String collectionPid, Set<TitlePidTuple> classicRoots, Set<TitlePidTuple> collectionsToReindex, String authToken) {
         Client c = Client.create();
 
         List<String> rootPids = new ArrayList<>();
@@ -1033,7 +1030,7 @@ public class Import {
                                 }
                             });
                             for (int i = 0; i < pids.size(); i++) {
-                                String attributeNS = pids.get(i).getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                                String attributeNS = pids.get(i).getAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "resource");
                                 if (attributeNS.contains("info:fedora/")) {
                                     String rootPid = attributeNS.substring("info:fedora/".length());
                                     TitlePidTuple npt = new TitlePidTuple(rootPid, rootPid);
@@ -1074,7 +1071,7 @@ public class Import {
      * @param pid requested PID
      * @return true if given object exists
      */
-    public static boolean objectExists(Repository repo, String pid) throws RepositoryException {
+    public static boolean objectExists(AkubraRepository repo, String pid) throws RepositoryException {
         return repo.objectExists(pid);
     }
 }

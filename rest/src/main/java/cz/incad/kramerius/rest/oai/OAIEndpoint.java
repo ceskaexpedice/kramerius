@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -74,9 +75,14 @@ public class OAIEndpoint extends ClientApiResource {
     public static Logger LOGGER = Logger.getLogger(OAIEndpoint.class.getName());
     
 
+    /* TODO AK_NEW
     @Inject
     @Named("cachedFedoraAccess")
     private transient FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
 
 //    @Inject
 //    @Named("cachedFedoraAccess")
@@ -175,7 +181,7 @@ public class OAIEndpoint extends ClientApiResource {
 					oaiVerb.performOnCDKSide(this.userProvider, clientProvider,  instances, configManager, this.proxyFilter, this.solrAccess, this.requestProvider.get(), oai, oaiRoot);
 				 } else {
 					// local	
-					oaiVerb.performOnLocal(configManager, this.fedoraAccess, solrAccess, this.requestProvider.get(), oai, oaiRoot);
+					oaiVerb.performOnLocal(configManager, akubraRepository, solrAccess, this.requestProvider.get(), oai, oaiRoot);
 				 }
 
                  StringWriter writer = new StringWriter();

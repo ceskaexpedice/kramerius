@@ -37,18 +37,18 @@ import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.XMLUtils;
 
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
@@ -58,7 +58,6 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
 
 public class OAIRecord {
     public static final Logger LOGGER = Logger.getLogger(OAIRecord.class.getName());
@@ -169,7 +168,7 @@ public class OAIRecord {
     }
 
     /** render metadata */
-    public Element toMetadataOnLocal(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export, OAISet set) {
+    public Element toMetadataOnLocal(HttpServletRequest request, AkubraRepository fa, Document doc, MetadataExport export, OAISet set) {
         return export.perform(request, fa, doc, identifier, set);
     }
     public Element toMetadataOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,   Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set) {
@@ -219,7 +218,7 @@ public class OAIRecord {
         return header;
 	}
 	
-    public Element toHeaderOnLocal(Document doc, FedoraAccess fa, OAISet set ) throws IOException {
+    public Element toHeaderOnLocal(Document doc, AkubraRepository akubraRepository, OAISet set ) throws IOException {
         Element header = doc.createElement("header");
 
         Element identifier = doc.createElement("identifier");
@@ -240,7 +239,7 @@ public class OAIRecord {
 		
 		// local 
 		String pid = OAITools.pidFromOAIIdentifier(this.identifier);
-		if (!fa.isObjectAvailable(pid) && (!pid.contains("_"))) {
+		if (!akubraRepository.objectExists(pid) && (!pid.contains("_"))) {
 			header.setAttribute("status", "deleted");
 		}
         return header;
