@@ -1,11 +1,10 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.admin.v70.FoxmlBuilder;
 import cz.incad.kramerius.utils.StringUtils;
-
 import org.apache.commons.lang.StringEscapeUtils;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.KnownXmlFormatUris;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -14,10 +13,11 @@ import org.dom4j.QName;
 import java.text.BreakIterator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+
+import static org.ceskaexpedice.akubra.ObjectProperties.TIMESTAMP_FORMATTER;
 
 public class CollectionsFoxmlBuilder extends FoxmlBuilder {
     public Document buildFoxml(Collection collection, List<String> pidsOfItemsInCollection) {
@@ -39,35 +39,35 @@ public class CollectionsFoxmlBuilder extends FoxmlBuilder {
         LocalDateTime now = LocalDateTime.now();
         Element propertyCreated = addFoxmlElement(objectProperties, "property");
         propertyCreated.addAttribute("NAME", "info:fedora/fedora-system:def/model#createdDate");
-        propertyCreated.addAttribute("VALUE", now.format(RepositoryApi.TIMESTAMP_FORMATTER));
+        propertyCreated.addAttribute("VALUE", now.format(TIMESTAMP_FORMATTER));
         //last modified
         Element propertyLastModified = addFoxmlElement(objectProperties, "property");
         propertyLastModified.addAttribute("NAME", "info:fedora/fedora-system:def/view#lastModifiedDate");
-        propertyLastModified.addAttribute("VALUE", now.format(RepositoryApi.TIMESTAMP_FORMATTER));
+        propertyLastModified.addAttribute("VALUE", now.format(TIMESTAMP_FORMATTER));
         //MODS
         Element dsModsEl = addFoxmlElement(digitalObject, "datastream");
-        dsModsEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS.toString());
+        dsModsEl.addAttribute("ID", KnownDatastreams.BIBLIO_MODS.toString());
         dsModsEl.addAttribute("STATE", "A");
         dsModsEl.addAttribute("CONTROL_GROUP", "X");
         dsModsEl.addAttribute("VERSIONABLE", "true");
         Element dsModsVersionEl = addFoxmlElement(dsModsEl, "datastreamVersion");
-        dsModsVersionEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS + ".0");
+        dsModsVersionEl.addAttribute("ID", KnownDatastreams.BIBLIO_MODS + ".0");
         dsModsVersionEl.addAttribute("MIMETYPE", "application/xml");
-        dsModsVersionEl.addAttribute("FORMAT_URI", KrameriusRepositoryApi.KnownXmlFormatUris.BIBLIO_MODS);
-        dsModsVersionEl.addAttribute("CREATED", now.format(RepositoryApi.TIMESTAMP_FORMATTER));
+        dsModsVersionEl.addAttribute("FORMAT_URI", KnownXmlFormatUris.BIBLIO_MODS);
+        dsModsVersionEl.addAttribute("CREATED", now.format(TIMESTAMP_FORMATTER));
         Element modsXmlContent = addFoxmlElement(dsModsVersionEl, "xmlContent");
         modsXmlContent.add(buildMods(collection).getRootElement().detach());
         //RELS-EXT
         Element dsRelsExtEl = addFoxmlElement(digitalObject, "datastream");
-        dsRelsExtEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.RELS_EXT.toString());
+        dsRelsExtEl.addAttribute("ID", KnownDatastreams.RELS_EXT.toString());
         dsRelsExtEl.addAttribute("STATE", "A");
         dsRelsExtEl.addAttribute("CONTROL_GROUP", "X");
         dsRelsExtEl.addAttribute("VERSIONABLE", "true");
         Element dsRelsExtVersionEl = addFoxmlElement(dsRelsExtEl, "datastreamVersion");
-        dsRelsExtVersionEl.addAttribute("ID", KrameriusRepositoryApi.KnownDatastreams.RELS_EXT + ".0");
+        dsRelsExtVersionEl.addAttribute("ID", KnownDatastreams.RELS_EXT + ".0");
         dsRelsExtVersionEl.addAttribute("MIMETYPE", "application/xml");
-        dsRelsExtVersionEl.addAttribute("FORMAT_URI", KrameriusRepositoryApi.KnownXmlFormatUris.RELS_EXT);
-        dsRelsExtVersionEl.addAttribute("CREATED", now.format(RepositoryApi.TIMESTAMP_FORMATTER));
+        dsRelsExtVersionEl.addAttribute("FORMAT_URI", KnownXmlFormatUris.RELS_EXT);
+        dsRelsExtVersionEl.addAttribute("CREATED", now.format(TIMESTAMP_FORMATTER));
         Element relsExtXmlContent = addFoxmlElement(dsRelsExtVersionEl, "xmlContent");
         relsExtXmlContent.add(buildRelsExt(collection, pidsOfItemsInCollection).getRootElement().detach());
         return document;

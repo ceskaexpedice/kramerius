@@ -1,5 +1,17 @@
 package cz.incad.kramerius.services.cdk;
 
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.repository.RepositoryApi;
+import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.services.IterationUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.ceskaexpedice.akubra.core.repository.FosterRelationsMapping;
+import org.ceskaexpedice.akubra.core.repository.OwnRelationsMapping;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Arrays;
@@ -8,27 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.stream.Collectors;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
-import com.sun.jersey.api.client.Client;
-
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.FosterRelationsMapping;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.OwnRelationsMapping;
-import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.repository.RepositoryApi.Triplet;
-import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.services.IterationUtils;
-import cz.incad.kramerius.services.IterationUtils.IterationCallback;
-import cz.incad.kramerius.services.IterationUtils.IterationContext;
-import cz.incad.kramerius.services.IterationUtils.IterationEndCallback;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 //TODO: Move to common
 public class K7SearchIndexChildrenSupport {

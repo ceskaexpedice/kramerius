@@ -1,11 +1,9 @@
 package cz.incad.kramerius.rest.apiNew;
 
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import javax.inject.Inject;
 import java.util.regex.Pattern;
 
@@ -40,11 +38,6 @@ public abstract class ApiResource {
             throw new NotFoundException("datastream %s of object %s not found in repository", dsId, pid);
         }
     }
-
-    protected final void checkObjectAndDatastreamExist(String pid, KrameriusRepositoryApi.KnownDatastreams ds) throws ApiException {
-        checkObjectAndDatastreamExist(pid, ds.toString());
-    }
-
 
     protected final void checkSupportedObjectPid(String pid) {
         if (!isSupporetdObjectPid(pid)) {

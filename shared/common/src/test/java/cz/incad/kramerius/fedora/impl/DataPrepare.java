@@ -29,7 +29,8 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.SolrAccess;
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
+import org.ceskaexpedice.akubra.utils.pid.PIDParser;
 import org.easymock.EasyMock;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -38,8 +39,6 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 /** Testing data */
 public class DataPrepare {

@@ -29,6 +29,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.KnownRelations;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.ceskaexpedice.akubra.utils.pid.LexerException;
@@ -40,7 +41,6 @@ import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 
 import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownRelations;
 import cz.incad.kramerius.rest.oai.metadata.DrKrameriusUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;

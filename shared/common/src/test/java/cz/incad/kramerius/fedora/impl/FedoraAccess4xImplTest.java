@@ -34,7 +34,7 @@ import static org.easymock.EasyMock.replay;
 public class FedoraAccess4xImplTest {
 
     @Test
-    public void testFindFirstViewablePid_good() throws IOException, ParserConfigurationException, SAXException, LexerException {
+    public void testFindFirstViewablePid_good() throws IOException, ParserConfigurationException, SAXException, LexerException, org.ceskaexpedice.akubra.utils.pid.LexerException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
@@ -61,7 +61,7 @@ public class FedoraAccess4xImplTest {
     /** Test bad data - IMG_FULL not present
      * @throws LexerException */
     @Test
-    public void testFindFirstViewablePid_bad() throws IOException, ParserConfigurationException, SAXException, LexerException {
+    public void testFindFirstViewablePid_bad() throws IOException, ParserConfigurationException, SAXException, LexerException, org.ceskaexpedice.akubra.utils.pid.LexerException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
@@ -84,7 +84,7 @@ public class FedoraAccess4xImplTest {
         assertNull(firstPageForDrobnustky);
     }
     @Test
-    public void testProcessTree_SkipBranch() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
+    public void testProcessTree_SkipBranch() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, org.ceskaexpedice.akubra.utils.pid.LexerException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         final Map<String, Integer> mapping = new HashMap<>();
 
@@ -137,7 +137,7 @@ public class FedoraAccess4xImplTest {
 
 
     @Test
-    public void testProcessTree_SkipBranch2() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException {
+    public void testProcessTree_SkipBranch2() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, org.ceskaexpedice.akubra.utils.pid.LexerException {
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         AggregatedAccessLogs aclog = EasyMock.createMock(AggregatedAccessLogs.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();

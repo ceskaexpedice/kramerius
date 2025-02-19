@@ -29,7 +29,6 @@ import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
@@ -42,10 +41,10 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 
 
 /**
- * @see cz.incad.kramerius.rest.api.k5.client.item.ItemResource
  */
 @Path("/client/v7.0/items")
 public class ItemsResource extends ClientApiResource {
@@ -947,7 +946,7 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image",  pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            KnownDatastreams dsId = KnownDatastreams.IMG_FULL;
             //checkObjectAndDatastreamExist(pid, dsId);
 
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
@@ -1030,7 +1029,7 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/image/zoomify/ImageProperties.xml", source, pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
+            KnownDatastreams dsId = KnownDatastreams.IMG_FULL;
             //checkObjectAndDatastreamExist(pid, dsId);
 
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);

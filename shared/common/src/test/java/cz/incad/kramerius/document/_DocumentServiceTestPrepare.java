@@ -20,6 +20,8 @@ import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 
 import org.apache.commons.configuration.Configuration;
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
+import org.ceskaexpedice.akubra.utils.pid.PIDParser;
 import org.easymock.EasyMock;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
@@ -34,8 +36,6 @@ import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class _DocumentServiceTestPrepare {
 
@@ -76,7 +76,7 @@ public class _DocumentServiceTestPrepare {
 
     public static FedoraAccessAkubraImpl prepareFedoraAccess(StatisticsAccessLog acLog)
             throws NoSuchMethodException, IOException,
-            ParserConfigurationException, SAXException, LexerException {
+            ParserConfigurationException, SAXException, LexerException, org.ceskaexpedice.akubra.utils.pid.LexerException {
 
         ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();

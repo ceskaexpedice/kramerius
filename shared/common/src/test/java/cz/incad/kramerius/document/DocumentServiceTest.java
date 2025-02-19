@@ -31,6 +31,7 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.utils.FedoraUtils;
 import junit.framework.Assert;
 
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -45,7 +46,6 @@ import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.document.model.OutlineItem;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.pdf.OutOfRangeException;
-import cz.incad.kramerius.utils.pid.LexerException;
 
 @Ignore
 public class DocumentServiceTest {

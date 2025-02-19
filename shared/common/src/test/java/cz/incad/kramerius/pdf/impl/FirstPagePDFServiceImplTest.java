@@ -40,6 +40,8 @@ import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 
 import junit.framework.Assert;
 
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
+import org.ceskaexpedice.akubra.utils.pid.PIDParser;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
@@ -74,8 +76,6 @@ import cz.incad.kramerius.service.impl.TextsServiceImpl;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 @Ignore
 // TODO: Rewrite; new index

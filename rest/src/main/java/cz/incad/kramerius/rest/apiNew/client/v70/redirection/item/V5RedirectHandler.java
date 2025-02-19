@@ -17,6 +17,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.ceskaexpedice.akubra.core.repository.FosterRelationsMapping;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.KnownRelations;
+import org.ceskaexpedice.akubra.core.repository.OwnRelationsMapping;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,10 +33,6 @@ import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.FosterRelationsMapping;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownRelations;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.OwnRelationsMapping;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
@@ -246,25 +246,25 @@ public class V5RedirectHandler extends ProxyItemHandler {
         JSONObject dataAvailable = new JSONObject();
         // metadata
         JSONObject metadata = new JSONObject();
-        metadata.put("mods", streams.has(KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS.toString()));
-        metadata.put("dc", streams.has(KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC.toString()));
+        metadata.put("mods", streams.has(KnownDatastreams.BIBLIO_MODS.toString()));
+        metadata.put("dc", streams.has(KnownDatastreams.BIBLIO_DC.toString()));
         dataAvailable.put("metadata", metadata);
         JSONObject ocr = new JSONObject();
         // ocr
-        ocr.put("text", streams.has(KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT.toString()));
-        ocr.put("alto", streams.has(KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO.toString()));
+        ocr.put("text", streams.has(KnownDatastreams.OCR_TEXT.toString()));
+        ocr.put("alto", streams.has(KnownDatastreams.OCR_ALTO.toString()));
         dataAvailable.put("ocr", ocr);
         // images
         JSONObject image = new JSONObject();
-        image.put("full", streams.has(KrameriusRepositoryApi.KnownDatastreams.IMG_FULL.toString()));
-        image.put("thumb", streams.has(KrameriusRepositoryApi.KnownDatastreams.IMG_THUMB.toString()));
-        image.put("preview", streams.has(KrameriusRepositoryApi.KnownDatastreams.IMG_PREVIEW.toString()));
+        image.put("full", streams.has(KnownDatastreams.IMG_FULL.toString()));
+        image.put("thumb", streams.has(KnownDatastreams.IMG_THUMB.toString()));
+        image.put("preview", streams.has(KnownDatastreams.IMG_PREVIEW.toString()));
         dataAvailable.put("image", image);
         // audio
         JSONObject audio = new JSONObject();
-        audio.put("mp3", streams.has(KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3.toString()));
-        audio.put("ogg", streams.has(KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG.toString()));
-        audio.put("wav", streams.has(KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV.toString()));
+        audio.put("mp3", streams.has(KnownDatastreams.AUDIO_MP3.toString()));
+        audio.put("ogg", streams.has(KnownDatastreams.AUDIO_OGG.toString()));
+        audio.put("wav", streams.has(KnownDatastreams.AUDIO_WAV.toString()));
         dataAvailable.put("audio", audio);
         return dataAvailable;
     }
@@ -276,8 +276,8 @@ public class V5RedirectHandler extends ProxyItemHandler {
         if (info.has("zoom")) {
             json.put("type", "tiles");
         } else {
-            boolean imgFull = streams.has(KrameriusRepositoryApi.KnownDatastreams.IMG_FULL.name());
-            boolean imgPreview = streams.has(KrameriusRepositoryApi.KnownDatastreams.IMG_PREVIEW.name());
+            boolean imgFull = streams.has(KnownDatastreams.IMG_FULL.name());
+            boolean imgPreview = streams.has(KnownDatastreams.IMG_PREVIEW.name());
             // String retrieveMimetype = retrieveBasicDoc(pid);
             if (imgFull || imgPreview) {
                 if (basicDoc != null && basicDoc.has("img_full_mime")) {

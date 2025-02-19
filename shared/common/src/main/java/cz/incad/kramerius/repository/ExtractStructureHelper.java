@@ -13,6 +13,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.ProcessingIndexRelation;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
@@ -53,7 +55,7 @@ public class ExtractStructureHelper {
         parents.put("foster", fosterParents);
         structure.put("parents", parents);
         
-        Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(akubraRepository.getDatastreamContent(pid, KrameriusRepositoryApi.KnownDatastreams.RELS_EXT.toString()), false);
+        Document relsExt = Dom4jUtils.streamToDocument(akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString()), false);
 
         JSONObject children = new JSONObject();
         Pair<List<ProcessingIndexRelation>, List<ProcessingIndexRelation>> childrenTpls = ProcessingIndexUtils.getChildren(pid, akubraRepository);

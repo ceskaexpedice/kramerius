@@ -26,7 +26,7 @@ public class DocumentServiceTest2 {
 
     // Cely dokumennt - turnOffPdfCheck = true 
     @Test
-    public void testDocumentService_turnOffPdfCheckTrue() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException, OutOfRangeException {
+    public void testDocumentService_turnOffPdfCheckTrue() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException, OutOfRangeException, org.ceskaexpedice.akubra.utils.pid.LexerException {
         Injector injector = _DocumentServiceTestPrepare.prepareInjector("2", true);
         
         DocumentService docService = injector.getInstance(DocumentService.class);
@@ -65,7 +65,7 @@ public class DocumentServiceTest2 {
 
     // Cely dokumennt - turnOffPdfCheck = false 
     @Test
-    public void testDocumentService_turnOffPdfCheckFalse() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException, OutOfRangeException {
+    public void testDocumentService_turnOffPdfCheckFalse() throws IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, SecurityException, NoSuchMethodException, OutOfRangeException, org.ceskaexpedice.akubra.utils.pid.LexerException {
         Injector injector = _DocumentServiceTestPrepare.prepareInjector("2", false);
         
         DocumentService docService = injector.getInstance(DocumentService.class);

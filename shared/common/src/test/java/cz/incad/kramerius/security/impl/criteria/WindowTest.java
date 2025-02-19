@@ -16,6 +16,7 @@ import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.Assert;
 
+import org.ceskaexpedice.akubra.utils.pid.LexerException;
 import org.easymock.EasyMock;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
@@ -28,9 +29,6 @@ import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
 
 public class WindowTest {
 

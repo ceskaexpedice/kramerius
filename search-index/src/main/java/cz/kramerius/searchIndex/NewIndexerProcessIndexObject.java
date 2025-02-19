@@ -7,21 +7,20 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.kramerius.adapters.RepositoryAccess;
 import cz.kramerius.adapters.ProcessingIndex;
+import cz.kramerius.adapters.RepositoryAccess;
+import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
+import cz.kramerius.adapters.impl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
+import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.execution.IndexationType;
 import cz.kramerius.searchIndex.indexer.execution.Indexer;
 import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
-import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
-import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
-import cz.kramerius.adapters.impl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
+import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,9 +32,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import org.apache.commons.io.IOUtils;
-import org.ceskaexpedice.akubra.AkubraRepository;
 
 /**
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (new_indexer_index_object)

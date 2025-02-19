@@ -3,27 +3,20 @@ package cz.kramerius.adapters.impl.krameriusNewApi;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.repository.ExtractStructureHelper;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.shared.IoUtils;
 import cz.kramerius.adapters.impl.ProcessingIndexImplAbstract;
+import cz.kramerius.shared.IoUtils;
 import cz.kramerius.shared.Pair;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ProcessingIndexImplByKrameriusNewApis extends ProcessingIndexImplAbstract {
 
