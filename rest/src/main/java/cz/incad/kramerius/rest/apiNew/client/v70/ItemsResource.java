@@ -695,7 +695,7 @@ public class ItemsResource extends ClientApiResource {
                         for (CutItem cutItem : cutItems) {
                             try {
                                 cutItem.initGeneratedThumbnail(akubraRepository, pid);
-                            } catch (NoSuchAlgorithmException | RepositoryException | IOException e) {
+                            } catch (NoSuchAlgorithmException | IOException e) {
                                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                             }
                             
@@ -1354,7 +1354,7 @@ public class ItemsResource extends ClientApiResource {
                         cutItems.forEach(cl-> {
                             try {
                                 cl.initGeneratedThumbnail(akubraRepository, pid);
-                            } catch (NoSuchAlgorithmException | RepositoryException | IOException e) {
+                            } catch (NoSuchAlgorithmException | IOException e) {
                                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                             }
                             outputValue.put(cl.toJSON());

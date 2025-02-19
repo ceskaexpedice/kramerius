@@ -30,8 +30,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.repository.RepositoryApi;
 
 public class CutItem {
     
@@ -170,7 +168,7 @@ public class CutItem {
         }
     }
     
-    public void initGeneratedThumbnail(AkubraRepository akubraRepository, String pid) throws NoSuchAlgorithmException, RepositoryException, IOException {
+    public void initGeneratedThumbnail(AkubraRepository akubraRepository, String pid) throws NoSuchAlgorithmException, IOException {
         if (akubraRepository.datastreamExists(pid, getThumbnailmd5())) {
             this.setGeneratedThumbnail(true);
         }

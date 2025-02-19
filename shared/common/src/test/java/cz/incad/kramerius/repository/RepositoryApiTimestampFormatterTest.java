@@ -1,5 +1,6 @@
 package cz.incad.kramerius.repository;
 
+import org.ceskaexpedice.akubra.ObjectProperties;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
@@ -26,7 +27,7 @@ public class RepositoryApiTimestampFormatterTest {
             .appendPattern("'Z'")
             .toFormatter();
 
-    public static final DateTimeFormatter TIMESTAMP_FORMATTER = RepositoryApi.TIMESTAMP_FORMATTER;
+    public static final DateTimeFormatter TIMESTAMP_FORMATTER = ObjectProperties.TIMESTAMP_FORMATTER;
 
     @Test
     public void testParsingMultipleMillisTokens() {

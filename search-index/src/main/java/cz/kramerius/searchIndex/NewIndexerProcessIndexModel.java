@@ -10,7 +10,6 @@ import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;

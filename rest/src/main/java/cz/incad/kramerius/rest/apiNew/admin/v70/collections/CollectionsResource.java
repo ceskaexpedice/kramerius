@@ -1200,7 +1200,7 @@ public class CollectionsResource extends AdminApiResource {
                 collection.clippingItems.forEach(cl -> {
                     try {
                         cl.initGeneratedThumbnail(akubraRepository, pid);
-                    } catch (NoSuchAlgorithmException | RepositoryException | IOException e) {
+                    } catch (NoSuchAlgorithmException | IOException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                 });
