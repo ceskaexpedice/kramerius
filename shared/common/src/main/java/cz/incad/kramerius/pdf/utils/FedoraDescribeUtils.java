@@ -17,13 +17,10 @@
 package cz.incad.kramerius.pdf.utils;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
-
-import cz.incad.kramerius.FedoraAccess;
 
 public class FedoraDescribeUtils {
 

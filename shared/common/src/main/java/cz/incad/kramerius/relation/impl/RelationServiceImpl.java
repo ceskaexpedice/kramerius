@@ -21,9 +21,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.*;
 import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
@@ -31,6 +28,10 @@ import cz.incad.kramerius.relation.RelationUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.*;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -42,7 +43,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
@@ -59,14 +62,21 @@ public final class RelationServiceImpl implements RelationService {
     private static final FedoraNamespaceContext FEDORA_NAMESPACE_CONTEXT = new FedoraNamespaceContext();
     private static final String FEDORA_URI_PREFIX = "info:fedora/";
 
+
+    /* TODO AK_NEW
     @Inject
     @Named("rawFedoraAccess")
     FedoraAccess fedoraAccess;
 
+     */
+    @Inject
+    AkubraRepository akubraRepository;
+
     @Override
     public RelationModel load(String pid) throws IOException {
         try {
-            Document relsExt = RelationUtils.getRelsExt(pid, fedoraAccess);
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            Document relsExt = DomUtils.streamToDocument(inputStream);
             return Loader.load(pid, relsExt);
         } catch (Exception ex) {
             throw new IOException("Cannot load relations: " + pid, ex);
@@ -76,26 +86,22 @@ public final class RelationServiceImpl implements RelationService {
     @Override
     public void save(String pid, RelationModel model) throws IOException {
         try {
-            Document relsExt = RelationUtils.getRelsExt(pid, fedoraAccess);
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            Document relsExt = DomUtils.streamToDocument(inputStream);
             RelationModel orig = Loader.load(pid, relsExt);
 
             if (isModified(orig, model)) {
                 // XXX use also timestamp or checksum to detect concurrent modifications
                 String dsContent = Saver.save(relsExt, model);
 
-                Repository repo = fedoraAccess.getInternalAPI();
-                Lock writeLock = AkubraDOManager.getWriteLock(pid);
-                try {
-                    if (repo.getObject(pid).streamExists(FedoraUtils.RELS_EXT_STREAM)) {
-                        repo.getObject(pid).removeRelationsByNamespace(FedoraNamespaces.KRAMERIUS_URI);
-                        repo.getObject(pid).removeRelationsByNameAndNamespace("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI);
-                        repo.getObject(pid).deleteStream(FedoraUtils.RELS_EXT_STREAM);
+                akubraRepository.doWithWriteLock(pid, () -> {
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
+                        akubraRepository.deleteDatastream(pid, KnownDatastreams.RELS_EXT.toString());;
                     }
-                    byte[] bytes = dsContent.getBytes("UTF-8");
-                    repo.getObject(pid).createStream(FedoraUtils.RELS_EXT_STREAM, "text/xml", new ByteArrayInputStream(bytes));
-                }finally{
-                    writeLock.unlock();
-                }
+                    byte[] bytes = dsContent.getBytes(StandardCharsets.UTF_8);
+                    akubraRepository.createXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", new ByteArrayInputStream(bytes));
+                    return null;
+                });
 
                 List<String> movedPids = new ArrayList<>();
                 for (KrameriusModels kind : model.getRelationKinds()) {

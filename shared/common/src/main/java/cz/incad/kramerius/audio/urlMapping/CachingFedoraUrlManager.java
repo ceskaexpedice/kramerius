@@ -17,12 +17,12 @@
 package cz.incad.kramerius.audio.urlMapping;
 
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.XpathEvaluator;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -60,9 +60,14 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
 
     private final XPathExpression dsLocation;
 
+    /* AK_NEW
     @Inject
     @Named("securedFedoraAccess")
     private FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    private AkubraRepository akubraRepository;
 
     private final CacheManager cacheManager;
 

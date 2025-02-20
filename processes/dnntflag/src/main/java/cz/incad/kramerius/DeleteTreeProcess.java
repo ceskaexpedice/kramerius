@@ -6,7 +6,6 @@ import com.google.inject.Key;
 
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
@@ -73,8 +72,8 @@ public class DeleteTreeProcess {
         if (args.length < 2) {
             throw new RuntimeException("Not enough arguments.");
         }
-        LOGGER.info("Process parameters "+Arrays.asList(args));
-        
+        LOGGER.info("Process parameters " + Arrays.asList(args));
+
         int argsIndex = 0;
         //token for keeping possible following processes in same batch
         String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
@@ -86,13 +85,13 @@ public class DeleteTreeProcess {
                 ? String.format("Smazání stromu %s (%s)", title, pid)
                 : String.format("Smazání stromu %s", pid)
         );
-        
+
         boolean ignoreIncosistencies = false;
-        
-        if (args.length >3 ) {
-            ignoreIncosistencies =  Boolean.valueOf(args[argsIndex++]);
+
+        if (args.length > 3) {
+            ignoreIncosistencies = Boolean.valueOf(args[argsIndex++]);
         }
-        
+
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
@@ -102,7 +101,7 @@ public class DeleteTreeProcess {
         //check object exists in repository
         // pokud je 
         //boolean existsInProcessingIndex = processingIndex.existsPid(pid);
-        
+
         if (!akubraRepository.objectExists(pid) && !ignoreIncosistencies) {
             throw new RuntimeException(String.format("object %s not found in repository", pid));
         }
@@ -118,7 +117,7 @@ public class DeleteTreeProcess {
         boolean someProblem = false;
         //
         boolean skipP = ignoreIncosistencies && !repository.objectExists(pid);
-        
+
         String myModel = "";
         if (!skipP) {
 
@@ -137,7 +136,7 @@ public class DeleteTreeProcess {
                     removeItemsFromCollectionBeforeDeletingCollection(pid, fosterChild, searchIndex, indexerAccess);
                 }
             }
-            
+
 
             //2. předci
             Pair<String, Set<String>> pidsOfParents = processingIndex.getPidsOfParents(pid);
@@ -152,7 +151,7 @@ public class DeleteTreeProcess {
 
             //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
             updateLicenseFlagsForAncestors(pid, repository, processingIndex, indexerAccess);
-            
+
         } else {
             LOGGER.warning(String.format("object %s is not found in repository, skipping 1b", pid));
         }
@@ -178,7 +177,7 @@ public class DeleteTreeProcess {
             //Aktualizuje se index predku, kteri nemaji jiny zdroj licence (odebere se contains_licenses=L) atomic updatem
             LOGGER.info("updating search index of all (own) ancestors without another source of license");
             if (!DRY_RUN) {
-                indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfAncestorsWithoutAnotherSourceOfLicense, LicenseHelper.SOLR_FIELD_CONTAINS_LICENSES, license,false, false);
+                indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfAncestorsWithoutAnotherSourceOfLicense, LicenseHelper.SOLR_FIELD_CONTAINS_LICENSES, license, false, false);
             }
         }
     }
@@ -200,7 +199,7 @@ public class DeleteTreeProcess {
         //item itself
         List<String> itemInCollectionOnly = new ArrayList<>();
         itemInCollectionOnly.add(itemInCollection);
-        
+
         indexerAccess.removeSingleFieldValueFromMultipleObjects(itemInCollectionOnly, SOLR_FIELD_IN_COLLECTIONS, collectionPid, false, false);
         indexerAccess.removeSingleFieldValueFromMultipleObjects(itemInCollectionOnly, SOLR_FIELD_IN_COLLECTIONS_DIRECT, collectionPid, false, false);
         //rest of the tree
@@ -223,7 +222,7 @@ public class DeleteTreeProcess {
             } catch (RepositoryException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
-            
+
             if (repository.objectExists(pid)) {
                 repository.doWithWriteLock(pid, () -> {
                     //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
@@ -291,20 +290,19 @@ public class DeleteTreeProcess {
         removeAnyRelsExtRelation(fosterParentPid, pid, repository);
     }
 
-    private static void deleteRelationFromOwnParent(String pid, String ownParentPid, AkubraRepository repository)  {
+    private static void deleteRelationFromOwnParent(String pid, String ownParentPid, AkubraRepository repository) {
         LOGGER.info(String.format("removing own-parent relationship %s -> %s", ownParentPid, pid));
         removeAnyRelsExtRelation(ownParentPid, pid, repository);
     }
 
 
     private static boolean removeAnyRelsExtRelation(String srcPid, String targetPid, AkubraRepository repository) {
-        Lock writeLock = AkubraDOManager.getWriteLock(srcPid);
-        try {
+        return repository.doWithWriteLock(srcPid, () -> {
             if (!repository.datastreamExists(srcPid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + srcPid);
             }
             InputStream inputStream = repository.getDatastreamContent(srcPid, KnownDatastreams.RELS_EXT.toString());
-            Document relsExt = Dom4jUtils.streamToDocument(inputStream,true);
+            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             boolean relsExtNeedsToBeUpdated = false;
 
@@ -333,9 +331,8 @@ public class DeleteTreeProcess {
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", srcPid));
             }
             return relsExtNeedsToBeUpdated;
-        } finally {
-            writeLock.unlock();
-        }
+        });
+
     }
 
 }

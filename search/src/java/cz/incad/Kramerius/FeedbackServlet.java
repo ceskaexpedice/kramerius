@@ -11,7 +11,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.service.Mailer;
 import cz.incad.kramerius.service.ResourceBundleService;

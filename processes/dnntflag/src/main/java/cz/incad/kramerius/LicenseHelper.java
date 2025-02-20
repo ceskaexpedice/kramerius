@@ -1,6 +1,5 @@
 package cz.incad.kramerius;
 
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.kramerius.adapters.ProcessingIndex;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -44,8 +43,7 @@ public class LicenseHelper {
     static String SOLR_FIELD_LICENSES_OF_ANCESTORS = "licenses_of_ancestors";
 
     static boolean removeRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, AkubraRepository repository) {
-        Lock writeLock = AkubraDOManager.getWriteLock(pid);
-        try {
+        return repository.doWithWriteLock(pid, () -> {
             if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
@@ -80,9 +78,8 @@ public class LicenseHelper {
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
             }
             return relsExtNeedsToBeUpdated;
-        } finally {
-            writeLock.unlock();
-        }
+        });
+
     }
 
     /*
@@ -104,9 +101,8 @@ public class LicenseHelper {
         return updated;
     }
 
-    static boolean ownsLicenseByRelsExt(String pid, String license, AkubraRepository repository) throws RepositoryException, IOException {
-        Lock readLock = AkubraDOManager.getReadLock(pid);
-        try {
+    static boolean ownsLicenseByRelsExt(String pid, String license, AkubraRepository repository) throws IOException {
+        return repository.doWithWriteLock(pid, () -> {
             if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
@@ -133,14 +129,11 @@ public class LicenseHelper {
                 }
             }
             return false;
-        } finally {
-            readLock.unlock();
-        }
+        });
     }
 
     static List<String> getLicensesByRelsExt(String pid, AkubraRepository repository)  {
-        Lock readLock = AkubraDOManager.getReadLock(pid);
-        try {
+        return repository.doWithWriteLock(pid, () -> {
             if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
@@ -164,14 +157,11 @@ public class LicenseHelper {
                 }
             }
             return result;
-        } finally {
-            readLock.unlock();
-        }
+        });
     }
 
     static boolean containsLicenseByRelsExt(String pid, String license, AkubraRepository repository) throws RepositoryException, IOException {
-        Lock readLock = AkubraDOManager.getReadLock(pid);
-        try {
+        return repository.doWithWriteLock(pid, () -> {
             if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
@@ -199,9 +189,7 @@ public class LicenseHelper {
                 }
             }
             return false;
-        } finally {
-            readLock.unlock();
-        }
+        });
     }
 
     /**

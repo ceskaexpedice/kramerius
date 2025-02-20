@@ -1,6 +1,5 @@
 package cz.incad.kramerius.security.impl.criteria;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;

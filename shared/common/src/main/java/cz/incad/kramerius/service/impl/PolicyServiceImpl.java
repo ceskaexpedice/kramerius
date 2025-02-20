@@ -6,7 +6,6 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,13 +28,13 @@ import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.om.RepositoryDatastream;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.FedoraUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -46,9 +45,7 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.PolicyService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -58,15 +55,20 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class PolicyServiceImpl implements PolicyService {
     public static final Logger LOGGER = Logger.getLogger(PolicyServiceImpl.class.getName());
 
+    /* TODO AK_NEW
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
 
     KConfiguration configuration = KConfiguration.getInstance();
 
     @Override
     public void setPolicy(String pid, String policyName) throws IOException {
-        List<String> pids = fedoraAccess.getPids(pid);
+        List<String> pids = RelsExtUtils.getPids(pid, akubraRepository);
         for (String s : pids) {
             String p = s.replace(INFO, "");
             try {
@@ -77,10 +79,9 @@ public class PolicyServiceImpl implements PolicyService {
         }
     }
 
-
     @Override
     public void setPolicy(String pid, String policyName, String level) throws IOException {
-        List<String> pids = fedoraAccess.getPids(pid);
+        List<String> pids = RelsExtUtils.getPids(pid, akubraRepository);
         if (level != null && level.equals("true")) {
             try {
                 setPolicyForNode(pid, policyName);
@@ -99,19 +100,17 @@ public class PolicyServiceImpl implements PolicyService {
         }
     }
 
-    public void setPolicyForNode(String pid, String policyName) throws RepositoryException {
+    public void setPolicyForNode(String pid, String policyName)  {
         LOGGER.info("Set policy pid: " + pid + " policy: " + policyName);
-        Lock writeLock = AkubraDOManager.getWriteLock(pid);
-        try {
+        akubraRepository.doWithWriteLock(pid, () -> {
             setPolicyDC(pid, policyName);
             setPolicyRELS_EXT(pid, policyName);
             setPolicyPOLICY(pid, policyName);
-        } finally {
-            writeLock.unlock();
-        }
+            return null;
+        });
     }
 
-    private void setPolicyDC(String pid, String policyName) throws RepositoryException {
+    private void setPolicyDC(String pid, String policyName) {
         RepositoryDatastream dcStream = fedoraAccess.getInternalAPI().getObject(pid).getStream(FedoraUtils.DC_STREAM);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);

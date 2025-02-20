@@ -19,10 +19,8 @@ package cz.incad.kramerius.security.impl;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 
 public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFactory {

@@ -17,7 +17,6 @@
 
 package cz.incad.kramerius.relation;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.impl.RelationModelImpl;
 import cz.incad.kramerius.utils.XMLUtils;

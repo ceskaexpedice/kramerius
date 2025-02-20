@@ -1,18 +1,14 @@
 package cz.incad.kramerius.service.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.commons.io.IOUtils;
 
 public class METSServiceImpl implements METSService {
 	public static final Logger LOGGER = Logger.getLogger(METSServiceImpl.class.getName());

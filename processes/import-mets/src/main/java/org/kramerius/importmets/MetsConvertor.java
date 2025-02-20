@@ -3,9 +3,7 @@ package org.kramerius.importmets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
@@ -46,7 +44,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.logging.Level;
 
 
 /**

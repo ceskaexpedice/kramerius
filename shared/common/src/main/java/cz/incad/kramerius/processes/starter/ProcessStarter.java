@@ -36,15 +36,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.WarningException;
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.logging.LoggingLoader;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.utils.IPAddressUtils;
-
 /**
  * Process starting point
  *
@@ -178,7 +169,7 @@ public class ProcessStarter {
                 }
             }
         } finally {
-            AkubraDOManager.shutdown();
+            // TODO AK_NEW AkubraDOManager.shutdown();
             String uuid = System.getProperty(ProcessStarter.UUID_KEY);
             String closeTokenFlag = System.getProperty(AUTOMATIC_CLOSE_TOKEN, "true");
             if (closeTokenFlag != null && closeTokenFlag.trim().toLowerCase().equals("true")) {

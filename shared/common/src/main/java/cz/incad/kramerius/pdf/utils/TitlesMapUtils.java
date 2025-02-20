@@ -22,11 +22,6 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.utils.DCUtils;
 
 public class TitlesMapUtils {

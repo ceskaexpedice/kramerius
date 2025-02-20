@@ -21,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -55,12 +54,9 @@ import org.xml.sax.SAXException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
@@ -74,8 +70,6 @@ import cz.incad.kramerius.utils.IterationUtils.IterationCallback;
 import cz.incad.kramerius.utils.IterationUtils.IterationEndCallback;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.collections.Restore;
-
-import static cz.incad.kramerius.utils.IterationUtils.*;
 
 public class FromK5Instance {
     

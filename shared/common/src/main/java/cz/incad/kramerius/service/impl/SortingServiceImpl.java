@@ -10,32 +10,23 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
-import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
 import org.w3c.dom.Document;
 
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Scopes;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 import com.ibm.icu.text.Collator;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.RelationUtils;
-import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import cz.incad.kramerius.service.SortingService;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.NaturalOrderCollator;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

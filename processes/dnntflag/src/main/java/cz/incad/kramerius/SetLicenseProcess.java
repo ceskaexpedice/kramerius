@@ -5,8 +5,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
@@ -23,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -79,7 +78,7 @@ public class SetLicenseProcess {
      * <p>
      * args[3] - licence ('dnnt', 'dnnto', 'public_domain', etc.)
      */
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException, ResourceIndexException {
+    public static void main(String[] args) throws IOException, SolrServerException, ResourceIndexException {
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -168,7 +167,7 @@ public class SetLicenseProcess {
         }
     }
 
-    private static void addLicense(String license, String targetPid, AkubraRepository akubraRepository, ProcessingIndex processingIndex, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException, ResourceIndexException {
+    private static void addLicense(String license, String targetPid, AkubraRepository akubraRepository, ProcessingIndex processingIndex, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws IOException {
         LOGGER.info(String.format("Adding license '%s' to %s", license, targetPid));
 
         //1. Do rels-ext ciloveho objektu se doplni license=L, pokud uz tam neni. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
@@ -245,9 +244,8 @@ public class SetLicenseProcess {
         return new ArrayList<>(result);
     }*/
 
-    private static boolean addRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, AkubraRepository akubraRepository) throws RepositoryException, IOException {
-        Lock writeLock = AkubraDOManager.getWriteLock(pid);
-        try {
+    private static boolean addRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, AkubraRepository akubraRepository) throws IOException {
+        return akubraRepository.doWithWriteLock(pid, () -> {
             if (!akubraRepository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
@@ -289,9 +287,7 @@ public class SetLicenseProcess {
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
             }
             return relsExtNeedsToBeUpdated;
-        } finally {
-            writeLock.unlock();
-        }
+        });
     }
 
     private static void removeLicense(String license, String targetPid, AkubraRepository akubraRepository, ProcessingIndex processingIndex, SolrAccess searchIndex, SolrIndexAccess indexerAccess, String authToken) throws RepositoryException, IOException, ResourceIndexException {

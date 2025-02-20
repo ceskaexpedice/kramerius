@@ -3,8 +3,6 @@ package cz.incad.kramerius.rest.utils;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import javax.xml.xpath.XPathExpressionException;
-
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
@@ -27,8 +25,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
-
-import cz.incad.kramerius.FedoraAccess;
 
 public class IIIFUtils {
 

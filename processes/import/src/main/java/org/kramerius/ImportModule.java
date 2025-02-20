@@ -2,17 +2,12 @@ package org.kramerius;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-import com.google.inject.name.Names;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.FOXMLAppendLicenseImpl;
 import cz.incad.kramerius.service.impl.SortingServiceImpl;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 
 public class ImportModule extends AbstractModule {
 

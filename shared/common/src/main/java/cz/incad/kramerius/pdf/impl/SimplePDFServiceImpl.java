@@ -23,25 +23,18 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.xml.sax.SAXException;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.Font;
 import com.lowagie.text.pdf.PdfWriter;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.ImagePage;
 import cz.incad.kramerius.document.model.PreparedDocument;
-import cz.incad.kramerius.document.model.TextPage;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.commands.ITextCommand;

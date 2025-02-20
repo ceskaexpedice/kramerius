@@ -23,12 +23,9 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.util.logging.Level;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.utils.DomUtils;
-import org.xml.sax.SAXException;
 
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Chunk;
@@ -46,7 +43,6 @@ import com.lowagie.text.pdf.PdfPageEventHelper;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.pdf.commands.AbstractITextCommand.Hyphenation;
 import cz.incad.kramerius.pdf.commands.ITextCommand;
 import cz.incad.kramerius.pdf.commands.ITextCommandProcessListener;
@@ -55,7 +51,6 @@ import cz.incad.kramerius.pdf.commands.Image;
 import cz.incad.kramerius.pdf.commands.Line;
 import cz.incad.kramerius.pdf.commands.List;
 import cz.incad.kramerius.pdf.commands.ListItem;
-import cz.incad.kramerius.pdf.commands.LogoImage;
 import cz.incad.kramerius.pdf.commands.PageBreak;
 import cz.incad.kramerius.pdf.commands.Paragraph;
 import cz.incad.kramerius.pdf.commands.Text;
@@ -64,8 +59,6 @@ import cz.incad.kramerius.pdf.commands.lists.GreekList;
 import cz.incad.kramerius.pdf.commands.lists.RomanList;
 import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.knav.pdf.PdfTextUnderImage;
 

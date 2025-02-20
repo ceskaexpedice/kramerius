@@ -1,12 +1,9 @@
 package cz.incad.kramerius.imaging.lp.guice;
 
-import java.io.IOException;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
@@ -14,12 +11,6 @@ import cz.incad.kramerius.imaging.impl.DeepZoomFlagServiceImpl;
 import cz.incad.kramerius.imaging.impl.FileSystemCacheServiceImpl;
 import cz.incad.kramerius.imaging.impl.SimpleMemoryCacheServiceWrapper;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
-import cz.incad.kramerius.statistics.ReportedAction;
-import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GenerateDeepZoomCacheModule extends AbstractModule {
 

@@ -2,12 +2,8 @@ package cz.incad.kramerius.fedora;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ehcache.CacheManager;
 
 /**
  * Binding repo module

@@ -17,41 +17,8 @@
 package cz.incad.kramerius.security.impl.criteria;
  
 import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createMockBuilder;
-import static org.easymock.EasyMock.replay;
 
-import java.io.IOException;
-import java.util.Set;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.security.EvaluatingResultState;
-import junit.framework.Assert;
-
-import org.easymock.EasyMock;
-import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheManagerBuilder;
 import org.junit.Ignore;
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.security.RightCriteriumContext;
-import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.solr.SolrUtils;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.xml.xpath.XPathExpressionException;
-import org.w3c.dom.Document;
 
 @Ignore
 public class MovingWallTest {

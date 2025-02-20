@@ -31,9 +31,7 @@ import com.lowagie.text.DocumentException;
 import com.lowagie.text.Rectangle;
 
 import cz.incad.kramerius.AbstractObjectPath;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
-import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
@@ -52,7 +50,6 @@ import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.statistics.ReportedAction;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

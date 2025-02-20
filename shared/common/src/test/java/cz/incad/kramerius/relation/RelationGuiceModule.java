@@ -20,7 +20,6 @@ package cz.incad.kramerius.relation;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import org.easymock.EasyMock;
 

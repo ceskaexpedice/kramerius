@@ -16,24 +16,17 @@
  */
 package cz.incad.kramerius.security.guice;
 
-import java.io.FileNotFoundException;
-
-import javax.script.ScriptException;
-
 import org.easymock.EasyMock;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.RightCriteriumContextFactory;
 import cz.incad.kramerius.security.RightCriteriumLoader;
 import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
 import cz.incad.kramerius.security.RightsManager;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.impl.ClassRightCriteriumLoaderImpl;
-import cz.incad.kramerius.security.impl.DatabaseRightsManager;
-import cz.incad.kramerius.security.impl.DatabaseUserManager;
 import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 import cz.incad.kramerius.security.impl.RightCriteriumWrapperFactoryImpl;
 

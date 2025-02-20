@@ -1,6 +1,5 @@
 package cz.incad.kramerius.rest.api.k5.client.utils;
 
-import cz.incad.kramerius.FedoraAccess;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
