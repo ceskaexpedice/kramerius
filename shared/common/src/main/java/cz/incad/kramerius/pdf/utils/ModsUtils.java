@@ -17,6 +17,7 @@
 package cz.incad.kramerius.pdf.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,14 +27,16 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-
-import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.FedoraNamespaces;
 
 public class ModsUtils {
 
@@ -56,19 +59,20 @@ public class ModsUtils {
 //    }
     
 
-    public static Map<String, String> getTitleInfo(String pid, FedoraAccess fedoraAccess) throws XPathExpressionException, IOException {
+    public static Map<String, String> getTitleInfo(String pid, AkubraRepository akubraRepository) throws XPathExpressionException, IOException {
         Map<String, String> map = new HashMap<String, String>();
-        Document biblioMods = fedoraAccess.getBiblioMods(pid);
+        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+        Document biblioMods = DomUtils.streamToDocument(inputStream);
         XPath xpath = FACTORY.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         XPathExpression expr = xpath.compile("//mods:titleInfo/mods:title");
         NodeList set = (NodeList) expr.evaluate(biblioMods, XPathConstants.NODESET);
         for (int i = 0,ll=set.getLength(); i < ll; i++) {
             Node node = set.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 Element elm = (Element) node;
-                if (elm.hasAttributeNS(FedoraNamespaces.BIBILO_MODS_URI, "type")) {
-                    String type = elm.getAttributeNS(FedoraNamespaces.BIBILO_MODS_URI,"type");
+                if (elm.hasAttributeNS(RepositoryNamespaces.BIBILO_MODS_URI, "type")) {
+                    String type = elm.getAttributeNS(RepositoryNamespaces.BIBILO_MODS_URI,"type");
                     map.put(type, elm.getTextContent().trim());
                 } else {
                     if (!map.containsKey("default")) {
@@ -84,7 +88,7 @@ public class ModsUtils {
     public static List<String> languagesFromMods(org.w3c.dom.Document mods) throws XPathExpressionException, IOException {
         ArrayList<String> languages  = new ArrayList<String>();
         XPath xpath = FACTORY.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         XPathExpression expr = xpath.compile("//mods:language/mods:languageTerm");
         NodeList set = (NodeList) expr.evaluate(mods, XPathConstants.NODESET);
         for (int i = 0,ll=set.getLength(); i < ll; i++) {
@@ -103,7 +107,7 @@ public class ModsUtils {
 
         Map<String, List<String>> map = new HashMap<>();
         XPath xpath = FACTORY.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         XPathExpression expr = xpath.compile("//mods:identifier");
 
         NodeList set = (NodeList) expr.evaluate(mods, XPathConstants.NODESET);

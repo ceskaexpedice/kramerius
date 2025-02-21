@@ -16,17 +16,11 @@
  */
 package cz.incad.kramerius.printing;
 
-import java.awt.print.PrinterException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 import javax.print.PrintException;
-import javax.print.PrintService;
-
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.document.model.PreparedDocument;
+import java.awt.print.PrinterException;
+import java.io.IOException;
 
 /**
  * Print service 

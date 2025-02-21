@@ -22,6 +22,11 @@ import java.io.IOException;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.statistics.NullStatisticsModule;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
+import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
 import org.w3c.dom.DOMException;
 
 import com.google.inject.Guice;
@@ -29,8 +34,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
@@ -53,9 +56,10 @@ public class DeleteGeneratedDeepZoomCache {
     public static void main(String[] args) throws IOException, ProcessSubtreeException {
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
-            deleteCacheForPID(args[0], fa, discStruct);
+            deleteCacheForPID(args[0], akubraRepository, discStruct);
             
             
             boolean spawnFlag = Boolean.getBoolean(GenerateDeepZoomFlag.class.getName());
@@ -69,29 +73,24 @@ public class DeleteGeneratedDeepZoomCache {
     /**
      * Recursive delete 
      * @param pid Master PID
-     * @param fedoraAccess FedoraAccess implementation
-     * @param discStruct DiscStructure instance 
+     * @param discStruct DiscStructure instance
      * @throws IOException IO error has been occurred
      * @throws ProcessSubtreeException Error in tree walking 
      */
-    public static void deleteCacheForPID(String pid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
-        if (fedoraAccess.isImageFULLAvailable(pid)) {
+    public static void deleteCacheForPID(String pid, final AkubraRepository akubraRepository, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
             try {
                 deleteFolder(pid, discStruct);
             } catch (XPathExpressionException e) {
                 LOGGER.severe(e.getMessage());
             }
         } else {
-            
-            fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
-                
-                
-                
-                
+            RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
+
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     try {
-                        if (fedoraAccess.isImageFULLAvailable(pid)) {
+                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
                             //LOGGER.info("Deleting " + (pageIndex++) +" uuid = "+uuid);
                             deleteFolder(pid, discStruct);
                         }
@@ -118,7 +117,7 @@ public class DeleteGeneratedDeepZoomCache {
                     return false;
                 }
 
-            });
+            }, akubraRepository);
             
         }
 

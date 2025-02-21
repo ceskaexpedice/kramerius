@@ -24,6 +24,7 @@ import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
 
@@ -33,7 +34,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     private String requestedStream;
     private String associatedPID;
     private User user;
-    private FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
     //private SolrAccess solrAccess;
     private SolrAccess solrAccessNewIndex;
 
@@ -54,7 +55,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         this.requestedPID = builder.requestedPID;
         this.requestedStream = builder.requestedStream;
         this.user = builder.user;
-        this.fedoraAccess = builder.fedoraAccess;
+        this.akubraRepository = builder.akubraRepository;
         this.solrAccessNewIndex = builder.solrAccessNewIndex;
         this.remoteHost = builder.remoteHost;
         this.remoteAddr = builder.remoteAddr;
@@ -71,7 +72,6 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
         return this.requestedPID;
     }
 
-    
     @Override
     public String getAssociatedPid() {
         return this.associatedPID;
@@ -83,11 +83,9 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
     }
 
     @Override
-    public FedoraAccess getFedoraAccess() {
-        return this.fedoraAccess;
+    public AkubraRepository getAkubraRepository() {
+        return this.akubraRepository;
     }
-
-    
     
     @Override
     public void setAssociatedPid(String uuid) {
@@ -158,7 +156,7 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
 
         protected String associatedPID;
         protected User user;
-        protected FedoraAccess fedoraAccess;
+        protected AkubraRepository akubraRepository;
         protected SolrAccess solrAccess;
         private SolrAccess solrAccessNewIndex;
         protected UserManager userManager;
@@ -195,8 +193,8 @@ public class RightParamEvaluatingContextImpl implements RightCriteriumContext {
             return this;
         }
 
-        public Builder setFedoraAccess(FedoraAccess fa) {
-            this.fedoraAccess = fa;
+        public Builder setAkubraRepository(AkubraRepository akubraRepository) {
+            this.akubraRepository = akubraRepository;
             return this;
         }
 

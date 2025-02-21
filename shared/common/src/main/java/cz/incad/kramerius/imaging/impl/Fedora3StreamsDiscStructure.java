@@ -21,6 +21,8 @@ import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.paths.Path;
 import cz.incad.kramerius.imaging.paths.impl.DirPathImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 
 /**
  * Manage same structure for storing objects as fedora 3.<br>  
@@ -32,15 +34,23 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Fedora3StreamsDiscStructure.class.getName());
 
 
+
+    /* TODO AK_NEW
     @Named("securedFedoraAccess")
     private FedoraAccess fedoraAccess;
+
+     */
+    private AkubraRepository akubraRepository;
 
 
     
     @Inject
-    public Fedora3StreamsDiscStructure(@Named("securedFedoraAccess") FedoraAccess fedoraAccess) throws IOException {
+    public Fedora3StreamsDiscStructure(
+        // TODO AK_NEW    @Named("securedFedoraAccess") FedoraAccess fedoraAccess
+            AkubraRepository akubraRepository
+    ) throws IOException {
         super();
-        this.fedoraAccess = fedoraAccess;
+        this.akubraRepository = akubraRepository;
     }
 
     
@@ -48,7 +58,7 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
     @Override
     public Path getUUIDFile(String uuid,  String rootPath) throws IOException {
         try {
-            Date dateFromFedora = this.fedoraAccess.getStreamLastmodifiedFlag("uuid:"+uuid, FedoraUtils.IMG_FULL_STREAM);
+            Date dateFromFedora = akubraRepository.getDatastreamMetadata("uuid:" + uuid, KnownDatastreams.IMG_FULL.toString()).getLastModified();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(dateFromFedora);
             

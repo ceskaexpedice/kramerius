@@ -65,7 +65,6 @@ import com.google.inject.name.Named;
 import com.lowagie.text.DocumentException;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.AbstractPage;
@@ -85,6 +84,9 @@ import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 public class PrintingServiceImpl implements PrintingService {
 
@@ -92,7 +94,7 @@ public class PrintingServiceImpl implements PrintingService {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(PrintingServiceImpl.class.getName());
 
-    private FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
     private KConfiguration configuration = KConfiguration.getInstance();
 
     private SolrAccess solrAccess;
@@ -104,9 +106,12 @@ public class PrintingServiceImpl implements PrintingService {
     private Provider<Locale> localesProvider;
     
     @Inject
-    public PrintingServiceImpl(@Named("securedFedoraAccess") FedoraAccess fedoraAccess, @Named("new-index") SolrAccess solrAccess, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService, Provider<User> userProvider) {
+    public PrintingServiceImpl(
+        // TODO AK_NEW   @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
+            AkubraRepository akubraRepository,
+            @Named("new-index") SolrAccess solrAccess, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService, Provider<User> userProvider) {
         super();
-        this.fedoraAccess = fedoraAccess;
+        this.akubraRepository = akubraRepository;
         this.solrAccess = solrAccess;
         this.documentService = documentService;
         this.pdfService = pdfService;
@@ -262,14 +267,14 @@ public class PrintingServiceImpl implements PrintingService {
 
         private PreparedDocument document;
         private String imgServletUrl;
-        private FedoraAccess fedoraAccess;
+        private AkubraRepository akubraRepository;
 
         private Dimension page;
         private int dpi;
 
-        public PrintableDoc(FedoraAccess fedoraAccess, PreparedDocument document, String imgServletUrl, Dimension page, int dpi) {
+        public PrintableDoc(AkubraRepository akubraRepository, PreparedDocument document, String imgServletUrl, Dimension page, int dpi) {
             super();
-            this.fedoraAccess = fedoraAccess;
+            this.akubraRepository = akubraRepository;
             this.document = document;
             this.imgServletUrl = imgServletUrl;
 
@@ -300,7 +305,7 @@ public class PrintingServiceImpl implements PrintingService {
                         String pid = ipage.getUuid();
 
                         String imgUrl = createIMGFULL(pid, imgServletUrl);
-                        String mimetypeString = fedoraAccess.getImageFULLMimeType(pid);
+                        String mimetypeString = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
                         ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
                         if (mimetype != null) {
                             BufferedImage javaImg = readImage(new URL(imgUrl), mimetype, 0);
@@ -330,9 +335,6 @@ public class PrintingServiceImpl implements PrintingService {
                     return PAGE_EXISTS;
                 } else
                     return NO_SUCH_PAGE;
-            } catch (XPathExpressionException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                return NO_SUCH_PAGE;
             } catch (MalformedURLException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 return NO_SUCH_PAGE;

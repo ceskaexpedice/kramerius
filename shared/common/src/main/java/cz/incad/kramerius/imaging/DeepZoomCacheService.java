@@ -1,12 +1,11 @@
 package cz.incad.kramerius.imaging;
 
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-
-import cz.incad.kramerius.ProcessSubtreeException;
 
 
 /**

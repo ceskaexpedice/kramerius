@@ -26,7 +26,6 @@ import cz.incad.kramerius.rest.api.guice.HttpAsyncClientLifeCycleHook;
 import cz.incad.kramerius.rest.api.guice.HttpAsyncClientProvider;
 import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
 import cz.incad.kramerius.rest.apiNew.monitoring.impl.SolrAPICallMonitor;
-import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.service.GoogleAnalytics;
 import cz.incad.kramerius.service.LifeCycleHook;
 import cz.incad.kramerius.service.METSService;

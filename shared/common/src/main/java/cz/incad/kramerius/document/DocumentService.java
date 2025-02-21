@@ -19,9 +19,9 @@ package cz.incad.kramerius.document;
 import java.io.IOException;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.pdf.OutOfRangeException;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 /**
  * Document model service
@@ -49,7 +49,7 @@ public interface DocumentService {
      * @throws IOException IO error has been occurred
      * @throws ProcessSubtreeException Error has been occurred during tree processing
      */
-    PreparedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException,OutOfRangeException;
+    PreparedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException, OutOfRangeException, org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
     
     /**
      * Creates flat document model from pids selection

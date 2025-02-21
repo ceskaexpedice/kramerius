@@ -2,6 +2,7 @@ package cz.incad.kramerius.pdf.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -14,11 +15,15 @@ import java.util.Map;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.utils.IOUtils;
 
 public class STUtils {
@@ -49,8 +54,9 @@ public class STUtils {
 		System.out.println(createBundleURL(Locale.getDefault(), " http://localhost:8080/search/i18n"));
 	}
 	
-	public static String metadata(FedoraAccess fedoraAccess, String parentUUID) throws IOException {
-		org.w3c.dom.Document biblioMods = fedoraAccess.getDC(parentUUID);
+	public static String metadata(AkubraRepository akubraRepository, String parentUUID) throws IOException {
+		InputStream inputStream = akubraRepository.getDatastreamContent(parentUUID, KnownDatastreams.BIBLIO_MODS.toString());
+		Document biblioMods = DomUtils.streamToDocument(inputStream);
 		Element root = biblioMods.getDocumentElement();
 		Map stModel = prepareDCModel(root);
 		StringTemplateGroup group = getGroup();
@@ -67,7 +73,8 @@ public class STUtils {
 		String description = stDescription.toString();
 		return description;
 	}
-	
+
+	/* TODO AK_NEW
 	public static String textPage(FedoraAccess fa, String uuid, String modelName, String title) throws IOException {
 		org.w3c.dom.Document biblioMods = fa.getBiblioMods(uuid);
 		Element root = biblioMods.getDocumentElement();
@@ -90,7 +97,7 @@ public class STUtils {
 		intpart.setAttribute("title", title);
 		return intpart.toString();
 	}
-	
+	*/
 	private static void elementMap(Element m,Map parentMap) {
 		Map map = new HashMap();
 		String mprefix = m.getLocalName();
@@ -139,7 +146,7 @@ public class STUtils {
 		for (int i = 0,ll=nlist.getLength(); i < ll; i++) {
 			Node item = nlist.item(i);
 			if (item.getNodeType() == Node.ELEMENT_NODE) {
-				if (item.getNamespaceURI().equals(FedoraNamespaces.DC_NAMESPACE_URI)) {
+				if (item.getNamespaceURI().equals(RepositoryNamespaces.DC_NAMESPACE_URI)) {
 					String name = item.getLocalName();
 					String value = item.getTextContent();
 					if (stModel.containsKey(name)) {
