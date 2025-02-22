@@ -28,16 +28,15 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
 import javax.xml.xpath.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -135,7 +134,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                                 }
 
                                 if (fedoraModel != null && fedoraModel.equals("periodical")) {
-                                    String pidVolume = getEvaluateContext().getFedoraAccess().getFirstVolumePid(pid);
+                                    String pidVolume = RelsExtUtils.getFirstVolumePid(pid, getEvaluateContext().getAkubraRepository());
                                     return mwCalcItem(wallFromConf, modeFromConf, pidVolume);
                                 }
 
@@ -149,7 +148,8 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                                 Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
                             }
 
-                            Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
+                            InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+                            Document biblioMods = DomUtils.streamToDocument(inputStream);
                             // try all xpaths on mods
                             for (String xp : MODS_XPATHS) {
                                 result = resolveInternal(wallFromConf, modeFromConf, pid, fedoraModel, parentPid, parentDate, xp, biblioMods, this.xpfactory);
@@ -196,7 +196,8 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                 for (String pid : pids) {
 
                     if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
-                    Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
+                    InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+                    Document biblioMods = DomUtils.streamToDocument(inputStream);
                     // try all xpaths on mods
                     for (String xp : MODS_XPATHS) {
                         result = resolveInternal(wallFromConf, null, pid, null, null, null, xp, biblioMods, this.xpfactory);
@@ -306,7 +307,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         try {
             Document doc = solrDocument(pidVolume);
             Date dateVolume = parseDate(SolrUtils.disectDate(doc));
-            String pidItem = getEvaluateContext().getFedoraAccess().getFirstItemPid(pidVolume);
+            String pidItem = RelsExtUtils.getFirstItemPid(pidVolume, getEvaluateContext().getAkubraRepository());
             Document itemDoc = solrDocument(pidItem);
             Date dateItem = parseDate(SolrUtils.disectDate(itemDoc));
             Date currentDate = new Date();

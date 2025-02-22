@@ -5,6 +5,10 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -14,6 +18,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -39,13 +44,13 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     @Override
     public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         try {
-            FedoraAccess fedoraAccess = getEvaluateContext().getFedoraAccess();
+            AkubraRepository akubraRepository = getEvaluateContext().getAkubraRepository();
             //getEvaluateContext().getSolrAccess();
             String pid = getEvaluateContext().getRequestedPid();
             if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
-                if ("page".equals(fedoraAccess.getKrameriusModelName(pid))) {
-                    Document mods = XMLUtils.parseDocument(
-                            fedoraAccess.getDataStream(pid, "BIBLIO_MODS"), true);
+                if ("page".equals(RelsExtUtils.getModelName(pid, akubraRepository))) {
+                    InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+                    Document mods = DomUtils.streamToDocument(inputStream, true);
                     if (checkTypeElement(mods).equals(EvaluatingResultState.TRUE))
                         return isNotPeriodical(pid);
                     return checkTypeElement(mods);
@@ -55,7 +60,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
             } else {
                 return EvaluatingResultState.NOT_APPLICABLE;
             }
-        } catch (IOException | SAXException | ParserConfigurationException e) {
+        } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return EvaluatingResultState.NOT_APPLICABLE;
         }

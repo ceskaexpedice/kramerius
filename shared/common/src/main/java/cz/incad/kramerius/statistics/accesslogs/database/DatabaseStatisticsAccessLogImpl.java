@@ -51,6 +51,10 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 
@@ -93,9 +97,13 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
     @Named("new-index")
     SolrAccess solrAccess;
 
+    /* TODO AK_NEW
     @Inject
     @Named("cachedFedoraAccess")
     FedoraAccess fedoraAccess;
+     */
+    @Inject
+    AkubraRepository akubraRepository;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -157,14 +165,9 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                     final String detailPid = pathFromLeafToRoot[j];
 
-                    String kModel = fedoraAccess.getKrameriusModelName(detailPid);
-                    //Document sDoc = this.solrAccess.getSolrDataByPid(pid);
-                    Document dc = null;
-                    try {
-                        dc = fedoraAccess.getDC(detailPid);
-                    } catch (IOException e) {
-                        LOGGER.fine("datastream DC not found for " + detailPid + ", ignoring statistics");
-                    }
+                    String kModel = RelsExtUtils.getModelName(detailPid, akubraRepository);
+                    InputStream inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC.toString());
+                    Document dc = DomUtils.streamToDocument(inputStream);
                     if (dc != null) {
                         Object dateFromDC = DCUtils.dateFromDC(dc);
                         dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);
@@ -181,7 +184,8 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                         Object rights = DCUtils.rightsFromDC(dc);
                         rights = rights != null ? rights : new JDBCUpdateTemplate.NullObject(String.class);
 
-                        Document mods = fedoraAccess.getBiblioMods(detailPid);
+                        inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS.toString());
+                        Document mods = DomUtils.streamToDocument(inputStream);
                         List<String> languagesFromMods = null;
 
                         Map<String, List<String>> identifiers = null;

@@ -20,6 +20,7 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
@@ -68,7 +69,8 @@ public class ProcessingIndexRebuild {
             ProcessStarter.updateName("Přebudování Processing indexu");
         }
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-        final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+// TODO AK_NEW   final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        final AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         final ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
 
         long start = System.currentTimeMillis();
@@ -175,7 +177,7 @@ public class ProcessingIndexRebuild {
         LOGGER.info("Finished tree walk in " + (System.currentTimeMillis() - start) + " ms");
 
         feeder.commit();
-        fa.shutdown();
+        akubraRepository.shutdown();
     }
 
     private static DigitalObject createDigitalObject(InputStream inputStream) {

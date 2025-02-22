@@ -6,10 +6,13 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.processes.starter.ProcessStarter;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.w3c.dom.Document;
 
 import com.google.common.collect.Ordering;
@@ -36,23 +39,21 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class SortingServiceImpl implements SortingService {
 
     public static final Logger LOGGER = Logger.getLogger(SortingServiceImpl.class.getName());
-
     public static final String CONFIG_KEY = "sort.xpaths";
 
-
-    FedoraAccess fedoraAccess;
-
+    AkubraRepository akubraRepository;
     KConfiguration configuration = KConfiguration.getInstance();
-
 
     RelationService relationService;
     private XPathFactory xpathFactory = XPathFactory.newInstance();
     private Map<String, String> sortingConfigMap = new HashMap<String, String>();
 
     @Inject
-    public SortingServiceImpl(@Named("rawFedoraAccess") FedoraAccess fedoraAccess, RelationService relationService) {
-        this.fedoraAccess = fedoraAccess;
-        this.relationService = relationService;
+    public SortingServiceImpl(
+            // TODO AK_NEW @Named("rawFedoraAccess") FedoraAccess fedoraAccess,
+            AkubraRepository akubraRepository,
+            RelationService relationService) {
+        this.akubraRepository = akubraRepository;
         initSortingConfigMap();
     }
 
@@ -74,7 +75,9 @@ public class SortingServiceImpl implements SortingService {
                 } catch (Exception ex) {
                 }
             }
-            Date lastTime = fedoraAccess.getObjectLastmodifiedFlag(pid);
+            // TODO AK_NEW
+            LocalDateTime propertyLastModified = akubraRepository.getObjectProperties(pid).getPropertyLastModified();
+            Date lastTime = Date.from(propertyLastModified.atZone(ZoneId.systemDefault()).toInstant());
             RelationModel model = relationService.load(pid);
             for (KrameriusModels kind : model.getRelationKinds()) {
                 if (KrameriusModels.DONATOR.equals(kind))
@@ -95,10 +98,9 @@ public class SortingServiceImpl implements SortingService {
                     relations.add(new Relation(sortedPid, kind));
                 }
             }
-            Date currTime = fedoraAccess.getObjectLastmodifiedFlag(pid);
-
-            //String lastTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
-            //String currTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
+            // TODO AK_NEW
+            propertyLastModified = akubraRepository.getObjectProperties(pid).getPropertyLastModified();
+            Date currTime = Date.from(propertyLastModified.atZone(ZoneId.systemDefault()).toInstant());
 
             if (currTime.equals(lastTime)) {
                 relationService.save(pid, model);
@@ -129,7 +131,7 @@ public class SortingServiceImpl implements SortingService {
         for (String pid : pids) {
             String sortingValue = null;
             try {
-                Document mods = RelationUtils.getMods(pid, fedoraAccess);
+                Document mods = RelationUtils.getMods(pid, akubraRepository);
                 sortingValue = expr.evaluate(mods);
             } catch (Exception e) {
                 //ignore, will be logged in next step  (sortingValue test)

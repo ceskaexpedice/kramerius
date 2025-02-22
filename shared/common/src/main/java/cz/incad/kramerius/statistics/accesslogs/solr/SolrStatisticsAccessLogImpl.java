@@ -3,6 +3,7 @@ package cz.incad.kramerius.statistics.accesslogs.solr;
 import static org.apache.http.HttpStatus.SC_OK;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -32,6 +33,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 
@@ -81,9 +86,14 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     @Named("new-index")
     SolrAccess solrAccess;
 
+    /* TODO AK_NEW
     @Inject
     @Named("cachedFedoraAccess")
     FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -227,15 +237,10 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                     final String detailPid = pathFromLeafToRoot[j];
-                    String detailModel = fedoraAccess.getKrameriusModelName(detailPid);
+                    String detailModel = RelsExtUtils.getModelName(detailPid, akubraRepository);
                     LogRecordDetail logDetail = LogRecordDetail.buildDetail(detailPid, detailModel);
-
-                    Document dc = null;
-                    try {
-                        dc = fedoraAccess.getDC(detailPid);
-                    } catch (IOException e) {
-                        LOGGER.log(Level.FINE, "datastream DC not found for {0}, ignoring statistics", detailPid);
-                    }
+                    InputStream inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC.toString());
+                    Document dc = DomUtils.streamToDocument(inputStream);
                     if (dc != null) {
                         Object dateFromDC = DCUtils.dateFromDC(dc);
                         if (dateFromDC != null) {
@@ -253,7 +258,8 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                             logRecord.addTitle(title.toString());
                             logDetail.setTitle(title.toString());
                         }
-                        Document mods = fedoraAccess.getBiblioMods(detailPid);
+                        inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS.toString());
+                        Document mods = DomUtils.streamToDocument(inputStream);
                         Map<String, List<String>> identifiers;
                         try {
                             identifiers = ModsUtils.identifiersFromMods(mods);

@@ -2,7 +2,9 @@ package cz.incad.kramerius.service.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +36,8 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.FedoraUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMImplementation;
@@ -105,24 +109,19 @@ public class PolicyServiceImpl implements PolicyService {
         akubraRepository.doWithWriteLock(pid, () -> {
             setPolicyDC(pid, policyName);
             setPolicyRELS_EXT(pid, policyName);
-            setPolicyPOLICY(pid, policyName);
             return null;
         });
     }
 
     private void setPolicyDC(String pid, String policyName) {
-        RepositoryDatastream dcStream = fedoraAccess.getInternalAPI().getObject(pid).getStream(FedoraUtils.DC_STREAM);
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
         try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(dcStream.getContent());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC.toString());
+            Document doc = DomUtils.streamToDocument(inputStream);
             NodeList nodes = selectPolicyDCNodes(doc);
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node node = nodes.item(i);
                 node.setTextContent("policy:" + policyName);
             }
-
             if (((doc.getFeature("Core", "3.0")) == null)
                     || ((doc.getFeature("LS", "3.0")) == null)) {
                 throw new UnsupportedOperationException("DOM3 unsupported");
@@ -138,8 +137,12 @@ public class PolicyServiceImpl implements PolicyService {
             StringWriter swr = new StringWriter();
             lso.setCharacterStream(swr);
             ser.write(doc, lso);
-            fedoraAccess.getInternalAPI().getObject(pid).deleteStream(FedoraUtils.DC_STREAM);
-            fedoraAccess.getInternalAPI().getObject(pid).createStream(FedoraUtils.DC_STREAM, "text/xml", new ByteArrayInputStream(swr.getBuffer().toString().getBytes("UTF-8")));
+            akubraRepository.doWithWriteLock(pid, () -> {
+                akubraRepository.deleteDatastream(pid, KnownDatastreams.BIBLIO_DC.toString());
+                ByteArrayInputStream bis = new ByteArrayInputStream(swr.getBuffer().toString().getBytes(StandardCharsets.UTF_8));
+                akubraRepository.createXMLDatastream(pid, KnownDatastreams.BIBLIO_DC.name(), "text/xml", bis);
+                return null;
+            });
         } catch (Throwable t) {
             LOGGER.severe("Error while setting DC policy" + t);
             throw new RuntimeException(t);
@@ -180,12 +183,12 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
 
-    public FedoraAccess getFedoraAccess() {
-        return fedoraAccess;
+    public AkubraRepository getAkubraRepository() {
+        return akubraRepository;
     }
 
-    public void setFedoraAccess(FedoraAccess fedoraAccess) {
-        this.fedoraAccess = fedoraAccess;
+    public void setAkubraRepository(AkubraRepository akubraRepository) {
+        this.akubraRepository = akubraRepository;
     }
 
 
@@ -193,21 +196,11 @@ public class PolicyServiceImpl implements PolicyService {
     private static final String POLICY_PREDICATE = "http://www.nsdl.org/ontologies/relationships#policy";
     private static final String INFO = "info:fedora/";
 
-    private void setPolicyRELS_EXT(String pid, String policyName) throws RepositoryException {
-        Repository repo = fedoraAccess.getInternalAPI();
-        if (repo.getObject(pid).relationsExists("policy", FedoraNamespaces.KRAMERIUS_URI)) {
-            repo.getObject(pid).removeRelationsByNameAndNamespace("policy", FedoraNamespaces.KRAMERIUS_URI);
+    private void setPolicyRELS_EXT(String pid, String policyName) {
+        if(akubraRepository.relsExtRelationExists(pid, "policy", RepositoryNamespaces.KRAMERIUS_URI)){
+            akubraRepository.relsExtRemoveRelationsByNameAndNamespace(pid,"policy", RepositoryNamespaces.KRAMERIUS_URI);
         }
-
-        repo.getObject(pid).addLiteral("policy", FedoraNamespaces.KRAMERIUS_URI, "policy:" + policyName);
-
-    }
-
-    private void setPolicyPOLICY(String pid, String policyName) {
-        // We don't need this
-        //fedoraAccess.getAPIM().purgeDatastream(pid,"POLICY",null,null,"", false);
-        //fedoraAccess.getAPIM().addDatastream(pid, "POLICY", null, null, false,"application/rdf+xml", null, "http://local.fedora.server/fedora/get/policy:" + policyName + "/POLICYDEF", "E", "A", "DISABLED", null, "");
-        //fedoraAccess.getAPIM().modifyDatastreamByReference(pid, "POLICY", null, null, null, null, "http://local.fedora.server/fedora/get/policy:" + policyName + "/POLICYDEF", null, null, null, false);
+        akubraRepository.relsExtAddLiteral(pid, "policy", RepositoryNamespaces.KRAMERIUS_URI, "policy:" + policyName);
     }
 
     /**
@@ -232,7 +225,8 @@ public class PolicyServiceImpl implements PolicyService {
         PolicyServiceImpl inst = new PolicyServiceImpl();
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-        inst.fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        // TODO AK_NEW inst.fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        inst.akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         inst.configuration = KConfiguration.getInstance();
         if (args.length >= 3) {

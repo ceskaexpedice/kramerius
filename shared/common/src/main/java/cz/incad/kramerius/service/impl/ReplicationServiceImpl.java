@@ -28,6 +28,15 @@ import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.FoxmlType;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
+import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -35,11 +44,8 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
@@ -52,9 +58,14 @@ public class ReplicationServiceImpl implements ReplicationService{
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ReplicationServiceImpl.class.getName());
     
+    /* TODO AK_NEW
     @Inject
     @Named("rawFedoraAccess")
     FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
 
     @Inject
     @Named("new-index")
@@ -83,27 +94,28 @@ public class ReplicationServiceImpl implements ReplicationService{
                 }
             }
             
-            fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
+            RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     if (!pids.contains(pid)) {
                     	pids.add(pid);
                     	if (collections) {
                         	try {
-    							Document relsExt = fedoraAccess.getRelsExt(pid);
+                                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+                                Document relsExt = DomUtils.streamToDocument(inputStream);
     							List<Element> elementsRecursive = XMLUtils.getElementsRecursive(relsExt.getDocumentElement(), new XMLUtils.ElementsFilter() {
     								@Override
     								public boolean acceptElement(Element el) {
     									String namespaceURI = el.getNamespaceURI();
     									String localName = el.getLocalName();
-    									if (namespaceURI.equals(FedoraNamespaces.RDF_NAMESPACE_URI) && localName.equals("isMemberOfCollection")) {
+    									if (namespaceURI.equals(RepositoryNamespaces.RDF_NAMESPACE_URI) && localName.equals("isMemberOfCollection")) {
     										return true;
     									} else  return false;
     								}
     							});
     							
     							for (Element del : elementsRecursive) {
-    								String collectionsAttribute = del.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+    								String collectionsAttribute = del.getAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "resource");
     								if (collectionsAttribute.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
     									collectionsAttribute = collectionsAttribute.substring(PIDParser.INFO_FEDORA_PREFIX.length());
     								}
@@ -129,7 +141,7 @@ public class ReplicationServiceImpl implements ReplicationService{
                 public boolean breakProcessing(String pid, int level) {
                     return false;
                 }
-            });
+            }, akubraRepository);
             return pids;
         } catch (ProcessSubtreeException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -153,8 +165,9 @@ public class ReplicationServiceImpl implements ReplicationService{
     public byte[] getExportedFOXML(String pid, FormatType fType) throws ReplicateException,IOException {
         ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
-            InputStream foxml = fedoraAccess.getFoxml(pid, true);
-            byte[] exported = IOUtils.toByteArray(foxml);
+            DigitalObject digitalObject = akubraRepository.getObject(pid, FoxmlType.archive);
+            InputStream foXml = akubraRepository.marshallObject(digitalObject);
+            byte[] exported = IOUtils.toByteArray(foXml);
             if (format != null) {
                 return format.formatFoxmlData(exported, null, null);
             } else return exported;
@@ -175,7 +188,9 @@ public class ReplicationServiceImpl implements ReplicationService{
 			Object... formatParams) throws ReplicateException, IOException {
         ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
-            byte[] exported = IOUtils.toByteArray(fedoraAccess.getFoxml(pid, true));
+            DigitalObject digitalObject = akubraRepository.getObject(pid, FoxmlType.archive);
+            InputStream foXml = akubraRepository.marshallObject(digitalObject);
+            byte[] exported = IOUtils.toByteArray(foXml);
             if (format != null) {
             	if (formatParams != null && formatParams.length >= 1) {
                     return format.formatFoxmlData(exported, formatParams);

@@ -14,9 +14,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 /**
  * Implementation can cache full images in memory. <br> 

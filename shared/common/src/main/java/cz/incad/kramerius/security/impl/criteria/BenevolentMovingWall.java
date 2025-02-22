@@ -1,6 +1,7 @@
 package cz.incad.kramerius.security.impl.criteria;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,6 +17,8 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import cz.incad.kramerius.security.*;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
@@ -70,17 +73,16 @@ public class BenevolentMovingWall extends AbstractCriterium implements RightCrit
 
     private EvaluatingResultState evaluateByModsDate(String pid, int configWall) {
         try {
-            Document biblioMods = getEvaluateContext().getFedoraAccess().getBiblioMods(pid);
+            InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+            Document biblioMods = DomUtils.streamToDocument(inputStream);
             for (XPathExpression expr : MODS_DATE_XPATH_EXPRS) {
                 Date modsDate = getDate(expr, biblioMods);
                 EvaluatingResultState result = evaluate(modsDate, configWall);
                 if (result != null)
                     return result;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Can't get BIBLIO_MODS datastream of " + pid, e);
-        } catch (XPathExpressionException | TokenStreamException | RecognitionException |NumberFormatException e) {
-            LOGGER.log(Level.WARNING, "Can't parse date from BIBLIO_MODS datastream of " + pid, e);
         }
         return null;
     }

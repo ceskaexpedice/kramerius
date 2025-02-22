@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -63,9 +64,14 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
     @Named("new-index")
     SolrAccess solrAccess;
 
+    /* TODO AK_NEW
     @Inject
     @Named("cachedFedoraAccess")
     FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
 
     @Inject
     VersionService versionService;

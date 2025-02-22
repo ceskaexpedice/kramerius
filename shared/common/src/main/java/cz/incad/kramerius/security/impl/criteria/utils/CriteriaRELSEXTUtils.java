@@ -4,10 +4,14 @@ import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.SpecialObjects;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 
 import javax.xml.xpath.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,10 +43,11 @@ public class CriteriaRELSEXTUtils {
 
     public static EvaluatingResultState evaluateState(RightCriteriumContext ctx, String path, String expectedValue) {
         try {
-            FedoraAccess fa = ctx.getFedoraAccess();
+            AkubraRepository akubraRepository = ctx.getAkubraRepository();
             String requestedPID = ctx.getRequestedPid();
             if (!requestedPID.equals(SpecialObjects.REPOSITORY.getPid())) {
-                Document relsExt = fa.getRelsExt(requestedPID);
+                InputStream inputStream = akubraRepository.getDatastreamContent(requestedPID, KnownDatastreams.RELS_EXT.toString());
+                Document relsExt = DomUtils.streamToDocument(inputStream);
                 return checkValue(relsExt, path,expectedValue);
             } else return EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {

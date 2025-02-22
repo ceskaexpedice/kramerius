@@ -1,6 +1,7 @@
 package cz.incad.kramerius.security.impl.criteria;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,6 +15,8 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import cz.incad.kramerius.security.*;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
@@ -61,8 +64,8 @@ public class Window extends AbstractCriterium implements RightCriterium {
                         // try all xpaths on mods
                         if (pid.equals(SpecialObjects.REPOSITORY.getPid()))
                             continue;
-                        Document biblioMods = getEvaluateContext()
-                                .getFedoraAccess().getBiblioMods(pid);
+                        InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+                        Document biblioMods = DomUtils.streamToDocument(inputStream);
                         for (String xp : MODS_XPATHS) {
                             result = resolveInternal(firstVal, secondVal, pid,
                                     xp, biblioMods);

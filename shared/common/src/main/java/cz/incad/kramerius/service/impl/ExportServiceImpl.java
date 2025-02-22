@@ -15,6 +15,9 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.processes.starter.*;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.FoxmlType;
+import org.ceskaexpedice.akubra.utils.RelsExtUtils;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -58,7 +61,8 @@ public class ExportServiceImpl implements ExportService {
             for (int i = 1; i < set.length; i++) {
                 String childPid = set[i];
                 String subChild = set[i - 1];
-                InputStream foxml = fedoraAccess.getFoxml(childPid, true);
+                DigitalObject digitalObject = akubraRepository.getObject(childPid, FoxmlType.archive);
+                InputStream foxml = akubraRepository.marshallObject(digitalObject);
                 Document doc = XMLUtils.parseDocument(foxml, true);
 
                 Element relsExt = XMLUtils.findElement(doc.getDocumentElement(), (element) -> {
@@ -126,7 +130,7 @@ public class ExportServiceImpl implements ExportService {
     @Override
     public void exportTree(String pid) throws IOException {
 
-        List<String> pids = fedoraAccess.getPids(pid);
+        List<String> pids = RelsExtUtils.getPids(pid, akubraRepository);
         if (pids.isEmpty())
             return;
 
@@ -136,7 +140,8 @@ public class ExportServiceImpl implements ExportService {
             String p = s.replace(INFO, "");
             LOGGER.info("Exporting " + exportDirectory + " " + p);
             try {
-                InputStream foxml = fedoraAccess.getFoxml(p, true);
+                DigitalObject digitalObject = akubraRepository.getObject(p, FoxmlType.archive);
+                InputStream foxml = akubraRepository.marshallObject(digitalObject);
                 store(exportDirectory, p, foxml);
             } catch (Exception ex) {
                 if (configuration.getConfiguration().getBoolean("export.shouldStopWhenFail", true)) {
@@ -182,7 +187,8 @@ public class ExportServiceImpl implements ExportService {
     public static void main(String[] args) throws IOException, TransformerException, SAXException, ParserConfigurationException {
         LOGGER.info("Export service: " + Arrays.toString(args));
         com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.resourceindex.ResourceIndexModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
-        FedoraAccess fa = injector.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("rawFedoraAccess")));
+        // TODO AK_NEW FedoraAccess fa = injector.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("rawFedoraAccess")));
+        AkubraRepository akubraRepository = injector.getInstance(com.google.inject.Key.get(AkubraRepository.class));
         Boolean exportParents = null;
         if (args.length > 1) {
             if (args[args.length - 1].equals("true")) {
@@ -199,7 +205,7 @@ public class ExportServiceImpl implements ExportService {
 
         for (int i = 0; i < args.length; i++) {
             ExportServiceImpl inst = new ExportServiceImpl();
-            inst.fedoraAccess = fa;
+            inst.akubraRepository = akubraRepository;
             inst.configuration = KConfiguration.getInstance();
             inst.solrAccess = new SolrAccessImplNewIndex();
             inst.exportTree(args[i]);
