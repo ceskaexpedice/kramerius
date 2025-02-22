@@ -180,7 +180,7 @@ allprojects {
         }
 
         maven {
-            url "https://repository.springsource.com/maven/bundles/external"
+            url "https://maven.geotoolkit.org/"
         }
 
         maven {
