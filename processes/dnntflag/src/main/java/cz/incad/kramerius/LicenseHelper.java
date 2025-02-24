@@ -1,11 +1,11 @@
 package cz.incad.kramerius;
 
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.kramerius.adapters.ProcessingIndex;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
+import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
 
 public class LicenseHelper {
@@ -196,13 +195,13 @@ public class LicenseHelper {
      * Returns list of pids of own ancestors of an object (@param pid), that don't have another source of license but this object (@param pid)
      * Object is never source of license for itself. Meaning that if it has rels-ext:license, but no rels-ext:containsLicense, it is considered not having source of license.
      */
-    static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, AkubraRepository repository, ProcessingIndex processingIndex, String license) throws ResourceIndexException, IOException {
+    static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, AkubraRepository repository, String license) throws ResourceIndexException, IOException {
         List<String> result = new ArrayList<>();
         String pidOfChild = pid;
         String pidOfParent;
-        while ((pidOfParent = processingIndex.getPidsOfParents(pidOfChild).getFirst()) != null) {
+        while ((pidOfParent = ProcessingIndexUtils.getPidsOfParents(pidOfChild, repository).getLeft()) != null) {
             String pidToBeIgnored = pidOfChild.equals(pid) ? null : pidOfChild; //only grandparent of original pid can be ignored, because it has been already anylized in this loop, but not the original pid
-            boolean hasAnotherSourceOfLicense = hasAnotherSourceOfLicense(pidOfParent, pid, pidToBeIgnored, license, repository, processingIndex);
+            boolean hasAnotherSourceOfLicense = hasAnotherSourceOfLicense(pidOfParent, pid, pidToBeIgnored, license, repository);
             boolean ownsLicense = ownsLicenseByRelsExt(pidOfParent, license, repository);
             if (!hasAnotherSourceOfLicense) { //add this to the list
                 result.add(pidOfParent);
@@ -227,15 +226,15 @@ public class LicenseHelper {
      *                                      This is because we are looking for ANOTHER source of license, not this object. But the source can be even somewhere in this object's subtree.
      * @param pidOfChildToBeIgnored         this object will be completely ignored, i.e. it's ownership of the license won't be checked and it's subtree won't be searched. Because it has been analyzed already.
      */
-    static boolean hasAnotherSourceOfLicense(String pid, String pidOfObjectNotCountedAsSource, String pidOfChildToBeIgnored, String license, AkubraRepository repository, ProcessingIndex processingIndex) throws ResourceIndexException, IOException {
-        List<String> pidsOfOwnChildren = processingIndex.getPidsOfChildren(pid).getFirst();
+    static boolean hasAnotherSourceOfLicense(String pid, String pidOfObjectNotCountedAsSource, String pidOfChildToBeIgnored, String license, AkubraRepository repository) throws ResourceIndexException, IOException {
+        List<String> pidsOfOwnChildren = ProcessingIndexUtils.getPidsOfChildren(pid, repository).getLeft();
         for (String pidOfChild : pidsOfOwnChildren) {
             if (!pidOfChild.equals(pidOfChildToBeIgnored)) { //this one will be completly ignored, because it has already been analyzed
                 if (!pidOfChild.equals(pidOfObjectNotCountedAsSource) && LicenseHelper.ownsLicenseByRelsExt(pidOfChild, license, repository)) { // child (and not the one that's not counted) owns the license, source found
                     return true;
                 }
                 if (LicenseHelper.containsLicenseByRelsExt(pidOfChild, license, repository)) { //child has descendant, that owns the license
-                    if (hasAnotherSourceOfLicense(pidOfChild, pidOfObjectNotCountedAsSource, null, license, repository, processingIndex)) { // found child's descendant (and not the one that's not counted) that has a source
+                    if (hasAnotherSourceOfLicense(pidOfChild, pidOfObjectNotCountedAsSource, null, license, repository)) { // found child's descendant (and not the one that's not counted) that has a source
                         return true;
                     }
                 }

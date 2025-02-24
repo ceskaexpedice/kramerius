@@ -31,9 +31,12 @@ public class RelationGuiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        /* TODO AK_NEW
         FedoraAccess fedoraAccess = EasyMock.createMock(FedoraAccess.class);
         bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).toInstance(fedoraAccess);
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
+
+         */
     }
 
 }

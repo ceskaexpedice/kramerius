@@ -1183,7 +1183,7 @@ public class CollectionsResource extends AdminApiResource {
         }
 
         List<String> streams = akubraRepository.getDatastreamNames(pid);
-        if (streams.contains(cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade.KnownDatastreams.IMG_THUMB)) {
+        if (streams.contains(KnownDatastreams.IMG_THUMB)) {
             collection.thumbnailInfo = ThumbnailbStateEnum.thumb;
         } else if (items.size() > 0) {
             collection.thumbnailInfo = ThumbnailbStateEnum.content;

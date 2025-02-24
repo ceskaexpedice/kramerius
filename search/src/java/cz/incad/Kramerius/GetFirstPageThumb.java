@@ -7,6 +7,7 @@ package cz.incad.Kramerius;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,10 @@ import javax.xml.xpath.XPathFactory;
 
 
 import java.util.ArrayList;
+
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -34,10 +39,15 @@ public class GetFirstPageThumb extends GuiceServlet {
 
     private static final String UUID_PARAMETER = "uuid";
 
+    /* TODO AK_NEW
     @Inject
 	@Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
-    
+
+     */
+    @Inject
+    AkubraRepository akubraRepository;
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param response servlet response
@@ -70,7 +80,6 @@ public class GetFirstPageThumb extends GuiceServlet {
         int num = 0;
         ArrayList<String> pids = new ArrayList<String>();
         try {
-            Document contentDom = fedoraAccess.getRelsExt(pid);
             contentDom = UrlReader.getDocument(command);
             expr = xpath.compile("/RDF/Description/*");
             NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
@@ -121,12 +130,12 @@ public class GetFirstPageThumb extends GuiceServlet {
     }// </editor-fold>
 
     
-	public FedoraAccess getFedoraAccess() {
-		return fedoraAccess;
+	public AkubraRepository getAkubraRepository() {
+		return akubraRepository;
 	}
 
-	public void setFedoraAccess(FedoraAccess fedoraAccess) {
-		this.fedoraAccess = fedoraAccess;
+	public void setAkubraRepository(AkubraRepository akubraRepository) {
+		this.akubraRepository = akubraRepository;
 	}
 
     

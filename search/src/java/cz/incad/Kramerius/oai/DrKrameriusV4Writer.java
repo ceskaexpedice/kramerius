@@ -21,6 +21,9 @@ import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import java.io.ByteArrayInputStream;
@@ -65,7 +68,7 @@ public class DrKrameriusV4Writer implements OaiWriter {
     private final XMLEventFactory eventFactory;
     private final XMLInputFactory inFactory;
     private final RelationService relService;
-    private final FedoraAccess fedora;
+    private final AkubraRepository akubraRepository;
     private final Set<KrameriusModels> topLevelRelations;
     private ExclusiveBuffer buffer;
     private final String pid;
@@ -73,14 +76,14 @@ public class DrKrameriusV4Writer implements OaiWriter {
 
     public DrKrameriusV4Writer(String pid,
             XMLOutputFactory outFactory, XMLEventFactory eventFactory,
-            XMLInputFactory inFactory, RelationService relService, FedoraAccess fedora,
+            XMLInputFactory inFactory, RelationService relService, AkubraRepository akubraRepository,
             Set<KrameriusModels> topLevelRelations) {
         this.pid = pid;
         this.outFactory = outFactory;
         this.eventFactory = eventFactory;
         this.inFactory = inFactory;
         this.relService = relService;
-        this.fedora = fedora;
+        this.akubraRepository = akubraRepository;
         this.topLevelRelations = topLevelRelations;
     }
 
@@ -176,7 +179,8 @@ public class DrKrameriusV4Writer implements OaiWriter {
 
     private String getDCPolicy(String pid) throws IOException {
         String rights;
-        Document document = fedora.getDC(pid);
+        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC.toString());
+        Document document = DomUtils.streamToDocument(inputStream);
         NodeList policyElements = document.getElementsByTagName("dc:rights");
 
         if (policyElements != null && policyElements.getLength() != 0) {
@@ -196,7 +200,7 @@ public class DrKrameriusV4Writer implements OaiWriter {
     }
 
     private InputStream getBiblioStream(String pid) throws IOException {
-        InputStream dataStream = fedora.getDataStream(pid, "BIBLIO_MODS");
+        InputStream dataStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
         return dataStream;
     }
 

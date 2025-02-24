@@ -35,12 +35,12 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.printing.PrintingService;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 public class PrintQueue extends GuiceServlet {
 
@@ -52,10 +52,6 @@ public class PrintQueue extends GuiceServlet {
 
     @Inject
     protected PrintingService printService;
-    
-    @Inject
-    @Named("securedFedoraAccess")
-    protected FedoraAccess fedoraAccess;
 
     protected KConfiguration configuration = KConfiguration.getInstance();
 //    @Inject

@@ -42,6 +42,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.utils.StringUtils;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,7 +54,6 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfWriter;
 
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;

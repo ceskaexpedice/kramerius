@@ -12,19 +12,18 @@ import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.kramerius.adapters.ProcessingIndex;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
-import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
-import cz.kramerius.shared.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
+import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -37,12 +36,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import javax.xml.xpath.XPathExpressionException;
 
 /**
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (delete_tree)
@@ -97,7 +93,7 @@ public class DeleteTreeProcess {
 
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
-        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, ProcessUtils.getCoreBaseUrl());
+        // ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, ProcessUtils.getCoreBaseUrl());
         //check object exists in repository
         // pokud je 
         //boolean existsInProcessingIndex = processingIndex.existsPid(pid);
@@ -106,13 +102,13 @@ public class DeleteTreeProcess {
             throw new RuntimeException(String.format("object %s not found in repository", pid));
         }
 
-        boolean noErrors = deleteTree(pid, true, akubraRepository, processingIndex, indexerAccess, searchIndex, ignoreIncosistencies);
+        boolean noErrors = deleteTree(pid, true, akubraRepository, akubraRepository, indexerAccess, searchIndex, ignoreIncosistencies);
         if (!noErrors) {
             throw new WarningException("failed to delete some objects");
         }
     }
 
-    public static boolean deleteTree(String pid, boolean deletionRoot, AkubraRepository repository, ProcessingIndex processingIndex, SolrIndexAccess indexerAccess, SolrAccess searchIndex, boolean ignoreIncosistencies) throws ResourceIndexException, SolrServerException, IOException {
+    public static boolean deleteTree(String pid, boolean deletionRoot, AkubraRepository repository, AkubraRepository akubraRepository, SolrIndexAccess indexerAccess, SolrAccess searchIndex, boolean ignoreIncosistencies) throws ResourceIndexException, SolrServerException, IOException {
         LOGGER.info(String.format("deleting own tree of %s", pid));
         boolean someProblem = false;
         //
@@ -122,35 +118,35 @@ public class DeleteTreeProcess {
         if (!skipP) {
 
             //1. potomci
-            Pair<List<String>, List<String>> pidsOfChildren = processingIndex.getPidsOfChildren(pid);
+            Pair<List<String>, List<String>> pidsOfChildren = ProcessingIndexUtils.getPidsOfChildren(pid, akubraRepository);
             //1.a. smaz vlastni potomky
-            for (String ownChild : pidsOfChildren.getFirst()) {
-                someProblem &= deleteTree(ownChild, false, repository, processingIndex, indexerAccess, searchIndex, ignoreIncosistencies);
+            for (String ownChild : pidsOfChildren.getLeft()) {
+                someProblem &= deleteTree(ownChild, false, repository, akubraRepository, indexerAccess, searchIndex, ignoreIncosistencies);
             }
 
             //1.b. pokud jsem sbirka a mam nevlastni potomky, odeber celym jejich stromum nalezitost do sbirky (mne) ve vyhledavacim indexu
-            myModel = processingIndex.getModel(pid);
-            if ("collection".equals(myModel) && !pidsOfChildren.getSecond().isEmpty()) {
+            myModel = ProcessingIndexUtils.getModel(pid, akubraRepository);
+            if ("collection".equals(myModel) && !pidsOfChildren.getRight().isEmpty()) {
                 LOGGER.info(String.format("object %s is collection and not empty, removing items from the collection", pid));
-                for (String fosterChild : pidsOfChildren.getSecond()) {
+                for (String fosterChild : pidsOfChildren.getRight()) {
                     removeItemsFromCollectionBeforeDeletingCollection(pid, fosterChild, searchIndex, indexerAccess);
                 }
             }
 
 
             //2. předci
-            Pair<String, Set<String>> pidsOfParents = processingIndex.getPidsOfParents(pid);
+            Pair<String, Set<String>> pidsOfParents = ProcessingIndexUtils.getPidsOfParents(pid, akubraRepository);
             //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
-            if (deletionRoot && pidsOfParents.getFirst() != null) {
-                deleteRelationFromOwnParent(pid, pidsOfParents.getFirst(), repository);
+            if (deletionRoot && pidsOfParents.getLeft() != null) {
+                deleteRelationFromOwnParent(pid, pidsOfParents.getLeft(), repository);
             }
             //2.a. smaz rels-ext vazby na me ze vsech nevlastnich rodicu
-            for (String fosterParent : pidsOfParents.getSecond()) {
+            for (String fosterParent : pidsOfParents.getRight()) {
                 deleteRelationFromForsterParent(pid, fosterParent, repository);
             }
 
             //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
-            updateLicenseFlagsForAncestors(pid, repository, processingIndex, indexerAccess);
+            updateLicenseFlagsForAncestors(pid, akubraRepository, indexerAccess);
 
         } else {
             LOGGER.warning(String.format("object %s is not found in repository, skipping 1b", pid));
@@ -162,16 +158,16 @@ public class DeleteTreeProcess {
         return !someProblem;
     }
 
-    private static void updateLicenseFlagsForAncestors(String pid, AkubraRepository repository, ProcessingIndex resourceIndex, SolrIndexAccess indexerAccess) throws ResourceIndexException, IOException {
-        List<String> licences = LicenseHelper.getLicensesByRelsExt(pid, repository);
+    private static void updateLicenseFlagsForAncestors(String pid, AkubraRepository akubraRepository, SolrIndexAccess indexerAccess) throws ResourceIndexException, IOException {
+        List<String> licences = LicenseHelper.getLicensesByRelsExt(pid, akubraRepository);
         for (String license : licences) {
             //Z rels-ext vsech (vlastnich) predku se odebere containsLicence=L, pokud tam je.
             //A pokud neexistuje jiny zdroj pro licenci (jiny potomek predka, ktery ma rels-ext:containsLicense kvuli jineho objektu, nez targetPid)
             LOGGER.info("updating RELS-EXT record of all (own) ancestors (without another source of license) of the target object " + pid);
-            List<String> pidsOfAncestorsWithoutAnotherSourceOfLicense = LicenseHelper.getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(pid, repository, resourceIndex, license);
+            List<String> pidsOfAncestorsWithoutAnotherSourceOfLicense = LicenseHelper.getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(pid, akubraRepository, license);
             for (String ancestorPid : pidsOfAncestorsWithoutAnotherSourceOfLicense) {
                 if (!DRY_RUN) {
-                    LicenseHelper.removeRelsExtRelationAfterNormalization(ancestorPid, LicenseHelper.RELS_EXT_RELATION_CONTAINS_LICENSE, LicenseHelper.RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED, license, repository);
+                    LicenseHelper.removeRelsExtRelationAfterNormalization(ancestorPid, LicenseHelper.RELS_EXT_RELATION_CONTAINS_LICENSE, LicenseHelper.RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED, license, akubraRepository);
                 }
             }
             //Aktualizuje se index predku, kteri nemaji jiny zdroj licence (odebere se contains_licenses=L) atomic updatem

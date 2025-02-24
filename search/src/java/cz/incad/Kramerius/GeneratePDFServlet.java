@@ -32,7 +32,6 @@ import com.lowagie.text.DocumentException;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.PreparedDocument;
@@ -45,6 +44,7 @@ import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 @Deprecated
 public class GeneratePDFServlet extends GuiceServlet {
@@ -74,10 +74,6 @@ public class GeneratePDFServlet extends GuiceServlet {
     @Inject
     @Named("IMAGE")
     FirstPagePDFService imageFirstPage;
-
-    @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
 
     KConfiguration configuration = KConfiguration.getInstance();
 

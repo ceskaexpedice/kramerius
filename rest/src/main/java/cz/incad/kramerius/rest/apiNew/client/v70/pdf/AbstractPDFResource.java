@@ -28,6 +28,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;

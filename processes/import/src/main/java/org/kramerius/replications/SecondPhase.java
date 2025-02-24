@@ -40,6 +40,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.kramerius.Import;
@@ -333,9 +334,10 @@ public class SecondPhase extends AbstractPhase  {
     }
 
     public boolean findPid(String pid) throws LexerException, IOException {
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         String objectId = pidParseAndGetObjectId(pid);
-        return (fa.isObjectAvailable(objectId) &&  fa.isStreamAvailable(objectId, FedoraUtils.RELS_EXT_STREAM));
+        return (akubraRepository.objectExists(objectId) && akubraRepository.datastreamExists(objectId, KnownDatastreams.RELS_EXT.toString()));
     }
 
 

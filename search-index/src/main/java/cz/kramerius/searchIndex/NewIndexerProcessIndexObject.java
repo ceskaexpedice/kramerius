@@ -10,11 +10,6 @@ import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.kramerius.adapters.ProcessingIndex;
-import cz.kramerius.adapters.RepositoryAccess;
-import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
-import cz.kramerius.adapters.impl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
-import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.execution.IndexationType;
 import cz.kramerius.searchIndex.indexer.execution.Indexer;
@@ -108,6 +103,8 @@ public class NewIndexerProcessIndexObject {
 
         //access to repository through java directly (injected cz.incad.kramerius.FedoraAccess)
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ResourceIndexModule());
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
+        /* TODO AK_NEW
         cz.incad.kramerius.FedoraAccess rawRepositoryAccess = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
         //FedoraAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepositoryAccess);
 
@@ -115,12 +112,13 @@ public class NewIndexerProcessIndexObject {
         cz.incad.kramerius.FedoraAccess rawRepository = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
         RepositoryAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepository);
 
-        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         //access to resource index through new public APIs
         ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, ProcessUtils.getCoreBaseUrl());
 
         KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, processingIndex);
-        Indexer indexer = new Indexer(krameriusRepositoryFascade, solrConfig, System.out, ignoreInconsistentObjects);
+
+         */
+        Indexer indexer = new Indexer(akubraRepository, solrConfig, System.out, ignoreInconsistentObjects);
 
         for (String pid : pids) {
             indexer.indexByObjectPid(pid, IndexationType.valueOf(type), new ProgressListener() {

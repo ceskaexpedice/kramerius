@@ -283,40 +283,6 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         return IIP_FORWARD;
     }
 
-    public static void setStringTemplateModel(String uuid,
-                                              String dataStreamPath, StringTemplate template,
-                                              FedoraAccess fedoraAccess) throws UnsupportedEncodingException,
-            IOException {
-
-        List<String> folderList = new ArrayList<String>();
-        File currentFile = new File(dataStreamPath);
-        while (!currentFile.getName().equals("data")) {
-            folderList
-                    .add(0, URLEncoder.encode(currentFile.getName(), "UTF-8"));
-            currentFile = currentFile.getParentFile();
-        }
-
-        template.setAttribute("dataPath", KConfiguration.getInstance()
-                .getFedoraDataFolderInIIPServer());
-        template.setAttribute("folderList", folderList);
-        template.setAttribute("iipServer", KConfiguration.getInstance()
-                .getUrlOfIIPServer());
-        String smimeType = fedoraAccess.getMimeTypeForStream("uuid:" + uuid,
-                "IMG_FULL");
-
-        ImageMimeType mimeType = ImageMimeType.loadFromMimeType(smimeType);
-        // mimetype a koncovka ! Doplnovat a nedoplnovat
-        if (mimeType != null) {
-            String extension = mimeType.getDefaultFileExtension();
-            if (!dataStreamPath.endsWith("." + extension)) {
-                template.setAttribute("extension", "." + extension);
-            } else {
-                template.setAttribute("extension", "");
-            }
-        } else {
-            template.setAttribute("extension", "");
-        }
-    }
 
     public enum OutputFormats {
         JPEG("image/jpeg", "jpg"), PNG("image/png", "png"),

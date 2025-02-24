@@ -1,10 +1,10 @@
 package cz.incad.kramerius.rest.api.k5.client.utils;
 
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.TreeNodeProcessor;
 
 public class ChildrenNodeProcessor implements TreeNodeProcessor {
 

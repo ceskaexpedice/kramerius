@@ -31,6 +31,7 @@ import cz.knav.pdf.PdfTextUnderImage;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -294,15 +295,14 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     @Override
     public void generateParent(String requestedPid, int numberOfPages,
             String titlePage, OutputStream os, String imgServletUrl,
-            String i18nUrl, int[] rect) throws IOException,
-            ProcessSubtreeException {
+            String i18nUrl, int[] rect) throws IOException {
         try {
             ObjectPidsPath[] paths = solrAccess.getPidPaths(requestedPid);
             final ObjectPidsPath path = selectOnePath(requestedPid, paths);
             generateCustomPDF(this.documentService.buildDocumentAsFlat(path,
                     path.getLeaf(), numberOfPages, rect), os, null, imgServletUrl,
                     i18nUrl, ImageFetcher.WEB);
-        } catch (OutOfRangeException e) {
+        } catch (OutOfRangeException | org.ceskaexpedice.akubra.utils.ProcessSubtreeException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -322,7 +322,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     @Override
     public void fullPDFExport(ObjectPidsPath path, OutputStreams streams,
             Break brk, String djvuUrl, String i18nUrl, int[] rect)
-            throws IOException, ProcessSubtreeException, DocumentException {
+            throws IOException, ProcessSubtreeException, DocumentException, org.ceskaexpedice.akubra.utils.ProcessSubtreeException {
 
         PreparedDocument restOfDoc = documentService
                 .buildDocumentAsTree(path, path.getLeaf(), rect);

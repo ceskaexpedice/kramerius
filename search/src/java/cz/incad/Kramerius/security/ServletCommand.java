@@ -76,10 +76,6 @@ public abstract class ServletCommand {
     protected Provider<Locale> localesProvider;
 
     @Inject
-    @Named("securedFedoraAccess")
-    protected FedoraAccess fedoraAccess;
-
-    @Inject
     protected UserManager userManager;
 
     @Inject

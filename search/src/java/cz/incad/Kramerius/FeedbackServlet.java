@@ -36,10 +36,6 @@ public class FeedbackServlet extends GuiceServlet {
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(MimeTypeServlet.class.getName());
     
-    @Inject
-    @Named("rawFedoraAccess")
-    FedoraAccess fedoraAccess;
-
     KConfiguration configuration = KConfiguration.getInstance();
 
     @Inject

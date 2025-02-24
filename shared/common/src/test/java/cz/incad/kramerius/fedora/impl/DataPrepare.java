@@ -99,98 +99,98 @@ public class DataPrepare {
         
     };
     
-    
-    public static InputStream datastreams33() {
-        String path = "/cz/incad/kramerius/fedora/res/datastreams_3_3";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
+    // TODO AK_NEW
+//    public static InputStream datastreams33() {
+//        String path = "/cz/incad/kramerius/fedora/res/datastreams_3_3";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        return resStream;
+//    }
+//
+//    public static InputStream datastreams34() {
+//        String path = "/cz/incad/kramerius/fedora/res/datastreams_3_4";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        return resStream;
+//    }
+//
+//    public static InputStream datastreams36() {
+//        String path = "/cz/incad/kramerius/fedora/res/datastreams_3_6";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        return resStream;
+//    }
+//
+//
+//    public static InputStream dsProfile33() {
+//        String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_3";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        return resStream;
+//    }
+//
+//    public static InputStream dsProfile36() {
+//        String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_6";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        return resStream;
+//    }
+//
+//    public static InputStream dsProfile34() {
+//        String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_4";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        return resStream;
+//    }
+//
+//    public static InputStream fedoraProfile33() {
+//        String path = "/cz/incad/kramerius/fedora/res/describe_3_3";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        return resStream;
+//    }
+//
+//    public static InputStream fedoraProfile34() {
+//        String path = "/cz/incad/kramerius/fedora/res/describe_3_4";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        return resStream;
+//    }
+//
+//    public static InputStream fedoraProfile36() {
+//        String path = "/cz/incad/kramerius/fedora/res/describe_3_6";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        return resStream;
+//    }
+//
+//
 
-    public static InputStream datastreams34() {
-        String path = "/cz/incad/kramerius/fedora/res/datastreams_3_4";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
 
-    public static InputStream datastreams36() {
-        String path = "/cz/incad/kramerius/fedora/res/datastreams_3_6";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    
-    public static InputStream dsProfile33() {
-        String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_3";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    public static InputStream dsProfile36() {
-        String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_6";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    public static InputStream dsProfile34() {
-        String path = "/cz/incad/kramerius/fedora/res/dsprofile_3_4";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    public static InputStream fedoraProfile33() {
-        String path = "/cz/incad/kramerius/fedora/res/describe_3_3";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    public static InputStream fedoraProfile34() {
-        String path = "/cz/incad/kramerius/fedora/res/describe_3_4";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-    public static InputStream fedoraProfile36() {
-        String path = "/cz/incad/kramerius/fedora/res/describe_3_6";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        return resStream;
-    }
-
-
-
-
-    public static void narodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
-        for (int i = 0; i < NARODNI_LISTY.length; i++) {
-            String pid = NARODNI_LISTY[i];
-            expect(fa.isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)).andReturn(true).anyTimes();
-            relsExt(fa, pid);
-        }        
-    }
-    public static void narodniListyImgFull(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
-        for (int i = 0; i < NARODNI_LISTY.length; i++) {
-            String pid = NARODNI_LISTY[i];
-            expect(fa.isStreamAvailable(pid, FedoraUtils.IMG_FULL_STREAM)).andReturn(true).anyTimes();
-            imgFull(fa, pid);
-        }        
-    }
-
-    public static void drobnustkyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
-        for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
-            String pid = DROBNUSTKY_PIDS[i];
-            expect(fa.isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)).andReturn(true).anyTimes();
-            relsExt(fa, pid);
-        }        
-    }
-
-    public static void relsExt(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
-        PIDParser pidParser = new PIDParser(pid);
-        pidParser.objectPid();
-        String objectId = pidParser.getObjectId();
-        
-        String path = "/cz/incad/kramerius/fedora/res/"+objectId+".xml";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
-    }
-
+//    public static void narodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
+//        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+//            String pid = NARODNI_LISTY[i];
+//            expect(fa.isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)).andReturn(true).anyTimes();
+//            relsExt(fa, pid);
+//        }
+//    }
+//    public static void narodniListyImgFull(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
+//        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+//            String pid = NARODNI_LISTY[i];
+//            expect(fa.isStreamAvailable(pid, FedoraUtils.IMG_FULL_STREAM)).andReturn(true).anyTimes();
+//            imgFull(fa, pid);
+//        }
+//    }
+//
+//    public static void drobnustkyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
+//        for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
+//            String pid = DROBNUSTKY_PIDS[i];
+//            expect(fa.isStreamAvailable(pid, FedoraUtils.RELS_EXT_STREAM)).andReturn(true).anyTimes();
+//            relsExt(fa, pid);
+//        }
+//    }
+//
+//    public static void relsExt(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
+//        PIDParser pidParser = new PIDParser(pid);
+//        pidParser.objectPid();
+//        String objectId = pidParser.getObjectId();
+//
+//        String path = "/cz/incad/kramerius/fedora/res/"+objectId+".xml";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true)).anyTimes();
+//    }
+//
 
 //    public static void solrDoc(SolrAccess sa, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
 //        PIDParser pidParser = new PIDParser(pid);
@@ -210,123 +210,123 @@ public class DataPrepare {
 //        }
 //    }
 
-    public static void imgFull(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
-        PIDParser pidParser = new PIDParser(pid);
-        pidParser.objectPid();
-        String objectId = pidParser.getObjectId();
-        
-        String path = "/cz/incad/kramerius/fedora/res/"+objectId+".jpg";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        byte[] bytes = IOUtils.bos(resStream, true);
-        expect(fa.getImageFULL(pid)).andReturn(new ByteArrayInputStream(bytes)).anyTimes();
-    }
-
-    public static void narodniListyIMGFULL(FedoraAccess fa) throws IOException, LexerException {
-        for (int i = 0; i < NARODNI_LISTY.length; i++) {
-            String pid = NARODNI_LISTY[i];
-            String model = MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-            if (objectId.equals("page")) {
-                expect(fa.isImageFULLAvailable(NARODNI_LISTY[i])).andReturn(true).anyTimes();
-            } else {
-                expect(fa.isImageFULLAvailable(NARODNI_LISTY[i])).andReturn(false).anyTimes();
-                
-            }
-        }
-        
-    }
-
-    public static void narodniListyIMGFULLMimeType(FedoraAccess fa) throws IOException, LexerException {
-        for (int i = 0; i < NARODNI_LISTY.length; i++) {
-            String pid = NARODNI_LISTY[i];
-            String model = MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-            if (objectId.equals("page")) {
-                expect(fa.getMimeTypeForStream(NARODNI_LISTY[i], "IMG_FULL")).andReturn("image/jpeg").anyTimes();
-                
-            }
-        }
-    }
-
-    public static void narodniListyIMGFULLData(FedoraAccess fa) throws IOException, LexerException {
-        for (int i = 0; i < NARODNI_LISTY.length; i++) {
-            String pid = NARODNI_LISTY[i];
-            String model = MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-            if (objectId.equals("page")) {
-                expect(fa.getMimeTypeForStream(NARODNI_LISTY[i], "IMG_FULL")).andReturn("image/jpeg").anyTimes();
-                
-            }
-        }
-    }
-
-    public static void main(String[] args) throws LexerException, IOException {
-        downloadNarodniListy();
-    }
-    public static void downloadNarodniListy() throws LexerException, IOException {
-        String template = "http://kramerius.mzk.cz/search/img?uuid=%s&stream=IMG_PREVIEW&action=GETRAW";
-        for (int i = 0; i < NARODNI_LISTY.length; i++) {
-            String pid = NARODNI_LISTY[i];
-            String model = MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-            if (objectId.equals("page")) {
-                URL url = new URL(String.format(template, pid));
-                File file = new File(System.getProperty("user.home")+File.separator+"tmp"+File.separator+pid.substring("uuid:".length())+".jpg");
-                file.createNewFile();
-                IOUtils.saveToFile(url.openStream(), file,true);
-            }
-        }
-        
-    }
-    
-    public static void drobnustkyWithIMGFULL(FedoraAccess fa) throws IOException {
-        for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
-            if (DROBNUSTKY_PIDS[i].equals("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")) {
-                expect(fa.isImageFULLAvailable(DROBNUSTKY_PIDS[i])).andReturn(false).anyTimes();
-            } else {
-                expect(fa.isImageFULLAvailable(DROBNUSTKY_PIDS[i])).andReturn(true).anyTimes();
-            }
-        }
-    }
-
-    public static void narodniListyDCs(FedoraAccess fa) throws LexerException, ParserConfigurationException, SAXException, IOException {
-        for (int i = 0; i < NARODNI_LISTY.length; i++) {
-            dc(fa,NARODNI_LISTY[i]);
-        }
-    }
-
-    public static void drobnustkyDCS(FedoraAccess fa) throws IOException, LexerException, ParserConfigurationException, SAXException {
-        for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
-            dc(fa,DROBNUSTKY_PIDS[i]);
-        }
-    }
-    
-    public static void narodniListyMods(FedoraAccess fa) throws LexerException, ParserConfigurationException, SAXException, IOException {
-        for (int i = 0; i < NARODNI_LISTY.length; i++) {
-            mods(fa,NARODNI_LISTY[i]);
-        }
-    }
-    
-    public static void drobnustkyMODS(FedoraAccess fa) throws IOException, LexerException, ParserConfigurationException, SAXException {
-        for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
-            mods(fa,DROBNUSTKY_PIDS[i]);
-        }
-    }
-    
-    
-    public static void drobnustkyWithOutIMGFULL(FedoraAccess fa) throws IOException {
-        for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
-            expect(fa.isImageFULLAvailable(DROBNUSTKY_PIDS[i])).andReturn(false);
-        }
-    }
+//    public static void imgFull(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
+//        PIDParser pidParser = new PIDParser(pid);
+//        pidParser.objectPid();
+//        String objectId = pidParser.getObjectId();
+//
+//        String path = "/cz/incad/kramerius/fedora/res/"+objectId+".jpg";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        byte[] bytes = IOUtils.bos(resStream, true);
+//        expect(fa.getImageFULL(pid)).andReturn(new ByteArrayInputStream(bytes)).anyTimes();
+//    }
+//
+//    public static void narodniListyIMGFULL(FedoraAccess fa) throws IOException, LexerException {
+//        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+//            String pid = NARODNI_LISTY[i];
+//            String model = MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//            if (objectId.equals("page")) {
+//                expect(fa.isImageFULLAvailable(NARODNI_LISTY[i])).andReturn(true).anyTimes();
+//            } else {
+//                expect(fa.isImageFULLAvailable(NARODNI_LISTY[i])).andReturn(false).anyTimes();
+//
+//            }
+//        }
+//
+//    }
+//
+//    public static void narodniListyIMGFULLMimeType(FedoraAccess fa) throws IOException, LexerException {
+//        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+//            String pid = NARODNI_LISTY[i];
+//            String model = MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//            if (objectId.equals("page")) {
+//                expect(fa.getMimeTypeForStream(NARODNI_LISTY[i], "IMG_FULL")).andReturn("image/jpeg").anyTimes();
+//
+//            }
+//        }
+//    }
+//
+//    public static void narodniListyIMGFULLData(FedoraAccess fa) throws IOException, LexerException {
+//        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+//            String pid = NARODNI_LISTY[i];
+//            String model = MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//            if (objectId.equals("page")) {
+//                expect(fa.getMimeTypeForStream(NARODNI_LISTY[i], "IMG_FULL")).andReturn("image/jpeg").anyTimes();
+//
+//            }
+//        }
+//    }
+//
+//    public static void main(String[] args) throws LexerException, IOException {
+//        downloadNarodniListy();
+//    }
+//    public static void downloadNarodniListy() throws LexerException, IOException {
+//        String template = "http://kramerius.mzk.cz/search/img?uuid=%s&stream=IMG_PREVIEW&action=GETRAW";
+//        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+//            String pid = NARODNI_LISTY[i];
+//            String model = MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//            if (objectId.equals("page")) {
+//                URL url = new URL(String.format(template, pid));
+//                File file = new File(System.getProperty("user.home")+File.separator+"tmp"+File.separator+pid.substring("uuid:".length())+".jpg");
+//                file.createNewFile();
+//                IOUtils.saveToFile(url.openStream(), file,true);
+//            }
+//        }
+//
+//    }
+//
+//    public static void drobnustkyWithIMGFULL(FedoraAccess fa) throws IOException {
+//        for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
+//            if (DROBNUSTKY_PIDS[i].equals("uuid:0eaa6730-9068-11dd-97de-000d606f5dc6")) {
+//                expect(fa.isImageFULLAvailable(DROBNUSTKY_PIDS[i])).andReturn(false).anyTimes();
+//            } else {
+//                expect(fa.isImageFULLAvailable(DROBNUSTKY_PIDS[i])).andReturn(true).anyTimes();
+//            }
+//        }
+//    }
+//
+//    public static void narodniListyDCs(FedoraAccess fa) throws LexerException, ParserConfigurationException, SAXException, IOException {
+//        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+//            dc(fa,NARODNI_LISTY[i]);
+//        }
+//    }
+//
+//    public static void drobnustkyDCS(FedoraAccess fa) throws IOException, LexerException, ParserConfigurationException, SAXException {
+//        for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
+//            dc(fa,DROBNUSTKY_PIDS[i]);
+//        }
+//    }
+//
+//    public static void narodniListyMods(FedoraAccess fa) throws LexerException, ParserConfigurationException, SAXException, IOException {
+//        for (int i = 0; i < NARODNI_LISTY.length; i++) {
+//            mods(fa,NARODNI_LISTY[i]);
+//        }
+//    }
+//
+//    public static void drobnustkyMODS(FedoraAccess fa) throws IOException, LexerException, ParserConfigurationException, SAXException {
+//        for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
+//            mods(fa,DROBNUSTKY_PIDS[i]);
+//        }
+//    }
+//
+//
+//    public static void drobnustkyWithOutIMGFULL(FedoraAccess fa) throws IOException {
+//        for (int i = 0; i < DROBNUSTKY_PIDS.length; i++) {
+//            expect(fa.isImageFULLAvailable(DROBNUSTKY_PIDS[i])).andReturn(false);
+//        }
+//    }
 
 //    
 //    public static void relsExt(FedoraAccess fa, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
@@ -337,34 +337,34 @@ public class DataPrepare {
 //        expect(fa.getRelsExt(pid)).andReturn(XMLUtils.parseDocument(resStream, true));
 //    }
     
-    public static void dc(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
-        PIDParser pidParser = new PIDParser(pid);
-        pidParser.objectPid();
-
-        String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".dc.xml";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        Document document = XMLUtils.parseDocument(resStream, true);
-        EasyMock.expect(fa.getDC(pid)).andReturn(document).anyTimes();
-    }
-    
-    public static void mods(FedoraAccess fa, String pid) throws LexerException, ParserConfigurationException, SAXException, IOException {
-        PIDParser pidParser = new PIDParser(pid);
-        pidParser.objectPid();
-
-        String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".mods.xml";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        Document document = XMLUtils.parseDocument(resStream, true);
-        EasyMock.expect(fa.getBiblioMods(pid)).andReturn(document).anyTimes();
-    }
-    
-    public static void dataStreams(FedoraAccess fa, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
-        PIDParser pidParser = new PIDParser(pid);
-        pidParser.objectPid();
-
-        String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".datastreams.xml";
-        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
-        expect(fa.getFedoraDataStreamsList(pid)).andReturn(resStream);
-    }
+//    public static void dc(FedoraAccess fa, String pid) throws LexerException, IOException, ParserConfigurationException, SAXException {
+//        PIDParser pidParser = new PIDParser(pid);
+//        pidParser.objectPid();
+//
+//        String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".dc.xml";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        Document document = XMLUtils.parseDocument(resStream, true);
+//        EasyMock.expect(fa.getDC(pid)).andReturn(document).anyTimes();
+//    }
+//
+//    public static void mods(FedoraAccess fa, String pid) throws LexerException, ParserConfigurationException, SAXException, IOException {
+//        PIDParser pidParser = new PIDParser(pid);
+//        pidParser.objectPid();
+//
+//        String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".mods.xml";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        Document document = XMLUtils.parseDocument(resStream, true);
+//        EasyMock.expect(fa.getBiblioMods(pid)).andReturn(document).anyTimes();
+//    }
+//
+//    public static void dataStreams(FedoraAccess fa, String pid) throws IOException, ParserConfigurationException, SAXException, LexerException {
+//        PIDParser pidParser = new PIDParser(pid);
+//        pidParser.objectPid();
+//
+//        String path = "/cz/incad/kramerius/fedora/res/"+pidParser.getObjectId()+".datastreams.xml";
+//        InputStream resStream = FedoraAccessAkubraImpl.class.getResourceAsStream(path);
+//        expect(fa.getFedoraDataStreamsList(pid)).andReturn(resStream);
+//    }
 
 //    uuid:4308eb80-b03b-11dd-a0f6-000d606f5dc6
 //    uuid:4a79bd50-af36-11dd-a60c-000d606f5dc6

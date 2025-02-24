@@ -11,6 +11,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -48,9 +49,15 @@ public class CDKItemResource {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
+    /* TODO AK_NEW
     @Inject
     @Named("securedFedoraAccess")
     FedoraAccess fedoraAccess;
+
+     */
+
+    @Inject
+    AkubraRepository akubraRepository;
 
     public Response providedBy(String pid) {
         try {
@@ -76,8 +83,8 @@ public class CDKItemResource {
                 if (!PIDSupport.isComposedPID(pid)) {
                     // audio streas is not suported
                     if (!FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
-                        final InputStream is = this.fedoraAccess.getDataStream(pid, dsid);
-                        String mimeTypeForStream = this.fedoraAccess.getMimeTypeForStream(pid, dsid);
+                        final InputStream is = akubraRepository.getDatastreamContent(pid, dsid);
+                        String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, dsid).getMimetype();
 
                         StreamingOutput stream = new StreamingOutput() {
                             public void write(OutputStream output) throws IOException, WebApplicationException {
@@ -97,8 +104,6 @@ public class CDKItemResource {
             } else {
                 throw new PIDNotFound("cannot disseminate stream  " + dsid);
             }
-        } catch (IOException e) {
-            throw new PIDNotFound(e.getMessage());
         } catch (SecurityException e) {
             throw new ActionNotAllowed(e.getMessage());
         }
@@ -108,16 +113,14 @@ public class CDKItemResource {
         try {
             if (PIDSupport.isComposedPID(pid)) {
                 String p = PIDSupport.first(pid);
-                if (!this.fedoraAccess.isObjectAvailable(p)) {
+                if (!akubraRepository.objectExists(p)) {
                     throw new PIDNotFound("pid not found");
                 }
             } else {
-                if (!this.fedoraAccess.isObjectAvailable(pid)) {
+                if (!akubraRepository.objectExists(pid)) {
                     throw new PIDNotFound("pid not found");
                 }
             }
-        } catch (IOException e) {
-            throw new PIDNotFound("pid not found");
         } catch (Exception e) {
             throw new PIDNotFound("error while parsing pid (" + pid + ")");
         }

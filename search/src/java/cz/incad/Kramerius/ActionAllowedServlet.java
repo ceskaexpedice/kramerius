@@ -35,9 +35,6 @@ public class ActionAllowedServlet extends GuiceServlet {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MimeTypeServlet.class.getName());
     @Inject
-    @Named("rawFedoraAccess")
-    FedoraAccess fedoraAccess;
-    @Inject
     SolrAccess solrAccess;
     @Inject
     RightsResolver rightsResolver;

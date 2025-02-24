@@ -78,21 +78,21 @@ public class TileSupportImplTest extends AbstractGuiceTestCase {
         
     }
    
-    
+    // TODO AK_NEW
     
     class _Module extends AbstractModule {
         
         @Override
         protected void configure() {
-            TileSupportImpl tis = EasyMock.createMockBuilder(TileSupportImpl.class).withConstructor()
-                .addMockedMethod("getTileSize").createMock();
-            
-            FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
-
-            EasyMock.replay(tis,fa);
-
-            bind(DeepZoomTileSupport.class).toInstance(tis);
-            bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fa);
+//            TileSupportImpl tis = EasyMock.createMockBuilder(TileSupportImpl.class).withConstructor()
+//                .addMockedMethod("getTileSize").createMock();
+//
+//            FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
+//
+//            EasyMock.replay(tis,fa);
+//
+//            bind(DeepZoomTileSupport.class).toInstance(tis);
+//            bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fa);
         }
     }
 

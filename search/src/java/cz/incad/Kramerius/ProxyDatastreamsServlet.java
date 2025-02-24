@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,9 +21,14 @@ public class ProxyDatastreamsServlet extends GuiceServlet {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProxyDatastreamsServlet.class.getName());
 
+    /* TODO AK_NEW
     @Inject
     @Named("securedFedoraAccess")
     private transient FedoraAccess fedoraAccess;
+
+     */
+    @Inject
+    private AkubraRepository akubraRepository;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -30,8 +36,8 @@ public class ProxyDatastreamsServlet extends GuiceServlet {
         String dsName = req.getParameter(DS_NAME);
         checkNull(PID_PARAMETER, pid, resp);
         checkNull(DS_NAME, dsName, resp);
-        String mimeType = this.fedoraAccess.getMimeTypeForStream(pid, dsName);
-        InputStream is = this.fedoraAccess.getDataStream(pid, dsName);
+        String mimeType = akubraRepository.getDatastreamMetadata(pid, dsName).getMimetype();
+        InputStream is = akubraRepository.getDatastreamContent(pid, dsName);
         resp.setContentType(mimeType);
         IOUtils.copy(is, resp.getOutputStream());
     }

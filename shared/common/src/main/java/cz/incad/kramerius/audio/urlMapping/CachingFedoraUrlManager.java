@@ -21,8 +21,12 @@ import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.XpathEvaluator;
 
+import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.utils.DigitalObjectUtils;
+import org.ceskaexpedice.fedoramodel.DatastreamVersionType;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -125,7 +129,7 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
     private URL getUrlFromFedora(AudioStreamId id) throws IOException {
         LOGGER.log(Level.FINE, "getting url for {0}", id);
         try {
-            String urlString = fedoraAccess.getExternalStreamURL(id.getPid(), id.getFormat().name());
+            String urlString = getExternalStreamURL(id.getPid(), id.getFormat().name());
             URL url = new URL(urlString);
             LOGGER.log(Level.FINE, "found url {0} for {1}", new Object[]{url, id});
             return url;
@@ -153,5 +157,23 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
         if (cache != null) {
             cacheManager.removeCache(CACHE_ALIAS);
         }
+    }
+
+    private String getExternalStreamURL(String pid, String datastreamName) throws IOException {
+        DigitalObject object = akubraRepository.getObject(pid);
+        if (object != null) {
+
+            DatastreamVersionType stream = DigitalObjectUtils.getLastStreamVersion(object, datastreamName);
+
+            if (stream != null) {
+                if (stream.getContentLocation() != null && "URL".equals(stream.getContentLocation().getTYPE())) {
+                    return stream.getContentLocation().getREF();
+                } else {
+                    throw new IOException("Expected external datastream: " + pid + " - " + datastreamName);
+                }
+            }
+            throw new IOException("Datastream not found: " + pid + " - " + datastreamName);
+        }
+        throw new IOException("Object not found: " + pid);
     }
 }

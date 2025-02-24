@@ -123,7 +123,7 @@ public class ReplicationServiceImpl implements ReplicationService{
     									pids.add(collectionsAttribute);
     								}
     							}
-    						} catch (IOException e) {
+    						} catch (Exception e) {
     				            LOGGER.log(Level.SEVERE,e.getMessage(),e);
     				            throw new ProcessSubtreeException(e);
     						}

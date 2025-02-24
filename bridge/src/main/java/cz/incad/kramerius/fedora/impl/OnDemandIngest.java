@@ -48,7 +48,7 @@ public class OnDemandIngest {
     }
         // on demand request
     void onDemandIngest(String pid, AkubraRepository internalAPI) throws CollectionException, LexerException, IOException, RepositoryException, JAXBException, TransformerException {
-        FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Requesting info %s", pid));
+        // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Requesting info %s", pid));
         try {
             long start = System.currentTimeMillis();
             Document solrDataDocument = solrAccess.getSolrDataByPid(pid);
@@ -76,7 +76,7 @@ public class OnDemandIngest {
                         // tady by to melo byt synchronizovane
                         // import source
                         Import.ingest(internalAPI, foxml, pid, null, null, true);
-                        FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Whole ingest of %s took %d ms (download foxml %d ms)",pid, (System.currentTimeMillis() - start), (System.currentTimeMillis() - foxmlTime) ));
+                        // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Whole ingest of %s took %d ms (download foxml %d ms)",pid, (System.currentTimeMillis() - start), (System.currentTimeMillis() - foxmlTime) ));
                     }
                 } else throw new IOException("Cannot read data from "+ baseurl +".  Missing property "+"cdk.collections.sources." + source + ".username or "+"cdk.collections.sources." + source + ".pswd  for pid  "+pid);
 
@@ -89,7 +89,7 @@ public class OnDemandIngest {
                 LOGGER.info("document output "+stringWriter.toString());
             }
         } catch (IOException | JAXBException | TransformerException | LexerException | RepositoryException e) {
-            FedoraAccessProxyAkubraImpl.LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
     }
 
@@ -119,7 +119,7 @@ public class OnDemandIngest {
         }
     }
     protected InputStream foxml(String url, String userName, String pswd) {
-        FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Requesting %s", url));
+        // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Requesting %s", url));
         WebResource r = client.resource(url);
         r.addFilter(new BasicAuthenticationClientFilter(userName, pswd));
 
@@ -127,15 +127,15 @@ public class OnDemandIngest {
             return r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
         } catch (UniformInterfaceException ex2) {
             if (ex2.getResponse().getStatus() == 404) {
-                FedoraAccessProxyAkubraImpl.LOGGER.log(Level.WARNING, "Call to {0} failed with message {1}. Skyping document.",
-                        new Object[]{url, ex2.getResponse().toString()});
+                // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.log(Level.WARNING, "Call to {0} failed with message {1}. Skyping document.",
+                        //new Object[]{url, ex2.getResponse().toString()});
                 return null;
             } else {
-                FedoraAccessProxyAkubraImpl.LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
+                // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
                 return r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
             }
         } catch (Exception ex) {
-            FedoraAccessProxyAkubraImpl.LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
+            // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
             return r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
         }
     }

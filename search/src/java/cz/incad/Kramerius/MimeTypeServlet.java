@@ -15,16 +15,23 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 
 public class MimeTypeServlet extends GuiceServlet {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(MimeTypeServlet.class.getName());
 	
+	/* TODO AK_NEW
 	@Inject
 	@Named("securedFedoraAccess")
 	FedoraAccess fedoraAccess;
-	
+
+	 */
+	@Inject
+	AkubraRepository akubraRepository;
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
@@ -33,10 +40,10 @@ public class MimeTypeServlet extends GuiceServlet {
 	            pid = req.getParameter(PID_PARAMETER);
 	        }
 			if ((pid != null) && (!pid.equals(""))) {
-				String mimeType = this.fedoraAccess.getImageFULLMimeType(pid);
+				String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
 				resp.getWriter().println(mimeType);
 			}
-		} catch (XPathExpressionException e) {
+		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}

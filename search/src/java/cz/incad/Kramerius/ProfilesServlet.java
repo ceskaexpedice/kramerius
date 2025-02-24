@@ -43,11 +43,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class ProfilesServlet extends GuiceServlet {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProfilesServlet.class.getName());
-    
-    @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
 
     KConfiguration configuration = KConfiguration.getInstance();
     

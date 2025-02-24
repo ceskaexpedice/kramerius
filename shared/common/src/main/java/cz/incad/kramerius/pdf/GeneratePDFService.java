@@ -7,11 +7,11 @@ import java.io.OutputStream;
 import com.lowagie.text.DocumentException;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.impl.OutputStreams;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
+import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 
 /**
@@ -35,7 +35,7 @@ public interface GeneratePDFService {
      * @throws ProcessSubtreeException algorithm cannot traverse over tree
      * @throws DocumentException Error has been occurred in PDF generation
      */
-    public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url, int[] rect) throws IOException, ProcessSubtreeException, DocumentException;
+    public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url, int[] rect) throws IOException, ProcessSubtreeException, DocumentException, org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 	
     
     /**
