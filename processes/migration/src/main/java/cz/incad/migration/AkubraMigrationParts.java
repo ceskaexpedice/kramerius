@@ -2,7 +2,6 @@ package cz.incad.migration;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -11,6 +10,7 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.akubraproject.map.IdMapper;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper;
 import org.xml.sax.SAXException;
 

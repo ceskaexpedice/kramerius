@@ -2,26 +2,20 @@ package cz.incad.kramerius.resourceindex;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.qbizm.kramerius.imp.jaxb.DatastreamType;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.xml.sax.SAXException;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

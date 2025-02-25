@@ -1,8 +1,6 @@
 package org.kramerius.importmets.convertor;
 
 import com.lizardtech.djvu.DjVuOptions;
-import com.qbizm.kramerius.imp.jaxb.*;
-//import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import cz.incad.kramerius.service.XSLService;
 import cz.incad.kramerius.service.impl.XSLServiceImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -23,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
+import org.ceskaexpedice.fedoramodel.*;
 import org.jsoup.Jsoup;
 import org.kramerius.alto.Alto;
 import org.kramerius.dc.ElementType;

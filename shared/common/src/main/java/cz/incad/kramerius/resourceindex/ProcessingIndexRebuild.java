@@ -4,8 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import com.qbizm.kramerius.imp.jaxb.DatastreamType;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
@@ -15,6 +13,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;

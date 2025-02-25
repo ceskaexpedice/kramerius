@@ -37,13 +37,12 @@ import org.ceskaexpedice.akubra.RelsExtLiteral;
 import org.ceskaexpedice.akubra.RelsExtRelation;
 import org.ceskaexpedice.akubra.RelsExtWrapper;
 import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.fedoramodel.DatastreamType;
+import org.ceskaexpedice.fedoramodel.DatastreamVersionType;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
+import org.ceskaexpedice.fedoramodel.XmlContentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import com.qbizm.kramerius.imp.jaxb.DatastreamType;
-import com.qbizm.kramerius.imp.jaxb.DatastreamVersionType;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import com.qbizm.kramerius.imp.jaxb.XmlContentType;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
