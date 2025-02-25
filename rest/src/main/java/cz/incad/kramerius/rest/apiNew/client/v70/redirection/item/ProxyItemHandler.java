@@ -1,28 +1,17 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection.item;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.Date;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
-
 import com.sun.jersey.api.client.Client;
-
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerSupport;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+
+import javax.ws.rs.core.Response;
+import java.io.InputStream;
+import java.util.logging.Logger;
 
 /**
  * This class is responsible for handing requests from client and pass through to kramerius instance

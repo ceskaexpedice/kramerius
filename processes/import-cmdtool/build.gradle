@@ -12,7 +12,7 @@ compileJava {
 dependencies {
     api project(':shared:common')
 
-    api project(':processes:import-jaxb')
+    //api project(':processes:import-jaxb')
     api project(':processes:import-jaxb-periodical')
     api project(':processes:import-jaxb-monograph')
 

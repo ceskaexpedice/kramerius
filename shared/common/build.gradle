@@ -10,7 +10,7 @@ sourceSets {
 
 dependencies {
     api 'org.ceskaexpedice:akubra:1.0-SNAPSHOT'
-    api project(':processes:import-jaxb')
+//    api project(':processes:import-jaxb')
     // Nullable annotation
     api 'com.google.code.findbugs:jsr305:1.3.9'
     api 'javax.servlet:servlet-api:2.5'
@@ -96,22 +96,7 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest-core:1.3'
     //testImplementation 'org.apache.solr:solr-core:6.3.0'
     
-    //akubra storage
-    api 'org.akubraproject:akubra-core:0.4.0'
-    api ('org.akubraproject:akubra-fs:0.4.0') {
-        exclude group: 'com.google.guava', module: 'guava-collections'
-        exclude group: 'com.google.guava', module: 'guava-annotations'
-        exclude group: 'com.google.guava', module: 'guava-primitives'
-        exclude group: 'com.google.guava', module: 'guava-base'
-    }
-    api ('org.akubraproject:akubra-map:0.4.0'){
-        exclude group: 'com.google.guava', module: 'guava-collections'
-        exclude group: 'com.google.guava', module: 'guava-annotations'
-        exclude group: 'com.google.guava', module: 'guava-primitives'
-        exclude group: 'com.google.guava', module: 'guava-base'
-    }
-    
-    api 'com.hazelcast:hazelcast-all:3.11.2'
+
     api'net.jcip:jcip-annotations:1.0'
 
 	api('nl.siegmann.epublib:epublib-core:3.1') {

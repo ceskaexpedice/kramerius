@@ -1,37 +1,21 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.sync;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
+import com.google.inject.Provider;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.LRProcess;
+import cz.incad.kramerius.processes.LRProcessManager;
+import cz.incad.kramerius.processes.new_api.ProcessInBatch;
+import cz.incad.kramerius.processes.new_api.ProcessManager;
+import cz.incad.kramerius.rest.apiNew.admin.v70.ProcessSchedulingHelper;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.sdnnt.LicenseAPIFetcher;
+import cz.inovatika.sdnnt.SyncConfig;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
@@ -40,32 +24,18 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.google.inject.Provider;
-import com.hazelcast.scheduledexecutor.impl.operations.IsDoneOperation;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-
-import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.new_api.ProcessInBatch;
-import cz.incad.kramerius.processes.new_api.ProcessManager;
-import cz.incad.kramerius.rest.api.processes.utils.SecurityProcessUtils;
-import cz.incad.kramerius.rest.apiNew.admin.v70.ProcessSchedulingHelper;
-import cz.incad.kramerius.rest.apiNew.admin.v70.sync.SDNNTSyncResource.SyncActionEnum;
-import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.inovatika.sdnnt.LicenseAPIFetcher;
-import cz.inovatika.sdnnt.SyncConfig;
-import cz.inovatika.sdnnt.V7APILicenseFetcher;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import java.io.*;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Provides endpoints for synchronization between SDNNT and local kramerius

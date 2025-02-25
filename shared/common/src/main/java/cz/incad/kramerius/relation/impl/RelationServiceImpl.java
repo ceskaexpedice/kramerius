@@ -18,19 +18,17 @@
 package cz.incad.kramerius.relation.impl;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import cz.incad.kramerius.*;
-import cz.incad.kramerius.fedora.om.Repository;
+import cz.incad.kramerius.FedoraNamespaceContext;
+import cz.incad.kramerius.FedoraNamespaces;
+import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.RDFModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
-import cz.incad.kramerius.relation.RelationUtils;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.*;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -44,10 +42,8 @@ import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

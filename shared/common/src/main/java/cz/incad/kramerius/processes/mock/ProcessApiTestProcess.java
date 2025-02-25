@@ -1,7 +1,5 @@
 package cz.incad.kramerius.processes.mock;
 
-import com.hazelcast.internal.json.Json;
-import com.hazelcast.internal.json.JsonValue;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -124,12 +122,15 @@ public class ProcessApiTestProcess {
             String responseBody = errorResponse.getEntity(String.class);
             String bodyToPrint = responseBody;
             if (responseBody != null) {
+                /* TODO AK_NEW
                 try {
                     JsonValue jsonBody = Json.parse(responseBody);
                     bodyToPrint = jsonBody.asString();
                 } catch (Throwable pe) {
                     //not JSON
                 }
+
+                 */
             }
             throw new RuntimeException(errorResponse.toString() + ": " + bodyToPrint, e);
         }

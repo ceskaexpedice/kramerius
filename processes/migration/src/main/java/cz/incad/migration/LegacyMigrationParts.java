@@ -7,7 +7,7 @@ import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
-import org.akubraproject.map.IdMapper;
+// TODO AK_NEW import org.akubraproject.map.IdMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -106,66 +106,67 @@ public enum LegacyMigrationParts {
     }
 
     private static void dbSelect(Connection db, String tablename, File targetDir, String directoryPattern, String sqlCommand, String[] args, Consumer<File> consumer) throws SQLException {
-        IdMapper idMapper = new HashPathIdMapper(directoryPattern);
-        final long start = System.currentTimeMillis();
-        final AtomicInteger currentIteration = new AtomicInteger(0);
-        List<Pair<String, String>> ids = new JDBCQueryTemplate<Pair<String, String>>(db, false) {
-
-            public boolean handleRow(ResultSet rs, List<Pair<String, String>> returnsList) throws SQLException {
-                if ((currentIteration.incrementAndGet() % LOG_MESSAGE_ITERATION) == 0) {
-                    long stop = System.currentTimeMillis();
-                    LOGGER.info("Iteration " + currentIteration + " finished after " + (stop - start) + " ms ");
-                    LOGGER.info("Last processed tokendbid in  " + tablename + ": " + rs.getLong("tokendbid"));
-                }
-
-
-                String token = rs.getString("token");
-                String path = rs.getString("path");
-
-
-                File objectFile = new File(path);
-                if (objectFile.exists()) {
-                    String internalId = idMapper.getInternalId(getBlobId(token)).toString();
-                    String subdirPath = internalId.substring(internalId.indexOf(":") + 1, internalId.lastIndexOf("/"));
-                    String targetFileName = internalId.substring(internalId.lastIndexOf("/") + 1);
-                    File directory = new File(targetDir, subdirPath);
-                    directory.mkdirs();
-
-                    long start = System.currentTimeMillis();
-                    File targetFile = new File(directory, targetFileName);
-                    if (args.length == 7) {
-                    	if ("-m".equalsIgnoreCase(args[6])) {
-                    		boolean renamed = objectFile.renameTo(targetFile);
-                    		//long stop2 = System.currentTimeMillis();
-                    		//LOGGER.info("\t--> objectFile.renameTo(targetFile):" + (stop2 - start) + " ms ");
-                    		if (!renamed) {
-                    			throw new RuntimeException("Cannot rename file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
-                    		}
-                    	}
-
-                    	if ("-c".equalsIgnoreCase(args[6])) {
-                    		try {
-                    			FileUtils.copyFile(objectFile, targetFile, true); // preserve file date = true
-                    			File targetFileForControl = new File(directory, targetFileName);
-                    			boolean contentEquals = FileUtils.contentEquals(objectFile, targetFileForControl);
-                    			//long stop2 = System.currentTimeMillis();
-                    			//LOGGER.info("\t--> FileUtils.copyFile("+objectFile+", "+targetFile+"):" + (stop2 - start) + " ms ");
-                    			if (!contentEquals) {
-                    				throw new RuntimeException("Bad copy file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
-                    			}
-                    		} catch (IOException ioe) {
-                    			LOGGER.info("IOException " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath() + " - "+ioe);                    			
-                    		}
-                    	}
-                    	
-                    	consumer.accept(new File(directory, Utils.encode("info:fedora/" + token)));
-                    }
-                    return true;
-                } else {
-                    return true;
-                }
-            }
-        }.executeQuery(sqlCommand);
+// TODO AK_NEW
+        //        IdMapper idMapper = new HashPathIdMapper(directoryPattern);
+//        final long start = System.currentTimeMillis();
+//        final AtomicInteger currentIteration = new AtomicInteger(0);
+//        List<Pair<String, String>> ids = new JDBCQueryTemplate<Pair<String, String>>(db, false) {
+//
+//            public boolean handleRow(ResultSet rs, List<Pair<String, String>> returnsList) throws SQLException {
+//                if ((currentIteration.incrementAndGet() % LOG_MESSAGE_ITERATION) == 0) {
+//                    long stop = System.currentTimeMillis();
+//                    LOGGER.info("Iteration " + currentIteration + " finished after " + (stop - start) + " ms ");
+//                    LOGGER.info("Last processed tokendbid in  " + tablename + ": " + rs.getLong("tokendbid"));
+//                }
+//
+//
+//                String token = rs.getString("token");
+//                String path = rs.getString("path");
+//
+//
+//                File objectFile = new File(path);
+//                if (objectFile.exists()) {
+//                    String internalId = idMapper.getInternalId(getBlobId(token)).toString();
+//                    String subdirPath = internalId.substring(internalId.indexOf(":") + 1, internalId.lastIndexOf("/"));
+//                    String targetFileName = internalId.substring(internalId.lastIndexOf("/") + 1);
+//                    File directory = new File(targetDir, subdirPath);
+//                    directory.mkdirs();
+//
+//                    long start = System.currentTimeMillis();
+//                    File targetFile = new File(directory, targetFileName);
+//                    if (args.length == 7) {
+//                    	if ("-m".equalsIgnoreCase(args[6])) {
+//                    		boolean renamed = objectFile.renameTo(targetFile);
+//                    		//long stop2 = System.currentTimeMillis();
+//                    		//LOGGER.info("\t--> objectFile.renameTo(targetFile):" + (stop2 - start) + " ms ");
+//                    		if (!renamed) {
+//                    			throw new RuntimeException("Cannot rename file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
+//                    		}
+//                    	}
+//
+//                    	if ("-c".equalsIgnoreCase(args[6])) {
+//                    		try {
+//                    			FileUtils.copyFile(objectFile, targetFile, true); // preserve file date = true
+//                    			File targetFileForControl = new File(directory, targetFileName);
+//                    			boolean contentEquals = FileUtils.contentEquals(objectFile, targetFileForControl);
+//                    			//long stop2 = System.currentTimeMillis();
+//                    			//LOGGER.info("\t--> FileUtils.copyFile("+objectFile+", "+targetFile+"):" + (stop2 - start) + " ms ");
+//                    			if (!contentEquals) {
+//                    				throw new RuntimeException("Bad copy file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
+//                    			}
+//                    		} catch (IOException ioe) {
+//                    			LOGGER.info("IOException " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath() + " - "+ioe);
+//                    		}
+//                    	}
+//
+//                    	consumer.accept(new File(directory, Utils.encode("info:fedora/" + token)));
+//                    }
+//                    return true;
+//                } else {
+//                    return true;
+//                }
+//            }
+//        }.executeQuery(sqlCommand);
     }
 
     static DigitalObject createDigitalObject(InputStream inputStream) {

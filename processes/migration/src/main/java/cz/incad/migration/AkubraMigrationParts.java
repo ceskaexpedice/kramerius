@@ -8,7 +8,6 @@ import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.akubraproject.map.IdMapper;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper;
@@ -67,7 +66,7 @@ public enum AkubraMigrationParts {
                 feeder.deleteProcessingIndex();
             }
             Path objectStoreRoot = Paths.get(datastreamSource);
-            IdMapper idMapper = new HashPathIdMapper(datastreamPattern);
+            // TODO AK_NEW IdMapper idMapper = new HashPathIdMapper(datastreamPattern);
             final AtomicInteger currentIteration = new AtomicInteger(0);
             Files.walk(objectStoreRoot).parallel().filter(Files::isRegularFile).forEach(path -> {
                 try {
@@ -81,23 +80,23 @@ public enum AkubraMigrationParts {
                     } catch (UnsupportedEncodingException e) {
                         // not going to happen - value came from JDK's own StandardCharsets
                     }
-                    String internalId = idMapper.getInternalId(LegacyMigrationParts.getBlobId(filename)).toString();
-                    String subdirPath = internalId.substring(internalId.indexOf(":") + 1, internalId.lastIndexOf("/"));
-                    String targetFileName = internalId.substring(internalId.lastIndexOf("/") + 1);
-                    File directory = new File(datastreamPaths, subdirPath);
-                    directory.mkdirs();
-
-                    File targetFile = new File(directory, targetFileName);
-                    boolean renamed = path.toFile().renameTo(targetFile);
-                    if (!renamed) {
-                        throw new RuntimeException("Cannot rename file " + path + " to " + targetFile.getAbsolutePath());
-                    }
-
-                    if (rebuildProcessingIndex) {
-                        FileInputStream inputStream = new FileInputStream(targetFile);
-                        DigitalObject digitalObject = LegacyMigrationParts.createDigitalObject(inputStream);
-                        rebuildProcessingIndex(feeder, digitalObject, false);
-                    }
+                   // TODO AK_NEW  String internalId = idMapper.getInternalId(LegacyMigrationParts.getBlobId(filename)).toString();
+//                    String subdirPath = internalId.substring(internalId.indexOf(":") + 1, internalId.lastIndexOf("/"));
+//                    String targetFileName = internalId.substring(internalId.lastIndexOf("/") + 1);
+//                    File directory = new File(datastreamPaths, subdirPath);
+//                    directory.mkdirs();
+//
+//                    File targetFile = new File(directory, targetFileName);
+//                    boolean renamed = path.toFile().renameTo(targetFile);
+//                    if (!renamed) {
+//                        throw new RuntimeException("Cannot rename file " + path + " to " + targetFile.getAbsolutePath());
+//                    }
+//
+//                    if (rebuildProcessingIndex) {
+//                        FileInputStream inputStream = new FileInputStream(targetFile);
+//                        DigitalObject digitalObject = LegacyMigrationParts.createDigitalObject(inputStream);
+//                        rebuildProcessingIndex(feeder, digitalObject, false);
+//                    }
                 } catch (Exception ex) {
                     LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
                 }

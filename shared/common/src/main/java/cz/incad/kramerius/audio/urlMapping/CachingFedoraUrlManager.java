@@ -21,7 +21,6 @@ import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.XpathEvaluator;
 
-import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.utils.DigitalObjectUtils;

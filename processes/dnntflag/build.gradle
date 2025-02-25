@@ -1,6 +1,6 @@
 dependencies {
     implementation project(':shared:common')
-    implementation project(':processes:indexer')
+    // implementation project(':processes:indexer')
     implementation project(':processes:import')
     implementation project(':processes:solr-migration')
 
