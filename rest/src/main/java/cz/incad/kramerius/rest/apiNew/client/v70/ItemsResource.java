@@ -170,13 +170,8 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     APICallMonitor apiCallMonitor;
 
-    private Client c;
-
     public ItemsResource() {
         super();
-        this.c = Client.create();
-        this.c.setConnectTimeout(5000);
-        this.c.setReadTimeout(10000);
     }
 
     public static Map<String, String> IIIF_SUPPORTED_MIMETYPES = new HashMap<>();
