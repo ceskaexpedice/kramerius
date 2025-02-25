@@ -16,6 +16,9 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.ColumnText;
 import com.lowagie.text.pdf.PdfContentByte;
+
+import java.awt.Graphics2D;
+import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 
 import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
@@ -29,17 +32,19 @@ public class PdfTextUnderImage {
 
     public static final Logger LOGGER = Logger.getLogger(PdfTextUnderImage.class.getName());
 
-    public static HashMap<String, String> REMAP_FAMILIES = new HashMap<String, String>(){{
-        put("arial", "arial ce");
-        put("times new roman", "gentium plus");
-        put("courier","courier new");
-    }};
+    public static HashMap<String, String> REMAP_FAMILIES = new HashMap<String, String>() {
+        {
+            put("arial", "arial ce");
+            put("times new roman", "gentium plus");
+            put("courier", "courier new");
+        }
+    };
 
     private static boolean registerFontDirectoriesDone = false;
 
-
     private Color fontColor = Color.black;
-    private boolean debug = false;
+    //private boolean debug = true;//Show underText on top
+    //private final boolean debugAlto = true;//Also show alto rectangles (needs debug to be on)
 
     public PdfTextUnderImage() {
         super();
@@ -64,17 +69,9 @@ public class PdfTextUnderImage {
         registerFontDirectoriesDone = true;
     }
 
-    public boolean isDebug() {
-        return debug;
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
-    }
-
     public void imageWithAlto(Document document, PdfWriter writer, org.w3c.dom.Document alto, ScaledImageOptions options) {
         PdfContentByte canvas = writer.getDirectContentUnder();
-        if (this.debug) {
+        if (KConfiguration.getInstance().getConfiguration().getBoolean("alto.debug.standard", false)) {
             this.fontColor = Color.yellow;
             canvas = writer.getDirectContent();
         }
@@ -83,14 +80,36 @@ public class PdfTextUnderImage {
 
     private void putTextsToPdf(Document document, org.w3c.dom.Document alto, PdfContentByte canvas, ScaledImageOptions options) {
         NodeList nodeList = alto.getElementsByTagName("*");
+        float width = options.getWidth();
+        float height = options.getHeight();
+        PdfTemplate pt = canvas.createTemplate(width, height);
+        float[] rgb = Color.orange.getRGBComponents(null);
+        Color debugFillColor = new Color(rgb[0], rgb[1], rgb[2], 0.5f);
+        Graphics2D g = pt.createGraphics(width, height);
+        Boolean debug = KConfiguration.getInstance().getConfiguration().getBoolean("alto.debug.extended", false);
+
         for (int i = 0; i < nodeList.getLength(); i++) {
             Element element = (Element) nodeList.item(i);
             if (isString(element) || isSP(element) || isHYP(element)) {
+
                 String text;
                 int fontStyle;
 
                 if (isString(element)) {
                     text = element.getAttribute("CONTENT");
+                    if (debug) {
+                        if (element.hasAttribute("HEIGHT") && element.hasAttribute("WIDTH") && element.hasAttribute("VPOS") && element.hasAttribute("HPOS")) {
+                            int x = (int) getLowerLeftHorizontal(element, options.getScaleFactor(), options.getXoffset());
+                            int y = (int) getAttrFromElementOrParent(element, "VPOS", options.getScaleFactor());
+                            int w = (int) getAttrFromElementOrParent(element, "WIDTH", options.getScaleFactor());
+                            int h = (int) getHeight(element, options.getScaleFactor());
+                            g.setColor(debugFillColor);
+                            g.fillRect(x, y, w, h);
+                            g.setColor(Color.black);
+                            g.drawRect(x, y, w, h);
+                        }
+
+                    }
                 } else if (isSP(element)) {
                     text = " ";
                 } else {
@@ -110,27 +129,31 @@ public class PdfTextUnderImage {
                 }
                 Float fontSize = getFontSize(element, alto, options);
                 Font font = FontFactory.getFont(fontFamily, BaseFont.IDENTITY_H, BaseFont.EMBEDDED,
-                fontSize, fontStyle, fontColor);
+                        fontSize, fontStyle, fontColor);
                 Phrase phrase = new Phrase(text, font);
                 Float LLV = getLowerLeftVertical(document, element, options.getScaleFactor(), options.getYoffset());
                 Float trueSize = fontSize;
-                if (element.hasAttribute("HEIGHT"))trueSize = Float.parseFloat(element.getAttribute("HEIGHT"))*options.getScaleFactor();
-                if(trueSize>fontSize){
-                    LLV+=(trueSize-fontSize);//Courier does not have letters extending bellow the line. Alto however does take it into consideration. This attempts to center it a little
+                if (element.hasAttribute("HEIGHT")) {
+                    trueSize = Float.parseFloat(element.getAttribute("HEIGHT")) * options.getScaleFactor();
+                }
+                if (trueSize > fontSize) {
+                    LLV += (trueSize - fontSize);//Courier does not have letters extending bellow the line. Alto however does take it into consideration. This attempts to center it a little
                 }
 
                 ColumnText.showTextAligned(canvas, com.lowagie.text.Element.ALIGN_LEFT, phrase,
                         getLowerLeftHorizontal(element, options.getScaleFactor(), options.getXoffset()),
-                        LLV,//getLowerLeftVertical(document, element, options.getScaleFactor(), options.getYoffset()),
+                        LLV,
                         getRotation(element));
             }
         }
+        g.dispose();
+        canvas.addTemplate(pt, 0, 0);// options.getXoffset(), options.getYoffset());
     }
 
     private String getFontFamily(Element element, org.w3c.dom.Document alto) {
-        boolean ignoreSizeAndStyle = KConfiguration.getInstance()
+        /*boolean ignoreSizeAndStyle = KConfiguration.getInstance()
                 .getConfiguration()
-                .getBoolean("pdfQueue.ignoreMissingSizeAndStyle", true);
+                .getBoolean("pdfQueue.ignoreMissingSizeAndStyle", true);*/
         String r = null;
         Element textStyle = getTextStyle(element, alto);
         if (textStyle != null) {
@@ -140,15 +163,15 @@ public class PdfTextUnderImage {
             }
         }
         if (r == null) {
-            if (isSP(element) || isHYP(element)) {
+            r = "Courier";
+            /*if (isSP(element) || isHYP(element)) {
+                r = "Courier";
+            } else if (ignoreSizeAndStyle) {
                 r = "Courier";
             } else {
-                if (ignoreSizeAndStyle) {
-                    r = "Courier";
-                } else {
-                    throwPdfTextUnderImageException();
-                }
-            }
+                throw new PdfTextUnderImageException();
+            }*/
+
         }
         return r;
     }
@@ -172,11 +195,11 @@ public class PdfTextUnderImage {
             } else if (ignoreSizeAndStyle) {
                 String t = element.getAttribute("CONTENT");
                 int width = Integer.parseInt(element.getAttribute("WIDTH"));
-                Float r2 = (((float)width)/t.length())/0.6f;//Courier's width is 60% of its height
+                Float r2 = (((float) width) / t.length()) / 0.6f;//Courier's width is 60% of its height
                 Float r1 = Float.valueOf(element.getAttribute("HEIGHT"));
-                r = Math.min(r1,r2);
+                r = Math.min(r1, r2);
             } else {
-                throwPdfTextUnderImageException();
+                throw new PdfTextUnderImageException();
             }
 
         }
@@ -216,7 +239,7 @@ public class PdfTextUnderImage {
         } else if (((Element) element.getParentNode()).hasAttribute(attrName)) {
             r = pxOrPtOr(((Element) element.getParentNode()).getAttribute(attrName));
         } else {
-            throwPdfTextUnderImageException();
+            throw new PdfTextUnderImageException();
         }
         return r * scale;
 
@@ -295,31 +318,7 @@ public class PdfTextUnderImage {
         float r = Float.parseFloat(s);
         if (ptToPx) {
             r = 15 * r / 4;
-        } /*else {
-            //bad: r = 4 * r / 15;
-        }*/
+        }
         return r;
-        /* bad:
-    	float r = (new Float(s)).floatValue();
-    	if (ptToPx) {
-    		r = 3 * r / 4;
-    	} else {
-    		//r = 4 * r / 3;
-    	}
-    	return r;
-         */
     }
-
-    private static void throwPdfTextUnderImageException() throws PdfTextUnderImageException {
-        throw new PdfTextUnderImageException();
-    }
-
-    private static void throwPdfTextUnderImageException(String s) throws PdfTextUnderImageException {
-        throw new PdfTextUnderImageException(s);
-    }
-
-    private static void throwPdfTextUnderImageException(Exception e) throws PdfTextUnderImageException {
-        throw new PdfTextUnderImageException(e.getMessage(), e);
-    }
-
 }
