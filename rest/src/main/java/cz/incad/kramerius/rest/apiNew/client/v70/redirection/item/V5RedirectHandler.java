@@ -1,45 +1,30 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection.item;
 
+import com.sun.jersey.api.client.*;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import org.apache.commons.lang3.tuple.Pair;
+import org.ceskaexpedice.akubra.core.repository.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.ceskaexpedice.akubra.core.repository.FosterRelationsMapping;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
-import org.ceskaexpedice.akubra.core.repository.KnownRelations;
-import org.ceskaexpedice.akubra.core.repository.OwnRelationsMapping;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler.RequestMethodName;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
 
 public class V5RedirectHandler extends ProxyItemHandler {
 

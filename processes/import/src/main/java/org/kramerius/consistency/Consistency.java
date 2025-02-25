@@ -16,38 +16,31 @@
  */
 package org.kramerius.consistency;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
-
-import javax.xml.transform.TransformerConfigurationException;
-
-import com.google.inject.name.Named;
-import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
-import cz.incad.kramerius.solr.SolrModule;
-import cz.incad.kramerius.statistics.*;
-
-import org.apache.commons.lang3.tuple.Triple;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.TreeNodeProcessStackAware;
+import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.annotations.Process;
+import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.pid.LexerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RelsExtRelation;
 import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
+
+import javax.xml.transform.TransformerConfigurationException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Constitency check process
@@ -74,7 +67,7 @@ public class Consistency {
      * @throws ProcessSubtreeException Processing tree error has been occured
      * @throws LexerException PID Parsing error has been occured
      */
-    public List<NotConsistentRelation> checkConsitency(String rootPid, boolean repair) throws IOException, ProcessSubtreeException, LexerException, RepositoryException {
+    public List<NotConsistentRelation> checkConsitency(String rootPid, boolean repair) throws IOException, ProcessSubtreeException, LexerException {
         TreeProcess deep = new TreeProcess(akubraRepository);
         RelsExtUtils.processSubtree(rootPid, deep, akubraRepository);
         List<NotConsistentRelation> relations = deep.getRelations();
@@ -215,7 +208,7 @@ public class Consistency {
      * @throws LexerException
      */
     @Process
-    public static void process(String pid, Boolean flag) throws IOException, ProcessSubtreeException, LexerException, RepositoryException {
+    public static void process(String pid, Boolean flag) throws IOException, ProcessSubtreeException, LexerException {
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         Consistency consistency = new Consistency();
         injector.injectMembers(consistency);
@@ -223,7 +216,7 @@ public class Consistency {
 
     }
 
-    public static void main(String[] args) throws IOException, ProcessSubtreeException, LexerException, TransformerConfigurationException, RepositoryException {
+    public static void main(String[] args) throws IOException, ProcessSubtreeException, LexerException, TransformerConfigurationException {
         if (args.length == 2) {
             process(args[0], Boolean.valueOf(args[1]));
         }

@@ -27,13 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import net.sf.json.JSONObject;
 
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 import org.kramerius.consistency.Consistency;
 import org.kramerius.replications.pidlist.PIDsListLexer;

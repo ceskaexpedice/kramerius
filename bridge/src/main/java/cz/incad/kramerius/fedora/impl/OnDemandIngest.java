@@ -7,7 +7,6 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.StringUtils;
@@ -93,17 +92,7 @@ public class OnDemandIngest {
         }
     }
 
-    public void ingestWholePathNecessary(Repository internalAPI, String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
-        if (!pid.startsWith(PIDParser.VC_PREFIX)) {
-            ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
-            for (ObjectPidsPath path : pidPaths) {
-                String[] pidsInPath = path.getPathFromLeafToRoot();
-                ingestIfNecessary(internalAPI, pidsInPath);
-            }
-        }
-    }
-
-    public void ingestIfNecessary(Repository internalAPI, String... pids) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
+    public void ingestIfNecessary(AkubraRepository internalAPI, String... pids) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
         for (String pid : pids) {
             ingestIfNecessary(internalAPI, pid);
         }

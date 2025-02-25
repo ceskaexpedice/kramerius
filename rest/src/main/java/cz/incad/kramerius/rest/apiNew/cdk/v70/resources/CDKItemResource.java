@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -20,7 +21,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;

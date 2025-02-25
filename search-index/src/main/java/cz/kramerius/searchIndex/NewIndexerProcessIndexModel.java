@@ -6,10 +6,8 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -50,7 +48,7 @@ public class NewIndexerProcessIndexModel {
      * args[7] - index objects that indexed with current version of indexer
      * args[8]  - optional - if false, do not update Process name, just log (for running as standalone process)
      */
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
+    public static void main(String[] args) throws IOException, SolrServerException {
         //args
        /* LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {

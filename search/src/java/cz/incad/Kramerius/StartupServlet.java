@@ -31,7 +31,6 @@ import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.database.VersionDbInitializer;
 import cz.incad.kramerius.database.VersionService;
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.database.MostDesirableDbInitializer;
 import cz.incad.kramerius.processes.database.ProcessDbInitializer;
@@ -127,7 +126,7 @@ public class StartupServlet extends GuiceServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        HazelcastServerNode.ensureHazelcastNode();
+        // TODO AK_NEW HazelcastServerNode.ensureHazelcastNode();
         super.init(config);
     }
 

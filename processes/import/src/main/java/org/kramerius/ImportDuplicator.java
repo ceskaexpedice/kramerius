@@ -28,7 +28,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
@@ -258,7 +257,7 @@ public class ImportDuplicator {
 
 
 
-    private static void merge(byte[] bytes) throws RepositoryException {
+    private static void merge(byte[] bytes) {
         List<RDFTuple> ingested = readRDF(bytes);
         if (ingested.isEmpty()) {
             return;

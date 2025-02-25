@@ -4,7 +4,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.Repository;
 import cz.incad.kramerius.fedora.utils.CDKUtils;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.StringUtils;
@@ -29,7 +28,6 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 
 public class IngestingThread extends Thread {

@@ -15,8 +15,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 
-import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
@@ -31,6 +29,7 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.LockOperation;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;

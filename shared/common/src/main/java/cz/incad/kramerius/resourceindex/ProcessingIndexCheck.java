@@ -5,8 +5,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -22,7 +20,7 @@ public class ProcessingIndexCheck {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessingIndexCheck.class.getName());
 
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
+    public static void main(String[] args) throws IOException, SolrServerException {
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         // TODO AK_NEW final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class, Names.named("rawFedoraAccess")));

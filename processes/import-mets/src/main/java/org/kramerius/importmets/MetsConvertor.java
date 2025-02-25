@@ -5,7 +5,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
@@ -71,7 +70,7 @@ public class MetsConvertor {
      * args[5] - use image server, optional
      * 
      */
-    public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, RepositoryException, SolrServerException {
+    public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, SolrServerException {
         /*for (int i = 0; i < args.length; i++) {
             System.out.println("arg " + i + ": " + args[i]);
         }*/

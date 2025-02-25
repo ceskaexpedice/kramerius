@@ -5,11 +5,6 @@ import com.google.inject.Injector;
 import com.qbizm.kramerius.imp.jaxb.DatastreamType;
 import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.impl.AkubraObject;
-import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
-import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilder;
-import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilderImpl;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -49,7 +44,7 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
      * args[0] - authToken
      * args[1] - pid
      */
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
+    public static void main(String[] args) throws IOException, SolrServerException {
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -92,7 +87,7 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
             FileInputStream inputStream = new FileInputStream(foxmlFile);
             DigitalObject digitalObject = createDigitalObject(inputStream);
             feeder.deleteByPid(pid); //smazat vsechny existujici vazby z objektu, ALE netyka se tech, co na objekt vedou (ty ted neprebudovavame)
-            rebuildProcessingIndex(feeder, digitalObject);
+            // TODO AK_NEW rebuildProcessingIndex(feeder, digitalObject);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error processing file: " + foxmlFile.getAbsolutePath(), ex);
         }
@@ -130,47 +125,47 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
         }
     }
 
-    private void rebuildProcessingIndex(ProcessingIndexFeeder feeder, DigitalObject digitalObject) throws RepositoryException {
-        try {
-            List<DatastreamType> datastreamList = digitalObject.getDatastream();
-            for (DatastreamType datastreamType : datastreamList) {
-                if (FedoraUtils.RELS_EXT_STREAM.equals(datastreamType.getID())) {
-                    InputStream streamContent = AkubraUtils.getStreamContent(AkubraUtils.getLastStreamVersion(datastreamType), null);
-                    AkubraObject akubraObject = new AkubraObject(null, digitalObject.getPID(), digitalObject, feeder);
-                    rebuildProcessingIndexImpl(akubraObject, streamContent);
-                }
-            }
-        } catch (Exception e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    private void rebuildProcessingIndexImpl(AkubraObject akubraObject, InputStream content) throws RepositoryException {
-        try {
-            String s = IOUtils.toString(content, "UTF-8");
-            RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
-            sparqlBuilder.sparqlProps(s.trim(), (object, localName) -> {
-                akubraObject.processRELSEXTRelationAndFeedProcessingIndex(object, localName);
-                return object;
-            });
-            LOGGER.info("Processed " + akubraObject.getPid());
-        } catch (IOException e) {
-            throw new RepositoryException(e);
-        } catch (SAXException e) {
-            throw new RepositoryException(e);
-        } catch (ParserConfigurationException e) {
-            throw new RepositoryException(e);
-        } finally {
-            try {
-                this.feeder.commit();
-                LOGGER.info("CALLED PROCESSING INDEX COMMIT");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (SolrServerException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
+//    private void rebuildProcessingIndex(ProcessingIndexFeeder feeder, DigitalObject digitalObject) {
+//        try {
+//            List<DatastreamType> datastreamList = digitalObject.getDatastream();
+//            for (DatastreamType datastreamType : datastreamList) {
+//                if (FedoraUtils.RELS_EXT_STREAM.equals(datastreamType.getID())) {
+//                    InputStream streamContent = AkubraUtils.getStreamContent(AkubraUtils.getLastStreamVersion(datastreamType), null);
+//                    AkubraObject akubraObject = new AkubraObject(null, digitalObject.getPID(), digitalObject, feeder);
+//                    rebuildProcessingIndexImpl(akubraObject, streamContent);
+//                }
+//            }
+//        } catch (Exception e) {
+//            throw new RepositoryException(e);
+//        }
+//    }
+//
+//    private void rebuildProcessingIndexImpl(AkubraObject akubraObject, InputStream content) throws RepositoryException {
+//        try {
+//            String s = IOUtils.toString(content, "UTF-8");
+//            RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
+//            sparqlBuilder.sparqlProps(s.trim(), (object, localName) -> {
+//                akubraObject.processRELSEXTRelationAndFeedProcessingIndex(object, localName);
+//                return object;
+//            });
+//            LOGGER.info("Processed " + akubraObject.getPid());
+//        } catch (IOException e) {
+//            throw new RepositoryException(e);
+//        } catch (SAXException e) {
+//            throw new RepositoryException(e);
+//        } catch (ParserConfigurationException e) {
+//            throw new RepositoryException(e);
+//        } finally {
+//            try {
+//                this.feeder.commit();
+//                LOGGER.info("CALLED PROCESSING INDEX COMMIT");
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            } catch (SolrServerException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//    }
 
     /**
      * @see org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper

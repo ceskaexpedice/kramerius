@@ -7,7 +7,6 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
 import cz.incad.kramerius.audio.AudioStreamId;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.CutItem;
 import cz.incad.kramerius.rest.apiNew.client.v70.epub.EPubFileTypes;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
@@ -341,7 +340,7 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    private JSONObject extractAvailableDataInfo(String pid) throws IOException, RepositoryException {
+    private JSONObject extractAvailableDataInfo(String pid) {
         JSONObject dataAvailable = new JSONObject();
         //metadata
         JSONObject metadata = new JSONObject();
@@ -373,7 +372,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
 
-    private Object extractImageSourceInfo(String pid) throws IOException, RepositoryException {
+    private Object extractImageSourceInfo(String pid) {
         JSONObject json = new JSONObject();
         Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString()), false);
         String tilesUrl = org.ceskaexpedice.akubra.utils.Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//tiles-url");
@@ -1510,7 +1509,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
 
-    Pair<InputStream, String> getFirstAvailableImgFull(String pid) throws IOException, RepositoryException {
+    Pair<InputStream, String> getFirstAvailableImgFull(String pid) throws IOException {
         InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL.toString());
         if (is != null) {
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
@@ -1525,7 +1524,7 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    Pair<InputStream, String> getFirstAvailableImgThumb(String pid) throws IOException, RepositoryException {
+    Pair<InputStream, String> getFirstAvailableImgThumb(String pid) throws IOException {
         InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB.toString());
         if (is != null) {
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB.toString()).getMimetype();
@@ -1540,7 +1539,7 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    Pair<InputStream, String> getFirstAvailableImgPreview(String pid) throws IOException, RepositoryException {
+    Pair<InputStream, String> getFirstAvailableImgPreview(String pid) throws IOException {
         InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW.toString());
         if (is != null) {
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW.toString()).getMimetype();
@@ -1555,7 +1554,7 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    private String getPidOfFirstChild(String pid) throws IOException, RepositoryException {
+    private String getPidOfFirstChild(String pid) {
         Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString()), false);
         String xpathExpr = "//hasPage|//hasUnit|//hasVolume|//hasItem|//hasSoundUnit|//hasTrack|//containsTrack|//hasIntCompPart|//isOnPage|//contains";
         Element element = Dom4jUtils.firstElementByXpath(relsExt.getRootElement(), xpathExpr);

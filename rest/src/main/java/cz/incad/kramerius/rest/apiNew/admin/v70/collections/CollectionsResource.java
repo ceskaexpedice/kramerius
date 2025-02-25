@@ -2,8 +2,6 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.Collection.ThumbnailbStateEnum;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.ClientIIIFGenerator;
@@ -37,6 +35,7 @@ import org.ceskaexpedice.akubra.ObjectProperties;
 import org.ceskaexpedice.akubra.ProcessingIndexRelation;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.core.repository.KnownRelations;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
 import org.ceskaexpedice.fedoramodel.DigitalObject;

@@ -10,9 +10,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryDatastream;
-import cz.incad.kramerius.fedora.om.RepositoryObject;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
@@ -74,7 +71,6 @@ import java.util.logging.Logger;
 import cz.incad.kramerius.utils.*;
 
 
-import static cz.incad.kramerius.fedora.om.impl.AkubraUtils.getCurrentXMLGregorianCalendar;
 import static cz.incad.kramerius.utils.XMLUtils.*;
 import static cz.incad.kramerius.FedoraNamespaces.*;
 
@@ -747,7 +743,7 @@ public class Import {
             stream.setCONTROLGROUP("E");
             stream.setVERSIONABLE(false);
             stream.setSTATE(StateType.A);
-            version.setCREATED(getCurrentXMLGregorianCalendar());
+            // TODO AK_NEW version.setCREATED(getCurrentXMLGregorianCalendar());
 
             String externalImagesDirectory = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory");
             String binaryDirectory = externalImagesDirectory + getImgTreePath();

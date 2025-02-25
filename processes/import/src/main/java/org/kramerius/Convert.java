@@ -10,7 +10,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
@@ -31,7 +30,7 @@ public class Convert {
      * @param args[0] visibility (true, false)
      * @throws UnsupportedEncodingException 
      */
-    public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, RepositoryException, SolrServerException {
+    public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, SolrServerException {
         String convertTargetDirectory = System.getProperties().containsKey("convert.target.directory") ? System.getProperty("convert.target.directory") : KConfiguration.getInstance().getProperty("convert.target.directory") ;
         String defaultRights = System.getProperties().containsKey("convert.defaultRights") ?  System.getProperty("convert.defaultRights") : KConfiguration.getInstance().getProperty("convert.defaultRights","false") ;
         String convertDirectory =  System.getProperties().containsKey("convert.directory") ? System.getProperty("convert.directory") : KConfiguration.getInstance().getProperty("convert.directory");
