@@ -660,9 +660,9 @@ public class Import {
             if (t.object != null) {
                 try {
                     if (t.literal) {
-                        repo.relsExtAddLiteral(pid, t.predicate, t.namespace, t.object);
+                        repo.getRelsExtHandler().addLiteral(pid, t.predicate, t.namespace, t.object);
                     } else {
-                        repo.relsExtAddRelation(pid, t.predicate, t.namespace, t.object);
+                        repo.getRelsExtHandler().addRelation(pid, t.predicate, t.namespace, t.object);
                     }
                     //port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, t.literal, null);
                     touched = true;

@@ -116,9 +116,9 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
         ProcessingIndexUtils.doWithProcessingIndexCommit(akubraRepository, (repo) -> {
             if (repo.objectExists(pid)) {
                 akubraRepository.doWithWriteLock(pid, () -> {
-                    boolean flag = akubraRepository.relsExtRelationExists(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
+                    boolean flag = akubraRepository.getRelsExtHandler().relationExists(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
                     if (flag) {
-                        akubraRepository.relsExtRemoveRelationsByNameAndNamespace(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
+                        akubraRepository.getRelsExtHandler().removeRelationsByNameAndNamespace(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
                     }
                     return null;
                 });
@@ -130,11 +130,11 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
         ProcessingIndexUtils.doWithProcessingIndexCommit(akubraRepository, (repo) -> {
             if (repo.objectExists(pid)) {
                 akubraRepository.doWithWriteLock(pid, () -> {
-                    boolean flag = akubraRepository.relsExtRelationExists(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
+                    boolean flag = akubraRepository.getRelsExtHandler().relationExists(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
                     if (flag) {
-                        akubraRepository.relsExtRemoveRelationsByNameAndNamespace(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
+                        akubraRepository.getRelsExtHandler().removeRelationsByNameAndNamespace(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
                     }
-                    akubraRepository.relsExtAddLiteral(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI, tilesUrl);
+                    akubraRepository.getRelsExtHandler().addLiteral(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI, tilesUrl);
                     return null;
                 });
 

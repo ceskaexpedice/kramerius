@@ -66,7 +66,7 @@ public class DeleteServiceImpl implements DeleteService {
             for (Pair<String, String> p : pairs) {
                 String right = p.getRight();
                 String left = p.getLeft();
-                repo.relsExtRemoveRelation(left, right, RepositoryNamespaces.KRAMERIUS_URI, deletingPids);
+                repo.getRelsExtHandler().removeRelation(left, right, RepositoryNamespaces.KRAMERIUS_URI, deletingPids);
             }
         }
 
@@ -94,9 +94,9 @@ public class DeleteServiceImpl implements DeleteService {
             boolean parentRemoved = false;
 
             String finalParentPid = parentPid;
-            akubraRepository.relsExtGet(parentPid).getRelations(RepositoryNamespaces.KRAMERIUS_URI).forEach(rel -> {
+            akubraRepository.getRelsExtHandler().get(parentPid).getRelations(RepositoryNamespaces.KRAMERIUS_URI).forEach(rel -> {
                 if (rel.getResource().equals(pid)) {
-                    akubraRepository.relsExtRemoveRelation(finalParentPid, rel.getNamespace(), rel.getLocalName(), pid);
+                    akubraRepository.getRelsExtHandler().removeRelation(finalParentPid, rel.getNamespace(), rel.getLocalName(), pid);
                 }
             });
 
