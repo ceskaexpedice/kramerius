@@ -1033,14 +1033,18 @@ public class CollectionsResource extends AdminApiResource {
     private Collection fetchCollectionFromRepository(String pid, boolean withContent, boolean withItems) throws
             IOException, RepositoryException, SolrServerException {
 
+
         Collection collection = new Collection();
         collection.pid = pid;
         //timestamps from Foxml properties
 
         ObjectProperties objectProperties = akubraRepository.getObjectProperties(pid);
         if(objectProperties != null) {
+            /* TODO AK_NEW
             collection.created = objectProperties.getPropertyCreated();
             collection.modified = objectProperties.getPropertyLastModified();
+
+             */
         }
 
         //data from MODS

@@ -74,9 +74,7 @@ public class SortingServiceImpl implements SortingService {
                 } catch (Exception ex) {
                 }
             }
-            // TODO AK_NEW
-            LocalDateTime propertyLastModified = akubraRepository.getObjectProperties(pid).getPropertyLastModified();
-            Date lastTime = Date.from(propertyLastModified.atZone(ZoneId.systemDefault()).toInstant());
+            Date lastTime = akubraRepository.getObjectProperties(pid).getPropertyLastModified();
             RelationModel model = relationService.load(pid);
             for (KrameriusModels kind : model.getRelationKinds()) {
                 if (KrameriusModels.DONATOR.equals(kind))
@@ -97,9 +95,7 @@ public class SortingServiceImpl implements SortingService {
                     relations.add(new Relation(sortedPid, kind));
                 }
             }
-            // TODO AK_NEW
-            propertyLastModified = akubraRepository.getObjectProperties(pid).getPropertyLastModified();
-            Date currTime = Date.from(propertyLastModified.atZone(ZoneId.systemDefault()).toInstant());
+            Date currTime = akubraRepository.getObjectProperties(pid).getPropertyLastModified();
 
             if (currTime.equals(lastTime)) {
                 relationService.save(pid, model);
