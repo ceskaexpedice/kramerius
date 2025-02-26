@@ -477,26 +477,15 @@ public class Import {
                                     final DigitalObject transactionDigitalObject = dobj;
 
 
-                                    final String[] mimeType = {"text/xml"};
-                                    akubraRepository.doWithWriteLock(transactionDigitalObject.getPID(), () -> {
-                                        if (akubraRepository.datastreamExists(transactionDigitalObject.getPID(), ds.getID())) {
-                                            mimeType[0] = akubraRepository.getDatastreamMetadata(transactionDigitalObject.getPID(), ds.getID()).getMimetype();
-                                            akubraRepository.deleteDatastream(transactionDigitalObject.getPID(), ds.getID());
-                                        }
-                                        akubraRepository.createXMLDatastream(transactionDigitalObject.getPID(), ds.getID(), mimeType[0], new ByteArrayInputStream(outputStream.toByteArray()));
-                                        return null;
-                                    });
+                                    String mimeType = akubraRepository.getDatastreamMetadata(transactionDigitalObject.getPID(), ds.getID()).getMimetype();
+                                    akubraRepository.updateXMLDatastream(transactionDigitalObject.getPID(), ds.getID(), mimeType, new ByteArrayInputStream(outputStream.toByteArray()));
                                 } else if (dsversion.getBinaryContent() != null) {
                                     throw new RuntimeException("Update of managed binary datastream content is not supported.");
                                 } else if (dsversion.getContentLocation() != null) {
 
                                     final DigitalObject transactionDigitalObject = dobj;
-                                    akubraRepository.doWithWriteLock(transactionDigitalObject.getPID(), () -> {
-                                        String mimeType = akubraRepository.getDatastreamMetadata(transactionDigitalObject.getPID(), ds.getID()).getMimetype();
-                                        akubraRepository.deleteDatastream(transactionDigitalObject.getPID(), ds.getID());
-                                        akubraRepository.createRedirectedDatastream(transactionDigitalObject.getPID(), ds.getID(), dsversion.getContentLocation().getREF(), mimeType);
-                                        return null;
-                                    });
+                                    String mimeType = akubraRepository.getDatastreamMetadata(transactionDigitalObject.getPID(), ds.getID()).getMimetype();
+                                    akubraRepository.updateRedirectedDatastream(transactionDigitalObject.getPID(), ds.getID(), dsversion.getContentLocation().getREF(), mimeType);
                                 }
                             }
                         }

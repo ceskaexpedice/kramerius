@@ -315,12 +315,8 @@ public class CollectionsResource extends AdminApiResource {
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     ImageIO.write(scaled, "png", bos);
 
-                    akubraRepository.doWithWriteLock(pid, () -> {
-                        akubraRepository.deleteDatastream(pid, KnownDatastreams.IMG_THUMB.name());
-                        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-                        akubraRepository.createManagedDatastream(pid, KnownDatastreams.IMG_THUMB.name(), "image/png", bis);
-                        return null;
-                    });
+                    ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+                    akubraRepository.updateManagedDatastream(pid, KnownDatastreams.IMG_THUMB.name(), "image/png", bis);
 
                     Collection nCol = fetchCollectionFromRepository(pid, true, true);
                     return Response.ok(nCol.toJson()).build();
@@ -369,21 +365,13 @@ public class CollectionsResource extends AdminApiResource {
                     //fetch items in collection first (otherwise eventual consistency of processing index would cause no items in new version of rels-ext)
                     List<String> itemsInCollection = ProcessingIndexUtils.getTripletTargets(KnownRelations.CONTAINS.toString(), pid, akubraRepository);
                     //rebuild and update mods
-                    akubraRepository.doWithWriteLock(pid, () -> {
-                        akubraRepository.deleteDatastream(pid, KnownDatastreams.BIBLIO_MODS.name());
-                        Document document = foxmlBuilder.buildMods(updated);
-                        ByteArrayInputStream bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
-                        akubraRepository.createXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS.name(), "text/xml", bis);
-                        return null;
-                    });
+                    Document document = foxmlBuilder.buildMods(updated);
+                    ByteArrayInputStream bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
+                    akubraRepository.updateXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS.name(), "text/xml", bis);
                     //rebuild and update rels-ext (because of "standalone")
-                    akubraRepository.doWithWriteLock(pid, () -> {
-                        akubraRepository.deleteDatastream(pid, KnownDatastreams.RELS_EXT.toString());
-                        Document document = foxmlBuilder.buildRelsExt(updated, itemsInCollection);
-                        ByteArrayInputStream bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
-                        akubraRepository.createXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
-                        return null;
-                    });
+                    document = foxmlBuilder.buildRelsExt(updated, itemsInCollection);
+                    bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
+                    akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
                     //schedule reindexation - (only collection object)
                     scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
                 }
@@ -471,12 +459,8 @@ public class CollectionsResource extends AdminApiResource {
                     throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
                 }
                 //save updated rels-ext
-                akubraRepository.doWithWriteLock(collectionPid, () -> {
-                    akubraRepository.deleteDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString());
-                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.createXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
-                    return null;
-                });
+                ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
                 //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
                 if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
@@ -571,12 +555,8 @@ public class CollectionsResource extends AdminApiResource {
                 }
                 if (atLeastOneAdded) {
                     //save updated rels-ext
-                    akubraRepository.doWithWriteLock(collectionPid, () -> {
-                        akubraRepository.deleteDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString());
-                        ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                        akubraRepository.createXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
-                        return null;
-                    });
+                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                    akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
                     //no need to re-index collection itself
                     if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                         LOGGER.info("Ommiting indexation");
@@ -691,12 +671,8 @@ public class CollectionsResource extends AdminApiResource {
                 }
 
                 // save updated rels-ext
-                akubraRepository.doWithWriteLock(collectionPid, () -> {
-                    akubraRepository.deleteDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString());
-                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.createXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
-                    return null;
-                });
+                ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
 
                 reindexCollection.forEach(itemPid -> {
                     // schedule reindexations - 1. item that was removed (whole tree and foster
@@ -760,12 +736,8 @@ public class CollectionsResource extends AdminApiResource {
                     throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
                 }
                 //save updated rels-ext
-                akubraRepository.doWithWriteLock(collectionPid, () -> {
-                    akubraRepository.deleteDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString());
-                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.createXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
-                    return null;
-                });
+                ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
                 //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
                 scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
@@ -897,12 +869,8 @@ public class CollectionsResource extends AdminApiResource {
                     jsonArray.remove(index);
 
                     JSONArray finalJsonArray = jsonArray;
-                    akubraRepository.doWithWriteLock(collectionPid, () -> {
-                        akubraRepository.deleteDatastream(collectionPid, COLLECTION_CLIPS);
-                        ByteArrayInputStream bis = new ByteArrayInputStream(finalJsonArray.toString().getBytes(Charset.forName("UTF-8")));
-                        akubraRepository.createManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
-                        return null;
-                    });
+                    ByteArrayInputStream bis = new ByteArrayInputStream(finalJsonArray.toString().getBytes(Charset.forName("UTF-8")));
+                    akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
                     Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
                     return Response.ok(collection.toJson()).build();
 
@@ -975,12 +943,8 @@ public class CollectionsResource extends AdminApiResource {
                     }
                     if (cuttingsModified) {
                         JSONArray finalFetchedJSONArray = fetchedJSONArray;
-                        akubraRepository.doWithWriteLock(collectionPid, () -> {
-                            akubraRepository.deleteDatastream(collectionPid, COLLECTION_CLIPS);
-                            ByteArrayInputStream bis = new ByteArrayInputStream(finalFetchedJSONArray.toString().getBytes(Charset.forName("UTF-8")));
-                            akubraRepository.createManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
-                            return null;
-                        });
+                        ByteArrayInputStream bis = new ByteArrayInputStream(finalFetchedJSONArray.toString().getBytes(Charset.forName("UTF-8")));
+                        akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
                         for (String thumbName : thumbsToDelete) {
                             if (akubraRepository.datastreamExists(collectionPid, thumbName)) {
                                 akubraRepository.deleteDatastream(collectionPid, thumbName);
@@ -1044,12 +1008,8 @@ public class CollectionsResource extends AdminApiResource {
                                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                                 ImageIO.write(thumb, "png", bos);
 
-                                akubraRepository.doWithWriteLock(collectionPid, () -> {
-                                    akubraRepository.deleteDatastream(collectionPid, thumbName);
-                                    ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-                                    akubraRepository.createManagedDatastream(collectionPid, thumbName, "image/png", bis);
-                                    return null;
-                                });
+                                ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+                                akubraRepository.updateManagedDatastream(collectionPid, thumbName, "image/png", bis);
                             } catch (Exception e) {
                                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                             }
@@ -1059,12 +1019,8 @@ public class CollectionsResource extends AdminApiResource {
                 jsonArray.put(json);
 
                 JSONArray finalJsonArray = jsonArray;
-                akubraRepository.doWithWriteLock(collectionPid, () -> {
-                    akubraRepository.deleteDatastream(collectionPid, COLLECTION_CLIPS);
-                    ByteArrayInputStream bis = new ByteArrayInputStream(finalJsonArray.toString().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.createManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
-                    return null;
-                });
+                ByteArrayInputStream bis = new ByteArrayInputStream(finalJsonArray.toString().getBytes(Charset.forName("UTF-8")));
+                akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
                 Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
                 return Response.ok(collection.toJson()).build();
             }

@@ -406,12 +406,8 @@ public class ItemsResource extends AdminApiResource {
             for (String childPid : newChildrenOrderPids) {
                 foxmlBuilder.appendRelationToRelsExt(pid, relsExt, foxmlChildrenPidToRelationName.get(childPid), childPid);
             }
-            akubraRepository.doWithWriteLock(pid, () -> {
-                akubraRepository.deleteDatastream(pid, KnownDatastreams.RELS_EXT.toString());
-                ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.createXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
-                return null;
-            });
+            ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+            akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
 
             scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT_AND_CHILDREN", false, pid);
             return Response.ok().build();
@@ -698,50 +694,30 @@ public class ItemsResource extends AdminApiResource {
                 String mimeType = requestHeader.get(0);
                 if (mimeType.equals(MediaType.APPLICATION_XML)) {
                     Document dom4j = Dom4jUtils.streamToDocument(inputStream, true);
-                    akubraRepository.doWithWriteLock(pid, () -> {
-                        akubraRepository.deleteDatastream(pid, dsid);
-                        ByteArrayInputStream bis = new ByteArrayInputStream(dom4j.asXML().getBytes(Charset.forName("UTF-8")));
-                        akubraRepository.createXMLDatastream(pid, dsid, "text/xml", bis);
-                        return null;
-                    });
+                    ByteArrayInputStream bis = new ByteArrayInputStream(dom4j.asXML().getBytes(Charset.forName("UTF-8")));
+                    akubraRepository.updateXMLDatastream(pid, dsid, "text/xml", bis);
                     return Response.status(Response.Status.OK).build();
 
                 } else if (mimeType.equals(MediaType.APPLICATION_OCTET_STREAM)) {
                     byte[] stream = IOUtils.toByteArray(inputStream);
-                    akubraRepository.doWithWriteLock(pid, () -> {
-                        akubraRepository.deleteDatastream(pid, dsid);
-                        ByteArrayInputStream bis = new ByteArrayInputStream(stream);
-                        akubraRepository.createManagedDatastream(pid, dsid, mimeType, bis);
-                        return null;
-                    });
+                    ByteArrayInputStream bis = new ByteArrayInputStream(stream);
+                    akubraRepository.updateManagedDatastream(pid, dsid, mimeType, bis);
                     return Response.status(Response.Status.OK).build();
                 } else if (mimeType.equals(MediaType.APPLICATION_JSON)) {
                     byte[] stream = IOUtils.toByteArray(inputStream);
-                    akubraRepository.doWithWriteLock(pid, () -> {
-                        akubraRepository.deleteDatastream(pid, dsid);
-                        ByteArrayInputStream bis = new ByteArrayInputStream(stream);
-                        akubraRepository.createManagedDatastream(pid, dsid, mimeType, bis);
-                        return null;
-                    });
+                    ByteArrayInputStream bis = new ByteArrayInputStream(stream);
+                    akubraRepository.updateManagedDatastream(pid, dsid, mimeType, bis);
                     return Response.status(Response.Status.OK).build();
                 } else {
                     byte[] stream = IOUtils.toByteArray(inputStream);
-                    akubraRepository.doWithWriteLock(pid, () -> {
-                        akubraRepository.deleteDatastream(pid, dsid);
-                        ByteArrayInputStream bis = new ByteArrayInputStream(stream);
-                        akubraRepository.createManagedDatastream(pid, dsid, mimeType, bis);
-                        return null;
-                    });
+                    ByteArrayInputStream bis = new ByteArrayInputStream(stream);
+                    akubraRepository.updateManagedDatastream(pid, dsid, mimeType, bis);
                     return Response.status(Response.Status.OK).build();
                 }
             } else {
                 byte[] stream = IOUtils.toByteArray(inputStream);
-                akubraRepository.doWithWriteLock(pid, () -> {
-                    akubraRepository.deleteDatastream(pid, dsid);
-                    ByteArrayInputStream bis = new ByteArrayInputStream(stream);
-                    akubraRepository.createManagedDatastream(pid, dsid, MediaType.APPLICATION_OCTET_STREAM.toString(), bis);
-                    return null;
-                });
+                ByteArrayInputStream bis = new ByteArrayInputStream(stream);
+                akubraRepository.updateManagedDatastream(pid, dsid, MediaType.APPLICATION_OCTET_STREAM.toString(), bis);
                 return Response.status(Response.Status.OK).build();
             }
         } catch (Exception e) {
@@ -840,12 +816,8 @@ public class ItemsResource extends AdminApiResource {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             Document mods = Dom4jUtils.streamToDocument(xml, true);
-            akubraRepository.doWithWriteLock(pid, () -> {
-                akubraRepository.deleteDatastream(pid, KnownDatastreams.BIBLIO_MODS.name());
-                ByteArrayInputStream bis = new ByteArrayInputStream(mods.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.createXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS.name(), "text/xml", bis);
-                return null;
-            });
+            ByteArrayInputStream bis = new ByteArrayInputStream(mods.asXML().getBytes(Charset.forName("UTF-8")));
+            akubraRepository.updateXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS.name(), "text/xml", bis);
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;

@@ -314,12 +314,8 @@ public class DeleteTreeProcess {
             //update RELS-EXT in repository if there was a change
             if (relsExtNeedsToBeUpdated) {
                 if (!DRY_RUN) {
-                    repository.doWithWriteLock(srcPid, () -> {
-                        repository.deleteDatastream(srcPid, KnownDatastreams.RELS_EXT.toString());
-                        ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                        repository.createXMLDatastream(srcPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
-                        return null;
-                    });
+                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                    repository.updateXMLDatastream(srcPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
                 }
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", srcPid));
             }

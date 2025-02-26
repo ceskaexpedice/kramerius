@@ -67,12 +67,8 @@ public class LicenseHelper {
             //update RELS-EXT in repository if there was a change
             if (relsExtNeedsToBeUpdated) {
                 //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
-                repository.doWithWriteLock(pid, () -> {
-                    repository.deleteDatastream(pid, KnownDatastreams.RELS_EXT.toString());
-                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                    repository.createXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
-                    return null;
-                });
+                ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                repository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
             }
             return relsExtNeedsToBeUpdated;

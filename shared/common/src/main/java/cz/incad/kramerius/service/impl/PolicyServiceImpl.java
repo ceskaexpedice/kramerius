@@ -117,12 +117,8 @@ public class PolicyServiceImpl implements PolicyService {
             StringWriter swr = new StringWriter();
             lso.setCharacterStream(swr);
             ser.write(doc, lso);
-            akubraRepository.doWithWriteLock(pid, () -> {
-                akubraRepository.deleteDatastream(pid, KnownDatastreams.BIBLIO_DC.toString());
-                ByteArrayInputStream bis = new ByteArrayInputStream(swr.getBuffer().toString().getBytes(StandardCharsets.UTF_8));
-                akubraRepository.createXMLDatastream(pid, KnownDatastreams.BIBLIO_DC.name(), "text/xml", bis);
-                return null;
-            });
+            ByteArrayInputStream bis = new ByteArrayInputStream(swr.getBuffer().toString().getBytes(StandardCharsets.UTF_8));
+            akubraRepository.updateXMLDatastream(pid, KnownDatastreams.BIBLIO_DC.name(), "text/xml", bis);
         } catch (Throwable t) {
             LOGGER.severe("Error while setting DC policy" + t);
             throw new RuntimeException(t);

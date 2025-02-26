@@ -90,14 +90,8 @@ public final class RelationServiceImpl implements RelationService {
                 // XXX use also timestamp or checksum to detect concurrent modifications
                 String dsContent = Saver.save(relsExt, model);
 
-                akubraRepository.doWithWriteLock(pid, () -> {
-                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
-                        akubraRepository.deleteDatastream(pid, KnownDatastreams.RELS_EXT.toString());;
-                    }
-                    byte[] bytes = dsContent.getBytes(StandardCharsets.UTF_8);
-                    akubraRepository.createXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", new ByteArrayInputStream(bytes));
-                    return null;
-                });
+                byte[] bytes = dsContent.getBytes(StandardCharsets.UTF_8);
+                akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", new ByteArrayInputStream(bytes));
 
                 List<String> movedPids = new ArrayList<>();
                 for (KrameriusModels kind : model.getRelationKinds()) {
