@@ -427,9 +427,7 @@ public class Main {
             if (!objectAvailable) {
                 throw new IOException("object " + pid + " not available");
             }
-            DigitalObject digitalObject = akubraRepository.getObject(pid);
-            InputStream inputStream = akubraRepository.marshallObject(digitalObject);
-            Document foxmlDoc = Dom4jUtils.streamToDocument(inputStream, true);
+            Document foxmlDoc = akubraRepository.getObject(pid).asDom4j(true);
             //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
            /* boolean ocrAvailable = repositoryAdapter.isOcrTextAvailable(pid);
             if (!ocrAvailable) {
@@ -438,7 +436,7 @@ public class Main {
                 System.out.println("ocr text available");
             }*/
             //String ocrText = repositoryAdapter.isOcrTextAvailable(pid) ? repositoryAdapter.getOcrText(pid) : null;
-            inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT.toString());
             String ocrText = StringUtils.streamToString(inputStream);
             //System.out.println("ocr text: " + ocrText);
             RepositoryNode repositoryNode = nodeManager.getKrameriusNode(pid);

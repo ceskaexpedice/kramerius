@@ -297,8 +297,7 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
             checkObjectExists(pid);
-            DigitalObject digitalObject = akubraRepository.getObject(pid);
-            Document foxml = Dom4jUtils.streamToDocument(akubraRepository.marshallObject(digitalObject), true);
+            Document foxml = akubraRepository.getObject(pid).asDom4j(true);
             return Response.ok().entity(foxml.asXML()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -762,7 +761,7 @@ public class ItemsResource extends AdminApiResource {
             // or
             // internal with CONTROL_GROUP="M" and contentLocation TYPE="INTERNAL_ID"
             Document srcThumbDs = akubraRepository.doWithReadLock(sourcePid, () -> {
-                DigitalObject object = akubraRepository.getObject(sourcePid);
+                DigitalObject object = akubraRepository.getObject(sourcePid).asDigitalObject();
                 if (object.getDatastream().stream().anyMatch(dataStreamType -> dataStreamType.getID().equals(KnownDatastreams.IMG_THUMB.toString()))) {
                     Document foxml = Dom4jUtils.streamToDocument(akubraRepository.marshallObject(object), true);
                     Element dcEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", KnownDatastreams.IMG_THUMB)).selectSingleNode(foxml);
@@ -775,8 +774,7 @@ public class ItemsResource extends AdminApiResource {
                 }
             });
             akubraRepository.doWithWriteLock(targetPid, () -> {
-                DigitalObject object = akubraRepository.getObject(targetPid);
-                Document foxml = Dom4jUtils.streamToDocument(akubraRepository.marshallObject(object), true);
+                Document foxml = akubraRepository.getObject(targetPid).asDom4j(true);
                 Element originalDsEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", KnownDatastreams.IMG_THUMB)).selectSingleNode(foxml);
                 if (originalDsEl != null) {
                     originalDsEl.detach();

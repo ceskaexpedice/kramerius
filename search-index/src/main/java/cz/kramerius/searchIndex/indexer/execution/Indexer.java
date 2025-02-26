@@ -223,14 +223,12 @@ public class Indexer {
                 report("");
             } else {
                 LOGGER.info("Indexing " + pid);
-                DigitalObject digitalObject = akubraRepository.getObject(pid);
-                InputStream inputStream = akubraRepository.marshallObject(digitalObject);
-                Document foxmlDoc = Dom4jUtils.streamToDocument(inputStream, true);
+                Document foxmlDoc = akubraRepository.getObject(pid).asDom4j(true);
                 report("model: " + repositoryNode.getModel());
                 report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
-                inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT.toString());
+                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT.toString());
                 String ocrText = normalizeWhitespacesForOcrText(StringUtils.streamToString(inputStream));
                 //System.out.println("ocr: " + ocrText);
                 //IMG_FULL mimetype

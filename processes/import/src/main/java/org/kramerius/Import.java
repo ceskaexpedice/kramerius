@@ -633,7 +633,7 @@ public class Import {
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            DigitalObject existingObject = repo.getObject(pid);
+            DigitalObject existingObject = repo.getObject(pid).asDigitalObject();
             if (existingObject == null) {
                 throw new IllegalStateException("Cannot merge object: " + pid + " - object not in repository");
             }

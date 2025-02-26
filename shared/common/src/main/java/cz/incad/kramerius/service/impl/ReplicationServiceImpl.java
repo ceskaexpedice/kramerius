@@ -165,8 +165,7 @@ public class ReplicationServiceImpl implements ReplicationService{
     public byte[] getExportedFOXML(String pid, FormatType fType) throws ReplicateException,IOException {
         ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
-            DigitalObject digitalObject = akubraRepository.getObject(pid, FoxmlType.archive);
-            InputStream foXml = akubraRepository.marshallObject(digitalObject);
+            InputStream foXml = akubraRepository.getObject(pid, FoxmlType.archive).asInputStream();
             byte[] exported = IOUtils.toByteArray(foXml);
             if (format != null) {
                 return format.formatFoxmlData(exported, null, null);
@@ -188,8 +187,7 @@ public class ReplicationServiceImpl implements ReplicationService{
 			Object... formatParams) throws ReplicateException, IOException {
         ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
-            DigitalObject digitalObject = akubraRepository.getObject(pid, FoxmlType.archive);
-            InputStream foXml = akubraRepository.marshallObject(digitalObject);
+            InputStream foXml = akubraRepository.getObject(pid, FoxmlType.archive).asInputStream();
             byte[] exported = IOUtils.toByteArray(foXml);
             if (format != null) {
             	if (formatParams != null && formatParams.length >= 1) {

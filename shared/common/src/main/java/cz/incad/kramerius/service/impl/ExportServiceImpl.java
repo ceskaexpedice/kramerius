@@ -61,9 +61,7 @@ public class ExportServiceImpl implements ExportService {
             for (int i = 1; i < set.length; i++) {
                 String childPid = set[i];
                 String subChild = set[i - 1];
-                DigitalObject digitalObject = akubraRepository.getObject(childPid, FoxmlType.archive);
-                InputStream foxml = akubraRepository.marshallObject(digitalObject);
-                Document doc = XMLUtils.parseDocument(foxml, true);
+                Document doc = akubraRepository.getObject(childPid, FoxmlType.archive).asDom(true);
 
                 Element relsExt = XMLUtils.findElement(doc.getDocumentElement(), (element) -> {
                     return element.getLocalName().equals("datastream") && element.getAttribute("ID").equals("RELS-EXT");
@@ -140,8 +138,7 @@ public class ExportServiceImpl implements ExportService {
             String p = s.replace(INFO, "");
             LOGGER.info("Exporting " + exportDirectory + " " + p);
             try {
-                DigitalObject digitalObject = akubraRepository.getObject(p, FoxmlType.archive);
-                InputStream foxml = akubraRepository.marshallObject(digitalObject);
+                InputStream foxml = akubraRepository.getObject(p, FoxmlType.archive).asInputStream();
                 store(exportDirectory, p, foxml);
             } catch (Exception ex) {
                 if (configuration.getConfiguration().getBoolean("export.shouldStopWhenFail", true)) {

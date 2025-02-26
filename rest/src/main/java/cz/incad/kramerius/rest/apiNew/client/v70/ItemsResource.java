@@ -664,9 +664,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             //checkUserIsAllowedToReadObject(pid); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             checkObjectExists(pid);
-            DigitalObject digitalObject = akubraRepository.getObject(pid);
-            InputStream objectStream = akubraRepository.marshallObject(digitalObject);
-            Document foxml = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(objectStream, true);
+            Document foxml = akubraRepository.getObject(pid).asDom4j(true);
             // remove streams
             Document modifiedFoxml = removeSecuredDatastreams(foxml);
             if (modifiedFoxml != null) {

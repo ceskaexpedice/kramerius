@@ -159,7 +159,7 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
     }
 
     private String getExternalStreamURL(String pid, String datastreamName) throws IOException {
-        DigitalObject object = akubraRepository.getObject(pid);
+        DigitalObject object = akubraRepository.getObject(pid).asDigitalObject();
         if (object != null) {
 
             DatastreamVersionType stream = DigitalObjectUtils.getLastStreamVersion(object, datastreamName);
