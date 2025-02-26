@@ -1,6 +1,5 @@
 package cz.incad.kramerius;
 
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.core.repository.RepositoryException;
@@ -195,7 +194,7 @@ public class LicenseHelper {
      * Returns list of pids of own ancestors of an object (@param pid), that don't have another source of license but this object (@param pid)
      * Object is never source of license for itself. Meaning that if it has rels-ext:license, but no rels-ext:containsLicense, it is considered not having source of license.
      */
-    static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, AkubraRepository repository, String license) throws ResourceIndexException, IOException {
+    static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, AkubraRepository repository, String license) throws IOException {
         List<String> result = new ArrayList<>();
         String pidOfChild = pid;
         String pidOfParent;
@@ -226,7 +225,7 @@ public class LicenseHelper {
      *                                      This is because we are looking for ANOTHER source of license, not this object. But the source can be even somewhere in this object's subtree.
      * @param pidOfChildToBeIgnored         this object will be completely ignored, i.e. it's ownership of the license won't be checked and it's subtree won't be searched. Because it has been analyzed already.
      */
-    static boolean hasAnotherSourceOfLicense(String pid, String pidOfObjectNotCountedAsSource, String pidOfChildToBeIgnored, String license, AkubraRepository repository) throws ResourceIndexException, IOException {
+    static boolean hasAnotherSourceOfLicense(String pid, String pidOfObjectNotCountedAsSource, String pidOfChildToBeIgnored, String license, AkubraRepository repository) throws IOException {
         List<String> pidsOfOwnChildren = ProcessingIndexUtils.getPidsOfChildren(pid, repository).getLeft();
         for (String pidOfChild : pidsOfOwnChildren) {
             if (!pidOfChild.equals(pidOfChildToBeIgnored)) { //this one will be completly ignored, because it has already been analyzed

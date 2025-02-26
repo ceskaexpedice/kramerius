@@ -824,7 +824,7 @@ public class CollectionsResource extends AdminApiResource {
             //delete collection object form repository (not managed datastreams, since those for IMG_THUMB are referenced from other objects - pages)
             akubraRepository.doWithWriteLock(pid, () -> {
                 akubraRepository.deleteObject(pid, false, true);
-                akubraRepository.commitProcessingIndex();
+                akubraRepository.getProcessingIndex().commit();;
                 return null;
             });
             //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees), 3. no need to reindex collections owning this one

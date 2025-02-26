@@ -2,21 +2,16 @@ package cz.incad.migration;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 // TODO AK_NEW import org.akubraproject.map.IdMapper;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.io.FileUtils;
-import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.fcrepo.common.Constants;
 import org.fcrepo.common.FaultException;
 import org.fcrepo.common.PID;
 import org.fcrepo.server.errors.MalformedPidException;
-import org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper;
 import org.w3c.dom.Document;
 import org.w3c.dom.ls.LSOutput;
 
@@ -27,10 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,8 +56,9 @@ public enum LegacyMigrationParts {
     OBJECTS {
         @Override
         public void doMigrationPart(Connection db, String[] args) throws SQLException {
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule());
-            final ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
+            Injector injector = Guice.createInjector(new SolrModule(), new RepoModule());
+            // TODO AK_NEW
+            final AkubraRepository akubraRepository = injector.getInstance(AkubraRepository.class);
 
             String objectPaths = KConfiguration.getInstance().getProperty("objectStore.path");
             String objectPattern = KConfiguration.getInstance().getProperty("objectStore.pattern");
@@ -76,7 +69,7 @@ public enum LegacyMigrationParts {
             }
             if ("true".equalsIgnoreCase(args[5])) {
                 try {
-                    feeder.deleteProcessingIndex();
+                    akubraRepository.getProcessingIndex().deleteProcessingIndex();
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE, "Error in deleteProcessingIndex: ", e);
                 }
@@ -84,7 +77,7 @@ public enum LegacyMigrationParts {
                     try {
                         FileInputStream inputStream = new FileInputStream(f);
                         DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(feeder, digitalObject,false);
+                        rebuildProcessingIndex(akubraRepository.getProcessingIndex(), digitalObject,false);
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
                     }

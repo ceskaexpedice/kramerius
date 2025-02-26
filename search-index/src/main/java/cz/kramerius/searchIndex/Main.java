@@ -5,7 +5,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -355,7 +354,7 @@ public class Main {
             String solrLogin = args[index++];
             String solrPassword = args[index++];
 
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
             AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
             //pids
@@ -405,7 +404,7 @@ public class Main {
             String pid = args[index++];
             
             //TODO: Injection for all instances 
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
 
             //FedoraAccess repository = new RepositoryAccessImplDummy();
             //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);

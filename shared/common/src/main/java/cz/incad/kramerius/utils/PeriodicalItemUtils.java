@@ -8,10 +8,9 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-
-import cz.incad.kramerius.FedoraNamespaceContext;
 
 public class PeriodicalItemUtils {
 	
@@ -22,7 +21,7 @@ public class PeriodicalItemUtils {
 		try {
 			XPathFactory xpfactory = XPathFactory.newInstance();
 			XPath xpath = xpfactory.newXPath();
-			xpath.setNamespaceContext(new FedoraNamespaceContext());
+			xpath.setNamespaceContext(new RepositoryNamespaceContext());
 			XPathExpression expr = xpath.compile("//mods:mods/mods:part[@type='PeriodicalIssue']/mods:date/text()");
 			Object pageNumber = expr.evaluate(doc,XPathConstants.STRING);
 			return (String) pageNumber;
@@ -39,7 +38,7 @@ public class PeriodicalItemUtils {
 		try {
 			XPathFactory xpfactory = XPathFactory.newInstance();
 			XPath xpath = xpfactory.newXPath();
-			xpath.setNamespaceContext(new FedoraNamespaceContext());
+			xpath.setNamespaceContext(new RepositoryNamespaceContext());
 			XPathExpression expr = xpath.compile("//mods:mods/mods:part[@type='PeriodicalIssue']/mods:detail[@type='issue']/mods:number/text()");
 			Object pageNumber = expr.evaluate(doc,XPathConstants.STRING);
 			return (String) pageNumber;

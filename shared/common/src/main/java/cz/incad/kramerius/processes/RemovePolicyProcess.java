@@ -6,7 +6,6 @@ import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 
@@ -30,7 +29,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
-import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -87,7 +85,7 @@ public class RemovePolicyProcess {
             );
             
         }
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         // TODO AK_NEW KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         AkubraRepository repository = injector.getInstance(Key.get(AkubraRepository.class));
         List<Boolean> errors = new ArrayList<>();

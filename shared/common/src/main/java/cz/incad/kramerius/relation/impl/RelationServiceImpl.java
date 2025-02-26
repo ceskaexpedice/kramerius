@@ -18,8 +18,6 @@
 package cz.incad.kramerius.relation.impl;
 
 import com.google.inject.Inject;
-import cz.incad.kramerius.FedoraNamespaceContext;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.RDFModels;
 import cz.incad.kramerius.relation.Relation;
@@ -29,6 +27,8 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.*;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -55,7 +55,7 @@ import java.util.logging.Logger;
 public final class RelationServiceImpl implements RelationService {
 
     private static final Logger LOGGER = Logger.getLogger(RelationServiceImpl.class.getName());
-    private static final FedoraNamespaceContext FEDORA_NAMESPACE_CONTEXT = new FedoraNamespaceContext();
+    private static final RepositoryNamespaceContext FEDORA_NAMESPACE_CONTEXT = new RepositoryNamespaceContext();
     private static final String FEDORA_URI_PREFIX = "info:fedora/";
 
 
@@ -147,13 +147,13 @@ public final class RelationServiceImpl implements RelationService {
         private final Document relsExt;
         private final RelationModel model;
         private final String rdfResourceAttrName;
-        private final String krameriusPrefix = FEDORA_NAMESPACE_CONTEXT.getPrefix(FedoraNamespaces.KRAMERIUS_URI);
+        private final String krameriusPrefix = FEDORA_NAMESPACE_CONTEXT.getPrefix(RepositoryNamespaces.KRAMERIUS_URI);
 
         private Saver(Document relsExt, RelationModel model) {
             this.relsExt = relsExt;
             this.model = model;
             rdfResourceAttrName = String.format("%s:resource",
-                    FEDORA_NAMESPACE_CONTEXT.getPrefix(FedoraNamespaces.RDF_NAMESPACE_URI)
+                    FEDORA_NAMESPACE_CONTEXT.getPrefix(RepositoryNamespaces.RDF_NAMESPACE_URI)
                     );
         }
 
@@ -244,9 +244,9 @@ public final class RelationServiceImpl implements RelationService {
 
         private void appendNodes(Node afterNode, String relationElmName, List<Relation> relations) {
             for (Relation relation : relations) {
-                Element elm = relsExt.createElementNS(FedoraNamespaces.KRAMERIUS_URI, relationElmName);
+                Element elm = relsExt.createElementNS(RepositoryNamespaces.KRAMERIUS_URI, relationElmName);
                 String relationURI = FEDORA_URI_PREFIX + relation.getPID();
-                elm.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, rdfResourceAttrName, relationURI);
+                elm.setAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, rdfResourceAttrName, relationURI);
                 appendNode(afterNode, elm);
             }
         }
@@ -303,9 +303,9 @@ public final class RelationServiceImpl implements RelationService {
 
         private void processElement(Element elm) throws LexerException {
             String prefix = elm.getNamespaceURI();
-            if (FedoraNamespaces.FEDORA_MODELS_URI.equals(prefix)) {
+            if (RepositoryNamespaces.FEDORA_MODELS_URI.equals(prefix)) {
                 processFedoraModelElement(elm);
-            } else if (FedoraNamespaces.KRAMERIUS_URI.equals(prefix)) {
+            } else if (RepositoryNamespaces.KRAMERIUS_URI.equals(prefix)) {
                 processKrameriusElement(elm);
             }
         }
@@ -346,7 +346,7 @@ public final class RelationServiceImpl implements RelationService {
         }
 
         private static PIDParser parseRDFResource(Element elm) throws LexerException {
-            String resourceAttr = elm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+            String resourceAttr = elm.getAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "resource");
             PIDParser pidParser = new PIDParser(resourceAttr);
             pidParser.disseminationURI();
             return pidParser;

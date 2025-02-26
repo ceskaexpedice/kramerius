@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,7 +21,6 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -219,12 +219,12 @@ public class CDKFormat implements ReplicationFormat {
     private void changeIIPPoint(Document document, Element element)
             throws DOMException, MalformedURLException, URISyntaxException {
         Element descElement = XMLUtils.findElement(element, "Description",
-                FedoraNamespaces.RDF_NAMESPACE_URI);
+                RepositoryNamespaces.RDF_NAMESPACE_URI);
         List<Element> tiles = XMLUtils.getElements(descElement);
         for (Element iip : tiles) {
             if (iip.getNamespaceURI() != null) {
                 if (iip.getNamespaceURI()
-                        .equals(FedoraNamespaces.KRAMERIUS_URI)
+                        .equals(RepositoryNamespaces.KRAMERIUS_URI)
                         && iip.getLocalName().equals("tiles-url")) {
 
                         iip.setTextContent(zoomifyURI(document).toURI()
@@ -256,14 +256,14 @@ public class CDKFormat implements ReplicationFormat {
     private void virtualCollectionName(String vcname, Document document,
             Element element) {
         Element descElement = XMLUtils.findElement(element, "Description",
-                FedoraNamespaces.RDF_NAMESPACE_URI);
+                RepositoryNamespaces.RDF_NAMESPACE_URI);
         Element elm = document.createElementNS(
-                FedoraNamespaces.RDF_NAMESPACE_URI, "isMemberOfCollection");
+                RepositoryNamespaces.RDF_NAMESPACE_URI, "isMemberOfCollection");
         if (!vcname.startsWith(PIDParser.INFO_FEDORA_PREFIX)) {
-            elm.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource",
+            elm.setAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "resource",
                     PIDParser.INFO_FEDORA_PREFIX + vcname);
         } else {
-            elm.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource",
+            elm.setAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "resource",
                     vcname);
         }
         document.adoptNode(elm);
@@ -272,12 +272,12 @@ public class CDKFormat implements ReplicationFormat {
 
     private void removeVirtualCollections(Document document, Element element) {
         Element descElement = XMLUtils.findElement(element, "Description",
-                FedoraNamespaces.RDF_NAMESPACE_URI);
+                RepositoryNamespaces.RDF_NAMESPACE_URI);
         List<Element> delems = XMLUtils.getElements(descElement);
         for (Element del : delems) {
             if (del.getNamespaceURI() != null) {
                 if (del.getNamespaceURI().equals(
-                        FedoraNamespaces.RDF_NAMESPACE_URI)
+                        RepositoryNamespaces.RDF_NAMESPACE_URI)
                         && del.getLocalName().equals("isMemberOfCollection")) {
                     descElement.removeChild(del);
                 }
@@ -288,11 +288,11 @@ public class CDKFormat implements ReplicationFormat {
     private void original(Document document, Element element)
             throws DOMException, MalformedURLException, URISyntaxException {
         Element original = document.createElementNS(
-                FedoraNamespaces.KRAMERIUS_URI, "replicatedFrom");
+                RepositoryNamespaces.KRAMERIUS_URI, "replicatedFrom");
         document.adoptNode(original);
         original.setTextContent(makeHANDLE(document).toURI().toString());
         Element descElement = XMLUtils.findElement(element, "Description",
-                FedoraNamespaces.RDF_NAMESPACE_URI);
+                RepositoryNamespaces.RDF_NAMESPACE_URI);
         descElement.appendChild(original);
     }
 

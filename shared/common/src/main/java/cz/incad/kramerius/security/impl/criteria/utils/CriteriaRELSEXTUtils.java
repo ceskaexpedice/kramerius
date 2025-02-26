@@ -1,11 +1,11 @@
 package cz.incad.kramerius.security.impl.criteria.utils;
 
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.SpecialObjects;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 
@@ -22,7 +22,7 @@ public class CriteriaRELSEXTUtils {
     protected static Object valueFromRELSEXT(Document relsExt, String path) throws XPathExpressionException {
         XPathFactory xpfactory = XPathFactory.newInstance();
         XPath xpath = xpfactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         XPathExpression expr = xpath.compile(path);
         return expr.evaluate(relsExt, XPathConstants.STRING);
     }

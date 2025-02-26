@@ -1,6 +1,5 @@
 package cz.incad.kramerius.service;
 
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 
@@ -18,6 +17,6 @@ public interface DeleteService {
      * @param deleteEmptyParents check if the parent is empty and delete it as well
      * @throws IOException
      */
-    public void deleteTree(AkubraRepository internalAPI, String pid, String pidPath, String message, boolean deleteEmptyParents, boolean spawnIndexer) throws IOException, ResourceIndexException, SolrServerException;
+    public void deleteTree(AkubraRepository internalAPI, String pid, String pidPath, String message, boolean deleteEmptyParents, boolean spawnIndexer) throws IOException, SolrServerException;
 
 }

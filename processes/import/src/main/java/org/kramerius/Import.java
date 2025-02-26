@@ -3,8 +3,6 @@ package org.kramerius;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
-import com.qbizm.kramerius.imptool.poc.valueobj.RelsExt;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -12,8 +10,6 @@ import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
@@ -22,13 +18,13 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.ProcessingIndex;
 import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.pid.LexerException;
@@ -57,14 +53,11 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathExpressionException;
 
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,7 +65,7 @@ import cz.incad.kramerius.utils.*;
 
 
 import static cz.incad.kramerius.utils.XMLUtils.*;
-import static cz.incad.kramerius.FedoraNamespaces.*;
+import static org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces.*;
 
 
 /**
@@ -153,7 +146,7 @@ public class Import {
         }
 
 
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
@@ -175,8 +168,6 @@ public class Import {
             startIndexer = Boolean.valueOf(System.getProperty("ingest.startIndexer"));
         }
 
-
-        ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
 
         if (license != null && !license.equals(NON_KEYWORD)) {
 
@@ -201,7 +192,7 @@ public class Import {
             log.info("start indexer: " + startIndexer);
             log.info("license : " + license);
 
-            Import.run(akubraRepository, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection);
+            Import.run(akubraRepository, akubraRepository.getProcessingIndex(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection);
 
             log.info(String.format("Deleting import folder %s", licensesImportFile));
             FileUtils.deleteDirectory(licensesImportFile);
@@ -212,15 +203,15 @@ public class Import {
             log.info("import dir: " + importDirectory);
             log.info("start indexer: " + startIndexer);
 
-            Import.run(akubraRepository, feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection);
+            Import.run(akubraRepository, akubraRepository.getProcessingIndex(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection);
         }
     }
 
-    public static void run(AkubraRepository akubraRepository, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
+    public static void run(AkubraRepository akubraRepository, ProcessingIndex feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot) throws IOException, SolrServerException {
         run(akubraRepository, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null, null);
     }
 
-    public static void run(AkubraRepository akubraRepository, ProcessingIndexFeeder feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken, String addcollections) throws IOException, SolrServerException {
+    public static void run(AkubraRepository akubraRepository, ProcessingIndex feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken, String addcollections) throws IOException, SolrServerException {
         log.info("INGEST - url:" + url + " user:" + user + " importRoot:" + importRoot);
         sortingService = sortingServiceParam;
         // system property 

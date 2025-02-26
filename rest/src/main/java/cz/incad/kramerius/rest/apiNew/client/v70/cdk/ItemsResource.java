@@ -28,7 +28,7 @@ import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
-import cz.incad.kramerius.fedora.utils.CDKUtils;
+import cz.incad.kramerius.cdk.CDKUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;

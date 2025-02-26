@@ -17,61 +17,8 @@
 package cz.incad.kramerius.pdf.impl;
 
 import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createMockBuilder;
-import static org.easymock.EasyMock.replay;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.nio.charset.Charset;
-import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.Set;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-
-import junit.framework.Assert;
-
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-import org.ceskaexpedice.akubra.utils.pid.LexerException;
-import org.ceskaexpedice.akubra.utils.pid.PIDParser;
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.easymock.EasyMock;
-import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheManagerBuilder;
 import org.junit.Ignore;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.google.inject.name.Names;
-import com.lowagie.text.DocumentException;
-
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.document.DocumentService;
-import cz.incad.kramerius.document.impl.DocumentServiceImpl;
-import cz.incad.kramerius.document.model.PreparedDocument;
-import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.pdf.FirstPagePDFService;
-import cz.incad.kramerius.pdf.OutOfRangeException;
-import cz.incad.kramerius.pdf.impl.FirstPagePDFServiceImpl.DetailItem;
-import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.service.impl.TextsServiceImpl;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 
 @Ignore
 // TODO: Rewrite; new index

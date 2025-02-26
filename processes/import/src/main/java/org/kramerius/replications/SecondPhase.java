@@ -21,17 +21,12 @@ import antlr.TokenStreamException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -42,6 +37,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.core.repository.RepositoryException;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
@@ -101,7 +97,7 @@ public class SecondPhase extends AbstractPhase  {
 
             // initalize import
             Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
-            this.injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            this.injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
             this.processIterate(url, userName, pswd);
             this.executorService.awaitTermination(60, TimeUnit.SECONDS);
             if (!this.exceptions.isEmpty()) {
@@ -112,11 +108,9 @@ public class SecondPhase extends AbstractPhase  {
             throw new PhaseException(this, e);
         } finally {
             try {
-                ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-                if (feeder != null) feeder.commit();
-            } catch (IOException e) {
-                throw new PhaseException(this, e);
-            } catch (SolrServerException e) {
+                AkubraRepository akubraRepository = this.injector.getInstance(AkubraRepository.class);
+                if (akubraRepository != null) akubraRepository.getProcessingIndex().commit();
+            } catch (Exception e) {
                 throw new PhaseException(this, e);
             }
 
@@ -187,7 +181,7 @@ public class SecondPhase extends AbstractPhase  {
 
                 XPathFactory xpfactory = XPathFactory.newInstance();
                 XPath xpath = xpfactory.newXPath();
-                xpath.setNamespaceContext(new FedoraNamespaceContext());
+                xpath.setNamespaceContext(new RepositoryNamespaceContext());
 
                 Node nodeTilesUrl = (Node) xpath.evaluate("//kramerius:tiles-url", document, XPathConstants.NODE);
                 String imageServerTilesUrl = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerTilesURLPrefix");
@@ -324,7 +318,7 @@ public class SecondPhase extends AbstractPhase  {
             this.executorService = newFixedThreadPool(NUMBER_OF_THREADS);
 
             Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
-            this.injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            this.injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
             this.findPid = true;
 
             this.replicationCollections = replicationCollections;

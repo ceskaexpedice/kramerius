@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -61,7 +60,7 @@ public class ThirdPhase extends AbstractPhase {
             String rootPid = paths.isEmpty() ?  K4ReplicationProcess.pidFrom(url) : rootFromPaths(paths);
             LOGGER.info(" found root is "+rootPid);
 
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
             Consistency consistency = new Consistency();
             injector.injectMembers(consistency);
 

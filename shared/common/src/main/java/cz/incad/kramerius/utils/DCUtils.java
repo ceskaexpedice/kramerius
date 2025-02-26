@@ -1,12 +1,12 @@
 package cz.incad.kramerius.utils;
 
-import static cz.incad.kramerius.FedoraNamespaces.DC_NAMESPACE_URI;
 import static cz.incad.kramerius.utils.XMLUtils.findElement;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -62,7 +62,7 @@ public class DCUtils {
      * @return
      */
     public static String rightsFromDC(Element docElement) {
-        Element elm = findElement(docElement, "rights", DC_NAMESPACE_URI);
+        Element elm = findElement(docElement, "rights", RepositoryNamespaces.DC_NAMESPACE_URI);
         if (elm != null) {
             String policy = elm.getTextContent().trim();
             return policy;
@@ -74,8 +74,8 @@ public class DCUtils {
      * @return
      */
 	public static String titleFromDC(org.w3c.dom.Document doc) {
-		Element elm = findElement(doc.getDocumentElement(), "title", DC_NAMESPACE_URI);	
-		if (elm == null) elm = findElement(doc.getDocumentElement(), "identifier", DC_NAMESPACE_URI);
+		Element elm = findElement(doc.getDocumentElement(), "title", RepositoryNamespaces.DC_NAMESPACE_URI);
+		if (elm == null) elm = findElement(doc.getDocumentElement(), "identifier", RepositoryNamespaces.DC_NAMESPACE_URI);
 		if (elm != null) {
             String title = elm.getTextContent();
             return title;
@@ -93,7 +93,7 @@ public class DCUtils {
 	    List<Element> elements = XMLUtils.getElements(doc.getDocumentElement(),  new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
-                return (element.getLocalName().equals("type") && element.getNamespaceURI().equals(DC_NAMESPACE_URI));
+                return (element.getLocalName().equals("type") && element.getNamespaceURI().equals(RepositoryNamespaces.DC_NAMESPACE_URI));
             }
         });
 	    

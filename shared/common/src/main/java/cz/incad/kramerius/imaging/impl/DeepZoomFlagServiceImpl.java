@@ -17,18 +17,16 @@
 package cz.incad.kramerius.imaging.impl;
 
 import com.google.inject.Inject;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.concurrent.locks.Lock;
 
 public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
@@ -115,7 +113,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
     void deleteFlagToPIDInternal(String pid) {
         LOGGER.info("deleting deep zoom url for '" + pid + "'");
-        Fedora4Utils.doWithProcessingIndexCommit(akubraRepository, (repo) -> {
+        ProcessingIndexUtils.doWithProcessingIndexCommit(akubraRepository, (repo) -> {
             if (repo.objectExists(pid)) {
                 akubraRepository.doWithWriteLock(pid, () -> {
                     boolean flag = akubraRepository.relsExtRelationExists(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
@@ -129,7 +127,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     }
 
     void setFlagToPIDInternal(String pid, String tilesUrl) {
-        Fedora4Utils.doWithProcessingIndexCommit(akubraRepository, (repo) -> {
+        ProcessingIndexUtils.doWithProcessingIndexCommit(akubraRepository, (repo) -> {
             if (repo.objectExists(pid)) {
                 akubraRepository.doWithWriteLock(pid, () -> {
                     boolean flag = akubraRepository.relsExtRelationExists(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);

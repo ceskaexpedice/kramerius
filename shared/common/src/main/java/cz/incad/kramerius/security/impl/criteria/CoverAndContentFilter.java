@@ -1,18 +1,15 @@
 package cz.incad.kramerius.security.impl.criteria;
 
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -102,7 +99,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     private void initModsTypeExpr() throws IOException {
         try {
             XPath xpath = XPathFactory.newInstance().newXPath();
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
+            xpath.setNamespaceContext(new RepositoryNamespaceContext());
             modsTypeExpr = xpath.compile("/mods:modsCollection/mods:mods/mods:part/@type");
         } catch (XPathExpressionException e) {
             throw new IOException(e);

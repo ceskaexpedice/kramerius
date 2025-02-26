@@ -1,8 +1,9 @@
 package cz.incad.kramerius.statistics.accesslogs;
 
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -33,7 +34,7 @@ public abstract class AbstractStatisticsAccessLog implements StatisticsAccessLog
     protected static final List<XPathExpression> MODS_DATE_XPATH_EXPRS = new ArrayList<XPathExpression>() {{
         XPathFactory xpfactory = XPathFactory.newInstance();
         XPath xpath = xpfactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         for (String strExpr : MODS_DATE_XPATHS) {
             try {
                 add(xpath.compile(strExpr));

@@ -8,6 +8,7 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 
 import javax.xml.bind.DatatypeConverter;
@@ -19,6 +20,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static cz.incad.kramerius.resourceindex.ProcessingIndexRebuild.rebuildProcessingIndex;
+
 /**
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (processing_rebuild_for_object)
  */
@@ -26,12 +29,13 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
     public static final Logger LOGGER = Logger.getLogger(ProcessingIndexRebuildFromFoxmlByPid.class.getName());
 
     private final Unmarshaller unmarshaller;
-    private final ProcessingIndexFeeder feeder;
+    private final AkubraRepository akubraRepository;
 
     private ProcessingIndexRebuildFromFoxmlByPid() {
         this.unmarshaller = initUnmarshaller();
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-        this.feeder = injector.getInstance(ProcessingIndexFeeder.class);
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
+        // TODO AK_NEW
+        this.akubraRepository = injector.getInstance(AkubraRepository.class);
     }
 
     /**
@@ -80,8 +84,8 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
         try {
             FileInputStream inputStream = new FileInputStream(foxmlFile);
             DigitalObject digitalObject = createDigitalObject(inputStream);
-            feeder.deleteByPid(pid); //smazat vsechny existujici vazby z objektu, ALE netyka se tech, co na objekt vedou (ty ted neprebudovavame)
-            // TODO AK_NEW rebuildProcessingIndex(feeder, digitalObject);
+            akubraRepository.getProcessingIndex().deleteByPid(pid); //smazat vsechny existujici vazby z objektu, ALE netyka se tech, co na objekt vedou (ty ted neprebudovavame)
+            rebuildProcessingIndex(akubraRepository.getProcessingIndex(), digitalObject, true);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error processing file: " + foxmlFile.getAbsolutePath(), ex);
         }

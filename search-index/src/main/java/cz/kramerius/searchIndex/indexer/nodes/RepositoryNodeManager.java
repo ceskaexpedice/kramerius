@@ -1,6 +1,5 @@
 package cz.kramerius.searchIndex.indexer.nodes;
 
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;

@@ -24,11 +24,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
-
-import cz.incad.kramerius.FedoraNamespaceContext;
 
 public class ArticleTitleBuilder extends TitleBuilder {
     
@@ -42,7 +41,7 @@ public class ArticleTitleBuilder extends TitleBuilder {
     public void build(Document document, Map<String, List<String>> map, String model) throws XPathExpressionException {
         if (APPLICABLE_MODEL.equals(model)) {
             XPath xpath = getFactory().newXPath();
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
+            xpath.setNamespaceContext(new RepositoryNamespaceContext());
             
             XPathExpression expr = xpath.compile("//mods:titleInfo/mods:title/text()");
             Node node = (Node) expr.evaluate(document, XPathConstants.NODE);

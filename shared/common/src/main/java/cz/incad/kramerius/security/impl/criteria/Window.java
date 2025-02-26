@@ -16,13 +16,13 @@ import javax.xml.xpath.XPathFactory;
 
 import cz.incad.kramerius.security.*;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
@@ -122,7 +122,7 @@ public class Window extends AbstractCriterium implements RightCriterium {
                                              Document xmlDoc, String xPathExpression)
             throws XPathExpressionException {
         XPath xpath = xpfactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         XPathExpression expr = xpath.compile(xPathExpression);
         Object date = expr.evaluate(xmlDoc, XPathConstants.NODE);
         if (date != null) {

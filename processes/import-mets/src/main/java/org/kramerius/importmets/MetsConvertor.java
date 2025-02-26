@@ -5,8 +5,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
@@ -159,11 +157,10 @@ public class MetsConvertor {
         if (!foundvalidPSP) {
             throw new RuntimeException("No valid PSP found.");
         }
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
 // TODO AK_NEW        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
-        ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
 
         
@@ -177,7 +174,7 @@ public class MetsConvertor {
             }
         }
         
-        Import.run(akubraRepository, feeder, sortingServiceLocal,
+        Import.run(akubraRepository, akubraRepository.getProcessingIndex(), sortingServiceLocal,
                 KConfiguration.getInstance().getProperty("ingest.url"),
                 KConfiguration.getInstance().getProperty("ingest.user"),
                 KConfiguration.getInstance().getProperty("ingest.password"),

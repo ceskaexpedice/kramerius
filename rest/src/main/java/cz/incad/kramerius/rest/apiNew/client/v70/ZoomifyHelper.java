@@ -1,7 +1,6 @@
 package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import com.google.inject.Inject;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
@@ -21,6 +20,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
@@ -416,11 +416,11 @@ public class ZoomifyHelper {
     private String getFirstReplicatedFrom(Document relsExt) {
         Element descElement = XMLUtils.findElement(
                 relsExt.getDocumentElement(), "Description",
-                FedoraNamespaces.RDF_NAMESPACE_URI);
+                RepositoryNamespaces.RDF_NAMESPACE_URI);
         List<Element> delems = XMLUtils.getElements(descElement);
         for (Element del : delems) {
             if (del.getNamespaceURI() != null) {
-                if (del.getNamespaceURI().equals(FedoraNamespaces.KRAMERIUS_URI)
+                if (del.getNamespaceURI().equals(RepositoryNamespaces.KRAMERIUS_URI)
                         && del.getLocalName().equals("replicatedFrom")) {
                     return del.getTextContent();
                 }

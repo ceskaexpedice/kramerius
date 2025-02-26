@@ -8,9 +8,6 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -76,7 +73,7 @@ public class SetLicenseProcess {
      * <p>
      * args[3] - licence ('dnnt', 'dnnto', 'public_domain', etc.)
      */
-    public static void main(String[] args) throws IOException, SolrServerException, ResourceIndexException {
+    public static void main(String[] args) throws IOException, SolrServerException {
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -95,7 +92,7 @@ public class SetLicenseProcess {
         String target = args[argsIndex++];
 
 
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ResourceIndexModule());
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         // TODO AK_NEW KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class)); //FIXME: hardcoded implementation
 
@@ -282,7 +279,7 @@ public class SetLicenseProcess {
         });
     }
 
-    private static void removeLicense(String license, String targetPid, AkubraRepository akubraRepository, SolrAccess searchIndex, SolrIndexAccess indexerAccess, String authToken) throws RepositoryException, IOException, ResourceIndexException {
+    private static void removeLicense(String license, String targetPid, AkubraRepository akubraRepository, SolrAccess searchIndex, SolrIndexAccess indexerAccess, String authToken) throws RepositoryException, IOException {
         LOGGER.info(String.format("Removing license '%s' from %s", license, targetPid));
 
         //1. Z rels-ext ciloveho objektu se odebere license=L, pokud tam je. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
@@ -352,7 +349,7 @@ public class SetLicenseProcess {
         }
     }
 
-    private static boolean hasAncestorThatOwnsLicense(String pid, String license, AkubraRepository akubraRepository) throws ResourceIndexException, RepositoryException, IOException {
+    private static boolean hasAncestorThatOwnsLicense(String pid, String license, AkubraRepository akubraRepository) throws RepositoryException, IOException {
         String currentPid = pid;
         String parentPid;
         while ((parentPid = ProcessingIndexUtils.getPidsOfParents(currentPid, akubraRepository).getLeft()) != null) {
@@ -364,7 +361,7 @@ public class SetLicenseProcess {
         return false;
     }
 
-    private static List<String> getDescendantsOwningLicense(String targetPid, String license, AkubraRepository akubraRepository) throws ResourceIndexException, RepositoryException, IOException {
+    private static List<String> getDescendantsOwningLicense(String targetPid, String license, AkubraRepository akubraRepository) throws RepositoryException, IOException {
         List<String> result = new ArrayList<>();
         if (LicenseHelper.containsLicenseByRelsExt(targetPid, license, akubraRepository)) { //makes sense only if object itself contains license
             List<String> pidsOfOwnChildren = ProcessingIndexUtils.getPidsOfChildren(targetPid, akubraRepository).getLeft();
@@ -384,7 +381,7 @@ public class SetLicenseProcess {
      * Returns list of pids of own ancestors of an object (@param pid), that don't have another source of license but this object (@param pid)
      * Object is never source of license for itself. Meaning that if it has rels-ext:license, but no rels-ext:containsLicense, it is considered not having source of license.
      */
-    private static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, AkubraRepository akubraRepository, String license) throws IOException, ResourceIndexException, RepositoryException {
+    private static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, AkubraRepository akubraRepository, String license) throws IOException, RepositoryException {
         List<String> result = new ArrayList<>();
         String pidOfChild = pid;
         String pidOfParent;

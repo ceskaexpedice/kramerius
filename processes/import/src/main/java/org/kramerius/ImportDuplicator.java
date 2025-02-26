@@ -28,8 +28,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -37,6 +35,7 @@ import org.ceskaexpedice.akubra.RelsExtLiteral;
 import org.ceskaexpedice.akubra.RelsExtRelation;
 import org.ceskaexpedice.akubra.RelsExtWrapper;
 import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
 import org.ceskaexpedice.fedoramodel.DatastreamType;
 import org.ceskaexpedice.fedoramodel.DatastreamVersionType;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
@@ -106,7 +105,7 @@ public class ImportDuplicator {
            });
 
 
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
         // TODO AK_NEW fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
@@ -243,7 +242,7 @@ public class ImportDuplicator {
                     throw new RuntimeException(sfex);
                 }
             } finally {
-                if (akubraRepository != null) akubraRepository.commitProcessingIndex();
+                if (akubraRepository != null) akubraRepository.getProcessingIndex().commit();
             }
             counter++;
             //log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:"+counter);
@@ -262,7 +261,7 @@ public class ImportDuplicator {
             return;
         }
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
-        Fedora4Utils.doWithProcessingIndexCommit(akubraRepository, (repo)->{
+        ProcessingIndexUtils.doWithProcessingIndexCommit(akubraRepository, (repo)->{
             RelsExtWrapper relsExtWrapper = akubraRepository.relsExtGet(pid);
             List<RelsExtRelation> relations = relsExtWrapper.getRelations(null);
             List<RelsExtLiteral> literals = relsExtWrapper.getLiterals(null);

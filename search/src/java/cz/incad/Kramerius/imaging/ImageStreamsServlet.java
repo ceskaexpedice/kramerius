@@ -33,13 +33,13 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryException;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.Kramerius.imaging.utils.FileNameUtils;
-import cz.incad.kramerius.FedoraIOException;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -163,11 +163,12 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 }
                 try {
                     actionToDo.doPerform(this, this.akubraRepository, pid, stream, page, req, resp);
-                } catch (FedoraIOException e1) {
+                } catch (RepositoryException e1) {
                     // fedora exception
                     LOGGER.log(Level.WARNING, "Missing " + stream + " datastream for " + pid);
-                    resp.setStatus(e1.getContentResponseCode());
-                    resp.getWriter().write(e1.getContentResponseBody());
+                    // TODO AK_NEW
+                    //resp.setStatus(e1.getContentResponseCode());
+                    //resp.getWriter().write(e1.getContentResponseBody());
                 } catch (FileNotFoundException e1) {
                     LOGGER.log(Level.WARNING, e1.getMessage());
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);

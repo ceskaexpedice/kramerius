@@ -24,12 +24,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
 import org.ceskaexpedice.akubra.core.repository.KnownRelations;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.ceskaexpedice.akubra.utils.pid.LexerException;
@@ -40,20 +40,16 @@ import org.w3c.dom.Element;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.rest.oai.metadata.DrKrameriusUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import javax.inject.Provider;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
 
 import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.utils.CDKUtils;
+import cz.incad.kramerius.cdk.CDKUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
@@ -343,7 +339,7 @@ public enum MetadataExport {
             Element dcElement = dc.getDocumentElement();
 
             Element record = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "record");
-            record.setAttribute("xmlns:dc", FedoraNamespaces.DC_NAMESPACE_URI);
+            record.setAttribute("xmlns:dc", RepositoryNamespaces.DC_NAMESPACE_URI);
 
             record.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation", "http://www.europeana.eu/schemas/ese/ http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd http://purl.org/dc/elements/1.1/ http://www.dublincore.org/schemas/xmls/qdc/dc.xsd http://purl.org/dc/terms/ http://www.dublincore.org/schemas/xmls/qdc/dcterms.xsd http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd");
             List<Element> dcElems = DomUtils.getElements(dcElement);
@@ -392,7 +388,7 @@ public enum MetadataExport {
                         Element dcElement = dc.getDocumentElement();
 
                         Element record = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "record");
-                        record.setAttribute("xmlns:dc", FedoraNamespaces.DC_NAMESPACE_URI);
+                        record.setAttribute("xmlns:dc", RepositoryNamespaces.DC_NAMESPACE_URI);
 
                         record.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation", "http://www.europeana.eu/schemas/ese/ http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd http://purl.org/dc/elements/1.1/ http://www.dublincore.org/schemas/xmls/qdc/dc.xsd http://purl.org/dc/terms/ http://www.dublincore.org/schemas/xmls/qdc/dcterms.xsd http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd");
                         List<Element> dcElems = DomUtils.getElements(dcElement);

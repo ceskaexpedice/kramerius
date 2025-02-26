@@ -1,6 +1,5 @@
 package cz.incad.kramerius.security.impl.criteria;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -18,13 +17,13 @@ import javax.xml.xpath.XPathFactory;
 
 import cz.incad.kramerius.security.*;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.impl.criteria.mw.DateLexer;
 import cz.incad.kramerius.security.impl.criteria.mw.DatesParser;
@@ -44,7 +43,7 @@ public class BenevolentMovingWall extends AbstractCriterium implements RightCrit
     private static final List<XPathExpression> MODS_DATE_XPATH_EXPRS = new ArrayList<XPathExpression>() {{
         XPathFactory xpFactory = XPathFactory.newInstance();
         XPath xpath = xpFactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         for (String strExpr : MODS_DATE_XPATHS) {
             try {
                 add(xpath.compile(strExpr));

@@ -18,7 +18,6 @@ package cz.incad.kramerius.security.impl.criteria;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
@@ -29,6 +28,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
@@ -297,7 +297,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
     public static Object findDateString(Document xmlDoc, String xPathExpression, XPathFactory xpfactory)
             throws XPathExpressionException {
         XPath xpath = xpfactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         XPathExpression expr = xpath.compile(xPathExpression);
         Object date = expr.evaluate(xmlDoc, XPathConstants.NODE);
         return date;

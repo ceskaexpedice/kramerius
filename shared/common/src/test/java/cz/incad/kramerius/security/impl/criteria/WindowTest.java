@@ -1,15 +1,11 @@
 package cz.incad.kramerius.security.impl.criteria;
 
 import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createMockBuilder;
-import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
-import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
 import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import junit.framework.Assert;
@@ -22,12 +18,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.security.RightCriteriumContext;
 import cz.incad.kramerius.security.RightCriteriumException;
-import cz.incad.kramerius.security.impl.RightCriteriumContextFactoryImpl;
 
 public class WindowTest {
 
@@ -56,7 +48,7 @@ public class WindowTest {
 
     public EvaluatingResultState window(String firstYearFromGUI,String secondYearFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
-        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        // TODO AK_NEW ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
 

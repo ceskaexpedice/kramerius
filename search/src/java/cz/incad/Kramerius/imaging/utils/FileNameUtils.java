@@ -22,10 +22,9 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import cz.incad.kramerius.FedoraNamespaceContext;
 
 public class FileNameUtils {
     
@@ -34,7 +33,7 @@ public class FileNameUtils {
     public static String disectFileNameFromRelsExt( Document doc) throws XPathExpressionException {
         XPathFactory xpfactory = XPathFactory.newInstance();
         XPath xpath = xpfactory.newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         XPathExpression expr = xpath.compile(XPATH);
         Node node = (Node) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODE);
         if (node != null) {

@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.w3c.dom.Document;
 
 import com.google.common.collect.Ordering;
@@ -20,10 +21,8 @@ import com.google.common.collect.TreeMultimap;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.name.Named;
 import com.ibm.icu.text.Collator;
 
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
@@ -123,7 +122,7 @@ public class SortingServiceImpl implements SortingService {
         XPathExpression expr = null;
         try {
             XPath xpath = xpathFactory.newXPath();
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
+            xpath.setNamespaceContext(new RepositoryNamespaceContext());
             expr = xpath.compile(xpathString);
         } catch (XPathExpressionException e) {
             throw new RuntimeException(e);

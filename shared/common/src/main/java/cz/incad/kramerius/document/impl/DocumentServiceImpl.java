@@ -30,6 +30,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
@@ -42,7 +43,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
@@ -306,7 +306,7 @@ public class DocumentServiceImpl implements DocumentService {
                 // renderedDocument.addPage(page);
                 Element part = XMLUtils.findElement(
                         biblioMods.getDocumentElement(), "part",
-                        FedoraNamespaces.BIBILO_MODS_URI);
+                        RepositoryNamespaces.BIBILO_MODS_URI);
                 String attribute = part != null ? part.getAttribute("type")
                         : null;
                 if (attribute != null) {
@@ -361,7 +361,7 @@ public class DocumentServiceImpl implements DocumentService {
                     // renderedDocument.addPage(page);
                     Element part = XMLUtils.findElement(
                             biblioMods.getDocumentElement(), "part",
-                            FedoraNamespaces.BIBILO_MODS_URI);
+                            RepositoryNamespaces.BIBILO_MODS_URI);
                     String attribute = part != null ? part.getAttribute("type")
                             : null;
                     if (attribute != null) {

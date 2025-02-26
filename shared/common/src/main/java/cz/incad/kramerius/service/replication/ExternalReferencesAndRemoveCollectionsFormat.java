@@ -8,17 +8,15 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.service.ReplicateException;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 public class ExternalReferencesAndRemoveCollectionsFormat extends ExternalReferencesFormat {
 
@@ -56,7 +54,7 @@ public class ExternalReferencesAndRemoveCollectionsFormat extends ExternalRefere
 			public boolean acceptElement(Element el) {
 				String localName = el.getLocalName();
 				String namespace = el.getNamespaceURI();
-				if (namespace.equals(FedoraNamespaces.RDF_NAMESPACE_URI)) {
+				if (namespace.equals(RepositoryNamespaces.RDF_NAMESPACE_URI)) {
 					return localName.equals("Description");
 				}
 				return false;
@@ -66,7 +64,7 @@ public class ExternalReferencesAndRemoveCollectionsFormat extends ExternalRefere
 		for (Element rdfDesc : rdfversions) {
 			List<Element> delems = XMLUtils.getElements(rdfDesc);
 			for (Element del : delems) {
-				if (del.getNamespaceURI().equals(FedoraNamespaces.RDF_NAMESPACE_URI) && del.getLocalName().equals("isMemberOfCollection")) {
+				if (del.getNamespaceURI().equals(RepositoryNamespaces.RDF_NAMESPACE_URI) && del.getLocalName().equals("isMemberOfCollection")) {
 
 					Node parentNode = del.getParentNode();
 					parentNode.removeChild(del);

@@ -24,11 +24,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
-
-import cz.incad.kramerius.FedoraNamespaceContext;
 
 public class PeriodicalIssueNumberBuilder extends AbstractBuilder{
 
@@ -49,7 +48,7 @@ public class PeriodicalIssueNumberBuilder extends AbstractBuilder{
     @Override
     public void build(Document document, Map<String, List<String>> map, String model) throws XPathExpressionException {
         XPath xpath = getFactory().newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         
         XPathExpression expr = xpath.compile("//mods:part/mods:detail[@type='issue']/mods:number/text()");
         Node node = (Node) expr.evaluate(document, XPathConstants.NODE);

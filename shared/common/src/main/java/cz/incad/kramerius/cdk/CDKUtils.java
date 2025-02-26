@@ -1,7 +1,6 @@
-package cz.incad.kramerius.fedora.utils;
+package cz.incad.kramerius.cdk;
 
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;

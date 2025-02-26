@@ -7,8 +7,6 @@ import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
@@ -114,13 +112,12 @@ public class Download {
             download.replicateAll(rep, migrationDirectory);
             String uuid = Main.convert(migrationDirectory, targetDirectory, true, visible, rep.getID());
 
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
+            Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
             // TODO AK_NEW
 //            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
             AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
-            ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-            Import.run(akubraRepository,feeder, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
+            Import.run(akubraRepository, akubraRepository.getProcessingIndex(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
 
             logSuccess(rep.getID(), uuid);
             /*if (!KConfiguration.getInstance().getConfiguration().getBoolean("ingest.skip",false)){

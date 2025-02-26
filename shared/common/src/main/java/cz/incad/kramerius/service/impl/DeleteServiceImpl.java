@@ -11,12 +11,8 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.utils.DCContentUtils;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.DeleteService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -34,6 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,9 +47,6 @@ public class DeleteServiceImpl implements DeleteService {
     AkubraRepository akubraRepository;
 
     @Inject
-    IResourceIndex resourceIndex;
-
-    @Inject
     @Named("new-index")
     SolrAccess solrAccess;
 
@@ -64,7 +58,7 @@ public class DeleteServiceImpl implements DeleteService {
     private static final String INFO = "info:fedora/";
 
     @Override
-    public void deleteTree(AkubraRepository repo, String pid, String pidPath, String message, boolean deleteEmptyParents, boolean spawnIndexer) throws IOException, RepositoryException, ResourceIndexException, SolrServerException {
+    public void deleteTree(AkubraRepository repo, String pid, String pidPath, String message, boolean deleteEmptyParents, boolean spawnIndexer) throws IOException, RepositoryException, SolrServerException {
 
         List<String> pids = RelsExtUtils.getPids(pid, akubraRepository);
         for (String deletingPids : pids) {
@@ -95,7 +89,7 @@ public class DeleteServiceImpl implements DeleteService {
             spawnIndexRemover(pid);
         }
 
-        List<String> parents = resourceIndex.getParentsPids(pid);
+        Set<String> parents = ProcessingIndexUtils.getPidsOfParents(pid, akubraRepository).getRight();
         for (String parentPid : parents) {
             boolean parentRemoved = false;
 
@@ -138,17 +132,16 @@ public class DeleteServiceImpl implements DeleteService {
      *
      * @throws IOException
      */
-    public static void main(final String[] args) throws IOException, RepositoryException, ResourceIndexException, SolrServerException {
+    public static void main(final String[] args) throws IOException, RepositoryException, SolrServerException {
         LOGGER.info("DeleteService: " + Arrays.toString(args));
         DeleteServiceImpl inst = new DeleteServiceImpl();
         SolrAccess solrAccess = new SolrAccessImplNewIndex();
 
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         inst.akubraRepository = akubraRepository;
         inst.predicates = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates"), Functions.toStringFunction());
-        inst.resourceIndex = injector.getInstance(IResourceIndex.class);
         inst.solrAccess = solrAccess;
 
         Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.akubraRepository, solrAccess, Arrays.asList(args[0]));
@@ -157,12 +150,10 @@ public class DeleteServiceImpl implements DeleteService {
         ProcessStarter.updateName("Mazání objektu '" + (dcConent != null ? dcConent.getTitle() : "bez názvu") + "'");
 
 
-        Fedora4Utils.doWithProcessingIndexCommit(inst.akubraRepository, (repo) -> {
+        ProcessingIndexUtils.doWithProcessingIndexCommit(inst.akubraRepository, (repo) -> {
             try {
                 inst.deleteTree(repo, args[0], args[1], "Marked as deleted", args.length > 2 ? Boolean.parseBoolean(args[2]) : false, args.length > 3 ? Boolean.parseBoolean(args[3]) : true);
             } catch (IOException e) {
-                throw new RepositoryException(e);
-            } catch (ResourceIndexException e) {
                 throw new RepositoryException(e);
             } catch (SolrServerException e) {
                 throw new RepositoryException(e);

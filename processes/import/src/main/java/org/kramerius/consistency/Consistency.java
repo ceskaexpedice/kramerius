@@ -24,7 +24,6 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.TreeNodeProcessStackAware;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -209,7 +208,7 @@ public class Consistency {
      */
     @Process
     public static void process(String pid, Boolean flag) throws IOException, ProcessSubtreeException, LexerException {
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         Consistency consistency = new Consistency();
         injector.injectMembers(consistency);
         List<NotConsistentRelation> inconsitencies = consistency.checkConsitency(pid, flag.booleanValue());

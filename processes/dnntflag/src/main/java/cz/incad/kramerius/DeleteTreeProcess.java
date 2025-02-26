@@ -9,10 +9,7 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -59,7 +56,7 @@ public class DeleteTreeProcess {
      * args[1] - pid of root object, for example "uuid:df693396-9d3f-4b3b-bf27-3be0aaa2aadf"
      * args[2-...] - optional title of the root object
      */
-    public static void main(String[] args) throws IOException, SolrServerException, ResourceIndexException {
+    public static void main(String[] args) throws IOException, SolrServerException {
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -88,7 +85,7 @@ public class DeleteTreeProcess {
             ignoreIncosistencies = Boolean.valueOf(args[argsIndex++]);
         }
 
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
@@ -108,7 +105,7 @@ public class DeleteTreeProcess {
         }
     }
 
-    public static boolean deleteTree(String pid, boolean deletionRoot, AkubraRepository repository, AkubraRepository akubraRepository, SolrIndexAccess indexerAccess, SolrAccess searchIndex, boolean ignoreIncosistencies) throws ResourceIndexException, SolrServerException, IOException {
+    public static boolean deleteTree(String pid, boolean deletionRoot, AkubraRepository repository, AkubraRepository akubraRepository, SolrIndexAccess indexerAccess, SolrAccess searchIndex, boolean ignoreIncosistencies) throws SolrServerException, IOException {
         LOGGER.info(String.format("deleting own tree of %s", pid));
         boolean someProblem = false;
         //
@@ -158,7 +155,7 @@ public class DeleteTreeProcess {
         return !someProblem;
     }
 
-    private static void updateLicenseFlagsForAncestors(String pid, AkubraRepository akubraRepository, SolrIndexAccess indexerAccess) throws ResourceIndexException, IOException {
+    private static void updateLicenseFlagsForAncestors(String pid, AkubraRepository akubraRepository, SolrIndexAccess indexerAccess) throws IOException {
         List<String> licences = LicenseHelper.getLicensesByRelsExt(pid, akubraRepository);
         for (String license : licences) {
             //Z rels-ext vsech (vlastnich) predku se odebere containsLicence=L, pokud tam je.
@@ -223,7 +220,7 @@ public class DeleteTreeProcess {
                 repository.doWithWriteLock(pid, () -> {
                     //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
                     repository.deleteObject(pid, !isCollection, true);
-                    repository.commitProcessingIndex();
+                    repository.getProcessingIndex().commit();
                     return null;
                 });
             }

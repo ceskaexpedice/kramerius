@@ -6,7 +6,6 @@ import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.commons.lang3.tuple.Pair;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
 
 /**
@@ -66,7 +64,7 @@ public class SetPolicyProcess {
                 ? String.format("Změna viditelnosti %s (%s, %s, %s)", title, pid, policy, scopeDesc)
                 : String.format("Změna viditelnosti %s (%s, %s)", pid, policy, scopeDesc)
         );
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         // TODO AK_NEW KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         AkubraRepository repository = injector.getInstance(Key.get(AkubraRepository.class));
 

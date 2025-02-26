@@ -3,14 +3,12 @@ package cz.incad.migration;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.ceskaexpedice.fedoramodel.DigitalObject;
-import org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.core.repository.ProcessingIndex;
 import org.xml.sax.SAXException;
 
 import java.io.*;
@@ -23,7 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static cz.incad.kramerius.resourceindex.ProcessingIndexRebuild.rebuildProcessingIndex;
 import static cz.incad.migration.LegacyMigrationParts.LOG_MESSAGE_ITERATION;
 
 public enum AkubraMigrationParts {
@@ -43,11 +40,12 @@ public enum AkubraMigrationParts {
                 String datastreamPaths = KConfiguration.getInstance().getProperty("datastreamStore.path");
                 String datastreamPattern = KConfiguration.getInstance().getProperty("datastreamStore.pattern");
 
-                Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-                final ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
+                Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
+                // TODO AK_NEW
+                final AkubraRepository akubraRepository = injector.getInstance(AkubraRepository.class);
                 final boolean rebuildProcessingIndex = "true".equalsIgnoreCase(args[1]);
-                processRoot( feeder,  datastreamSource,  datastreamPaths,  datastreamPattern,  false);
-                processRoot( feeder,  objectSource,  objectPaths,  objectPattern,  rebuildProcessingIndex);
+                processRoot(akubraRepository.getProcessingIndex(), datastreamSource,  datastreamPaths,  datastreamPattern,  false);
+                processRoot(akubraRepository.getProcessingIndex(),  objectSource,  objectPaths,  objectPattern,  rebuildProcessingIndex);
 
             }catch(Exception ex) {
                 throw  new RuntimeException(ex);
@@ -59,7 +57,7 @@ public enum AkubraMigrationParts {
 
     };
 
-    private static void processRoot(ProcessingIndexFeeder feeder, String datastreamSource, String datastreamPaths, String datastreamPattern, boolean rebuildProcessingIndex) throws IOException, SolrServerException {
+    private static void processRoot(ProcessingIndex feeder, String datastreamSource, String datastreamPaths, String datastreamPattern, boolean rebuildProcessingIndex) throws IOException, SolrServerException {
         try {
 
             if (rebuildProcessingIndex) {

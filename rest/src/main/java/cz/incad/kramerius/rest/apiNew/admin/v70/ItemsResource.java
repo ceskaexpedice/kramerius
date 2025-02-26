@@ -3,21 +3,16 @@ package cz.incad.kramerius.rest.apiNew.admin.v70;
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.repository.utils.Utils;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -79,10 +74,6 @@ public class ItemsResource extends AdminApiResource {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
-
-    @Inject
-    IResourceIndex resourceIndex;
-
 
     //TODO: Do it better; divide into two classes
     @Inject
@@ -217,11 +208,14 @@ public class ItemsResource extends AdminApiResource {
             }
 
 
-            List<org.apache.commons.lang3.tuple.Pair<String, Long>> allFedoraModelsAsList = this.resourceIndex.getAllFedoraModelsAsList();
+            // TODO AK_NEW List<org.apache.commons.lang3.tuple.Pair<String, Long>> allFedoraModelsAsList = this.resourceIndex.getAllFedoraModelsAsList();
             JSONObject object = new JSONObject();
+            /* TODO AK_NEW
             for (org.apache.commons.lang3.tuple.Pair<String, Long> pair : allFedoraModelsAsList) {
                 object.put(pair.getKey(), pair.getRight());
             }
+
+             */
             return Response.ok(object.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -703,7 +697,7 @@ public class ItemsResource extends AdminApiResource {
             if (requestHeader.size() > 0) {
                 String mimeType = requestHeader.get(0);
                 if (mimeType.equals(MediaType.APPLICATION_XML)) {
-                    Document dom4j = Utils.inputstreamToDocument(inputStream, true);
+                    Document dom4j = Dom4jUtils.streamToDocument(inputStream, true);
                     akubraRepository.doWithWriteLock(pid, () -> {
                         akubraRepository.deleteDatastream(pid, dsid);
                         ByteArrayInputStream bis = new ByteArrayInputStream(dom4j.asXML().getBytes(Charset.forName("UTF-8")));
@@ -795,7 +789,7 @@ public class ItemsResource extends AdminApiResource {
                 DigitalObject object = akubraRepository.getObject(sourcePid);
                 if (object.getDatastream().stream().anyMatch(dataStreamType -> dataStreamType.getID().equals(KnownDatastreams.IMG_THUMB.toString()))) {
                     Document foxml = Dom4jUtils.streamToDocument(akubraRepository.marshallObject(object), true);
-                    Element dcEl = (Element) cz.incad.kramerius.utils.Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", KnownDatastreams.IMG_THUMB)).selectSingleNode(foxml);
+                    Element dcEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", KnownDatastreams.IMG_THUMB)).selectSingleNode(foxml);
                     Element detached = (Element) dcEl.detach();
                     Document result = DocumentHelper.createDocument();
                     result.add(detached);
@@ -816,7 +810,7 @@ public class ItemsResource extends AdminApiResource {
                 DigitalObject updatedDigitalObject = akubraRepository.unmarshallObject(new ByteArrayInputStream(foxml.asXML().getBytes(StandardCharsets.UTF_8)));
                 akubraRepository.deleteObject(targetPid, false, false);
                 akubraRepository.ingest(updatedDigitalObject);
-                akubraRepository.commitProcessingIndex();
+                akubraRepository.getProcessingIndex().commit();;
                 return null;
             });
             return Response.ok().build();
@@ -845,7 +839,7 @@ public class ItemsResource extends AdminApiResource {
             //check target object
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            Document mods = Utils.inputstreamToDocument(xml, true);
+            Document mods = Dom4jUtils.streamToDocument(xml, true);
             akubraRepository.doWithWriteLock(pid, () -> {
                 akubraRepository.deleteDatastream(pid, KnownDatastreams.BIBLIO_MODS.name());
                 ByteArrayInputStream bis = new ByteArrayInputStream(mods.asXML().getBytes(Charset.forName("UTF-8")));

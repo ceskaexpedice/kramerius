@@ -23,13 +23,11 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
-
-import cz.incad.kramerius.FedoraNamespaceContext;
 
 public class TitleBuilder extends AbstractBuilder {
 
@@ -58,7 +56,7 @@ public class TitleBuilder extends AbstractBuilder {
     @Override
     public void build(Document document, Map<String, List<String>> map, String model) throws XPathExpressionException {
         XPath xpath = getFactory().newXPath();
-        xpath.setNamespaceContext(new FedoraNamespaceContext());
+        xpath.setNamespaceContext(new RepositoryNamespaceContext());
         
         XPathExpression expr = xpath.compile("//mods:titleInfo/mods:title/text()");
         Node node = (Node) expr.evaluate(document, XPathConstants.NODE);

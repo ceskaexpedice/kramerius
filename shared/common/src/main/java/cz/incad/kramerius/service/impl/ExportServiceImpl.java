@@ -3,7 +3,6 @@ package cz.incad.kramerius.service.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
@@ -16,6 +15,7 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.processes.starter.*;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.FoxmlType;
+import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.w3c.dom.Document;
@@ -76,13 +76,13 @@ public class ExportServiceImpl implements ExportService {
                 Element relsExtVersion = latestVersion(relsExtVersions);
                 List<String> treePredicates = Arrays.asList(this.configuration.getPropertyList("fedora.treePredicates"));
                 Element xmlContent = XMLUtils.findElement(relsExtVersion, "xmlContent", "info:fedora/fedora-system:def/foxml#");
-                List<Element> elems = XMLUtils.getElements(XMLUtils.findElement(XMLUtils.findElement(xmlContent, "RDF", FedoraNamespaces.RDF_NAMESPACE_URI), "Description", FedoraNamespaces.RDF_NAMESPACE_URI), (element) -> {
+                List<Element> elems = XMLUtils.getElements(XMLUtils.findElement(XMLUtils.findElement(xmlContent, "RDF", RepositoryNamespaces.RDF_NAMESPACE_URI), "Description", RepositoryNamespaces.RDF_NAMESPACE_URI), (element) -> {
                     String localName = element.getLocalName();
                     String uri = element.getNamespaceURI();
-                    if (uri.equals(FedoraNamespaces.KRAMERIUS_URI)) {
+                    if (uri.equals(RepositoryNamespaces.KRAMERIUS_URI)) {
                         if (treePredicates.contains(localName)) {
                             // je to relace
-                            String target = element.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                            String target = element.getAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "resource");
                             try {
                                 PIDParser pidParser = new PIDParser(target);
                                 pidParser.disseminationURI();
@@ -186,7 +186,7 @@ public class ExportServiceImpl implements ExportService {
      */
     public static void main(String[] args) throws IOException, TransformerException, SAXException, ParserConfigurationException {
         LOGGER.info("Export service: " + Arrays.toString(args));
-        com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.resourceindex.ResourceIndexModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
+        com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
         // TODO AK_NEW FedoraAccess fa = injector.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("rawFedoraAccess")));
         AkubraRepository akubraRepository = injector.getInstance(com.google.inject.Key.get(AkubraRepository.class));
         Boolean exportParents = null;
@@ -245,8 +245,8 @@ public class ExportServiceImpl implements ExportService {
                 });
         for (Element biblioModsVersion : biblioModsVersions) {
             Element xmlContent = XMLUtils.findElement(biblioModsVersion, "xmlContent", "info:fedora/fedora-system:def/foxml#");
-            Element modsCollection = XMLUtils.findElement(xmlContent, "modsCollection", FedoraNamespaces.BIBILO_MODS_URI);
-            Element mods = XMLUtils.findElement(modsCollection, "mods", FedoraNamespaces.BIBILO_MODS_URI);
+            Element modsCollection = XMLUtils.findElement(xmlContent, "modsCollection", RepositoryNamespaces.BIBILO_MODS_URI);
+            Element mods = XMLUtils.findElement(modsCollection, "mods", RepositoryNamespaces.BIBILO_MODS_URI);
             List<Element> identifiers = XMLUtils.getElements(mods,(element) -> {
                     return element.getLocalName().equals("identifier");
                 });
