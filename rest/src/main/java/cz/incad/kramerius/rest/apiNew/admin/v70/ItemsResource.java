@@ -324,8 +324,7 @@ public class ItemsResource extends AdminApiResource {
 
             checkObjectExists(pid);
 
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
+            Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
             List<Node> licenseEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:license").selectNodes(relsExt);
             JSONArray licenseArray = new JSONArray();
             for (Node relationEl : licenseEls) {
@@ -378,8 +377,7 @@ public class ItemsResource extends AdminApiResource {
             }
             //extract childrens' pids an relations from rels-ext
             Map<String, String> foxmlChildrenPidToRelationName = new HashMap<>();
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
+            Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
             List<Node> childrenEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/*[starts-with(@rdf:resource, 'info:fedora/uuid:')]").selectNodes(relsExt);
             for (Node childrenEl : childrenEls) {
                 String relationName = childrenEl.getName();
@@ -595,42 +593,38 @@ public class ItemsResource extends AdminApiResource {
             checkObjectAndDatastreamExist(pid, dsId);
             switch (dsId) {
                 case "BIBLIO_MODS":
-                    InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
-                    Document document = Dom4jUtils.streamToDocument(inputStream, true);
+                    Document document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom4j(true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(document.asXML())
                             .build();
                 case "DC":
-                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
-                    document = Dom4jUtils.streamToDocument(inputStream, true);
+                    document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom4j(true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(document.asXML())
                             .build();
                 case "RELS-EXT":
-                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-                    document = Dom4jUtils.streamToDocument(inputStream, true);
+                    document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(document.asXML())
                             .build();
                 case "TEXT_OCR":
-                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT);
+                    String ocr = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString();
                     return Response.ok()
                             .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
-                            .entity(StringUtils.streamToString(inputStream))
+                            .entity(ocr)
                             .build();
                 case "ALTO":
-                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO);
-                    document = Dom4jUtils.streamToDocument(inputStream, true);
+                    document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom4j(true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(document.asXML())
                             .build();
                 case "IMG_FULL": {
                     String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
-                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL);
+                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
                     StreamingOutput stream = output -> {
                         IOUtils.copy(is, output);
                         IOUtils.closeQuietly(is);
@@ -639,7 +633,7 @@ public class ItemsResource extends AdminApiResource {
                 }
                 case "IMG_THUMB": {
                     String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB).getMimetype();
-                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
+                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream();
                     StreamingOutput stream = output -> {
                         IOUtils.copy(is, output);
                         IOUtils.closeQuietly(is);
@@ -648,7 +642,7 @@ public class ItemsResource extends AdminApiResource {
                 }
                 case "IMG_PREVIEW": {
                     String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
-                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW);
+                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream();
                     StreamingOutput stream = output -> {
                         IOUtils.copy(is, output);
                         IOUtils.closeQuietly(is);

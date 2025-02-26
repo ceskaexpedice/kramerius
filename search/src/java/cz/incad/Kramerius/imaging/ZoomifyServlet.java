@@ -252,8 +252,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
     private void renderIIPrenderXMLDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
         String urlForStream = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT);
-            Document relsEXT = DomUtils.streamToDocument(inputStream);
+            Document relsEXT = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT).asDom(false);
             urlForStream = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
         }
         if (urlForStream != null) {
@@ -351,8 +350,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
     private void renderIIPTile(String uuid, String slevel, String x,String y, String ext, HttpServletResponse resp, String url) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
         String dataStreamUrl = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT);
-            Document relsEXT = DomUtils.streamToDocument(inputStream);
+            Document relsEXT = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT).asDom(false);
             dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
         }
         if (dataStreamUrl != null) {

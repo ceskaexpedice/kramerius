@@ -58,7 +58,7 @@ public class FullThumbnailImageServlet extends AbstractImageServlet {
                 resp.setContentType(mimeType);
                 setDateHaders(pid,FedoraUtils.IMG_PREVIEW_STREAM, resp);
                 setResponseCode(pid,FedoraUtils.IMG_PREVIEW_STREAM, req, resp);
-                copyStreams(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW), resp.getOutputStream());
+                copyStreams(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream(), resp.getOutputStream());
             } else {
                 // TODO AK_NEW
                 boolean accessible = true;

@@ -91,7 +91,7 @@ public class PrintPDFServlet extends GuiceServlet {
                         String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
                         ImageMimeType mimeType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
                         if ((!mimeType.equals(ImageMimeType.DJVU)) && (!mimeType.equals(ImageMimeType.XDJVU))&& (!mimeType.equals(ImageMimeType.VNDDJVU)) && (!mimeType.equals(ImageMimeType.PDF))) {
-                            IOUtils.copyStreams(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL), os);
+                            IOUtils.copyStreams(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream(), os);
                         } else {
                             BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), akubraRepository, 0);
                             KrameriusImageSupport.writeImageToStream(bufferedImage, ImageMimeType.PNG.getDefaultFileExtension(), os);

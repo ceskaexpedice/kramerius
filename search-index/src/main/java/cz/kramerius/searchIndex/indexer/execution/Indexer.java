@@ -228,8 +228,8 @@ public class Indexer {
                 report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
-                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT);
-                String ocrText = normalizeWhitespacesForOcrText(StringUtils.streamToString(inputStream));
+                String ocr = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString();
+                String ocrText = normalizeWhitespacesForOcrText(ocr);
                 //System.out.println("ocr: " + ocrText);
                 //IMG_FULL mimetype
                 String imgFullMime = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
@@ -274,7 +274,7 @@ public class Indexer {
         try {
             AudioAnalyzer analyzer = new AudioAnalyzer();
             if (akubraRepository.datastreamExists(pid, KnownDatastreams.AUDIO_WAV)) {
-                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV);
+                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV).asInputStream();
                 AudioAnalyzer.Result result = analyzer.analyze(inputStream, AudioAnalyzer.Format.WAV);
                 return result.duration;
             }
@@ -288,7 +288,7 @@ public class Indexer {
 
     private void indexPagesFromPdf(String pid, RepositoryNode repositoryNode, Counters counters) throws IOException, DocumentException, SolrServerException {
         report("object " + pid + " contains PDF, extracting pages");
-        InputStream imgFull = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL);
+        InputStream imgFull = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
         PdfExtractor extractor = new PdfExtractor(pid, imgFull);
         int pages = extractor.getPagesCount();
         for (int i = 0; i < pages; i++) {

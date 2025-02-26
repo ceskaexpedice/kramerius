@@ -369,7 +369,7 @@ public class ItemsResource extends ClientApiResource {
 
     private Object extractImageSourceInfo(String pid) {
         JSONObject json = new JSONObject();
-        Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT), false);
+        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(false);
         String tilesUrl = org.ceskaexpedice.akubra.utils.Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//tiles-url");
         boolean chacheDirDisable = KConfiguration.getInstance().getConfiguration().getBoolean("deepZoom.cachedir.disable", false);
         if (tilesUrl != null && (!isChacheDirDisabledAndFromCache(chacheDirDisable, tilesUrl))) {
@@ -424,8 +424,7 @@ public class ItemsResource extends ClientApiResource {
         try {
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KnownDatastreams.BIBLIO_MODS.toString());
-            InputStream datastreamContent = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
-            Document mods = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(datastreamContent, true);
+            Document mods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom4j(true);
             return Response.ok()
                     .entity(mods.asXML())
                     .build();
@@ -469,8 +468,7 @@ public class ItemsResource extends ClientApiResource {
         try {
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KnownDatastreams.BIBLIO_DC.toString());
-            InputStream datastreamContent = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
-            Document dc = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(datastreamContent, true);
+            Document dc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom4j(true);
             return Response.ok().entity(dc.asXML()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -516,8 +514,7 @@ public class ItemsResource extends ClientApiResource {
             KnownDatastreams dsId = KnownDatastreams.OCR_TEXT;
             checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            InputStream datastreamContent = akubraRepository.getDatastreamContent(pid, dsId.toString());
-            String ocrText = org.ceskaexpedice.akubra.utils.StringUtils.streamToString(datastreamContent);
+            String ocrText = akubraRepository.getDatastreamContent(pid, dsId.toString()).asString();
             return Response.ok().entity(ocrText).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -564,8 +561,7 @@ public class ItemsResource extends ClientApiResource {
             KnownDatastreams dsId = KnownDatastreams.OCR_ALTO;
             checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            InputStream datastreamContent = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO);
-            Document ocrAlto = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(datastreamContent, true);
+            Document ocrAlto = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom4j(true);
             return Response.ok().entity(ocrAlto.asXML()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -620,7 +616,7 @@ public class ItemsResource extends ClientApiResource {
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
             if (ImageMimeType.JPEG2000.getValue().equals(mimeType)) {
-                InputStream istream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL);
+                InputStream istream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
                 ImageIO.setUseCache(true);
                 BufferedImage jpeg2000 = ImageIO.read(istream);
                 StreamingOutput stream = output -> {
@@ -629,7 +625,7 @@ public class ItemsResource extends ClientApiResource {
                 return Response.ok().entity(stream).type(mimeType).build();
             } else  if (ImageMimeType.DJVU.getValue().equals(mimeType) || ImageMimeType.VNDDJVU.getValue().equals(mimeType) || ImageMimeType.XDJVU.getValue().equals(mimeType) ) {
                 File tmpFile = File.createTempFile("djvu", "djvu");
-                InputStream istream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL);
+                InputStream istream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
                 Files.copy(istream, tmpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 BufferedImage djvu = KrameriusImageSupport.readImage(tmpFile.toURI().toURL(), ImageMimeType.DJVU, 0);
                 StreamingOutput stream = output -> {
@@ -637,7 +633,7 @@ public class ItemsResource extends ClientApiResource {
                 };
                 return Response.ok().entity(stream).type(mimeType).build();
             } else {
-                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL);
+                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
                 StreamingOutput stream = output -> {
                     IOUtils.copy(is, output);
                     IOUtils.closeQuietly(is);
@@ -673,7 +669,7 @@ public class ItemsResource extends ClientApiResource {
                     String streamName = "COLLECTION_CLIPS";
                     String collectionClipsContent = null;
                     // clipping_items
-                    try(InputStream cutters = akubraRepository.getDatastreamContent(pid, streamName)) {
+                    try(InputStream cutters = akubraRepository.getDatastreamContent(pid, streamName).asInputStream()) {
                         if (cutters != null) {
                             byte[] content = replaceLocationByBinaryContent(modifiedFoxml, cutters, streamName);
                             collectionClipsContent = new String(content, "UTF-8");
@@ -694,7 +690,7 @@ public class ItemsResource extends ClientApiResource {
                             if (cutItem.containsGeneratedThumbnail()) {
                                 String clipThumbName = cutItem.getThumbnailmd5();
                                 // clipThumbName
-                                try(InputStream cutters = akubraRepository.getDatastreamContent(pid, clipThumbName)) {
+                                try(InputStream cutters = akubraRepository.getDatastreamContent(pid, clipThumbName).asInputStream()) {
                                     if (cutters != null) {
                                        replaceLocationByBinaryContent(modifiedFoxml, cutters, clipThumbName);
                                     }
@@ -704,7 +700,7 @@ public class ItemsResource extends ClientApiResource {
                         }
                     }
                     // thumb
-                    try(InputStream imgThumb = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB)) {
+                    try(InputStream imgThumb = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream()) {
                         if (imgThumb != null) {
                             String streamThumbName = "IMG_THUMB";
                             replaceLocationByBinaryContent(modifiedFoxml, imgThumb, streamThumbName);
@@ -944,7 +940,7 @@ public class ItemsResource extends ClientApiResource {
                 return builder.build();
             } else {
                 String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.AUDIO_MP3).getMimetype();
-                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_MP3);
+                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_MP3).asInputStream();
                 return getAudioDataFromAkubra(mimeType, is, pid);
             }
         } catch (WebApplicationException e) {
@@ -1048,7 +1044,7 @@ public class ItemsResource extends ClientApiResource {
                 return builder.build();
             } else {
                 String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.AUDIO_OGG).getMimetype();
-                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_OGG);
+                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_OGG).asInputStream();
                 return getAudioDataFromAkubra(mimeType, is, pid);
             }
         } catch (WebApplicationException e) {
@@ -1108,7 +1104,7 @@ public class ItemsResource extends ClientApiResource {
                 return builder.build();
             } else {
                 String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.AUDIO_WAV).getMimetype();
-                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV);
+                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV).asInputStream();
                 return getAudioDataFromAkubra(mimeType, is, pid);
             }
         } catch (WebApplicationException e) {
@@ -1131,8 +1127,7 @@ public class ItemsResource extends ClientApiResource {
             pid = URLDecoder.decode(pid, "UTF-8");
             checkUserIsAllowedToReadObject(pid); 
             reportAccess( pid, null);
-            InputStream stream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            org.w3c.dom.Document relsExt = XMLUtils.parseDocument(stream, true);
+            org.w3c.dom.Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(true);
             String u = IIIFUtils.iiifImageEndpoint(relsExt);
             if (u != null) {
                 if (!u.endsWith("/")) { u = u+"/"; }
@@ -1151,8 +1146,7 @@ public class ItemsResource extends ClientApiResource {
             } else {
                 throw new BadRequestException("bad request");
             }
-        } catch (JSONException | org.ceskaexpedice.akubra.core.repository.RepositoryException | IOException | ParserConfigurationException
-                | SAXException e) {
+        } catch (JSONException | org.ceskaexpedice.akubra.core.repository.RepositoryException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
@@ -1180,8 +1174,7 @@ public class ItemsResource extends ClientApiResource {
                     checkIIIFSize(pid, size);
                 }
             }
-            InputStream stream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            org.w3c.dom.Document relsExt = XMLUtils.parseDocument(stream, true);
+            org.w3c.dom.Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(true);
             String u = IIIFUtils.iiifImageEndpoint(relsExt);
             if(u != null) {
                 // size can contain ^ or ! 
@@ -1300,7 +1293,7 @@ public class ItemsResource extends ClientApiResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             } else {
                 String mimeType = akubraRepository.getDatastreamMetadata(pid,data).getMimetype();
-                InputStream dataStream = akubraRepository.getDatastreamContent(pid, data);
+                InputStream dataStream = akubraRepository.getDatastreamContent(pid, data).asInputStream();
                 StreamingOutput stream = output -> {
                     IOUtils.copy(dataStream, output);
                     IOUtils.closeQuietly(dataStream);
@@ -1339,7 +1332,7 @@ public class ItemsResource extends ClientApiResource {
                 } else {
                     String mimetype = akubraRepository.getDatastreamMetadata(pid, "COLLECTION_CLIPS").getMimetype();
                     org.json.JSONArray outputValue = new org.json.JSONArray();
-                    try(InputStream istream = akubraRepository.getDatastreamContent(pid, "COLLECTION_CLIPS")) {
+                    try(InputStream istream = akubraRepository.getDatastreamContent(pid, "COLLECTION_CLIPS").asInputStream()) {
                         org.json.JSONArray inputValue = new org.json.JSONArray(IOUtils.toString(istream, "UTF-8"));
 
                         List<CutItem> cutItems = CutItem.fromJSONArray(inputValue);
@@ -1372,7 +1365,7 @@ public class ItemsResource extends ClientApiResource {
                     throw new NotFoundException("no image/thumb %s  available for object %s ", thumbId, pid);
                 } else {
                     String mimetype = akubraRepository.getDatastreamMetadata(pid, thumbId).getMimetype();
-                    InputStream istream = akubraRepository.getDatastreamContent(pid, thumbId);
+                    InputStream istream = akubraRepository.getDatastreamContent(pid, thumbId).asInputStream();
                     StreamingOutput stream = output -> {
                         IOUtils.copy(istream, output);
                         IOUtils.closeQuietly(istream);
@@ -1450,7 +1443,7 @@ public class ItemsResource extends ClientApiResource {
 
             boolean epub = isEpubMimeType(pid, dsId);
             if (epub) {
-                InputStream is = akubraRepository.getDatastreamContent(pid, dsId.name());
+                InputStream is = akubraRepository.getDatastreamContent(pid, dsId.name()).asInputStream();
                 ZipInputStream zipInputStream = new ZipInputStream(is);
                 ZipEntry entry;
                 while ((entry = zipInputStream.getNextEntry()) != null) {
@@ -1503,7 +1496,7 @@ public class ItemsResource extends ClientApiResource {
 
 
     Pair<InputStream, String> getFirstAvailableImgFull(String pid) throws IOException {
-        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL);
+        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
         if (is != null) {
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
             return new Pair<>(is, mimeType);
@@ -1518,7 +1511,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     Pair<InputStream, String> getFirstAvailableImgThumb(String pid) throws IOException {
-        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
+        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream();
         if (is != null) {
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB).getMimetype();
             return new Pair<>(is, mimeType);
@@ -1533,7 +1526,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     Pair<InputStream, String> getFirstAvailableImgPreview(String pid) throws IOException {
-        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW);
+        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream();
         if (is != null) {
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
             return new Pair<>(is, mimeType);
@@ -1548,7 +1541,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     private String getPidOfFirstChild(String pid) {
-        Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT), false);
+        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(false);
         String xpathExpr = "//hasPage|//hasUnit|//hasVolume|//hasItem|//hasSoundUnit|//hasTrack|//containsTrack|//hasIntCompPart|//isOnPage|//contains";
         Element element = Dom4jUtils.firstElementByXpath(relsExt.getRootElement(), xpathExpr);
         if (element != null) {

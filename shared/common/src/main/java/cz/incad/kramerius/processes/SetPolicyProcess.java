@@ -115,8 +115,7 @@ public class SetPolicyProcess {
         if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
             throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
         }
-        InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-        Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
+        Document relsExt = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
         Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
         List<Node> policyEls = Dom4jUtils.buildXpath("rel:policy").selectNodes(rootEl);
         for (Node policyEl : policyEls) {
@@ -136,8 +135,7 @@ public class SetPolicyProcess {
             LOGGER.info("Dublin Core record (datastream DC) not found for " + pid);
             return;
         }
-        InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
-        Document dc = Dom4jUtils.streamToDocument(inputStream, true);
+        Document dc = repository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom4j(true);
         Element rootEl = (Element) Dom4jUtils.buildXpath("//oai_dc:dc").selectSingleNode(dc);
         List<Node> policyEls = Dom4jUtils.buildXpath("dc:rights").selectNodes(rootEl);
         for (Node policyEl : policyEls) { //da se cekat, ze budou v datech duplikovne informace

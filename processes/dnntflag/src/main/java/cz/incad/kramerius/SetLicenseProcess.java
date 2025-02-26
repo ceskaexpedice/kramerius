@@ -238,8 +238,7 @@ public class SetLicenseProcess {
             if (!akubraRepository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
+            Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             boolean relsExtNeedsToBeUpdated = false;
 

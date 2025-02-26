@@ -57,8 +57,8 @@ public final class RelationUtils {
     }
 
     private static Document getDataStream(String pid, String streamName, AkubraRepository akubraRepository) throws IOException {
-        InputStream dataStream = akubraRepository.getDatastreamContent(pid, streamName);
-        return DomUtils.streamToDocument(dataStream, true);
+        Document doc = akubraRepository.getDatastreamContent(pid, streamName).asDom(true);
+        return doc;
     }
 
 }

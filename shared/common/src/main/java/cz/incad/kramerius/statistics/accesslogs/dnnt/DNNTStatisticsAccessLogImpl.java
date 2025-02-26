@@ -147,8 +147,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
             for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                 final String detailPid = pathFromLeafToRoot[j];
-                InputStream inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC);
-                Document dc = DomUtils.streamToDocument(inputStream);
+                Document dc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC).asDom(false);
                 if (dc != null) {
                     List<String> collected = Arrays.stream(DCUtils.publishersFromDC(dc)).map(it -> {
                         return it.replaceAll("\\r?\\n", " ");
@@ -205,8 +204,8 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             for (ObjectPidsPath path : paths) {
                 String[] pathFromLeafToRoot = path.getPathFromLeafToRoot();
                 for (String detailPid : pathFromLeafToRoot) {
-                    InputStream inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS);
-                    Map<String, List<String>> map = ModsUtils.identifiersFromMods(DomUtils.streamToDocument(inputStream));
+                    Document doc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS).asDom(false);
+                    Map<String, List<String>> map = ModsUtils.identifiersFromMods(doc);
                     Arrays.asList(ISBN_MODS_KEY, ISSN_MODS_KEY, CCNB_MODS_KEY).stream().forEach(key -> {
                         if (map.containsKey(key)) {
                             if (retmap.containsKey(key)) {
@@ -226,8 +225,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
 
     private static String findModsDateOfPid(String pid, AkubraRepository akubraRepository) {
-        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
-        Document biblioMods = DomUtils.streamToDocument(inputStream);
+        Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
 
         synchronized (MODS_DATE_XPATH_EXPRS) {
             for (XPathExpression expr : MODS_DATE_XPATH_EXPRS) {

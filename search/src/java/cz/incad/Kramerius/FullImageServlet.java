@@ -92,7 +92,7 @@ public class FullImageServlet extends AbstractImageServlet {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 // transformace
             } else {
-                InputStream is = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.IMG_FULL);
+                InputStream is = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.IMG_FULL).asInputStream();
                 if (outputFormat.equals(OutputFormats.RAW)) {
                     String asFileParam = req.getParameter("asFile");
                     String mimeType = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL).getMimetype();
@@ -102,8 +102,7 @@ public class FullImageServlet extends AbstractImageServlet {
                     setDateHaders(uuid, FedoraUtils.IMG_FULL_STREAM, resp);
                     setResponseCode(uuid,FedoraUtils.IMG_FULL_STREAM, req, resp);
                     if ((asFileParam != null) && (asFileParam.equals("true"))) {
-                        InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.BIBLIO_DC);
-                        Document dc = DomUtils.streamToDocument(inputStream);
+                        Document dc = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.BIBLIO_DC).asDom(false);
                         String title = DCUtils.titleFromDC(dc);
                         if (title == null) {
                             title = "unnamed";

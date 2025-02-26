@@ -166,8 +166,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                     final String detailPid = pathFromLeafToRoot[j];
 
                     String kModel = RelsExtUtils.getModelName(detailPid, akubraRepository);
-                    InputStream inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC);
-                    Document dc = DomUtils.streamToDocument(inputStream);
+                    Document dc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC).asDom(false);
                     if (dc != null) {
                         Object dateFromDC = DCUtils.dateFromDC(dc);
                         dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);
@@ -184,8 +183,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                         Object rights = DCUtils.rightsFromDC(dc);
                         rights = rights != null ? rights : new JDBCUpdateTemplate.NullObject(String.class);
 
-                        inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS);
-                        Document mods = DomUtils.streamToDocument(inputStream);
+                        Document mods =  akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS).asDom(false);
                         List<String> languagesFromMods = null;
 
                         Map<String, List<String>> identifiers = null;

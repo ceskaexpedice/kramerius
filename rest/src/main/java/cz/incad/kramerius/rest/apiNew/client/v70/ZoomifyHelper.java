@@ -214,8 +214,7 @@ public class ZoomifyHelper {
 
     private Response renderImagePropertiesXml(String uuid, Response.ResponseBuilder resp, String tilesUrl) throws IOException {
         if (useFromReplicated()) { //use zoom servlet from replicated instance
-            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT);
-            Document relsEXT = DomUtils.streamToDocument(inputStream);
+            Document relsEXT = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT).asDom(false);
             tilesUrl = getZoomifyBaseUrlFromSomeReplicationSource(relsEXT, uuid);
         }
         if (tilesUrl == null) {
@@ -365,8 +364,7 @@ public class ZoomifyHelper {
 
     private Response renderTile(String uuid, int tileGroup, int level, int x, int y, Response.ResponseBuilder resp, String tilesUrl) throws IOException {
         if (useFromReplicated()) {
-            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT);
-            Document relsEXT = DomUtils.streamToDocument(inputStream);
+            Document relsEXT = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT).asDom(false);
             tilesUrl = getZoomifyBaseUrlFromSomeReplicationSource(relsEXT, uuid);
         }
         if (tilesUrl == null) {

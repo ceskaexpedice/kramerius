@@ -91,8 +91,7 @@ public class RepositoryNodeManager {
                 fosterParents.add(getKrameriusNodeWithCycleDetection(fosterParent, path));
             }
 
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            Document relsExtDoc = Dom4jUtils.streamToDocument(inputStream, false);
+            Document relsExtDoc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(false);
             //String model = KrameriusRepositoryUtils.extractKrameriusModelName(relsExtDoc);
             String model = ProcessingIndexUtils.getModel(pid, akubraRepository);
             List<String> ownChildren = null;
@@ -104,8 +103,7 @@ public class RepositoryNodeManager {
                 fosterChildren = children.getRight();
             }
             //System.out.println("own children: " + (ownChildren == null? null : ownChildren.size()));
-            inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
-            Document modsDoc = Dom4jUtils.streamToDocument(inputStream, false);
+            Document modsDoc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom4j(false);
             if (modsDoc == null) {
                 throw new RuntimeException("missing MODS");
             }

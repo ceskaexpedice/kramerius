@@ -61,8 +61,7 @@ public class ModsUtils {
 
     public static Map<String, String> getTitleInfo(String pid, AkubraRepository akubraRepository) throws XPathExpressionException, IOException {
         Map<String, String> map = new HashMap<String, String>();
-        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
-        Document biblioMods = DomUtils.streamToDocument(inputStream);
+        Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
         XPath xpath = FACTORY.newXPath();
         xpath.setNamespaceContext(new RepositoryNamespaceContext());
         XPathExpression expr = xpath.compile("//mods:titleInfo/mods:title");

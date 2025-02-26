@@ -37,7 +37,7 @@ public class ProxyDatastreamsServlet extends GuiceServlet {
         checkNull(PID_PARAMETER, pid, resp);
         checkNull(DS_NAME, dsName, resp);
         String mimeType = akubraRepository.getDatastreamMetadata(pid, dsName).getMimetype();
-        InputStream is = akubraRepository.getDatastreamContent(pid, dsName);
+        InputStream is = akubraRepository.getDatastreamContent(pid, dsName).asInputStream();
         resp.setContentType(mimeType);
         IOUtils.copy(is, resp.getOutputStream());
     }

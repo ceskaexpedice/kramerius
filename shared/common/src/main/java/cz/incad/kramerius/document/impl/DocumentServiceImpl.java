@@ -274,10 +274,8 @@ public class DocumentServiceImpl implements DocumentService {
             String pid) throws LexerException, IOException {
 
         try {
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
-            Document biblioMods = DomUtils.streamToDocument(inputStream);
-            inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
-            Document dc = DomUtils.streamToDocument(inputStream);
+            Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
+            Document dc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
             String modelName = RelsExtUtils.getModelName(pid, akubraRepository);
             ResourceBundle resourceBundle = resourceBundleService
                     .getResourceBundle("base", localeProvider.get());
@@ -412,9 +410,8 @@ public class DocumentServiceImpl implements DocumentService {
             }
             for (String pid : selection) {
                 renderedDocument.addPage(createPage(renderedDocument, pid));
-                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
-                renderedDocument.mapDCConent(pid,
-                        DCUtils.contentFromDC(DomUtils.streamToDocument(inputStream)));
+                Document doc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asDom(false);
+                renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(doc));
             }
             return renderedDocument;
         } catch (LexerException e) {
@@ -445,8 +442,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         String[] pids = path.getPathFromLeafToRoot();
         for (String pid : pids) {
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
-            Document dcDocument = DomUtils.streamToDocument(inputStream);
+            Document dcDocument = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
             renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(dcDocument));
         }
 

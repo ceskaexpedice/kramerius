@@ -45,8 +45,7 @@ public class LicenseHelper {
             if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
+            Document relsExt = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             boolean relsExtNeedsToBeUpdated = false;
 
@@ -100,8 +99,7 @@ public class LicenseHelper {
             if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
+            Document relsExt = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             //look for rels-ext:license
             for (Node relationEl : Dom4jUtils.buildXpath("rel:" + RELS_EXT_RELATION_LICENSE).selectNodes(rootEl)) {
@@ -131,8 +129,7 @@ public class LicenseHelper {
             if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
+            Document relsExt = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             List<String> result = new ArrayList<>();
             //look for rels-ext:license
@@ -159,8 +156,7 @@ public class LicenseHelper {
             if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
+            Document relsExt = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
 
             //look for rels-ext:containsLicense

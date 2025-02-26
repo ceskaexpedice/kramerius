@@ -95,8 +95,7 @@ public class PolicyServiceImpl implements PolicyService {
 
     private void setPolicyDC(String pid, String policyName) {
         try {
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
-            Document doc = DomUtils.streamToDocument(inputStream);
+            Document doc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
             NodeList nodes = selectPolicyDCNodes(doc);
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node node = nodes.item(i);

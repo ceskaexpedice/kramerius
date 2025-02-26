@@ -64,8 +64,7 @@ public class Window extends AbstractCriterium implements RightCriterium {
                         // try all xpaths on mods
                         if (pid.equals(SpecialObjects.REPOSITORY.getPid()))
                             continue;
-                        InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
-                        Document biblioMods = DomUtils.streamToDocument(inputStream);
+                        Document biblioMods = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
                         for (String xp : MODS_XPATHS) {
                             result = resolveInternal(firstVal, secondVal, pid,
                                     xp, biblioMods);

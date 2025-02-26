@@ -273,9 +273,9 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 InputStream is = null;
                 if (stream.equals(FedoraUtils.IMG_THUMB_STREAM)) {
                     // small thumb -> no rights
-                    is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
+                    is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream();
                 } else {
-                    is = akubraRepository.getDatastreamContent(pid, stream);
+                    is = akubraRepository.getDatastreamContent(pid, stream).asInputStream();
                 }
 
                 String mimeType = akubraRepository.getDatastreamMetadata(pid, stream).getMimetype();
@@ -287,8 +287,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
                 String asFileParam = req.getParameter("asFile");
                 if ((asFileParam != null) && (asFileParam.equals("true"))) {
-                    InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-                    Document relsExt = DomUtils.streamToDocument(inputStream);
+                    Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
                     String fileNameFromRelsExt = FileNameUtils.disectFileNameFromRelsExt(relsExt);
                     if (fileNameFromRelsExt == null) {
                         LOGGER.severe("no <file.. element in RELS-EXT");

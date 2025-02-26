@@ -373,8 +373,7 @@ public class RenderPDF {
                 boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
                 if (useAlto && altoStream) {
                     try {
-                        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO);
-                        org.w3c.dom.Document alto = DomUtils.streamToDocument(inputStream);
+                        org.w3c.dom.Document alto = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom(false);
 
                         String file = cmdImage.getFile();
                         com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);

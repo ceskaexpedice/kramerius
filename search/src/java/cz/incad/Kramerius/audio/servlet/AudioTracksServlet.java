@@ -148,8 +148,7 @@ public class AudioTracksServlet extends GuiceServlet {
     }
 
     private boolean canContainTracks(String pid) throws IOException {
-        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-        Document relsExt = DomUtils.streamToDocument(inputStream);
+        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
         String model = getModel(pid, relsExt);
         return "model:soundrecording".equals(model)
                 || "model:soundunit".equals(model)
@@ -157,8 +156,7 @@ public class AudioTracksServlet extends GuiceServlet {
     }
     
     private boolean isTrack(String pid) throws IOException {
-        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-        Document relsExt = DomUtils.streamToDocument(inputStream);
+        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
         String model = getModel(pid, relsExt);
         return "model:track".equals(model);
     }
@@ -180,8 +178,7 @@ public class AudioTracksServlet extends GuiceServlet {
     }
 
     private List<String> getTrackPids(String pid) throws IOException {
-        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-        Document relsExt = DomUtils.streamToDocument(inputStream);
+        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
         String model = getModel(pid, relsExt);
         if ("model:soundrecording".equals(model)) {
             return getPidsFromRelsExtByXpath(pid, relsExt, rdfHasTracks);
@@ -284,8 +281,7 @@ public class AudioTracksServlet extends GuiceServlet {
 
     private Track buildTrack(String pid) throws IOException {
         try {
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
-            Document dC = DomUtils.streamToDocument(inputStream);
+            Document dC = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
             NodeList titleNodes = (NodeList) dcTitles.evaluate(dC, XPathConstants.NODESET);
             String title = buildTitle(titleNodes, pid);
             NodeList formatNodes = (NodeList) dcFormats.evaluate(dC, XPathConstants.NODESET);

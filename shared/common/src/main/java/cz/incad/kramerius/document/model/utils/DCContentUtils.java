@@ -63,8 +63,7 @@ public class DCContentUtils {
                     String pidFromPath = pathFromLeaf[i];
                     if (!pidFromPath.equals(SpecialObjects.REPOSITORY.getPid()))  {
                         if (!cacheContains(pidFromPath)) {
-                            InputStream inputStream = akubraRepository.getDatastreamContent(pidFromPath, KnownDatastreams.BIBLIO_DC);
-                            Document dcl = DomUtils.streamToDocument(inputStream);
+                            Document dcl = akubraRepository.getDatastreamContent(pidFromPath, KnownDatastreams.BIBLIO_DC).asDom(false);
                             DCConent content = DCUtils.contentFromDC(dcl);
                             putIntoCache(pidFromPath, content);
                         }

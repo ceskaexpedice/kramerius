@@ -48,6 +48,7 @@ import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import biz.sourcecode.base64Coder.Base64Coder;
@@ -270,8 +271,8 @@ public class ReplicationsResource {
     @Path("img_original")
     @Produces("image/jp2")
     public Response getOriginalImage(@PathParam("pid") String pid) throws XPathExpressionException, IOException {
-        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(DomUtils.streamToDocument(inputStream));
+        Document doc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
+        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(doc);
         if (tilesUrl == null) return Response.status(Response.Status.NOT_FOUND).build();
 
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {

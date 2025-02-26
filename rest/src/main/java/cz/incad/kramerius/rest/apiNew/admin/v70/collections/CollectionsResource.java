@@ -452,8 +452,7 @@ public class CollectionsResource extends AdminApiResource {
                 checkObjectExists(itemPid);
                 checkCanAddItemToCollection(itemPid, collectionPid);
                 //extract relsExt and update by adding new relation
-                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT);
-                Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
+                Document relsExt = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT).asDom4j(true);
                 boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
                 if (!addedNow) {
                     throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
@@ -541,8 +540,7 @@ public class CollectionsResource extends AdminApiResource {
             //add items to rels-ext of collection, schedule reindexation of items that had been added
             List<String> pidsAdded = new ArrayList<>();
             synchronized (CollectionsResource.class) {
-                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT);
-                Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
+                Document relsExt = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT).asDom4j(true);
                 boolean atLeastOneAdded = false;
                 for (String itemPid : pidsToBeAdded) {
                     boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
@@ -640,8 +638,7 @@ public class CollectionsResource extends AdminApiResource {
 
                 User user1 = this.userProvider.get();
                 List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT);
-                Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
+                Document relsExt = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT).asDom4j(true);
 
                 for (int i = 0; i < batch.getJSONArray("pids").length(); i++) {
                     String itemPid = batch.getJSONArray("pids").getString(i);
@@ -729,8 +726,7 @@ public class CollectionsResource extends AdminApiResource {
                 checkObjectExists(itemPid);
                 checkCanRemoveItemFromCollection(itemPid, collectionPid);
                 //extract relsExt and update by removing relation
-                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT);
-                Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
+                Document relsExt = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT).asDom4j(true);
                 boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
                 if (!removed) {
                     throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
@@ -843,7 +839,7 @@ public class CollectionsResource extends AdminApiResource {
 
                 JSONArray jsonArray = new JSONArray();
                 if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
-                    try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS)) {
+                    try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS).asInputStream()) {
                         jsonArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
                     }
                 }
@@ -909,7 +905,7 @@ public class CollectionsResource extends AdminApiResource {
                     Set<String> thumbsToDelete = new LinkedHashSet<>();
                     JSONArray fetchedJSONArray = new JSONArray();
                     if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
-                        try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS)) {
+                        try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS).asInputStream()) {
                             fetchedJSONArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
                         }
                     }
@@ -992,7 +988,7 @@ public class CollectionsResource extends AdminApiResource {
 
                 JSONArray jsonArray = new JSONArray();
                 if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
-                    try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS)) {
+                    try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS).asInputStream()) {
                         jsonArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
                     }
                 }
@@ -1048,8 +1044,7 @@ public class CollectionsResource extends AdminApiResource {
         }
 
         //data from MODS
-        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
-        Document mods = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, false);
+        Document mods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom4j(false);
         collection.nameUndefined = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[not(@lang)]/title");
 
         Iso639Converter converter = new Iso639Converter();
@@ -1128,8 +1123,7 @@ public class CollectionsResource extends AdminApiResource {
         }
 
         //data from RELS-EXT
-        inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-        Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, false);
+        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(false);
         collection.standalone = Boolean.valueOf(Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//standalone"));
 
         List<String> items = ProcessingIndexUtils.getTripletTargets(KnownRelations.CONTAINS.toString(), pid, akubraRepository);
@@ -1149,7 +1143,7 @@ public class CollectionsResource extends AdminApiResource {
 
         if (akubraRepository.datastreamExists(pid, COLLECTION_CLIPS)) {
 
-            try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(pid, COLLECTION_CLIPS)) {
+            try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(pid, COLLECTION_CLIPS).asInputStream()) {
                 JSONArray jsonArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
                 collection.clippingItems = CutItem.fromJSONArray(jsonArray);
                 collection.clippingItems.forEach(cl -> {

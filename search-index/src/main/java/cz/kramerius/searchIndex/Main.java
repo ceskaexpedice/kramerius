@@ -436,8 +436,7 @@ public class Main {
                 System.out.println("ocr text available");
             }*/
             //String ocrText = repositoryAdapter.isOcrTextAvailable(pid) ? repositoryAdapter.getOcrText(pid) : null;
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT);
-            String ocrText = StringUtils.streamToString(inputStream);
+            String ocrText = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString();
             //System.out.println("ocr text: " + ocrText);
             RepositoryNode repositoryNode = nodeManager.getKrameriusNode(pid);
             if (repositoryNode == null) {
@@ -458,7 +457,7 @@ public class Main {
         try {
             AudioAnalyzer analyzer = new AudioAnalyzer();
             if (akubraRepository.datastreamExists(pid, KnownDatastreams.AUDIO_WAV)) {
-                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV);
+                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV).asInputStream();
                 AudioAnalyzer.Result result = analyzer.analyze(inputStream, AudioAnalyzer.Format.WAV);
                 return result.duration;
             }

@@ -646,7 +646,7 @@ public class Import {
             }
 
              */
-            IOUtils.copyStreams(repo.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString()), bos);
+            IOUtils.copyStreams(repo.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asInputStream(), bos);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Cannot copy streams in merge", e);
             throw new RuntimeException(e);

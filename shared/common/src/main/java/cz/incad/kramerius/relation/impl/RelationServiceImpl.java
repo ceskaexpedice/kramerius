@@ -71,8 +71,7 @@ public final class RelationServiceImpl implements RelationService {
     @Override
     public RelationModel load(String pid) throws IOException {
         try {
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            Document relsExt = DomUtils.streamToDocument(inputStream);
+            Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
             return Loader.load(pid, relsExt);
         } catch (Exception ex) {
             throw new IOException("Cannot load relations: " + pid, ex);
@@ -82,8 +81,7 @@ public final class RelationServiceImpl implements RelationService {
     @Override
     public void save(String pid, RelationModel model) throws IOException {
         try {
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
-            Document relsExt = DomUtils.streamToDocument(inputStream);
+            Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
             RelationModel orig = Loader.load(pid, relsExt);
 
             if (isModified(orig, model)) {

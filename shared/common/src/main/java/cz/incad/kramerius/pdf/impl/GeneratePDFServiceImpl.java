@@ -378,8 +378,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             throws IOException, TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer(new StreamSource(styleSheet));
-        InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.BIBLIO_MODS);
-        org.w3c.dom.Document biblioMods = DomUtils.streamToDocument(inputStream);
+        org.w3c.dom.Document biblioMods = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.BIBLIO_MODS).asDom(false);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         transformer.transform(new DOMSource(biblioMods), new StreamResult(bos));
         return new String(bos.toByteArray(), Charset.forName("UTF-8"));
@@ -506,8 +505,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                             .getBoolean("pdfQueue.useAlto", true);
                     if (textocr && useAlto) {
                         try {
-                            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.OCR_ALTO);
-                            org.w3c.dom.Document alto = DomUtils.streamToDocument(inputStream);
+                            org.w3c.dom.Document alto = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.OCR_ALTO).asDom(false);
                             insertJavaImageWithOCR(document, percentage,
                                     pdfWriter, alto, javaImg);
                         } catch (Exception e) {

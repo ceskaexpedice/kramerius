@@ -42,8 +42,8 @@ public class TitlesMapUtils {
     public static Map<String, String> mapModels(AkubraRepository akubraRepository, String[] path) throws IOException {
         Map<String, String> map = new HashMap<String, String>();
         for (String u : path) {
-            InputStream inputStream = akubraRepository.getDatastreamContent(u, KnownDatastreams.RELS_EXT);
-            String modelName = RelsExtUtils.getModelName(DomUtils.streamToDocument(inputStream));
+            Document doc = akubraRepository.getDatastreamContent(u, KnownDatastreams.RELS_EXT).asDom(false);
+            String modelName = RelsExtUtils.getModelName(doc);
             map.put(u, modelName);
         }
         return map;
@@ -58,8 +58,7 @@ public class TitlesMapUtils {
     public static Map<String, String> mapTitlesToUUID(AkubraRepository akubraRepository, String[] path) throws IOException {
         Map<String, String> map = new HashMap<String, String>();
         for (String u : path) {
-            InputStream inputStream = akubraRepository.getDatastreamContent(u, KnownDatastreams.BIBLIO_DC);
-            Document dc = DomUtils.streamToDocument(inputStream);
+            Document dc = akubraRepository.getDatastreamContent(u, KnownDatastreams.BIBLIO_DC).asDom(false);
             String titleFromDC = DCUtils.titleFromDC(dc);
             map.put(u, titleFromDC);
         }
