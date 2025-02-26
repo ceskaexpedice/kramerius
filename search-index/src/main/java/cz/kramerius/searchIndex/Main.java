@@ -436,14 +436,14 @@ public class Main {
                 System.out.println("ocr text available");
             }*/
             //String ocrText = repositoryAdapter.isOcrTextAvailable(pid) ? repositoryAdapter.getOcrText(pid) : null;
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT);
             String ocrText = StringUtils.streamToString(inputStream);
             //System.out.println("ocr text: " + ocrText);
             RepositoryNode repositoryNode = nodeManager.getKrameriusNode(pid);
             if (repositoryNode == null) {
                 System.err.println("object not found or in inconsistent state: " + pid + ", ignoring");
             } else {
-                String imgFullMime = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
+                String imgFullMime = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
                 Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid(), akubraRepository) : null;
                 SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, true);
                 String solrInputStr = solrInput.getDocument().asXML();
@@ -457,8 +457,8 @@ public class Main {
     private static Integer detectAudioLength(String pid, AkubraRepository akubraRepository) {
         try {
             AudioAnalyzer analyzer = new AudioAnalyzer();
-            if (akubraRepository.datastreamExists(pid, KnownDatastreams.AUDIO_WAV.toString())) {
-                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV.toString());
+            if (akubraRepository.datastreamExists(pid, KnownDatastreams.AUDIO_WAV)) {
+                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV);
                 AudioAnalyzer.Result result = analyzer.analyze(inputStream, AudioAnalyzer.Format.WAV);
                 return result.duration;
             }

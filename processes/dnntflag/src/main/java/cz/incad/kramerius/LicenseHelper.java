@@ -42,10 +42,10 @@ public class LicenseHelper {
 
     static boolean removeRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, AkubraRepository repository) {
         return repository.doWithWriteLock(pid, () -> {
-            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
+            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
             Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             boolean relsExtNeedsToBeUpdated = false;
@@ -68,7 +68,7 @@ public class LicenseHelper {
             if (relsExtNeedsToBeUpdated) {
                 //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
                 ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                repository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+                repository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
             }
             return relsExtNeedsToBeUpdated;
@@ -97,10 +97,10 @@ public class LicenseHelper {
 
     static boolean ownsLicenseByRelsExt(String pid, String license, AkubraRepository repository) throws IOException {
         return repository.doWithWriteLock(pid, () -> {
-            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
+            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
             Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             //look for rels-ext:license
@@ -128,10 +128,10 @@ public class LicenseHelper {
 
     static List<String> getLicensesByRelsExt(String pid, AkubraRepository repository)  {
         return repository.doWithWriteLock(pid, () -> {
-            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
+            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
             Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             List<String> result = new ArrayList<>();
@@ -156,10 +156,10 @@ public class LicenseHelper {
 
     static boolean containsLicenseByRelsExt(String pid, String license, AkubraRepository repository) throws RepositoryException, IOException {
         return repository.doWithWriteLock(pid, () -> {
-            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
+            if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
             Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
 

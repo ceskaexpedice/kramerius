@@ -71,7 +71,7 @@ public final class RelationServiceImpl implements RelationService {
     @Override
     public RelationModel load(String pid) throws IOException {
         try {
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
             Document relsExt = DomUtils.streamToDocument(inputStream);
             return Loader.load(pid, relsExt);
         } catch (Exception ex) {
@@ -82,7 +82,7 @@ public final class RelationServiceImpl implements RelationService {
     @Override
     public void save(String pid, RelationModel model) throws IOException {
         try {
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
             Document relsExt = DomUtils.streamToDocument(inputStream);
             RelationModel orig = Loader.load(pid, relsExt);
 
@@ -91,7 +91,7 @@ public final class RelationServiceImpl implements RelationService {
                 String dsContent = Saver.save(relsExt, model);
 
                 byte[] bytes = dsContent.getBytes(StandardCharsets.UTF_8);
-                akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", new ByteArrayInputStream(bytes));
+                akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", new ByteArrayInputStream(bytes));
 
                 List<String> movedPids = new ArrayList<>();
                 for (KrameriusModels kind : model.getRelationKinds()) {

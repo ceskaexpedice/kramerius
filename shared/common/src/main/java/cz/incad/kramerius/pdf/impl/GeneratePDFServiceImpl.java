@@ -378,7 +378,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             throws IOException, TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer(new StreamSource(styleSheet));
-        InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.BIBLIO_MODS.toString());
+        InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.BIBLIO_MODS);
         org.w3c.dom.Document biblioMods = DomUtils.streamToDocument(inputStream);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         transformer.transform(new DOMSource(biblioMods), new StreamResult(bos));
@@ -444,23 +444,23 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
         try {
             String uuidToFirstPage = null;
             if ((model.getUuidTitlePage() != null)
-                    && (akubraRepository.datastreamExists(model.getUuidTitlePage(), KnownDatastreams.IMG_FULL.toString()))) {
+                    && (akubraRepository.datastreamExists(model.getUuidTitlePage(), KnownDatastreams.IMG_FULL))) {
                 uuidToFirstPage = model.getUuidTitlePage();
             }
             if ((uuidToFirstPage == null)
                     && (model.getUuidFrontCover() != null)
-                    && (akubraRepository.datastreamExists(model.getUuidFrontCover(), KnownDatastreams.IMG_FULL.toString()))) {
+                    && (akubraRepository.datastreamExists(model.getUuidFrontCover(), KnownDatastreams.IMG_FULL))) {
                 uuidToFirstPage = model.getUuidFrontCover();
 
             }
             if ((uuidToFirstPage == null)
                     && (model.getFirstPage() != null)
-                    && (akubraRepository.datastreamExists(model.getFirstPage(), KnownDatastreams.IMG_FULL.toString()))) {
+                    && (akubraRepository.datastreamExists(model.getFirstPage(), KnownDatastreams.IMG_FULL))) {
                 uuidToFirstPage = model.getFirstPage();
 
             }
             if (uuidToFirstPage != null) {
-                String mimetypeString = akubraRepository.getDatastreamMetadata(uuidToFirstPage, KnownDatastreams.IMG_FULL.toString()).getMimetype();
+                String mimetypeString = akubraRepository.getDatastreamMetadata(uuidToFirstPage, KnownDatastreams.IMG_FULL).getMimetype();
                 ImageMimeType mimetype = ImageMimeType
                         .loadFromMimeType(mimetypeString);
                 if (mimetype != null) {
@@ -490,23 +490,23 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             ImageFetcher fetcher, Font font) throws XPathExpressionException,
             IOException, DocumentException {
         try {
-            if (akubraRepository.datastreamExists(uuid, KnownDatastreams.IMG_FULL.toString())) {
+            if (akubraRepository.datastreamExists(uuid, KnownDatastreams.IMG_FULL)) {
                 // bypass
                 // String imgUrl = createIMGFULL(uuid, imgServletUrl);
                 // kdyz je pdf, musi
-                String mimetypeString = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
+                String mimetypeString = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL).getMimetype();
                 ImageMimeType mimetype = ImageMimeType
                         .loadFromMimeType(mimetypeString);
                 if (mimetype != null && (!ImageMimeType.PDF.equals(mimetype))) {
                     BufferedImage javaImg = fetcher.fetch(uuid, imgServletUrl,
                             mimetype, akubraRepository);
-                    boolean textocr = akubraRepository.datastreamExists(uuid, KnownDatastreams.OCR_ALTO.toString());
+                    boolean textocr = akubraRepository.datastreamExists(uuid, KnownDatastreams.OCR_ALTO);
                     boolean useAlto = KConfiguration.getInstance()
                             .getConfiguration()
                             .getBoolean("pdfQueue.useAlto", true);
                     if (textocr && useAlto) {
                         try {
-                            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.OCR_ALTO.toString());
+                            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.OCR_ALTO);
                             org.w3c.dom.Document alto = DomUtils.streamToDocument(inputStream);
                             insertJavaImageWithOCR(document, percentage,
                                     pdfWriter, alto, javaImg);

@@ -305,7 +305,7 @@ public class PrintingServiceImpl implements PrintingService {
                         String pid = ipage.getUuid();
 
                         String imgUrl = createIMGFULL(pid, imgServletUrl);
-                        String mimetypeString = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
+                        String mimetypeString = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
                         ImageMimeType mimetype = ImageMimeType.loadFromMimeType(mimetypeString);
                         if (mimetype != null) {
                             BufferedImage javaImg = readImage(new URL(imgUrl), mimetype, 0);

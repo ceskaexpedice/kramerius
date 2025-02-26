@@ -42,7 +42,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     AkubraRepository akubraRepository;
 
     public void deleteFlagToPID(final String pid) throws IOException {
-        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             deleteFlagToPIDInternal(pid);
         } else {
 
@@ -80,7 +80,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
     @Override
     public void setFlagToPID(final String pid, final String tilesUrl) throws IOException {
-        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             setFlagToPIDInternal(pid, tilesUrl);
         } else {
             try {

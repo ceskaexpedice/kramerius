@@ -78,7 +78,7 @@ public class DeleteGeneratedDeepZoomCache {
      * @throws ProcessSubtreeException Error in tree walking 
      */
     public static void deleteCacheForPID(String pid, final AkubraRepository akubraRepository, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
-        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             try {
                 deleteFolder(pid, discStruct);
             } catch (XPathExpressionException e) {
@@ -90,7 +90,7 @@ public class DeleteGeneratedDeepZoomCache {
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     try {
-                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             //LOGGER.info("Deleting " + (pageIndex++) +" uuid = "+uuid);
                             deleteFolder(pid, discStruct);
                         }

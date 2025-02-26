@@ -90,7 +90,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 }
                 
                 if (rightsReturnObject.flag()) {
-                    String stringMimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
+                    String stringMimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
                     ImageMimeType mimeType = ImageMimeType.loadFromMimeType(stringMimeType);
                     if ((mimeType != null) && (!hasNoSupportForMimeType(mimeType))) {
                         resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
@@ -151,7 +151,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderIIPDZIDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
         String urlForStream = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT);
             Document relsEXT = DomUtils.streamToDocument(inputStream);
             urlForStream = ZoomChangeFromReplicated.deepZoomAddress(relsEXT, uuid);
         }
@@ -205,7 +205,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderIIPTile(String uuid, String slevel, String stile, HttpServletResponse resp, String url) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
         String dataStreamUrl = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT);
             Document relsEXT = DomUtils.streamToDocument(inputStream);
             dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
         }
@@ -235,12 +235,12 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 if ((scaledResolution.width <= tileSupport.getTileSize()) && (scaledResolution.height <= tileSupport.getTileSize())) {
                     // obrazek se vejde na jednu dlazdici, vracime velky nahled
 
-                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW.toString())) {
-                        String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW.toString()).getMimetype();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW)) {
+                        String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
                         resp.setContentType(mimeType);
                         setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
                         setResponseCode(pid, FedoraUtils.IMG_FULL_STREAM, req, resp);
-                        IOUtils.copy(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW.toString()), resp.getOutputStream());
+                        IOUtils.copy(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW), resp.getOutputStream());
                     } else {
                         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                     }

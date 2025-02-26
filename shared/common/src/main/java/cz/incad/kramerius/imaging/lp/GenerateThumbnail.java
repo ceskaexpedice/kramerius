@@ -51,7 +51,7 @@ public class GenerateThumbnail {
     }
 
     public static void prepareCacheForUUID(String pid, final AkubraRepository akubraRepository, final DiscStrucutreForStore discStruct, final DeepZoomTileSupport tileSupport) throws IOException {
-        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             try {
                 prepareThumbnail(pid, akubraRepository, discStruct, tileSupport);
             } catch (XPathExpressionException e) {
@@ -68,7 +68,7 @@ public class GenerateThumbnail {
                     @Override
                     public void process(String pid, int level) throws ProcessSubtreeException {
                         try {
-                            if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+                            if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                                 prepareThumbnail(pid, akubraRepository, discStruct, tileSupport);
                             }
                         } catch (XPathExpressionException e) {
@@ -150,13 +150,13 @@ public class GenerateThumbnail {
             try {
                 KrameriusImageSupport.writeImageToStream(scaled, "jpeg", fos);
                 akubraRepository.doWithWriteLock(pid, () -> {
-                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW.toString())) {
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW)) {
                         LOGGER.info("Purge previous IMG_PREVIEW datastream ... for pid " + pid);
-                        akubraRepository.deleteDatastream(pid, KnownDatastreams.IMG_PREVIEW.toString());
+                        akubraRepository.deleteDatastream(pid, KnownDatastreams.IMG_PREVIEW);
                     }
                     LOGGER.info("Adding new IMG_PREVIEW datastream ... for pid " + pid);
                     try {
-                        akubraRepository.createManagedDatastream(pid, KnownDatastreams.IMG_PREVIEW.toString(), "image/jpeg", new FileInputStream(tmpFile));
+                        akubraRepository.createManagedDatastream(pid, KnownDatastreams.IMG_PREVIEW, "image/jpeg", new FileInputStream(tmpFile));
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);
                     }

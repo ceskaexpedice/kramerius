@@ -101,7 +101,7 @@ public class ReplicationServiceImpl implements ReplicationService{
                     	pids.add(pid);
                     	if (collections) {
                         	try {
-                                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+                                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
                                 Document relsExt = DomUtils.streamToDocument(inputStream);
     							List<Element> elementsRecursive = XMLUtils.getElementsRecursive(relsExt.getDocumentElement(), new XMLUtils.ElementsFilter() {
     								@Override

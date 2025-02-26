@@ -179,7 +179,7 @@ public class DrKrameriusV4Writer implements OaiWriter {
 
     private String getDCPolicy(String pid) throws IOException {
         String rights;
-        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC.toString());
+        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
         Document document = DomUtils.streamToDocument(inputStream);
         NodeList policyElements = document.getElementsByTagName("dc:rights");
 
@@ -200,7 +200,7 @@ public class DrKrameriusV4Writer implements OaiWriter {
     }
 
     private InputStream getBiblioStream(String pid) throws IOException {
-        InputStream dataStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+        InputStream dataStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
         return dataStream;
     }
 

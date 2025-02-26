@@ -180,7 +180,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
 
     @Override
     public void prepareCacheForPID(String pid, final int levelOverTileSize) throws IOException, ProcessSubtreeException {
-        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             prepareCacheImage(pid, levelOverTileSize);
         } else {
             RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
@@ -188,7 +188,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
                 
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
-                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             LOGGER.fine("caching page " + (pageIndex++));
                             prepareCacheImage(pid, levelOverTileSize);
                         }
@@ -211,7 +211,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     @Override
     public void prepareCacheForPID(String pid) throws IOException, ProcessSubtreeException {
 
-        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             prepareCacheImage(pid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
         } else {
             RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {

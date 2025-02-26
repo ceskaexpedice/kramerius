@@ -40,7 +40,7 @@ public class MimeTypeServlet extends GuiceServlet {
 	            pid = req.getParameter(PID_PARAMETER);
 	        }
 			if ((pid != null) && (!pid.equals(""))) {
-				String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
+				String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
 				resp.getWriter().println(mimeType);
 			}
 		} catch (Exception e) {

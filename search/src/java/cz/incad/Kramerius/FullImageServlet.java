@@ -70,7 +70,7 @@ public class FullImageServlet extends AbstractImageServlet {
         try {
             // dotaz na image type
             if (imageType != null) {
-                String type = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
+                String type = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL).getMimetype();
                 // resp.setContentType("plain/text");
                 resp.getWriter().print(type);
                 // pozadavek na zmenseni (prsou?)
@@ -92,17 +92,17 @@ public class FullImageServlet extends AbstractImageServlet {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 // transformace
             } else {
-                InputStream is = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.IMG_FULL.toString());
+                InputStream is = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.IMG_FULL);
                 if (outputFormat.equals(OutputFormats.RAW)) {
                     String asFileParam = req.getParameter("asFile");
-                    String mimeType = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
+                    String mimeType = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL).getMimetype();
                     if (mimeType == null)
                         mimeType = DEFAULT_MIMETYPE;
                     resp.setContentType(mimeType);
                     setDateHaders(uuid, FedoraUtils.IMG_FULL_STREAM, resp);
                     setResponseCode(uuid,FedoraUtils.IMG_FULL_STREAM, req, resp);
                     if ((asFileParam != null) && (asFileParam.equals("true"))) {
-                        InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.BIBLIO_DC.toString());
+                        InputStream inputStream = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.BIBLIO_DC);
                         Document dc = DomUtils.streamToDocument(inputStream);
                         String title = DCUtils.titleFromDC(dc);
                         if (title == null) {

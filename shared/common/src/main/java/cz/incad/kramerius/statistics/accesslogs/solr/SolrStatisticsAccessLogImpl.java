@@ -239,7 +239,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                     final String detailPid = pathFromLeafToRoot[j];
                     String detailModel = RelsExtUtils.getModelName(detailPid, akubraRepository);
                     LogRecordDetail logDetail = LogRecordDetail.buildDetail(detailPid, detailModel);
-                    InputStream inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC.toString());
+                    InputStream inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC);
                     Document dc = DomUtils.streamToDocument(inputStream);
                     if (dc != null) {
                         Object dateFromDC = DCUtils.dateFromDC(dc);
@@ -258,7 +258,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                             logRecord.addTitle(title.toString());
                             logDetail.setTitle(title.toString());
                         }
-                        inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS.toString());
+                        inputStream = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS);
                         Document mods = DomUtils.streamToDocument(inputStream);
                         Map<String, List<String>> identifiers;
                         try {

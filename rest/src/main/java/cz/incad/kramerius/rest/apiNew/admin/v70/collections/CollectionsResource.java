@@ -316,7 +316,7 @@ public class CollectionsResource extends AdminApiResource {
                     ImageIO.write(scaled, "png", bos);
 
                     ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-                    akubraRepository.updateManagedDatastream(pid, KnownDatastreams.IMG_THUMB.name(), "image/png", bis);
+                    akubraRepository.updateManagedDatastream(pid, KnownDatastreams.IMG_THUMB, "image/png", bis);
 
                     Collection nCol = fetchCollectionFromRepository(pid, true, true);
                     return Response.ok(nCol.toJson()).build();
@@ -367,11 +367,11 @@ public class CollectionsResource extends AdminApiResource {
                     //rebuild and update mods
                     Document document = foxmlBuilder.buildMods(updated);
                     ByteArrayInputStream bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.updateXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS.name(), "text/xml", bis);
+                    akubraRepository.updateXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS, "text/xml", bis);
                     //rebuild and update rels-ext (because of "standalone")
                     document = foxmlBuilder.buildRelsExt(updated, itemsInCollection);
                     bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+                    akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
                     //schedule reindexation - (only collection object)
                     scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
                 }
@@ -452,7 +452,7 @@ public class CollectionsResource extends AdminApiResource {
                 checkObjectExists(itemPid);
                 checkCanAddItemToCollection(itemPid, collectionPid);
                 //extract relsExt and update by adding new relation
-                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT.toString());
+                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT);
                 Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
                 boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
                 if (!addedNow) {
@@ -460,7 +460,7 @@ public class CollectionsResource extends AdminApiResource {
                 }
                 //save updated rels-ext
                 ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT, "text/xml", bis);
                 //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
                 if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
@@ -541,7 +541,7 @@ public class CollectionsResource extends AdminApiResource {
             //add items to rels-ext of collection, schedule reindexation of items that had been added
             List<String> pidsAdded = new ArrayList<>();
             synchronized (CollectionsResource.class) {
-                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT.toString());
+                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT);
                 Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
                 boolean atLeastOneAdded = false;
                 for (String itemPid : pidsToBeAdded) {
@@ -556,7 +556,7 @@ public class CollectionsResource extends AdminApiResource {
                 if (atLeastOneAdded) {
                     //save updated rels-ext
                     ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+                    akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT, "text/xml", bis);
                     //no need to re-index collection itself
                     if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                         LOGGER.info("Ommiting indexation");
@@ -640,7 +640,7 @@ public class CollectionsResource extends AdminApiResource {
 
                 User user1 = this.userProvider.get();
                 List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT.toString());
+                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT);
                 Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
 
                 for (int i = 0; i < batch.getJSONArray("pids").length(); i++) {
@@ -672,7 +672,7 @@ public class CollectionsResource extends AdminApiResource {
 
                 // save updated rels-ext
                 ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT, "text/xml", bis);
 
                 reindexCollection.forEach(itemPid -> {
                     // schedule reindexations - 1. item that was removed (whole tree and foster
@@ -729,7 +729,7 @@ public class CollectionsResource extends AdminApiResource {
                 checkObjectExists(itemPid);
                 checkCanRemoveItemFromCollection(itemPid, collectionPid);
                 //extract relsExt and update by removing relation
-                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT.toString());
+                InputStream inputStream = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT);
                 Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, true);
                 boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
                 if (!removed) {
@@ -737,7 +737,7 @@ public class CollectionsResource extends AdminApiResource {
                 }
                 //save updated rels-ext
                 ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT, "text/xml", bis);
                 //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
                 scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
@@ -1048,7 +1048,7 @@ public class CollectionsResource extends AdminApiResource {
         }
 
         //data from MODS
-        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
         Document mods = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, false);
         collection.nameUndefined = Dom4jUtils.stringOrNullFromFirstElementByXpath(mods.getRootElement(), "//mods/titleInfo[not(@lang)]/title");
 
@@ -1128,7 +1128,7 @@ public class CollectionsResource extends AdminApiResource {
         }
 
         //data from RELS-EXT
-        inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+        inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
         Document relsExt = org.ceskaexpedice.akubra.utils.Dom4jUtils.streamToDocument(inputStream, false);
         collection.standalone = Boolean.valueOf(Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//standalone"));
 

@@ -72,7 +72,7 @@ public class BenevolentMovingWall extends AbstractCriterium implements RightCrit
 
     private EvaluatingResultState evaluateByModsDate(String pid, int configWall) {
         try {
-            InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+            InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
             Document biblioMods = DomUtils.streamToDocument(inputStream);
             for (XPathExpression expr : MODS_DATE_XPATH_EXPRS) {
                 Date modsDate = getDate(expr, biblioMods);

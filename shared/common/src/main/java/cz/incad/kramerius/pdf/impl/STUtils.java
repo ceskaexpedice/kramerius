@@ -55,7 +55,7 @@ public class STUtils {
 	}
 	
 	public static String metadata(AkubraRepository akubraRepository, String parentUUID) throws IOException {
-		InputStream inputStream = akubraRepository.getDatastreamContent(parentUUID, KnownDatastreams.BIBLIO_MODS.toString());
+		InputStream inputStream = akubraRepository.getDatastreamContent(parentUUID, KnownDatastreams.BIBLIO_MODS);
 		Document biblioMods = DomUtils.streamToDocument(inputStream);
 		Element root = biblioMods.getDocumentElement();
 		Map stModel = prepareDCModel(root);

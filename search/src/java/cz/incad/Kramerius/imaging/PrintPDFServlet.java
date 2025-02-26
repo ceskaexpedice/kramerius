@@ -88,10 +88,10 @@ public class PrintPDFServlet extends GuiceServlet {
             protected void imageData(AkubraRepository akubraRepository,String pid, HttpServletRequest req, OutputStream os) throws IOException {
                     try {
                         pid = RelsExtUtils.findFirstViewablePid(pid, akubraRepository);
-                        String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
+                        String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
                         ImageMimeType mimeType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
                         if ((!mimeType.equals(ImageMimeType.DJVU)) && (!mimeType.equals(ImageMimeType.XDJVU))&& (!mimeType.equals(ImageMimeType.VNDDJVU)) && (!mimeType.equals(ImageMimeType.PDF))) {
-                            IOUtils.copyStreams(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL.toString()), os);
+                            IOUtils.copyStreams(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL), os);
                         } else {
                             BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), akubraRepository, 0);
                             KrameriusImageSupport.writeImageToStream(bufferedImage, ImageMimeType.PNG.getDefaultFileExtension(), os);

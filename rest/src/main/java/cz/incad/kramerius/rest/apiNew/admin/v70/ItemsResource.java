@@ -324,7 +324,7 @@ public class ItemsResource extends AdminApiResource {
 
             checkObjectExists(pid);
 
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
             Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             List<Node> licenseEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:license").selectNodes(relsExt);
             JSONArray licenseArray = new JSONArray();
@@ -378,7 +378,7 @@ public class ItemsResource extends AdminApiResource {
             }
             //extract childrens' pids an relations from rels-ext
             Map<String, String> foxmlChildrenPidToRelationName = new HashMap<>();
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
             Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             List<Node> childrenEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/*[starts-with(@rdf:resource, 'info:fedora/uuid:')]").selectNodes(relsExt);
             for (Node childrenEl : childrenEls) {
@@ -406,7 +406,7 @@ public class ItemsResource extends AdminApiResource {
                 foxmlBuilder.appendRelationToRelsExt(pid, relsExt, foxmlChildrenPidToRelationName.get(childPid), childPid);
             }
             ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-            akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+            akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
 
             scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT_AND_CHILDREN", false, pid);
             return Response.ok().build();
@@ -595,42 +595,42 @@ public class ItemsResource extends AdminApiResource {
             checkObjectAndDatastreamExist(pid, dsId);
             switch (dsId) {
                 case "BIBLIO_MODS":
-                    InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+                    InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
                     Document document = Dom4jUtils.streamToDocument(inputStream, true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(document.asXML())
                             .build();
                 case "DC":
-                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC.toString());
+                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
                     document = Dom4jUtils.streamToDocument(inputStream, true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(document.asXML())
                             .build();
                 case "RELS-EXT":
-                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
                     document = Dom4jUtils.streamToDocument(inputStream, true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(document.asXML())
                             .build();
                 case "TEXT_OCR":
-                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT.toString());
+                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT);
                     return Response.ok()
                             .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
                             .entity(StringUtils.streamToString(inputStream))
                             .build();
                 case "ALTO":
-                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO.toString());
+                    inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO);
                     document = Dom4jUtils.streamToDocument(inputStream, true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(document.asXML())
                             .build();
                 case "IMG_FULL": {
-                    String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL.toString()).getMimetype();
-                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL.toString());
+                    String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
+                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL);
                     StreamingOutput stream = output -> {
                         IOUtils.copy(is, output);
                         IOUtils.closeQuietly(is);
@@ -638,8 +638,8 @@ public class ItemsResource extends AdminApiResource {
                     return Response.ok().entity(stream).type(mimeType).build();
                 }
                 case "IMG_THUMB": {
-                    String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB.toString()).getMimetype();
-                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB.toString());
+                    String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB).getMimetype();
+                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
                     StreamingOutput stream = output -> {
                         IOUtils.copy(is, output);
                         IOUtils.closeQuietly(is);
@@ -647,8 +647,8 @@ public class ItemsResource extends AdminApiResource {
                     return Response.ok().entity(stream).type(mimeType).build();
                 }
                 case "IMG_PREVIEW": {
-                    String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW.toString()).getMimetype();
-                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW.toString());
+                    String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
+                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW);
                     StreamingOutput stream = output -> {
                         IOUtils.copy(is, output);
                         IOUtils.closeQuietly(is);

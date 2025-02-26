@@ -103,7 +103,7 @@ public class DocumentServiceImpl implements DocumentService {
     protected void buildRenderingDocumentAsFlat(
             final PreparedDocument renderedDocument, final String pidFrom,
             final int howMany) throws IOException, ProcessSubtreeException {
-        if (pidFrom != null && akubraRepository.datastreamExists(pidFrom, KnownDatastreams.IMG_FULL.toString())) {
+        if (pidFrom != null && akubraRepository.datastreamExists(pidFrom, KnownDatastreams.IMG_FULL)) {
 
             ObjectPidsPath[] path = solrAccess.getPidPaths(pidFrom);
             String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
@@ -123,7 +123,7 @@ public class DocumentServiceImpl implements DocumentService {
                 public void process(String pid, int level)
                         throws ProcessSubtreeException {
                     try {
-                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             if (pid.equals(pidFrom) || (pidFrom == null)) {
                                 acceptingState = true;
                             }
@@ -174,7 +174,7 @@ public class DocumentServiceImpl implements DocumentService {
                 public void process(String pid, int level)
                         throws ProcessSubtreeException {
                     try {
-                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             if (index < howMany) {
                                 renderedDocument.addPage(createPage(
                                         renderedDocument, pid));
@@ -214,7 +214,7 @@ public class DocumentServiceImpl implements DocumentService {
                 try {
                 	AbstractPage page = null;
 
-                	if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+                	if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                     	page = createPage(renderedDocument, pid);
                         renderedDocument.addPage(page);
                         this.currOutline = createOutlineItem(
@@ -274,9 +274,9 @@ public class DocumentServiceImpl implements DocumentService {
             String pid) throws LexerException, IOException {
 
         try {
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
             Document biblioMods = DomUtils.streamToDocument(inputStream);
-            inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC.toString());
+            inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
             Document dc = DomUtils.streamToDocument(inputStream);
             String modelName = RelsExtUtils.getModelName(pid, akubraRepository);
             ResourceBundle resourceBundle = resourceBundleService
@@ -284,7 +284,7 @@ public class DocumentServiceImpl implements DocumentService {
 
             AbstractPage page = null;
 
-            if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL.toString())) {
+            if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
 
                 page = new ImagePage(modelName, pid);
                 page.setOutlineDestination(pid);
@@ -412,7 +412,7 @@ public class DocumentServiceImpl implements DocumentService {
             }
             for (String pid : selection) {
                 renderedDocument.addPage(createPage(renderedDocument, pid));
-                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB.toString());
+                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
                 renderedDocument.mapDCConent(pid,
                         DCUtils.contentFromDC(DomUtils.streamToDocument(inputStream)));
             }
@@ -445,7 +445,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         String[] pids = path.getPathFromLeafToRoot();
         for (String pid : pids) {
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC.toString().toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
             Document dcDocument = DomUtils.streamToDocument(inputStream);
             renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(dcDocument));
         }

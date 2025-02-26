@@ -148,7 +148,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                                 Logger.getLogger(MovingWall.class.getName()).log(Level.SEVERE, null, ex);
                             }
 
-                            InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+                            InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
                             Document biblioMods = DomUtils.streamToDocument(inputStream);
                             // try all xpaths on mods
                             for (String xp : MODS_XPATHS) {
@@ -196,7 +196,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                 for (String pid : pids) {
 
                     if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
-                    InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+                    InputStream inputStream = getEvaluateContext().getAkubraRepository().getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
                     Document biblioMods = DomUtils.streamToDocument(inputStream);
                     // try all xpaths on mods
                     for (String xp : MODS_XPATHS) {

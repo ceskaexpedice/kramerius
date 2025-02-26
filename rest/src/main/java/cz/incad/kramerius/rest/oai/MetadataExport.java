@@ -69,7 +69,7 @@ public enum MetadataExport {
         @Override
         public Element perform(HttpServletRequest request, AkubraRepository akubraRepository, Document owningDocument, String oaiIdentifier, OAISet set) {
             String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
             Document dc = DomUtils.streamToDocument(inputStream);
             if (dc != null) {
                 Element rootElement = dc.getDocumentElement();
@@ -110,7 +110,7 @@ public enum MetadataExport {
             String baseUrl = ApplicationURL.applicationURL(request);
             //rdf:about="uuid:6b182ad3-b9e9-11e1-1726-001143e3f55c"
             String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
             Document dc = DomUtils.streamToDocument(inputStream);
             Element dcElement = dc.getDocumentElement();
 
@@ -333,7 +333,7 @@ public enum MetadataExport {
             String baseUrl = ApplicationURL.applicationURL(request);
             String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
 
-            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC.toString());
+            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
             Document dc = DomUtils.streamToDocument(inputStream);
 
             Element dcElement = dc.getDocumentElement();
@@ -467,7 +467,7 @@ public enum MetadataExport {
                 //Element dcElement = dc.getDocumentElement();
 
                 List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
                 Document relsExt = DomUtils.streamToDocument(inputStream);
                 String model = RelsExtUtils.getModel(relsExt.getDocumentElement());
 
@@ -486,7 +486,7 @@ public enum MetadataExport {
 
                 Element drDescriptor = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:descriptor");
 
-                inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS.toString());
+                inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS);
                 Document biblio = DomUtils.streamToDocument(inputStream);
                 Element biblioRoots = (Element) owningDocument.adoptNode(biblio.getDocumentElement());
                 drDescriptor.appendChild(biblioRoots);

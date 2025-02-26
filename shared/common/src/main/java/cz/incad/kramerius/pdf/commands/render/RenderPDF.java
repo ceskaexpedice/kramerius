@@ -367,13 +367,13 @@ public class RenderPDF {
                 Image cmdImage = (Image) cmd;
                 String pid = cmdImage.getPid();
                 
-                boolean altoStream  = akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO.toString());
+                boolean altoStream  = akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO);
 
                 // disable at all ??  It has never worked well 
                 boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
                 if (useAlto && altoStream) {
                     try {
-                        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO.toString());
+                        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO);
                         org.w3c.dom.Document alto = DomUtils.streamToDocument(inputStream);
 
                         String file = cmdImage.getFile();

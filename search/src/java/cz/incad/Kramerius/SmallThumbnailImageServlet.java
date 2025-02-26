@@ -64,7 +64,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
                     writeImage(req, resp, scale, OutputFormats.JPEG);
                 } else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             } else {
-                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB.toString());
+                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
                 if (outputFormat.equals(OutputFormats.RAW)) {
                     rawContent(req, resp, pid, is);
                 } else {
@@ -85,7 +85,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 
     // TODO: Extract to standalone servlet
     public void rawContent(HttpServletRequest req, HttpServletResponse resp, String uuid, InputStream is) throws IOException, XPathExpressionException, SQLException {
-        String mimeType = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_THUMB.toString()).getMimetype();
+        String mimeType = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_THUMB).getMimetype();
         if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
         resp.setContentType(mimeType);
         setDateHaders(uuid, mimeType, resp);

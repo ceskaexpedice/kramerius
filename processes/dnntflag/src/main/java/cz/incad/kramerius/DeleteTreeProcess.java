@@ -291,10 +291,10 @@ public class DeleteTreeProcess {
 
     private static boolean removeAnyRelsExtRelation(String srcPid, String targetPid, AkubraRepository repository) {
         return repository.doWithWriteLock(srcPid, () -> {
-            if (!repository.datastreamExists(srcPid, KnownDatastreams.RELS_EXT.toString())) {
+            if (!repository.datastreamExists(srcPid, KnownDatastreams.RELS_EXT)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + srcPid);
             }
-            InputStream inputStream = repository.getDatastreamContent(srcPid, KnownDatastreams.RELS_EXT.toString());
+            InputStream inputStream = repository.getDatastreamContent(srcPid, KnownDatastreams.RELS_EXT);
             Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             boolean relsExtNeedsToBeUpdated = false;
@@ -315,7 +315,7 @@ public class DeleteTreeProcess {
             if (relsExtNeedsToBeUpdated) {
                 if (!DRY_RUN) {
                     ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                    repository.updateXMLDatastream(srcPid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+                    repository.updateXMLDatastream(srcPid, KnownDatastreams.RELS_EXT, "text/xml", bis);
                 }
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", srcPid));
             }

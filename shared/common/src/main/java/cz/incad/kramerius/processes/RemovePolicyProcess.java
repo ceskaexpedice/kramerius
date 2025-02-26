@@ -176,10 +176,10 @@ public class RemovePolicyProcess {
     }
 
     private static void removePolicyRELS_EXT(String pid,  AkubraRepository repository) throws IOException {
-        if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
+        if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
             throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
         }
-        InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+        InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
         Document relsExt = Dom4jUtils.streamToDocument(inputStream, true);
         Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
         List<Node> policyEls = Dom4jUtils.buildXpath("rel:policy").selectNodes(rootEl);
@@ -190,15 +190,15 @@ public class RemovePolicyProcess {
             }
         }
         ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-        repository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+        repository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
     }
 
     private static void removePolicyDC(String pid,  AkubraRepository repository) throws IOException {
-        if (!repository.datastreamExists(pid, KnownDatastreams.BIBLIO_DC.toString())) {
+        if (!repository.datastreamExists(pid, KnownDatastreams.BIBLIO_DC)) {
             LOGGER.info("Dublin Core record (datastream DC) not found for " + pid);
             return;
         }
-        InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC.toString());
+        InputStream inputStream = repository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC);
         Document dc = Dom4jUtils.streamToDocument(inputStream, true);
         Element rootEl = (Element) Dom4jUtils.buildXpath("//oai_dc:dc").selectSingleNode(dc);
         List<Node> policyEls = Dom4jUtils.buildXpath("dc:rights").selectNodes(rootEl);
@@ -209,7 +209,7 @@ public class RemovePolicyProcess {
             }
         }
         ByteArrayInputStream bis = new ByteArrayInputStream(dc.asXML().getBytes(Charset.forName("UTF-8")));
-        repository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT.toString(), "text/xml", bis);
+        repository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
     }
 
     //FIXME: duplicate code (same method in NewIndexerProcessIndexObject, SetPolicyProcess), use abstract/utility class, but not before bigger cleanup in process scheduling

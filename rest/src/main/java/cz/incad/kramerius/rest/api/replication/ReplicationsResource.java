@@ -122,7 +122,7 @@ public class ReplicationsResource {
     public Response getExportedDescription(@PathParam("pid") String pid) throws ReplicateException {
         try {
             if (checkPermission(pid)) {
-                if (akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_DC.toString())) {
+                if (akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_DC)) {
                     Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(akubraRepository, solrAccess, Arrays.asList(pid));
                     List<DCConent> list = dcs.get(pid);
                     DCConent dcConent = DCConent.collectFirstWin(list);
@@ -178,7 +178,7 @@ public class ReplicationsResource {
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
             if (checkPermission(pid)) {
-                if (akubraRepository.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
+                if (akubraRepository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
                     // raw generate to request writer
                 	boolean collectionFlag = Boolean.parseBoolean(replicateCollections);
                 	List<String> pidList = replicationService.prepareExport(pid,collectionFlag);
@@ -270,7 +270,7 @@ public class ReplicationsResource {
     @Path("img_original")
     @Produces("image/jp2")
     public Response getOriginalImage(@PathParam("pid") String pid) throws XPathExpressionException, IOException {
-        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT.toString());
+        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT);
         String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(DomUtils.streamToDocument(inputStream));
         if (tilesUrl == null) return Response.status(Response.Status.NOT_FOUND).build();
 
