@@ -106,8 +106,7 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
                                 }
                                 modelsMapping.get(model).add(triple);
                             }
-                        } catch (ParserConfigurationException | SAXException | IOException
-                                | LexerException e) {
+                        } catch (ParserConfigurationException | SAXException | IOException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage());
                         }
 
