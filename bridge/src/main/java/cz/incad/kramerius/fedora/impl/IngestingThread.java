@@ -12,7 +12,7 @@ import cz.incad.kramerius.virtualcollections.Collection;
 import cz.incad.kramerius.virtualcollections.CollectionException;
 import cz.incad.kramerius.virtualcollections.CollectionsManager;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.RepositoryException;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.utils.pid.LexerException;
 import org.ceskaexpedice.akubra.utils.pid.PIDParser;
 import org.kramerius.Import;

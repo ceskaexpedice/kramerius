@@ -24,8 +24,6 @@ import java.util.Stack;
 import java.util.logging.Level;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.DomUtils;
 
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Chunk;
@@ -61,6 +59,7 @@ import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.knav.pdf.PdfTextUnderImage;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 
 public class RenderPDF {
 

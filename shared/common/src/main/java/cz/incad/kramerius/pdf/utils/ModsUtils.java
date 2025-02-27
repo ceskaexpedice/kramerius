@@ -28,10 +28,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
-import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

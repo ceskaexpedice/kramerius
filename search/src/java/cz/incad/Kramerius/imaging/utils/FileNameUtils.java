@@ -22,7 +22,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
+import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

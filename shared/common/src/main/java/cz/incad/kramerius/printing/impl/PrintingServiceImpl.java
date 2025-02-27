@@ -85,7 +85,7 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 public class PrintingServiceImpl implements PrintingService {

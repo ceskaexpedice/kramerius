@@ -2,8 +2,7 @@ package cz.incad.kramerius.statistics.accesslogs;
 
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;

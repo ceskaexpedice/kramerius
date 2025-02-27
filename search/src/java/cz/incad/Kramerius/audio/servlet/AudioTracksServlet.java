@@ -27,7 +27,7 @@ import cz.incad.kramerius.service.TextsService;
 import net.sf.json.JSONObject;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;

@@ -44,7 +44,7 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;

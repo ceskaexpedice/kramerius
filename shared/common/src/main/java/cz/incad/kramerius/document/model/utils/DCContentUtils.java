@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.w3c.dom.Document;
 
 import cz.incad.kramerius.ObjectPidsPath;

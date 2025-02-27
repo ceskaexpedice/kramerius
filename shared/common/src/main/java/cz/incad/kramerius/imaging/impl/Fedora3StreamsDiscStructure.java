@@ -22,7 +22,7 @@ import cz.incad.kramerius.imaging.paths.Path;
 import cz.incad.kramerius.imaging.paths.impl.DirPathImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 
 /**
  * Manage same structure for storing objects as fedora 3.<br>  

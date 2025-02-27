@@ -29,8 +29,7 @@ import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.knav.pdf.PdfTextUnderImage;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 import org.xml.sax.SAXException;
 

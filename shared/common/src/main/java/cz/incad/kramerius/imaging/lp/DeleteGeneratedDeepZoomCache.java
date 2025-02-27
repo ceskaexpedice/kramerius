@@ -23,7 +23,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;

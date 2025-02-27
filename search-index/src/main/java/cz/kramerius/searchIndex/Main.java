@@ -18,10 +18,7 @@ import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.Dom4jUtils;
-import org.ceskaexpedice.akubra.utils.StringUtils;
-import org.ceskaexpedice.fedoramodel.DigitalObject;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 

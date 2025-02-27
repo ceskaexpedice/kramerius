@@ -3,8 +3,8 @@ package cz.incad.kramerius.fedora;
 import com.google.inject.Provider;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.AkubraRepositoryFactory;
-import org.ceskaexpedice.akubra.RepositoryConfiguration;
-import org.ceskaexpedice.akubra.core.lock.hazelcast.HazelcastConfiguration;
+import org.ceskaexpedice.akubra.config.HazelcastConfiguration;
+import org.ceskaexpedice.akubra.config.RepositoryConfiguration;
 
 /**
  * Provides connection to kramerius4 database

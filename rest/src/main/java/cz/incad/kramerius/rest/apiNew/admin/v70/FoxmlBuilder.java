@@ -1,6 +1,6 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
-import org.ceskaexpedice.akubra.core.repository.KnownRelations;
+import org.ceskaexpedice.akubra.relsext.KnownRelations;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.*;
 

@@ -32,7 +32,7 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import net.sf.json.JSONObject;
 
-import org.ceskaexpedice.akubra.core.repository.RepositoryException;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 import org.kramerius.consistency.Consistency;
 import org.kramerius.replications.pidlist.PIDsListLexer;

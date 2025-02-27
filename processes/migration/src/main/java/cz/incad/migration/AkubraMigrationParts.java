@@ -8,7 +8,7 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.ProcessingIndex;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
 import org.xml.sax.SAXException;
 
 import java.io.*;

@@ -23,10 +23,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
-import org.ceskaexpedice.akubra.core.repository.ProcessingIndex;
-import org.ceskaexpedice.akubra.core.repository.RepositoryException;
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
 import org.ceskaexpedice.akubra.utils.pid.LexerException;
 import org.ceskaexpedice.fedoramodel.*;
 import org.json.JSONArray;
@@ -65,7 +65,7 @@ import cz.incad.kramerius.utils.*;
 
 
 import static cz.incad.kramerius.utils.XMLUtils.*;
-import static org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces.*;
+import static org.ceskaexpedice.akubra.RepositoryNamespaces.DC_NAMESPACE_URI;
 
 
 /**

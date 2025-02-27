@@ -15,7 +15,7 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.processes.starter.*;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.FoxmlType;
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.w3c.dom.Document;

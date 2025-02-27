@@ -31,7 +31,8 @@ import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.ceskaexpedice.akubra.utils.ExtractStructureHelper;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
@@ -914,7 +915,7 @@ public class ItemsResource extends ClientApiResource {
         try {
             String type = akubraRepository.getDatastreamMetadata(pid, audioFormat.name()).getType().toString();
             return type != null && type.equals("INDIRECT");
-        } catch (org.ceskaexpedice.akubra.core.repository.RepositoryException e) {
+        } catch (RepositoryException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return false;
         }
@@ -1146,7 +1147,7 @@ public class ItemsResource extends ClientApiResource {
             } else {
                 throw new BadRequestException("bad request");
             }
-        } catch (JSONException | org.ceskaexpedice.akubra.core.repository.RepositoryException | IOException e) {
+        } catch (JSONException | RepositoryException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }

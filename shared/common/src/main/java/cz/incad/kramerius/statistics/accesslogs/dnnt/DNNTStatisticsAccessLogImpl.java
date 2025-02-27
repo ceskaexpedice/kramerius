@@ -25,8 +25,7 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;

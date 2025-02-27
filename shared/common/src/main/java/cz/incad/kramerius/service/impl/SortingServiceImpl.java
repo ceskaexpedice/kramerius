@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaceContext;
+import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
 import org.w3c.dom.Document;
 
 import com.google.common.collect.Ordering;

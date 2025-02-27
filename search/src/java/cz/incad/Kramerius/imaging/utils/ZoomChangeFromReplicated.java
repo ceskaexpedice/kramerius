@@ -18,7 +18,7 @@ package cz.incad.Kramerius.imaging.utils;
 
 import java.util.List;
 
-import org.ceskaexpedice.akubra.core.repository.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

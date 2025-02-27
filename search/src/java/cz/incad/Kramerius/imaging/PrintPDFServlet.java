@@ -18,7 +18,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.core.repository.KnownDatastreams;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONException;
 
