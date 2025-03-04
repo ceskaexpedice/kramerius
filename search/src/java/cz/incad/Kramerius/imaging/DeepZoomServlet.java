@@ -80,7 +80,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
             String zoomUrl = disectZoom(requestURL);
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
             String pid = tokenizer.nextToken();
-            if (akubraRepository.objectExists(pid)) {
+            if (akubraRepository.exists(pid)) {
                 ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 RightsReturnObject rightsReturnObject = null;
                 for (ObjectPidsPath pth : paths) {

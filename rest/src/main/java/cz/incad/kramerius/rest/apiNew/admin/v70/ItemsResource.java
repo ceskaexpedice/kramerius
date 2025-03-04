@@ -297,7 +297,7 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
             checkObjectExists(pid);
-            Document foxml = akubraRepository.getObject(pid).asDom4j(true);
+            Document foxml = akubraRepository.get(pid).asDom4j(true);
             return Response.ok().entity(foxml.asXML()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -455,7 +455,7 @@ public class ItemsResource extends AdminApiResource {
             //other objects can reference images belonging to other objects (pages),
             //some of the reference are managed, so deleting for example collection should not include deleting file with thumbnail
             boolean deleteManagedDatastreamsData = "page".equals(model);
-            akubraRepository.deleteObject(pid, deleteManagedDatastreamsData, true);
+            akubraRepository.delete(pid, deleteManagedDatastreamsData, true);
             //remove object from Search index (directly, without scheduling process)
             deleteFromSearchIndex(pid);
             return Response.ok().build();
@@ -755,9 +755,9 @@ public class ItemsResource extends AdminApiResource {
             // or
             // internal with CONTROL_GROUP="M" and contentLocation TYPE="INTERNAL_ID"
             Document srcThumbDs = akubraRepository.doWithReadLock(sourcePid, () -> {
-                DigitalObject object = akubraRepository.getObject(sourcePid).asDigitalObject();
+                DigitalObject object = akubraRepository.get(sourcePid).asDigitalObject();
                 if (object.getDatastream().stream().anyMatch(dataStreamType -> dataStreamType.getID().equals(KnownDatastreams.IMG_THUMB.toString()))) {
-                    Document foxml = Dom4jUtils.streamToDocument(akubraRepository.marshallObject(object), true);
+                    Document foxml = Dom4jUtils.streamToDocument(akubraRepository.marshall(object), true);
                     Element dcEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", KnownDatastreams.IMG_THUMB)).selectSingleNode(foxml);
                     Element detached = (Element) dcEl.detach();
                     Document result = DocumentHelper.createDocument();
@@ -768,15 +768,15 @@ public class ItemsResource extends AdminApiResource {
                 }
             });
             akubraRepository.doWithWriteLock(targetPid, () -> {
-                Document foxml = akubraRepository.getObject(targetPid).asDom4j(true);
+                Document foxml = akubraRepository.get(targetPid).asDom4j(true);
                 Element originalDsEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", KnownDatastreams.IMG_THUMB)).selectSingleNode(foxml);
                 if (originalDsEl != null) {
                     originalDsEl.detach();
                 }
                 foxml.getRootElement().add(srcThumbDs.getRootElement().detach());
                 Dom4jUtils.updateLastModifiedTimestamp(foxml);
-                DigitalObject updatedDigitalObject = akubraRepository.unmarshallObject(new ByteArrayInputStream(foxml.asXML().getBytes(StandardCharsets.UTF_8)));
-                akubraRepository.deleteObject(targetPid, false, false);
+                DigitalObject updatedDigitalObject = akubraRepository.unmarshall(new ByteArrayInputStream(foxml.asXML().getBytes(StandardCharsets.UTF_8)));
+                akubraRepository.delete(targetPid, false, false);
                 akubraRepository.ingest(updatedDigitalObject);
                 akubraRepository.getProcessingIndex().commit();;
                 return null;

@@ -113,11 +113,11 @@ public class CDKItemResource {
         try {
             if (PIDSupport.isComposedPID(pid)) {
                 String p = PIDSupport.first(pid);
-                if (!akubraRepository.objectExists(p)) {
+                if (!akubraRepository.exists(p)) {
                     throw new PIDNotFound("pid not found");
                 }
             } else {
-                if (!akubraRepository.objectExists(pid)) {
+                if (!akubraRepository.exists(pid)) {
                     throw new PIDNotFound("pid not found");
                 }
             }

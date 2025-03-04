@@ -791,7 +791,7 @@ public class CollectionsResource extends AdminApiResource {
             }
             //delete collection object form repository (not managed datastreams, since those for IMG_THUMB are referenced from other objects - pages)
             akubraRepository.doWithWriteLock(pid, () -> {
-                akubraRepository.deleteObject(pid, false, true);
+                akubraRepository.delete(pid, false, true);
                 akubraRepository.getProcessingIndex().commit();;
                 return null;
             });
@@ -1038,7 +1038,7 @@ public class CollectionsResource extends AdminApiResource {
         collection.pid = pid;
         //timestamps from Foxml properties
 
-        ObjectProperties objectProperties = akubraRepository.getObjectProperties(pid);
+        ObjectProperties objectProperties = akubraRepository.getProperties(pid);
         if(objectProperties != null) {
             /* TODO AK_NEW
             collection.created = objectProperties.getPropertyCreated();

@@ -420,11 +420,11 @@ public class Main {
             SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
             SolrIndexAccess solrAccess = new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
 
-            boolean objectAvailable = akubraRepository.objectExists(pid);
+            boolean objectAvailable = akubraRepository.exists(pid);
             if (!objectAvailable) {
                 throw new IOException("object " + pid + " not available");
             }
-            Document foxmlDoc = akubraRepository.getObject(pid).asDom4j(true);
+            Document foxmlDoc = akubraRepository.get(pid).asDom4j(true);
             //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
            /* boolean ocrAvailable = repositoryAdapter.isOcrTextAvailable(pid);
             if (!ocrAvailable) {

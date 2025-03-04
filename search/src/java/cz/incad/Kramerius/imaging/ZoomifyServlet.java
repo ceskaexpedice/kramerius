@@ -121,7 +121,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
             String pid = tokenizer.nextToken();
             String rest = tokenizer.hasMoreTokens() ?  tokenizer.nextToken() : "";
 
-            if (akubraRepository.objectExists(pid)) {
+            if (akubraRepository.exists(pid)) {
                 ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 boolean permitted = false;
                 for (ObjectPidsPath pth : paths) {

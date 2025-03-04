@@ -125,7 +125,7 @@ public class Consistency {
 
         @Override
         public boolean skipBranch(String pid, int level) {
-            if (akubraRepository.objectExists(pid)) {
+            if (akubraRepository.exists(pid)) {
                 return false;
             } else {
                 LOGGER.fine("deleting relation  to nonexisting pid " + pid);

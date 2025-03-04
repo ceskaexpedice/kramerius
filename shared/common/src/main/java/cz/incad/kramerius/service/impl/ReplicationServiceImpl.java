@@ -29,7 +29,6 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.FoxmlType;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
@@ -163,7 +162,7 @@ public class ReplicationServiceImpl implements ReplicationService{
     public byte[] getExportedFOXML(String pid, FormatType fType) throws ReplicateException,IOException {
         ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
-            InputStream foXml = akubraRepository.getObject(pid, FoxmlType.archive).asInputStream();
+            InputStream foXml = akubraRepository.export(pid).asInputStream();
             byte[] exported = IOUtils.toByteArray(foXml);
             if (format != null) {
                 return format.formatFoxmlData(exported, null, null);
@@ -185,7 +184,7 @@ public class ReplicationServiceImpl implements ReplicationService{
 			Object... formatParams) throws ReplicateException, IOException {
         ReplicationFormat  format = formatInstantiate(fType.getClazz());
         try {
-            InputStream foXml = akubraRepository.getObject(pid, FoxmlType.archive).asInputStream();
+            InputStream foXml = akubraRepository.export(pid).asInputStream();
             byte[] exported = IOUtils.toByteArray(foXml);
             if (format != null) {
             	if (formatParams != null && formatParams.length >= 1) {

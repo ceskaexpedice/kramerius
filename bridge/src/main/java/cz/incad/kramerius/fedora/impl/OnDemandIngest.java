@@ -61,7 +61,7 @@ public class OnDemandIngest {
                 String password = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + source + ".pswd");
                 if (StringUtils.isAnyString(username) && StringUtils.isAnyString(password)) {
                     String url = baseurl  +(baseurl.endsWith("/") ? "" : "/")+ "api/v4.6/cdk/" + pid + "/foxml?collection=" + source;
-                    if (internalAPI.objectExists(pid)) {
+                    if (internalAPI.exists(pid)) {
                         LOGGER.info("Object exists");
                         return;
                     }
@@ -69,7 +69,7 @@ public class OnDemandIngest {
                     long foxmlTime = System.currentTimeMillis();
                     // only ingesting is synchronized by shared lock
                     synchronized (INGESTING_LOCK) {
-                        if (internalAPI.objectExists(pid)) return;
+                        if (internalAPI.exists(pid)) return;
                         // tady by to melo byt synchronizovane
                         // import source
                         Import.ingest(internalAPI, foxml, pid, null, null, true);
@@ -99,7 +99,7 @@ public class OnDemandIngest {
     public void ingestIfNecessary(AkubraRepository internalAPI, String pid) throws RepositoryException, IOException, CollectionException, LexerException, JAXBException, TransformerException, XPathExpressionException {
         if (!pid.startsWith(PIDParser.VC_PREFIX)) {
             //Repository internalAPI = fedoraAccessProxyAkubra.getInternalAPI();
-            if (!internalAPI.objectExists(pid)) {
+            if (!internalAPI.exists(pid)) {
                 // put in the queue and wait
                 onDemandIngest(pid, internalAPI);
             }

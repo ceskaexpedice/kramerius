@@ -219,7 +219,7 @@ public class Indexer {
                 report("");
             } else {
                 LOGGER.info("Indexing " + pid);
-                Document foxmlDoc = akubraRepository.getObject(pid).asDom4j(true);
+                Document foxmlDoc = akubraRepository.get(pid).asDom4j(true);
                 report("model: " + repositoryNode.getModel());
                 report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)

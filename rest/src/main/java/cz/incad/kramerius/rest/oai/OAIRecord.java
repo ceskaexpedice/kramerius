@@ -239,7 +239,7 @@ public class OAIRecord {
 		
 		// local 
 		String pid = OAITools.pidFromOAIIdentifier(this.identifier);
-		if (!akubraRepository.objectExists(pid) && (!pid.contains("_"))) {
+		if (!akubraRepository.exists(pid) && (!pid.contains("_"))) {
 			header.setAttribute("status", "deleted");
 		}
         return header;

@@ -69,7 +69,7 @@ public class SetPolicyProcess {
         AkubraRepository repository = injector.getInstance(Key.get(AkubraRepository.class));
 
         //check object exists in repository
-        if (!repository.objectExists(pid)) {
+        if (!repository.exists(pid)) {
             throw new RuntimeException(String.format("object %s not found in repository", pid));
         }
         boolean includingDescendants = scope == Scope.TREE;

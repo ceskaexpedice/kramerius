@@ -14,7 +14,6 @@ import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.processes.starter.*;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.FoxmlType;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
@@ -61,7 +60,7 @@ public class ExportServiceImpl implements ExportService {
             for (int i = 1; i < set.length; i++) {
                 String childPid = set[i];
                 String subChild = set[i - 1];
-                Document doc = akubraRepository.getObject(childPid, FoxmlType.archive).asDom(true);
+                Document doc = akubraRepository.export(childPid).asDom(true);
 
                 Element relsExt = XMLUtils.findElement(doc.getDocumentElement(), (element) -> {
                     return element.getLocalName().equals("datastream") && element.getAttribute("ID").equals("RELS-EXT");
@@ -138,7 +137,7 @@ public class ExportServiceImpl implements ExportService {
             String p = s.replace(INFO, "");
             LOGGER.info("Exporting " + exportDirectory + " " + p);
             try {
-                InputStream foxml = akubraRepository.getObject(p, FoxmlType.archive).asInputStream();
+                InputStream foxml = akubraRepository.export(p).asInputStream();
                 store(exportDirectory, p, foxml);
             } catch (Exception ex) {
                 if (configuration.getConfiguration().getBoolean("export.shouldStopWhenFail", true)) {

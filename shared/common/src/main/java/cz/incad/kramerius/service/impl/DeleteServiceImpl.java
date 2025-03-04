@@ -76,7 +76,7 @@ public class DeleteServiceImpl implements DeleteService {
             if (purge) {
                 LOGGER.info("Purging object: " + p);
                 try {
-                    akubraRepository.deleteObject(p);
+                    akubraRepository.delete(p);
                 } catch (RepositoryException e) {
                     LOGGER.log(Level.WARNING, "Error while deleting " + p + " due " + e.getMessage(), e);
                 }

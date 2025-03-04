@@ -28,7 +28,7 @@ public abstract class ApiResource {
     }
 
     protected final boolean objectExists(String pid) throws ApiException {
-        return akubraRepository.objectExists(pid);
+        return akubraRepository.exists(pid);
     }
 
     protected final void checkObjectAndDatastreamExist(String pid, String dsId) throws ApiException {

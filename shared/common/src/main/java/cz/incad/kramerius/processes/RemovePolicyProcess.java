@@ -91,7 +91,7 @@ public class RemovePolicyProcess {
         List<Boolean> errors = new ArrayList<>();
         for (String pid : pids) {
             //check object exists in repository
-            if (!repository.objectExists(pid)) {
+            if (!repository.exists(pid)) {
                 throw new RuntimeException(String.format("object %s not found in repository", pid));
             }
             //boolean includingDescendants = scope == Scope.TREE;

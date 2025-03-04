@@ -78,7 +78,7 @@ public class RepositoryNodeManager {
 
     private RepositoryNode buildKrameriusNodeFromRepository(String pid, List<String> path) {
         try {
-            if (!akubraRepository.objectExists(pid)) {
+            if (!akubraRepository.exists(pid)) {
                 return null;
             }
             //System.out.println("building node for " + pid);

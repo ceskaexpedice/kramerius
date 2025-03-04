@@ -95,7 +95,7 @@ public class DeleteTreeProcess {
         // pokud je 
         //boolean existsInProcessingIndex = processingIndex.existsPid(pid);
 
-        if (!akubraRepository.objectExists(pid) && !ignoreIncosistencies) {
+        if (!akubraRepository.exists(pid) && !ignoreIncosistencies) {
             throw new RuntimeException(String.format("object %s not found in repository", pid));
         }
 
@@ -109,7 +109,7 @@ public class DeleteTreeProcess {
         LOGGER.info(String.format("deleting own tree of %s", pid));
         boolean someProblem = false;
         //
-        boolean skipP = ignoreIncosistencies && !repository.objectExists(pid);
+        boolean skipP = ignoreIncosistencies && !repository.exists(pid);
 
         String myModel = "";
         if (!skipP) {
@@ -216,10 +216,10 @@ public class DeleteTreeProcess {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
 
-            if (repository.objectExists(pid)) {
+            if (repository.exists(pid)) {
                 repository.doWithWriteLock(pid, () -> {
                     //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
-                    repository.deleteObject(pid, !isCollection, true);
+                    repository.delete(pid, !isCollection, true);
                     repository.getProcessingIndex().commit();
                     return null;
                 });

@@ -72,12 +72,12 @@ public class IngestingThread extends Thread {
                 if (StringUtils.isAnyString(username) && StringUtils.isAnyString(password)) {
                     String url = collection.getUrl()  +(collection.getUrl().endsWith("/") ? "" : "/")+ "api/v4.6/cdk/" + pid + "/foxml?collection=" + collection.getPid();
 
-                    if (this.internalAPI.objectExists(pid)) return;
+                    if (this.internalAPI.exists(pid)) return;
                     InputStream foxml = foxml(url, username, password);
                     long foxmlTime = System.currentTimeMillis();
                     // only ingesting is synchronized by shared lock
                     synchronized (INGESTING_LOCK) {
-                        if (this.internalAPI.objectExists(pid)) return;
+                        if (this.internalAPI.exists(pid)) return;
                         // tady by to melo byt synchronizovane
                         Import.ingest(internalAPI, foxml, pid, null, null, true);
                         LOGGER.info(String.format("Whole ingest of %s took %d ms (download foxml %d ms)",pid, (System.currentTimeMillis() - start), (System.currentTimeMillis() - foxmlTime) ));

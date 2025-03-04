@@ -455,7 +455,7 @@ public enum OAIVerb {
                                 record.appendChild(header);
 
                                 String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
-                                if (fa.objectExists(pid)) {
+                                if (fa.exists(pid)) {
                                     Element metadata = doc.createElement("metadata");
                                     metadata.appendChild(oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata,selectedSet));
                                     record.appendChild(metadata);
@@ -476,7 +476,7 @@ public enum OAIVerb {
                                     record.appendChild(header);
 
                                     String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
-                                    if (fa.objectExists(pid)) {
+                                    if (fa.exists(pid)) {
                                         Element metadata = doc.createElement("metadata");
                                         metadata.appendChild(oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata,selectedSet));
                                         record.appendChild(metadata);
@@ -1045,7 +1045,7 @@ public enum OAIVerb {
                         
                         
                         String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
-                        if (fa.objectExists(pid)) {
+                        if (fa.exists(pid)) {
                             Element metadata = doc.createElement("metadata");
                             metadata.appendChild(oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata,null));
                             record.appendChild(metadata);

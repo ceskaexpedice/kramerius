@@ -114,7 +114,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
     void deleteFlagToPIDInternal(String pid) {
         LOGGER.info("deleting deep zoom url for '" + pid + "'");
         ProcessingIndexUtils.doWithProcessingIndexCommit(akubraRepository, (repo) -> {
-            if (repo.objectExists(pid)) {
+            if (repo.exists(pid)) {
                 akubraRepository.doWithWriteLock(pid, () -> {
                     boolean flag = akubraRepository.getRelsExtHandler().relationExists(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
                     if (flag) {
@@ -128,7 +128,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
     void setFlagToPIDInternal(String pid, String tilesUrl) {
         ProcessingIndexUtils.doWithProcessingIndexCommit(akubraRepository, (repo) -> {
-            if (repo.objectExists(pid)) {
+            if (repo.exists(pid)) {
                 akubraRepository.doWithWriteLock(pid, () -> {
                     boolean flag = akubraRepository.getRelsExtHandler().relationExists(pid, "tiles-url", RepositoryNamespaces.KRAMERIUS_URI);
                     if (flag) {

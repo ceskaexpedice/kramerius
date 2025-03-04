@@ -363,7 +363,7 @@ public class Import {
                         if (authToken != null) {
                             for (TitlePidTuple root : classicRoots) {
 
-                                if (akubraRepository.objectExists(root.pid)) {
+                                if (akubraRepository.exists(root.pid)) {
                                     ProcessScheduler.scheduleIndexation(root.pid, root.title, true, authToken);
                                 } else {
                                     LOGGER.warning(String.format("Object '%s' does not exist in the repository. ", root.pid));
@@ -570,7 +570,7 @@ public class Import {
                     if (updateExisting) {
                         log.info("Replacing existing object " + pid);
                         try {
-                            akubraRepository.deleteObject(pid, true, false);
+                            akubraRepository.delete(pid, true, false);
                             log.info("purged old object " + pid);
                         } catch (Exception ex) {
                             log.severe("Cannot purge object " + pid + ", skipping: " + ex);
@@ -633,7 +633,7 @@ public class Import {
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            DigitalObject existingObject = repo.getObject(pid).asDigitalObject();
+            DigitalObject existingObject = repo.get(pid).asDigitalObject();
             if (existingObject == null) {
                 throw new IllegalStateException("Cannot merge object: " + pid + " - object not in repository");
             }
@@ -1048,7 +1048,7 @@ public class Import {
      * @return true if given object exists
      */
     public static boolean objectExists(AkubraRepository repo, String pid) throws RepositoryException {
-        return repo.objectExists(pid);
+        return repo.exists(pid);
     }
 }
 
