@@ -148,7 +148,7 @@ public class AudioTracksServlet extends GuiceServlet {
     }
 
     private boolean canContainTracks(String pid) throws IOException {
-        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
+        Document relsExt = akubraRepository.re().get(pid).asDom(false);
         String model = getModel(pid, relsExt);
         return "model:soundrecording".equals(model)
                 || "model:soundunit".equals(model)
@@ -156,7 +156,7 @@ public class AudioTracksServlet extends GuiceServlet {
     }
     
     private boolean isTrack(String pid) throws IOException {
-        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
+        Document relsExt = akubraRepository.re().get(pid).asDom(false);
         String model = getModel(pid, relsExt);
         return "model:track".equals(model);
     }
@@ -178,7 +178,7 @@ public class AudioTracksServlet extends GuiceServlet {
     }
 
     private List<String> getTrackPids(String pid) throws IOException {
-        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
+        Document relsExt = akubraRepository.re().get(pid).asDom(false);
         String model = getModel(pid, relsExt);
         if ("model:soundrecording".equals(model)) {
             return getPidsFromRelsExtByXpath(pid, relsExt, rdfHasTracks);

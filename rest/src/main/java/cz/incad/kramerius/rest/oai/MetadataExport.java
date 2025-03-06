@@ -464,7 +464,7 @@ public enum MetadataExport {
                 //Element dcElement = dc.getDocumentElement();
 
                 List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-                Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
+                Document relsExt = akubraRepository.re().get(pid).asDom(false);
                 String model = RelsExtUtils.getModel(relsExt.getDocumentElement());
 
                 Element record = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:record");

@@ -176,10 +176,10 @@ public class RemovePolicyProcess {
     }
 
     private static void removePolicyRELS_EXT(String pid,  AkubraRepository repository) throws IOException {
-        if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
+        if (!repository.re().exists(pid)) {
             throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
         }
-        Document relsExt = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
+        Document relsExt = repository.re().get(pid).asDom4j(true);
         Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
         List<Node> policyEls = Dom4jUtils.buildXpath("rel:policy").selectNodes(rootEl);
         for (Node policyEl : policyEls) {
@@ -189,7 +189,7 @@ public class RemovePolicyProcess {
             }
         }
         ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-        repository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+        repository.re().update(pid, bis);
     }
 
     private static void removePolicyDC(String pid,  AkubraRepository repository) throws IOException {
@@ -207,7 +207,7 @@ public class RemovePolicyProcess {
             }
         }
         ByteArrayInputStream bis = new ByteArrayInputStream(dc.asXML().getBytes(Charset.forName("UTF-8")));
-        repository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+        repository.re().update(pid, bis);
     }
 
     //FIXME: duplicate code (same method in NewIndexerProcessIndexObject, SetPolicyProcess), use abstract/utility class, but not before bigger cleanup in process scheduling

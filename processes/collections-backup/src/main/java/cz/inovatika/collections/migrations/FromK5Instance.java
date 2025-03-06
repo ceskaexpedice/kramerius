@@ -445,7 +445,7 @@ public class FromK5Instance {
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
 
-        Import.run(akubraRepository, akubraRepository.getProcessingIndex(), sortingServiceLocal,
+        Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,
                 KConfiguration.getInstance().getProperty("ingest.url"),
                 KConfiguration.getInstance().getProperty("ingest.user"),
                 KConfiguration.getInstance().getProperty("ingest.password"),

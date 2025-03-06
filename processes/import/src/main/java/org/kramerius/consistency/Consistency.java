@@ -74,12 +74,12 @@ public class Consistency {
             LOGGER.fine("deleting inconsitencies");
             for (NotConsistentRelation nRelation : relations) {
                 List<String> children = nRelation.getChildren();
-                List<RelsExtRelation> relationsList = akubraRepository.getRelsExtHandler().get(nRelation.rootPid).getRelations(null);
+                List<RelsExtRelation> relationsList = akubraRepository.re().get(nRelation.rootPid).getRelations(null);
                 for (RelsExtRelation t : relationsList) {
 
                     if (children.contains(t.getResource())) {
-                        akubraRepository.getRelsExtHandler().removeRelation(nRelation.rootPid, t.getLocalName(), t.getNamespace(), t.getResource());
-                        if (akubraRepository.getRelsExtHandler().relationExists(nRelation.rootPid, t.getLocalName(), t.getNamespace())) {
+                        akubraRepository.re().removeRelation(nRelation.rootPid, t.getLocalName(), t.getNamespace(), t.getResource());
+                        if (akubraRepository.re().relationExists(nRelation.rootPid, t.getLocalName(), t.getNamespace())) {
                             throw new RuntimeException("cannot delete relation ");
                         }
                     }

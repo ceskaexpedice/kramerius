@@ -368,7 +368,7 @@ public class ItemsResource extends ClientApiResource {
 
     private Object extractImageSourceInfo(String pid) {
         JSONObject json = new JSONObject();
-        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(false);
+        Document relsExt = akubraRepository.re().get(pid).asDom4j(false);
         String tilesUrl = org.ceskaexpedice.akubra.utils.Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//tiles-url");
         boolean chacheDirDisable = KConfiguration.getInstance().getConfiguration().getBoolean("deepZoom.cachedir.disable", false);
         if (tilesUrl != null && (!isChacheDirDisabledAndFromCache(chacheDirDisable, tilesUrl))) {
@@ -1126,7 +1126,7 @@ public class ItemsResource extends ClientApiResource {
             pid = URLDecoder.decode(pid, "UTF-8");
             checkUserIsAllowedToReadObject(pid); 
             reportAccess( pid, null);
-            org.w3c.dom.Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(true);
+            org.w3c.dom.Document relsExt = akubraRepository.re().get(pid).asDom(true);
             String u = IIIFUtils.iiifImageEndpoint(relsExt);
             if (u != null) {
                 if (!u.endsWith("/")) { u = u+"/"; }
@@ -1173,7 +1173,7 @@ public class ItemsResource extends ClientApiResource {
                     checkIIIFSize(pid, size);
                 }
             }
-            org.w3c.dom.Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(true);
+            org.w3c.dom.Document relsExt = akubraRepository.re().get(pid).asDom(true);
             String u = IIIFUtils.iiifImageEndpoint(relsExt);
             if(u != null) {
                 // size can contain ^ or ! 
@@ -1540,7 +1540,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     private String getPidOfFirstChild(String pid) {
-        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(false);
+        Document relsExt = akubraRepository.re().get(pid).asDom4j(false);
         String xpathExpr = "//hasPage|//hasUnit|//hasVolume|//hasItem|//hasSoundUnit|//hasTrack|//containsTrack|//hasIntCompPart|//isOnPage|//contains";
         Element element = Dom4jUtils.firstElementByXpath(relsExt.getRootElement(), xpathExpr);
         if (element != null) {

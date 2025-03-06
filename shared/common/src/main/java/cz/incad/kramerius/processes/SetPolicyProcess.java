@@ -112,10 +112,10 @@ public class SetPolicyProcess {
     }
 
     private static void setPolicyRELS_EXT(String pid, Policy policy, AkubraRepository repository) throws IOException {
-        if (!repository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
+        if (!repository.re().exists(pid)) {
             throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
         }
-        Document relsExt = repository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
+        Document relsExt = repository.re().get(pid).asDom4j(true);
         Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
         List<Node> policyEls = Dom4jUtils.buildXpath("rel:policy").selectNodes(rootEl);
         for (Node policyEl : policyEls) {
@@ -127,7 +127,7 @@ public class SetPolicyProcess {
         Element newPolicyEl = rootEl.addElement("policy", Dom4jUtils.getNamespaceUri("rel"));
         newPolicyEl.addText(policy == Policy.PRIVATE ? "policy:private" : "policy:public");
         ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-        repository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+        repository.re().update(pid,bis);
     }
 
     private static void setPolicyDC(String pid, Policy policy, AkubraRepository repository) throws RepositoryException, IOException {

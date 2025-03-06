@@ -45,7 +45,7 @@ public class CriteriaRELSEXTUtils {
             AkubraRepository akubraRepository = ctx.getAkubraRepository();
             String requestedPID = ctx.getRequestedPid();
             if (!requestedPID.equals(SpecialObjects.REPOSITORY.getPid())) {
-                Document relsExt = akubraRepository.getDatastreamContent(requestedPID, KnownDatastreams.RELS_EXT).asDom(false);
+                Document relsExt = akubraRepository.re().get(requestedPID).asDom(false);
                 return checkValue(relsExt, path,expectedValue);
             } else return EvaluatingResultState.NOT_APPLICABLE;
         } catch (IOException e) {

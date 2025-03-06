@@ -324,7 +324,7 @@ public class ItemsResource extends AdminApiResource {
 
             checkObjectExists(pid);
 
-            Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
+            Document relsExt = akubraRepository.re().get(pid).asDom4j(true);
             List<Node> licenseEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:license").selectNodes(relsExt);
             JSONArray licenseArray = new JSONArray();
             for (Node relationEl : licenseEls) {
@@ -377,7 +377,7 @@ public class ItemsResource extends AdminApiResource {
             }
             //extract childrens' pids an relations from rels-ext
             Map<String, String> foxmlChildrenPidToRelationName = new HashMap<>();
-            Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
+            Document relsExt = akubraRepository.re().get(pid).asDom4j(true);
             List<Node> childrenEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/*[starts-with(@rdf:resource, 'info:fedora/uuid:')]").selectNodes(relsExt);
             for (Node childrenEl : childrenEls) {
                 String relationName = childrenEl.getName();
@@ -404,7 +404,7 @@ public class ItemsResource extends AdminApiResource {
                 foxmlBuilder.appendRelationToRelsExt(pid, relsExt, foxmlChildrenPidToRelationName.get(childPid), childPid);
             }
             ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-            akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+            akubraRepository.re().update(pid, bis);
 
             scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT_AND_CHILDREN", false, pid);
             return Response.ok().build();
@@ -605,7 +605,7 @@ public class ItemsResource extends AdminApiResource {
                             .entity(document.asXML())
                             .build();
                 case "RELS-EXT":
-                    document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
+                    document = akubraRepository.re().get(pid).asDom4j(true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
                             .entity(document.asXML())
@@ -778,7 +778,7 @@ public class ItemsResource extends AdminApiResource {
                 DigitalObject updatedDigitalObject = akubraRepository.unmarshall(new ByteArrayInputStream(foxml.asXML().getBytes(StandardCharsets.UTF_8)));
                 akubraRepository.delete(targetPid, false, false);
                 akubraRepository.ingest(updatedDigitalObject);
-                akubraRepository.getProcessingIndex().commit();;
+                akubraRepository.pi().commit();;
                 return null;
             });
             return Response.ok().build();

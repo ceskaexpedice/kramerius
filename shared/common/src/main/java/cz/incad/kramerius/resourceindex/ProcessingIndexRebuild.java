@@ -67,7 +67,7 @@ public class ProcessingIndexRebuild {
         final AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         long start = System.currentTimeMillis();
-        akubraRepository.getProcessingIndex().deleteProcessingIndex();
+        akubraRepository.pi().deleteProcessingIndex();
         Path objectStoreRoot = null;
         if (KConfiguration.getInstance().getConfiguration().getBoolean("legacyfs")) {
             objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("object_store_base"));
@@ -105,7 +105,7 @@ public class ProcessingIndexRebuild {
                         String filename = file.toString();
                         try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                             DigitalObject digitalObject = createDigitalObject(inputStream);
-                            rebuildProcessingIndex(akubraRepository.getProcessingIndex(), digitalObject, exclusiveCommit);
+                            rebuildProcessingIndex(akubraRepository.pi(), digitalObject, exclusiveCommit);
                         } catch (Exception ex) {
                             LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                         }
@@ -114,7 +114,7 @@ public class ProcessingIndexRebuild {
                     String filename = file.toString();
                     try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                         DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(akubraRepository.getProcessingIndex(), digitalObject, exclusiveCommit);
+                        rebuildProcessingIndex(akubraRepository.pi(), digitalObject, exclusiveCommit);
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                     }
@@ -169,7 +169,7 @@ public class ProcessingIndexRebuild {
 
         LOGGER.info("Finished tree walk in " + (System.currentTimeMillis() - start) + " ms");
 
-        akubraRepository.getProcessingIndex().commit();
+        akubraRepository.pi().commit();
         akubraRepository.shutdown();
     }
 

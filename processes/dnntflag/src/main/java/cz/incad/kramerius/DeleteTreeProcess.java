@@ -220,7 +220,7 @@ public class DeleteTreeProcess {
                 repository.doWithWriteLock(pid, () -> {
                     //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
                     repository.delete(pid, !isCollection, true);
-                    repository.getProcessingIndex().commit();
+                    repository.pi().commit();
                     return null;
                 });
             }
@@ -291,10 +291,10 @@ public class DeleteTreeProcess {
 
     private static boolean removeAnyRelsExtRelation(String srcPid, String targetPid, AkubraRepository repository) {
         return repository.doWithWriteLock(srcPid, () -> {
-            if (!repository.datastreamExists(srcPid, KnownDatastreams.RELS_EXT)) {
+            if (!repository.re().exists(srcPid)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + srcPid);
             }
-            Document relsExt = repository.getDatastreamContent(srcPid, KnownDatastreams.RELS_EXT).asDom4j(true);
+            Document relsExt = repository.re().get(srcPid).asDom4j(true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             boolean relsExtNeedsToBeUpdated = false;
 
@@ -314,7 +314,7 @@ public class DeleteTreeProcess {
             if (relsExtNeedsToBeUpdated) {
                 if (!DRY_RUN) {
                     ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                    repository.updateXMLDatastream(srcPid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+                    repository.re().update(srcPid, bis);
                 }
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", srcPid));
             }

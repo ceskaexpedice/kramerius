@@ -69,7 +69,7 @@ public enum LegacyMigrationParts {
             }
             if ("true".equalsIgnoreCase(args[5])) {
                 try {
-                    akubraRepository.getProcessingIndex().deleteProcessingIndex();
+                    akubraRepository.pi().deleteProcessingIndex();
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE, "Error in deleteProcessingIndex: ", e);
                 }
@@ -77,7 +77,7 @@ public enum LegacyMigrationParts {
                     try {
                         FileInputStream inputStream = new FileInputStream(f);
                         DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(akubraRepository.getProcessingIndex(), digitalObject,false);
+                        rebuildProcessingIndex(akubraRepository.pi(), digitalObject,false);
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
                     }

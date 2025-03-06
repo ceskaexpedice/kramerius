@@ -286,7 +286,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
                 String asFileParam = req.getParameter("asFile");
                 if ((asFileParam != null) && (asFileParam.equals("true"))) {
-                    Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
+                    Document relsExt = akubraRepository.re().get(pid).asDom(false);
                     String fileNameFromRelsExt = FileNameUtils.disectFileNameFromRelsExt(relsExt);
                     if (fileNameFromRelsExt == null) {
                         LOGGER.severe("no <file.. element in RELS-EXT");

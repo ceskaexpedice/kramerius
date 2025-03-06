@@ -108,7 +108,7 @@ public class SecondPhase extends AbstractPhase  {
         } finally {
             try {
                 AkubraRepository akubraRepository = this.injector.getInstance(AkubraRepository.class);
-                if (akubraRepository != null) akubraRepository.getProcessingIndex().commit();
+                if (akubraRepository != null) akubraRepository.pi().commit();
             } catch (Exception e) {
                 throw new PhaseException(this, e);
             }
@@ -330,7 +330,7 @@ public class SecondPhase extends AbstractPhase  {
         // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         String objectId = pidParseAndGetObjectId(pid);
-        return (akubraRepository.exists(objectId) && akubraRepository.datastreamExists(objectId, KnownDatastreams.RELS_EXT));
+        return (akubraRepository.exists(objectId) && akubraRepository.re().exists(objectId));
     }
 
 

@@ -371,7 +371,7 @@ public class CollectionsResource extends AdminApiResource {
                     //rebuild and update rels-ext (because of "standalone")
                     document = foxmlBuilder.buildRelsExt(updated, itemsInCollection);
                     bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+                    akubraRepository.re().update(pid, bis);
                     //schedule reindexation - (only collection object)
                     scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
                 }
@@ -452,14 +452,14 @@ public class CollectionsResource extends AdminApiResource {
                 checkObjectExists(itemPid);
                 checkCanAddItemToCollection(itemPid, collectionPid);
                 //extract relsExt and update by adding new relation
-                Document relsExt = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT).asDom4j(true);
+                Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
                 boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
                 if (!addedNow) {
                     throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
                 }
                 //save updated rels-ext
                 ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+                akubraRepository.re().update(collectionPid, bis);
                 //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
                 if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
@@ -540,7 +540,7 @@ public class CollectionsResource extends AdminApiResource {
             //add items to rels-ext of collection, schedule reindexation of items that had been added
             List<String> pidsAdded = new ArrayList<>();
             synchronized (CollectionsResource.class) {
-                Document relsExt = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT).asDom4j(true);
+                Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
                 boolean atLeastOneAdded = false;
                 for (String itemPid : pidsToBeAdded) {
                     boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
@@ -554,7 +554,7 @@ public class CollectionsResource extends AdminApiResource {
                 if (atLeastOneAdded) {
                     //save updated rels-ext
                     ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+                    akubraRepository.re().update(collectionPid, bis);
                     //no need to re-index collection itself
                     if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                         LOGGER.info("Ommiting indexation");
@@ -638,7 +638,7 @@ public class CollectionsResource extends AdminApiResource {
 
                 User user1 = this.userProvider.get();
                 List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-                Document relsExt = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT).asDom4j(true);
+                Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
 
                 for (int i = 0; i < batch.getJSONArray("pids").length(); i++) {
                     String itemPid = batch.getJSONArray("pids").getString(i);
@@ -669,7 +669,7 @@ public class CollectionsResource extends AdminApiResource {
 
                 // save updated rels-ext
                 ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+                akubraRepository.re().update(collectionPid, bis);
 
                 reindexCollection.forEach(itemPid -> {
                     // schedule reindexations - 1. item that was removed (whole tree and foster
@@ -726,14 +726,14 @@ public class CollectionsResource extends AdminApiResource {
                 checkObjectExists(itemPid);
                 checkCanRemoveItemFromCollection(itemPid, collectionPid);
                 //extract relsExt and update by removing relation
-                Document relsExt = akubraRepository.getDatastreamContent(collectionPid, KnownDatastreams.RELS_EXT).asDom4j(true);
+                Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
                 boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
                 if (!removed) {
                     throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
                 }
                 //save updated rels-ext
                 ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.updateXMLDatastream(collectionPid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+                akubraRepository.re().update(collectionPid, bis);
                 //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
                 scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
@@ -792,7 +792,7 @@ public class CollectionsResource extends AdminApiResource {
             //delete collection object form repository (not managed datastreams, since those for IMG_THUMB are referenced from other objects - pages)
             akubraRepository.doWithWriteLock(pid, () -> {
                 akubraRepository.delete(pid, false, true);
-                akubraRepository.getProcessingIndex().commit();;
+                akubraRepository.pi().commit();;
                 return null;
             });
             //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees), 3. no need to reindex collections owning this one
@@ -1127,7 +1127,7 @@ public class CollectionsResource extends AdminApiResource {
         }
 
         //data from RELS-EXT
-        Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(false);
+        Document relsExt = akubraRepository.re().get(pid).asDom4j(false);
         collection.standalone = Boolean.valueOf(Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//standalone"));
 
         List<String> items = ProcessingIndexUtils.getTripletTargets(KnownRelations.CONTAINS.toString(), pid, akubraRepository);

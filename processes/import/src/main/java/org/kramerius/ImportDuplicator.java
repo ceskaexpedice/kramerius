@@ -242,7 +242,7 @@ public class ImportDuplicator {
                     throw new RuntimeException(sfex);
                 }
             } finally {
-                if (akubraRepository != null) akubraRepository.getProcessingIndex().commit();
+                if (akubraRepository != null) akubraRepository.pi().commit();
             }
             counter++;
             //log.info("Ingested:" + pid + " in " + (System.currentTimeMillis() - start) + "ms, count:"+counter);
@@ -262,7 +262,7 @@ public class ImportDuplicator {
         }
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
         ProcessingIndexUtils.doWithProcessingIndexCommit(akubraRepository, (repo)->{
-            RelsExtWrapper relsExtWrapper = akubraRepository.getRelsExtHandler().get(pid);
+            RelsExtWrapper relsExtWrapper = akubraRepository.re().get(pid);
             List<RelsExtRelation> relations = relsExtWrapper.getRelations(null);
             List<RelsExtLiteral> literals = relsExtWrapper.getLiterals(null);
 
@@ -274,7 +274,7 @@ public class ImportDuplicator {
             for (RDFTuple t : ingested) {
                 if (t.object != null){
                     try{
-                        akubraRepository.getRelsExtHandler().addRelation(pid, t.predicate, RepositoryNamespaces.KRAMERIUS_URI, t.object);
+                        akubraRepository.re().addRelation(pid, t.predicate, RepositoryNamespaces.KRAMERIUS_URI, t.object);
                     }catch (Exception ex){
                         log.severe("WARNING- could not add relationship:"+t+"("+ex+")");
                     }

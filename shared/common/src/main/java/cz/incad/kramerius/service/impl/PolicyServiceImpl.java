@@ -171,10 +171,10 @@ public class PolicyServiceImpl implements PolicyService {
     private static final String INFO = "info:fedora/";
 
     private void setPolicyRELS_EXT(String pid, String policyName) {
-        if(akubraRepository.getRelsExtHandler().relationExists(pid, "policy", RepositoryNamespaces.KRAMERIUS_URI)){
-            akubraRepository.getRelsExtHandler().removeRelationsByNameAndNamespace(pid,"policy", RepositoryNamespaces.KRAMERIUS_URI);
+        if(akubraRepository.re().relationExists(pid, "policy", RepositoryNamespaces.KRAMERIUS_URI)){
+            akubraRepository.re().removeRelationsByNameAndNamespace(pid,"policy", RepositoryNamespaces.KRAMERIUS_URI);
         }
-        akubraRepository.getRelsExtHandler().addLiteral(pid, "policy", RepositoryNamespaces.KRAMERIUS_URI, "policy:" + policyName);
+        akubraRepository.re().addLiteral(pid, "policy", RepositoryNamespaces.KRAMERIUS_URI, "policy:" + policyName);
     }
 
     /**

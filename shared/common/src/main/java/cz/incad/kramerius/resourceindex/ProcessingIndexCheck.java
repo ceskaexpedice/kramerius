@@ -39,8 +39,8 @@ public class ProcessingIndexCheck {
 
         pidsToDelete.stream().forEach(pid -> {
             LOGGER.info("Deleting pid :" + pid);
-            akubraRepository.getProcessingIndex().deleteByPid(pid);
+            akubraRepository.pi().deleteByPid(pid);
         });
-        akubraRepository.getProcessingIndex().commit();
+        akubraRepository.pi().commit();
     }
 }

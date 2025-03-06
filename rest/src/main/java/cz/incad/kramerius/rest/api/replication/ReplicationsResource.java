@@ -178,7 +178,7 @@ public class ReplicationsResource {
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
             if (checkPermission(pid)) {
-                if (akubraRepository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
+                if (akubraRepository.re().exists(pid)) {
                     // raw generate to request writer
                 	boolean collectionFlag = Boolean.parseBoolean(replicateCollections);
                 	List<String> pidList = replicationService.prepareExport(pid,collectionFlag);
@@ -270,7 +270,7 @@ public class ReplicationsResource {
     @Path("img_original")
     @Produces("image/jp2")
     public Response getOriginalImage(@PathParam("pid") String pid) throws XPathExpressionException, IOException {
-        Document doc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom(false);
+        Document doc = akubraRepository.re().get(pid).asDom(false);
         String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(doc);
         if (tilesUrl == null) return Response.status(Response.Status.NOT_FOUND).build();
 

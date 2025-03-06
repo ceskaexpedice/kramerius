@@ -235,10 +235,10 @@ public class SetLicenseProcess {
 
     private static boolean addRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, AkubraRepository akubraRepository) throws IOException {
         return akubraRepository.doWithWriteLock(pid, () -> {
-            if (!akubraRepository.datastreamExists(pid, KnownDatastreams.RELS_EXT)) {
+            if (!akubraRepository.re().exists(pid)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
-            Document relsExt = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(true);
+            Document relsExt = akubraRepository.re().get(pid).asDom4j(true);
             Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
             boolean relsExtNeedsToBeUpdated = false;
 
@@ -267,7 +267,7 @@ public class SetLicenseProcess {
             if (relsExtNeedsToBeUpdated) {
                 //System.out.println(Dom4jUtils.docToPrettyString(relsExt));
                 ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.updateXMLDatastream(pid, KnownDatastreams.RELS_EXT, "text/xml", bis);
+                akubraRepository.re().update(pid, bis);
                 LOGGER.info(String.format("RELS-EXT of %s has been updated", pid));
             }
             return relsExtNeedsToBeUpdated;

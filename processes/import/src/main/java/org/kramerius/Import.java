@@ -192,7 +192,7 @@ public class Import {
             log.info("start indexer: " + startIndexer);
             log.info("license : " + license);
 
-            Import.run(akubraRepository, akubraRepository.getProcessingIndex(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection);
+            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection);
 
             log.info(String.format("Deleting import folder %s", licensesImportFile));
             FileUtils.deleteDirectory(licensesImportFile);
@@ -203,7 +203,7 @@ public class Import {
             log.info("import dir: " + importDirectory);
             log.info("start indexer: " + startIndexer);
 
-            Import.run(akubraRepository, akubraRepository.getProcessingIndex(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection);
+            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection);
         }
     }
 
@@ -637,7 +637,7 @@ public class Import {
             if (existingObject == null) {
                 throw new IllegalStateException("Cannot merge object: " + pid + " - object not in repository");
             }
-            if (!repo.datastreamExists(pid, KnownDatastreams.RELS_EXT.toString())) {
+            if (!repo.re().exists(pid)) {
                 throw new IllegalStateException("Cannot merge object: " + pid + " - object does not have RELS-EXT stream");
             }
             /* TODO AK_NEW
@@ -646,7 +646,7 @@ public class Import {
             }
 
              */
-            IOUtils.copyStreams(repo.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asInputStream(), bos);
+            IOUtils.copyStreams(repo.re().get(pid).asInputStream(), bos);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Cannot copy streams in merge", e);
             throw new RuntimeException(e);
@@ -660,9 +660,9 @@ public class Import {
             if (t.object != null) {
                 try {
                     if (t.literal) {
-                        repo.getRelsExtHandler().addLiteral(pid, t.predicate, t.namespace, t.object);
+                        repo.re().addLiteral(pid, t.predicate, t.namespace, t.object);
                     } else {
-                        repo.getRelsExtHandler().addRelation(pid, t.predicate, t.namespace, t.object);
+                        repo.re().addRelation(pid, t.predicate, t.namespace, t.object);
                     }
                     //port.addRelationship(t.subject.substring("info:fedora/".length()), t.predicate, t.object, t.literal, null);
                     touched = true;

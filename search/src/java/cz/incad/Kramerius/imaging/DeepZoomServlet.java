@@ -150,7 +150,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderIIPDZIDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
         String urlForStream = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-            Document relsEXT = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT).asDom(false);
+            Document relsEXT = akubraRepository.re().get(uuid).asDom(false);
             urlForStream = ZoomChangeFromReplicated.deepZoomAddress(relsEXT, uuid);
         }
         if (urlForStream != null) {
@@ -203,7 +203,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderIIPTile(String uuid, String slevel, String stile, HttpServletResponse resp, String url) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
         String dataStreamUrl = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-            Document relsEXT = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.RELS_EXT).asDom(false);
+            Document relsEXT = akubraRepository.re().get(uuid).asDom(false);
             dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
         }
         if (dataStreamUrl != null) {

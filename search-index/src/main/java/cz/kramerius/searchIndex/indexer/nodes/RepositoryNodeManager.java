@@ -90,7 +90,7 @@ public class RepositoryNodeManager {
                 fosterParents.add(getKrameriusNodeWithCycleDetection(fosterParent, path));
             }
 
-            Document relsExtDoc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.RELS_EXT).asDom4j(false);
+            Document relsExtDoc = akubraRepository.re().get(pid).asDom4j(false);
             //String model = KrameriusRepositoryUtils.extractKrameriusModelName(relsExtDoc);
             String model = ProcessingIndexUtils.getModel(pid, akubraRepository);
             List<String> ownChildren = null;

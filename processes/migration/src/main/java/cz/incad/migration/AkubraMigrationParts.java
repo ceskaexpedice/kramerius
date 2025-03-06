@@ -44,8 +44,8 @@ public enum AkubraMigrationParts {
                 // TODO AK_NEW
                 final AkubraRepository akubraRepository = injector.getInstance(AkubraRepository.class);
                 final boolean rebuildProcessingIndex = "true".equalsIgnoreCase(args[1]);
-                processRoot(akubraRepository.getProcessingIndex(), datastreamSource,  datastreamPaths,  datastreamPattern,  false);
-                processRoot(akubraRepository.getProcessingIndex(),  objectSource,  objectPaths,  objectPattern,  rebuildProcessingIndex);
+                processRoot(akubraRepository.pi(), datastreamSource,  datastreamPaths,  datastreamPattern,  false);
+                processRoot(akubraRepository.pi(),  objectSource,  objectPaths,  objectPattern,  rebuildProcessingIndex);
 
             }catch(Exception ex) {
                 throw  new RuntimeException(ex);
