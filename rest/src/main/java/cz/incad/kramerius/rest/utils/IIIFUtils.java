@@ -31,7 +31,7 @@ public class IIIFUtils {
     public static final Logger LOGGER = Logger.getLogger(IIIFUtils.class.getName());
 
     public static String iiifImageEndpoint(String pid, AkubraRepository akubraRepository) throws IOException {
-        String url = RelsExtUtils.getRelsExtTilesUrl(pid, akubraRepository);
+        String url = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asDom(false));
         if (url == null)
             return null;
         if (url.trim().equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL))

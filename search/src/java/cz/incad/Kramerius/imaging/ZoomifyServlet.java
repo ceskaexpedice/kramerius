@@ -168,7 +168,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         mostDesirable.saveAccess(pid, new java.util.Date());
 
-        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(pid, akubraRepository);
+        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asDom(false));
         if (relsExtUrl != null) {
             if (!relsExtUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) {
                 try {
@@ -270,7 +270,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
     private void renderTile(String pid, String slevel, String x, String y, String ext, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
-        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(pid, this.akubraRepository);
+        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(this.akubraRepository.re().get(pid).asDom(false));
         if (relsExtUrl != null) {
             if (!relsExtUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) {
                 try {

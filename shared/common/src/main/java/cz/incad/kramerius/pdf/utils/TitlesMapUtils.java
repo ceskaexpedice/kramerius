@@ -42,7 +42,7 @@ public class TitlesMapUtils {
         Map<String, String> map = new HashMap<String, String>();
         for (String u : path) {
             Document doc = akubraRepository.re().get(u).asDom(false);
-            String modelName = RelsExtUtils.getModel(doc.getDocumentElement());
+            String modelName = RelsExtUtils.getModel(doc);
             map.put(u, modelName);
         }
         return map;

@@ -45,7 +45,7 @@ public class RelsExtHelperTest {
         URL resource = RelsExtHelperTest.class.getResource("donator.xml");
         Assert.assertNotNull(resource);
         Document document = XMLUtils.parseDocument(resource.openStream(),true);
-        String model = RelsExtUtils.getModel(document.getDocumentElement());
+        String model = RelsExtUtils.getModel(document);
         Assert.assertNotNull(model);
         Assert.assertEquals(model,"monograph");
     }
@@ -56,7 +56,7 @@ public class RelsExtHelperTest {
         URL resource = RelsExtHelperTest.class.getResource("donator.xml");
         Assert.assertNotNull(resource);
         Document document = XMLUtils.parseDocument(resource.openStream(),true);
-        List<Pair<String,String>> relations = RelsExtUtils.getRelations(document.getDocumentElement());
+        List<Pair<String,String>> relations = RelsExtUtils.getRelations(document);
         Assert.assertTrue(relations.size() == 16);
         relations.stream().forEach(rel-> {
             Assert.assertTrue(rel.getLeft().equals("hasPage"));

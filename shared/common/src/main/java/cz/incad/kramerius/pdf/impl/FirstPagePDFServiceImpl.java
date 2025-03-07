@@ -117,7 +117,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
                 if (!maps.containsKey(pidFromPath)) {
                     org.w3c.dom.Document modsCol = akubraRepository.getDatastreamContent(pidFromPath, KnownDatastreams.BIBLIO_MODS).asDom(false);
                     org.w3c.dom.Document rels = akubraRepository.re().get(pidFromPath).asDom(false);
-                    String modelName = RelsExtUtils.getModel(rels.getDocumentElement());
+                    String modelName = RelsExtUtils.getModel(rels);
                     ModsBuildersDirector director = new ModsBuildersDirector();
                     director.setBuilderFilter(filter);
                     Map<String, List<String>> map = new HashMap<String, List<String>>();

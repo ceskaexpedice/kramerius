@@ -72,7 +72,7 @@ public class MostDesirableImpl implements MostDesirable {
     @Override
     public void saveAccess(String uuid, Date date) {
         try {
-            String modelName = RelsExtUtils.getModelName(uuid, akubraRepository);
+            String modelName = RelsExtUtils.getModel(akubraRepository.re().get(uuid).asDom(false));
             new JDBCUpdateTemplate(provider.get())
                     .executeUpdate(
                             "insert into DESIRABLE(UUID, ACCESS, MODEL) values(?, ?, ?)",

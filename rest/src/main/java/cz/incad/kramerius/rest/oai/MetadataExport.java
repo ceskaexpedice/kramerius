@@ -486,7 +486,7 @@ public enum MetadataExport {
                 Element biblioRoots = (Element) owningDocument.adoptNode(biblio.getDocumentElement());
                 drDescriptor.appendChild(biblioRoots);
 
-                List<Pair<String, String>> relations = RelsExtUtils.getRelations(relsExt.getDocumentElement());
+                List<Pair<String, String>> relations = RelsExtUtils.getRelations(relsExt);
                 for (Pair<String, String> relation : relations) {
                     if (!excludeModels.contains(relation.getLeft())) {
                         Element drRelation = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:relation");
