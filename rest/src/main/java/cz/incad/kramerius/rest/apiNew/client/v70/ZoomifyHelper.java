@@ -90,7 +90,7 @@ public class ZoomifyHelper {
         if (imageNotModified(req, imgFullLastModified)) {
             return Response.notModified().build();
         }
-        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asDom(false));
+        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
         //no tiles-url
         if (tilesUrl == null || tilesUrl.isEmpty()) {
             throw new NotFoundException("no tiles-url available for object %s", pid);
@@ -111,7 +111,7 @@ public class ZoomifyHelper {
         if (imageNotModified(req, imgFullLastModified)) {
             return Response.notModified().build();
         }
-        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asDom(false));
+        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
         //no tiles-url
         if (tilesUrl == null || tilesUrl.isEmpty()) {
             throw new NotFoundException("no tiles-url available for object %s", pid);

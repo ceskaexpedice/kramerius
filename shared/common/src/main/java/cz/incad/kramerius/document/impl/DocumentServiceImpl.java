@@ -275,7 +275,7 @@ public class DocumentServiceImpl implements DocumentService {
         try {
             Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
             Document dc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
-            String modelName = RelsExtUtils.getModel(akubraRepository.re().get(pid).asDom(false));
+            String modelName = RelsExtUtils.getModel(akubraRepository.re().get(pid).asInputStream());
             ResourceBundle resourceBundle = resourceBundleService
                     .getResourceBundle("base", localeProvider.get());
 
@@ -428,7 +428,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .getResourceBundle("base", localeProvider.get());
 
         final PreparedDocument renderedDocument = new PreparedDocument(
-                RelsExtUtils.getModel(akubraRepository.re().get(leaf).asDom(false)), pidFrom);
+                RelsExtUtils.getModel(akubraRepository.re().get(leaf).asInputStream()), pidFrom);
         if ((rect != null) && (rect.length == 2)) {
             renderedDocument.setWidth(rect[0]);
             renderedDocument.setHeight(rect[1]);
@@ -456,7 +456,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .getResourceBundle("base", localeProvider.get());
 
         String leaf = path.getLeaf();
-        String modelName = RelsExtUtils.getModel(akubraRepository.re().get(leaf).asDom(false));
+        String modelName = RelsExtUtils.getModel(akubraRepository.re().get(leaf).asInputStream());
 
         final PreparedDocument renderedDocument = new PreparedDocument(
                 modelName, pidFrom);

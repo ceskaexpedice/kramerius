@@ -164,7 +164,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                     final String detailPid = pathFromLeafToRoot[j];
 
-                    String kModel = RelsExtUtils.getModel(akubraRepository.re().get(detailPid).asDom(false).getDocumentElement());
+                    String kModel = RelsExtUtils.getModel(akubraRepository.re().get(detailPid).asInputStream());
                     Document dc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC).asDom(false);
                     if (dc != null) {
                         Object dateFromDC = DCUtils.dateFromDC(dc);

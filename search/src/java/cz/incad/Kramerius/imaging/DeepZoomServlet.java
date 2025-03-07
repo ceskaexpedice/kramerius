@@ -130,7 +130,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
         reportAccess(pid);
         setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
-        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asDom(false));
+        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
         if (relsExtUrl != null) {
             if (!relsExtUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) {
                 try {
@@ -183,7 +183,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderTile(String pid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
-        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asDom(false));
+        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
         if (relsExtUrl != null) {
             if (!relsExtUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) {
                 try {

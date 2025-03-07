@@ -1126,7 +1126,7 @@ public class ItemsResource extends ClientApiResource {
             pid = URLDecoder.decode(pid, "UTF-8");
             checkUserIsAllowedToReadObject(pid); 
             reportAccess( pid, null);
-            org.w3c.dom.Document relsExt = akubraRepository.re().get(pid).asDom(true);
+            InputStream relsExt = akubraRepository.re().get(pid).asInputStream();
             String u = IIIFUtils.iiifImageEndpoint(relsExt);
             if (u != null) {
                 if (!u.endsWith("/")) { u = u+"/"; }
@@ -1173,7 +1173,7 @@ public class ItemsResource extends ClientApiResource {
                     checkIIIFSize(pid, size);
                 }
             }
-            org.w3c.dom.Document relsExt = akubraRepository.re().get(pid).asDom(true);
+            InputStream relsExt = akubraRepository.re().get(pid).asInputStream();
             String u = IIIFUtils.iiifImageEndpoint(relsExt);
             if(u != null) {
                 // size can contain ^ or ! 

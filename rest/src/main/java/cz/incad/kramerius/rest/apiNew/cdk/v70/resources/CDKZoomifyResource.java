@@ -130,7 +130,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
     
     public Response renderZoomifyTile(String pid, String slevel, String x,String y, String ext) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
     	if (permited(actionAllowed, solrAccess, pid)) {
-        	String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asDom(false));
+        	String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
             if (relsExtUrl != null) {
                 ResponseBuilder builder = Response.ok();
                 String formatted = String.format("%s/TileGroup0/%s-%s-%s.%s", relsExtUrl,slevel,x,y,ext);
@@ -151,7 +151,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
     private Response renderZoomifyXMLDescriptor(String pid) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
     	long start = System.currentTimeMillis();
     	try {
-        	String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asDom(false));
+        	String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
             if (relsExtUrl != null) {
                 if (relsExtUrl.endsWith("/")) relsExtUrl = relsExtUrl.substring(0, relsExtUrl.length()-1);
                 ResponseBuilder builder = Response.ok();

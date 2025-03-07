@@ -236,7 +236,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                     final String detailPid = pathFromLeafToRoot[j];
-                    String detailModel = RelsExtUtils.getModel(akubraRepository.re().get(detailPid).asDom(false).getDocumentElement());
+                    String detailModel = RelsExtUtils.getModel(akubraRepository.re().get(detailPid).asInputStream());
                     LogRecordDetail logDetail = LogRecordDetail.buildDetail(detailPid, detailModel);
                     Document dc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC).asDom(false);
                     if (dc != null) {

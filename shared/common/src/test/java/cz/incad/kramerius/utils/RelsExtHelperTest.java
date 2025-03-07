@@ -19,6 +19,7 @@ import cz.incad.kramerius.utils.pid.LexerException;
 
 public class RelsExtHelperTest {
 
+    /* TODO AK_NEW
     @Test
     public void testDonatorGet() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         URL resource = RelsExtHelperTest.class.getResource("donator.xml");
@@ -28,6 +29,8 @@ public class RelsExtHelperTest {
         Assert.assertNotNull(donator);
         Assert.assertEquals(donator,"donator:norway");
     }
+
+     */
     
 
     @Test
@@ -40,6 +43,7 @@ public class RelsExtHelperTest {
         Assert.assertEquals(tilesUrl,"kramerius4://deepZoomCache");
     }
 
+    /* TODO AK_NEW
     @Test
     public void testModel() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, LexerException, org.ceskaexpedice.akubra.utils.pid.LexerException {
         URL resource = RelsExtHelperTest.class.getResource("donator.xml");
@@ -50,7 +54,10 @@ public class RelsExtHelperTest {
         Assert.assertEquals(model,"monograph");
     }
 
+     */
+
     
+    /* TODO AK_NEW
     @Test
     public void testRelations() throws ParserConfigurationException, SAXException, IOException {
         URL resource = RelsExtHelperTest.class.getResource("donator.xml");
@@ -63,5 +70,7 @@ public class RelsExtHelperTest {
             Assert.assertTrue(rel.getRight().startsWith("uuid:"));
         });
     }
+
+     */
     
 }

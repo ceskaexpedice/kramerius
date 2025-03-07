@@ -270,7 +270,7 @@ public class ReplicationsResource {
     @Path("img_original")
     @Produces("image/jp2")
     public Response getOriginalImage(@PathParam("pid") String pid) throws XPathExpressionException, IOException {
-        Document doc = akubraRepository.re().get(pid).asDom(false);
+        InputStream doc = akubraRepository.re().get(pid).asInputStream();
         String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(doc);
         if (tilesUrl == null) return Response.status(Response.Status.NOT_FOUND).build();
 

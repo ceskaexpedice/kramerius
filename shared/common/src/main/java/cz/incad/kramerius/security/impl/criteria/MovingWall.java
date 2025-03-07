@@ -133,7 +133,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
                                 }
 
                                 if (fedoraModel != null && fedoraModel.equals("periodical")) {
-                                    String pidVolume = RelsExtUtils.getFirstVolumePid(getEvaluateContext().getAkubraRepository().re().get(pid).asDom(false));
+                                    String pidVolume = RelsExtUtils.getFirstVolumePid(getEvaluateContext().getAkubraRepository().re().get(pid).asInputStream());
                                     return mwCalcItem(wallFromConf, modeFromConf, pidVolume);
                                 }
 
@@ -304,7 +304,7 @@ public class MovingWall extends AbstractCriterium implements RightCriterium {
         try {
             Document doc = solrDocument(pidVolume);
             Date dateVolume = parseDate(SolrUtils.disectDate(doc));
-            String pidItem = RelsExtUtils.getFirstItemPid(getEvaluateContext().getAkubraRepository().re().get(pidVolume).asDom(false));
+            String pidItem = RelsExtUtils.getFirstItemPid(getEvaluateContext().getAkubraRepository().re().get(pidVolume).asInputStream());
             Document itemDoc = solrDocument(pidItem);
             Date dateItem = parseDate(SolrUtils.disectDate(itemDoc));
             Date currentDate = new Date();

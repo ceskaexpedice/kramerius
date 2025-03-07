@@ -31,7 +31,7 @@ public class IIIFUtils {
     public static final Logger LOGGER = Logger.getLogger(IIIFUtils.class.getName());
 
     public static String iiifImageEndpoint(String pid, AkubraRepository akubraRepository) throws IOException {
-        String url = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asDom(false));
+        String url = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
         if (url == null)
             return null;
         if (url.trim().equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL))
@@ -39,7 +39,7 @@ public class IIIFUtils {
         return url.replaceAll("[z|Z]oomify|deepZoom", "iiif");
     }
 
-    public static String iiifImageEndpoint(Document relsExt) throws IOException {
+    public static String iiifImageEndpoint(InputStream relsExt) throws IOException {
         String url = RelsExtUtils.getRelsExtTilesUrl(relsExt);
         if (url == null)
             return null;
