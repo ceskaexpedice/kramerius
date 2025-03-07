@@ -16,8 +16,8 @@ import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocument;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
@@ -46,10 +46,10 @@ public class DeleteTreeProcess {
 
     public static final Logger LOGGER = Logger.getLogger(DeleteTreeProcess.class.getName());
 
-    private static String SOLR_FIELD_IN_COLLECTIONS = "in_collections";
-    private static String SOLR_FIELD_IN_COLLECTIONS_DIRECT = "in_collections.direct";
+    private static final String SOLR_FIELD_IN_COLLECTIONS = "in_collections";
+    private static final String SOLR_FIELD_IN_COLLECTIONS_DIRECT = "in_collections.direct";
 
-    private static boolean DRY_RUN = false;
+    private static final boolean DRY_RUN = false;
 
     /**
      * args[0] - authToken
@@ -65,7 +65,7 @@ public class DeleteTreeProcess {
         if (args.length < 2) {
             throw new RuntimeException("Not enough arguments.");
         }
-        LOGGER.info("Process parameters " + Arrays.asList(args));
+        LOGGER.log(Level.INFO, "Process parameters {0}", Arrays.asList(args));
 
         int argsIndex = 0;
         //token for keeping possible following processes in same batch
@@ -82,7 +82,7 @@ public class DeleteTreeProcess {
         boolean ignoreIncosistencies = false;
 
         if (args.length > 3) {
-            ignoreIncosistencies = Boolean.valueOf(args[argsIndex++]);
+            ignoreIncosistencies = Boolean.parseBoolean(args[argsIndex++]);
         }
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
@@ -235,8 +235,22 @@ public class DeleteTreeProcess {
         }
         LOGGER.info(String.format("deleting %s from search index", pid));
         if (!DRY_RUN) {
+            ifPDFDeleteVirtualPages(pid,indexerAccess);
+
+            LOGGER.info(String.format("deleting %s from search index", pid));
             indexerAccess.deleteById(pid);
         }
+    }
+    private static void ifPDFDeleteVirtualPages(String pid, SolrIndexAccess indexerAccess)throws IOException, SolrServerException{
+        SolrDocument doc = indexerAccess.getObjectByPid(pid);
+            if (doc.containsKey("ds.img_full.mime")) {
+                String valString = (String) doc.getFieldValue("ds.img_full.mime");
+                LOGGER.info(String.format("ValString: %s", valString));
+                if (valString.equals("application/pdf")) {//Also delete virtual pages
+                    LOGGER.info(String.format("deleting %s from search index by root ID", pid));
+                    indexerAccess.deleteByParentRootPid(pid);
+                }
+            }
     }
 
     public static void deleteFileFromIIP(String tilesUrl, String imageTilesUrlPrefix, String imageDir) throws MalformedURLException {
