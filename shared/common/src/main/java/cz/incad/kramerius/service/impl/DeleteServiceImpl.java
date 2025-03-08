@@ -60,7 +60,7 @@ public class DeleteServiceImpl implements DeleteService {
     @Override
     public void deleteTree(AkubraRepository repo, String pid, String pidPath, String message, boolean deleteEmptyParents, boolean spawnIndexer) throws IOException, RepositoryException, SolrServerException {
 
-        List<String> pids = RelsExtUtils.getPids(pid, akubraRepository);
+        List<String> pids = akubraRepository.re().getPids(pid);
         for (String deletingPids : pids) {
             List<Pair<String, String>> pairs = ProcessingIndexUtils.findByTargetPid(pid, akubraRepository);
             for (Pair<String, String> p : pairs) {

@@ -85,7 +85,7 @@ public class DeleteGeneratedDeepZoomCache {
                 LOGGER.severe(e.getMessage());
             }
         } else {
-            RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
+            akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
 
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
@@ -117,7 +117,7 @@ public class DeleteGeneratedDeepZoomCache {
                     return false;
                 }
 
-            }, akubraRepository);
+            });
             
         }
 

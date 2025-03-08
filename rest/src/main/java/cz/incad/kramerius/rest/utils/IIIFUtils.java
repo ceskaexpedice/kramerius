@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.relsext.RelsExtHandler;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 
@@ -31,19 +32,10 @@ public class IIIFUtils {
     public static final Logger LOGGER = Logger.getLogger(IIIFUtils.class.getName());
 
     public static String iiifImageEndpoint(String pid, AkubraRepository akubraRepository) throws IOException {
-        String url = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
+        String url = akubraRepository.re().getTilesUrl(pid);
         if (url == null)
             return null;
-        if (url.trim().equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL))
-            return null;
-        return url.replaceAll("[z|Z]oomify|deepZoom", "iiif");
-    }
-
-    public static String iiifImageEndpoint(InputStream relsExt) throws IOException {
-        String url = RelsExtUtils.getRelsExtTilesUrl(relsExt);
-        if (url == null)
-            return null;
-        if (url.trim().equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL))
+        if (url.trim().equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL))
             return null;
         return url.replaceAll("[z|Z]oomify|deepZoom", "iiif");
     }

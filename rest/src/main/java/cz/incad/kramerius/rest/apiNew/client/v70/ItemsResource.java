@@ -1126,8 +1126,7 @@ public class ItemsResource extends ClientApiResource {
             pid = URLDecoder.decode(pid, "UTF-8");
             checkUserIsAllowedToReadObject(pid); 
             reportAccess( pid, null);
-            InputStream relsExt = akubraRepository.re().get(pid).asInputStream();
-            String u = IIIFUtils.iiifImageEndpoint(relsExt);
+            String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
             if (u != null) {
                 if (!u.endsWith("/")) { u = u+"/"; }
                 u = u +"info.json";
@@ -1173,8 +1172,7 @@ public class ItemsResource extends ClientApiResource {
                     checkIIIFSize(pid, size);
                 }
             }
-            InputStream relsExt = akubraRepository.re().get(pid).asInputStream();
-            String u = IIIFUtils.iiifImageEndpoint(relsExt);
+            String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
             if(u != null) {
                 // size can contain ^ or ! 
                 if (size.contains("^") || size.contains("!")) {

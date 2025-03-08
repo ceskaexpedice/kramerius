@@ -127,7 +127,7 @@ public class ExportServiceImpl implements ExportService {
     @Override
     public void exportTree(String pid) throws IOException {
 
-        List<String> pids = RelsExtUtils.getPids(pid, akubraRepository);
+        List<String> pids = akubraRepository.re().getPids(pid);
         if (pids.isEmpty())
             return;
 

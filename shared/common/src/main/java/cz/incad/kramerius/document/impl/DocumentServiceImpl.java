@@ -114,7 +114,7 @@ public class DocumentServiceImpl implements DocumentService {
                 parent = pidFrom;
             }
 
-            RelsExtUtils.processSubtree(parent, new TreeNodeProcessor() {
+            akubraRepository.re().processSubtree(parent, new TreeNodeProcessor() {
                 private int index = 0;
                 private boolean acceptingState = false;
 
@@ -153,11 +153,11 @@ public class DocumentServiceImpl implements DocumentService {
                 public boolean breakProcessing(String pid, int level) {
                     return index >= howMany;
                 }
-            }, akubraRepository);
+            });
 
         } else {
             // find first parent
-            String pagePid = RelsExtUtils.findFirstViewablePid(pidFrom, akubraRepository);
+            String pagePid = akubraRepository.re().getFirstViewablePid(pidFrom);
             String parentPid = pidFrom;
             ObjectPidsPath[] path = solrAccess.getPidPaths(pagePid);
             String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
@@ -165,7 +165,7 @@ public class DocumentServiceImpl implements DocumentService {
                 parentPid = pathFromLeafToRoot[1];
             }
 
-            RelsExtUtils.processSubtree(parentPid, new TreeNodeProcessor() {
+            akubraRepository.re().processSubtree(parentPid, new TreeNodeProcessor() {
 
                 private int index = 0;
 
@@ -196,7 +196,7 @@ public class DocumentServiceImpl implements DocumentService {
                 public boolean skipBranch(String pid, int level) {
                     return false;
                 }
-            }, akubraRepository);
+            });
         }
     }
 
@@ -204,7 +204,7 @@ public class DocumentServiceImpl implements DocumentService {
             /* org.w3c.dom.Document relsExt, */final PreparedDocument renderedDocument,
             final String pid) throws IOException, ProcessSubtreeException {
 
-        RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
+        akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
             private OutlineItem currOutline = null;
 
             @Override
@@ -260,7 +260,7 @@ public class DocumentServiceImpl implements DocumentService {
             public boolean skipBranch(String pid, int level) {
                 return false;
             }
-        }, akubraRepository);
+        });
 
     }
 
@@ -275,7 +275,7 @@ public class DocumentServiceImpl implements DocumentService {
         try {
             Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
             Document dc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
-            String modelName = RelsExtUtils.getModel(akubraRepository.re().get(pid).asInputStream());
+            String modelName = akubraRepository.re().getModel(pid);
             ResourceBundle resourceBundle = resourceBundleService
                     .getResourceBundle("base", localeProvider.get());
 
@@ -337,8 +337,7 @@ public class DocumentServiceImpl implements DocumentService {
 
             } else {
 
-            		page = new TextPage(modelName,
-                            RelsExtUtils.findFirstViewablePid(pid, akubraRepository));
+            		page = new TextPage(modelName,akubraRepository.re().getFirstViewablePid(pid));
                     page.setOutlineDestination(pid);
 
                     page.setBiblioMods(biblioMods);
@@ -427,8 +426,7 @@ public class DocumentServiceImpl implements DocumentService {
         ResourceBundle resourceBundle = resourceBundleService
                 .getResourceBundle("base", localeProvider.get());
 
-        final PreparedDocument renderedDocument = new PreparedDocument(
-                RelsExtUtils.getModel(akubraRepository.re().get(leaf).asInputStream()), pidFrom);
+        final PreparedDocument renderedDocument = new PreparedDocument(akubraRepository.re().getModel(leaf), pidFrom);
         if ((rect != null) && (rect.length == 2)) {
             renderedDocument.setWidth(rect[0]);
             renderedDocument.setHeight(rect[1]);
@@ -456,7 +454,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .getResourceBundle("base", localeProvider.get());
 
         String leaf = path.getLeaf();
-        String modelName = RelsExtUtils.getModel(akubraRepository.re().get(leaf).asInputStream());
+        String modelName = akubraRepository.re().getModel(leaf);
 
         final PreparedDocument renderedDocument = new PreparedDocument(
                 modelName, pidFrom);

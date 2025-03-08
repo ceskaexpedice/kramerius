@@ -211,7 +211,7 @@ public class DeleteTreeProcess {
 
             String tilesUrl = null;
             try {
-                tilesUrl = RelsExtUtils.getRelsExtTilesUrl(repository.re().get(pid).asInputStream());
+                tilesUrl = repository.re().getTilesUrl(pid);
             } catch (RepositoryException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }

@@ -42,6 +42,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
 import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.relsext.RelsExtHandler;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -168,9 +169,9 @@ public class ZoomifyServlet extends AbstractImageServlet {
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         mostDesirable.saveAccess(pid, new java.util.Date());
 
-        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
+        String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPrenderXMLDescriptor(pid, resp, relsExtUrl);
                 } catch (SQLException e) {
@@ -270,9 +271,9 @@ public class ZoomifyServlet extends AbstractImageServlet {
     private void renderTile(String pid, String slevel, String x, String y, String ext, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
-        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(this.akubraRepository.re().get(pid).asInputStream());
+        String relsExtUrl = this.akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPTile(pid, slevel, x,y, ext, resp, relsExtUrl);
                 } catch (SQLException e) {

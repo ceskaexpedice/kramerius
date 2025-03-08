@@ -21,6 +21,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.relsext.RelsExtHandler;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -90,7 +91,7 @@ public class ZoomifyHelper {
         if (imageNotModified(req, imgFullLastModified)) {
             return Response.notModified().build();
         }
-        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
+        String tilesUrl = akubraRepository.re().getTilesUrl(pid);
         //no tiles-url
         if (tilesUrl == null || tilesUrl.isEmpty()) {
             throw new NotFoundException("no tiles-url available for object %s", pid);
@@ -98,7 +99,7 @@ public class ZoomifyHelper {
         Response.ResponseBuilder resp = Response.ok();
         setNoCacheDateHeaders(resp);
 
-        if (tilesUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
+        if (tilesUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
             return renderEmbededDZIDescriptor(pid, resp);
         } else {//http://imageserver.mzk.cz/NDK/2017/08/540eec00-7200-11e7-aab4-005056827e52/uc_540eec00-7200-11e7-aab4-005056827e52_0002
             return renderImagePropertiesXml(pid, resp, tilesUrl);
@@ -111,7 +112,7 @@ public class ZoomifyHelper {
         if (imageNotModified(req, imgFullLastModified)) {
             return Response.notModified().build();
         }
-        String tilesUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
+        String tilesUrl = akubraRepository.re().getTilesUrl(pid);
         //no tiles-url
         if (tilesUrl == null || tilesUrl.isEmpty()) {
             throw new NotFoundException("no tiles-url available for object %s", pid);
@@ -119,7 +120,7 @@ public class ZoomifyHelper {
         Response.ResponseBuilder resp = Response.ok();
         setDateHeaders(resp, imgFullLastModified);
 
-        if (tilesUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
+        if (tilesUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
             return renderEmbededTile(pid, level, x, y, resp);
         } else { //http://imageserver.mzk.cz/NDK/2017/08/540eec00-7200-11e7-aab4-005056827e52/uc_540eec00-7200-11e7-aab4-005056827e52_0002
             return renderTile(pid, tileGroup, level, x, y, resp, tilesUrl);

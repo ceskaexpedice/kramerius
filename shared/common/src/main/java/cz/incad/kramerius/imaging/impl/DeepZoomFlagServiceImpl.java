@@ -48,7 +48,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
             try {
 
-                RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
+                akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
 
                     @Override
                     public void process(String pid, int level) throws ProcessSubtreeException {
@@ -65,7 +65,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                     public boolean breakProcessing(String pid, int level) {
                         return false;
                     }
-                }, akubraRepository);
+                });
 
 
             } catch (Exception e) {
@@ -84,7 +84,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
             setFlagToPIDInternal(pid, tilesUrl);
         } else {
             try {
-                RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
+                akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
                     @Override
                     public void process(String pid, int level) throws ProcessSubtreeException {
                         setFlagToPIDInternal(pid, tilesUrl);
@@ -100,7 +100,7 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
                     public boolean breakProcessing(String pid, int level) {
                         return false;
                     }
-                }, akubraRepository);
+                });
 
             } catch (Exception e) {
                 if ((e.getCause() != null) && (e.getCause() instanceof IOException)) {

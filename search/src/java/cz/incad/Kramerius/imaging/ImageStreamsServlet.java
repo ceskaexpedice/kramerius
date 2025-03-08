@@ -114,7 +114,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
             // TODO: Change it !!
             pid = cutHREF(pid);
             if (!akubraRepository.datastreamExists(pid, stream)) {
-                pid = RelsExtUtils.findFirstViewablePid(pid, akubraRepository);
+                pid = akubraRepository.re().getFirstViewablePid(pid);
             }
             if (pid != null) {
                 // TODO AK_NEW boolean accessible = fedoraAccess.isContentAccessible(pid);
@@ -152,7 +152,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
             // TODO: Change it !!
             pid = cutHREF(pid);
             if (!akubraRepository.datastreamExists(pid, stream)) {
-                pid = RelsExtUtils.findFirstViewablePid(pid, akubraRepository);
+                pid = akubraRepository.re().getFirstViewablePid(pid);
             }
             if (pid != null) {
                 Actions actionToDo = Actions.TRANSCODE;

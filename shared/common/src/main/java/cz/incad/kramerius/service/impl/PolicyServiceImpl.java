@@ -51,7 +51,7 @@ public class PolicyServiceImpl implements PolicyService {
 
     @Override
     public void setPolicy(String pid, String policyName) throws IOException {
-        List<String> pids = RelsExtUtils.getPids(pid, akubraRepository);
+        List<String> pids = akubraRepository.re().getPids(pid);
         for (String s : pids) {
             String p = s.replace(INFO, "");
             try {
@@ -64,7 +64,7 @@ public class PolicyServiceImpl implements PolicyService {
 
     @Override
     public void setPolicy(String pid, String policyName, String level) throws IOException {
-        List<String> pids = RelsExtUtils.getPids(pid, akubraRepository);
+        List<String> pids = akubraRepository.re().getPids(pid);
         if (level != null && level.equals("true")) {
             try {
                 setPolicyForNode(pid, policyName);

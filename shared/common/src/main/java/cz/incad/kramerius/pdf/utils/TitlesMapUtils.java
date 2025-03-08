@@ -41,8 +41,7 @@ public class TitlesMapUtils {
     public static Map<String, String> mapModels(AkubraRepository akubraRepository, String[] path) throws IOException {
         Map<String, String> map = new HashMap<String, String>();
         for (String u : path) {
-            InputStream doc = akubraRepository.re().get(u).asInputStream();
-            String modelName = RelsExtUtils.getModel(doc);
+            String modelName = akubraRepository.re().getModel(u);
             map.put(u, modelName);
         }
         return map;

@@ -30,6 +30,7 @@ import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.relsext.KnownRelations;
+import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
 import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.ceskaexpedice.akubra.utils.pid.LexerException;
@@ -464,8 +465,7 @@ public enum MetadataExport {
                 //Element dcElement = dc.getDocumentElement();
 
                 List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-                InputStream relsExt = akubraRepository.re().get(pid).asInputStream();
-                String model = RelsExtUtils.getModel(relsExt);
+                String model = akubraRepository.re().getModel(pid);
 
                 Element record = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:record");
                 if (topLevelModels.contains(model)) {
@@ -486,6 +486,8 @@ public enum MetadataExport {
                 Element biblioRoots = (Element) owningDocument.adoptNode(biblio.getDocumentElement());
                 drDescriptor.appendChild(biblioRoots);
 
+                // TODO AK_NEW
+                InputStream relsExt = akubraRepository.re().get(pid).asInputStream();
                 List<Pair<String, String>> relations = RelsExtUtils.getRelations(relsExt);
                 for (Pair<String, String> relation : relations) {
                     if (!excludeModels.contains(relation.getLeft())) {

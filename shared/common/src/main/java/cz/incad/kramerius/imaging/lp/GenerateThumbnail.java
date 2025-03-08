@@ -62,7 +62,7 @@ public class GenerateThumbnail {
             }
         } else {
             try {
-                RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
+                akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
                     
                     @Override
                     public void process(String pid, int level) throws ProcessSubtreeException {
@@ -92,7 +92,7 @@ public class GenerateThumbnail {
                         // TODO Auto-generated method stub
                         return false;
                     }
-                }, akubraRepository);
+                });
             } catch (ProcessSubtreeException e1) {
                 LOGGER.log(Level.SEVERE,e1.getMessage(),e1);
             }

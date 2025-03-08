@@ -23,6 +23,7 @@ import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.relsext.RelsExtHandler;
 import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 
@@ -130,9 +131,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
         reportAccess(pid);
         setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
-        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
+        String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPDZIDescriptor(pid, resp, relsExtUrl);
                 } catch (SQLException e) {
@@ -183,9 +184,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderTile(String pid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
-        String relsExtUrl = RelsExtUtils.getRelsExtTilesUrl(akubraRepository.re().get(pid).asInputStream());
+        String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtUtils.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPTile(pid, slevel, stile, resp, relsExtUrl);
                 } catch (SQLException e) {

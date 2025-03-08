@@ -63,7 +63,7 @@ public class BenevolentModelFilter  extends AbstractCriterium implements RightCr
                 String[] pids = pth.getPathFromLeafToRoot();
                 for (String pid : pids) {
                     if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
-                    String modelName = RelsExtUtils.getModel(akubraRepository.re().get(pid).asInputStream());
+                    String modelName = akubraRepository.re().getModel(pid);
                     if (containsModelName(params,modelName)) return EvaluatingResultState.TRUE;
                 }
             }

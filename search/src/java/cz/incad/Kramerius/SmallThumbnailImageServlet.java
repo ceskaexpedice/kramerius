@@ -47,7 +47,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
         OutputFormats outputFormat = null;
         String pid = req.getParameter(UUID_PARAMETER);
         // TODO: Change it !!
-        pid = RelsExtUtils.findFirstViewablePid(pid, akubraRepository);
+        pid = akubraRepository.re().getFirstViewablePid(pid);
 
         String outputFormatParam = req.getParameter(OUTPUT_FORMAT_PARAMETER);
         if (outputFormatParam != null) {

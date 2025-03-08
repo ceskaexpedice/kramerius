@@ -92,7 +92,7 @@ public class ReplicationServiceImpl implements ReplicationService{
                 }
             }
             
-            RelsExtUtils.processSubtree(pid, new TreeNodeProcessor() {
+            akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
                 @Override
                 public void process(String pid, int level) throws ProcessSubtreeException {
                     if (!pids.contains(pid)) {
@@ -138,7 +138,7 @@ public class ReplicationServiceImpl implements ReplicationService{
                 public boolean breakProcessing(String pid, int level) {
                     return false;
                 }
-            }, akubraRepository);
+            });
             return pids;
         } catch (ProcessSubtreeException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

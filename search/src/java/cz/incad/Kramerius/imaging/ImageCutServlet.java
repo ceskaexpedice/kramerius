@@ -38,7 +38,7 @@ public class ImageCutServlet extends AbstractImageServlet {
         try {
             String pid = req.getParameter("pid");
             if (pid != null) {
-                pid = RelsExtUtils.findFirstViewablePid(pid, akubraRepository);
+                pid = akubraRepository.re().getFirstViewablePid(pid);
                 BufferedImage bufferedImage = super.rawFullImage(pid,req,0);
                 BufferedImage subImage = partOfImage(bufferedImage, req,  pid);
                 KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), resp.getOutputStream());

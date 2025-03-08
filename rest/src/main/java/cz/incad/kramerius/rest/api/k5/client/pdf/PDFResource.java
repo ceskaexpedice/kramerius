@@ -181,8 +181,8 @@ public class PDFResource extends AbstractPDFResource  {
                 if (pid != null) {
                     File fileToDelete = null;
                     try {
-                        pid = RelsExtUtils.findFirstViewablePid(pid, akubraRepository);
-                        
+                        pid = akubraRepository.re().getFirstViewablePid(pid);
+
                         BufferedImage bufImage = KrameriusImageSupport.readImage(pid,FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
 
                         double xPerctDouble = Double.parseDouble(xpos);

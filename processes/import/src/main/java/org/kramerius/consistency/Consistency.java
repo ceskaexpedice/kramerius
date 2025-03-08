@@ -68,7 +68,7 @@ public class Consistency {
      */
     public List<NotConsistentRelation> checkConsitency(String rootPid, boolean repair) throws IOException, ProcessSubtreeException, LexerException {
         TreeProcess deep = new TreeProcess(akubraRepository);
-        RelsExtUtils.processSubtree(rootPid, deep, akubraRepository);
+        akubraRepository.re().processSubtree(rootPid, deep);
         List<NotConsistentRelation> relations = deep.getRelations();
         if (repair) {
             LOGGER.fine("deleting inconsitencies");
