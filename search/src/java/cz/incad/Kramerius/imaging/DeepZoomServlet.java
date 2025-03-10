@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.name.Named;
+import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
@@ -132,7 +133,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(ZoomifyHelper.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPDZIDescriptor(pid, resp, relsExtUrl);
                 } catch (SQLException e) {
@@ -185,7 +186,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(ZoomifyHelper.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPTile(pid, slevel, stile, resp, relsExtUrl);
                 } catch (SQLException e) {

@@ -3,6 +3,7 @@ package cz.incad.kramerius.rest.utils;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.relsext.RelsExtHandler;
 
@@ -33,7 +34,7 @@ public class IIIFUtils {
         String url = akubraRepository.re().getTilesUrl(pid);
         if (url == null)
             return null;
-        if (url.trim().equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL))
+        if (url.trim().equals(ZoomifyHelper.CACHE_RELS_EXT_LITERAL))
             return null;
         return url.replaceAll("[z|Z]oomify|deepZoom", "iiif");
     }

@@ -39,6 +39,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.name.Named;
+import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
 import org.ceskaexpedice.akubra.relsext.RelsExtHandler;
@@ -169,7 +170,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
 
         String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(ZoomifyHelper.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPrenderXMLDescriptor(pid, resp, relsExtUrl);
                 } catch (SQLException e) {
@@ -271,7 +272,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         String relsExtUrl = this.akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(ZoomifyHelper.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPTile(pid, slevel, x,y, ext, resp, relsExtUrl);
                 } catch (SQLException e) {

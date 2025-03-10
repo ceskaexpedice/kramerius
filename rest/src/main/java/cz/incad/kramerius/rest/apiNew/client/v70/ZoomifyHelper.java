@@ -48,6 +48,7 @@ import static org.apache.http.HttpStatus.SC_OK;
  */
 @SuppressWarnings("JavadocReference")
 public class ZoomifyHelper {
+    public static final String CACHE_RELS_EXT_LITERAL = "kramerius4://deepZoomCache";
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ZoomifyHelper.class.getName());
 
@@ -97,7 +98,7 @@ public class ZoomifyHelper {
         Response.ResponseBuilder resp = Response.ok();
         setNoCacheDateHeaders(resp);
 
-        if (tilesUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
+        if (tilesUrl.equals(CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
             return renderEmbededDZIDescriptor(pid, resp);
         } else {//http://imageserver.mzk.cz/NDK/2017/08/540eec00-7200-11e7-aab4-005056827e52/uc_540eec00-7200-11e7-aab4-005056827e52_0002
             return renderImagePropertiesXml(pid, resp, tilesUrl);
@@ -118,7 +119,7 @@ public class ZoomifyHelper {
         Response.ResponseBuilder resp = Response.ok();
         setDateHeaders(resp, imgFullLastModified);
 
-        if (tilesUrl.equals(RelsExtHandler.CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
+        if (tilesUrl.equals(CACHE_RELS_EXT_LITERAL)) { //kramerius4://deepZoomCache
             return renderEmbededTile(pid, level, x, y, resp);
         } else { //http://imageserver.mzk.cz/NDK/2017/08/540eec00-7200-11e7-aab4-005056827e52/uc_540eec00-7200-11e7-aab4-005056827e52_0002
             return renderTile(pid, tileGroup, level, x, y, resp, tilesUrl);
