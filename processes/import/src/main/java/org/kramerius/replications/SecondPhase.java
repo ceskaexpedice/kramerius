@@ -37,7 +37,7 @@ import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
+import org.ceskaexpedice.akubra.relsext.RelsExtUtils;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
@@ -168,7 +168,7 @@ public class SecondPhase extends AbstractPhase  {
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(foxml);
-            String relsExt = RelsExtUtils.getRelsExtTilesUrl(document); // url of tiles
+            String relsExt = RelsExtUtils.getTilesUrl(document.getDocumentElement()); // url of tiles
 
             if (relsExt != null) {
                 InputStream stream = orignalImgData(pid, url);

@@ -29,7 +29,6 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 

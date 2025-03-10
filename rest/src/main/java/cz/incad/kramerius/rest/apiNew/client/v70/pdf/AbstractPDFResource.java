@@ -28,7 +28,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -117,7 +116,7 @@ public class AbstractPDFResource {
     @Inject
     AggregatedAccessLogs statisticsAccessLog;
 
-    public File selection(String[] pids, Rectangle rect, FirstPageType fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException {
+    public File selection(String[] pids, Rectangle rect, FirstPageType fp) throws DocumentException, IOException, OutOfRangeException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
         PreparedDocument rdoc = documentService.buildDocumentFromSelection(pids, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
@@ -156,7 +155,7 @@ public class AbstractPDFResource {
         }
     }
 
-    public File parent(String pid, int numberOfPags, Rectangle rect, FirstPageType firstPageType) throws DocumentException, IOException, NumberFormatException, ProcessSubtreeException {
+    public File parent(String pid, int numberOfPags, Rectangle rect, FirstPageType firstPageType) throws DocumentException, IOException, NumberFormatException {
         LOGGER.info("parent(" + pid + ", ...)"); //TODO: remove for production
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
         //Map<String, AbstractObjectPath[]> pathsMap = solrAccess.getModelAndPidPaths(pid);

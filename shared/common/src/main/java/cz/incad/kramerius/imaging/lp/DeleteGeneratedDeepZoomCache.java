@@ -24,9 +24,7 @@ import javax.xml.xpath.XPathExpressionException;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
 import org.w3c.dom.DOMException;
 
 import com.google.inject.Guice;
@@ -53,7 +51,7 @@ public class DeleteGeneratedDeepZoomCache {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GenerateThumbnail.class.getName());
 
-    public static void main(String[] args) throws IOException, ProcessSubtreeException {
+    public static void main(String[] args) throws IOException {
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
             // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
@@ -75,9 +73,8 @@ public class DeleteGeneratedDeepZoomCache {
      * @param pid Master PID
      * @param discStruct DiscStructure instance
      * @throws IOException IO error has been occurred
-     * @throws ProcessSubtreeException Error in tree walking 
      */
-    public static void deleteCacheForPID(String pid, final AkubraRepository akubraRepository, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
+    public static void deleteCacheForPID(String pid, final AkubraRepository akubraRepository, final DiscStrucutreForStore discStruct) throws IOException {
         if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             try {
                 deleteFolder(pid, discStruct);
@@ -85,10 +82,10 @@ public class DeleteGeneratedDeepZoomCache {
                 LOGGER.severe(e.getMessage());
             }
         } else {
-            akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
+            akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
 
                 @Override
-                public void process(String pid, int level) throws ProcessSubtreeException {
+                public void process(String pid, int level) {
                     try {
                         if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             //LOGGER.info("Deleting " + (pageIndex++) +" uuid = "+uuid);

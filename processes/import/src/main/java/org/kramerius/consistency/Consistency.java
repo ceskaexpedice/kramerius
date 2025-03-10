@@ -21,7 +21,6 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.TreeNodeProcessStackAware;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -30,9 +29,8 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.pid.LexerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessStackAware;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
 
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
@@ -63,18 +61,17 @@ public class Consistency {
      * @param rootPid Root pid
      * @param repair Flag determine if the process should delete broken references
      * @throws IOException IO error has been occured
-     * @throws ProcessSubtreeException Processing tree error has been occured
      * @throws LexerException PID Parsing error has been occured
      */
-    public List<NotConsistentRelation> checkConsitency(String rootPid, boolean repair) throws IOException, ProcessSubtreeException, LexerException {
+    public List<NotConsistentRelation> checkConsitency(String rootPid, boolean repair) throws IOException, LexerException {
         TreeProcess deep = new TreeProcess(akubraRepository);
-        akubraRepository.re().processSubtree(rootPid, deep);
+        akubraRepository.re().processInTree(rootPid, deep);
         List<NotConsistentRelation> relations = deep.getRelations();
         if (repair) {
             LOGGER.fine("deleting inconsitencies");
             for (NotConsistentRelation nRelation : relations) {
                 List<String> children = nRelation.getChildren();
-                List<RelsExtRelation> relationsList = akubraRepository.re().get(nRelation.rootPid).getRelations(null);
+                List<RelsExtRelation> relationsList = akubraRepository.re().getRelations(nRelation.rootPid,null);
                 for (RelsExtRelation t : relationsList) {
 
                     if (children.contains(t.getResource())) {
@@ -108,7 +105,7 @@ public class Consistency {
         }
 
         @Override
-        public void process(String pid, int level) throws ProcessSubtreeException {
+        public void process(String pid, int level) {
             LOGGER.fine("exploring '" + pid + "'");
         }
 
@@ -203,11 +200,10 @@ public class Consistency {
      * @param pid Root pid
      * @param flag Control flag 
      * @throws IOException
-     * @throws ProcessSubtreeException
      * @throws LexerException
      */
     @Process
-    public static void process(String pid, Boolean flag) throws IOException, ProcessSubtreeException, LexerException {
+    public static void process(String pid, Boolean flag) throws IOException, LexerException {
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         Consistency consistency = new Consistency();
         injector.injectMembers(consistency);
@@ -215,7 +211,7 @@ public class Consistency {
 
     }
 
-    public static void main(String[] args) throws IOException, ProcessSubtreeException, LexerException, TransformerConfigurationException {
+    public static void main(String[] args) throws IOException,  LexerException, TransformerConfigurationException {
         if (args.length == 2) {
             process(args[0], Boolean.valueOf(args[1]));
         }

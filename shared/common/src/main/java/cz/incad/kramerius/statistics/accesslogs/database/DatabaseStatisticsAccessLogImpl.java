@@ -53,7 +53,6 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 

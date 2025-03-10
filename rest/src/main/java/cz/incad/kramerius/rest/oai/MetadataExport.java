@@ -29,12 +29,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.pid.LexerException;
+import org.ceskaexpedice.akubra.pid.PIDParser;
 import org.ceskaexpedice.akubra.relsext.KnownRelations;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
 import org.ceskaexpedice.akubra.utils.DomUtils;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.ceskaexpedice.akubra.utils.pid.LexerException;
-import org.ceskaexpedice.akubra.utils.pid.PIDParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -486,13 +485,11 @@ public enum MetadataExport {
                 Element biblioRoots = (Element) owningDocument.adoptNode(biblio.getDocumentElement());
                 drDescriptor.appendChild(biblioRoots);
 
-                // TODO AK_NEW
-                InputStream relsExt = akubraRepository.re().get(pid).asInputStream();
-                List<Pair<String, String>> relations = RelsExtUtils.getRelations(relsExt);
-                for (Pair<String, String> relation : relations) {
-                    if (!excludeModels.contains(relation.getLeft())) {
+                List<RelsExtRelation> relations = akubraRepository.re().getRelations(pid);
+                for (RelsExtRelation relation : relations) {
+                    if (!excludeModels.contains(relation.getLocalName())) {
                         Element drRelation = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:relation");
-                        String relationPid = relation.getRight();
+                        String relationPid = relation.getResource();
                         PIDParser pidParser = new PIDParser(relationPid);
                         pidParser.objectPid();
                         drRelation.setTextContent(pidParser.getObjectId());

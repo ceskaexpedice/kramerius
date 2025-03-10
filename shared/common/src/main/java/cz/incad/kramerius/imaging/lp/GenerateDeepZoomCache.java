@@ -16,13 +16,12 @@ import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 public class GenerateDeepZoomCache {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GenerateDeepZoomCache.class.getName());
 
-    public static void main(String[] args) throws IOException, ProcessSubtreeException, org.ceskaexpedice.akubra.utils.ProcessSubtreeException {
+    public static void main(String[] args) throws IOException  {
         LOGGER.log(Level.INFO,"Generate deep zoom cache :" + Arrays.asList(args));
         if (args.length >= 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new SolrModule(), new RepoModule(), new NullStatisticsModule());

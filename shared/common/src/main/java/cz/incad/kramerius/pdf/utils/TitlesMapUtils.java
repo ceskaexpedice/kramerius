@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 
 import cz.incad.kramerius.utils.DCUtils;
@@ -32,7 +31,6 @@ public class TitlesMapUtils {
 
     /**
      * Mapuje modely na uuid
-     * @param fa FedoraAccess
      * @param path Cesta ke korenyu (brano z indexu)
      * @return Vraci mapu  uuid->model
      * @throws IOException

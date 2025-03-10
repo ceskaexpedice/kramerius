@@ -40,7 +40,7 @@ import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+import org.ceskaexpedice.akubra.RepositoryException;
 
 public class PrintQueue extends GuiceServlet {
 
@@ -63,7 +63,7 @@ public class PrintQueue extends GuiceServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             this.print(req, resp);
-        } catch (ProcessSubtreeException e) {
+        } catch (RepositoryException e) {
             resp.setContentType("text/plain");
             resp.getWriter().println("{status:'failed'}");
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -84,7 +84,7 @@ public class PrintQueue extends GuiceServlet {
 
 
 
-    public void print(HttpServletRequest req, HttpServletResponse resp) throws MalformedURLException, IOException, ProcessSubtreeException, NumberFormatException, PrinterException, PrintException {
+    public void print(HttpServletRequest req, HttpServletResponse resp) throws MalformedURLException, IOException, NumberFormatException, PrinterException, PrintException {
 
         String imgServletUrl = ApplicationURL.applicationURL(req)+"/img";
         if ((configuration.getApplicationURL() != null) && (!configuration.getApplicationURL().equals(""))){
@@ -104,7 +104,7 @@ public class PrintQueue extends GuiceServlet {
         
         PARENT {
             @Override
-            protected void print(HttpServletRequest request, HttpServletResponse response, PrintingService service, String imgServlet, String i18nservlet) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
+            protected void print(HttpServletRequest request, HttpServletResponse response, PrintingService service, String imgServlet, String i18nservlet) throws IOException, PrinterException, PrintException {
                 String from = request.getParameter(PID_FROM);
                 service.printMaster(from, imgServlet, i18nservlet);
                 response.setContentType("text/plain");
@@ -112,7 +112,7 @@ public class PrintQueue extends GuiceServlet {
             }
         }, SELECTION {
             @Override
-            protected void print(HttpServletRequest request, HttpServletResponse response, PrintingService service, String imgServlet, String i18nservlet) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
+            protected void print(HttpServletRequest request, HttpServletResponse response, PrintingService service, String imgServlet, String i18nservlet) throws IOException, PrinterException, PrintException {
                 try {
                     String par = request.getParameter("pids");
                     ParamsParser parser = new ParamsParser(new ParamsLexer(new StringReader(par)));
@@ -132,7 +132,7 @@ public class PrintQueue extends GuiceServlet {
             }
         };
         
-        protected abstract void print(HttpServletRequest request, HttpServletResponse response,PrintingService service, String imgServlet, String i18nservlet) throws IOException, ProcessSubtreeException, PrinterException, PrintException;
+        protected abstract void print(HttpServletRequest request, HttpServletResponse response,PrintingService service, String imgServlet, String i18nservlet) throws IOException, PrinterException, PrintException;
     }
 
 }

@@ -36,8 +36,7 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.ceskaexpedice.akubra.utils.pid.LexerException;
+import org.ceskaexpedice.akubra.pid.LexerException;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 

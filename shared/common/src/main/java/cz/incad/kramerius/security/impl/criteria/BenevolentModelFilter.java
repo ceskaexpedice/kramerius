@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 
 /**
  * @author pavels

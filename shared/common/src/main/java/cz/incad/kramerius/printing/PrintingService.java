@@ -16,8 +16,6 @@
  */
 package cz.incad.kramerius.printing;
 
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-
 import javax.print.PrintException;
 import java.awt.print.PrinterException;
 import java.io.IOException;
@@ -33,11 +31,10 @@ public interface PrintingService {
      * @param imgUrl Image servlet URL
      * @param i18nUrl I18N servlet URL
      * @throws IOException 
-     * @throws ProcessSubtreeException
      * @throws PrinterException
      * @throws PrintException
      */
-    public void printMaster( String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException;
+    public void printMaster( String pidFrom, String imgUrl, String i18nUrl) throws IOException, PrinterException, PrintException;
     
     /**
      * Print selection option (from - to)
@@ -45,9 +42,8 @@ public interface PrintingService {
      * @param imgUrl Image servlet URL
      * @param i18nUrl I18N servlet URL
      * @throws IOException
-     * @throws ProcessSubtreeException
      * @throws PrinterException
      * @throws PrintException
      */
-    public void printSelection(String[] selection,   String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException;
+    public void printSelection(String[] selection,   String imgUrl, String i18nUrl) throws IOException, PrinterException, PrintException;
 }

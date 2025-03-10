@@ -13,7 +13,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.*;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
@@ -51,7 +50,7 @@ public class PolicyServiceImpl implements PolicyService {
 
     @Override
     public void setPolicy(String pid, String policyName) throws IOException {
-        List<String> pids = akubraRepository.re().getPids(pid);
+        List<String> pids = akubraRepository.re().getPidsInTree(pid);
         for (String s : pids) {
             String p = s.replace(INFO, "");
             try {
@@ -64,7 +63,7 @@ public class PolicyServiceImpl implements PolicyService {
 
     @Override
     public void setPolicy(String pid, String policyName, String level) throws IOException {
-        List<String> pids = akubraRepository.re().getPids(pid);
+        List<String> pids = akubraRepository.re().getPidsInTree(pid);
         if (level != null && level.equals("true")) {
             try {
                 setPolicyForNode(pid, policyName);

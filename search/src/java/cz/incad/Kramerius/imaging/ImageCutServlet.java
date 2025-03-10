@@ -16,15 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.Kramerius.AbstractImageServlet;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -38,7 +32,7 @@ public class ImageCutServlet extends AbstractImageServlet {
         try {
             String pid = req.getParameter("pid");
             if (pid != null) {
-                pid = akubraRepository.re().getFirstViewablePid(pid);
+                pid = akubraRepository.re().getFirstViewablePidInTree(pid);
                 BufferedImage bufferedImage = super.rawFullImage(pid,req,0);
                 BufferedImage subImage = partOfImage(bufferedImage, req,  pid);
                 KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), resp.getOutputStream());

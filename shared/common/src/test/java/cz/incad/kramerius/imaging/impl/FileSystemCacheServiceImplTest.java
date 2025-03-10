@@ -41,8 +41,6 @@ import javax.imageio.stream.ImageOutputStreamImpl;
 
 import junit.framework.Assert;
 
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -73,7 +71,7 @@ public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {
         return ImageIO.read(is);
     }
 
-    public void cacheImage(Injector inj) throws IOException, ProcessSubtreeException {
+    public void cacheImage(Injector inj) throws IOException {
         DeepZoomCacheService dcache = inj.getInstance(DeepZoomCacheService.class);
         dcache.prepareCacheForPID(DataPrepare.DROBNUSTKY_PIDS[0]);
         
@@ -87,7 +85,7 @@ public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {
     }
 
     @Test
-    public void testPrepageAndGet() throws IOException, ProcessSubtreeException {
+    public void testPrepageAndGet() throws IOException {
         Injector inj = injector();
         cacheImage(inj);
         DeepZoomCacheService dz = inj.getInstance(DeepZoomCacheService.class);
@@ -113,7 +111,7 @@ public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {
     
     
     @Test
-    public void testPrepraCacheImage() throws IOException, ProcessSubtreeException, LexerException {
+    public void testPrepraCacheImage() throws IOException, LexerException {
         Injector inj = injector();
         cacheImage(inj);
         

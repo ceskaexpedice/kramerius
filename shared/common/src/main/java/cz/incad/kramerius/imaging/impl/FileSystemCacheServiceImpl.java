@@ -29,11 +29,9 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
-import org.ceskaexpedice.akubra.utils.pid.LexerException;
-import org.ceskaexpedice.akubra.utils.pid.PIDParser;
+import org.ceskaexpedice.akubra.pid.LexerException;
+import org.ceskaexpedice.akubra.pid.PIDParser;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
 
 /**
  * Cache deepZoom objects (full images, tiles and dzi descritors) on the HDD
@@ -179,15 +177,15 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     }
 
     @Override
-    public void prepareCacheForPID(String pid, final int levelOverTileSize) throws IOException, ProcessSubtreeException {
+    public void prepareCacheForPID(String pid, final int levelOverTileSize) throws IOException {
         if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             prepareCacheImage(pid, levelOverTileSize);
         } else {
-            akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
+            akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
                 private int pageIndex = 1;
                 
                 @Override
-                public void process(String pid, int level) throws ProcessSubtreeException {
+                public void process(String pid, int level) {
                         if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             LOGGER.fine("caching page " + (pageIndex++));
                             prepareCacheImage(pid, levelOverTileSize);
@@ -209,15 +207,15 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     }
 
     @Override
-    public void prepareCacheForPID(String pid) throws IOException, ProcessSubtreeException {
+    public void prepareCacheForPID(String pid) throws IOException {
 
         if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             prepareCacheImage(pid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
         } else {
-            akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
+            akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
                 private int pageIndex = 1;
                 @Override
-                public void process(String pid, int level) throws ProcessSubtreeException {
+                public void process(String pid, int level) {
                     LOGGER.fine("caching page " + (pageIndex++));
                     prepareCacheImage(pid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
                 }

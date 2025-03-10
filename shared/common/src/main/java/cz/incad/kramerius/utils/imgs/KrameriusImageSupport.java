@@ -12,7 +12,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.utils.RepositoryURLStreamHandler;
+import org.ceskaexpedice.akubra.RepositoryURLStreamHandler;
 
 import javax.imageio.*;
 import javax.imageio.stream.ImageInputStream;

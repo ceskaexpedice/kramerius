@@ -18,7 +18,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.utils.pid.LexerException;
+import org.ceskaexpedice.akubra.pid.LexerException;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.kramerius.Import;
 import org.kramerius.ImportModule;

@@ -32,10 +32,9 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
 import org.ceskaexpedice.akubra.relsext.RelsExtLiteral;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
-import org.ceskaexpedice.akubra.relsext.RelsExtWrapper;
-import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
 import org.ceskaexpedice.fedoramodel.DatastreamType;
 import org.ceskaexpedice.fedoramodel.DatastreamVersionType;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
@@ -262,9 +261,8 @@ public class ImportDuplicator {
         }
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
         ProcessingIndexUtils.doWithProcessingIndexCommit(akubraRepository, (repo)->{
-            RelsExtWrapper relsExtWrapper = akubraRepository.re().get(pid);
-            List<RelsExtRelation> relations = relsExtWrapper.getRelations(null);
-            List<RelsExtLiteral> literals = relsExtWrapper.getLiterals(null);
+            List<RelsExtRelation> relations = akubraRepository.re().getRelations(pid,null);
+            List<RelsExtLiteral> literals = akubraRepository.re().getLiterals(pid,null);
 
             List<RDFTuple> existing = new ArrayList<>();
             for (RelsExtRelation t : relations) {

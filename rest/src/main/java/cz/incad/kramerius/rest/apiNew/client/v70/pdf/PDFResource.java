@@ -21,8 +21,7 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -192,7 +191,7 @@ public class PDFResource extends AbstractPDFResource {
 
                     File fileToDelete = null;
                     try {
-                        pid = akubraRepository.re().getFirstViewablePid(pid);
+                        pid = akubraRepository.re().getFirstViewablePidInTree(pid);
 
                         BufferedImage bufImage = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
 
@@ -323,7 +322,7 @@ public class PDFResource extends AbstractPDFResource {
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
-                } catch (ProcessSubtreeException e) {
+                } catch (RepositoryException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
                 } catch (DocumentException e) {
@@ -428,7 +427,7 @@ public class PDFResource extends AbstractPDFResource {
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
-                } catch (ProcessSubtreeException e) {
+                } catch (RepositoryException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
                 } catch (OutOfRangeException e1) {

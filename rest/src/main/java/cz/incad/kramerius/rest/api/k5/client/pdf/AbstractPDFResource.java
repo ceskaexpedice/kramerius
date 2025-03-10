@@ -21,7 +21,7 @@ import javax.ws.rs.core.Response;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -144,7 +144,7 @@ public class AbstractPDFResource {
     }
 
     
-    public File selection(String[] pids, Rectangle rect,FirstPage fp) throws DocumentException, IOException, OutOfRangeException, org.ceskaexpedice.akubra.utils.ProcessSubtreeException {
+    public File selection(String[] pids, Rectangle rect,FirstPage fp) throws DocumentException, IOException, OutOfRangeException  {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
         PreparedDocument rdoc = documentService.buildDocumentFromSelection(pids, new int[] {(int)rect.getWidth(), (int)rect.getHeight()});
@@ -184,7 +184,7 @@ public class AbstractPDFResource {
     }
 
     public File parent(String pid, int n, Rectangle rect, FirstPage fp) throws DocumentException,
-            IOException, NumberFormatException, ProcessSubtreeException {
+            IOException, NumberFormatException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
         Map<String, AbstractObjectPath[]> pathsMap = solrAccess.getModelAndPidPaths(pid);
         ObjectPidsPath[] paths = (ObjectPidsPath[]) pathsMap.get(ObjectPidsPath.class.getName());
@@ -220,7 +220,7 @@ public class AbstractPDFResource {
 
             AbstractPDFResource.mergeToOutput(fos, parentFile, firstPageFile);
             return generatedPDF;
-        } catch (OutOfRangeException | org.ceskaexpedice.akubra.utils.ProcessSubtreeException e) {
+        } catch (OutOfRangeException | RepositoryException e) {
             throw new PDFResourceBadRequestException(e.getMessage());
         } finally {
             saveDeleteFile(parentFile, firstPageFile);

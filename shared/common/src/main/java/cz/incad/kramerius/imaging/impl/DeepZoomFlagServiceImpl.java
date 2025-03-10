@@ -21,10 +21,8 @@ import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
 
 import java.io.IOException;
 
@@ -48,10 +46,10 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
             try {
 
-                akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
+                akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
 
                     @Override
-                    public void process(String pid, int level) throws ProcessSubtreeException {
+                    public void process(String pid, int level) {
                         deleteFlagToPIDInternal(pid);
                     }
 
@@ -84,9 +82,9 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
             setFlagToPIDInternal(pid, tilesUrl);
         } else {
             try {
-                akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
+                akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
                     @Override
-                    public void process(String pid, int level) throws ProcessSubtreeException {
+                    public void process(String pid, int level) {
                         setFlagToPIDInternal(pid, tilesUrl);
                     }
 

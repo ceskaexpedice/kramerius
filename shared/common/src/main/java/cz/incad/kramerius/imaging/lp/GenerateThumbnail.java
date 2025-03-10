@@ -29,9 +29,7 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
 
 public class GenerateThumbnail {
 
@@ -62,10 +60,10 @@ public class GenerateThumbnail {
             }
         } else {
             try {
-                akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
+                akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
                     
                     @Override
-                    public void process(String pid, int level) throws ProcessSubtreeException {
+                    public void process(String pid, int level) {
                         try {
                             if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                                 prepareThumbnail(pid, akubraRepository, discStruct, tileSupport);
@@ -93,7 +91,7 @@ public class GenerateThumbnail {
                         return false;
                     }
                 });
-            } catch (ProcessSubtreeException e1) {
+            } catch (RepositoryException e1) {
                 LOGGER.log(Level.SEVERE,e1.getMessage(),e1);
             }
 

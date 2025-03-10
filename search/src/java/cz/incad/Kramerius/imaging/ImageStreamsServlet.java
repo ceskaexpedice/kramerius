@@ -34,7 +34,6 @@ import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.w3c.dom.Document;
 
 import cz.incad.Kramerius.AbstractImageServlet;
@@ -114,7 +113,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
             // TODO: Change it !!
             pid = cutHREF(pid);
             if (!akubraRepository.datastreamExists(pid, stream)) {
-                pid = akubraRepository.re().getFirstViewablePid(pid);
+                pid = akubraRepository.re().getFirstViewablePidInTree(pid);
             }
             if (pid != null) {
                 // TODO AK_NEW boolean accessible = fedoraAccess.isContentAccessible(pid);
@@ -152,7 +151,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
             // TODO: Change it !!
             pid = cutHREF(pid);
             if (!akubraRepository.datastreamExists(pid, stream)) {
-                pid = akubraRepository.re().getFirstViewablePid(pid);
+                pid = akubraRepository.re().getFirstViewablePidInTree(pid);
             }
             if (pid != null) {
                 Actions actionToDo = Actions.TRANSCODE;

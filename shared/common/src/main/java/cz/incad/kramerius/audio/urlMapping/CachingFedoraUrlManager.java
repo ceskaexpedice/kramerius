@@ -23,7 +23,6 @@ import cz.incad.kramerius.audio.XpathEvaluator;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.utils.DigitalObjectUtils;
 import org.ceskaexpedice.fedoramodel.DatastreamVersionType;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.ehcache.Cache;
@@ -162,8 +161,8 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
         DigitalObject object = akubraRepository.get(pid).asDigitalObject();
         if (object != null) {
 
-            DatastreamVersionType stream = DigitalObjectUtils.getLastStreamVersion(object, datastreamName);
-
+            // TODO AK_NEW DatastreamVersionType stream = DigitalObjectUtils.getLastStreamVersion(object, datastreamName);
+            DatastreamVersionType stream = null;
             if (stream != null) {
                 if (stream.getContentLocation() != null && "URL".equals(stream.getContentLocation().getTYPE())) {
                     return stream.getContentLocation().getREF();

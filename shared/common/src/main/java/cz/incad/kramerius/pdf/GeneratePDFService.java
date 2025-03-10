@@ -11,8 +11,6 @@ import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.impl.OutputStreams;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-
 
 /**
  * Service for generating PDF
@@ -32,10 +30,9 @@ public interface GeneratePDFService {
      * @param i18Url I18N servlet URL
      * @param rect Page size
      * @throws IOException IO error has been occurred
-     * @throws ProcessSubtreeException algorithm cannot traverse over tree
      * @throws DocumentException Error has been occurred in PDF generation
      */
-    public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url, int[] rect) throws IOException, ProcessSubtreeException, DocumentException, org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+    public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url, int[] rect) throws IOException, DocumentException;
 	
     
     /**
@@ -48,9 +45,8 @@ public interface GeneratePDFService {
      * @param i18nUrl i18N servlet 
      * @param rect Page size
      * @throws IOException IO error has been occured
-     * @throws ProcessSubtreeException algorithm cannot traverse over tree
      */
-	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException, ProcessSubtreeException;
+	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException;
 	
 	
 	public void generateCustomPDF(PreparedDocument doc, /*String parentUUID,*/ OutputStream os, FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;

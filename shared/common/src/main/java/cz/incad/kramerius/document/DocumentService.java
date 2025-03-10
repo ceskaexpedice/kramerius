@@ -21,7 +21,6 @@ import java.io.IOException;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.document.model.PreparedDocument;
 import cz.incad.kramerius.pdf.OutOfRangeException;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 /**
  * Document model service
@@ -35,9 +34,8 @@ public interface DocumentService {
      * @param rect page size
      * @return Created document model
      * @throws IOException IO error has been occurred
-     * @throws ProcessSubtreeException Error has been occurred during tree processing
      */
-    PreparedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom, int[]rect) throws IOException, ProcessSubtreeException;
+    PreparedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom, int[]rect) throws IOException;
 
     
     /**
@@ -47,9 +45,8 @@ public interface DocumentService {
      * @param rect page size
      * @return Created document model
      * @throws IOException IO error has been occurred
-     * @throws ProcessSubtreeException Error has been occurred during tree processing
      */
-    PreparedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, ProcessSubtreeException, OutOfRangeException, org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+    PreparedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, OutOfRangeException;
     
     /**
      * Creates flat document model from pids selection
@@ -57,9 +54,8 @@ public interface DocumentService {
      * @param rect page size
      * @return Created document model
      * @throws IOException IO error has been occurred
-     * @throws ProcessSubtreeException Error has been occurred during tree processing
      */
-    PreparedDocument buildDocumentFromSelection(String[] selection, int[] rect) throws IOException, ProcessSubtreeException, OutOfRangeException;
+    PreparedDocument buildDocumentFromSelection(String[] selection, int[] rect) throws IOException, OutOfRangeException;
     
 
 }

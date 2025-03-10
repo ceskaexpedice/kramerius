@@ -29,12 +29,9 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
-import org.ceskaexpedice.fedoramodel.DigitalObject;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -92,9 +89,9 @@ public class ReplicationServiceImpl implements ReplicationService{
                 }
             }
             
-            akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
+            akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
                 @Override
-                public void process(String pid, int level) throws ProcessSubtreeException {
+                public void process(String pid, int level) {
                     if (!pids.contains(pid)) {
                     	pids.add(pid);
                     	if (collections) {
@@ -122,7 +119,7 @@ public class ReplicationServiceImpl implements ReplicationService{
     							}
     						} catch (Exception e) {
     				            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-    				            throw new ProcessSubtreeException(e);
+    				            throw new RepositoryException(e);
     						}
                     	}
                     }
@@ -140,7 +137,7 @@ public class ReplicationServiceImpl implements ReplicationService{
                 }
             });
             return pids;
-        } catch (ProcessSubtreeException e) {
+        } catch (RepositoryException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             throw new ReplicateException(e);
         } catch (FileNotFoundException e) {

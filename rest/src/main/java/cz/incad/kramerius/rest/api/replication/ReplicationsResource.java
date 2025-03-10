@@ -43,11 +43,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.pdfbox.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import biz.sourcecode.base64Coder.Base64Coder;

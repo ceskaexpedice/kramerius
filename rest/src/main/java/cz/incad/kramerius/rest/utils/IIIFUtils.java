@@ -5,8 +5,6 @@ import java.util.logging.Logger;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.relsext.RelsExtHandler;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.w3c.dom.Document;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;

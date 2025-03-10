@@ -17,7 +17,7 @@ import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

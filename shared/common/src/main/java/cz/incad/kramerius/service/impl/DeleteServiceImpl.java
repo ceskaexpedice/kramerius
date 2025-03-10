@@ -22,8 +22,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
-import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -60,7 +59,7 @@ public class DeleteServiceImpl implements DeleteService {
     @Override
     public void deleteTree(AkubraRepository repo, String pid, String pidPath, String message, boolean deleteEmptyParents, boolean spawnIndexer) throws IOException, RepositoryException, SolrServerException {
 
-        List<String> pids = akubraRepository.re().getPids(pid);
+        List<String> pids = akubraRepository.re().getPidsInTree(pid);
         for (String deletingPids : pids) {
             List<Pair<String, String>> pairs = ProcessingIndexUtils.findByTargetPid(pid, akubraRepository);
             for (Pair<String, String> p : pairs) {
@@ -94,7 +93,7 @@ public class DeleteServiceImpl implements DeleteService {
             boolean parentRemoved = false;
 
             String finalParentPid = parentPid;
-            akubraRepository.re().get(parentPid).getRelations(RepositoryNamespaces.KRAMERIUS_URI).forEach(rel -> {
+            akubraRepository.re().getRelations(parentPid, RepositoryNamespaces.KRAMERIUS_URI).forEach(rel -> {
                 if (rel.getResource().equals(pid)) {
                     akubraRepository.re().removeRelation(finalParentPid, rel.getNamespace(), rel.getLocalName(), pid);
                 }

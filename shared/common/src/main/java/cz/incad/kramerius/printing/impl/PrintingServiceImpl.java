@@ -86,7 +86,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 public class PrintingServiceImpl implements PrintingService {
 
@@ -128,7 +127,7 @@ public class PrintingServiceImpl implements PrintingService {
     }
 
     @Override
-    public void printMaster(String pidFrom, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
+    public void printMaster(String pidFrom, String imgUrl, String i18nUrl) throws IOException, PrintException {
 
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pidFrom);
@@ -248,7 +247,7 @@ public class PrintingServiceImpl implements PrintingService {
     }
 
     @Override
-    public void printSelection(String[] selection, String imgUrl, String i18nUrl) throws IOException, ProcessSubtreeException, PrinterException, PrintException {
+    public void printSelection(String[] selection, String imgUrl, String i18nUrl) throws IOException, PrintException {
         try {
             PreparedDocument document = this.documentService.buildDocumentFromSelection(selection, null /*
                                                                                                                  * use

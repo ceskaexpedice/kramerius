@@ -1,10 +1,9 @@
 package cz.incad.kramerius;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
-import org.ceskaexpedice.akubra.utils.ProcessingIndexUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;

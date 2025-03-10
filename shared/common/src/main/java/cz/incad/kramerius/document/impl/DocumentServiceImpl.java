@@ -31,9 +31,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.ceskaexpedice.akubra.utils.TreeNodeProcessor;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -101,7 +99,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     protected void buildRenderingDocumentAsFlat(
             final PreparedDocument renderedDocument, final String pidFrom,
-            final int howMany) throws IOException, ProcessSubtreeException {
+            final int howMany) throws IOException {
         if (pidFrom != null && akubraRepository.datastreamExists(pidFrom, KnownDatastreams.IMG_FULL)) {
 
             ObjectPidsPath[] path = solrAccess.getPidPaths(pidFrom);
@@ -114,13 +112,12 @@ public class DocumentServiceImpl implements DocumentService {
                 parent = pidFrom;
             }
 
-            akubraRepository.re().processSubtree(parent, new TreeNodeProcessor() {
+            akubraRepository.re().processInTree(parent, new TreeNodeProcessor() {
                 private int index = 0;
                 private boolean acceptingState = false;
 
                 @Override
-                public void process(String pid, int level)
-                        throws ProcessSubtreeException {
+                public void process(String pid, int level) {
                     try {
                         if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             if (pid.equals(pidFrom) || (pidFrom == null)) {
@@ -157,7 +154,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         } else {
             // find first parent
-            String pagePid = akubraRepository.re().getFirstViewablePid(pidFrom);
+            String pagePid = akubraRepository.re().getFirstViewablePidInTree(pidFrom);
             String parentPid = pidFrom;
             ObjectPidsPath[] path = solrAccess.getPidPaths(pagePid);
             String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
@@ -165,13 +162,12 @@ public class DocumentServiceImpl implements DocumentService {
                 parentPid = pathFromLeafToRoot[1];
             }
 
-            akubraRepository.re().processSubtree(parentPid, new TreeNodeProcessor() {
+            akubraRepository.re().processInTree(parentPid, new TreeNodeProcessor() {
 
                 private int index = 0;
 
                 @Override
-                public void process(String pid, int level)
-                        throws ProcessSubtreeException {
+                public void process(String pid, int level) {
                     try {
                         if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             if (index < howMany) {
@@ -202,14 +198,13 @@ public class DocumentServiceImpl implements DocumentService {
 
     protected void buildRenderingDocumentAsTree(
             /* org.w3c.dom.Document relsExt, */final PreparedDocument renderedDocument,
-            final String pid) throws IOException, ProcessSubtreeException {
+            final String pid) throws IOException {
 
-        akubraRepository.re().processSubtree(pid, new TreeNodeProcessor() {
+        akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
             private OutlineItem currOutline = null;
 
             @Override
-            public void process(String pid, int level)
-                    throws ProcessSubtreeException {
+            public void process(String pid, int level) {
                 try {
                 	AbstractPage page = null;
 
@@ -337,7 +332,7 @@ public class DocumentServiceImpl implements DocumentService {
 
             } else {
 
-            		page = new TextPage(modelName,akubraRepository.re().getFirstViewablePid(pid));
+            		page = new TextPage(modelName,akubraRepository.re().getFirstViewablePidInTree(pid));
                     page.setOutlineDestination(pid);
 
                     page.setBiblioMods(biblioMods);
@@ -420,7 +415,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public PreparedDocument buildDocumentAsFlat(ObjectPidsPath path,
-            String pidFrom, int howMany, int[] rect) throws IOException, OutOfRangeException, ProcessSubtreeException {
+            String pidFrom, int howMany, int[] rect) throws IOException, OutOfRangeException {
 
         String leaf = path.getLeaf();
         ResourceBundle resourceBundle = resourceBundleService
@@ -449,9 +444,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public PreparedDocument buildDocumentAsTree(ObjectPidsPath path,
-            String pidFrom, int[] rect) throws IOException, ProcessSubtreeException {
-        ResourceBundle resourceBundle = resourceBundleService
-                .getResourceBundle("base", localeProvider.get());
+            String pidFrom, int[] rect) throws IOException {
+        ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
 
         String leaf = path.getLeaf();
         String modelName = akubraRepository.re().getModel(leaf);

@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.json.JSONException;
 
 import com.google.inject.Inject;

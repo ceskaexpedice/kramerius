@@ -16,7 +16,6 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
 
 /**
  * Implementation can cache full images in memory. <br> 
@@ -57,7 +56,7 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	}
 
 	@Override
-	public void prepareCacheForPID(String uuid) throws IOException, ProcessSubtreeException {
+	public void prepareCacheForPID(String uuid) throws IOException {
 		this.wrappingInstance.prepareCacheForPID(uuid);
 	}
 
@@ -111,7 +110,7 @@ public class SimpleMemoryCacheServiceWrapper implements DeepZoomCacheService {
 	
 
    @Override
-    public void prepareCacheForPID(String pid, int levelOverTileSize) throws IOException, ProcessSubtreeException {
+    public void prepareCacheForPID(String pid, int levelOverTileSize) throws IOException {
        this.wrappingInstance.prepareCacheForPID(pid, levelOverTileSize);
     }
 

@@ -44,7 +44,7 @@ import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
-import org.ceskaexpedice.akubra.utils.ProcessSubtreeException;
+import org.ceskaexpedice.akubra.RepositoryException;
 
 @Deprecated
 public class GeneratePDFServlet extends GuiceServlet {
@@ -132,11 +132,6 @@ public class GeneratePDFServlet extends GuiceServlet {
                 "{" + "errorType:'maxpage',\n"
                         + "redirect:'pdfmaxpageserror.jsp',\n" + "returnUrl:'"
                         + req.getParameter("redirectURL") + "'" + "}");
-    }
-
-    public void renderPDF(HttpServletRequest req, HttpServletResponse resp)
-            throws MalformedURLException, IOException, ProcessSubtreeException {
-
     }
 
     public enum FirstPage {
@@ -233,7 +228,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     } catch (IOException e1) {
                         LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     }
-                } catch (ProcessSubtreeException e) {
+                } catch (RepositoryException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     try {
                         renderGenericError(request, response);
@@ -376,7 +371,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     } catch (IOException e1) {
                         LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     }
-                } catch (ProcessSubtreeException e) {
+                } catch (RepositoryException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     try {
                         renderGenericError(request, response);

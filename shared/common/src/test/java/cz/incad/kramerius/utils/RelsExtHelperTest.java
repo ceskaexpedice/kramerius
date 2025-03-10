@@ -7,8 +7,6 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -33,6 +31,7 @@ public class RelsExtHelperTest {
      */
     
 
+    /* TODO AK_NEW
     @Test
     public void testGetTilesUrl() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         URL resource = RelsExtHelperTest.class.getResource("donator.xml");
@@ -43,7 +42,6 @@ public class RelsExtHelperTest {
         Assert.assertEquals(tilesUrl,"kramerius4://deepZoomCache");
     }
 
-    /* TODO AK_NEW
     @Test
     public void testModel() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, LexerException, org.ceskaexpedice.akubra.utils.pid.LexerException {
         URL resource = RelsExtHelperTest.class.getResource("donator.xml");

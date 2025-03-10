@@ -15,8 +15,6 @@ import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.kramerius.processes.starter.*;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
-import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -127,7 +125,7 @@ public class ExportServiceImpl implements ExportService {
     @Override
     public void exportTree(String pid) throws IOException {
 
-        List<String> pids = akubraRepository.re().getPids(pid);
+        List<String> pids = akubraRepository.re().getPidsInTree(pid);
         if (pids.isEmpty())
             return;
 

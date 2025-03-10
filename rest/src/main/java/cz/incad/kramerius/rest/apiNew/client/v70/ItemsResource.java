@@ -34,7 +34,6 @@ import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
-import org.ceskaexpedice.akubra.utils.RelsExtStructureInfoUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.dom4j.*;
 import org.json.JSONException;
@@ -296,7 +295,7 @@ public class ItemsResource extends ClientApiResource {
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            return Response.ok(RelsExtStructureInfoUtils.extractStructureInfo(this.akubraRepository, pid)).build();
+            return Response.ok(akubraRepository.re().extractStructureInfo(pid)).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {

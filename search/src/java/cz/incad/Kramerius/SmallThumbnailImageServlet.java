@@ -9,7 +9,6 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.utils.RelsExtUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +46,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
         OutputFormats outputFormat = null;
         String pid = req.getParameter(UUID_PARAMETER);
         // TODO: Change it !!
-        pid = akubraRepository.re().getFirstViewablePid(pid);
+        pid = akubraRepository.re().getFirstViewablePidInTree(pid);
 
         String outputFormatParam = req.getParameter(OUTPUT_FORMAT_PARAMETER);
         if (outputFormatParam != null) {
