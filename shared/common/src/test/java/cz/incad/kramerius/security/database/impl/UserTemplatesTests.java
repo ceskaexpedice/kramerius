@@ -16,35 +16,15 @@
  */
 package cz.incad.kramerius.security.database.impl;
 
-import java.sql.SQLSyntaxErrorException;
-import java.util.Stack;
-
-import junit.framework.Assert;
-
-import org.antlr.stringtemplate.StringTemplate;
-import org.easymock.EasyMock;
 import org.junit.Ignore;
-import org.junit.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
-import cz.incad.kramerius.security.CriteriumType;
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.RightCriteriumWrapper;
-import cz.incad.kramerius.security.RightCriteriumWrapperFactory;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
 import cz.incad.kramerius.security.guice.MockGuiceSecurityModule;
 import cz.incad.kramerius.security.guice.MockRightCriteriumContextGuiceMudule;
-import cz.incad.kramerius.security.impl.RoleImpl;
-import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
-import cz.incad.kramerius.security.impl.RightImpl;
-import cz.incad.kramerius.security.impl.criteria.MovingWall;
 import cz.incad.kramerius.security.impl.http.MockGuiceSecurityHTTPModule;
-import cz.incad.kramerius.utils.WhitespaceUtility;
 
 @Ignore
 public class UserTemplatesTests extends AbstractGuiceTestCase {

@@ -133,7 +133,7 @@ public class CollectionsResource extends AdminApiResource {
             }
             collection.pid = "uuid:" + UUID.randomUUID().toString();
             Document foxml = foxmlBuilder.buildFoxml(collection, null);
-            akubraRepository.ingest(org.ceskaexpedice.akubra.utils.Dom4jUtils.foxmlDocToDigitalObject(foxml, akubraRepository));
+            akubraRepository.ingest(Dom4jUtils.foxmlDocToDigitalObject(foxml, akubraRepository));
             //schedule reindexation - new collection (only object)
             scheduleReindexation(collection.pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
             return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();

@@ -27,12 +27,15 @@ import cz.incad.kramerius.security.SecuredActions;
 public class CriteriumsLoader {
     
     public static List<String> criteriumClasses() {
-        return Arrays.asList(MovingWall.class.getName(), 
+        /* TODO AK_NEW
+        return Arrays.asList(MovingWall.class.getName(),
                 StrictIPAddresFilter.class.getName(), 
                 DefaultIPAddressFilter.class.getName(), 
                 PolicyFlag.class.getName(),
                 CoverAndContentFilter.class.getName()
                 );
+
+         */return new ArrayList<>();
     }
     
     public static List<RightCriterium> criteriums() throws InstantiationException, IllegalAccessException, ClassNotFoundException {

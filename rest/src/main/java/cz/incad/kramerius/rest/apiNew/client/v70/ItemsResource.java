@@ -1536,6 +1536,7 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
+    // TODO AK_NEW
     private String getPidOfFirstChild(String pid) {
         Document relsExt = akubraRepository.re().get(pid).asDom4j(false);
         String xpathExpr = "//hasPage|//hasUnit|//hasVolume|//hasItem|//hasSoundUnit|//hasTrack|//containsTrack|//hasIntCompPart|//isOnPage|//contains";

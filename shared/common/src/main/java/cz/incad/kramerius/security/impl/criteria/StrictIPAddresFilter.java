@@ -27,7 +27,7 @@ import cz.incad.kramerius.security.*;
  */
 public class StrictIPAddresFilter extends AbstractIPAddressFilter implements RightCriterium {
     
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(MovingWall.class.getName());
+    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(StrictIPAddresFilter.class.getName());
     
 
     @Override
