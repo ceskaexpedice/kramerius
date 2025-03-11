@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
 import org.w3c.dom.Document;
 
@@ -27,7 +28,7 @@ import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
-import cz.incad.kramerius.relation.RelationUtils;
+//import cz.incad.kramerius.relation.RelationUtils;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.utils.NaturalOrderCollator;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -126,7 +127,7 @@ public class SortingServiceImpl implements SortingService {
         for (String pid : pids) {
             String sortingValue = null;
             try {
-                Document mods = RelationUtils.getMods(pid, akubraRepository);
+                Document mods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(true);
                 sortingValue = expr.evaluate(mods);
             } catch (Exception e) {
                 //ignore, will be logged in next step  (sortingValue test)

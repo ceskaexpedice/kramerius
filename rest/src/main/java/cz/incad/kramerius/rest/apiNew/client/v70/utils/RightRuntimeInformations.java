@@ -7,7 +7,7 @@ import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
+import cz.incad.kramerius.security.impl.criteria.Licenses;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.utils.LicensesCriteriaList;
 import org.apache.commons.lang3.tuple.Triple;
@@ -63,8 +63,8 @@ public class RightRuntimeInformations {
                             LicensesCriteria(qName)
                     ) {
                         Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
-                        if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_LABEL)) {
-                            licenseList.add(evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_LABEL));
+                        if (evaluateInfoMap.containsKey(Licenses.PROVIDED_BY_LABEL)) {
+                            licenseList.add(evaluateInfoMap.get(Licenses.PROVIDED_BY_LABEL));
                         }
                         
                         if (evaluateInfoMap.containsKey(ExclusiveLockMap.LOCK_HASH)) {

@@ -3,7 +3,6 @@ package cz.incad.kramerius.statistics.accesslogs.solr;
 import static org.apache.http.HttpStatus.SC_OK;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -23,6 +22,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.security.impl.criteria.Licenses;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
@@ -51,7 +51,6 @@ import cz.incad.kramerius.pdf.utils.ModsUtils;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
@@ -183,10 +182,10 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                     JSONObject evaluateMap =   new JSONObject(evaluateInfoMap);
                     logRecord.setEvaluatedMap(evaluateMap.toString());
                     String providedByLicense = null;
-                    if (evaluateMap.has(ReadDNNTLabels.PROVIDED_BY_LICENSE)) {
-                        providedByLicense = evaluateMap.getString(ReadDNNTLabels.PROVIDED_BY_LICENSE);
-                    } else if (evaluateMap.has(ReadDNNTLabels.PROVIDED_BY_LABEL)) {
-                        providedByLicense = evaluateMap.getString(ReadDNNTLabels.PROVIDED_BY_LABEL);
+                    if (evaluateMap.has(Licenses.PROVIDED_BY_LICENSE)) {
+                        providedByLicense = evaluateMap.getString(Licenses.PROVIDED_BY_LICENSE);
+                    } else if (evaluateMap.has(Licenses.PROVIDED_BY_LABEL)) {
+                        providedByLicense = evaluateMap.getString(Licenses.PROVIDED_BY_LABEL);
                     }
                     if (providedByLicense != null) {
                         logRecord.setProvidedByLicense(providedByLicense);

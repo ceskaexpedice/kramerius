@@ -23,9 +23,8 @@ import cz.incad.kramerius.security.licenses.License;
 public class Licenses extends AbstractCriterium implements RightCriteriumLabelAware{
     
     // backward compatibility
-    public static final String PROVIDED_BY_DNNT_LABEL = "providedByLabel";
-
-    public static final String PROVIDED_BY_DNNT_LICENSE = "providedByLicense";
+    public static final String PROVIDED_BY_LABEL = "providedByLabel";
+    public static final String PROVIDED_BY_LICENSE = "providedByLicense";
 
     public transient static final Logger LOGGER = Logger.getLogger(Licenses.class.getName());
 
@@ -48,8 +47,8 @@ public class Licenses extends AbstractCriterium implements RightCriteriumLabelAw
                         if (lic.exclusiveLockPresent()) {
                             return CriteriaLicenseUtils.licenseLock(right, ctx, pid, lic);
                         } else {
-                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LABEL, getLicense().getName());
-                            getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LICENSE, getLicense().getName());
+                            getEvaluateContext().getEvaluateInfoMap().put(PROVIDED_BY_LABEL, getLicense().getName());
+                            getEvaluateContext().getEvaluateInfoMap().put(PROVIDED_BY_LICENSE, getLicense().getName());
                             return EvaluatingResultState.TRUE;
                         }
                     }

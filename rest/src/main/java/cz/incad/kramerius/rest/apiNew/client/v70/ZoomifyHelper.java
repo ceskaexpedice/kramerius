@@ -213,8 +213,7 @@ public class ZoomifyHelper {
 
     private Response renderImagePropertiesXml(String uuid, Response.ResponseBuilder resp, String tilesUrl) throws IOException {
         if (useFromReplicated()) { //use zoom servlet from replicated instance
-            Document relsEXT = akubraRepository.re().get(uuid).asDom(false);
-            tilesUrl = getZoomifyBaseUrlFromSomeReplicationSource(relsEXT, uuid);
+            tilesUrl = getZoomifyBaseUrlFromSomeReplicationSource(uuid);
         }
         if (tilesUrl == null) {
             throw new IOException("tiles-url not found");
@@ -363,8 +362,7 @@ public class ZoomifyHelper {
 
     private Response renderTile(String uuid, int tileGroup, int level, int x, int y, Response.ResponseBuilder resp, String tilesUrl) throws IOException {
         if (useFromReplicated()) {
-            Document relsEXT = akubraRepository.re().get(uuid).asDom(false);
-            tilesUrl = getZoomifyBaseUrlFromSomeReplicationSource(relsEXT, uuid);
+            tilesUrl = getZoomifyBaseUrlFromSomeReplicationSource(uuid);
         }
         if (tilesUrl == null) {
             throw new IOException("tiles-url not found");
@@ -378,9 +376,9 @@ public class ZoomifyHelper {
     /**
      * see cz.incad.Kramerius.imaging.utils.ZoomChangeFromReplicated
      */
-    private String getZoomifyBaseUrlFromSomeReplicationSource(Document relsExt, String pid) {
+    private String getZoomifyBaseUrlFromSomeReplicationSource(String pid) {
         //TODO: uses old ZoomifyServlet
-        String replicatedFrom = getFirstReplicatedFrom(relsExt);
+        String replicatedFrom = getFirstReplicatedFrom(pid);
         if (replicatedFrom != null) {
             int indexOf = replicatedFrom.indexOf("/handle/");
             String app = replicatedFrom.substring(0, indexOf);
@@ -410,7 +408,9 @@ public class ZoomifyHelper {
      * @param relsExt
      * @return
      */
-    private String getFirstReplicatedFrom(Document relsExt) {
+    private String getFirstReplicatedFrom(String pid) {
+        return akubraRepository.re().getFirstReplicatedFrom(pid);
+        /* TODO AK_NEW
         Element descElement = XMLUtils.findElement(
                 relsExt.getDocumentElement(), "Description",
                 RepositoryNamespaces.RDF_NAMESPACE_URI);
@@ -424,6 +424,8 @@ public class ZoomifyHelper {
             }
         }
         return null;
+
+         */
     }
 
 }

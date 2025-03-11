@@ -297,8 +297,11 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
             checkObjectExists(pid);
+            /* TODO AK_NEW
             Document foxml = akubraRepository.get(pid).asDom4j(true);
             return Response.ok().entity(foxml.asXML()).build();
+             */
+            return Response.ok(akubraRepository.get(pid).asInputStream()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {

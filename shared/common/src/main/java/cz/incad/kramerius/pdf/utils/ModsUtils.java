@@ -58,31 +58,6 @@ public class ModsUtils {
 //    }
     
 
-    public static Map<String, String> getTitleInfo(String pid, AkubraRepository akubraRepository) throws XPathExpressionException, IOException {
-        Map<String, String> map = new HashMap<String, String>();
-        Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
-        XPath xpath = FACTORY.newXPath();
-        xpath.setNamespaceContext(new RepositoryNamespaceContext());
-        XPathExpression expr = xpath.compile("//mods:titleInfo/mods:title");
-        NodeList set = (NodeList) expr.evaluate(biblioMods, XPathConstants.NODESET);
-        for (int i = 0,ll=set.getLength(); i < ll; i++) {
-            Node node = set.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                Element elm = (Element) node;
-                if (elm.hasAttributeNS(RepositoryNamespaces.BIBILO_MODS_URI, "type")) {
-                    String type = elm.getAttributeNS(RepositoryNamespaces.BIBILO_MODS_URI,"type");
-                    map.put(type, elm.getTextContent().trim());
-                } else {
-                    if (!map.containsKey("default")) {
-                        map.put("default", elm.getTextContent().trim());
-                    }
-                }
-            }
-        }
-        return map;
-    }
-    
-    
     public static List<String> languagesFromMods(org.w3c.dom.Document mods) throws XPathExpressionException, IOException {
         ArrayList<String> languages  = new ArrayList<String>();
         XPath xpath = FACTORY.newXPath();

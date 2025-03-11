@@ -44,10 +44,10 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
             String pid = getEvaluateContext().getRequestedPid();
             if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
                 if ("page".equals(akubraRepository.re().getModel(pid))) {
-                    Document mods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(true);
-                    if (checkTypeElement(mods).equals(EvaluatingResultState.TRUE))
+                    String modsPartType = akubraRepository.mi().getModsPartType(pid);
+                    if (checkTypeElement(modsPartType).equals(EvaluatingResultState.TRUE))
                         return isNotPeriodical(pid);
-                    return checkTypeElement(mods);
+                    return checkTypeElement(modsPartType);
                 } else {
                     return EvaluatingResultState.NOT_APPLICABLE;
                 }
@@ -60,7 +60,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
         }
     }
 
-    private EvaluatingResultState checkTypeElement(Document mods) throws IOException {
+    private EvaluatingResultState checkTypeElement(String mods) throws IOException {
         try {
             if (modsTypeExpr == null)
                 initModsTypeExpr();

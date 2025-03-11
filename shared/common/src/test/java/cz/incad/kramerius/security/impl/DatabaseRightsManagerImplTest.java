@@ -2,8 +2,6 @@ package cz.incad.kramerius.security.impl;
 
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.database.SecurityDatabaseUtils;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
-import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 import org.antlr.stringtemplate.StringTemplate;
 import org.junit.Test;
 
@@ -14,6 +12,7 @@ import java.util.stream.Collectors;
 
 public class DatabaseRightsManagerImplTest {
 
+    /* TODO AK_NEW
     @Test
     public void testupdateRightImpl() {
         RightCriterium criterium = new ReadDNNTLabels();
@@ -29,6 +28,8 @@ public class DatabaseRightsManagerImplTest {
         System.out.println(sql);
 
     }
+
+     */
 
     @Test
     public void testFindAllRightByCriteriumNames() {

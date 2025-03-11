@@ -56,9 +56,9 @@ public class CriteriaLicenseUtils {
             if (LicensesCriteriaList.NAMES
                     .contains(obj.getRight().getCriteriumWrapper().getRightCriterium().getQName())) {
 
-                String providedByLicense = obj.getEvaluateInfoMap().get(ReadDNNTLabels.PROVIDED_BY_LICENSE);
+                String providedByLicense = obj.getEvaluateInfoMap().get(Licenses.PROVIDED_BY_LICENSE);
                 if (providedByLicense == null) {
-                    providedByLicense = obj.getEvaluateInfoMap().get(ReadDNNTLabels.PROVIDED_BY_LABEL);
+                    providedByLicense = obj.getEvaluateInfoMap().get(Licenses.PROVIDED_BY_LABEL);
                 }
 
                 return license != null && license.getName() != null && providedByLicense != null
@@ -154,8 +154,8 @@ public class CriteriaLicenseUtils {
                 if (item != null) {
                     boolean validitem = item.isValid(Instant.now());
                     if (validitem) {
-                        ctx.getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LABEL, lic.getName());
-                        ctx.getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LICENSE, lic.getName());
+                        ctx.getEvaluateInfoMap().put(Licenses.PROVIDED_BY_LABEL, lic.getName());
+                        ctx.getEvaluateInfoMap().put(Licenses.PROVIDED_BY_LICENSE, lic.getName());
                         return EvaluatingResultState.TRUE;
                     } else {
                         // no valid
