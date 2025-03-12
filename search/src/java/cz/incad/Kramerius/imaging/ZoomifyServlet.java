@@ -42,7 +42,6 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
-import org.ceskaexpedice.akubra.relsext.RelsExtHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;

@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.relsext.RelsExtHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
