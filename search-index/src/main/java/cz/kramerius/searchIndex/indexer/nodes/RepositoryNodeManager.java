@@ -7,11 +7,12 @@ import cz.kramerius.shared.Title;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.processingindex.ChildrenRelationPair;
+import org.ceskaexpedice.akubra.processingindex.ParentsRelationPair;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.dom4j.Document;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -82,24 +83,27 @@ public class RepositoryNodeManager {
                 return null;
             }
             //System.out.println("building node for " + pid);
-            Pair<String, Set<String>> parents = ProcessingIndexUtils.getPidsOfParents(pid, akubraRepository);
+            ParentsRelationPair parents = akubraRepository.pi().getParentsRelation(pid);
             //process parents first
-            RepositoryNode ownParent = parents.getLeft() == null ? null : getKrameriusNodeWithCycleDetection(parents.getLeft(), path);
+            RepositoryNode ownParent = parents.own() == null ? null : getKrameriusNodeWithCycleDetection(parents.own().source(), path);
             List<RepositoryNode> fosterParents = new ArrayList<>();
-            for (String fosterParent : parents.getRight()) {
-                fosterParents.add(getKrameriusNodeWithCycleDetection(fosterParent, path));
+            for (ProcessingIndexItem fosterParent : parents.foster()) {
+                fosterParents.add(getKrameriusNodeWithCycleDetection(fosterParent.source(), path));
             }
 
             Document relsExtDoc = akubraRepository.re().get(pid).asDom4j(false);
             //String model = KrameriusRepositoryUtils.extractKrameriusModelName(relsExtDoc);
-            String model = ProcessingIndexUtils.getModel(pid, akubraRepository);
-            List<String> ownChildren = null;
-            List<String> fosterChildren = null;
+            String model = akubraRepository.pi().getModel(pid);
+            List<String> ownChildren = new ArrayList<>();
+            List<String> fosterChildren = new ArrayList<>();
             if (!"page".equals(model) && !"track".equals(model)) { //just optimization, pages and tracks never have children
-                //Pair<List<String>, List<String>> children = KrameriusRepositoryUtils.extractChildren(relsExtDoc);
-                Pair<List<String>, List<String>> children = ProcessingIndexUtils.getPidsOfChildren(pid, akubraRepository);
-                ownChildren = children.getLeft();
-                fosterChildren = children.getRight();
+                ChildrenRelationPair children = akubraRepository.pi().getChildrenRelation(pid);
+                for(ProcessingIndexItem processingIndexItem: children.own()){
+                    ownChildren.add(processingIndexItem.targetPid());
+                }
+                for(ProcessingIndexItem processingIndexItem: children.foster()){
+                    fosterChildren.add(processingIndexItem.targetPid());
+                }
             }
             //System.out.println("own children: " + (ownChildren == null? null : ownChildren.size()));
             Document modsDoc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom4j(false);

@@ -34,8 +34,9 @@ import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.LockOperation;
 import org.ceskaexpedice.akubra.ObjectProperties;
 import org.ceskaexpedice.akubra.RepositoryException;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndexRelation;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.processingindex.ChildrenRelationPair;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
+import org.ceskaexpedice.akubra.processingindex.SizeItemsPair;
 import org.ceskaexpedice.akubra.relsext.KnownRelations;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.Attribute;
@@ -194,11 +195,11 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_READ); //403
             }
 
-            org.apache.commons.lang3.tuple.Pair<Long, List<String>> pidsOfObjectsByModel = ProcessingIndexUtils.getPidsOfObjectsByModel("collection", prefix, Integer.parseInt(rows), Integer.parseInt(page), akubraRepository);
+            SizeItemsPair pidsOfObjectsByModel = akubraRepository.pi().getByModel("collection", prefix, Integer.parseInt(rows), Integer.parseInt(page));
             JSONArray collections = new JSONArray();
-            for (String pid : pidsOfObjectsByModel.getRight()) {
+            for (ProcessingIndexItem item : pidsOfObjectsByModel.items()) {
                 try {
-                    Collection collection = fetchCollectionFromRepository(pid, false, false);
+                    Collection collection = fetchCollectionFromRepository(item.source(), false, false);
                     collections.put(collection.toJson());
                 } catch (RepositoryException e) {
                     //ignoring broken collection and still returning other collections (instead of error response)
@@ -206,7 +207,7 @@ public class CollectionsResource extends AdminApiResource {
                 }
             }
             JSONObject result = new JSONObject();
-            result.put("total_size", pidsOfObjectsByModel.getLeft());
+            result.put("total_size", pidsOfObjectsByModel.size());
             result.put("collections", collections);
             return Response.ok(result.toString()).build();
         } catch (WebApplicationException e) {
@@ -240,19 +241,19 @@ public class CollectionsResource extends AdminApiResource {
 
             // TODO: this kind of sync ??
             synchronized (CollectionsResource.class) {
-                List<String> pids = null;
+                List<ProcessingIndexItem> pids = null;
                 if (itemPid != null) {
                     checkSupportedObjectPid(itemPid);
                     checkObjectExists(itemPid);
                     //  not support rows and page
-                    pids = ProcessingIndexUtils.getTripletSources(KnownRelations.CONTAINS.toString(), itemPid, akubraRepository);
+                    pids = akubraRepository.pi().getParents(KnownRelations.CONTAINS.toString(), itemPid);
                 } else {
-                    pids = ProcessingIndexUtils.getPidsOfObjectsByModel("collection", akubraRepository);
+                    pids = akubraRepository.pi().getByModel("collection", null, Integer.MAX_VALUE, 0).items();
                 }
                 JSONArray collections = new JSONArray();
-                for (String pid : pids) {
+                for (ProcessingIndexItem pid : pids) {
                     try {
-                        Collection collection = fetchCollectionFromRepository(pid, false, false);
+                        Collection collection = fetchCollectionFromRepository(pid.source(), false, false);
                         collections.put(collection.toJson());
                     } catch (RepositoryException e) {
                         //ignoring broken collection and still returning other collections (instead of error response)
@@ -362,13 +363,17 @@ public class CollectionsResource extends AdminApiResource {
                 }
                 if (!current.equalsInDataModifiableByClient(updated)) {
                     //fetch items in collection first (otherwise eventual consistency of processing index would cause no items in new version of rels-ext)
-                    List<String> itemsInCollection = ProcessingIndexUtils.getTripletTargets(KnownRelations.CONTAINS.toString(), pid, akubraRepository);
+                    List<ProcessingIndexItem> itemsInCollection = akubraRepository.pi().getChildren(KnownRelations.CONTAINS.toString(), pid);
                     //rebuild and update mods
                     Document document = foxmlBuilder.buildMods(updated);
                     ByteArrayInputStream bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
                     akubraRepository.updateXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS, "text/xml", bis);
                     //rebuild and update rels-ext (because of "standalone")
-                    document = foxmlBuilder.buildRelsExt(updated, itemsInCollection);
+                    List<String> pids = new ArrayList<>();
+                    for(ProcessingIndexItem item: itemsInCollection){
+                        pids.add(item.targetPid());
+                    }
+                    document = foxmlBuilder.buildRelsExt(updated, pids);
                     bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
                     akubraRepository.re().update(pid, bis);
                     //schedule reindexation - (only collection object)
@@ -597,7 +602,7 @@ public class CollectionsResource extends AdminApiResource {
             throw new ForbiddenException("cannot add collection into itself: " + collectionPid);
         }
         //detect cycle
-        if ("collection".equals(ProcessingIndexUtils.getModel(itemPid, akubraRepository))) {
+        if ("collection".equals(akubraRepository.pi().getModel(itemPid))) {
             String cyclicPath = findCyclicPath(itemPid, collectionPid, String.format("%s --contains--> %s", collectionPid, itemPid));
             if (cyclicPath != null) {
                 throw new ForbiddenException("adding item to collection would create cycle: " + cyclicPath);
@@ -606,18 +611,18 @@ public class CollectionsResource extends AdminApiResource {
     }
 
     private boolean isModelCollection(String collectionPid) {
-        return "collection".equals(ProcessingIndexUtils.getModel(collectionPid, akubraRepository));
+        return "collection".equals(akubraRepository.pi().getModel(collectionPid));
     }
 
     private String findCyclicPath(String pid, String pidOfObjectNotAllowedOnPath, String pathSoFar) {
-        org.apache.commons.lang3.tuple.Pair<List<ProcessingIndexRelation>, List<ProcessingIndexRelation>> children = ProcessingIndexUtils.getChildren(pid, akubraRepository);
-        List<ProcessingIndexRelation> fosterChildrenTriplets = children.getRight();
-        for (ProcessingIndexRelation triplet : fosterChildrenTriplets) {
-            String path = String.format("%s --%s--> %s ", pathSoFar, triplet.getRelation(), triplet.getTarget());
-            if (pidOfObjectNotAllowedOnPath.equals(triplet.getTarget())) {
+        ChildrenRelationPair children = akubraRepository.pi().getChildrenRelation(pid);
+        List<ProcessingIndexItem> fosterChildrenTriplets = children.foster();
+        for (ProcessingIndexItem triplet : fosterChildrenTriplets) {
+            String path = String.format("%s --%s--> %s ", pathSoFar, triplet.relation(), triplet.targetPid());
+            if (pidOfObjectNotAllowedOnPath.equals(triplet.targetPid())) {
                 throw new ForbiddenException("adding item to collection would create cycle: " + path);
             } else {
-                String cyclicPathFound = findCyclicPath(triplet.getTarget(), pidOfObjectNotAllowedOnPath, path);
+                String cyclicPathFound = findCyclicPath(triplet.targetPid(), pidOfObjectNotAllowedOnPath, path);
                 if (cyclicPathFound != null) {
                     return cyclicPathFound;
                 }
@@ -748,7 +753,7 @@ public class CollectionsResource extends AdminApiResource {
 
     private void checkCanRemoveItemFromCollection(String itemPid, String collectionPid) throws SolrServerException, RepositoryException, IOException {
         //pid of object that item is to be removed from must belong to collection
-        if (!"collection".equals(ProcessingIndexUtils.getModel(collectionPid, akubraRepository))) {
+        if (!"collection".equals(akubraRepository.pi().getModel(collectionPid))) {
             throw new ForbiddenException("not a collection: " + collectionPid);
         }
         //cannot remove collection from itself
@@ -778,14 +783,14 @@ public class CollectionsResource extends AdminApiResource {
             }
 
             //extract children before deleting collection
-            org.apache.commons.lang3.tuple.Pair<List<ProcessingIndexRelation>, List<ProcessingIndexRelation>> childrenTpls = ProcessingIndexUtils.getChildren(pid, akubraRepository);
+            ChildrenRelationPair childrenTpls = akubraRepository.pi().getChildrenRelation(pid);
             List<String> childrenPids = new ArrayList<>();
-            for (ProcessingIndexRelation ownChildTpl : childrenTpls.getLeft()) {
-                String childPid = ownChildTpl.getTarget();
+            for (ProcessingIndexItem ownChildTpl : childrenTpls.own()) {
+                String childPid = ownChildTpl.targetPid();
                 childrenPids.add(childPid);
             }
-            for (ProcessingIndexRelation fosterChildTpl : childrenTpls.getRight()) {
-                String childPid = fosterChildTpl.getTarget();
+            for (ProcessingIndexItem fosterChildTpl : childrenTpls.foster()) {
+                String childPid = fosterChildTpl.targetPid();
                 childrenPids.add(childPid);
             }
             //delete collection object form repository (not managed datastreams, since those for IMG_THUMB are referenced from other objects - pages)
@@ -1129,9 +1134,13 @@ public class CollectionsResource extends AdminApiResource {
         Document relsExt = akubraRepository.re().get(pid).asDom4j(false);
         collection.standalone = Boolean.valueOf(Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//standalone"));
 
-        List<String> items = ProcessingIndexUtils.getTripletTargets(KnownRelations.CONTAINS.toString(), pid, akubraRepository);
+        List<ProcessingIndexItem> items = akubraRepository.pi().getChildren(KnownRelations.CONTAINS.toString(), pid);
+        List<String> pids = new ArrayList<>();
+        for(ProcessingIndexItem item: items){
+            pids.add(item.targetPid());
+        }
         if (withItems) {
-            collection.items = items;
+            collection.items = pids;
         }
 
         List<String> streams = akubraRepository.getDatastreamNames(pid);

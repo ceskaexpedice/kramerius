@@ -22,7 +22,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -61,11 +61,9 @@ public class DeleteServiceImpl implements DeleteService {
 
         List<String> pids = akubraRepository.re().getPidsInTree(pid);
         for (String deletingPids : pids) {
-            List<Pair<String, String>> pairs = ProcessingIndexUtils.findByTargetPid(pid, akubraRepository);
-            for (Pair<String, String> p : pairs) {
-                String right = p.getRight();
-                String left = p.getLeft();
-                repo.re().removeRelation(left, right, RepositoryNamespaces.KRAMERIUS_URI, deletingPids);
+            List<ProcessingIndexItem> pairs = akubraRepository.pi().getParents(pid);
+            for (ProcessingIndexItem p : pairs) {
+                repo.re().removeRelation(p.source(), p.relation(), RepositoryNamespaces.KRAMERIUS_URI, deletingPids);
             }
         }
 
@@ -88,8 +86,9 @@ public class DeleteServiceImpl implements DeleteService {
             spawnIndexRemover(pid);
         }
 
-        Set<String> parents = ProcessingIndexUtils.getPidsOfParents(pid, akubraRepository).getRight();
-        for (String parentPid : parents) {
+        List<ProcessingIndexItem> parents = akubraRepository.pi().getParentsRelation(pid).foster();
+        for (ProcessingIndexItem processingIndexItem : parents) {
+            String parentPid = processingIndexItem.source();
             boolean parentRemoved = false;
 
             String finalParentPid = parentPid;
@@ -149,9 +148,9 @@ public class DeleteServiceImpl implements DeleteService {
         ProcessStarter.updateName("Mazání objektu '" + (dcConent != null ? dcConent.getTitle() : "bez názvu") + "'");
 
 
-        ProcessingIndexUtils.doWithProcessingIndexCommit(inst.akubraRepository, (repo) -> {
+        akubraRepository.pi().doWithCommit(() -> {
             try {
-                inst.deleteTree(repo, args[0], args[1], "Marked as deleted", args.length > 2 ? Boolean.parseBoolean(args[2]) : false, args.length > 3 ? Boolean.parseBoolean(args[3]) : true);
+                inst.deleteTree(akubraRepository, args[0], args[1], "Marked as deleted", args.length > 2 ? Boolean.parseBoolean(args[2]) : false, args.length > 3 ? Boolean.parseBoolean(args[3]) : true);
             } catch (IOException e) {
                 throw new RepositoryException(e);
             } catch (SolrServerException e) {

@@ -15,8 +15,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndexRelation;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.impl.utils.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.processingindex.ChildrenRelationPair;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -159,10 +160,10 @@ public class RemovePolicyProcess {
 
                 boolean noErros = true;
                 if (includingDescendants) {
-                    Pair<List<ProcessingIndexRelation>, List<ProcessingIndexRelation>> children = ProcessingIndexUtils.getChildren(pid, repository);
-                    if (children.getLeft() != null && !children.getLeft().isEmpty()) {
-                        for (ProcessingIndexRelation triplet : children.getLeft()) {
-                            String childPid = triplet.getTarget();
+                     ChildrenRelationPair children = repository.pi().getChildrenRelation(pid);
+                    if (children.own() != null && !children.own().isEmpty()) {
+                        for (ProcessingIndexItem processingIndexItem : children.own()) {
+                            String childPid = processingIndexItem.targetPid();
                             noErros &= removePolicy(childPid, includingDescendants, repository);
                         }
                     }

@@ -17,7 +17,8 @@ import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.processingindex.CursorItemsPair;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -129,16 +130,16 @@ public class NewIndexerProcessIndexModel {
         String cursor = "*";
         int limit = 100;
         while (cursor != null) {
-            Pair titlePidPairsByModel = ProcessingIndexUtils.getPidsOfObjectsWithTitlesByModelWithCursor(model, true, cursor, limit, akubraRepository);
-            String nextCursorMark = (String) titlePidPairsByModel.getRight();
-            List<Pair<String, String>> titleIdPairs = (List<Pair<String, String>>) titlePidPairsByModel.getLeft();
-            cursor = cursor.equals(titlePidPairsByModel.getRight()) ? null : nextCursorMark;
+            CursorItemsPair titlePidPairsByModel = akubraRepository.pi().getByModelWithCursor(model, true, cursor, limit);
+            String nextCursorMark = titlePidPairsByModel.nextCursor();
+            List<ProcessingIndexItem> titleIdPairs = titlePidPairsByModel.items();
+            cursor = cursor.equals(titlePidPairsByModel.nextCursor()) ? null : nextCursorMark;
             processed += titleIdPairs.size();
-            List<Pair<String, String>> toBeIndexed = filters.indexAll() ? titleIdPairs : filter(solrAccess, titleIdPairs, filters);
+            List<ProcessingIndexItem> toBeIndexed = filters.indexAll() ? titleIdPairs : filter(solrAccess, titleIdPairs, filters);
             nowIgnored += titleIdPairs.size() - toBeIndexed.size();
-            for (Pair<String, String> titlePidPair : toBeIndexed) {
-                String title = titlePidPair.getLeft();
-                String pid = titlePidPair.getRight();
+            for (ProcessingIndexItem titlePidPair : toBeIndexed) {
+                String title = titlePidPair.dcTitle();
+                String pid = titlePidPair.source();
                 //report(String.format("indexing %s: %s", pid, title));
                 try {
                     indexer.indexByObjectPid(pid, type, new ProgressListener() {
@@ -185,14 +186,14 @@ public class NewIndexerProcessIndexModel {
         
     }
 
-    private static List<Pair<String, String>> filter(SolrAccess solrAccess, List<Pair<String, String>> titlePidPairs, Filters filters) throws IOException {
-        List<Pair<String, String>> result = new ArrayList<>();
+    private static List<ProcessingIndexItem> filter(SolrAccess solrAccess, List<ProcessingIndexItem> titlePidPairs, Filters filters) throws IOException {
+        List<ProcessingIndexItem> result = new ArrayList<>();
         if (titlePidPairs.isEmpty()) {
             return result;
         }
         String q = "";
         for (int i = 0; i < titlePidPairs.size(); i++) {
-            String pid = titlePidPairs.get(i).getRight();
+            String pid = titlePidPairs.get(i).source();
             q += "pid:" + pid.replace(":", "\\:");
             if (i != titlePidPairs.size() - 1) {
                 q += " OR ";
@@ -206,9 +207,9 @@ public class NewIndexerProcessIndexModel {
             JSONObject doc = docs.getJSONObject(i);
             docByPid.put(doc.getString("pid"), doc);
         }
-        for (Pair<String, String> titlePidPair : titlePidPairs) {
-            String title = titlePidPair.getLeft();
-            String pid = titlePidPair.getRight();
+        for (ProcessingIndexItem titlePidPair : titlePidPairs) {
+            String title = titlePidPair.dcTitle();
+            String pid = titlePidPair.source();
             JSONObject jsonDoc = docByPid.get(pid);
             boolean inIndex = jsonDoc != null;
             int indexerVersion = jsonDoc == null ? -1 : (jsonDoc.has("indexer_version") ? jsonDoc.getInt("indexer_version") : 0);

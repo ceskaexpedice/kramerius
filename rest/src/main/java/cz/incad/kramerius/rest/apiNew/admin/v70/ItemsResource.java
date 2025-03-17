@@ -18,7 +18,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.processingindex.CursorItemsPair;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.dom4j.Document;
@@ -158,12 +159,13 @@ public class ItemsResource extends AdminApiResource {
                 }
             }
             String nextCursorMark = null;
-            List<org.apache.commons.lang3.tuple.Pair<String, String>> titlePidPairs;
+            List<ProcessingIndexItem> titlePidPairs;
             if (cursor != null) {
-                org.apache.commons.lang3.tuple.Pair pair = ProcessingIndexUtils.getPidsOfObjectsWithTitlesByModelWithCursor(model, ascendingOrder, cursor, limitInt, akubraRepository);
-                nextCursorMark = (String) pair.getRight();
-                titlePidPairs = (List<org.apache.commons.lang3.tuple.Pair<String, String>>) pair.getLeft();
+                CursorItemsPair pair = akubraRepository.pi().getByModelWithCursor(model, ascendingOrder, cursor, limitInt);
+                nextCursorMark = pair.nextCursor();
+                titlePidPairs = pair.items();
             }else{
+                akubraRepository.pi().getByModel(model, ascendingOrder, offsetInt, limitInt);
                 titlePidPairs = ProcessingIndexUtils.getPidsOfObjectsWithTitlesByModel(model, ascendingOrder, offsetInt, limitInt, akubraRepository);
             }
             JSONObject json = new JSONObject();
