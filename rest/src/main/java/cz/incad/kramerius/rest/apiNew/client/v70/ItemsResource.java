@@ -295,7 +295,7 @@ public class ItemsResource extends ClientApiResource {
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            return Response.ok(akubraRepository.re().extractStructureInfo(pid)).build();
+            return Response.ok(akubraRepository.pi().extractStructureInfo(pid)).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -907,7 +907,8 @@ public class ItemsResource extends ClientApiResource {
 
     private boolean shouldUseAudioServer(String pid, AudioFormat audioFormat) {
         try {
-            String type = akubraRepository.getDatastreamMetadata(pid, audioFormat.name()).getType().toString();
+            // TODO AK_NEW String type = akubraRepository.getDatastreamMetadata(pid, audioFormat.name()).getType().toString();
+            String type = null;
             return type != null && type.equals("INDIRECT");
         } catch (RepositoryException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

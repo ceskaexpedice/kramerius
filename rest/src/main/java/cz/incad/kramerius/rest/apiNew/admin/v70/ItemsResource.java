@@ -166,7 +166,7 @@ public class ItemsResource extends AdminApiResource {
                 titlePidPairs = pair.items();
             }else{
                 akubraRepository.pi().getByModel(model, ascendingOrder, offsetInt, limitInt);
-                titlePidPairs = ProcessingIndexUtils.getPidsOfObjectsWithTitlesByModel(model, ascendingOrder, offsetInt, limitInt, akubraRepository);
+                titlePidPairs = akubraRepository.pi().getByModel(model, ascendingOrder, offsetInt, limitInt);
             }
             JSONObject json = new JSONObject();
             json.put("model", model);
@@ -174,10 +174,10 @@ public class ItemsResource extends AdminApiResource {
                 json.put("nextCursor", nextCursorMark);
             }
             JSONArray items = new JSONArray();
-            for (Pair<String, String> pidAndTitle : titlePidPairs) {
+            for (ProcessingIndexItem pidAndTitle : titlePidPairs) {
                 JSONObject item = new JSONObject();
-                item.put("title", pidAndTitle.getLeft());
-                item.put("pid", pidAndTitle.getRight());
+                item.put("title", pidAndTitle.dcTitle());
+                item.put("pid", pidAndTitle.source());
                 items.put(item);
             }
             json.put("items", items);
@@ -456,7 +456,7 @@ public class ItemsResource extends AdminApiResource {
             }
 
             checkObjectExists(pid);
-            String model = ProcessingIndexUtils.getModel(pid, akubraRepository);
+            String model = akubraRepository.pi().getModel(pid);
             //other objects can reference images belonging to other objects (pages),
             //some of the reference are managed, so deleting for example collection should not include deleting file with thumbnail
             boolean deleteManagedDatastreamsData = "page".equals(model);
@@ -741,7 +741,7 @@ public class ItemsResource extends AdminApiResource {
             //check target object
             checkSupportedObjectPid(targetPid);
             checkObjectExists(targetPid);
-            String targetModel = ProcessingIndexUtils.getModel(targetPid, akubraRepository);
+            String targetModel = akubraRepository.pi().getModel(targetPid);
             if ("page".equals(targetModel)) {
                 throw new BadRequestException("target's model cannot be page (target is %s)", targetPid);
             }
@@ -751,7 +751,7 @@ public class ItemsResource extends AdminApiResource {
             }
             checkSupportedObjectPid(sourcePid);
             checkObjectExists(sourcePid);
-            String sourceModel = ProcessingIndexUtils.getModel(sourcePid, akubraRepository);
+            String sourceModel = akubraRepository.pi().getModel(sourcePid);
             if (!"page".equals(sourceModel)) {
                 throw new BadRequestException("source's model must be page (source is %s with model:%s)", targetPid, sourceModel);
             }

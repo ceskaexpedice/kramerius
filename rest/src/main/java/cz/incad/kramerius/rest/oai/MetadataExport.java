@@ -485,7 +485,7 @@ public enum MetadataExport {
                 Element biblioRoots = (Element) owningDocument.adoptNode(biblio.getDocumentElement());
                 drDescriptor.appendChild(biblioRoots);
 
-                List<RelsExtRelation> relations = akubraRepository.re().getRelations(pid);
+                List<RelsExtRelation> relations = akubraRepository.re().getRelations(pid, null);
                 for (RelsExtRelation relation : relations) {
                     if (!excludeModels.contains(relation.getLocalName())) {
                         Element drRelation = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:relation");

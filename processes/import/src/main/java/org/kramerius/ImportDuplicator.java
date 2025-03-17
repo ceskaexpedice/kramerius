@@ -32,7 +32,6 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
 import org.ceskaexpedice.akubra.relsext.RelsExtLiteral;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
 import org.ceskaexpedice.fedoramodel.DatastreamType;
@@ -260,7 +259,7 @@ public class ImportDuplicator {
             return;
         }
         String pid = ingested.get(0).subject.substring("info:fedora/".length());
-        ProcessingIndexUtils.doWithProcessingIndexCommit(akubraRepository, (repo)->{
+        akubraRepository.pi().doWithCommit(()->{
             List<RelsExtRelation> relations = akubraRepository.re().getRelations(pid,null);
             List<RelsExtLiteral> literals = akubraRepository.re().getLiterals(pid,null);
 

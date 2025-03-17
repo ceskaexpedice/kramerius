@@ -19,7 +19,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryException;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndexUtils;
+import org.ceskaexpedice.akubra.processingindex.ChildrenRelationPair;
+import org.ceskaexpedice.akubra.processingindex.ParentsRelationPair;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -114,31 +116,31 @@ public class DeleteTreeProcess {
         if (!skipP) {
 
             //1. potomci
-            Pair<List<String>, List<String>> pidsOfChildren = ProcessingIndexUtils.getPidsOfChildren(pid, akubraRepository);
+            ChildrenRelationPair pidsOfChildren = akubraRepository.pi().getChildrenRelation(pid);
             //1.a. smaz vlastni potomky
-            for (String ownChild : pidsOfChildren.getLeft()) {
-                someProblem &= deleteTree(ownChild, false, repository, akubraRepository, indexerAccess, searchIndex, ignoreIncosistencies);
+            for (ProcessingIndexItem ownChild : pidsOfChildren.own()) {
+                someProblem &= deleteTree(ownChild.targetPid(), false, repository, akubraRepository, indexerAccess, searchIndex, ignoreIncosistencies);
             }
 
             //1.b. pokud jsem sbirka a mam nevlastni potomky, odeber celym jejich stromum nalezitost do sbirky (mne) ve vyhledavacim indexu
-            myModel = ProcessingIndexUtils.getModel(pid, akubraRepository);
-            if ("collection".equals(myModel) && !pidsOfChildren.getRight().isEmpty()) {
+            myModel = akubraRepository.pi().getModel(pid);
+            if ("collection".equals(myModel) && !pidsOfChildren.foster().isEmpty()) {
                 LOGGER.info(String.format("object %s is collection and not empty, removing items from the collection", pid));
-                for (String fosterChild : pidsOfChildren.getRight()) {
-                    removeItemsFromCollectionBeforeDeletingCollection(pid, fosterChild, searchIndex, indexerAccess);
+                for (ProcessingIndexItem fosterChild : pidsOfChildren.foster()) {
+                    removeItemsFromCollectionBeforeDeletingCollection(pid, fosterChild.targetPid(), searchIndex, indexerAccess);
                 }
             }
 
 
             //2. předci
-            Pair<String, Set<String>> pidsOfParents = ProcessingIndexUtils.getPidsOfParents(pid, akubraRepository);
+            ParentsRelationPair pidsOfParents = akubraRepository.pi().getParentsRelation(pid);
             //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
-            if (deletionRoot && pidsOfParents.getLeft() != null) {
-                deleteRelationFromOwnParent(pid, pidsOfParents.getLeft(), repository);
+            if (deletionRoot && pidsOfParents.own() != null) {
+                deleteRelationFromOwnParent(pid, pidsOfParents.own().source(), repository);
             }
             //2.a. smaz rels-ext vazby na me ze vsech nevlastnich rodicu
-            for (String fosterParent : pidsOfParents.getRight()) {
-                deleteRelationFromForsterParent(pid, fosterParent, repository);
+            for (ProcessingIndexItem fosterParent : pidsOfParents.foster()) {
+                deleteRelationFromForsterParent(pid, fosterParent.source(), repository);
             }
 
             //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
