@@ -34,7 +34,7 @@ import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.LockOperation;
 import org.ceskaexpedice.akubra.ObjectProperties;
 import org.ceskaexpedice.akubra.RepositoryException;
-import org.ceskaexpedice.akubra.processingindex.ChildrenRelationPair;
+import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.processingindex.SizeItemsPair;
 import org.ceskaexpedice.akubra.relsext.KnownRelations;
@@ -615,7 +615,7 @@ public class CollectionsResource extends AdminApiResource {
     }
 
     private String findCyclicPath(String pid, String pidOfObjectNotAllowedOnPath, String pathSoFar) {
-        ChildrenRelationPair children = akubraRepository.pi().getChildrenRelation(pid);
+        OwnedAndFosteredChildren children = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
         List<ProcessingIndexItem> fosterChildrenTriplets = children.foster();
         for (ProcessingIndexItem triplet : fosterChildrenTriplets) {
             String path = String.format("%s --%s--> %s ", pathSoFar, triplet.relation(), triplet.targetPid());
@@ -783,7 +783,7 @@ public class CollectionsResource extends AdminApiResource {
             }
 
             //extract children before deleting collection
-            ChildrenRelationPair childrenTpls = akubraRepository.pi().getChildrenRelation(pid);
+            OwnedAndFosteredChildren childrenTpls = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
             List<String> childrenPids = new ArrayList<>();
             for (ProcessingIndexItem ownChildTpl : childrenTpls.own()) {
                 String childPid = ownChildTpl.targetPid();

@@ -189,7 +189,7 @@ public class LicenseHelper {
         List<String> result = new ArrayList<>();
         String pidOfChild = pid;
         String pidOfParent;
-        while ((pidOfParent = repository.pi().getParentsRelation(pidOfChild).own().source()) != null) {
+        while ((pidOfParent = repository.pi().getOwnedAndFosteredParents(pidOfChild).own().source()) != null) {
             String pidToBeIgnored = pidOfChild.equals(pid) ? null : pidOfChild; //only grandparent of original pid can be ignored, because it has been already anylized in this loop, but not the original pid
             boolean hasAnotherSourceOfLicense = hasAnotherSourceOfLicense(pidOfParent, pid, pidToBeIgnored, license, repository);
             boolean ownsLicense = ownsLicenseByRelsExt(pidOfParent, license, repository);
@@ -217,7 +217,7 @@ public class LicenseHelper {
      * @param pidOfChildToBeIgnored         this object will be completely ignored, i.e. it's ownership of the license won't be checked and it's subtree won't be searched. Because it has been analyzed already.
      */
     static boolean hasAnotherSourceOfLicense(String pid, String pidOfObjectNotCountedAsSource, String pidOfChildToBeIgnored, String license, AkubraRepository repository) throws IOException {
-        List<ProcessingIndexItem> pidsOfOwnChildren = repository.pi().getChildrenRelation(pid).own();
+        List<ProcessingIndexItem> pidsOfOwnChildren = repository.pi().getOwnedAndFosteredChildren(pid).own();
         for (ProcessingIndexItem pidOfChild : pidsOfOwnChildren) {
             if (!pidOfChild.equals(pidOfChildToBeIgnored)) { //this one will be completly ignored, because it has already been analyzed
                 if (!pidOfChild.equals(pidOfObjectNotCountedAsSource) && LicenseHelper.ownsLicenseByRelsExt(pidOfChild.targetPid(), license, repository)) { // child (and not the one that's not counted) owns the license, source found

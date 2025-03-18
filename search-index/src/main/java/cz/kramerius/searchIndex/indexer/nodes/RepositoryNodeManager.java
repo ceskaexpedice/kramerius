@@ -4,11 +4,10 @@ import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Title;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.processingindex.ChildrenRelationPair;
-import org.ceskaexpedice.akubra.processingindex.ParentsRelationPair;
+import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
+import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredParents;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.dom4j.Document;
 
@@ -83,7 +82,7 @@ public class RepositoryNodeManager {
                 return null;
             }
             //System.out.println("building node for " + pid);
-            ParentsRelationPair parents = akubraRepository.pi().getParentsRelation(pid);
+            OwnedAndFosteredParents parents = akubraRepository.pi().getOwnedAndFosteredParents(pid);
             //process parents first
             RepositoryNode ownParent = parents.own() == null ? null : getKrameriusNodeWithCycleDetection(parents.own().source(), path);
             List<RepositoryNode> fosterParents = new ArrayList<>();
@@ -97,7 +96,7 @@ public class RepositoryNodeManager {
             List<String> ownChildren = new ArrayList<>();
             List<String> fosterChildren = new ArrayList<>();
             if (!"page".equals(model) && !"track".equals(model)) { //just optimization, pages and tracks never have children
-                ChildrenRelationPair children = akubraRepository.pi().getChildrenRelation(pid);
+                OwnedAndFosteredChildren children = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
                 for(ProcessingIndexItem processingIndexItem: children.own()){
                     ownChildren.add(processingIndexItem.targetPid());
                 }

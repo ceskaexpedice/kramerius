@@ -86,7 +86,7 @@ public class DeleteServiceImpl implements DeleteService {
             spawnIndexRemover(pid);
         }
 
-        List<ProcessingIndexItem> parents = akubraRepository.pi().getParentsRelation(pid).foster();
+        List<ProcessingIndexItem> parents = akubraRepository.pi().getOwnedAndFosteredParents(pid).foster();
         for (ProcessingIndexItem processingIndexItem : parents) {
             String parentPid = processingIndexItem.source();
             boolean parentRemoved = false;

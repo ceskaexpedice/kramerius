@@ -19,8 +19,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryException;
-import org.ceskaexpedice.akubra.processingindex.ChildrenRelationPair;
-import org.ceskaexpedice.akubra.processingindex.ParentsRelationPair;
+import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
+import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredParents;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.Document;
@@ -116,7 +116,7 @@ public class DeleteTreeProcess {
         if (!skipP) {
 
             //1. potomci
-            ChildrenRelationPair pidsOfChildren = akubraRepository.pi().getChildrenRelation(pid);
+            OwnedAndFosteredChildren pidsOfChildren = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
             //1.a. smaz vlastni potomky
             for (ProcessingIndexItem ownChild : pidsOfChildren.own()) {
                 someProblem &= deleteTree(ownChild.targetPid(), false, repository, akubraRepository, indexerAccess, searchIndex, ignoreIncosistencies);
@@ -133,7 +133,7 @@ public class DeleteTreeProcess {
 
 
             //2. předci
-            ParentsRelationPair pidsOfParents = akubraRepository.pi().getParentsRelation(pid);
+            OwnedAndFosteredParents pidsOfParents = akubraRepository.pi().getOwnedAndFosteredParents(pid);
             //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
             if (deletionRoot && pidsOfParents.own() != null) {
                 deleteRelationFromOwnParent(pid, pidsOfParents.own().source(), repository);

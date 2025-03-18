@@ -10,13 +10,11 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
-import org.ceskaexpedice.akubra.impl.utils.ProcessingIndexUtils;
-import org.ceskaexpedice.akubra.processingindex.ChildrenRelationPair;
+import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.Document;
@@ -160,7 +158,7 @@ public class RemovePolicyProcess {
 
                 boolean noErros = true;
                 if (includingDescendants) {
-                     ChildrenRelationPair children = repository.pi().getChildrenRelation(pid);
+                     OwnedAndFosteredChildren children = repository.pi().getOwnedAndFosteredChildren(pid);
                     if (children.own() != null && !children.own().isEmpty()) {
                         for (ProcessingIndexItem processingIndexItem : children.own()) {
                             String childPid = processingIndexItem.targetPid();
