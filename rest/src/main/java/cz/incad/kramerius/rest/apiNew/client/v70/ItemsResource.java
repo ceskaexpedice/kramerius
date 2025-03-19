@@ -31,6 +31,7 @@ import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.ceskaexpedice.akubra.DatastreamContentWrapper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
@@ -1505,7 +1506,11 @@ public class ItemsResource extends ClientApiResource {
     }
 
     Pair<InputStream, String> getFirstAvailableImgThumb(String pid) {
-        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream();
+        InputStream is = null;
+        DatastreamContentWrapper datastreamContent = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
+        if (datastreamContent != null) {
+            is = datastreamContent.asInputStream();
+        }
         if (is != null) {
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB).getMimetype();
             return new Pair<>(is, mimeType);

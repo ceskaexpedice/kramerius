@@ -88,7 +88,6 @@ public class BaseModule extends AbstractModule {
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
 
         bind(Locale.class).toProvider(LocalesProvider.class);
-        bind(AkubraRepository.class).toProvider(AkubraRepositoryProvider.class).in(Scopes.SINGLETON);
 
         bind(ProcessScheduler.class).to(ProcessSchedulerImpl.class).in(Scopes.SINGLETON);
         bind(GCScheduler.class).to(GCSchedulerImpl.class).in(Scopes.SINGLETON);

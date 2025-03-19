@@ -156,7 +156,7 @@ public class DCUtils {
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node item = childNodes.item(i);
                 if (item.getNodeType() == Node.ELEMENT_NODE) {
-                    if (item.getLocalName().equals(elmName)) {
+                    if (item.getLocalName() != null && item.getLocalName().equals(elmName)) {
                         texts.add(item.getTextContent().trim());
                     }
                 }
