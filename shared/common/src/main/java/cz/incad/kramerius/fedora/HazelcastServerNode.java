@@ -22,53 +22,29 @@ import org.ceskaexpedice.akubra.config.HazelcastConfiguration;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.util.logging.Logger;
 
 public class HazelcastServerNode implements ServletContextListener {
 
-
-    //private static final ILogger LOGGER = Logger.getLogger(HazelcastServerNode.class);
-    //private static HazelcastInstance hzInstance;
-
-    /* TODO AK_NEW
-    public static synchronized void ensureHazelcastNode() {
-        if (hzInstance == null) {
-            Config config = null;
-            File configFile = KConfiguration.getInstance().findConfigFile("hazelcast.config");
-            if (configFile != null) {
-                try (FileInputStream configStream = new FileInputStream(configFile)) {
-                    config = new XmlConfigBuilder(configStream).build();
-                } catch (IOException ex) {
-                    LOGGER.warning("Could not load Hazelcast config file " + configFile, ex);
-                }
-            }
-            if (config == null) {
-                config = new Config(KConfiguration.getInstance().getConfiguration().getString("hazelcast.instance"));
-                GroupConfig groupConfig = config.getGroupConfig();
-                groupConfig.setName(KConfiguration.getInstance().getConfiguration().getString("hazelcast.user"));
-            }
-            hzInstance = Hazelcast.getOrCreateHazelcastInstance(config);
-        }
-    }*/
+    private static final Logger LOGGER = Logger.getLogger(HazelcastServerNode.class.getName());
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        File hazelcastConfigFile = KConfiguration.getInstance().findConfigFile("hazelcast.config");
+        String hazelcastConfigFileS = (hazelcastConfigFile != null && hazelcastConfigFile.exists()) ? hazelcastConfigFile.getAbsolutePath() : null;
+        String hazelcastInstance = KConfiguration.getInstance().getConfiguration().getString("hazelcast.instance");
+        String hazelcastUser = KConfiguration.getInstance().getConfiguration().getString("hazelcast.user");
+
         HazelcastConfiguration hazelcastConfig = new HazelcastConfiguration.Builder()
-                .hazelcastInstance("akubrasync")
-                .hazelcastUser("dev")
+                .hazelcastConfigFile(hazelcastConfigFileS)
+                .hazelcastInstance(hazelcastInstance)
+                .hazelcastUser(hazelcastUser)
                 .build();
         org.ceskaexpedice.akubra.HazelcastServerNode.ensureHazelcastNode(hazelcastConfig);
-        //ensureHazelcastNode();
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         org.ceskaexpedice.akubra.HazelcastServerNode.shutdown();
-        /*
-        AkubraDOManager.shutdown();
-        if (hzInstance != null) {
-            hzInstance.shutdown();
-        }*/
     }
 }
