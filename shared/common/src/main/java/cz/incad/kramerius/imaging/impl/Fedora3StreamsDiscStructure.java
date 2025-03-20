@@ -58,8 +58,7 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
     @Override
     public Path getUUIDFile(String uuid,  String rootPath) throws IOException {
         try {
-            // TODO AK_NEW Date dateFromFedora = akubraRepository.getDatastreamMetadata("uuid:" + uuid, KnownDatastreams.IMG_FULL).getLastModified();
-            Date dateFromFedora = new Date();
+            Date dateFromFedora = akubraRepository.getDatastreamMetadata("uuid:" + uuid, KnownDatastreams.IMG_FULL).getLastModified();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(dateFromFedora);
             

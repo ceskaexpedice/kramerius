@@ -160,8 +160,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
     protected void setDateHaders(String pid, String streamName,
                                  HttpServletResponse resp) throws IOException {
-        // TODO AK_NEW Date lastModifiedDate = lastModified(pid, streamName);
-        Date lastModifiedDate = new Date();
+        Date lastModifiedDate = lastModified(pid, streamName);
         Calendar instance = Calendar.getInstance();
         instance.roll(Calendar.YEAR, 1);
         resp.setDateHeader("Last-Modified", lastModifiedDate.getTime());
