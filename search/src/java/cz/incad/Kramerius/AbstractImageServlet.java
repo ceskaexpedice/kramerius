@@ -1,5 +1,6 @@
 package cz.incad.Kramerius;
 
+import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.imaging.utils.ImageUtils;
 import cz.incad.kramerius.security.SecurityException;
@@ -70,12 +71,8 @@ public abstract class AbstractImageServlet extends GuiceServlet {
 
     protected transient KConfiguration configuration = KConfiguration.getInstance();
 
-    /* TODO AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    protected transient FedoraAccess fedoraAccess;
-     */
-    @Inject
+    @Named("securedAkubraAccess")
     protected transient AkubraRepository akubraRepository;
 
     @Inject

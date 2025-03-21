@@ -59,13 +59,8 @@ public class AudioTracksServlet extends GuiceServlet {
     ResourceBundleService resourceBundleService;
     @Inject
     Provider<Locale> localeProvider;
-    /* TODO AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
-    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
 
     private XPathExpression rdfModel;

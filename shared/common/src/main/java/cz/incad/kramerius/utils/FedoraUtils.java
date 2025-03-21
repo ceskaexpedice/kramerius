@@ -98,6 +98,7 @@ public class FedoraUtils {
     public static final String BIBLIO_MODS_FORMAT_URI = "http://www.loc.gov/mods/v3";
     public static final String DC_FORMAT_URI = "http://www.openarchives.org/OAI/2.0/oai_dc/";
 
+    /*
     public static String getFormatUriForDS(String dsID){
         if (RELS_EXT_STREAM.equals(dsID)){
             return RELS_EXT_FORMAT_URI;
@@ -109,14 +110,14 @@ public class FedoraUtils {
             return DC_FORMAT_URI;
         }
         return null;
-    }
+    }*/
 
     
     public static final int THUMBNAIL_HEIGHT = 128;
     public static final int PREVIEW_HEIGHT = 700;
 
     
-    
+    /* TODO AK_NEW
     public static ArrayList<String> getRdfPids(String pid, String relation) {
         ArrayList<String> pids = new ArrayList<String>();
         try {
@@ -142,7 +143,9 @@ public class FedoraUtils {
         return pids;
     }
 
+     */
 
+/* TODO AK_NEW
     public static String findFirstPagePid(String pid) {
 
         ArrayList<String> pids = new ArrayList<String>();
@@ -177,14 +180,19 @@ public class FedoraUtils {
         return null;
     }
 
+
+ */
     /**
      * Returns url stream 
      * @return
      */
+    /* TODO AK_NEW
     public static String getDjVuImage( String pid) {
         String imagePath = KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + IMG_FULL_STREAM;
         return imagePath;
     }
+
+     */
 
     /**
      * Returns path to fedora stream
@@ -192,25 +200,30 @@ public class FedoraUtils {
      * @param stream Stream ID
      * @return
      */
+    /*
     public static String getFedoraStreamPath( String pid, String stream) {
         String imagePath =  KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + stream;
         return imagePath;
-    }
+    }*/
     
     /**
      * Returns path to fedora description
      * @return
      */
+    /*
     public static String getFedoraDescribe() {
         String describePath = KConfiguration.getInstance().getFedoraHost() + "/describe?xml=true";
         return describePath;
     }
+
+     */
     
 
     /**
      * Returns true if given stream (profile of the stream) is referenced stream by URL
      * @param profileDoc Profile document
      */
+    /*
     public static boolean isFedoraExternalStream( Document profileDoc) throws XPathExpressionException {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
@@ -225,6 +238,9 @@ public class FedoraUtils {
         }
     }
 
+     */
+
+    /*
     public static String getLocation( Document profileDoc) throws XPathExpressionException {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpath = factory.newXPath();
@@ -237,32 +253,39 @@ public class FedoraUtils {
         } else {
             return null;
         }
-    }
+    }*/
 
     /**
      * Returns thumb stream
      * @return
      */
+    /*
     public static String getThumbnailFromFedora( String pid) {
         String imagePath =  KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + IMG_THUMB_STREAM;
         return imagePath;
-    }
+    }*/
 
     /**
      * Returns list of fedora streams
      * @return
      */
+    /*
     public static String getFedoraDatastreamsList( String pid) {
         String datastreamsListPath =  KConfiguration.getInstance().getFedoraHost() + "/objects/" + pid + "/datastreams?format=xml";
         return datastreamsListPath;
     }
 
+     */
+
     
+    /*
     public static String getVersionCompatibilityPrefix(String fedoraVersion) {
         return fedoraVersion.substring(0,3).replace('.', '_');
     }
 
+     */
 
+/*
     public static final DateFormat[] XSD_DATE_FORMATS = {
     new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'"),
     new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
@@ -270,5 +293,7 @@ public class FedoraUtils {
     new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
     new SafeSimpleDateFormat("yyyy-MM-dd'Z'"),
     new SafeSimpleDateFormat("yyyy-MM-dd") };
+
+ */
     
 }

@@ -53,12 +53,6 @@ public class ReplicationServiceImpl implements ReplicationService{
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ReplicationServiceImpl.class.getName());
     
-    /* TODO AK_NEW
-    @Inject
-    @Named("rawFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
     @Inject
     AkubraRepository akubraRepository;
 

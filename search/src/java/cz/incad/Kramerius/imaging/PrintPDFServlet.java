@@ -105,13 +105,8 @@ public class PrintPDFServlet extends GuiceServlet {
 
     }
 
-    /* TODO AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
-    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
 
     @Inject

@@ -41,16 +41,8 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
         return akubraRepository;
     }
 
-    /* TODO AK_NEW
     @Inject
-    public void setFedoraAccess(@Named("securedFedoraAccess")FedoraAccess fedoraAccess) {
-        this.fedoraAccess = fedoraAccess;
-    }
-
-     */
-
-    @Inject
-    public void setAkubraRepository(AkubraRepository akubraRepository) {
+    public void setAkubraRepository(@Named("securedAkubraAccess") AkubraRepository akubraRepository) {
         this.akubraRepository = akubraRepository;
     }
 

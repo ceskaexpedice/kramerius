@@ -74,14 +74,8 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FirstPagePDFServiceImpl.class.getName());
 
-    /* TODO AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
-
-    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
 
     @Inject

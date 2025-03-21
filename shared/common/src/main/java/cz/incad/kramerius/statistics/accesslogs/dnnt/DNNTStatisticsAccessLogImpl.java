@@ -73,12 +73,6 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     @Named("new-index")
     SolrAccess solrAccess;
 
-    /* TODO AK_NEW
-    @Inject
-    @Named("cachedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
     @Inject
     AkubraRepository akubraRepository;
 

@@ -368,8 +368,6 @@ public class ItemsResource extends ClientApiResource {
 
     private Object extractImageSourceInfo(String pid) {
         JSONObject json = new JSONObject();
-        // TODO AK_NEW Document relsExt = akubraRepository.re().get(pid).asDom4j(false);
-        //String tilesUrl = org.ceskaexpedice.akubra.utils.Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//tiles-url");
         String tilesUrl = akubraRepository.re().getTilesUrl(pid);
         boolean chacheDirDisable = KConfiguration.getInstance().getConfiguration().getBoolean("deepZoom.cachedir.disable", false);
         if (tilesUrl != null && (!isChacheDirDisabledAndFromCache(chacheDirDisable, tilesUrl))) {
@@ -1541,19 +1539,6 @@ public class ItemsResource extends ClientApiResource {
 
     private String getPidOfFirstChild(String pid) {
         return akubraRepository.re().getPidOfFirstChild(pid);
-        /* TODO AK_NEW
-        Document relsExt = akubraRepository.re().get(pid).asDom4j(false);
-        String xpathExpr = "//hasPage|//hasUnit|//hasVolume|//hasItem|//hasSoundUnit|//hasTrack|//containsTrack|//hasIntCompPart|//isOnPage|//contains";
-        Element element = Dom4jUtils.firstElementByXpath(relsExt.getRootElement(), xpathExpr);
-        if (element != null) {
-            String resource = Dom4jUtils.stringOrNullFromAttributeByName(element, "resource");
-            if (resource != null) {
-                return resource.substring("info:fedora/".length());
-            }
-        }
-        return null;
-
-         */
     }
 
 }

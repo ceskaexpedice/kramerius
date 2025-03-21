@@ -50,7 +50,6 @@ public class SortingServiceImpl implements SortingService {
 
     @Inject
     public SortingServiceImpl(
-            // TODO AK_NEW @Named("rawFedoraAccess") FedoraAccess fedoraAccess,
             AkubraRepository akubraRepository,
             RelationService relationService) {
         this.akubraRepository = akubraRepository;

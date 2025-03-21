@@ -37,13 +37,8 @@ public class GetFirstPageThumb extends GuiceServlet {
 
     private static final String UUID_PARAMETER = "uuid";
 
-    /* TODO AK_NEW
     @Inject
-	@Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
-    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
 
     /** 

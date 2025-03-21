@@ -31,13 +31,8 @@ public class ExportServiceImpl implements ExportService {
     public static final Logger LOGGER = Logger.getLogger(ExportServiceImpl.class.getName());
     private static int BUFFER_SIZE = 1024;
 
-    /* TODO AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
-    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
 
     KConfiguration configuration = KConfiguration.getInstance();
@@ -181,7 +176,6 @@ public class ExportServiceImpl implements ExportService {
     public static void main(String[] args) throws IOException, TransformerException, SAXException, ParserConfigurationException {
         LOGGER.info("Export service: " + Arrays.toString(args));
         com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
-        // TODO AK_NEW FedoraAccess fa = injector.getInstance(com.google.inject.Key.get(FedoraAccess.class, com.google.inject.name.Names.named("rawFedoraAccess")));
         AkubraRepository akubraRepository = injector.getInstance(com.google.inject.Key.get(AkubraRepository.class));
         Boolean exportParents = null;
         if (args.length > 1) {

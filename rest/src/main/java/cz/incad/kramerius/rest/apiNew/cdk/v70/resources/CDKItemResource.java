@@ -49,14 +49,8 @@ public class CDKItemResource {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    /* TODO AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
-
-    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
 
     public Response providedBy(String pid) {

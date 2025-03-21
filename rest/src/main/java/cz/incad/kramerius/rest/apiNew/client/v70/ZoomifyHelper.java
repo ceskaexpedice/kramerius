@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
@@ -66,13 +67,8 @@ public class ZoomifyHelper {
     //@javax.inject.Inject
     //protected transient HttpAsyncClient client;
 
-    /* TODO AK_NEW
-    @javax.inject.Inject
-    @Named("securedFedoraAccess")
-    protected transient FedoraAccess fedoraAccess;
-
-     */
-    @javax.inject.Inject
+    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
 
     public Response buildImagePropertiesResponse(String pid, HttpServletRequest req) throws IOException, XPathExpressionException {
@@ -408,22 +404,6 @@ public class ZoomifyHelper {
      */
     private String getFirstReplicatedFrom(String pid) {
         return akubraRepository.re().getFirstReplicatedFrom(pid);
-        /* TODO AK_NEW
-        Element descElement = XMLUtils.findElement(
-                relsExt.getDocumentElement(), "Description",
-                RepositoryNamespaces.RDF_NAMESPACE_URI);
-        List<Element> delems = XMLUtils.getElements(descElement);
-        for (Element del : delems) {
-            if (del.getNamespaceURI() != null) {
-                if (del.getNamespaceURI().equals(RepositoryNamespaces.KRAMERIUS_URI)
-                        && del.getLocalName().equals("replicatedFrom")) {
-                    return del.getTextContent();
-                }
-            }
-        }
-        return null;
-
-         */
     }
 
 }

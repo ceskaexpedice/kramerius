@@ -32,8 +32,7 @@ public class MostDesirableImpl implements MostDesirable {
     @Inject
     public MostDesirableImpl(
             @Named("kramerius4") Provider<Connection> provider,
-            // TODO AK_NEW @Named("securedFedoraAccess") FedoraAccess fa
-            AkubraRepository akubraRepository
+            @Named("securedAkubraAccess") AkubraRepository akubraRepository
     ){
         super();
         this.provider = provider;

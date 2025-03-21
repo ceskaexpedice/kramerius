@@ -57,13 +57,6 @@ public final class RelationServiceImpl implements RelationService {
     private static final RepositoryNamespaceContext FEDORA_NAMESPACE_CONTEXT = new RepositoryNamespaceContext();
     private static final String FEDORA_URI_PREFIX = "info:fedora/";
 
-
-    /* TODO AK_NEW
-    @Inject
-    @Named("rawFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
     @Inject
     AkubraRepository akubraRepository;
 

@@ -71,8 +71,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
 
     @Inject
     public GeneratePDFServiceImpl(
-            // TODO AK_NEW @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
-            AkubraRepository akubraRepository,
+            @Named("securedAkubraAccess") AkubraRepository akubraRepository,
             @Named("new-index")SolrAccess solrAccess,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService,

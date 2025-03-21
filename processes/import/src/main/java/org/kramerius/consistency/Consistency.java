@@ -47,12 +47,6 @@ public class Consistency {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Consistency.class.getName());
 
-    /* TODO AK_NEW
-    @Inject
-    @Named("rawFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
     @Inject
     AkubraRepository akubraRepository;
 

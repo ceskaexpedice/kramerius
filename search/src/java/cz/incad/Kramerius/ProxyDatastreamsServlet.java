@@ -21,13 +21,8 @@ public class ProxyDatastreamsServlet extends GuiceServlet {
 
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProxyDatastreamsServlet.class.getName());
 
-    /* TODO AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
-
-     */
-    @Inject
+    @Named("securedAkubraAccess")
     private AkubraRepository akubraRepository;
 
     @Override

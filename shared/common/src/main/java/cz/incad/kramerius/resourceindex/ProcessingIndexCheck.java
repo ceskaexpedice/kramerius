@@ -22,8 +22,7 @@ public class ProcessingIndexCheck {
 
     public static void main(String[] args) throws IOException, SolrServerException {
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-        // TODO AK_NEW final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class, Names.named("rawFedoraAccess")));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         List<String> pidsToDelete = new ArrayList<>();
         /* TODO AK_NEW

@@ -34,7 +34,6 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
     private ProcessingIndexRebuildFromFoxmlByPid() {
         this.unmarshaller = initUnmarshaller();
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-        // TODO AK_NEW
         this.akubraRepository = injector.getInstance(AkubraRepository.class);
     }
 

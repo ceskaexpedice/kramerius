@@ -50,13 +50,6 @@ public class CDKZoomifyResource extends AbstractTileResource {
     @Inject
     Provider<HttpServletResponse> responseProvider;
 
-    /* TODO AK_NEW
-    @Inject
-    @Named("cachedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
-
-     */
-
     @Inject
     private AkubraRepository akubraRepository;
 

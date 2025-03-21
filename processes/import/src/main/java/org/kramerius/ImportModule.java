@@ -16,13 +16,6 @@ public class ImportModule extends AbstractModule {
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);
         bind(FOXMLAppendLicenseService.class).to(FOXMLAppendLicenseImpl.class).in(Scopes.SINGLETON);
-
-        //bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
-
-        //bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
-        //bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
-        //bind(AggregatedAccessLogs.class).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
-
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
         bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);
 

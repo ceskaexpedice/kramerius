@@ -358,16 +358,6 @@ public class Main {
             String[] pids = subArray(args, 5);
             for (String pid : pids) {
                 SolrConfig solrConfig = new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword);
-                //TODO: extract to param
-                //String krameriusBackendBaseUrl = "http://localhost:8080/search";
-                //FedoraAccess repository = new RepositoryAccessImplDummy();
-                //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);
-                // TODO AK_NEW RepositoryAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
-                        //new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
-                //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
-
-                //ProcessingIndex resourceIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, krameriusBackendBaseUrl);
-                // TODO AK_NEW KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, resourceIndex);
                 Indexer process = new Indexer(akubraRepository, solrConfig, System.out, false);
                 //process.indexByObjectPid(pid, IndexationType.TREE);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT);
@@ -403,19 +393,7 @@ public class Main {
             //TODO: Injection for all instances 
             Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
 
-            //FedoraAccess repository = new RepositoryAccessImplDummy();
-            //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);
-            // TODO AK_NEW
-            //RepositoryAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
-              //      new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
-
-            // TODO AK_NEW KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class));
             AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
-            
-            //IResourceIndex processingIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
-            //ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, krameriusBackendBaseUrl);
-            // TODO AK_NEW KrameriusRepositoryFascade repositoryAdapter = new KrameriusRepositoryFascade(repository, processingIndex);
-
             RepositoryNodeManager nodeManager = new RepositoryNodeManager(akubraRepository, false);
             SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
             SolrIndexAccess solrAccess = new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));

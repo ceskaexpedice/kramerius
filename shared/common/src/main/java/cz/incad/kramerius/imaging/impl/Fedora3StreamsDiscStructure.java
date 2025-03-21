@@ -30,46 +30,33 @@ import org.ceskaexpedice.akubra.KnownDatastreams;
  * @author pavels
  */
 public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
-    
+
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Fedora3StreamsDiscStructure.class.getName());
 
-
-
-    /* TODO AK_NEW
-    @Named("securedFedoraAccess")
-    private FedoraAccess fedoraAccess;
-
-     */
     private AkubraRepository akubraRepository;
 
-
-    
     @Inject
-    public Fedora3StreamsDiscStructure(
-        // TODO AK_NEW    @Named("securedFedoraAccess") FedoraAccess fedoraAccess
-            AkubraRepository akubraRepository
-    ) throws IOException {
+    public Fedora3StreamsDiscStructure(@Named("securedAkubraAccess") AkubraRepository akubraRepository) {
         super();
         this.akubraRepository = akubraRepository;
     }
 
-    
 
     @Override
-    public Path getUUIDFile(String uuid,  String rootPath) throws IOException {
+    public Path getUUIDFile(String uuid, String rootPath) throws IOException {
         try {
             Date dateFromFedora = akubraRepository.getDatastreamMetadata("uuid:" + uuid, KnownDatastreams.IMG_FULL).getLastModified();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(dateFromFedora);
-            
+
             List<String> relativeDataStreamPath = Arrays.asList(
-                    ""+calendar.get(Calendar.YEAR),
-                    ""+calendar.get(Calendar.MONTH),
-                    ""+calendar.get(Calendar.DAY_OF_MONTH),
-                    ""+calendar.get(Calendar.HOUR),
-                    ""+calendar.get(Calendar.MINUTE)
+                    "" + calendar.get(Calendar.YEAR),
+                    "" + calendar.get(Calendar.MONTH),
+                    "" + calendar.get(Calendar.DAY_OF_MONTH),
+                    "" + calendar.get(Calendar.HOUR),
+                    "" + calendar.get(Calendar.MINUTE)
             );
-                    
+
             File rootDir = new File(rootPath);
             if (!rootDir.exists()) {
                 if (!rootDir.mkdirs()) {
@@ -84,12 +71,11 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
 
             return new DirPathImpl(new File(rootDir, filePath), null);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new IOException(e);
         }
     }
-    
-    
+
 
     public static Date disectCreateDate(String data) throws DatatypeConfigurationException {
         XMLGregorianCalendar gregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(data);
@@ -98,14 +84,14 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
         int month = gregorianCalendar.getMonth();
         int minute = gregorianCalendar.getMinute();
         int hour = gregorianCalendar.getHour();
-        
+
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.DAY_OF_MONTH, day);
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MONTH, month-1);
+        calendar.set(Calendar.MONTH, month - 1);
         return calendar.getTime();
     }
-    
+
 }

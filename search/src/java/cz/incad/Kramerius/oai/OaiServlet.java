@@ -83,12 +83,6 @@ public class OaiServlet extends GuiceServlet {
 
     @Inject
     RelationService relService;
-    /* TODO AK_NEW
-    @Inject
-    @Named("rawFedoraAccess")
-    FedoraAccess fedora;
-
-     */
     @Inject
     AkubraRepository akubraRepository;
 

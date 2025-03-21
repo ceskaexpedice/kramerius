@@ -17,6 +17,7 @@
 package cz.incad.kramerius.imaging.impl;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
@@ -30,13 +31,8 @@ public class DeepZoomFlagServiceImpl implements DeepZoomFlagService {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DeepZoomFlagServiceImpl.class.getName());
 
-    /* TODO AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
-    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
 
     public void deleteFlagToPID(final String pid) throws IOException {

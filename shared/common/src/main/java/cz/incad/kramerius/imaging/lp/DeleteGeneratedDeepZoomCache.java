@@ -54,7 +54,6 @@ public class DeleteGeneratedDeepZoomCache {
     public static void main(String[] args) throws IOException {
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
-            // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
             AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
             deleteCacheForPID(args[0], akubraRepository, discStruct);

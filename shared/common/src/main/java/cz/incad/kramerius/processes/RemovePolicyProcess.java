@@ -85,7 +85,6 @@ public class RemovePolicyProcess {
             
         }
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-        // TODO AK_NEW KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         AkubraRepository repository = injector.getInstance(Key.get(AkubraRepository.class));
         List<Boolean> errors = new ArrayList<>();
         for (String pid : pids) {

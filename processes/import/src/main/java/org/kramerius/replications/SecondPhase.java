@@ -218,7 +218,6 @@ public class SecondPhase extends AbstractPhase  {
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
         //Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
         try {
-            // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
             AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             Import.ingest(akubraRepository, foxmlfile, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
         } catch (RepositoryException e) {
@@ -327,7 +326,6 @@ public class SecondPhase extends AbstractPhase  {
     }
 
     public boolean findPid(String pid) throws LexerException, IOException {
-        // TODO AK_NEW FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         String objectId = pidParseAndGetObjectId(pid);
         return (akubraRepository.exists(objectId) && akubraRepository.re().exists(objectId));

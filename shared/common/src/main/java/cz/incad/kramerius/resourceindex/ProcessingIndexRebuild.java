@@ -63,7 +63,6 @@ public class ProcessingIndexRebuild {
             ProcessStarter.updateName("Přebudování Processing indexu");
         }
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-// TODO AK_NEW   final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         final AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         long start = System.currentTimeMillis();

@@ -29,7 +29,6 @@ public class GuiceSecurityHTTPModule extends AbstractModule {
     
     @Override
     protected void configure() {
-        //bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).to(FedoraAccessImpl.class).in(Scopes.SINGLETON);
         bind(RightsResolver.class).to(RightsResolverFromRequest.class);
         bind(RightsResolver.class).annotatedWith(Names.named("cachedRightsResolver")).to(RightsResolverFromRequestCached.class);
 

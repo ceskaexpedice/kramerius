@@ -31,15 +31,9 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     //private static final int TILE_SIZE = 2048;
     private static final int TILE_SIZE = 512;
 
-    /* AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
-    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
-
 
     KConfiguration kConfiguration = KConfiguration.getInstance();
     

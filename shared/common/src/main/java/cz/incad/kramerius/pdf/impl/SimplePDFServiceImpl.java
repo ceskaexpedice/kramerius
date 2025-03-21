@@ -63,8 +63,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
 
     @Inject
     public SimplePDFServiceImpl(
-            // TODO AK_NEW @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
-            AkubraRepository akubraRepository,
+            @Named("securedAkubraAccess") AkubraRepository akubraRepository,
             @Named("new-index") SolrAccess solrAccess,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService) {

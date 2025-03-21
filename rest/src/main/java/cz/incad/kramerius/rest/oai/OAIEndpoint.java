@@ -62,18 +62,8 @@ public class OAIEndpoint extends ClientApiResource {
     public static Logger LOGGER = Logger.getLogger(OAIEndpoint.class.getName());
     
 
-    /* TODO AK_NEW
-    @Inject
-    @Named("cachedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
-
-     */
     @Inject
     AkubraRepository akubraRepository;
-
-//    @Inject
-//    @Named("cachedFedoraAccess")
-//    private transient FedoraAccess fedoraAccess;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;

@@ -17,6 +17,7 @@
 package cz.incad.kramerius.audio.urlMapping;
 
 
+import com.google.inject.name.Named;
 import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.XpathEvaluator;
@@ -35,7 +36,6 @@ import org.ehcache.expiry.Expirations;
 import org.w3c.dom.Document;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -62,13 +62,8 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
 
     private final XPathExpression dsLocation;
 
-    /* AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    private FedoraAccess fedoraAccess;
-
-     */
-    @Inject
+    @Named("securedAkubraAccess")
     private AkubraRepository akubraRepository;
 
     private final CacheManager cacheManager;

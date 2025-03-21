@@ -65,7 +65,6 @@ public class SetPolicyProcess {
                 : String.format("Změna viditelnosti %s (%s, %s)", pid, policy, scopeDesc)
         );
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-        // TODO AK_NEW KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         AkubraRepository repository = injector.getInstance(Key.get(AkubraRepository.class));
 
         //check object exists in repository

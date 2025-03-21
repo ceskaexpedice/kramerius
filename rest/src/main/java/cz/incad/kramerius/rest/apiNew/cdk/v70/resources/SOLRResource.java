@@ -59,13 +59,8 @@ public class SOLRResource {
     @Inject
     Provider<Locale> localesProvider;
 
-    /* TODO AK_NEW
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
-     */
-    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
 
     @Inject

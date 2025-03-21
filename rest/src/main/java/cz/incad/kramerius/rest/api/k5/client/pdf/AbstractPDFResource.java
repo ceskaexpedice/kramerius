@@ -70,15 +70,9 @@ public class AbstractPDFResource {
     @Named("IMAGE")
     FirstPagePDFService imageFirstPage  ;
 
-    // TODO AK_NEW
-    /*
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-    */
-    @Inject
+    @Named("securedAkubraAccess")
     AkubraRepository akubraRepository;
-
 
     KConfiguration configuration = KConfiguration.getInstance();
 

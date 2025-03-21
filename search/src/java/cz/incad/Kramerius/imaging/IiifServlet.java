@@ -46,12 +46,6 @@ public class IiifServlet extends AbstractImageServlet {
     @Inject
     private Provider<User> userProvider;
 
-    /* TODO AK_NEW
-    @Inject
-    @Named("cachedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
-
-     */
     @Inject
     private AkubraRepository akubraRepository;
 

@@ -92,31 +92,10 @@ public class NewIndexerProcessIndexModel {
 
         SolrConfig solrConfig = new SolrConfig();
 
-        //access to repository through new public HTTP APIs
-        /*RepositoryAccessImplByKrameriusNewApis.Credentials krameriusCredentials = new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);
-        FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl, krameriusCredentials);*/
-
         //access to repository through java directly (injected cz.incad.kramerius.FedoraAccess)
         Injector injector = Guice.createInjector(new SearchIndexModule(), new NullStatisticsModule(), new SolrModule(), new RepoModule());
 
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
-
-//        cz.incad.kramerius.FedoraAccess rawRepositoryAccess = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
-//        FedoraAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepositoryAccess);
-
-        
-
-        //Injector injector = Guice.createInjector(new SearchIndexModule(), new NullStatisticsModule(), new SolrModule(), new RepoModule());
-        /* TODO AK_NEW
-        cz.incad.kramerius.FedoraAccess rawRepository = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
-        RepositoryAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepository);
-
-        //access to processing index through new public APIs
-        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, ProcessUtils.getCoreBaseUrl());
-
-        KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, processingIndex);
-
-         */
         Indexer indexer = new Indexer(akubraRepository, solrConfig, System.out, ignoreInconsistentObjects);
 
         SolrAccess solrAccess = filters.indexAll() ? null : injector.getInstance(Key.get(SolrAccess.class, Names.named("new-index")));

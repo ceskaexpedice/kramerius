@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class OnDemandIngest {
@@ -39,13 +40,13 @@ public class OnDemandIngest {
     private SolrAccess solrAccess;
 
     @Inject
-    public OnDemandIngest( @Named("new-index") SolrAccess solrAccess) throws IOException {
+    public OnDemandIngest( @Named("new-index") SolrAccess solrAccess) {
         this.solrAccess = solrAccess;
         this.client = Client.create();
     }
         // on demand request
-    void onDemandIngest(String pid, AkubraRepository internalAPI) throws CollectionException, LexerException, IOException, RepositoryException, JAXBException, TransformerException {
-        // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Requesting info %s", pid));
+    void onDemandIngest(String pid, AkubraRepository internalAPI)  {
+        LOGGER.info(String.format("Requesting info %s", pid));
         try {
             long start = System.currentTimeMillis();
             Document solrDataDocument = solrAccess.getSolrDataByPid(pid);
@@ -73,7 +74,7 @@ public class OnDemandIngest {
                         // tady by to melo byt synchronizovane
                         // import source
                         Import.ingest(internalAPI, foxml, pid, null, null, true);
-                        // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Whole ingest of %s took %d ms (download foxml %d ms)",pid, (System.currentTimeMillis() - start), (System.currentTimeMillis() - foxmlTime) ));
+                        LOGGER.info(String.format("Whole ingest of %s took %d ms (download foxml %d ms)",pid, (System.currentTimeMillis() - start), (System.currentTimeMillis() - foxmlTime) ));
                     }
                 } else throw new IOException("Cannot read data from "+ baseurl +".  Missing property "+"cdk.collections.sources." + source + ".username or "+"cdk.collections.sources." + source + ".pswd  for pid  "+pid);
 
@@ -86,7 +87,7 @@ public class OnDemandIngest {
                 LOGGER.info("document output "+stringWriter.toString());
             }
         } catch (IOException | JAXBException | TransformerException | LexerException | RepositoryException e) {
-            // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.log(Level.SEVERE, e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(),e);
         }
     }
 
@@ -106,7 +107,7 @@ public class OnDemandIngest {
         }
     }
     protected InputStream foxml(String url, String userName, String pswd) {
-        // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.info(String.format("Requesting %s", url));
+        LOGGER.info(String.format("Requesting %s", url));
         WebResource r = client.resource(url);
         r.addFilter(new BasicAuthenticationClientFilter(userName, pswd));
 

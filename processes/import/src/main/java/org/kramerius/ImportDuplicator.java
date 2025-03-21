@@ -104,7 +104,6 @@ public class ImportDuplicator {
 
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
-        // TODO AK_NEW fedoraAccess = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         List<TitlePidTuple> roots = new ArrayList<TitlePidTuple>();

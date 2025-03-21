@@ -5,6 +5,7 @@ import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.fedora.AkubraRepositoryProvider;
+import cz.incad.kramerius.fedora.SecuredAkubraRepositoryProvider;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
@@ -20,10 +21,10 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
     protected void configure() {
         // mapped plain fedoraAccess as secured. In this process it is not
         // necessary to have checked access to fedora.
-        // TODO AK_NEW
-        //bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl.class)
-        //      .in(Scopes.SINGLETON);
-        bind(AkubraRepository.class).toProvider(AkubraRepositoryProvider.class).in(Scopes.SINGLETON);
+        bind(AkubraRepository.class)
+                .annotatedWith(Names.named("securedAkubraAccess"))
+                .toProvider(SecuredAkubraRepositoryProvider.class)
+                .in(Scopes.SINGLETON);
 
 //        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
 //        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);

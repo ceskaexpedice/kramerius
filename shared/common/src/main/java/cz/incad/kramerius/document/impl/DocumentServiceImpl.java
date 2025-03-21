@@ -75,8 +75,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Inject
     public DocumentServiceImpl(
-            // TODO AK_NEW @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
-            AkubraRepository akubraRepository,
+            @Named("securedAkubraAccess") AkubraRepository akubraRepository,
             @Named("new-index") SolrAccess solrAccess,
             Provider<Locale> localeProvider,
             ResourceBundleService resourceBundleService

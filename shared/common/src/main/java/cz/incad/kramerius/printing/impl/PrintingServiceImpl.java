@@ -106,8 +106,7 @@ public class PrintingServiceImpl implements PrintingService {
     
     @Inject
     public PrintingServiceImpl(
-        // TODO AK_NEW   @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
-            AkubraRepository akubraRepository,
+        @Named("securedAkubraAccess") AkubraRepository akubraRepository,
             @Named("new-index") SolrAccess solrAccess, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService, Provider<User> userProvider) {
         super();
         this.akubraRepository = akubraRepository;

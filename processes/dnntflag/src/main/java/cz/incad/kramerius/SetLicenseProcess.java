@@ -92,7 +92,6 @@ public class SetLicenseProcess {
 
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-        // TODO AK_NEW KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class)); //FIXME: hardcoded implementation
 
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation

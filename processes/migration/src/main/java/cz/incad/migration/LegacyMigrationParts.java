@@ -57,7 +57,6 @@ public enum LegacyMigrationParts {
         @Override
         public void doMigrationPart(Connection db, String[] args) throws SQLException {
             Injector injector = Guice.createInjector(new SolrModule(), new RepoModule());
-            // TODO AK_NEW
             final AkubraRepository akubraRepository = injector.getInstance(AkubraRepository.class);
 
             String objectPaths = KConfiguration.getInstance().getProperty("objectStore.path");

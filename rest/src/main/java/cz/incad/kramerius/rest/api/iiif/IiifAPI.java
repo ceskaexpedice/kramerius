@@ -84,7 +84,6 @@ public class IiifAPI {
 
     @Inject
     public IiifAPI(SolrMemoization solrMemoization,
-                   // TODO AK_NEW @Named("cachedFedoraAccess") FedoraAccess fedoraAccess,
                    AkubraRepository akubraRepository,
                    @Named("new-index") SolrAccess solrAccess, Provider<HttpServletRequest> requestProvider, HttpAsyncClient asyncClient) {
         this.solrMemoization = solrMemoization;

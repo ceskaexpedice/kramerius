@@ -23,13 +23,8 @@ public class MimeTypeServlet extends GuiceServlet {
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(MimeTypeServlet.class.getName());
 	
-	/* TODO AK_NEW
 	@Inject
-	@Named("securedFedoraAccess")
-	FedoraAccess fedoraAccess;
-
-	 */
-	@Inject
+	@Named("securedAkubraAccess")
 	AkubraRepository akubraRepository;
 
 	@Override

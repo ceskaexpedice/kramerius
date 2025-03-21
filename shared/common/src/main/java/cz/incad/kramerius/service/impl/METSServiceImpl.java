@@ -14,13 +14,8 @@ import org.ceskaexpedice.akubra.AkubraRepository;
 public class METSServiceImpl implements METSService {
 	public static final Logger LOGGER = Logger.getLogger(METSServiceImpl.class.getName());
 	
-	/* TODO AK_NEW
 	@Inject
-	@Named("securedFedoraAccess")
-	FedoraAccess fedoraAccess;
-
-	 */
-	@Inject
+	@Named("securedAkubraAccess")
 	AkubraRepository akubraRepository;
 
 	KConfiguration configuration = KConfiguration.getInstance();

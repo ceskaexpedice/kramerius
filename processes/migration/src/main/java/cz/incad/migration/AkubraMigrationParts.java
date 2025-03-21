@@ -41,7 +41,6 @@ public enum AkubraMigrationParts {
                 String datastreamPattern = KConfiguration.getInstance().getProperty("datastreamStore.pattern");
 
                 Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-                // TODO AK_NEW
                 final AkubraRepository akubraRepository = injector.getInstance(AkubraRepository.class);
                 final boolean rebuildProcessingIndex = "true".equalsIgnoreCase(args[1]);
                 processRoot(akubraRepository.pi(), datastreamSource,  datastreamPaths,  datastreamPattern,  false);
