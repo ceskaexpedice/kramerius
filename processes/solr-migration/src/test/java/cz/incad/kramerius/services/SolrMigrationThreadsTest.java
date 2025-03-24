@@ -32,7 +32,7 @@ public class SolrMigrationThreadsTest extends TestCase {
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element result = XMLUtils.findElement(parsed.getDocumentElement(), "result");
 
-        // TODO AK_NEW HazelcastServerNode.ensureHazelcastNode();
+        // TODO HazelcastServerNode.ensureHazelcastNode();
         List<Document> batches = BatchUtils.batches(result, 1);
         Assert.assertTrue(batches.size() == 10);
 
@@ -103,7 +103,7 @@ public class SolrMigrationThreadsTest extends TestCase {
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element result = XMLUtils.findElement(parsed.getDocumentElement(), "result");
 
-        // TODO AK_NEW HazelcastServerNode.ensureHazelcastNode();
+        // TODO HazelcastServerNode.ensureHazelcastNode();
         List<Document> batches = BatchUtils.batches(result, 1);
         Assert.assertTrue(batches.size() == 10);
 
@@ -159,7 +159,7 @@ public class SolrMigrationThreadsTest extends TestCase {
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element result = XMLUtils.findElement(parsed.getDocumentElement(), "result");
 
-        // TODO AK_NEW HazelcastServerNode.ensureHazelcastNode();
+        // TODO HazelcastServerNode.ensureHazelcastNode();
         List<Document> batches = BatchUtils.batches(result, 2);
         Assert.assertTrue(batches.size() == 5);
 
@@ -196,7 +196,7 @@ public class SolrMigrationThreadsTest extends TestCase {
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element result = XMLUtils.findElement(parsed.getDocumentElement(), "result");
 
-        // TODO AK_NEW HazelcastServerNode.ensureHazelcastNode();
+        // TODO HazelcastServerNode.ensureHazelcastNode();
         List<Document> batches = BatchUtils.batches(result, 3);
         Assert.assertTrue(batches.size() == 4);
 

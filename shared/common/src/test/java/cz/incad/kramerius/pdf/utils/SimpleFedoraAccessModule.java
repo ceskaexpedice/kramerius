@@ -22,7 +22,7 @@ public class SimpleFedoraAccessModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // TODO AK_NEW bind(FedoraAccess.class).to(FedoraAccessAkubraImpl.class);
+        // TODO bind(FedoraAccess.class).to(FedoraAccessAkubraImpl.class);
         //bind(SolrAccess.class).to(SolrAccessImpl.class);
     }
 }

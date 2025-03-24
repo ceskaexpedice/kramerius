@@ -3,6 +3,7 @@ package org.kramerius;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.qbizm.kramerius.imptool.poc.convertor.BaseConvertor;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -639,12 +640,6 @@ public class Import {
             if (!repo.re().exists(pid)) {
                 throw new IllegalStateException("Cannot merge object: " + pid + " - object does not have RELS-EXT stream");
             }
-            /* TODO AK_NEW
-            if (existingRelsext.getContent() == null) {
-                throw new IllegalStateException("Cannot merge object: " + pid + " - object has empty RELS-EXT stream");
-            }
-
-             */
             IOUtils.copyStreams(repo.re().get(pid).asInputStream(), bos);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Cannot copy streams in merge", e);
@@ -722,7 +717,7 @@ public class Import {
             stream.setCONTROLGROUP("E");
             stream.setVERSIONABLE(false);
             stream.setSTATE(StateType.A);
-            // TODO AK_NEW version.setCREATED(getCurrentXMLGregorianCalendar());
+            version.setCREATED(BaseConvertor.getCurrentXMLGregorianCalendar());
 
             String externalImagesDirectory = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerDirectory");
             String binaryDirectory = externalImagesDirectory + getImgTreePath();

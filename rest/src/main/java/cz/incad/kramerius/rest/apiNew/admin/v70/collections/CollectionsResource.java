@@ -1044,7 +1044,7 @@ public class CollectionsResource extends AdminApiResource {
 
         ObjectProperties objectProperties = akubraRepository.getProperties(pid);
         if(objectProperties != null) {
-            /* TODO AK_NEW
+            /* TODO AK_NEW lastModified
             collection.created = objectProperties.getPropertyCreated();
             collection.modified = objectProperties.getPropertyLastModified();
 

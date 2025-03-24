@@ -22,7 +22,7 @@ public class CriteriaRELSEXTUtilsTest {
         String path = "//kramerius:policy/text()";
         String expectedValue = "policy:private";
 
-        // TODO AK_NEW EvaluatingResultState evaluatingResultState = CriteriaRELSEXTUtils.checkValue(document, path, expectedValue);
+        // TODO EvaluatingResultState evaluatingResultState = CriteriaRELSEXTUtils.checkValue(document, path, expectedValue);
         //Assert.assertTrue(EvaluatingResultState.TRUE.equals(evaluatingResultState));
     }
 
@@ -35,7 +35,7 @@ public class CriteriaRELSEXTUtilsTest {
         String path = "//kramerius:policy/text()";
         String expectedValue = "policy:private";
 
-        // TODO AK_NEW EvaluatingResultState evaluatingResultState = CriteriaRELSEXTUtils.checkValue(document, path, expectedValue);
+        // TODO EvaluatingResultState evaluatingResultState = CriteriaRELSEXTUtils.checkValue(document, path, expectedValue);
         //Assert.assertTrue(EvaluatingResultState.FALSE.equals(evaluatingResultState));
     }
 
@@ -48,7 +48,7 @@ public class CriteriaRELSEXTUtilsTest {
         String path = "//kramerius:policy/text()";
         String expectedValue = "policy:private";
 
-        // TODO AK_NEW EvaluatingResultState evaluatingResultState = CriteriaRELSEXTUtils.checkValue(document, path, expectedValue);
+        // TODO EvaluatingResultState evaluatingResultState = CriteriaRELSEXTUtils.checkValue(document, path, expectedValue);
         //Assert.assertTrue(EvaluatingResultState.TRUE.equals(evaluatingResultState));
     }
 

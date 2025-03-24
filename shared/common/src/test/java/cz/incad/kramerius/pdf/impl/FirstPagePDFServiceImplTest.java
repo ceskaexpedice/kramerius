@@ -132,7 +132,7 @@ public class FirstPagePDFServiceImplTest {
 
 ;
 
-    // TODO AK_NEW
+    // TODO
 
 //    @Test
 //    public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
@@ -145,7 +145,7 @@ public class FirstPagePDFServiceImplTest {
 //
 //        HazelcastServerNode.ensureHazelcastNode();
 //        // test correct data - IMG_FULL in pages
-//        /* TODO AK_NEW
+//        /* TODO
 //        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
 //                .withConstructor( feeder, acLog, cacheManager)
 //                .addMockedMethod("getRelsExt")

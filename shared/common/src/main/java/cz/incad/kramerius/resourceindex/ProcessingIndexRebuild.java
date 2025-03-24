@@ -13,7 +13,9 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
+import org.ceskaexpedice.fedoramodel.DatastreamType;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.xml.sax.SAXException;
 
@@ -104,7 +106,7 @@ public class ProcessingIndexRebuild {
                         String filename = file.toString();
                         try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                             DigitalObject digitalObject = createDigitalObject(inputStream);
-                            rebuildProcessingIndex(akubraRepository.pi(), digitalObject, exclusiveCommit);
+                            rebuildProcessingIndex(akubraRepository, digitalObject, exclusiveCommit);
                         } catch (Exception ex) {
                             LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                         }
@@ -113,7 +115,7 @@ public class ProcessingIndexRebuild {
                     String filename = file.toString();
                     try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                         DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(akubraRepository.pi(), digitalObject, exclusiveCommit);
+                        rebuildProcessingIndex(akubraRepository, digitalObject, exclusiveCommit);
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                     }
@@ -185,50 +187,9 @@ public class ProcessingIndexRebuild {
     }
 
 
-    // TODO AK_NEW
-    public static void rebuildProcessingIndex(ProcessingIndex feeder, DigitalObject digitalObject, boolean commitAfteringest ) {
-//        try {
-//            List<DatastreamType> datastreamList = digitalObject.getDatastream();
-//            for (DatastreamType datastreamType : datastreamList) {
-//                if (FedoraUtils.RELS_EXT_STREAM.equals(datastreamType.getID())) {
-//                    InputStream streamContent = AkubraUtils.getStreamContent(AkubraUtils.getLastStreamVersion(datastreamType), null);
-//                    AkubraObject akubraObject = new AkubraObject(null, digitalObject.getPID(), digitalObject, feeder);
-//                    rebuildProcessingIndexImpl(akubraObject, streamContent);
-//                }
-//            }
-//        } catch (Exception e) {
-//            throw new RepositoryException(e);
-//        } finally {
-//            if (feeder != null && commitAfteringest) {
-//                try {
-//                    feeder.commit();
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                } catch (SolrServerException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                LOGGER.info("Feeder commited.");
-//            }
-//        }
+    public static void rebuildProcessingIndex(AkubraRepository akubraRepository, DigitalObject digitalObject, boolean commitAfteringest ) {
+        akubraRepository.pi().rebuildProcessingIndex(digitalObject.getPID());
     }
-// TODO AK_NEW
-//    private static void rebuildProcessingIndexImpl(AkubraObject akubraObject, InputStream content) throws RepositoryException {
-//        try {
-//            String s = IOUtils.toString(content, "UTF-8");
-//            RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
-//            sparqlBuilder.sparqlProps(s.trim(), (object, localName) -> {
-//                akubraObject.processRELSEXTRelationAndFeedProcessingIndex(object, localName);
-//                return object;
-//            });
-//            LOGGER.info("Processed PID:" + akubraObject.getPid() + ",  count:" + (++counter));
-//        } catch (IOException e) {
-//            throw new RepositoryException(e);
-//        } catch (SAXException e) {
-//            throw new RepositoryException(e);
-//        } catch (ParserConfigurationException e) {
-//            throw new RepositoryException(e);
-//        }
-//    }
 
     private static Unmarshaller initUnmarshaller() {
         try {

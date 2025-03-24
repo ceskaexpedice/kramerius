@@ -10,7 +10,7 @@ import java.util.List;
  * Created by pstastny on 10/10/2017.
  */
 public class Fedora4UtilsTest extends TestCase  {
-    // TODO AK_NEW
+    // TODO
 
     public void testNormalizePath() {
 //        List<String> path = Fedora4Utils.normalizePath("uuid:69d79410-490a-11de-9d6a-000d606f5dc6");

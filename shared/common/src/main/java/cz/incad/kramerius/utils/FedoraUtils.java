@@ -4,26 +4,11 @@
  */
 package cz.incad.kramerius.utils;
 
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.text.DateFormat;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class FedoraUtils {
 
@@ -60,17 +45,14 @@ public class FedoraUtils {
         add(ALTO_STREAM);
         
     }};
-    
-    
-    
+
     public static List<String> getSecuredStreams() {
         String[] securedStreamsExtension = KConfiguration.getInstance().getSecuredAditionalStreams();
         List<String> retvals = new ArrayList<>(DEFAULT_SECURED_STREAM);
         Arrays.stream(securedStreamsExtension).forEach(retvals::add);
         return retvals;
     }
-    
-    
+
     public static List<String> INTERNAL_STREAM = new ArrayList<String>(){{
        add(RELS_EXT_STREAM);
        add(IMG_THUMB_STREAM);
@@ -98,202 +80,7 @@ public class FedoraUtils {
     public static final String BIBLIO_MODS_FORMAT_URI = "http://www.loc.gov/mods/v3";
     public static final String DC_FORMAT_URI = "http://www.openarchives.org/OAI/2.0/oai_dc/";
 
-    /*
-    public static String getFormatUriForDS(String dsID){
-        if (RELS_EXT_STREAM.equals(dsID)){
-            return RELS_EXT_FORMAT_URI;
-        }
-        if (BIBLIO_MODS_STREAM.equals(dsID)){
-            return BIBLIO_MODS_FORMAT_URI;
-        }
-        if (DC_STREAM.equals(dsID)){
-            return DC_FORMAT_URI;
-        }
-        return null;
-    }*/
-
-    
     public static final int THUMBNAIL_HEIGHT = 128;
     public static final int PREVIEW_HEIGHT = 700;
 
-    
-    /* TODO AK_NEW
-    public static ArrayList<String> getRdfPids(String pid, String relation) {
-        ArrayList<String> pids = new ArrayList<String>();
-        try {
-
-            String command = KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + RELS_EXT_STREAM;
-            InputStream is = RESTHelper.inputStream(command, KConfiguration.getInstance().getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
-            Document contentDom = XMLUtils.parseDocument(is);
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xpath = factory.newXPath();
-            String xPathStr = "/RDF/Description/" + relation;
-            XPathExpression expr = xpath.compile(xPathStr);
-            NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Node childnode = nodes.item(i);
-                if (!childnode.getNodeName().contains("hasModel")) {
-                    pids.add(childnode.getNodeName() + " "
-                            + childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-        return pids;
-    }
-
-     */
-
-/* TODO AK_NEW
-    public static String findFirstPagePid(String pid) {
-
-        ArrayList<String> pids = new ArrayList<String>();
-        try {
-            KConfiguration config = KConfiguration.getInstance();
-            String command = config.getFedoraHost() + "/get/" + pid + "/" + RELS_EXT_STREAM;
-            InputStream is = RESTHelper.inputStream(command, config.getFedoraUser(), KConfiguration.getInstance().getFedoraPass());
-            Document contentDom = XMLUtils.parseDocument(is);
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xpath = factory.newXPath();
-            XPathExpression expr = xpath.compile("/RDF/Description/*");
-            NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
-            List<String> treePredicates = Arrays.asList(config.getPropertyList("fedora.treePredicates"));
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Node childnode = nodes.item(i);
-                String nodeName = childnode.getNodeName();
-                String simpleNodeName = nodeName.substring(nodeName.lastIndexOf(":")+1);
-                if (nodeName.contains("hasPage") || nodeName.contains("isOnPage")) {
-                    return childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue();
-                } else if (!nodeName.contains("hasModel") && childnode.hasAttributes() && treePredicates.contains(simpleNodeName)
-                        && childnode.getAttributes().getNamedItem("rdf:resource") != null) {
-
-                    pids.add(childnode.getAttributes().getNamedItem("rdf:resource").getNodeValue().split("/")[1]);
-                }
-            }
-            for (String relpid : pids) {
-                return FedoraUtils.findFirstPagePid(relpid);
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-        return null;
-    }
-
-
- */
-    /**
-     * Returns url stream 
-     * @return
-     */
-    /* TODO AK_NEW
-    public static String getDjVuImage( String pid) {
-        String imagePath = KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + IMG_FULL_STREAM;
-        return imagePath;
-    }
-
-     */
-
-    /**
-     * Returns path to fedora stream
-     * @param conf KConfiguraiton 
-     * @param stream Stream ID
-     * @return
-     */
-    /*
-    public static String getFedoraStreamPath( String pid, String stream) {
-        String imagePath =  KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + stream;
-        return imagePath;
-    }*/
-    
-    /**
-     * Returns path to fedora description
-     * @return
-     */
-    /*
-    public static String getFedoraDescribe() {
-        String describePath = KConfiguration.getInstance().getFedoraHost() + "/describe?xml=true";
-        return describePath;
-    }
-
-     */
-    
-
-    /**
-     * Returns true if given stream (profile of the stream) is referenced stream by URL
-     * @param profileDoc Profile document
-     */
-    /*
-    public static boolean isFedoraExternalStream( Document profileDoc) throws XPathExpressionException {
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xpath = factory.newXPath();
-        XPathExpression expr = xpath.compile("/datastreamProfile/dsLocationType/text()");
-        NodeList nodes = (NodeList) expr.evaluate(profileDoc, XPathConstants.NODESET);
-        if (nodes.getLength() > 0) {
-            Text text = (Text) nodes.item(0);
-            String trimedString = text.getData().trim();
-            return trimedString.equals("URL");
-        } else {
-            return false;
-        }
-    }
-
-     */
-
-    /*
-    public static String getLocation( Document profileDoc) throws XPathExpressionException {
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xpath = factory.newXPath();
-        XPathExpression expr = xpath.compile("/datastreamProfile/dsLocation/text()");
-        NodeList nodes = (NodeList) expr.evaluate(profileDoc, XPathConstants.NODESET);
-        if (nodes.getLength() > 0) {
-            Text text = (Text) nodes.item(0);
-            String trimedString = text.getData().trim();
-            return trimedString;
-        } else {
-            return null;
-        }
-    }*/
-
-    /**
-     * Returns thumb stream
-     * @return
-     */
-    /*
-    public static String getThumbnailFromFedora( String pid) {
-        String imagePath =  KConfiguration.getInstance().getFedoraHost() + "/get/" + pid + "/" + IMG_THUMB_STREAM;
-        return imagePath;
-    }*/
-
-    /**
-     * Returns list of fedora streams
-     * @return
-     */
-    /*
-    public static String getFedoraDatastreamsList( String pid) {
-        String datastreamsListPath =  KConfiguration.getInstance().getFedoraHost() + "/objects/" + pid + "/datastreams?format=xml";
-        return datastreamsListPath;
-    }
-
-     */
-
-    
-    /*
-    public static String getVersionCompatibilityPrefix(String fedoraVersion) {
-        return fedoraVersion.substring(0,3).replace('.', '_');
-    }
-
-     */
-
-/*
-    public static final DateFormat[] XSD_DATE_FORMATS = {
-    new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S'Z'"),
-    new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
-    new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'S"),
-    new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
-    new SafeSimpleDateFormat("yyyy-MM-dd'Z'"),
-    new SafeSimpleDateFormat("yyyy-MM-dd") };
-
- */
-    
 }

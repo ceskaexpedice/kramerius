@@ -149,7 +149,7 @@ public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {
         return injector;
     }
 
-// TODO AK_NEW
+// TODO
     class _Module extends AbstractModule {
 
         

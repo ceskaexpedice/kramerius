@@ -84,7 +84,7 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
             FileInputStream inputStream = new FileInputStream(foxmlFile);
             DigitalObject digitalObject = createDigitalObject(inputStream);
             akubraRepository.pi().deleteByPid(pid); //smazat vsechny existujici vazby z objektu, ALE netyka se tech, co na objekt vedou (ty ted neprebudovavame)
-            rebuildProcessingIndex(akubraRepository.pi(), digitalObject, true);
+            rebuildProcessingIndex(akubraRepository, digitalObject, true);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error processing file: " + foxmlFile.getAbsolutePath(), ex);
         }

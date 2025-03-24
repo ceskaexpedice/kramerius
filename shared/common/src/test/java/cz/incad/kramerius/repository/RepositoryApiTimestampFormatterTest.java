@@ -83,7 +83,7 @@ public class RepositoryApiTimestampFormatterTest {
         assertValidDateTime("2022-06-24T19:11:55.0Z");
     }
 
-    /* TODO AK_NEW
+    /* TODO
     @Test
     public void testParsingNoMillis() {
         assertInvalidDateTime("2022-06-24T19:11:55Z");

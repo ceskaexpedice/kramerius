@@ -7,7 +7,7 @@ import org.junit.Test;
 
 public class HazelcastTest {
 
-   // TODO AK_NEW
+   // TODO
     @Test
     public void testLocks() {
 //        Config config = new Config();

@@ -43,7 +43,7 @@ public class ProcessScheduler {
             String responseBody = errorResponse.getEntity(String.class);
             String bodyToPrint = responseBody;
             if (responseBody != null) {
-                /* TODO AK_NEW
+                /* TODO AK_NEW Json
                 try {
                     JsonValue jsonBody = Json.parse(responseBody);
                     bodyToPrint = jsonBody.asString();

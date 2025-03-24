@@ -72,30 +72,6 @@ public class STUtils {
 		return description;
 	}
 
-	/* TODO AK_NEW
-	public static String textPage(FedoraAccess fa, String uuid, String modelName, String title) throws IOException {
-		org.w3c.dom.Document biblioMods = fa.getBiblioMods(uuid);
-		Element root = biblioMods.getDocumentElement();
-		Map stModel = prepareBiblioModsModel(root);
-		StringTemplateGroup group = getGroup();
-		StringTemplate intpart = group.getInstanceOf("render");
-		intpart.setAttribute("bibliomods", stModel);
-		intpart.setAttribute("model", modelName);
-		intpart.setAttribute("title", title);
-		return intpart.toString();
-	}
-	
-	public static String internalPart(FedoraAccess fa, String uuid, String title) throws IOException {
-		org.w3c.dom.Document biblioMods = fa.getBiblioMods(uuid);
-		Element root = biblioMods.getDocumentElement();
-		Map stModel = prepareBiblioModsModel(root);
-		StringTemplateGroup group = getGroup();
-		StringTemplate intpart = group.getInstanceOf("internalpart");
-		intpart.setAttribute("bibliomods", stModel);
-		intpart.setAttribute("title", title);
-		return intpart.toString();
-	}
-	*/
 	private static void elementMap(Element m,Map parentMap) {
 		Map map = new HashMap();
 		String mprefix = m.getLocalName();

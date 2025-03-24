@@ -208,16 +208,11 @@ public class ItemsResource extends AdminApiResource {
                 // request doesnt contain user principal
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
-
-
-            // TODO AK_NEW List<org.apache.commons.lang3.tuple.Pair<String, Long>> allFedoraModelsAsList = this.resourceIndex.getAllFedoraModelsAsList();
+            List<Pair<String, Long>> allFedoraModelsAsList = akubraRepository.pi().getModelsCount();
             JSONObject object = new JSONObject();
-            /* TODO AK_NEW
-            for (org.apache.commons.lang3.tuple.Pair<String, Long> pair : allFedoraModelsAsList) {
+            for (Pair<String, Long> pair : allFedoraModelsAsList) {
                 object.put(pair.getKey(), pair.getRight());
             }
-
-             */
             return Response.ok(object.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -299,10 +294,6 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
             checkObjectExists(pid);
-            /* TODO AK_NEW
-            Document foxml = akubraRepository.get(pid).asDom4j(true);
-            return Response.ok().entity(foxml.asXML()).build();
-             */
             return Response.ok(akubraRepository.get(pid).asInputStream()).build();
         } catch (WebApplicationException e) {
             throw e;

@@ -2128,7 +2128,7 @@ public abstract class BaseConvertor {
         return stream;
     }
 
-    private XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
+    public XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
         Calendar now = Calendar.getInstance();
         XMLGregorianCalendar calendar = null;
         try {

@@ -27,7 +27,7 @@ public class MockRightCriteriumContextGuiceMudule extends AbstractModule {
 
     @Override
     protected void configure() {
-        /* TODO AK_NEW
+        /* TODO
         FedoraAccess fedoraAccess = EasyMock.createMock(FedoraAccess.class);
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fedoraAccess);
 

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class DatabaseRightsManagerImplTest {
 
-    /* TODO AK_NEW
+    /* TODO
     @Test
     public void testupdateRightImpl() {
         RightCriterium criterium = new ReadDNNTLabels();

@@ -51,7 +51,7 @@ public class DCContentUtilsTest {
         
         AkubraRepository akubraRepository = EasyMock.createMock(AkubraRepository.class);
         for (int i = 0; i < MAX; i++) {
-          // TODO AK_NEW  EasyMock.expect(fa.getDC(pids.get(i))).andReturn(dcDocument).anyTimes();
+          // TODO EasyMock.expect(fa.getDC(pids.get(i))).andReturn(dcDocument).anyTimes();
         }
         
         
@@ -63,11 +63,11 @@ public class DCContentUtilsTest {
         
         
         
-        // TODO AK_NEW EasyMock.replay(fa,sa);
+        // TODO EasyMock.replay(fa,sa);
         
         for (int i = 0; i < pids.size(); i++) {
             String pid = pids.get(i);
-            // TODO AK_NEW DCContentUtils.getDCS(fa, sa, Arrays.asList(pid));
+            // TODO DCContentUtils.getDCS(fa, sa, Arrays.asList(pid));
         }
         
         List<String> tailed = tail(DCContentUtils._CACHE_SIZE,pids);

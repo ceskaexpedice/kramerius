@@ -130,7 +130,7 @@ public class RightTemplatesTests {
     public void testInsertCriterium() {
         Injector injector = injector();
         RightCriteriumWrapperFactory wrapperFactory = injector.getInstance(RightCriteriumWrapperFactory.class);
-        // TODO AK_NEW RightCriteriumWrapper mw = wrapperFactory.createCriteriumWrapper(MovingWall.class.getName());
+        // TODO RightCriteriumWrapper mw = wrapperFactory.createCriteriumWrapper(MovingWall.class.getName());
 
         /*
         StringTemplate template1 = SecurityDatabaseUtils.stGroup().getInstanceOf("insertRightCriterium");
@@ -140,7 +140,7 @@ public class RightTemplatesTests {
          */
 
         // no params
-        /* TODO AK_NEW
+        /* TODO
         String sql1 = template1.toString();
         String expectedSql = "        insert into rights_criterium_entity(crit_id,qname,\"type\", label_id)\n"
                 + "        values(nextval('crit_id_sequence'),\n"
@@ -168,7 +168,7 @@ public class RightTemplatesTests {
     }
 
 
-    /* TODO AK_NEW
+    /* TODO
     @Test
     public void testInsertCriteriumLabel2() {
         Injector injector = injector();
@@ -196,7 +196,7 @@ public class RightTemplatesTests {
 
      */
 
-   /* TODO AK_NEW
+   /* TODO
     @Test
     public void testInsertCriteriumLabel() {
         Injector injector = injector();
@@ -251,7 +251,7 @@ public class RightTemplatesTests {
 
 
     @Test
-    /* TODO AK_NEW
+    /* TODO
     public void testInsertRightTemplate() {
         Injector injector = injector();
 

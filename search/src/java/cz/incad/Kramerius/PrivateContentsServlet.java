@@ -28,7 +28,6 @@ public class PrivateContentsServlet extends GuiceServlet {
             Set<String> uuidsSet = new HashSet<String>(Arrays.asList(uuids));
             Map<String, Boolean> data = new HashMap<String, Boolean>();
             for (String uuid : uuidsSet) {
-                // TODO AK_NEW
                 data.put(uuid, false);
             }
             StringTemplate template = new StringTemplate("({ $data.keys:{uuid | '$uuid$':$data.(uuid)$ };separator=\",\"$ })");

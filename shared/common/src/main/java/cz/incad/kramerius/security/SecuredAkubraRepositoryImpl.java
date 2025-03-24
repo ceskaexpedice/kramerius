@@ -261,7 +261,7 @@ public class SecuredAkubraRepositoryImpl implements AkubraRepository {
         akubraRepository.shutdown();
     }
 
-    // TODO AK_NEW
+    // TODO AK_NEW contentAccessible
     private boolean isContentAccessible(String pid) throws IOException {
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
         paths = ensurePidPathForUnindexedObjects(pid, paths);

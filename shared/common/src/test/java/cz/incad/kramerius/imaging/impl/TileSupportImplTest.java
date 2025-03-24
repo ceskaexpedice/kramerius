@@ -78,7 +78,7 @@ public class TileSupportImplTest extends AbstractGuiceTestCase {
         
     }
    
-    // TODO AK_NEW
+    // TODO
     
     class _Module extends AbstractModule {
         

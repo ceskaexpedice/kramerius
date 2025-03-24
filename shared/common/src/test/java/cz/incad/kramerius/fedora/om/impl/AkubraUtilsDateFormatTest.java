@@ -12,7 +12,7 @@ import static org.junit.Assert.fail;
 
 public class AkubraUtilsDateFormatTest {
     //private static final SafeSimpleDateFormat DATE_FORMAT = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'");
-    // TODO AK_NEW private static final SafeSimpleDateFormat DATE_FORMAT = AkubraUtils.DATE_FORMAT;
+    // TODO private static final SafeSimpleDateFormat DATE_FORMAT = AkubraUtils.DATE_FORMAT;
 
 //    @Test
 //    public void testParsingMultipleMillisTokens() {

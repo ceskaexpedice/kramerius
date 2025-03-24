@@ -60,7 +60,7 @@ public class FullThumbnailImageServlet extends AbstractImageServlet {
                 setResponseCode(pid,FedoraUtils.IMG_PREVIEW_STREAM, req, resp);
                 copyStreams(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream(), resp.getOutputStream());
             } else {
-                // TODO AK_NEW
+                // TODO AK_NEW fedoraAccess.isContentAccessible(pid)
                 boolean accessible = true;
                 if (accessible) {
                     BufferedImage scaled = GenerateThumbnail.scaleToFullThumb(pid, akubraRepository, tileSupport);

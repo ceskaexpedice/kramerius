@@ -15,7 +15,7 @@ import java.net.URL;
 public class RELSEXTSPARQLBuilderImplTest extends TestCase{
 
 
-    // TODO AK_NEW
+    // TODO
     public void testRelsExtSParql() {
 //        URL resource = RELSEXTSPARQLBuilderImplTest.class.getClassLoader().getResource("cz/incad/kramerius/fedora/om/5035a48a-5e2e-486c-8127-2fa650842e46.xml");
 //        String s = IOUtils.toString(resource.openStream(), "UTF-8");

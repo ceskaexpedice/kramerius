@@ -145,7 +145,7 @@ public class ImportDataPrepare {
     };
     
 
-    /* TODO AK_NEW
+    /* TODO
     public static void narodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             String pid = NARODNI_LISTY[i];

@@ -48,12 +48,12 @@ public class WindowTest {
 
     public EvaluatingResultState window(String firstYearFromGUI,String secondYearFromGUI, String requestedPID) throws IOException, LexerException, ParserConfigurationException, SAXException, RightCriteriumException {
         AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
-        // TODO AK_NEW ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+        // TODO ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
 
-        // TODO AK_NEW HazelcastServerNode.ensureHazelcastNode();
-        /* TODO AK_NEW
+        // TODO HazelcastServerNode.ensureHazelcastNode();
+        /* TODO
         FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
                 .withConstructor( feeder, acLog, cacheManager)
                 .addMockedMethod("getRelsExt")

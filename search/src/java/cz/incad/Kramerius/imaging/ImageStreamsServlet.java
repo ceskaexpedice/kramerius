@@ -164,9 +164,8 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 } catch (RepositoryException e1) {
                     // fedora exception
                     LOGGER.log(Level.WARNING, "Missing " + stream + " datastream for " + pid);
-                    // TODO AK_NEW
-                    //resp.setStatus(e1.getContentResponseCode());
-                    //resp.getWriter().write(e1.getContentResponseBody());
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().write(e1.getMessage());
                 } catch (FileNotFoundException e1) {
                     LOGGER.log(Level.WARNING, e1.getMessage());
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);

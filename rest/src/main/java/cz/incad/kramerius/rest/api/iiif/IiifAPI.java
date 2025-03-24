@@ -245,9 +245,6 @@ public class IiifAPI {
         try {
             if (PIDSupport.isComposedPID(pid)) {
                 String p = PIDSupport.first(pid);
-                // TODO AK_NEW this.fedoraAccess.getRelsExt(p);
-            } else {
-                // TODO AK_NEW this.fedoraAccess.getRelsExt(pid);
             }
         } catch (Exception e) {
             throw new PIDNotFound("error while parsing pid (" + pid + ")");

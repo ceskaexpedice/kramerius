@@ -37,7 +37,7 @@ public class TestGuiceModule extends AbstractGuiceTestCase {
     public void testModule() throws RightCriteriumException {
         Injector injector = injector();
         RightCriteriumWrapperFactory wrapperFactory = injector.getInstance(RightCriteriumWrapperFactory.class);
-        // TODO _AK_NEW RightCriteriumWrapper createCriterium = wrapperFactory.createCriteriumWrapper(MovingWall.class.getName());
+        // TODO RightCriteriumWrapper createCriterium = wrapperFactory.createCriteriumWrapper(MovingWall.class.getName());
         //org.junit.Assert.assertEquals("cz.incad.kramerius.security.impl.RightCriteriumWrapperImpl", createCriterium.getClass().getName());
 
         //RightCriteriumWrapper existingWrapper = wrapperFactory.loadExistingWrapper(CriteriumType.CLASS, MovingWall.class.getName(), -1, null);

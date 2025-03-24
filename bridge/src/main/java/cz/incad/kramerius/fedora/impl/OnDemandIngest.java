@@ -115,15 +115,15 @@ public class OnDemandIngest {
             return r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
         } catch (UniformInterfaceException ex2) {
             if (ex2.getResponse().getStatus() == 404) {
-                // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.log(Level.WARNING, "Call to {0} failed with message {1}. Skyping document.",
-                        //new Object[]{url, ex2.getResponse().toString()});
+                LOGGER.log(Level.WARNING, "Call to {0} failed with message {1}. Skyping document.",
+                        new Object[]{url, ex2.getResponse().toString()});
                 return null;
             } else {
-                // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
+                LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
                 return r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
             }
         } catch (Exception ex) {
-            // TODO AK_NEW FedoraAccessProxyAkubraImpl.LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
+            LOGGER.log(Level.WARNING, "Call to {0} failed. Retrying...", url);
             return r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
         }
     }

@@ -25,7 +25,7 @@ public class ProcessingIndexCheck {
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         List<String> pidsToDelete = new ArrayList<>();
-        /* TODO AK_NEW
+        /* TODO AK_NEW pids to delete
         akubraRepository.getProcessingIndex().iterateProcessingSortedByPid(ProcessingIndexFeeder.DEFAULT_ITERATE_QUERY, (SolrDocument doc) -> {
             Object source = doc.getFieldValue("source");
             if (!akubraRepository.objectExists(source.toString())) {
