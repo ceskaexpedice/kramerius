@@ -10,6 +10,8 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexQueryParameters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,17 +27,19 @@ public class ProcessingIndexCheck {
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         List<String> pidsToDelete = new ArrayList<>();
-        /* TODO AK_NEW pids to delete
-        akubraRepository.getProcessingIndex().iterateProcessingSortedByPid(ProcessingIndexFeeder.DEFAULT_ITERATE_QUERY, (SolrDocument doc) -> {
-            Object source = doc.getFieldValue("source");
-            if (!akubraRepository.objectExists(source.toString())) {
-                LOGGER.info("Object marked for delete :" + source.toString());
-                pidsToDelete.add(source.toString());
+        ProcessingIndexQueryParameters params = new ProcessingIndexQueryParameters.Builder()
+                .queryString("*:*")
+                .sortField("pid")
+                .ascending(true)
+                .cursorMark(ProcessingIndex.CURSOR_MARK_START)
+                .fieldsToFetch(List.of("source"))
+                .build();
+        akubraRepository.pi().iterate(params, processingIndexItem -> {
+            if (!akubraRepository.exists(processingIndexItem.source())) {
+                LOGGER.info("Object marked for delete :" + processingIndexItem.source());
+                pidsToDelete.add(processingIndexItem.source());
             }
         });
-
-         */
-
         pidsToDelete.stream().forEach(pid -> {
             LOGGER.info("Deleting pid :" + pid);
             akubraRepository.pi().deleteByPid(pid);

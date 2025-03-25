@@ -68,6 +68,8 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -1032,6 +1034,12 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
+    private static LocalDateTime convertToLocalDateTime(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    }
 
     // Udelat castecne ulozene na CDK
     private Collection fetchCollectionFromRepository(String pid, boolean withContent, boolean withItems) throws
@@ -1044,11 +1052,8 @@ public class CollectionsResource extends AdminApiResource {
 
         ObjectProperties objectProperties = akubraRepository.getProperties(pid);
         if(objectProperties != null) {
-            /* TODO AK_NEW lastModified
-            collection.created = objectProperties.getPropertyCreated();
-            collection.modified = objectProperties.getPropertyLastModified();
-
-             */
+            collection.created = convertToLocalDateTime(objectProperties.getPropertyCreated());
+            collection.modified = convertToLocalDateTime(objectProperties.getPropertyLastModified());
         }
 
         //data from MODS

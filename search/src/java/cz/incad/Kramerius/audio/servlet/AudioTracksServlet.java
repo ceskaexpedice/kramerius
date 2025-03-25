@@ -323,8 +323,7 @@ public class AudioTracksServlet extends GuiceServlet {
 
     private Boolean[] getAvailableFormats(String pid) {
         try {
-            // TODO AK_NEW Document doc = fedoraAccess.getFedoraDataStreamsListAsDocument(pid);
-            Document doc = null;
+            Document doc = null; // TODO
             boolean mp3 = ((NodeList) dsMp3.evaluate(doc, XPathConstants.NODESET)).getLength() == 1;
             boolean ogg = ((NodeList) dsOgg.evaluate(doc, XPathConstants.NODESET)).getLength() == 1;
             boolean wav = ((NodeList) dsWav.evaluate(doc, XPathConstants.NODESET)).getLength() == 1;

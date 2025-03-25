@@ -122,7 +122,7 @@ public class ProcessApiTestProcess {
             String responseBody = errorResponse.getEntity(String.class);
             String bodyToPrint = responseBody;
             if (responseBody != null) {
-                /* TODO AK_NEW Json
+                /* TODO
                 try {
                     JsonValue jsonBody = Json.parse(responseBody);
                     bodyToPrint = jsonBody.asString();

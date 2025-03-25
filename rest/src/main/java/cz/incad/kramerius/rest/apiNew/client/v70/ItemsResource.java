@@ -34,6 +34,7 @@ import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.ceskaexpedice.akubra.DatastreamContentWrapper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.core.repository.RepositoryDatastream;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.dom4j.*;
@@ -906,14 +907,22 @@ public class ItemsResource extends ClientApiResource {
 
     private boolean shouldUseAudioServer(String pid, AudioFormat audioFormat) {
         try {
-            // TODO AK_NEW String type = akubraRepository.getDatastreamMetadata(pid, audioFormat.name()).getType().toString();
-            String type = null;
+            String controlGroup = akubraRepository.getDatastreamMetadata(pid, audioFormat.name()).getControlGroup();
+            String type = controlGroup2Type(controlGroup);
             return type != null && type.equals("INDIRECT");
         } catch (RepositoryException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return false;
         }
-    }   
+    }
+
+    private static String controlGroup2Type(String controlGroup) {
+        if ("E".equals(controlGroup) || "R".equals(controlGroup)) {
+            return "INDIRECT";
+        } else {
+            return "DIRECT";
+        }
+    }
 
     /***
      * Vrací obsah datastreamu MP3 tohoto objektu

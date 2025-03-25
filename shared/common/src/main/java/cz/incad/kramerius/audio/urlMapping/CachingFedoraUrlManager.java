@@ -25,6 +25,7 @@ import cz.incad.kramerius.audio.XpathEvaluator;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.fedoramodel.DatastreamType;
 import org.ceskaexpedice.fedoramodel.DatastreamVersionType;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.ehcache.Cache;
@@ -44,6 +45,7 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -155,9 +157,15 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
     private String getExternalStreamURL(String pid, String datastreamName) throws IOException {
         DigitalObject object = akubraRepository.get(pid).asDigitalObject();
         if (object != null) {
-
-            // TODO AK_NEW DatastreamVersionType stream = DigitalObjectUtils.getLastStreamVersion(object, datastreamName);
-            DatastreamVersionType stream = null;
+            List<DatastreamType> datastream = object.getDatastream();
+            DatastreamType datastreamType = null;
+            for (DatastreamType ds : datastream) {
+                if(ds.getID().equals(datastreamName)) {
+                    datastreamType = ds;
+                    break;
+                }
+            }
+            DatastreamVersionType stream = datastreamType == null ? null : getLastStreamVersion(datastreamType);
             if (stream != null) {
                 if (stream.getContentLocation() != null && "URL".equals(stream.getContentLocation().getTYPE())) {
                     return stream.getContentLocation().getREF();
@@ -168,5 +176,14 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
             throw new IOException("Datastream not found: " + pid + " - " + datastreamName);
         }
         throw new IOException("Object not found: " + pid);
+    }
+
+    static DatastreamVersionType getLastStreamVersion(DatastreamType datastreamType) {
+        List<DatastreamVersionType> datastreamVersionList = datastreamType.getDatastreamVersion();
+        if (datastreamVersionList == null || datastreamVersionList.isEmpty()) {
+            return null;
+        } else {
+            return datastreamVersionList.get(datastreamVersionList.size() - 1);
+        }
     }
 }
