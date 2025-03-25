@@ -28,6 +28,7 @@ import java.util.logging.Level;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
@@ -75,7 +76,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Inject
     public DocumentServiceImpl(
-            @Named("securedAkubraAccess") AkubraRepository akubraRepository,
+            SecuredAkubraRepository akubraRepository,
             @Named("new-index") SolrAccess solrAccess,
             Provider<Locale> localeProvider,
             ResourceBundleService resourceBundleService

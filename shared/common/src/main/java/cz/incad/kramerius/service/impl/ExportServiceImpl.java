@@ -6,6 +6,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.service.ExportService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -32,8 +33,7 @@ public class ExportServiceImpl implements ExportService {
     private static int BUFFER_SIZE = 1024;
 
     @Inject
-    @Named("securedAkubraAccess")
-    AkubraRepository akubraRepository;
+    SecuredAkubraRepository akubraRepository;
 
     KConfiguration configuration = KConfiguration.getInstance();
     @Inject
@@ -176,7 +176,7 @@ public class ExportServiceImpl implements ExportService {
     public static void main(String[] args) throws IOException, TransformerException, SAXException, ParserConfigurationException {
         LOGGER.info("Export service: " + Arrays.toString(args));
         com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
-        AkubraRepository akubraRepository = injector.getInstance(com.google.inject.Key.get(AkubraRepository.class));
+        SecuredAkubraRepository akubraRepository = injector.getInstance(com.google.inject.Key.get(SecuredAkubraRepository.class));
         Boolean exportParents = null;
         if (args.length > 1) {
             if (args[args.length - 1].equals("true")) {

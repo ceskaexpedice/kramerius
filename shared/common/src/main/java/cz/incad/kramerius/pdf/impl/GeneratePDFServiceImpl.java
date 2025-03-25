@@ -19,6 +19,7 @@ import cz.incad.kramerius.pdf.commands.ITextCommands;
 import cz.incad.kramerius.pdf.commands.render.RenderPDF;
 import cz.incad.kramerius.pdf.utils.pdf.DocumentUtils;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -71,7 +72,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
 
     @Inject
     public GeneratePDFServiceImpl(
-            @Named("securedAkubraAccess") AkubraRepository akubraRepository,
+            SecuredAkubraRepository akubraRepository,
             @Named("new-index")SolrAccess solrAccess,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService,

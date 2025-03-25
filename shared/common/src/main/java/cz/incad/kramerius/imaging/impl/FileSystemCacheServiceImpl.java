@@ -10,6 +10,7 @@ import java.util.logging.Level;
 
 import javax.imageio.stream.ImageOutputStreamImpl;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -45,8 +46,7 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FileSystemCacheServiceImpl.class.getName());
 
     @Inject
-    @Named("securedAkubraAccess")
-    AkubraRepository akubraRepository;
+    SecuredAkubraRepository akubraRepository;
 
     @Inject
     DeepZoomTileSupport tileSupport;

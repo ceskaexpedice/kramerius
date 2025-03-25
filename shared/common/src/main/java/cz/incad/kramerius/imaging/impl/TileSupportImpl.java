@@ -13,6 +13,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.imaging.DeepZoomFullImageScaleFactor;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -32,8 +33,7 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     private static final int TILE_SIZE = 512;
 
     @Inject
-    @Named("securedAkubraAccess")
-    AkubraRepository akubraRepository;
+    SecuredAkubraRepository akubraRepository;
 
     KConfiguration kConfiguration = KConfiguration.getInstance();
     

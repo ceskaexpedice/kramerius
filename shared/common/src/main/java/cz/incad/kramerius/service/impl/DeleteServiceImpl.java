@@ -13,6 +13,7 @@ import cz.incad.kramerius.document.model.utils.DCContentUtils;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.service.DeleteService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -36,8 +37,7 @@ import java.util.logging.Logger;
 public class DeleteServiceImpl implements DeleteService {
 
     @Inject
-    @Named("securedAkubraAccess")
-    AkubraRepository akubraRepository;
+    SecuredAkubraRepository akubraRepository;
 
     @Inject
     @Named("new-index")
@@ -130,7 +130,7 @@ public class DeleteServiceImpl implements DeleteService {
         SolrAccess solrAccess = new SolrAccessImplNewIndex();
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
+        SecuredAkubraRepository akubraRepository = injector.getInstance(Key.get(SecuredAkubraRepository.class));
         inst.akubraRepository = akubraRepository;
         inst.predicates = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates"), Functions.toStringFunction());
         inst.solrAccess = solrAccess;

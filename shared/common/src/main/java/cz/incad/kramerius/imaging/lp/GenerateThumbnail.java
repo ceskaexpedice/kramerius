@@ -20,6 +20,7 @@ import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -40,7 +41,7 @@ public class GenerateThumbnail {
         System.out.println("Generate thumbnails :" + Arrays.asList(args));
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
-            AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class, Names.named("securedAkubraAccess")));
+            AkubraRepository akubraRepository = injector.getInstance(Key.get(SecuredAkubraRepository.class));
             DeepZoomTileSupport tileSupport = injector.getInstance(DeepZoomTileSupport.class);
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
             prepareCacheForUUID(args[0], akubraRepository, discStruct, tileSupport);

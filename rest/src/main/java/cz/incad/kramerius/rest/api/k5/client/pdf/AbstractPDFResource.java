@@ -18,6 +18,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -44,10 +46,6 @@ import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
-import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -71,8 +69,7 @@ public class AbstractPDFResource {
     FirstPagePDFService imageFirstPage  ;
 
     @Inject
-    @Named("securedAkubraAccess")
-    AkubraRepository akubraRepository;
+    SecuredAkubraRepository akubraRepository;
 
     KConfiguration configuration = KConfiguration.getInstance();
 

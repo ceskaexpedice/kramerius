@@ -116,8 +116,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                 pid = akubraRepository.re().getFirstViewablePidInTree(pid);
             }
             if (pid != null) {
-                // TODO AK_NEW boolean accessible = fedoraAccess.isContentAccessible(pid);
-                boolean accessible = true;
+                boolean accessible = akubraRepository.isContentAccessible(pid);
                 String mimeType = akubraRepository.getDatastreamMetadata(pid, stream).getMimetype();
                 resp.setContentType(mimeType);
                 if (accessible) {

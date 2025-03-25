@@ -22,6 +22,7 @@ import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.audio.XpathEvaluator;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import net.sf.json.JSONObject;
@@ -60,8 +61,7 @@ public class AudioTracksServlet extends GuiceServlet {
     @Inject
     Provider<Locale> localeProvider;
     @Inject
-    @Named("securedAkubraAccess")
-    AkubraRepository akubraRepository;
+    SecuredAkubraRepository akubraRepository;
 
     private XPathExpression rdfModel;
     private XPathExpression rdfHasTracks;

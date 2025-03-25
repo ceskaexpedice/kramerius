@@ -12,6 +12,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -36,7 +37,7 @@ public class Fedora3StreamsDiscStructure implements DiscStrucutreForStore {
     private AkubraRepository akubraRepository;
 
     @Inject
-    public Fedora3StreamsDiscStructure(@Named("securedAkubraAccess") AkubraRepository akubraRepository) {
+    public Fedora3StreamsDiscStructure(SecuredAkubraRepository akubraRepository) {
         super();
         this.akubraRepository = akubraRepository;
     }

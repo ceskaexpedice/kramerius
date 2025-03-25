@@ -5,6 +5,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.RightsResolver;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.security.SecuredAkubraRepositoryImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -14,7 +15,7 @@ import org.ceskaexpedice.akubra.config.RepositoryConfiguration;
 
 import java.io.File;
 
-public class SecuredAkubraRepositoryProvider implements Provider<AkubraRepository> {
+public class SecuredAkubraRepositoryProvider implements Provider<SecuredAkubraRepository> {
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SecuredAkubraRepositoryProvider.class.getName());
 
@@ -32,7 +33,7 @@ public class SecuredAkubraRepositoryProvider implements Provider<AkubraRepositor
     }
 
     @Override
-    public AkubraRepository get() {
+    public SecuredAkubraRepository get() {
         return new SecuredAkubraRepositoryImpl(akubraRepository, solrAccess, rightsResolver);
     }
 }

@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
 import com.google.inject.name.Names;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.ceskaexpedice.akubra.AkubraRepository;
 
 /**
@@ -15,10 +16,7 @@ public class RepoModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(AkubraRepository.class).toProvider(AkubraRepositoryProvider.class).in(Scopes.SINGLETON);
-        bind(AkubraRepository.class)
-                .annotatedWith(Names.named("securedAkubraAccess"))
-                .toProvider(SecuredAkubraRepositoryProvider.class)
-                .in(Scopes.SINGLETON);
+        bind(SecuredAkubraRepository.class).toProvider(SecuredAkubraRepositoryProvider.class).in(Scopes.SINGLETON);
     }
 
 }

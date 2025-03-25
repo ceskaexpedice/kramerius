@@ -1,6 +1,7 @@
 package cz.incad.Kramerius;
 
 import cz.incad.kramerius.intconfig.InternalConfiguration;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -92,11 +93,11 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
         IOUtils.copy(is, resp.getOutputStream());
     }
 
-    public AkubraRepository getAkubraRepository() {
+    public SecuredAkubraRepository getAkubraRepository() {
         return akubraRepository;
     }
 
-    public void setAkubraRepository(AkubraRepository akubraRepository) {
+    public void setAkubraRepository(SecuredAkubraRepository akubraRepository) {
         this.akubraRepository = akubraRepository;
     }
 

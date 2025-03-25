@@ -100,8 +100,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
                             String tile = tokenizer.nextToken();
                             renderTile(pid, level, tile, req, resp);
                         } else {
-                            // TODO AK_NEW fedoraAccess.isContentAccessible(pid)
-                            boolean contentAccessible = true;
+                            boolean contentAccessible = akubraRepository.isContentAccessible(pid);
                             if (contentAccessible) {
                                 renderDZI(pid, req, resp);
                             } else {

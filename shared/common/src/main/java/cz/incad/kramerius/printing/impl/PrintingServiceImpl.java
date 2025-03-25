@@ -57,6 +57,7 @@ import javax.print.attribute.standard.RequestingUserName;
 import javax.print.attribute.standard.Sides;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.antlr.stringtemplate.StringTemplate;
 
 import com.google.inject.Inject;
@@ -106,7 +107,7 @@ public class PrintingServiceImpl implements PrintingService {
     
     @Inject
     public PrintingServiceImpl(
-        @Named("securedAkubraAccess") AkubraRepository akubraRepository,
+        SecuredAkubraRepository akubraRepository,
             @Named("new-index") SolrAccess solrAccess, Provider<Locale> localeProvider, TextsService textsService, ResourceBundleService resourceBundleService, DocumentService documentService, GeneratePDFService pdfService, Provider<User> userProvider) {
         super();
         this.akubraRepository = akubraRepository;

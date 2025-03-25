@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,8 +61,7 @@ public class SOLRResource {
     Provider<Locale> localesProvider;
 
     @Inject
-    @Named("securedAkubraAccess")
-    AkubraRepository akubraRepository;
+    SecuredAkubraRepository akubraRepository;
 
     @Inject
     @javax.inject.Named("new-index")

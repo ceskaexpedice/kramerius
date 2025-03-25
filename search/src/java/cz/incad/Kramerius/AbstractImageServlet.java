@@ -3,6 +3,7 @@ package cz.incad.Kramerius;
 import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.imaging.utils.ImageUtils;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.SafeSimpleDateFormat;
@@ -72,8 +73,7 @@ public abstract class AbstractImageServlet extends GuiceServlet {
     protected transient KConfiguration configuration = KConfiguration.getInstance();
 
     @Inject
-    @Named("securedAkubraAccess")
-    protected transient AkubraRepository akubraRepository;
+    protected transient SecuredAkubraRepository akubraRepository;
 
     @Inject
     protected transient HttpAsyncClient client;
@@ -183,11 +183,11 @@ public abstract class AbstractImageServlet extends GuiceServlet {
         }
     }
 
-    public AkubraRepository getAkubraRepository() {
+    public SecuredAkubraRepository getAkubraRepository() {
         return akubraRepository;
     }
 
-    public void setAkubraRepository(AkubraRepository akubraRepository) {
+    public void setAkubraRepository(SecuredAkubraRepository akubraRepository) {
         this.akubraRepository = akubraRepository;
     }
 

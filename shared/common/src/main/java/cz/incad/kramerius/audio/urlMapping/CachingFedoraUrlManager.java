@@ -22,6 +22,7 @@ import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.XpathEvaluator;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.fedoramodel.DatastreamVersionType;
@@ -63,8 +64,7 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
     private final XPathExpression dsLocation;
 
     @Inject
-    @Named("securedAkubraAccess")
-    private AkubraRepository akubraRepository;
+    private SecuredAkubraRepository akubraRepository;
 
     private final CacheManager cacheManager;
 

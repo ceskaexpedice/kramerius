@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -15,8 +16,7 @@ public class METSServiceImpl implements METSService {
 	public static final Logger LOGGER = Logger.getLogger(METSServiceImpl.class.getName());
 	
 	@Inject
-	@Named("securedAkubraAccess")
-	AkubraRepository akubraRepository;
+	SecuredAkubraRepository akubraRepository;
 
 	KConfiguration configuration = KConfiguration.getInstance();
 

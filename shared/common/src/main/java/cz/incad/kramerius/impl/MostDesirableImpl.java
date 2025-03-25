@@ -17,6 +17,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.MostDesirable;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
@@ -32,7 +33,7 @@ public class MostDesirableImpl implements MostDesirable {
     @Inject
     public MostDesirableImpl(
             @Named("kramerius4") Provider<Connection> provider,
-            @Named("securedAkubraAccess") AkubraRepository akubraRepository
+            SecuredAkubraRepository akubraRepository
     ){
         super();
         this.provider = provider;

@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 
@@ -24,8 +25,7 @@ public class MimeTypeServlet extends GuiceServlet {
 			.getLogger(MimeTypeServlet.class.getName());
 	
 	@Inject
-	@Named("securedAkubraAccess")
-	AkubraRepository akubraRepository;
+	SecuredAkubraRepository akubraRepository;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

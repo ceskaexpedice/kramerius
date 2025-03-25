@@ -21,6 +21,7 @@ import javax.xml.xpath.XPathFactory;
 
 import java.util.ArrayList;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -38,8 +39,7 @@ public class GetFirstPageThumb extends GuiceServlet {
     private static final String UUID_PARAMETER = "uuid";
 
     @Inject
-    @Named("securedAkubraAccess")
-    AkubraRepository akubraRepository;
+    SecuredAkubraRepository akubraRepository;
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -127,7 +127,7 @@ public class GetFirstPageThumb extends GuiceServlet {
 		return akubraRepository;
 	}
 
-	public void setAkubraRepository(AkubraRepository akubraRepository) {
+	public void setAkubraRepository(SecuredAkubraRepository akubraRepository) {
 		this.akubraRepository = akubraRepository;
 	}
 

@@ -32,6 +32,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -75,8 +76,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FirstPagePDFServiceImpl.class.getName());
 
     @Inject
-    @Named("securedAkubraAccess")
-    AkubraRepository akubraRepository;
+    SecuredAkubraRepository akubraRepository;
 
     @Inject
     TextsService textsService;

@@ -21,10 +21,7 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
     protected void configure() {
         // mapped plain fedoraAccess as secured. In this process it is not
         // necessary to have checked access to fedora.
-        bind(AkubraRepository.class)
-                .annotatedWith(Names.named("securedAkubraAccess"))
-                .toProvider(SecuredAkubraRepositoryProvider.class)
-                .in(Scopes.SINGLETON);
+        bind(AkubraRepository.class).toProvider(SecuredAkubraRepositoryProvider.class).in(Scopes.SINGLETON);
 
 //        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
 //        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);

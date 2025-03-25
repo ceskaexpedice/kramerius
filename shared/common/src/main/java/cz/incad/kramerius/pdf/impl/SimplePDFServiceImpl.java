@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.antlr.stringtemplate.StringTemplate;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.xml.sax.SAXException;
@@ -63,7 +64,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
 
     @Inject
     public SimplePDFServiceImpl(
-            @Named("securedAkubraAccess") AkubraRepository akubraRepository,
+            SecuredAkubraRepository akubraRepository,
             @Named("new-index") SolrAccess solrAccess,
             Provider<Locale> localeProvider, TextsService textsService,
             ResourceBundleService resourceBundleService) {

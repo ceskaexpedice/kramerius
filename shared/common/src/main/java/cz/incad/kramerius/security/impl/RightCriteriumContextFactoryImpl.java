@@ -42,7 +42,7 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
     }
 
     @Inject
-    public void setAkubraRepository(@Named("securedAkubraAccess") AkubraRepository akubraRepository) {
+    public void setAkubraRepository(SecuredAkubraRepository akubraRepository) {
         this.akubraRepository = akubraRepository;
     }
 

@@ -3,6 +3,7 @@ package cz.incad.Kramerius;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 
@@ -22,8 +23,7 @@ public class ProxyDatastreamsServlet extends GuiceServlet {
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProxyDatastreamsServlet.class.getName());
 
     @Inject
-    @Named("securedAkubraAccess")
-    private AkubraRepository akubraRepository;
+    private SecuredAkubraRepository akubraRepository;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

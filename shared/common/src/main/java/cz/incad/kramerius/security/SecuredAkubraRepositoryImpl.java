@@ -20,7 +20,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.virtualcollections.CollectionPidUtils;
@@ -37,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SecuredAkubraRepositoryImpl implements AkubraRepository {
+public class SecuredAkubraRepositoryImpl implements SecuredAkubraRepository {
 
     private final AkubraRepository akubraRepository;
     private final SolrAccess solrAccess;
@@ -261,16 +260,20 @@ public class SecuredAkubraRepositoryImpl implements AkubraRepository {
         akubraRepository.shutdown();
     }
 
-    // TODO AK_NEW contentAccessible
-    private boolean isContentAccessible(String pid) throws IOException {
-        ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
-        paths = ensurePidPathForUnindexedObjects(pid, paths);
-        for (ObjectPidsPath path : paths) {
-            if (this.rightsResolver.isActionAllowed(SecuredActions.A_READ.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path).flag()) {
-                return true;
+    @Override
+    public boolean isContentAccessible(String pid) {
+        try {
+            ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
+            paths = ensurePidPathForUnindexedObjects(pid, paths);
+            for (ObjectPidsPath path : paths) {
+                if (this.rightsResolver.isActionAllowed(SecuredActions.A_READ.getFormalName(), pid, FedoraUtils.IMG_FULL_STREAM, path).flag()) {
+                    return true;
+                }
             }
+            return false;
+        } catch (IOException e) {
+            throw new RepositoryException(e);
         }
-        return false;
     }
 
     private ObjectPidsPath[] ensurePidPathForUnindexedObjects(String pid, ObjectPidsPath[] paths) {
