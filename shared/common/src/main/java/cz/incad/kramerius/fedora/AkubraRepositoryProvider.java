@@ -4,8 +4,8 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.AkubraRepositoryFactory;
-import org.ceskaexpedice.akubra.config.HazelcastConfiguration;
 import org.ceskaexpedice.akubra.config.RepositoryConfiguration;
+import org.ceskaexpedice.hazelcast.HazelcastConfiguration;
 
 import java.io.File;
 

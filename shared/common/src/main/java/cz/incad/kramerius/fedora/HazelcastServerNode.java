@@ -17,7 +17,7 @@
 package cz.incad.kramerius.fedora;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.ceskaexpedice.akubra.config.HazelcastConfiguration;
+import org.ceskaexpedice.hazelcast.HazelcastConfiguration;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -40,11 +40,11 @@ public class HazelcastServerNode implements ServletContextListener {
                 .hazelcastInstance(hazelcastInstance)
                 .hazelcastUser(hazelcastUser)
                 .build();
-        org.ceskaexpedice.akubra.HazelcastServerNode.ensureHazelcastNode(hazelcastConfig);
+        org.ceskaexpedice.hazelcast.HazelcastServerNode.ensureHazelcastNode(hazelcastConfig);
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        org.ceskaexpedice.akubra.HazelcastServerNode.shutdown();
+        org.ceskaexpedice.hazelcast.HazelcastServerNode.shutdown();
     }
 }

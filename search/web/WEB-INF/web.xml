@@ -153,8 +153,8 @@
 		</listener-class>
 		<listener-class>cz.incad.kramerius.users.impl.http.LoggedUserSessionListener
 		</listener-class>
-		<listener-class>cz.incad.kramerius.fedora.HazelcastServerNode
-		</listener-class>
+		<!--listener-class>cz.incad.kramerius.fedora.HazelcastServerNode
+		</listener-class-->
 	</listener>
 
 

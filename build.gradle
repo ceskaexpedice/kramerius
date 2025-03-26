@@ -112,6 +112,7 @@ allprojects {
     }
 
     dependencies {
+        implementation 'org.ceskaexpedice:hazelcast-locks-server:1.0-SNAPSHOT'
 
         // postgresql to all subprojects
         api "org.postgresql:postgresql:${postgresversion}"
