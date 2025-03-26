@@ -18,15 +18,16 @@ package cz.incad.kramerius.fedora;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.hazelcast.HazelcastConfiguration;
+import org.ceskaexpedice.hazelcast.HazelcastServerNode;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.File;
 import java.util.logging.Logger;
 
-public class HazelcastServerNode implements ServletContextListener {
+public class HazelcastServerListener implements ServletContextListener {
 
-    private static final Logger LOGGER = Logger.getLogger(HazelcastServerNode.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(HazelcastServerListener.class.getName());
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -40,11 +41,11 @@ public class HazelcastServerNode implements ServletContextListener {
                 .hazelcastInstance(hazelcastInstance)
                 .hazelcastUser(hazelcastUser)
                 .build();
-        org.ceskaexpedice.hazelcast.HazelcastServerNode.ensureHazelcastNode(hazelcastConfig);
+        HazelcastServerNode.ensureHazelcastNode(hazelcastConfig);
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        org.ceskaexpedice.hazelcast.HazelcastServerNode.shutdown();
+        HazelcastServerNode.shutdown();
     }
 }
