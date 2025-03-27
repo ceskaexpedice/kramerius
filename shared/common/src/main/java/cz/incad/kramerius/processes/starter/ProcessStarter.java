@@ -169,7 +169,7 @@ public class ProcessStarter {
                 }
             }
         } finally {
-            // TODO AK_NEW AkubraDOManager.shutdown();
+            // TODO is it necessary to shutdown AkubraRepo here?
             String uuid = System.getProperty(ProcessStarter.UUID_KEY);
             String closeTokenFlag = System.getProperty(AUTOMATIC_CLOSE_TOKEN, "true");
             if (closeTokenFlag != null && closeTokenFlag.trim().toLowerCase().equals("true")) {

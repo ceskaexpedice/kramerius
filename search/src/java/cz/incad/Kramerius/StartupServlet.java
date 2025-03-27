@@ -126,7 +126,6 @@ public class StartupServlet extends GuiceServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        // TODO AK_NEW HazelcastServerNode.ensureHazelcastNode();
         super.init(config);
     }
 

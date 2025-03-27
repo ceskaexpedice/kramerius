@@ -58,9 +58,6 @@ public class ProcessingIndexRebuild {
     public static void main(String[] args) throws IOException, SolrServerException {
         if (args.length>=1 && "REBUILDPROCESSING".equalsIgnoreCase(args[0])){
             LOGGER.info("Přebudování Processing indexu");
-            if (args.length >= 2 &&  "RUNHAZELCAST".equalsIgnoreCase(args[1])) {
-                // TODO AK_NEW HazelcastServerNode.ensureHazelcastNode();
-            }
         } else {
             ProcessStarter.updateName("Přebudování Processing indexu");
         }
