@@ -61,7 +61,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(GeneratePDFServiceImpl.class.getName());
 
-    private AkubraRepository akubraRepository;
+    private SecuredAkubraRepository akubraRepository;
     private Provider<Locale> localeProvider;
     private TextsService textsService;
     private ResourceBundleService resourceBundleService;

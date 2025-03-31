@@ -25,6 +25,7 @@ import cz.incad.Kramerius.statistics.formatters.guice.FormatterModule;
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.database.guice.DatabaseVersionGuiceModule;
 import cz.incad.kramerius.document.guice.DocumentServiceModule;
+import cz.incad.kramerius.fedora.RepoSecureModule;
 import cz.incad.kramerius.imaging.guice.ImageModule;
 import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
@@ -69,6 +70,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
                 // Repo modules
                 new RepoModule(),
+                new RepoSecureModule(),
 
                 new SolrModule(),
 

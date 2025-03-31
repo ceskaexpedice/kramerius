@@ -16,6 +16,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 
 import com.google.inject.name.Names;
+import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
@@ -40,7 +41,7 @@ public class GenerateThumbnail {
     public static void main(String[] args) throws IOException {
         System.out.println("Generate thumbnails :" + Arrays.asList(args));
         if (args.length == 1) {
-            Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
+            Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new RepoModule(), new Fedora3Module(), new NullStatisticsModule());
             AkubraRepository akubraRepository = injector.getInstance(Key.get(SecuredAkubraRepository.class));
             DeepZoomTileSupport tileSupport = injector.getInstance(DeepZoomTileSupport.class);
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);

@@ -7,13 +7,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.security.SecuredAkubraRepositoryImpl;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.AkubraRepositoryFactory;
-import org.ceskaexpedice.akubra.config.HazelcastConfiguration;
-import org.ceskaexpedice.akubra.config.RepositoryConfiguration;
-
-import java.io.File;
 
 public class SecuredAkubraRepositoryProvider implements Provider<SecuredAkubraRepository> {
 
