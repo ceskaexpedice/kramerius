@@ -25,10 +25,7 @@ import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
-import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
-import org.ceskaexpedice.akubra.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.*;
 import org.w3c.dom.*;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -73,37 +70,51 @@ public final class RelationServiceImpl implements RelationService {
     @Override
     public void save(String pid, RelationModel model) throws IOException {
         try {
-            Document relsExt = akubraRepository.re().get(pid).asDom(false);
-            RelationModel orig = Loader.load(pid, relsExt);
+            akubraRepository.doWithWriteLock(pid, new LockOperation<Object>() {
+                @Override
+                public Object execute() {
+                    try {
+                        Document relsExt = akubraRepository.re().get(pid).asDom(false);
+                        RelationModel orig = Loader.load(pid, relsExt);
 
-            if (isModified(orig, model)) {
-                // XXX use also timestamp or checksum to detect concurrent modifications
-                String dsContent = Saver.save(relsExt, model);
+                        if (isModified(orig, model)) {
+                            // XXX use also timestamp or checksum to detect concurrent modifications
+                            String dsContent = Saver.save(relsExt, model);
 
-                byte[] bytes = dsContent.getBytes(StandardCharsets.UTF_8);
-                akubraRepository.re().update(pid, new ByteArrayInputStream(bytes));
+                            byte[] bytes = dsContent.getBytes(StandardCharsets.UTF_8);
+                            akubraRepository.re().update(pid, new ByteArrayInputStream(bytes));
 
-                List<String> movedPids = new ArrayList<>();
-                for (KrameriusModels kind : model.getRelationKinds()) {
-                    if (KrameriusModels.DONATOR.equals(kind)) continue;
-                    List<Relation> newRelations = model.getRelations(kind);
-                    List<Relation> origRelations = orig.getRelations(kind);
-                    if (newRelations.size()==origRelations.size()){
-                        for (int i = 0; i< newRelations.size();i++){
-                            if (!newRelations.get(i).equals(origRelations.get(i))) {
-                                movedPids.add(newRelations.get(i).getPID());
+                            List<String> movedPids = new ArrayList<>();
+                            for (KrameriusModels kind : model.getRelationKinds()) {
+                                if (KrameriusModels.DONATOR.equals(kind)) continue;
+                                List<Relation> newRelations = model.getRelations(kind);
+                                List<Relation> origRelations = orig.getRelations(kind);
+                                if (newRelations.size()==origRelations.size()){
+                                    for (int i = 0; i< newRelations.size();i++){
+                                        if (!newRelations.get(i).equals(origRelations.get(i))) {
+                                            movedPids.add(newRelations.get(i).getPID());
+                                        }
+                                    }
+                                }
                             }
+                            for (String movedPid:movedPids){
+                                // changed only because of message
+                                //fedoraAccess.getAPIM().modifyObject(movedPid,null,null,null,"Relation order changed.");
+                            }
+
+                            RelationModelImpl modelImpl = (RelationModelImpl) model;
+                            modelImpl.onSave();
                         }
+                        return null;
+                    } catch (XPathExpressionException e) {
+                        throw new RuntimeException(e);
+                    } catch (LexerException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                 }
-                for (String movedPid:movedPids){
-                    // changed only because of message
-                    //fedoraAccess.getAPIM().modifyObject(movedPid,null,null,null,"Relation order changed.");
-                }
-
-                RelationModelImpl modelImpl = (RelationModelImpl) model;
-                modelImpl.onSave();
-            }
+            });
         } catch (Exception ex) {
             throw new IOException("Cannot store relations: " + pid, ex);
         }

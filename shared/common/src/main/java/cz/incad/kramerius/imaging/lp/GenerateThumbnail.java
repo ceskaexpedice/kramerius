@@ -42,7 +42,7 @@ public class GenerateThumbnail {
         System.out.println("Generate thumbnails :" + Arrays.asList(args));
         if (args.length == 1) {
             Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new RepoModule(), new Fedora3Module(), new NullStatisticsModule());
-            AkubraRepository akubraRepository = injector.getInstance(Key.get(SecuredAkubraRepository.class));
+            AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             DeepZoomTileSupport tileSupport = injector.getInstance(DeepZoomTileSupport.class);
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
             prepareCacheForUUID(args[0], akubraRepository, discStruct, tileSupport);

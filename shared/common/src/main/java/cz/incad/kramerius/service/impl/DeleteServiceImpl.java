@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 public class DeleteServiceImpl implements DeleteService {
 
     @Inject
-    SecuredAkubraRepository akubraRepository;
+    AkubraRepository akubraRepository;
 
     @Inject
     @Named("new-index")
@@ -130,7 +130,7 @@ public class DeleteServiceImpl implements DeleteService {
         SolrAccess solrAccess = new SolrAccessImplNewIndex();
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-        SecuredAkubraRepository akubraRepository = injector.getInstance(Key.get(SecuredAkubraRepository.class));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         inst.akubraRepository = akubraRepository;
         inst.predicates = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates"), Functions.toStringFunction());
         inst.solrAccess = solrAccess;
