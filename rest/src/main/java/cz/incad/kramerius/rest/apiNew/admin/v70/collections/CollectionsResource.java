@@ -355,32 +355,39 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
 
-
             synchronized (CollectionsResource.class) {
                 checkObjectExists(pid);
-                Collection current = fetchCollectionFromRepository(pid, true, false);
-                Collection updated = current.withUpdatedDataModifiableByClient(extractCollectionFromJson(collectionDefinition));
-                if (updated.names.isEmpty()) {
-                    throw new BadRequestException("name can't be empty");
-                }
-                if (!current.equalsInDataModifiableByClient(updated)) {
-                    //fetch items in collection first (otherwise eventual consistency of processing index would cause no items in new version of rels-ext)
-                    List<ProcessingIndexItem> itemsInCollection = akubraRepository.pi().getChildren(KnownRelations.CONTAINS.toString(), pid);
-                    //rebuild and update mods
-                    Document document = foxmlBuilder.buildMods(updated);
-                    ByteArrayInputStream bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.updateXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS, "text/xml", bis);
-                    //rebuild and update rels-ext (because of "standalone")
-                    List<String> pids = new ArrayList<>();
-                    for(ProcessingIndexItem item: itemsInCollection){
-                        pids.add(item.targetPid());
+                akubraRepository.doWithWriteLock(pid, () -> {
+                    Collection current = null;
+                    try {
+                        current = fetchCollectionFromRepository(pid, true, false);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
-                    document = foxmlBuilder.buildRelsExt(updated, pids);
-                    bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.re().update(pid, bis);
-                    //schedule reindexation - (only collection object)
-                    scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
-                }
+                    Collection updated = current.withUpdatedDataModifiableByClient(extractCollectionFromJson(collectionDefinition));
+                    if (updated.names.isEmpty()) {
+                        throw new BadRequestException("name can't be empty");
+                    }
+                    if (!current.equalsInDataModifiableByClient(updated)) {
+                        //fetch items in collection first (otherwise eventual consistency of processing index would cause no items in new version of rels-ext)
+                        List<ProcessingIndexItem> itemsInCollection = akubraRepository.pi().getChildren(KnownRelations.CONTAINS.toString(), pid);
+                        //rebuild and update mods
+                        Document document = foxmlBuilder.buildMods(updated);
+                        ByteArrayInputStream bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
+                        akubraRepository.updateXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS, "text/xml", bis);
+                        //rebuild and update rels-ext (because of "standalone")
+                        List<String> pids = new ArrayList<>();
+                        for(ProcessingIndexItem item: itemsInCollection){
+                            pids.add(item.targetPid());
+                        }
+                        document = foxmlBuilder.buildRelsExt(updated, pids);
+                        bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
+                        akubraRepository.re().update(pid, bis);
+                        //schedule reindexation - (only collection object)
+                        scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
+                    }
+                    return null;
+                });
                 return Response.ok().build();
             }
         } catch (WebApplicationException e) {
@@ -458,14 +465,17 @@ public class CollectionsResource extends AdminApiResource {
                 checkObjectExists(itemPid);
                 checkCanAddItemToCollection(itemPid, collectionPid);
                 //extract relsExt and update by adding new relation
-                Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
-                boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
-                if (!addedNow) {
-                    throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
-                }
-                //save updated rels-ext
-                ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.re().update(collectionPid, bis);
+                akubraRepository.doWithWriteLock(collectionPid, () -> {
+                    Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
+                    boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
+                    if (!addedNow) {
+                        throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
+                    }
+                    //save updated rels-ext
+                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                    akubraRepository.re().update(collectionPid, bis);
+                    return null;
+                });
                 //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
                 if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
@@ -546,32 +556,38 @@ public class CollectionsResource extends AdminApiResource {
             //add items to rels-ext of collection, schedule reindexation of items that had been added
             List<String> pidsAdded = new ArrayList<>();
             synchronized (CollectionsResource.class) {
-                Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
-                boolean atLeastOneAdded = false;
-                for (String itemPid : pidsToBeAdded) {
-                    boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
-                    if (addedNow) {
-                        pidsAdded.add(itemPid);
-                        atLeastOneAdded = true;
-                    } else {
-                        errorsByPid.put(itemPid, "item is already present in collection");
-                    }
-                }
-                if (atLeastOneAdded) {
-                    //save updated rels-ext
-                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.re().update(collectionPid, bis);
-                    //no need to re-index collection itself
-                    if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
-                        LOGGER.info("Ommiting indexation");
-                    } else {
-                        for (String itemPid : pidsAdded) {
-                            //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                            scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                akubraRepository.doWithWriteLock(collectionPid, new LockOperation<Object>() {
+                    @Override
+                    public Object execute() {
+                        Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
+                        boolean atLeastOneAdded = false;
+                        for (String itemPid : pidsToBeAdded) {
+                            boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
+                            if (addedNow) {
+                                pidsAdded.add(itemPid);
+                                atLeastOneAdded = true;
+                            } else {
+                                errorsByPid.put(itemPid, "item is already present in collection");
+                            }
                         }
-                    }
+                        if (atLeastOneAdded) {
+                            //save updated rels-ext
+                            ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                            akubraRepository.re().update(collectionPid, bis);
+                            //no need to re-index collection itself
+                            if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
+                                LOGGER.info("Ommiting indexation");
+                            } else {
+                                for (String itemPid : pidsAdded) {
+                                    //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+                                    scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                                }
+                            }
 
-                }
+                        }
+                        return null;
+                    }
+                });
             }
 
             JSONArray ignored = new JSONArray();
@@ -641,41 +657,47 @@ public class CollectionsResource extends AdminApiResource {
             List<String> reindexCollection = new ArrayList<>();
             checkSupportedObjectPid(collectionPid);
             try {
-
                 User user1 = this.userProvider.get();
-                List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-                Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
+                // TODO List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
+                akubraRepository.doWithWriteLock(collectionPid, () -> {
+                    Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
 
-                for (int i = 0; i < batch.getJSONArray("pids").length(); i++) {
-                    String itemPid = batch.getJSONArray("pids").getString(i);
+                    for (int i = 0; i < batch.getJSONArray("pids").length(); i++) {
+                        String itemPid = batch.getJSONArray("pids").getString(i);
 
-                    checkSupportedObjectPid(itemPid);
-                    if (!permitCollectionEdit(this.rightsResolver, user1, collectionPid)) {
-                        throw new ForbiddenException(
-                                "user '%s' is not allowed to create collections (missing action '%s')",
-                                user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); // 403
+                        checkSupportedObjectPid(itemPid);
+                        try {
+                            if (!permitCollectionEdit(rightsResolver, user1, collectionPid)) {
+                                throw new ForbiddenException(
+                                        "user '%s' is not allowed to create collections (missing action '%s')",
+                                        user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); // 403
+                            }
+
+                            if (!permitAbleToAdd(rightsResolver, user1, itemPid)) {
+                                throw new ForbiddenException(
+                                        "user '%s' is not allowed to add item %s to collection (missing action '%s')",
+                                        user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); // 403
+                            }
+                            checkObjectExists(collectionPid);
+                            checkObjectExists(itemPid);
+                            checkCanRemoveItemFromCollection(itemPid, collectionPid);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        // extract relsExt and update by removing relation
+                        boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
+                        if (!removed) {
+                            throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
+                        } else {
+                            reindexCollection.add(itemPid);
+                        }
                     }
 
-                    if (!permitAbleToAdd(this.rightsResolver, user1, itemPid)) {
-                        throw new ForbiddenException(
-                                "user '%s' is not allowed to add item %s to collection (missing action '%s')",
-                                user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); // 403
-                    }
-                    checkObjectExists(collectionPid);
-                    checkObjectExists(itemPid);
-                    checkCanRemoveItemFromCollection(itemPid, collectionPid);
-                    // extract relsExt and update by removing relation
-                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
-                    if (!removed) {
-                        throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
-                    } else {
-                        reindexCollection.add(itemPid);
-                    }
-                }
-
-                // save updated rels-ext
-                ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.re().update(collectionPid, bis);
+                    // save updated rels-ext
+                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                    akubraRepository.re().update(collectionPid, bis);
+                    return null;
+                });
 
                 reindexCollection.forEach(itemPid -> {
                     // schedule reindexations - 1. item that was removed (whole tree and foster
@@ -730,16 +752,26 @@ public class CollectionsResource extends AdminApiResource {
                 }
                 checkObjectExists(collectionPid);
                 checkObjectExists(itemPid);
-                checkCanRemoveItemFromCollection(itemPid, collectionPid);
-                //extract relsExt and update by removing relation
-                Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
-                boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
-                if (!removed) {
-                    throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
-                }
-                //save updated rels-ext
-                ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.re().update(collectionPid, bis);
+                akubraRepository.doWithWriteLock(collectionPid, new LockOperation<Object>() {
+                    @Override
+                    public Object execute() {
+                        try {
+                            checkCanRemoveItemFromCollection(itemPid, collectionPid);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        //extract relsExt and update by removing relation
+                        Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
+                        boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
+                        if (!removed) {
+                            throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
+                        }
+                        //save updated rels-ext
+                        ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                        akubraRepository.re().update(collectionPid, bis);
+                        return null;
+                    }
+                });
                 //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
                 scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
@@ -842,43 +874,49 @@ public class CollectionsResource extends AdminApiResource {
             }
 
             synchronized (CollectionsResource.class) {
-
-                JSONArray jsonArray = new JSONArray();
-                if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
-                    try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS).asInputStream()) {
-                        jsonArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
-                    }
-                }
-
-                int index = -1;
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    CutItem rawCutItem = CutItem.fromJSONObject(jsonArray.getJSONObject(i));
-                    if (clipItem.equals(rawCutItem)) {
-                        index = i;
-                        break;
-                    }
-                }
-
-                if (index > -1) {
-                    if (clipItem.getUrl() != null) {
-                        String thumbName = clipItem.getThumbnailmd5();
-                        if (akubraRepository.datastreamExists(collectionPid, thumbName)) {
-                            akubraRepository.deleteDatastream(collectionPid, thumbName);
+                return akubraRepository.doWithWriteLock(collectionPid, () -> {
+                    try {
+                        JSONArray jsonArray = new JSONArray();
+                        if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
+                            try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS).asInputStream()) {
+                                jsonArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
+                            }
                         }
 
+                        int index = -1;
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            CutItem rawCutItem = CutItem.fromJSONObject(jsonArray.getJSONObject(i));
+                            if (clipItem.equals(rawCutItem)) {
+                                index = i;
+                                break;
+                            }
+                        }
+
+                        if (index > -1) {
+                            if (clipItem.getUrl() != null) {
+                                String thumbName = clipItem.getThumbnailmd5();
+                                if (akubraRepository.datastreamExists(collectionPid, thumbName)) {
+                                    akubraRepository.deleteDatastream(collectionPid, thumbName);
+                                }
+
+                            }
+
+                            jsonArray.remove(index);
+
+                            JSONArray finalJsonArray = jsonArray;
+                            ByteArrayInputStream bis = new ByteArrayInputStream(finalJsonArray.toString().getBytes(Charset.forName("UTF-8")));
+                            akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
+                            Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
+                            return Response.ok(collection.toJson()).build();
+
+                        } else {
+                            return Response.status(Status.BAD_REQUEST).build();
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
+                });
 
-                    jsonArray.remove(index);
-
-                    JSONArray finalJsonArray = jsonArray;
-                    ByteArrayInputStream bis = new ByteArrayInputStream(finalJsonArray.toString().getBytes(Charset.forName("UTF-8")));
-                    akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
-                    Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
-                    return Response.ok(collection.toJson()).build();
-
-                } else {
-                    return Response.status(Response.Status.BAD_REQUEST).build();
-                }
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -906,57 +944,63 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
             if (batchArray != null && batchArray.length() > 0) {
-                synchronized (CollectionsResource.class) {
-                    boolean cuttingsModified = false;
-                    Set<String> thumbsToDelete = new LinkedHashSet<>();
-                    JSONArray fetchedJSONArray = new JSONArray();
-                    if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
-                        try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS).asInputStream()) {
-                            fetchedJSONArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
-                        }
-                    }
-
-                    for (int i = 0; i < batchArray.length(); i++) {
-                        CutItem toDelete = CutItem.fromJSONObject(batchArray.getJSONObject(i));
-                        if (toDelete == null) {
-                            throw new BadRequestException("badREquest");
-                        }
-
-                        int index = -1;
-                        for (int j = 0; j < fetchedJSONArray.length(); j++) {
-                            CutItem rawCutItem = CutItem.fromJSONObject(fetchedJSONArray.getJSONObject(j));
-                            if (toDelete.equals(rawCutItem)) {
-                                index = j;
-                                cuttingsModified = true;
-                                break;
+                return akubraRepository.doWithWriteLock(collectionPid, () -> {
+                    try {
+                        synchronized (CollectionsResource.class) {
+                            boolean cuttingsModified = false;
+                            Set<String> thumbsToDelete = new LinkedHashSet<>();
+                            JSONArray fetchedJSONArray = new JSONArray();
+                            if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
+                                try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS).asInputStream()) {
+                                    fetchedJSONArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
+                                }
                             }
-                        }
 
-                        if (index > -1) {
-                            if (toDelete.getUrl() != null) {
-                                String thumbName = toDelete.getThumbnailmd5();
-                                thumbsToDelete.add(thumbName);
+                            for (int i = 0; i < batchArray.length(); i++) {
+                                CutItem toDelete = CutItem.fromJSONObject(batchArray.getJSONObject(i));
+                                if (toDelete == null) {
+                                    throw new BadRequestException("badREquest");
+                                }
+
+                                int index = -1;
+                                for (int j = 0; j < fetchedJSONArray.length(); j++) {
+                                    CutItem rawCutItem = CutItem.fromJSONObject(fetchedJSONArray.getJSONObject(j));
+                                    if (toDelete.equals(rawCutItem)) {
+                                        index = j;
+                                        cuttingsModified = true;
+                                        break;
+                                    }
+                                }
+
+                                if (index > -1) {
+                                    if (toDelete.getUrl() != null) {
+                                        String thumbName = toDelete.getThumbnailmd5();
+                                        thumbsToDelete.add(thumbName);
+                                    }
+                                    fetchedJSONArray.remove(index);
+
+                                } else {
+                                    return Response.status(Status.BAD_REQUEST).build();
+                                }
                             }
-                            fetchedJSONArray.remove(index);
-
-                        } else {
-                            return Response.status(Response.Status.BAD_REQUEST).build();
-                        }
-                    }
-                    if (cuttingsModified) {
-                        JSONArray finalFetchedJSONArray = fetchedJSONArray;
-                        ByteArrayInputStream bis = new ByteArrayInputStream(finalFetchedJSONArray.toString().getBytes(Charset.forName("UTF-8")));
-                        akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
-                        for (String thumbName : thumbsToDelete) {
-                            if (akubraRepository.datastreamExists(collectionPid, thumbName)) {
-                                akubraRepository.deleteDatastream(collectionPid, thumbName);
+                            if (cuttingsModified) {
+                                JSONArray finalFetchedJSONArray = fetchedJSONArray;
+                                ByteArrayInputStream bis = new ByteArrayInputStream(finalFetchedJSONArray.toString().getBytes(Charset.forName("UTF-8")));
+                                akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
+                                for (String thumbName : thumbsToDelete) {
+                                    if (akubraRepository.datastreamExists(collectionPid, thumbName)) {
+                                        akubraRepository.deleteDatastream(collectionPid, thumbName);
+                                    }
+                                }
                             }
-                        }
-                    }
 
-                }
-                Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
-                return Response.ok(collection.toJson()).build();
+                        }
+                        Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
+                        return Response.ok(collection.toJson()).build();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
             } else {
                 throw new BadRequestException("badREquest");
             }
@@ -991,38 +1035,45 @@ public class CollectionsResource extends AdminApiResource {
             }
 
             synchronized (CollectionsResource.class) {
-
-                JSONArray jsonArray = new JSONArray();
-                if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
-                    try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS).asInputStream()) {
-                        jsonArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
-                    }
-                }
-
-                if (clipItem.getUrl() != null) {
-                    String url = clipItem.getUrl();
-                    String thumbName = clipItem.getThumbnailmd5();
-
-                    THUMBS_GENERATOR.forEach(gen -> {
-                        if (gen.acceptUrl(url)) {
-                            try {
-                                BufferedImage thumb = gen.generateThumbnail(url);
-                                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                                ImageIO.write(thumb, "png", bos);
-
-                                ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-                                akubraRepository.updateManagedDatastream(collectionPid, thumbName, "image/png", bis);
-                            } catch (Exception e) {
-                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                akubraRepository.doWithWriteLock(collectionPid, () -> {
+                    try {
+                        JSONArray jsonArray = new JSONArray();
+                        if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
+                            try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS).asInputStream()) {
+                                jsonArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
                             }
                         }
-                    });
-                }
-                jsonArray.put(json);
 
-                JSONArray finalJsonArray = jsonArray;
-                ByteArrayInputStream bis = new ByteArrayInputStream(finalJsonArray.toString().getBytes(Charset.forName("UTF-8")));
-                akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
+                        if (clipItem.getUrl() != null) {
+                            String url = clipItem.getUrl();
+                            String thumbName = clipItem.getThumbnailmd5();
+
+                            THUMBS_GENERATOR.forEach(gen -> {
+                                if (gen.acceptUrl(url)) {
+                                    try {
+                                        BufferedImage thumb = gen.generateThumbnail(url);
+                                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                                        ImageIO.write(thumb, "png", bos);
+
+                                        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+                                        akubraRepository.updateManagedDatastream(collectionPid, thumbName, "image/png", bis);
+                                    } catch (Exception e) {
+                                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                                    }
+                                }
+                            });
+                        }
+                        jsonArray.put(json);
+
+                        JSONArray finalJsonArray = jsonArray;
+                        ByteArrayInputStream bis = new ByteArrayInputStream(finalJsonArray.toString().getBytes(Charset.forName("UTF-8")));
+                        akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
+                        return null;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
                 Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
                 return Response.ok(collection.toJson()).build();
             }
