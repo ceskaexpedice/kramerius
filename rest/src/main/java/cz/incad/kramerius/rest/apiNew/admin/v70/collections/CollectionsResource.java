@@ -30,10 +30,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.protocol.HTTP;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.LockOperation;
-import org.ceskaexpedice.akubra.ObjectProperties;
-import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.*;
 import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.processingindex.SizeItemsPair;
@@ -141,6 +138,9 @@ public class CollectionsResource extends AdminApiResource {
             scheduleReindexation(collection.pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
             return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -326,6 +326,9 @@ public class CollectionsResource extends AdminApiResource {
             } else {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
+            throw e;
         } catch (RepositoryException | SolrServerException | IOException | FileUploadException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
@@ -392,6 +395,9 @@ public class CollectionsResource extends AdminApiResource {
             }
         } catch (WebApplicationException e) {
             throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
+            throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
@@ -430,6 +436,9 @@ public class CollectionsResource extends AdminApiResource {
                 throw new RuntimeException("not implemented yet");
             }
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -488,6 +497,9 @@ public class CollectionsResource extends AdminApiResource {
                 return Response.status(Response.Status.CREATED).build();
             }
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -603,6 +615,9 @@ public class CollectionsResource extends AdminApiResource {
             return Response.ok(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
+            throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
@@ -711,6 +726,9 @@ public class CollectionsResource extends AdminApiResource {
 
             } catch (WebApplicationException e) {
                 throw e;
+            } catch (DistributedLocksException e) {
+                // TODO AK_NEW
+                throw e;
             } catch (Throwable e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw new InternalErrorException(e.getMessage());
@@ -778,6 +796,9 @@ public class CollectionsResource extends AdminApiResource {
                 return Response.status(Response.Status.OK).build();
             } catch (WebApplicationException e) {
                 throw e;
+            } catch (DistributedLocksException e) {
+                // TODO AK_NEW
+                throw e;
             } catch (Throwable e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw new InternalErrorException(e.getMessage());
@@ -843,6 +864,9 @@ public class CollectionsResource extends AdminApiResource {
             }
             return Response.ok().build();
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -919,6 +943,9 @@ public class CollectionsResource extends AdminApiResource {
 
             }
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -1006,6 +1033,9 @@ public class CollectionsResource extends AdminApiResource {
             }
         } catch (WebApplicationException e) {
             throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
+            throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
@@ -1078,6 +1108,9 @@ public class CollectionsResource extends AdminApiResource {
                 return Response.ok(collection.toJson()).build();
             }
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
