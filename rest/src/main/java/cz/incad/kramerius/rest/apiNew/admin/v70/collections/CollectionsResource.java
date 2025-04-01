@@ -364,7 +364,7 @@ public class CollectionsResource extends AdminApiResource {
                     Collection current = null;
                     try {
                         current = fetchCollectionFromRepository(pid, true, false);
-                    } catch (Exception e) {
+                    } catch (IOException | SolrServerException e) {
                         throw new RuntimeException(e);
                     }
                     Collection updated = current.withUpdatedDataModifiableByClient(extractCollectionFromJson(collectionDefinition));
@@ -696,7 +696,7 @@ public class CollectionsResource extends AdminApiResource {
                             checkObjectExists(collectionPid);
                             checkObjectExists(itemPid);
                             checkCanRemoveItemFromCollection(itemPid, collectionPid);
-                        } catch (Exception e) {
+                        } catch (IOException | SolrServerException e) {
                             throw new RuntimeException(e);
                         }
                         // extract relsExt and update by removing relation
@@ -775,7 +775,7 @@ public class CollectionsResource extends AdminApiResource {
                     public Object execute() {
                         try {
                             checkCanRemoveItemFromCollection(itemPid, collectionPid);
-                        } catch (Exception e) {
+                        } catch (IOException | SolrServerException e) {
                             throw new RuntimeException(e);
                         }
                         //extract relsExt and update by removing relation
@@ -936,7 +936,7 @@ public class CollectionsResource extends AdminApiResource {
                         } else {
                             return Response.status(Status.BAD_REQUEST).build();
                         }
-                    } catch (Exception e) {
+                    } catch (IOException | SolrServerException | NoSuchAlgorithmException e) {
                         throw new RuntimeException(e);
                     }
                 });
@@ -1024,7 +1024,7 @@ public class CollectionsResource extends AdminApiResource {
                         }
                         Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
                         return Response.ok(collection.toJson()).build();
-                    } catch (Exception e) {
+                    } catch (IOException | SolrServerException | NoSuchAlgorithmException e) {
                         throw new RuntimeException(e);
                     }
                 });
@@ -1087,7 +1087,7 @@ public class CollectionsResource extends AdminApiResource {
 
                                         ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
                                         akubraRepository.updateManagedDatastream(collectionPid, thumbName, "image/png", bis);
-                                    } catch (Exception e) {
+                                    } catch (IOException e) {
                                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                                     }
                                 }
@@ -1099,7 +1099,7 @@ public class CollectionsResource extends AdminApiResource {
                         ByteArrayInputStream bis = new ByteArrayInputStream(finalJsonArray.toString().getBytes(Charset.forName("UTF-8")));
                         akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
                         return null;
-                    } catch (Exception e) {
+                    } catch (IOException | NoSuchAlgorithmException e) {
                         throw new RuntimeException(e);
                     }
                 });
