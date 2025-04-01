@@ -17,7 +17,9 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ceskaexpedice.akubra.DistributedLocksException;
 import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.LockOperation;
 import org.ceskaexpedice.akubra.processingindex.CursorItemsPair;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
@@ -373,38 +375,47 @@ public class ItemsResource extends AdminApiResource {
             }
             //extract childrens' pids an relations from rels-ext
             Map<String, String> foxmlChildrenPidToRelationName = new HashMap<>();
-            Document relsExt = akubraRepository.re().get(pid).asDom4j(true);
-            List<Node> childrenEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/*[starts-with(@rdf:resource, 'info:fedora/uuid:')]").selectNodes(relsExt);
-            for (Node childrenEl : childrenEls) {
-                String relationName = childrenEl.getName();
-                String childPid = ((Element) childrenEl).attributeValue("resource").substring("info:fedora/".length());
-                foxmlChildrenPidToRelationName.put(childPid, relationName);
-            }
-            //check that all pids from request are in rels-ext
-            for (String childPid : newChildrenOrderPids) {
-                if (!foxmlChildrenPidToRelationName.containsKey(childPid)) {
-                    throw new BadRequestException("child %s from reorder-data not found in RELS-EXT ", childPid);
+            akubraRepository.doWithWriteLock(pid, new LockOperation<Object>() {
+                @Override
+                public Object execute() {
+                    Document relsExt = akubraRepository.re().get(pid).asDom4j(true);
+                    List<Node> childrenEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/*[starts-with(@rdf:resource, 'info:fedora/uuid:')]").selectNodes(relsExt);
+                    for (Node childrenEl : childrenEls) {
+                        String relationName = childrenEl.getName();
+                        String childPid = ((Element) childrenEl).attributeValue("resource").substring("info:fedora/".length());
+                        foxmlChildrenPidToRelationName.put(childPid, relationName);
+                    }
+                    //check that all pids from request are in rels-ext
+                    for (String childPid : newChildrenOrderPids) {
+                        if (!foxmlChildrenPidToRelationName.containsKey(childPid)) {
+                            throw new BadRequestException("child %s from reorder-data not found in RELS-EXT ", childPid);
+                        }
+                    }
+                    //check that all pids from rels-ext are in request
+                    for (String childPid : foxmlChildrenPidToRelationName.keySet()) {
+                        if (!newChildrenOrderPids.contains(childPid)) {
+                            throw new BadRequestException("child %s from RELS-EXT is missing in reorder-data", childPid);
+                        }
+                    }
+                    //update & save rels-ext
+                    for (Node node : childrenEls) {
+                        node.detach();
+                    }
+                    for (String childPid : newChildrenOrderPids) {
+                        foxmlBuilder.appendRelationToRelsExt(pid, relsExt, foxmlChildrenPidToRelationName.get(childPid), childPid);
+                    }
+                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                    akubraRepository.re().update(pid, bis);
+                    return null;
                 }
-            }
-            //check that all pids from rels-ext are in request
-            for (String childPid : foxmlChildrenPidToRelationName.keySet()) {
-                if (!newChildrenOrderPids.contains(childPid)) {
-                    throw new BadRequestException("child %s from RELS-EXT is missing in reorder-data", childPid);
-                }
-            }
-            //update & save rels-ext
-            for (Node node : childrenEls) {
-                node.detach();
-            }
-            for (String childPid : newChildrenOrderPids) {
-                foxmlBuilder.appendRelationToRelsExt(pid, relsExt, foxmlChildrenPidToRelationName.get(childPid), childPid);
-            }
-            ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
-            akubraRepository.re().update(pid, bis);
+            });
 
             scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT_AND_CHILDREN", false, pid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -456,6 +467,9 @@ public class ItemsResource extends AdminApiResource {
             deleteFromSearchIndex(pid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -709,6 +723,9 @@ public class ItemsResource extends AdminApiResource {
                 akubraRepository.updateManagedDatastream(pid, dsid, MediaType.APPLICATION_OCTET_STREAM.toString(), bis);
                 return Response.status(Response.Status.OK).build();
             }
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
+            throw e;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new BadRequestException(e.getMessage());
@@ -780,6 +797,9 @@ public class ItemsResource extends AdminApiResource {
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
+            throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
@@ -808,6 +828,9 @@ public class ItemsResource extends AdminApiResource {
             akubraRepository.updateXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS.name(), "text/xml", bis);
             return Response.ok().build();
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
