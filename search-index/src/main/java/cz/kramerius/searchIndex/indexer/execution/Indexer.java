@@ -108,13 +108,12 @@ public class Indexer {
             solrIndexer = new SolrIndexAccess(solrConfig);
             report("SOLR API connector initialized");
         } catch (Throwable e) {
-            reportError("Initialization error: TemplateException: " + e.getMessage());
-            LOGGER.log(Level.SEVERE, "Initialization error", e);
+            reportError("Initialization error: TemplateException: " + e.getMessage(), e);
+            //LOGGER.log(Level.SEVERE, "Initialization error", e); That happens in reportError already
             throw e;
         }
         report(" ");
     }
-
 
     public void indexByObjectPid(String pid, IndexationType type, ProgressListener progressListener) {
         if (shutDown) {
@@ -122,7 +121,7 @@ public class Indexer {
         } else {
             long start = System.currentTimeMillis();
             Counters counters = new Counters();
-            LOGGER.info("Processing " + pid + " (indexation type: " + type + ")");
+            LOGGER.log(Level.INFO, "Processing {0} (indexation type: {1})", new Object[]{pid, type});
             RepositoryNode node = nodeManager.getKrameriusNode(pid);
             boolean setFullIndexationInProgress = type == IndexationType.TREE_AND_FOSTER_TREES;
             if (node != null && setFullIndexationInProgress) {
@@ -154,7 +153,7 @@ public class Indexer {
             if (counters.getErrors() > 0 || counters.getIgnored() >0) {
                 throw new IllegalStateException("Indexation finished with errors; see error log");
             }
-            
+
             if (progressListener != null) {
                 progressListener.onFinished(counters.getProcessed());
             }
@@ -169,7 +168,7 @@ public class Indexer {
             SolrDocument objectByPid = solrIndexer.getObjectByPid(pid);
             alreadyInIndex = objectByPid != null;
         } catch (SolrServerException | IOException e) {
-            e.printStackTrace();
+            reportError(e.getMessage(), e);
         }
 
         if (alreadyInIndex) { // keep data from previous indexation in case this indexation fails during
@@ -184,7 +183,7 @@ public class Indexer {
                 ensureCompositeId(solrInput, repositoryNode, pid);
                 String solrInputStr = solrInput.getDocument().asXML();
                 solrIndexer.indexFromXmlString(solrInputStr, false);
-            } catch (Exception e) {
+            } catch (IOException | SolrServerException | DocumentException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -217,10 +216,14 @@ public class Indexer {
                 }
                 report("");
             } else {
-                LOGGER.info("Indexing " + pid);
+                LOGGER.log(Level.INFO, "Indexing {0}", pid);
                 Document foxmlDoc = krameriusRepositoryFascade.getObjectFoxml(pid, true);
-                report("model: " + repositoryNode.getModel());
-                report("title: " + repositoryNode.getTitle());
+                String model = "";
+                if (repositoryNode != null) {
+                    model = repositoryNode.getModel();
+                    report("model - " + model);
+                    report("title - " + repositoryNode.getTitle());
+                }
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
                 String ocrText = normalizeWhitespacesForOcrText(krameriusRepositoryFascade.getOcrText(pid));
@@ -228,7 +231,7 @@ public class Indexer {
                 //IMG_FULL mimetype
                 String imgFullMime = krameriusRepositoryFascade.getImgFullMimetype(pid);
 
-                Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid()) : null;
+                Integer audioLength = "track".equals(model) ? detectAudioLength(pid) : null;
                 try {
                     SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
                     String solrInputStr = solrInput.getDocument().asXML();
@@ -307,7 +310,7 @@ public class Indexer {
 
     private void processChildren(String parentPid, RepositoryNode parentNode, Counters counters, IndexationType type, boolean isIndexationRoot, ProgressListener progressListener) {
         if (parentNode == null) {
-            LOGGER.log(Level.SEVERE, "object not found in repository (or found in inconsistent state), ignoring it's children: " + parentPid);
+            LOGGER.log(Level.SEVERE, "object not found in repository (or found in inconsistent state), ignoring it''s children: {0}", parentPid);
             return;
         }
         switch (type) {
@@ -329,11 +332,7 @@ public class Indexer {
             }
             break;
             case TREE: {
-                for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
-                    RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
-                    processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
-                }
+                IndexList(parentNode.getPidsOfOwnChildren(),counters,type,progressListener);
             }
             break;
             case TREE_INDEX_ONLY_NEWER: {
@@ -382,20 +381,25 @@ public class Indexer {
             }
             break;
             case TREE_AND_FOSTER_TREES: {
-                for (String childPid : parentNode.getPidsOfOwnChildren()) {
-                    RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
-                    processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
-                }
-                for (String childPid : parentNode.getPidsOfFosterChildren()) {
-                    RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index foster child
-                    processChildren(childPid, childNode, counters, type, false, progressListener); //process foster child's tree
-                }
+                IndexList(parentNode.getPidsOfOwnChildren(),counters,type,progressListener);
+                IndexList(parentNode.getPidsOfFosterChildren(),counters,type,progressListener);
             }
         }
     }
-
+    private void IndexList(List<String> list,Counters counters, IndexationType type,ProgressListener progressListener){
+        for (String childPid : list) {
+            RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
+            try {
+                if (solrIndexer.getObjectByPid(childPid) != null) {
+                    report("Already indexed skipping: " + childPid);
+                    continue;
+                }
+            } catch (SolrServerException | IOException e) {
+            }
+            indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index foster child
+            processChildren(childPid, childNode, counters, type, false, progressListener); //process foster child's tree
+        }
+    }
     private void commitAfterLastIndexation(Counters counters) {
         try {
             solrIndexer.commit();
