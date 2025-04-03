@@ -6,7 +6,9 @@ import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.DatastreamContentWrapper;
 import org.ceskaexpedice.akubra.DatastreamMetadata;
 import org.ceskaexpedice.akubra.DigitalObjectWrapper;
+import org.ceskaexpedice.akubra.DistributedLocksException;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,6 +16,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -122,6 +125,51 @@ public class AkubraResource extends AdminApiResource {
             JSONObject jsonObject = RelsExtRelationConverter.toJSONObject(relations);
             return Response.ok(jsonObject.toString()).build();
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @POST
+    @Path("/ingest")
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    public Response ingest(@QueryParam("format") String format, @QueryParam("logMessage") String logMessage, InputStream ingestStream) {
+        try {
+            // TODO AK_NEW - add security check; what about format and log message pars?
+            DigitalObject digitalObject = akubraRepository.unmarshall(ingestStream);
+            akubraRepository.ingest(digitalObject);
+            JSONObject retVal = new JSONObject();
+            retVal.put("pid", digitalObject.getPID());
+            return Response.ok(retVal.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @DELETE
+    @Path("/purgeObject")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response purgeObject(@QueryParam("pid") String pid, @QueryParam("logMessage") String logMessage) {
+        try {
+            // TODO AK_NEW - add security check; log message
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            akubraRepository.delete(pid, true, true);
+            JSONObject retVal = new JSONObject();
+            retVal.put("pid", pid);
+            return Response.ok(retVal.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
