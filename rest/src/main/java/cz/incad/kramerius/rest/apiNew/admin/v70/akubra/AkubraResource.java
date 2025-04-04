@@ -1,21 +1,31 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.akubra;
 
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
+import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.security.RightsResolver;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.User;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.DatastreamContentWrapper;
 import org.ceskaexpedice.akubra.DatastreamMetadata;
 import org.ceskaexpedice.akubra.DigitalObjectWrapper;
 import org.ceskaexpedice.akubra.DistributedLocksException;
+import org.ceskaexpedice.akubra.relsext.RelsExtLiteral;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,6 +33,9 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+
+// TODO AK_NEW -             WorkingModeManager.setReadOnly - delat check a vracet 400, pokus o zaktivneni
 
 
 /**
@@ -34,15 +47,32 @@ public class AkubraResource extends AdminApiResource {
 
     public static final Logger LOGGER = Logger.getLogger(AkubraResource.class.getName());
 
+    private enum ExportType {archive, storage};
+
+    @Inject
+    Provider<User> userProvider;
+    @Inject
+    RightsResolver rightsResolver;
+
     @GET
     @Path("/export")
     @Produces(MediaType.APPLICATION_XML)
     public Response export(@QueryParam("pid") String pid, @QueryParam("format") String format) {
         try {
-            // TODO AK_NEW - add security check; remove format parameter
+            if (!permitAction(this.rightsResolver, true)) {
+                throw new ForbiddenException("user '%s' is not allowed to export (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_READ);
+            }
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            DigitalObjectWrapper export = akubraRepository.export(pid);
+            DigitalObjectWrapper export;
+            if(ExportType.archive.toString().equals(format)) {
+                export = akubraRepository.export(pid);
+            }else if(ExportType.storage.toString().equals(format)){
+                export = akubraRepository.get(pid);
+            }else{
+                throw new BadRequestException("Not supported format: " + format);
+            }
             return Response.ok(export.asString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -57,7 +87,10 @@ public class AkubraResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getDatastreamContent(@QueryParam("pid") String pid, @QueryParam("dsID") String dsID) {
         try {
-            // TODO AK_NEW - add security check;
+            if (!permitAction(this.rightsResolver, true)) {
+                throw new ForbiddenException("user '%s' is not allowed to get datastream content (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_READ);
+            }
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, dsID);
             DatastreamContentWrapper datastreamContent = akubraRepository.getDatastreamContent(pid, dsID);
@@ -82,7 +115,10 @@ public class AkubraResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDatastreamMetadata(@QueryParam("pid") String pid, @QueryParam("dsID") String dsID) {
         try {
-            // TODO AK_NEW - add security check;
+            if (!permitAction(this.rightsResolver, true)) {
+                throw new ForbiddenException("user '%s' is not allowed to get datastream metadata (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_READ);
+            }
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, dsID);
             DatastreamMetadata datastreamMetadata = akubraRepository.getDatastreamMetadata(pid, dsID);
@@ -101,7 +137,10 @@ public class AkubraResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDatastreamNames(@QueryParam("pid") String pid) {
         try {
-            // TODO AK_NEW - add security check;
+            if (!permitAction(this.rightsResolver, true)) {
+                throw new ForbiddenException("user '%s' is not allowed to get datastream names (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_READ);
+            }
             checkSupportedObjectPid(pid);
             List<String> datastreamNames = akubraRepository.getDatastreamNames(pid);
             JSONObject jsonObject = DatastreamNamesConverter.toJSONObject(datastreamNames);
@@ -115,14 +154,40 @@ public class AkubraResource extends AdminApiResource {
     }
 
     @GET
-    @Path("/getRelationships")
+    @Path("/getRelations")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getRelationships(@QueryParam("pid") String pid) {
+    public Response getRelations(@QueryParam("pid") String pid) {
         try {
-            // TODO AK_NEW - add security check;
+            if (!permitAction(this.rightsResolver, true)) {
+                throw new ForbiddenException("user '%s' is not allowed to get relationships (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_READ);
+            }
             checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
             List<RelsExtRelation> relations = akubraRepository.re().getRelations(pid, null);
             JSONObject jsonObject = RelsExtRelationConverter.toJSONObject(relations);
+            return Response.ok(jsonObject.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("/getLiterals")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLiterals(@QueryParam("pid") String pid) {
+        try {
+            if (!permitAction(this.rightsResolver, true)) {
+                throw new ForbiddenException("user '%s' is not allowed to get literals (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_READ);
+            }
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            List<RelsExtLiteral> literals = akubraRepository.re().getLiterals(pid, null);
+            JSONObject jsonObject = RelsExtLiteralConverter.toJSONObject(literals);
             return Response.ok(jsonObject.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -135,9 +200,12 @@ public class AkubraResource extends AdminApiResource {
     @POST
     @Path("/ingest")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    public Response ingest(@QueryParam("format") String format, @QueryParam("logMessage") String logMessage, InputStream ingestStream) {
+    public Response ingest(InputStream ingestStream) {
         try {
-            // TODO AK_NEW - add security check; what about format and log message pars?
+            if (!permitAction(this.rightsResolver, false)) {
+                throw new ForbiddenException("user '%s' is not allowed to ingest (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_EDIT);
+            }
             DigitalObject digitalObject = akubraRepository.unmarshall(ingestStream);
             akubraRepository.ingest(digitalObject);
             JSONObject retVal = new JSONObject();
@@ -146,6 +214,7 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
+            //WorkingModeManager.setReadOnly
             // TODO AK_NEW
             throw e;
         } catch (Throwable e) {
@@ -155,11 +224,14 @@ public class AkubraResource extends AdminApiResource {
     }
 
     @DELETE
-    @Path("/purgeObject")
+    @Path("/delete")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response purgeObject(@QueryParam("pid") String pid, @QueryParam("logMessage") String logMessage) {
+    public Response delete(@QueryParam("pid") String pid) {
         try {
-            // TODO AK_NEW - add security check; log message
+            if (!permitAction(this.rightsResolver, false)) {
+                throw new ForbiddenException("user '%s' is not allowed to delete (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_EDIT);
+            }
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             akubraRepository.delete(pid, true, true);
@@ -233,4 +305,31 @@ public class AkubraResource extends AdminApiResource {
             return result;
         }
     }
+
+    private class RelsExtLiteralConverter {
+
+        private static JSONObject toJSONObject(List<RelsExtLiteral> literals) {
+            JSONArray jsonArray = new JSONArray();
+
+            for (RelsExtLiteral relation : literals) {
+                JSONObject relationJson = new JSONObject();
+                relationJson.put("namespace", relation.getNamespace());
+                relationJson.put("localName", relation.getLocalName());
+                relationJson.put("content", relation.getContent());
+                jsonArray.put(relationJson);
+            }
+
+            JSONObject result = new JSONObject();
+            result.put("literals", jsonArray);
+            return result;
+        }
+    }
+
+    public boolean permitAction(RightsResolver rightsResolver, boolean read) {
+        boolean permitted = this.userProvider.get() != null ? rightsResolver.isActionAllowed(this.userProvider.get(),
+                read ? SecuredActions.A_AKUBRA_READ.getFormalName() : SecuredActions.A_AKUBRA_EDIT.getFormalName(),
+                SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag() : false;
+        return permitted;
+    }
+
 }

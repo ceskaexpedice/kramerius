@@ -3869,34 +3869,6 @@ paths:
 
 
   ## Akubra pristup
-#  /repository/getObjectXML:
-#    get:
-#      summary: Získaní objektu z repozitáře
-#      description: Získá foxml reprezentaci objektu  z repozitáře.
-#      operationId: getObjectXML
-#      parameters:
-#        - name: pid
-#          in: query
-#          required: true
-#          description: Identifikátor objektu
-#          schema:
-#            type: string
-#      responses:
-#        '200':
-#          description: Úspěšné získání objektu
-#          content:
-#            application/xml:
-#              schema:
-#                type: string
-#                format: binary
-#                description: FOXML reprezentace objektu
-#        '400':
-#          description: Nevalidní parametry http dotazu
-#        '404':
-#          description: Objekt není nalezen
-#      tags:
-#        - akubra
-
 
   /repository/export:
     get:
@@ -3916,6 +3888,7 @@ paths:
           description: Formát exportu FOXML
           schema:
             type: string
+            enum: [ archive, storage ]
       responses:
         '200':
           description: Úspěšný export objektu
@@ -4055,11 +4028,11 @@ paths:
         - akubra
 
 
-  /repository/getRelationships:
+  /repository/getRelations:
     get:
       summary: Získání všech relací objektu
       description: Získání všech relací objektu
-      operationId: getRelationships
+      operationId: getRelations
       parameters:
         - name: pid
           in: query
@@ -4077,28 +4050,65 @@ paths:
                 items:
                   type: object
                   properties:
-                    relationshiptuple:
+                    relations:
                       type: object
                       properties:
-                        subject:
+                        localname:
                           type: string
-                          description: Subjekt
+                          description: Local name
 
-                        predicate:
+                        resource:
                           type: string
-                          description: Predikát
+                          description: Resource
 
-                        predicateNS:
+                        namespace:
                           type: string
-                          description: Namespace predikatu
+                          description: Namespace
 
-                        object:
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra
+
+  /repository/getLiterals:
+    get:
+      summary: Získání všech literalu objektu
+      description: Získání všech literalu objektu
+      operationId: getLiterals
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Seznam všech literalu
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    literals:
+                      type: object
+                      properties:
+                        localname:
                           type: string
-                          description: Objekt
+                          description: Local name
 
-                        isLiteral:
-                          type: boolean
-                          description: Příznak, který říká, zda relace je pouze literál
+                        content:
+                          type: string
+                          description: Content
+
+                        namespace:
+                          type: string
+                          description: Namespace
+
         '400':
           description: Nevalidní parametry http dotazu
         '404':
@@ -4117,19 +4127,6 @@ paths:
         content:
           application/octet-stream:
             description:  Binární obsah streamu .
-      parameters:
-        - name: format
-          in: query
-          required: true
-          description: Formát - mimetype objektu
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška.
-          schema:
-            type: string
       responses:
         '200':
           description: Úspěšný ingest do repozitáře
@@ -4149,66 +4146,16 @@ paths:
         - akubra
 
 
-  /repository/modifyObject:
-    post:
-      summary: Modifikace objektu
-      description: Modifikace metadata objektu v repozitáři.
-      operationId: modifyObject
-      parameters:
-        - name: pid
-          in: query
-          required: true
-          description: Persistentní identifikátor objektu
-          schema:
-            type: string
-        - name: state
-          in: query
-          required: true
-          description: Nový stav objektu
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška specifikující důvod modifikace objektu.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Úspěšná modifikace objektu
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  modifiedDate:
-                    type: string
-                    description: Datum modifikace objektu
-        '400':
-          description: Nevalidní parametry http dotazu
-      tags:
-        - akubra
-
-
-
-
-
-  /repository/purgeObject:
+  /repository/delete:
     delete:
       summary: Smazani objektu z repozitáře
       description: Permanentni smazani objektu z repozitáře
-      operationId: purgeObject
+      operationId: delete
       parameters:
         - name: pid
           in: query
           required: true
           description: Identifikátor objektu
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška reprezentující opearci smazání
           schema:
             type: string
       responses:

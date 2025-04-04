@@ -108,6 +108,10 @@ public enum SecuredActions {
     /** Pravo pro admin cteni admina */
     A_ADMIN_READ("a_admin_read"),
 
+    A_AKUBRA_READ("a_akubra_read"),
+
+    A_AKUBRA_EDIT("a_akubra_edit"),
+
     /** SDNNT synchronization */
     A_SDNNT_SYNC("a_sdnnt_sync"),
     
