@@ -3907,26 +3907,22 @@ paths:
 
   /repository/getDatastreamContent:
     get:
-      summary: Získání datastreamu z repozitáře.
-      description: Získá datastream z akubra repozitáře .
+      summary: Získání obsahu datastreamu z repozitáře.
+      description: Získá obsah datastream z akubra repozitáře .
       operationId: getDatastreamContent
       parameters:
-
         - name: pid
           in: query
           required: true
           description: Identifikátor objektu.
           schema:
             type: string
-
-        - name: dsID
+        - name: dsId
           in: query
           required: true
           description: Identifikátor datastreamu.
           schema:
             type: string
-
-
       responses:
         '200':
           description: Úspěšné získání datastreamu
@@ -3942,9 +3938,9 @@ paths:
 
   /repository/getDatastreamMetadata:
     get:
-      summary: Získání datastreamu z repozitáře.
-      description: Získá datastream z akubra repozitáře .
-      operationId: getDatastreamContent
+      summary: Získání metadat datastreamu z repozitáře.
+      description: Získá metadata datastreamu z akubra repozitáře .
+      operationId: getDatastreamMetadata
       parameters:
         - name: pid
           in: query
@@ -3952,15 +3948,12 @@ paths:
           description: Identifikátor objektu.
           schema:
             type: string
-
-        - name: dsID
+        - name: dsId
           in: query
           required: true
           description: Identifikátor datastreamu.
           schema:
             type: string
-
-
       responses:
         '200':
           description: Úspěšné získání datastreamu
@@ -4001,8 +3994,8 @@ paths:
 
   /repository/getDatastreamNames:
     get:
-      summary: Získání seznamu datastreamů objektů.
-      description: Získání seznamu datastreamu objektů.
+      summary: Získání seznamu datastreamů objektu.
+      description: Získání seznamu datastreamu objektu.
       operationId: getDatastreams
       parameters:
         - name: pid
@@ -4013,7 +4006,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Úspěšné seznamu datastreamů
+          description: Úspěšny seznamu datastreamů
           content:
             application/json:
               schema:
@@ -4056,15 +4049,12 @@ paths:
                         localname:
                           type: string
                           description: Local name
-
                         resource:
                           type: string
                           description: Resource
-
                         namespace:
                           type: string
                           description: Namespace
-
         '400':
           description: Nevalidní parametry http dotazu
         '404':
@@ -4100,22 +4090,18 @@ paths:
                         localname:
                           type: string
                           description: Local name
-
                         content:
                           type: string
                           description: Content
-
                         namespace:
                           type: string
                           description: Namespace
-
         '400':
           description: Nevalidní parametry http dotazu
         '404':
           description: Objekt nenalezen
       tags:
         - akubra
-
 
   /repository/ingest:
     post:
@@ -4166,9 +4152,9 @@ paths:
               schema:
                 type: object
                 properties:
-                  purgedDate:
+                  objectPID:
                     type: string
-                    description: Datum kdy byl stream smazán
+                    description: PID identifikátor objektu
         '400':
           description: Nevalidní parametry http dotazu
         '404':
@@ -4177,72 +4163,35 @@ paths:
         - akubra
 
 
-  /repository/addDatastream:
+  /repository/createXMLDatastream:
     post:
-      summary: Přidání datastreamu do fedory
-      description: Plřidání datastreamu do fedory
-      operationId: addDatastream
+      summary: Přidání XML datastreamu
+      description: Plřidání XML datastreamu
+      operationId: createXMLDatastream
       parameters:
         - name: pid
           in: query
           required: true
-          description: PID identifikátor objektu
+          description: Identifikátor objektu.
           schema:
             type: string
-        - name: dsID
+        - name: dsId
           in: query
           required: true
-          description: Identifikátor datastreamu
+          description: Identifikátor datastreamu.
           schema:
             type: string
-        - name: versionable
-          in: query
-          required: true
-          description: Příznak určující zda je datastream verzovatelný
-          schema:
-            type: boolean
-        - name: MIMEType
+        - name: mimeType
           in: query
           required: true
           description: Mimetype datastreamu
           schema:
             type: string
-        - name: dsLocation
-          in: query
-          required: true
-          description: Reference na datastream
-          schema:
-            type: string
-        - name: controlGroup
-          in: query
-          required: true
-          description: Kontrolní skupina pro stream. (M) Managed, (R) Referenced, (X) XML Inline.
-          schema:
-            type: string
-        - name: dsState
-          in: query
-          required: true
-          description: Stav datastreamu = (A)Aktivní vs (I)Neaktivní.
-          schema:
-            type: string
-        - name: checksumType
-          in: query
-          required: true
-          description: Typ kontrolního součtu. (`SHA-1`, `MD5`).
-          schema:
-            type: string
-        - name: checksum
-          in: query
-          required: true
-          description: Hodnota kontrolního součtu.
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška popisující přidání datastreamu.
-          schema:
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            description:  Binární obsah streamu .
       responses:
         '200':
           description: Úspěšné přidání streamu
@@ -4251,7 +4200,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  datastreamID:
+                  dsId:
                     type: string
                     description:  ID přidaný datastream.
         '400':
@@ -4261,147 +4210,11 @@ paths:
       tags:
         - akubra
 
-  /repository/modifyDatastreamByReference:
-    put:
-      summary:  Modifikace datastreamu referencí
-      description: Modifikace existujícího datastreamu refrencí na data. (Soubor nebo http odkaz)
-      operationId: modifyDatastreamByReference
-      parameters:
-        - name: pid
-          in: query
-          required: true
-          description: Persistentní identifikátor objektu
-          schema:
-            type: string
-        - name: dsID
-          in: query
-          required: true
-          description: ID datastreamu
-          schema:
-            type: string
-        - name: MIMEType
-          in: query
-          required: true
-          description: Mimetype datastreamu
-          schema:
-            type: string
-        - name: dsLocation
-          in: query
-          required: true
-          description: Reference na data
-          schema:
-            type: string
-        - name: checksumType
-          in: query
-          required: true
-          description: Typ kontrolního součtu (e.g., `SHA-1`, `MD5`).
-          schema:
-            type: string
-        - name: checksum
-          in: query
-          required: true
-          description: Kontrolní součet
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška popisující modifikaci datastreamu
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Úspěšná modifikace datastreamu
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  modifiedDate:
-                    type: string
-                    description:  Datuim a čas modifikace.
-        '400':
-          description: Nevalidní parametry http dotazu
-        '404':
-          description: Objekt nenalezen
-      tags:
-        - akubra
-
-  /repository/modifyDatastreamByValue:
-    put:
-      summary: Modifikace datastreamu hodnotou
-      description: Modifikace datastreamu uploadováním nového binárního obsahu
-      operationId: modifyDatastreamByValue
-      parameters:
-        - name: pid
-          in: query
-          required: true
-          description: PID identifikátor objektu.
-          schema:
-            type: string
-        - name: dsID
-          in: query
-          required: true
-          description: ID identifikátor datastreamu.
-          schema:
-            type: string
-        - name: MIMEType
-          in: query
-          required: true
-          description: Mimetype objektu.
-          schema:
-            type: string
-        - name: checksumType
-          in: query
-          required: true
-          description: Typ kontrolního součtu (e.g., `SHA-1`, `MD5`).
-          schema:
-            type: string
-        - name: checksum
-          in: query
-          required: true
-          description: Hodnota kontrolního součtu.
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška popisující modifikaci objektu.
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/octet-stream:
-            description: Nový binární obsah datastreamu.
-            schema:
-              type: string
-              format: binary
-      responses:
-        '200':
-          description: Datastream úspěšně modifikován
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  modifiedDate:
-                    type: string
-                    description: Datum a čas modifikace
-        '400':
-          description: Nevalidní parametry http dotazu
-        '404':
-          description: Datastream nebo objekt nenalezen
-      tags:
-        - akubra
-
-
-  /repository/purgeRelationship:
-    put:
-      summary: Smazání konkrétní relace z objektu
-      description: Smazání konkrétní relace z objektu
-      operationId: prugeRelationship
-
+  /repository/createManagedDatastream:
+    post:
+      summary: Přidání managed datastreamu
+      description: Plřidání managed datastreamu
+      operationId: createManagedDatastream
       parameters:
         - name: pid
           in: query
@@ -4409,62 +4222,74 @@ paths:
           description: Identifikátor objektu.
           schema:
             type: string
-
+        - name: dsId
+          in: query
+          required: true
+          description: Identifikátor datastreamu.
+          schema:
+            type: string
+        - name: mimeType
+          in: query
+          required: true
+          description: Mimetype datastreamu
+          schema:
+            type: string
       requestBody:
-        description: JSON reprezentace
+        required: true
         content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: object
-                properties:
-                  relationshiptuple:
-                    type: object
-                    properties:
-                      subject:
-                        type: string
-                        description: Subjekt
-                      predicate:
-                        type: string
-                        description: Predikát
-                      object:
-                        type: string
-                        description: Objekt
-                      isLiteral:
-                        type: boolean
-                        description: Příznak, který říká, zda relace je pouze literál
-
-
-
+          application/octet-stream:
+            description:  Binární obsah streamu .
       responses:
         '200':
-          description: Seznam všech relací
+          description: Úspěšné přidání streamu
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    relationshiptuple:
-                      type: object
-                      properties:
-                        subject:
-                          type: string
-                          description: Subjekt
-                        predicate:
-                          type: string
-                          description: Predikát
-                        object:
-                          type: string
-                          description: Objekt
-                        isLiteral:
-                          type: boolean
-                          description: Příznak, který říká, zda relace je pouze literál
+                type: object
+                properties:
+                  dsId:
+                    type: string
+                    description:  ID přidaný datastream.
         '400':
           description: Nevalidní parametry http dotazu
         '404':
           description: Objekt nenalezen
       tags:
         - akubra
+
+  /repository/deleteDatastream:
+    delete:
+      summary: Smazani datastreamu z repozitáře
+      description: Permanentni smazani datastreamu z repozitáře
+      operationId: deleteDatastream
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu
+          schema:
+            type: string
+        - name: dsId
+          in: query
+          required: true
+          description: Identifikátor datastreamu.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Datastream úspěšně smazaný
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dsId:
+                    type: string
+                    description: id smazaneho datastreamu
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra
+

@@ -9,10 +9,7 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import org.apache.commons.io.IOUtils;
-import org.ceskaexpedice.akubra.DatastreamContentWrapper;
-import org.ceskaexpedice.akubra.DatastreamMetadata;
-import org.ceskaexpedice.akubra.DigitalObjectWrapper;
-import org.ceskaexpedice.akubra.DistributedLocksException;
+import org.ceskaexpedice.akubra.*;
 import org.ceskaexpedice.akubra.relsext.RelsExtLiteral;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
@@ -85,15 +82,15 @@ public class AkubraResource extends AdminApiResource {
     @GET
     @Path("/getDatastreamContent")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response getDatastreamContent(@QueryParam("pid") String pid, @QueryParam("dsID") String dsID) {
+    public Response getDatastreamContent(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId) {
         try {
             if (!permitAction(this.rightsResolver, true)) {
                 throw new ForbiddenException("user '%s' is not allowed to get datastream content (action '%s')", this.userProvider.get(),
                         SecuredActions.A_AKUBRA_READ);
             }
             checkSupportedObjectPid(pid);
-            checkObjectAndDatastreamExist(pid, dsID);
-            DatastreamContentWrapper datastreamContent = akubraRepository.getDatastreamContent(pid, dsID);
+            checkObjectAndDatastreamExist(pid, dsId);
+            DatastreamContentWrapper datastreamContent = akubraRepository.getDatastreamContent(pid, dsId);
             if (datastreamContent != null) {
                 StreamingOutput stream = output -> {
                     IOUtils.copy(datastreamContent.asInputStream(), output);
@@ -113,15 +110,15 @@ public class AkubraResource extends AdminApiResource {
     @GET
     @Path("/getDatastreamMetadata")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDatastreamMetadata(@QueryParam("pid") String pid, @QueryParam("dsID") String dsID) {
+    public Response getDatastreamMetadata(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId) {
         try {
             if (!permitAction(this.rightsResolver, true)) {
                 throw new ForbiddenException("user '%s' is not allowed to get datastream metadata (action '%s')", this.userProvider.get(),
                         SecuredActions.A_AKUBRA_READ);
             }
             checkSupportedObjectPid(pid);
-            checkObjectAndDatastreamExist(pid, dsID);
-            DatastreamMetadata datastreamMetadata = akubraRepository.getDatastreamMetadata(pid, dsID);
+            checkObjectAndDatastreamExist(pid, dsId);
+            DatastreamMetadata datastreamMetadata = akubraRepository.getDatastreamMetadata(pid, dsId);
             JSONObject jsonObject = DatastreamMetadataConverter.toJSONObject(datastreamMetadata);
             return Response.ok(jsonObject.toString()).build();
         } catch (WebApplicationException e) {
@@ -163,7 +160,7 @@ public class AkubraResource extends AdminApiResource {
                         SecuredActions.A_AKUBRA_READ);
             }
             checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
+            checkObjectAndDatastreamExist(pid, KnownDatastreams.RELS_EXT.toString());
             List<RelsExtRelation> relations = akubraRepository.re().getRelations(pid, null);
             JSONObject jsonObject = RelsExtRelationConverter.toJSONObject(relations);
             return Response.ok(jsonObject.toString()).build();
@@ -185,7 +182,7 @@ public class AkubraResource extends AdminApiResource {
                         SecuredActions.A_AKUBRA_READ);
             }
             checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
+            checkObjectAndDatastreamExist(pid, KnownDatastreams.RELS_EXT.toString());
             List<RelsExtLiteral> literals = akubraRepository.re().getLiterals(pid, null);
             JSONObject jsonObject = RelsExtLiteralConverter.toJSONObject(literals);
             return Response.ok(jsonObject.toString()).build();
@@ -237,6 +234,88 @@ public class AkubraResource extends AdminApiResource {
             akubraRepository.delete(pid, true, true);
             JSONObject retVal = new JSONObject();
             retVal.put("pid", pid);
+            return Response.ok(retVal.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            // TODO AK_NEW
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @POST
+    @Path("/createXMLDatastream")
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    public Response createXMLDatastream(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId, @QueryParam("mimeType") String mimeType,
+                                        InputStream inputStream) {
+        try {
+            if (!permitAction(this.rightsResolver, false)) {
+                throw new ForbiddenException("user '%s' is not allowed to create a stream (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_EDIT);
+            }
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            akubraRepository.createXMLDatastream(pid, dsId, mimeType, inputStream);
+            JSONObject retVal = new JSONObject();
+            retVal.put("dsId", dsId);
+            return Response.ok(retVal.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            //WorkingModeManager.setReadOnly
+            // TODO AK_NEW
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @POST
+    @Path("/createManagedDatastream")
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    public Response createManagedDatastream(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId, @QueryParam("mimeType") String mimeType,
+                                        InputStream inputStream) {
+        try {
+            if (!permitAction(this.rightsResolver, false)) {
+                throw new ForbiddenException("user '%s' is not allowed to create a stream (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_EDIT);
+            }
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            akubraRepository.createManagedDatastream(pid, dsId, mimeType, inputStream);
+            JSONObject retVal = new JSONObject();
+            retVal.put("dsId", dsId);
+            return Response.ok(retVal.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            //WorkingModeManager.setReadOnly
+            // TODO AK_NEW
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @DELETE
+    @Path("/deleteDatastream")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteDatastream(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId) {
+        try {
+            if (!permitAction(this.rightsResolver, false)) {
+                throw new ForbiddenException("user '%s' is not allowed to delete (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_EDIT);
+            }
+            checkSupportedObjectPid(pid);
+            checkObjectAndDatastreamExist(pid, dsId);
+            akubraRepository.deleteDatastream(pid, dsId);
+            JSONObject retVal = new JSONObject();
+            retVal.put("dsId", dsId);
             return Response.ok(retVal.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
