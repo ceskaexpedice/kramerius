@@ -80,6 +80,28 @@ public class AkubraResource extends AdminApiResource {
     }
 
     @GET
+    @Path("/getMetadata")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMetadata(@QueryParam("pid") String pid) {
+        try {
+            if (!permitAction(this.rightsResolver, true)) {
+                throw new ForbiddenException("user '%s' is not allowed to get object metadata (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_READ);
+            }
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            DigitalObjectMetadata digitalObjectMetadata = akubraRepository.getMetadata(pid);
+            JSONObject jsonObject = DigitalObjectMetadataConverter.toJSONObject(digitalObjectMetadata);
+            return Response.ok(jsonObject.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
     @Path("/getDatastreamContent")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getDatastreamContent(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId) {
@@ -328,6 +350,34 @@ public class AkubraResource extends AdminApiResource {
         }
     }
 
+    public class DigitalObjectMetadataConverter {
+
+        public static JSONObject toJSONObject(DigitalObjectMetadata metadata) {
+            if (metadata == null) {
+                return new JSONObject();
+            }
+
+            JSONObject json = new JSONObject();
+            json.put("propertyLabel", metadata.getPropertyLabel());
+            json.put("propertyCreated", formatDate(metadata.getPropertyCreated()));
+            json.put("propertyLastModified", formatDate(metadata.getPropertyLastModified()));
+            json.put("objectStoragePath", metadata.getObjectStoragePath() != null
+                    ? metadata.getObjectStoragePath().getAbsolutePath()
+                    : null);
+
+            return json;
+        }
+
+        private static String formatDate(Date date) {
+            if (date == null) {
+                return null;
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return sdf.format(date);
+        }
+    }
+
     private static class DatastreamMetadataConverter {
 
         private static JSONObject toJSONObject(DatastreamMetadata datastream) {
@@ -338,7 +388,6 @@ public class AkubraResource extends AdminApiResource {
             JSONObject json = new JSONObject();
             json.put("id", datastream.getId());
             json.put("mimetype", datastream.getMimetype());
-            json.put("size", datastream.getSize());
             json.put("controlGroup", datastream.getControlGroup());
             json.put("location", datastream.getLocation());
             json.put("createDate", formatDate(datastream.getCreateDate()));

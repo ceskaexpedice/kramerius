@@ -70,8 +70,8 @@ public class SecuredAkubraRepositoryImpl implements SecuredAkubraRepository {
     }
 
     @Override
-    public ObjectProperties getProperties(String pid) {
-        return akubraRepository.getProperties(pid);
+    public DigitalObjectMetadata getMetadata(String pid) {
+        return akubraRepository.getMetadata(pid);
     }
 
     @Override

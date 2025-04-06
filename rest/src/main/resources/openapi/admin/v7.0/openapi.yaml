@@ -3905,6 +3905,51 @@ paths:
       tags:
         - akubra
 
+  /repository/getMetadata:
+    get:
+      summary: Získání metadat objecktu z repozitáře.
+      description: Získá metadata objektu z akubra repozitáře .
+      operationId: getMetadata
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Úspěšné získání metadat objektu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datastream:
+                    type: object
+                    properties:
+                      propertyLabel:
+                        type: string
+                        description: label property
+                      propertyCreated:
+                        type: string
+                        format: date-time
+                        description: Datum vytvoření objektu
+                      propertyLastModified:
+                        type: string
+                        format: date-time
+                        description: Datum oprava objektu
+                      objectStoragePath:
+                        type: string
+                        description: Object storage path
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Datastream nebo objekt není nalezen
+      tags:
+        - akubra
+
+
   /repository/getDatastreamContent:
     get:
       summary: Získání obsahu datastreamu z repozitáře.
@@ -3956,7 +4001,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Úspěšné získání datastreamu
+          description: Úspěšné získání metadat datastreamu
           content:
             application/json:
               schema:
@@ -3978,9 +4023,6 @@ paths:
                         type: string
                         format: date-time
                         description: Datum vytvoření datastreamu
-                      size:
-                        type: integer
-                        description: Velikost datastreamu v bytech
                       location:
                         type: string
                         description: Reference na datastream.

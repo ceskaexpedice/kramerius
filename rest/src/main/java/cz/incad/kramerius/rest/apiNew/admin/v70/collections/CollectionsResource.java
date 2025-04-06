@@ -1105,10 +1105,10 @@ public class CollectionsResource extends AdminApiResource {
         collection.pid = pid;
         //timestamps from Foxml properties
 
-        ObjectProperties objectProperties = akubraRepository.getProperties(pid);
-        if (objectProperties != null) {
-            collection.created = convertToLocalDateTime(objectProperties.getPropertyCreated());
-            collection.modified = convertToLocalDateTime(objectProperties.getPropertyLastModified());
+        DigitalObjectMetadata digitalObjectMetadata = akubraRepository.getMetadata(pid);
+        if (digitalObjectMetadata != null) {
+            collection.created = convertToLocalDateTime(digitalObjectMetadata.getPropertyCreated());
+            collection.modified = convertToLocalDateTime(digitalObjectMetadata.getPropertyLastModified());
         }
 
         //data from MODS

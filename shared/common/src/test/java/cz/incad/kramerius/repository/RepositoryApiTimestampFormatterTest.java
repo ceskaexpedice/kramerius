@@ -1,6 +1,5 @@
 package cz.incad.kramerius.repository;
 
-import org.ceskaexpedice.akubra.ObjectProperties;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
