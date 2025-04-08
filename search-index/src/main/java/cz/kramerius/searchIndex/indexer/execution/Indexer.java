@@ -122,7 +122,7 @@ public class Indexer {
         } else {
             long start = System.currentTimeMillis();
             Counters counters = new Counters();
-            LOGGER.info("Processing " + pid + " (indexation type: " + type + ")");
+            LOGGER.log(Level.INFO, "Processing {0} (indexation type: {1})", new Object[]{pid, type});
             RepositoryNode node = nodeManager.getKrameriusNode(pid);
             boolean setFullIndexationInProgress = type == IndexationType.TREE_AND_FOSTER_TREES;
             if (node != null && setFullIndexationInProgress) {
@@ -169,7 +169,7 @@ public class Indexer {
             SolrDocument objectByPid = solrIndexer.getObjectByPid(pid);
             alreadyInIndex = objectByPid != null;
         } catch (SolrServerException | IOException e) {
-            e.printStackTrace();
+            reportError(e.getMessage(), e);
         }
 
         if (alreadyInIndex) { // keep data from previous indexation in case this indexation fails during
@@ -184,7 +184,7 @@ public class Indexer {
                 ensureCompositeId(solrInput, repositoryNode, pid);
                 String solrInputStr = solrInput.getDocument().asXML();
                 solrIndexer.indexFromXmlString(solrInputStr, false);
-            } catch (Exception e) {
+            } catch (IOException | SolrServerException | DocumentException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -200,31 +200,28 @@ public class Indexer {
     private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean setFullIndexationInProgress, ProgressListener progressListener) {
         try {
             counters.incrementProcessed();
-            boolean objectAvailable = repositoryNode != null;
-            if (!objectAvailable) {
-                //TODO: hodit ignoreObjectsMissingFromRepository do konfigurace, nebo nastavit na false pri pouziti takove implementace KrameriusRepositoryAccessAdapter, ktera falesne neoznacuje existujici objekty v repozitari za chybejici
-                //protoze vysledkem tehle zmeny (neexistujici/falesne neexistujici objekty budou v indexu ponechany v dosavadnim stavu, namisto smazani) muze byt skryta zastaralost v indexu, napr.:
-                //monografie se muze jevit jako zaindexovana indexerem ve verzi třeba 15, ale obsahuje stranku, ktera preindexovana nebyla, nebyla ale ani zahozena a jeji zaznam v indexu je nenapadne zastaraly
-                //podobne pro periodikum, pokud by nebyl dostupny zaznam cisla, nebude preindexovano a ani jeji stranky
-
-                if (this.ignoreInconsistentObjects) { //ignore missing objects
-                    reportError("object not found in repository (or found in inconsistent state), ignoring: " + pid);
-                    counters.incrementIgnored();
-                } else { //remove missing objects from index
-                    reportError("object not found in repository (or found in inconsistent state), removing from index: " + pid);
-                    solrIndexer.deleteById(pid);
-                    counters.incrementRemoved();
-                }
-                report("");
-            } else {
-                LOGGER.info("Indexing " + pid);
+            if (repositoryNode != null) {
                 Document foxmlDoc = krameriusRepositoryFascade.getObjectFoxml(pid, true);
                 report("model: " + repositoryNode.getModel());
                 report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
-                String ocrText = normalizeWhitespacesForOcrText(krameriusRepositoryFascade.getOcrText(pid));
+                String ocrText = krameriusRepositoryFascade.getOcrText(pid);
+
                 //System.out.println("ocr: " + ocrText);
+                
+                //Check if the last character of the OCR text is a hyphen, and if so, check the next page for the first word
+                if (ocrText != null && ocrText.endsWith("-")) {
+                    int pos = repositoryNode.getPositionInOwnParent();
+                    List<String> syblings = nodeManager.getKrameriusNode(repositoryNode.getOwnParentPid()).getPidsOfOwnChildren();
+                    if (syblings.size() > pos+1) {
+                        String nextOcrText = krameriusRepositoryFascade.getOcrText(syblings.get(pos + 1));
+                        if (nextOcrText != null) {
+                            ocrText=  ocrText.substring(0, ocrText.length()-1)+nextOcrText.split(" ")[0];
+                        }
+                    }
+                }
+                ocrText = normalizeWhitespacesForOcrText(ocrText);
                 //IMG_FULL mimetype
                 String imgFullMime = krameriusRepositoryFascade.getImgFullMimetype(pid);
 
@@ -244,6 +241,21 @@ public class Indexer {
                 if ("application/pdf".equals(imgFullMime)) {
                     indexPagesFromPdf(pid, repositoryNode, counters);
                 }
+            } else {
+                //TODO: hodit ignoreObjectsMissingFromRepository do konfigurace, nebo nastavit na false pri pouziti takove implementace KrameriusRepositoryAccessAdapter, ktera falesne neoznacuje existujici objekty v repozitari za chybejici
+                //protoze vysledkem tehle zmeny (neexistujici/falesne neexistujici objekty budou v indexu ponechany v dosavadnim stavu, namisto smazani) muze byt skryta zastaralost v indexu, napr.:
+                //monografie se muze jevit jako zaindexovana indexerem ve verzi třeba 15, ale obsahuje stranku, ktera preindexovana nebyla, nebyla ale ani zahozena a jeji zaznam v indexu je nenapadne zastaraly
+                //podobne pro periodikum, pokud by nebyl dostupny zaznam cisla, nebude preindexovano a ani jeji stranky
+
+                if (this.ignoreInconsistentObjects) { //ignore missing objects
+                    reportError("object not found in repository (or found in inconsistent state), ignoring: " + pid);
+                    counters.incrementIgnored();
+                } else { //remove missing objects from index
+                    reportError("object not found in repository (or found in inconsistent state), removing from index: " + pid);
+                    solrIndexer.deleteById(pid);
+                    counters.incrementRemoved();
+                }
+                report("");
             }
         } catch (DocumentException e) {
             counters.incrementErrors();
@@ -307,7 +319,7 @@ public class Indexer {
 
     private void processChildren(String parentPid, RepositoryNode parentNode, Counters counters, IndexationType type, boolean isIndexationRoot, ProgressListener progressListener) {
         if (parentNode == null) {
-            LOGGER.log(Level.SEVERE, "object not found in repository (or found in inconsistent state), ignoring it's children: " + parentPid);
+            LOGGER.log(Level.SEVERE, "object not found in repository (or found in inconsistent state), ignoring it''s children: {0}", parentPid);
             return;
         }
         switch (type) {
@@ -361,7 +373,7 @@ public class Indexer {
             case TREE_INDEX_ONLY_PAGES: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    boolean isPage = true; //TODO: detect
+                    boolean isPage = childNode.getModel().equals("page");
                     if (isPage) {
                         indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                     } else {
@@ -373,7 +385,7 @@ public class Indexer {
             case TREE_INDEX_ONLY_NONPAGES: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    boolean isPage = false; //TODO: detect
+                    boolean isPage = childNode.getModel().equals("page");
                     if (!isPage) {
                         indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                         processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
