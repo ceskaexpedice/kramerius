@@ -280,6 +280,9 @@ public class AkubraResource extends AdminApiResource {
             }
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
+            if(akubraRepository.datastreamExists(pid, dsId)) {
+                throw new BadRequestException("Datastream already exists:" + dsId);
+            }
             akubraRepository.createXMLDatastream(pid, dsId, mimeType, inputStream);
             JSONObject retVal = new JSONObject();
             retVal.put("dsId", dsId);
@@ -308,6 +311,9 @@ public class AkubraResource extends AdminApiResource {
             }
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
+            if(akubraRepository.datastreamExists(pid, dsId)) {
+                throw new BadRequestException("Datastream already exists:" + dsId);
+            }
             akubraRepository.createManagedDatastream(pid, dsId, mimeType, inputStream);
             JSONObject retVal = new JSONObject();
             retVal.put("dsId", dsId);
