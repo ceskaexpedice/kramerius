@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static cz.incad.kramerius.processes.utils.ProcessUtils.extractPids;
+
 /**
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (processing_rebuild_for_object)
  */
@@ -47,7 +49,7 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
 
     /**
      * args[0] - authToken
-     * args[1] - pid
+     * args[1] - pid ; pidslist
      */
     public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
         //args
@@ -58,14 +60,19 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
         if (args.length < 2) {
             throw new RuntimeException("Not enough arguments.");
         }
+        //pid: , pidlist:
         int argsIndex = 0;
         //token for keeping possible following processes in same batch
         String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //process params
-        String pid = args[argsIndex++];
+        String argument = args[argsIndex];
 
-        ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekt %s", pid));
-        new ProcessingIndexRebuildFromFoxmlByPid().rebuildProcessingIndexFromFoxml(pid);
+        List<String> pids = extractPids(argument); // pid muze byt pidslist  pid1;pid2;pid3;pid4
+
+        for (String pid : pids) {
+            ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekt %s", pid));
+            new ProcessingIndexRebuildFromFoxmlByPid().rebuildProcessingIndexFromFoxml(pid);
+        }
     }
 
     private Unmarshaller initUnmarshaller() {
