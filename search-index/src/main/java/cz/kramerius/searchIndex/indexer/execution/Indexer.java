@@ -2,6 +2,7 @@ package cz.kramerius.searchIndex.indexer.execution;
 
 
 import cz.incad.kramerius.utils.IterationUtils;
+import cz.incad.kramerius.utils.java.Pair;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
@@ -196,32 +197,56 @@ public class Indexer {
         //see https://github.com/ceskaexpedice/kramerius/issues/782
         solrIndexer.setSingleFieldValue(pid, repositoryNode, "full_indexation_in_progress", null, false, false);
     }
-
+/// <summary>
+/// <para>Returns offset to the last word in the text and the last word, if it ends with a hyphen. Otherwise returns null.</para>
+/// <para>Offset example: "This is a test text-" returns 0, "This is a test text-\n-32-" returns 5</para>
+/// </summary>
+    private Pair<String,Integer> GetLastWordAndOffsetIfHyphen(String text) {
+        String[] words = text.split("\\s");
+        int lenghtFromEnd = 0;
+        for(int i = words.length - 1; i >= 0; i--) {
+            String word = words[i].trim();
+            //Is not empty, is at least 2 characters long, and all but the last character are letters. If the last one is hyphen, return the word, otherwise return null.
+            if (!word.isEmpty() && word.length()>1 && word.substring(0,word.length()-1).chars().allMatch(Character::isLetter)) {
+                if(word.endsWith("-")){
+                    return new Pair<>(word,lenghtFromEnd);
+                }
+                else return null;
+            }
+            lenghtFromEnd+=word.length()+1;
+        }
+        return null;
+    }
     private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean setFullIndexationInProgress, ProgressListener progressListener) {
         try {
             counters.incrementProcessed();
             if (repositoryNode != null) {
                 Document foxmlDoc = krameriusRepositoryFascade.getObjectFoxml(pid, true);
-                report("model: " + repositoryNode.getModel());
-                report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
                 String ocrText = krameriusRepositoryFascade.getOcrText(pid);
 
                 //System.out.println("ocr: " + ocrText);
                 
-                //Check if the last character of the OCR text is a hyphen, and if so, check the next page for the first word
-                if (ocrText != null && ocrText.endsWith("-")) {
-                    int pos = repositoryNode.getPositionInOwnParent();
-                    List<String> syblings = nodeManager.getKrameriusNode(repositoryNode.getOwnParentPid()).getPidsOfOwnChildren();
-                    if (syblings.size() > pos+1) {
-                        String nextOcrText = krameriusRepositoryFascade.getOcrText(syblings.get(pos + 1));
-                        if (nextOcrText != null) {
-                            ocrText=  ocrText.substring(0, ocrText.length()-1)+nextOcrText.split(" ")[0];
+                //Check if the last character of the last valid word in OCR text is a hyphen, and if so, check the next page for the first word
+                if (ocrText != null) {
+                    Pair<String,Integer> tuple = GetLastWordAndOffsetIfHyphen(ocrText);
+                    if(tuple != null) {
+                        int pos = repositoryNode.getPositionInOwnParent();
+                        List<String> syblings = nodeManager.getKrameriusNode(repositoryNode.getOwnParentPid()).getPidsOfOwnChildren();
+                        if (syblings.size() > pos+1) {
+                            String nextOcrText = krameriusRepositoryFascade.getOcrText(syblings.get(pos + 1));
+                            if (nextOcrText != null) {
+                                String lastWord = tuple.getFirst();
+                                int offset = tuple.getSecond();
+                                //Uncomment the following 2 lines if we normalise differently (Awaiting confirmation from the team)
+                                ocrText= /*normalizeWhitespacesForOcrText( */ ocrText.substring(0, ocrText.length()-1-offset)+nextOcrText.split("\\s+")[0]+" "/*)*/+lastWord+/*normalizeWhitespacesForOcrText(*/ocrText.substring( ocrText.length()-offset)/*)*/;
+                            }
                         }
+                        //else ocrText = normalizeWhitespacesForOcrText(ocrText);
                     }
-                }
-                ocrText = normalizeWhitespacesForOcrText(ocrText);
+            }
+                ocrText = normalizeWhitespacesForOcrText(ocrText);//
                 //IMG_FULL mimetype
                 String imgFullMime = krameriusRepositoryFascade.getImgFullMimetype(pid);
 
