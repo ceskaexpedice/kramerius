@@ -16,12 +16,15 @@
  */
 package cz.incad.kramerius.processes.starter;
 
+import cz.incad.kramerius.workmode.ApiWorkModeServiceImpl;
+import cz.incad.kramerius.workmode.WorkModeService;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.logging.LoggingLoader;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
+import org.ceskaexpedice.akubra.DistributedLocksException;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -72,6 +75,10 @@ public class ProcessStarter {
     private static boolean PID_UPDATED_BY_ME = false;
 
     public static void main(String[] args) {
+
+        String authToken = args[0];
+        WorkModeService workModeService = new ApiWorkModeServiceImpl(authToken);
+
         PrintStream outStream = null;
         PrintStream errStream = null;
         try {
@@ -148,6 +155,9 @@ public class ProcessStarter {
             }
 
         } catch (Throwable e) {
+            if(e instanceof DistributedLocksException) {
+                handleWorkMode((DistributedLocksException) e, workModeService);
+            }
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             try {
                 updateStatus(States.FAILED);
@@ -341,6 +351,11 @@ public class ProcessStarter {
         return defaultParams.length > i ? defaultParams[i] : null;
     }
 
+    private static void handleWorkMode(DistributedLocksException dle, WorkModeService workModeService) {
+        if(!dle.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+            workModeService.setReadOnlyMode(true);
+        }
+    }
 
     /**
      * Wrapper which represents found method

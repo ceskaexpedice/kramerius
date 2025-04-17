@@ -41,6 +41,7 @@ import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.statistics.database.StatisticDbInitializer;
 import cz.incad.kramerius.users.database.LoggedUserDbHelper;
 import cz.incad.kramerius.utils.DatabaseUtils;
+import cz.incad.kramerius.workmode.WorkModeDbInitializer;
 import cz.inovatika.folders.db.FolderDatabaseInitializer;
 
 /**
@@ -83,6 +84,9 @@ public class StartupServlet extends GuiceServlet {
 
             // read previous db version
             VersionDbInitializer.initDatabase(connection);
+
+            // work mode table
+            WorkModeDbInitializer.initDatabase(connection);
 
             // mostdesirable table
             MostDesirableDbInitializer.initDatabase(connection, versionService);

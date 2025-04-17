@@ -16,19 +16,14 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
-import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.http.protocol.HTTP;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.*;
 import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
@@ -62,7 +57,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -140,7 +134,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -318,7 +313,8 @@ public class CollectionsResource extends AdminApiResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (RepositoryException | SolrServerException | IOException | FileUploadException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -384,7 +380,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -424,7 +421,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -482,7 +480,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -597,7 +596,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -707,7 +707,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -775,7 +776,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -844,7 +846,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -921,7 +924,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -1007,7 +1011,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -1081,7 +1086,8 @@ public class CollectionsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

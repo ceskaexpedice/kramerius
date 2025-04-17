@@ -415,7 +415,7 @@ public class ItemsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -469,7 +469,7 @@ public class ItemsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -674,6 +674,7 @@ public class ItemsResource extends AdminApiResource {
     }
 
 
+    // TODO AK_NEW nahradit novym REST API - zeptat se Lukase
     @PUT
     @Path("{pid}/akubra/updateManaged/{dsid}")
     @Consumes({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
@@ -724,7 +725,8 @@ public class ItemsResource extends AdminApiResource {
                 return Response.status(Response.Status.OK).build();
             }
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -733,7 +735,7 @@ public class ItemsResource extends AdminApiResource {
     }
 
 
-    // TODO: Delete
+    // TODO AK_NEW: Delete a zjistit, zda to nekdo pouziva
     @PUT
     @Path("{pid}/streams/IMG_THUMB")
     public Response setImgThumb(@PathParam("pid") String targetPid, @QueryParam("srcPid") String sourcePid) {
@@ -798,7 +800,8 @@ public class ItemsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -830,7 +833,8 @@ public class ItemsResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

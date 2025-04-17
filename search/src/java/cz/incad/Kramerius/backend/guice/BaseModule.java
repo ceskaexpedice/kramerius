@@ -13,7 +13,6 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.CacheLifeCycleHook;
 import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
-import cz.incad.kramerius.fedora.AkubraRepositoryProvider;
 import cz.incad.kramerius.impl.*;
 import cz.incad.kramerius.processes.GCScheduler;
 import cz.incad.kramerius.processes.ProcessScheduler;
@@ -37,7 +36,6 @@ import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl
 import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.impl.*;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
-import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ehcache.CacheManager;
 
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;

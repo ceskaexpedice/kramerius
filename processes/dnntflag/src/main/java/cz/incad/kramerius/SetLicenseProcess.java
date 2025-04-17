@@ -15,6 +15,7 @@ import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.DistributedLocksException;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
@@ -107,6 +108,14 @@ public class SetLicenseProcess {
                 for (String pid : extractPids(target)) {
                     try {
                         addLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
+                    } catch (DistributedLocksException ex) {
+                        if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+                            brokenPids.add(pid);
+                            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                            LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
+                        }else{
+                            throw ex;
+                        }
                     } catch (Exception ex) {
                         brokenPids.add(pid);
                         LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -119,6 +128,14 @@ public class SetLicenseProcess {
                 for (String pid : extractPids(target)) {
                     try {
                         removeLicense(license, pid, akubraRepository, searchIndex, indexerAccess, authToken);
+                    } catch (DistributedLocksException ex) {
+                        if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+                            brokenPids.add(pid);
+                            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                            LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
+                        }else{
+                            throw ex;
+                        }
                     } catch (Exception ex) {
                         brokenPids.add(pid);
                         LOGGER.log(Level.SEVERE, ex.getMessage(), ex);

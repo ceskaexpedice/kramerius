@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.workmode.WorkModeService;
 import cz.incad.kramerius.rest.apiNew.ApiResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.UnauthorizedException;
@@ -9,8 +10,10 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
+import org.ceskaexpedice.akubra.DistributedLocksException;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -42,6 +45,10 @@ public abstract class AdminApiResource extends ApiResource {
 
     @Inject
     SearchIndexHelper searchIndexHelper;
+
+    @Inject
+    @Named("dbWorkMode")
+    WorkModeService workModeService;
 
     //TODO: cleanup
 
@@ -180,7 +187,7 @@ public abstract class AdminApiResource extends ApiResource {
         paramsList.add(objectPid);
         paramsList.add(Boolean.toString(ignoreInconsistentObjects));
         paramsList.add(title);
-        
+
         String processName = title != null
                 ? String.format("Reindexace %s (%s, typ %s)", title, objectPid, indexationType)
                 : String.format("Reindexace %s (typ %s)", objectPid, indexationType);
@@ -198,5 +205,12 @@ public abstract class AdminApiResource extends ApiResource {
     protected void deleteFromSearchIndex(List<String> pids) throws IOException {
         this.searchIndexHelper.deleteFromIndex(pids);
     }
+
+    protected void handleWorkMode(DistributedLocksException dle) {
+        if (!dle.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)) {
+            workModeService.setReadOnlyMode(true);
+        }
+    }
+
 
 }
