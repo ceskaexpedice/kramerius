@@ -17,6 +17,7 @@
 package cz.incad.kramerius.processes.starter;
 
 import cz.incad.kramerius.workmode.ApiWorkModeServiceImpl;
+import cz.incad.kramerius.workmode.ReadOnlyWorkModeException;
 import cz.incad.kramerius.workmode.WorkModeService;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.WarningException;
@@ -82,7 +83,6 @@ public class ProcessStarter {
         PrintStream outStream = null;
         PrintStream errStream = null;
         try {
-
             // default process encoding
             System.setProperty("file.encoding", "UTF-8");
             
@@ -109,6 +109,10 @@ public class ProcessStarter {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             }));
+
+            if(workModeService.isReadOnlyMode()){
+                throw new ReadOnlyWorkModeException();
+            }
 
             LOGGER.info("STARTING PROCESS WITH USER HOME:"+System.getProperty("user.home"));
             LOGGER.info("STARTING PROCESS WITH FILE ENCODING:"+System.getProperty("file.encoding"));
@@ -155,8 +159,9 @@ public class ProcessStarter {
             }
 
         } catch (Throwable e) {
-            if(e instanceof DistributedLocksException) {
-                handleWorkMode((DistributedLocksException) e, workModeService);
+            DistributedLocksException distributedLockException = getDistributedLockException(e);
+            if(distributedLockException != null) {
+                handleWorkMode(distributedLockException, workModeService);
             }
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             try {
@@ -349,6 +354,16 @@ public class ProcessStarter {
 
     public static String defaultParam(String[] defaultParams, int i) {
         return defaultParams.length > i ? defaultParams[i] : null;
+    }
+
+    private static DistributedLocksException getDistributedLockException(Throwable throwable) {
+        while (throwable != null) {
+            if (DistributedLocksException.class.isInstance(throwable)) {
+                return (DistributedLocksException) throwable;
+            }
+            throwable = throwable.getCause();
+        }
+        return null;
     }
 
     private static void handleWorkMode(DistributedLocksException dle, WorkModeService workModeService) {

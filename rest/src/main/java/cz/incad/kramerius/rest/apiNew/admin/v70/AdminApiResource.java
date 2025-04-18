@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.workmode.ReadOnlyWorkModeException;
 import cz.incad.kramerius.workmode.WorkModeService;
 import cz.incad.kramerius.rest.apiNew.ApiResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
@@ -126,6 +127,12 @@ public abstract class AdminApiResource extends ApiResource {
             throw new InternalErrorException("error communicating with authentication service: %s ", e.getMessage());
         }
     }*/
+
+    protected final void checkReadOnlyWorkMode() {
+        if (workModeService.isReadOnlyMode()) {
+            throw new ReadOnlyWorkModeException();
+        }
+    }
 
     private String inputstreamToString(InputStream in) throws IOException {
         BufferedReader reader = null;

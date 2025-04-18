@@ -111,6 +111,7 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createCollection(JSONObject collectionDefinition) {
         try {
+            checkReadOnlyWorkMode();
             //authentication
 
             User user1 = this.userProvider.get();
@@ -272,7 +273,7 @@ public class CollectionsResource extends AdminApiResource {
                                InputStream mimeTypeStream
     ) {
         try {
-
+            checkReadOnlyWorkMode();
             HttpServletRequest req = this.requestProvider.get();
 
             DiskFileItemFactory factory = new DiskFileItemFactory();
@@ -335,6 +336,7 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateCollection(@PathParam("pid") String pid, JSONObject collectionDefinition) {
         try {
+            checkReadOnlyWorkMode();
             checkSupportedObjectPid(pid);
             //authentication
             User user1 = this.userProvider.get();
@@ -403,6 +405,7 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response setItemsInCollection(@PathParam("pid") String pid, JSONArray pidsOfItems) {
         try {
+            checkReadOnlyWorkMode();
             User user1 = this.userProvider.get();
             if (!permitCollectionEdit(this.rightsResolver, user1, pid)) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
@@ -442,6 +445,7 @@ public class CollectionsResource extends AdminApiResource {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response addItemToCollection(@PathParam("pid") String collectionPid, @QueryParam("indexation") String indexation, String itemPid) {
         try {
+            checkReadOnlyWorkMode();
             checkSupportedObjectPid(collectionPid);
             checkSupportedObjectPid(itemPid);
             User user = this.userProvider.get();
@@ -502,6 +506,7 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addItemsToCollection(@PathParam("pid") String collectionPid, @QueryParam("indexation") String indexation, String itemsPidsJsonArrayStr) { //primo JSONArray itemsPids jako parametr nefunguje
         try {
+            checkReadOnlyWorkMode();
             //parse JSON Array on input
             JSONArray itemsPid;
             try {
@@ -652,6 +657,7 @@ public class CollectionsResource extends AdminApiResource {
         List<String> reindexCollection = new ArrayList<>();
         checkSupportedObjectPid(collectionPid);
         try {
+            checkReadOnlyWorkMode();
             User user1 = this.userProvider.get();
             // TODO List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
             akubraRepository.doWithWriteLock(collectionPid, () -> {
@@ -734,6 +740,7 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkSupportedObjectPid(collectionPid);
             checkSupportedObjectPid(itemPid);
+            checkReadOnlyWorkMode();
             //authentication
             //AuthenticatedUser user = getAuthenticatedUserByOauth();
 
@@ -806,6 +813,7 @@ public class CollectionsResource extends AdminApiResource {
     @Path("{pid}")
     public Response deleteCollection(@PathParam("pid") String pid) {
         try {
+            checkReadOnlyWorkMode();
             checkSupportedObjectPid(pid);
             //authentication
             User user1 = this.userProvider.get();
@@ -867,7 +875,7 @@ public class CollectionsResource extends AdminApiResource {
             if (clipItem == null) {
                 throw new BadRequestException("badREquest");
             }
-
+            checkReadOnlyWorkMode();
             //check collection
             checkSupportedObjectPid(collectionPid);
             if (!isModelCollection(collectionPid)) {
@@ -939,6 +947,7 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeClipItemsBatch(@PathParam("collectionPid") String collectionPid, String stringBatch) {
         try {
+            checkReadOnlyWorkMode();
             JSONObject batch = new JSONObject(stringBatch);
             JSONArray batchArray = batch.optJSONArray("clipitems");
 
@@ -1026,6 +1035,7 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addClipItem(@PathParam("pid") String collectionPid, String itemJsonObj) {
         try {
+            checkReadOnlyWorkMode();
             JSONObject json = new JSONObject(itemJsonObj);
             CutItem clipItem = CutItem.fromJSONObject(json);
             if (clipItem == null) {

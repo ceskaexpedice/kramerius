@@ -357,6 +357,7 @@ public class ItemsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response setChildrenOrder(@PathParam("pid") String pid, JSONObject newChildrenOrder) {
         try {
+            checkReadOnlyWorkMode();
             checkSupportedObjectPid(pid);
             //authentication
             User user = this.userProvider.get();
@@ -447,6 +448,7 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}")
     public Response deleteObject(@PathParam("pid") String pid) {
         try {
+            checkReadOnlyWorkMode();
             checkSupportedObjectPid(pid);
             //authentication
             User user = this.userProvider.get();
@@ -693,6 +695,7 @@ public class ItemsResource extends AdminApiResource {
         }
 
         try {
+            checkReadOnlyWorkMode();
             List<String> requestHeader = headers.getRequestHeader("Content-Type");
             if (requestHeader.size() > 0) {
                 String mimeType = requestHeader.get(0);
@@ -740,6 +743,7 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}/streams/IMG_THUMB")
     public Response setImgThumb(@PathParam("pid") String targetPid, @QueryParam("srcPid") String sourcePid) {
         try {
+            checkReadOnlyWorkMode();
             //authentication
             User user = this.userProvider.get();
             //authorization
@@ -814,6 +818,7 @@ public class ItemsResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_XML)
     public Response setMODS(@PathParam("pid") String pid, InputStream xml) {
         try {
+            checkReadOnlyWorkMode();
             //authentication
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());

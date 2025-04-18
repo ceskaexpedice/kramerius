@@ -44,7 +44,7 @@ public class WorkModeDbInitializer {
      */
     public static void initDatabase(final Connection connection) {
         try {
-            boolean workmodeTable = DatabaseUtils.tableExists(connection, "workmode");
+            boolean workmodeTable = DatabaseUtils.tableExists(connection, "WORKMODE");
             if (!workmodeTable) {
                 createWorkmodeTable(connection);
             }
