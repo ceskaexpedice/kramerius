@@ -4335,3 +4335,50 @@ paths:
       tags:
         - akubra
 
+  /workmode:
+    get:
+      summary: Zda je Kramerius jadro read only
+      description: Zda je Kramerius jadro read only
+      operationId: getWorkModeStatus
+      responses:
+        '200':
+          description: Zda je Kramerius jadro read only
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  readOnly:
+                    type: boolean
+                    description: read only
+        '500':
+          description: Server error
+      tags:
+        - workmode
+    put:
+      summary: Nastaveni read only flag
+      description: Nastaveni read only flag pro jadro Krameria
+      operationId: updateWorkMode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                readOnly:
+                  type: boolean
+                  description: Indicates if the system should be in read-only mode.
+              required:
+                - readOnly
+      responses:
+        '200':
+          description: Successfully updated work mode
+        '400':
+          description: Invalid input
+        '500':
+          description: Server error
+      tags:
+        - workmode
+
+

@@ -46,14 +46,20 @@ public class DbWorkModeServiceImpl implements WorkModeService {
 
     @Override
     public void setReadOnlyMode(boolean readOnlyMode) {
+        List<Boolean> result = new JDBCQueryTemplate<Boolean>(this.connectionProvider.get(), true) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Boolean> returnsList) throws SQLException {
+                returnsList.add(true);
+                return false; // Stop after first row
+            }
+        }.executeQuery("SELECT readOnly FROM workmode WHERE id = 'singleton'");
         try {
-            // Update the existing row
-            String sql = "UPDATE workmode SET readOnly = ? WHERE id = 'singleton'";
             JDBCUpdateTemplate template = new JDBCUpdateTemplate(this.connectionProvider.get(), true);
-            int rows = template.executeUpdate(sql, readOnlyMode);
-            if (rows == 0) {
-                // If the row doesn't exist yet, insert it
+            if (result.isEmpty()) {
                 template.executeUpdate("INSERT INTO workmode (id, readOnly) VALUES ('singleton', ?)", readOnlyMode);
+            } else {
+                String sql = "UPDATE workmode SET readOnly = ? WHERE id = 'singleton'";
+                template.executeUpdate(sql, readOnlyMode);
             }
             LOGGER.log(Level.INFO, "workmode status update as readOnly: {0}", readOnlyMode);
         } catch (SQLException e) {
