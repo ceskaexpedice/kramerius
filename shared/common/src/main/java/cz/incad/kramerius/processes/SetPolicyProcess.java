@@ -11,6 +11,7 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.DistributedLocksException;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -102,6 +104,14 @@ public class SetPolicyProcess {
                     }
                 }
                 return noErros;
+            } catch (DistributedLocksException ex) {
+                if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+                    LOGGER.warning("Cannot set policy for object " + pid + ", skipping ");
+                    ex.printStackTrace();
+                    return false;
+                }else{
+                    throw ex;
+                }
             } catch (Exception ex) {
                 LOGGER.warning("Cannot set policy for object " + pid + ", skipping ");
                 ex.printStackTrace();

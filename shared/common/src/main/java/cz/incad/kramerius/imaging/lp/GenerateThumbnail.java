@@ -30,6 +30,7 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.DistributedLocksException;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
@@ -53,6 +54,12 @@ public class GenerateThumbnail {
         if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             try {
                 prepareThumbnail(pid, akubraRepository, discStruct, tileSupport);
+            } catch (DistributedLocksException ex) {
+                if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+                    LOGGER.severe(ex.getMessage());
+                }else{
+                    throw ex;
+                }
             } catch (XPathExpressionException e) {
                 LOGGER.severe(e.getMessage());
             } catch (LexerException e) {
@@ -69,6 +76,12 @@ public class GenerateThumbnail {
                         try {
                             if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                                 prepareThumbnail(pid, akubraRepository, discStruct, tileSupport);
+                            }
+                        } catch (DistributedLocksException ex) {
+                            if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+                                LOGGER.severe(ex.getMessage());
+                            }else{
+                                throw ex;
                             }
                         } catch (XPathExpressionException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(),e);
