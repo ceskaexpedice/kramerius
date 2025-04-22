@@ -79,7 +79,7 @@ public class ReharvestResource {
     @Inject
     private Instances libraries;
 
-  @Inject
+    @Inject
     private RightsResolver rightsResolver;
 
     @Inject
@@ -88,16 +88,16 @@ public class ReharvestResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getHarvests(@QueryParam("page") String page,@QueryParam("rows") String rows, @QueryParam("filters") String filterString) {
+    public Response getHarvests(@QueryParam("page") String page, @QueryParam("rows") String rows, @QueryParam("filters") String filterString) {
         List<String> filters = new ArrayList<>();
         if (StringUtils.isAnyString(filterString)) {
-            Arrays.asList(filterString.split(";")).stream().forEach(filter-> {
+            Arrays.asList(filterString.split(";")).stream().forEach(filter -> {
                 filters.add(filter);
             });
         }
 
 
-        int iPage = StringUtils.isAnyString(page) ?  Integer.parseInt(page) : 0;
+        int iPage = StringUtils.isAnyString(page) ? Integer.parseInt(page) : 0;
         int iRows = StringUtils.isAnyString(rows) ? Integer.parseInt(rows) : 20;
         String str = this.reharvestManager.searchItems(iPage * iRows, iRows, filters);
 
@@ -127,9 +127,7 @@ public class ReharvestResource {
         if (permit()) {
             ReharvestItem item = this.reharvestManager.getItemById(id);
             if (item != null) {
-                this.reharvestManager.de
-                  
-                  (id);
+                this.reharvestManager.deregister(id);
                 return Response.ok(item.toJSON().toString()).build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -144,7 +142,7 @@ public class ReharvestResource {
     @Path("resolveconflicts/{pids}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response resolveConflict(@PathParam("pids")  String pids) {
+    public Response resolveConflict(@PathParam("pids") String pids) {
 
         String[] conflictIdPidsArray = pids.split(",");
         Arrays.sort(conflictIdPidsArray);
@@ -153,9 +151,9 @@ public class ReharvestResource {
         String conflictId = conflictUUID.toString();
 
         List<ReharvestItem> alreadySolvingConflict = this.reharvestManager.getItemByConflictId(conflictId);
-        if (alreadySolvingConflict.isEmpty() ||  alreadySolvingConflict.stream().noneMatch(item -> "waiting".equalsIgnoreCase(item.getState()))) {
+        if (alreadySolvingConflict.isEmpty() || alreadySolvingConflict.stream().noneMatch(item -> "waiting".equalsIgnoreCase(item.getState()))) {
             String[] pidArray = pids.split(",");
-            for (String pid: pidArray) {
+            for (String pid : pidArray) {
 
                 ReharvestItem deleteRoot = new ReharvestItem(UUID.randomUUID().toString());
                 deleteRoot.setTypeOfReharvest(ReharvestItem.TypeOfReharvset.delete_root);
@@ -175,7 +173,7 @@ public class ReharvestResource {
             List<ReharvestItem> childItems = new ArrayList<>();
 
             List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-            Arrays.stream(pidArray).forEach(pid-> {
+            Arrays.stream(pidArray).forEach(pid -> {
                 try {
                     Set<String> models = new HashSet<>();
                     Set<String> rootPids = new HashSet<>();
@@ -231,20 +229,20 @@ public class ReharvestResource {
                         }
 
                         // root items first
-                        rootItems.forEach(item-> {
+                        rootItems.forEach(item -> {
                             try {
                                 this.reharvestManager.register(item, false);
                             } catch (AlreadyRegistedPidsException e) {
-                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
                             }
                         });
 
                         // child items second
-                        childItems.forEach(item->{
+                        childItems.forEach(item -> {
                             try {
                                 this.reharvestManager.register(item, false);
                             } catch (AlreadyRegistedPidsException e) {
-                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
                             }
                         });
                     } else {
@@ -253,10 +251,10 @@ public class ReharvestResource {
                     }
 
                 } catch (UnsupportedEncodingException e) {
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             });
-            return  Response.ok().build();
+            return Response.ok().build();
         } else {
             // bad request ??
             throw new BadRequestException("Already registered");
@@ -489,13 +487,9 @@ public class ReharvestResource {
     boolean permit() {
         User user = this.userProvider.get();
         if (user != null)
-            return this.rightsResolver.isActionAllowed(user,
-                    SecuredActions.A_ADMIN_READ.getFormalName(),
-                    SpecialObjects.REPOSITORY.getPid(), null,
-                    ObjectPidsPath.REPOSITORY_PATH).flag();
+            return this.rightsResolver.isActionAllowed(user, SecuredActions.A_ADMIN_READ.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag();
         else return false;
     }
-  }
 
 
     @GET
@@ -504,7 +498,7 @@ public class ReharvestResource {
     public Response deleteTrigger(@QueryParam("pid") String pid) {
         deleteTriggerSupport.executeDeleteTrigger(pid);
         JSONObject retval = new JSONObject();
-        retval.put("message","planned");
+        retval.put("message", "planned");
         return Response.ok(retval.toString()).build();
     }
 

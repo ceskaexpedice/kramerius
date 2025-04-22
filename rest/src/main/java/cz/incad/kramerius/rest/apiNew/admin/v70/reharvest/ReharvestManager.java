@@ -61,16 +61,6 @@ public interface ReharvestManager {
      */
     public String searchItems(int start, int rows, List<String> filters);
 
-    /**
-     * Retrieves the top-priority reharvest item based on its status.
-     *
-     * @param status The status of the desired top item.
-     * @return The top reharvest item matching the specified status.
-     * Retrieves a list of all reharvest items.
-     *
-     * @return A list of ReharvestItem objects.
-     */
-    public List<ReharvestItem> getItems();
 
     /**
      * Retrieves the highest-priority reharvest item with a given status.
@@ -98,22 +88,6 @@ public interface ReharvestManager {
      */
     public ReharvestItem getOpenItemByPid(String pid);
 
-    /**
-     * Deregisters a reharvest item, removing it from the system.
-     *
-     * @param id The unique identifier of the item to be deregistered.
-     * @param id The ID of the item.
-     * @return The corresponding ReharvestItem.
-     */
-    public ReharvestItem getItemById(String id);
-
-    /**
-     * Retrieves an open reharvest item by its PID.
-     *
-     * @param pid The PID of the item.
-     * @return The open ReharvestItem associated with the given PID.
-     */
-    public ReharvestItem getOpenItemByPid(String pid);
 
     /**
      * Deregisters a reharvest item by its ID.

@@ -42,7 +42,7 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
     }
 
     @Override
-    public void register(ReharvestItem item, boolean registerIfAlreadyExists ) throws AlreadyRegistedPidsException {
+    public void register(ReharvestItem item) throws AlreadyRegistedPidsException {
         try {
             this.register(item, true);
         } catch (UniformInterfaceException | ClientHandlerException e) {
