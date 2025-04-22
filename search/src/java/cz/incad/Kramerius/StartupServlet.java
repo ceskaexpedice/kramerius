@@ -42,6 +42,7 @@ import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.statistics.database.StatisticDbInitializer;
 import cz.incad.kramerius.users.database.LoggedUserDbHelper;
 import cz.incad.kramerius.utils.DatabaseUtils;
+import cz.inovatika.cdk.cache.CDKCacheInitializer;
 import cz.inovatika.folders.db.FolderDatabaseInitializer;
 
 /**
@@ -54,6 +55,10 @@ public class StartupServlet extends GuiceServlet {
     @Inject
     @Named("kramerius4")
     Provider<Connection> connectionProvider = null;
+
+    @Inject
+    @Named("cdk/cache")
+    Provider<Connection> cdkCacheConnectionManager = null;
 
     @Inject
     TextsService textsService;
@@ -78,49 +83,68 @@ public class StartupServlet extends GuiceServlet {
          * e1.getMessage(),e1); }
          **/
 
-        Connection connection = null;
-        try {
-            connection = this.connectionProvider.get();
+        Connection k7dbConnection = null;
 
+        // optional connection
+        Connection cdkCacheConnection = null;
+        try {
+            k7dbConnection = this.connectionProvider.get();
+
+            // cdk cache connection
+            cdkCacheConnection = this.cdkCacheConnectionManager.get();
+
+            // -- Process database initialization --
             // read previous db version
-            VersionDbInitializer.initDatabase(connection);
+            VersionDbInitializer.initDatabase(k7dbConnection);
 
             // mostdesirable table
-            MostDesirableDbInitializer.initDatabase(connection, versionService);
+            MostDesirableDbInitializer.initDatabase(k7dbConnection, versionService);
 
             // all security tables
-            SecurityDbInitializer.initDatabase(connection, versionService);
+            SecurityDbInitializer.initDatabase(k7dbConnection, versionService);
 
             // process tables - > must be after security tables and must be
             // after logged user tables
-            ProcessDbInitializer.initDatabase(connection, versionService);
+            ProcessDbInitializer.initDatabase(k7dbConnection, versionService);
 
             // statistics tables
-            StatisticDbInitializer.initDatabase(connection, versionService);
+            StatisticDbInitializer.initDatabase(k7dbConnection, versionService);
 
             // folder database
-            FolderDatabaseInitializer.initDatabase(connection, versionService);
+            FolderDatabaseInitializer.initDatabase(k7dbConnection, versionService);
+
 
             // Default OAI sets initializer - configuration part
-            OAIDBInitializer.initDatabase(connection, versionService);
+            OAIDBInitializer.initDatabase(k7dbConnection, versionService);
 
             // delete session keys
-            LoggedUserDbHelper.deleteAllSessionKeys(connection);
+            LoggedUserDbHelper.deleteAllSessionKeys(k7dbConnection);
+            // -- End of process database initialization --
 
-            
+
+            // -- CDK cache initialization --
+            if (cdkCacheConnection != null) {
+                CDKCacheInitializer.initDatabase(cdkCacheConnection);
+            }
+            // -- End of CDK cache initialization --
+
+
             // stores new db version to database if necessary
             versionService.updateVersionIfOutdated();
 
             this.pdfService.init();
-
             this.lifecycleRegistry.startNotification();
 
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException("Failed to start Kramerius", e);
         } finally {
-            if (connection != null) {
-                DatabaseUtils.tryClose(connection);
+            if (k7dbConnection != null) {
+                DatabaseUtils.tryClose(k7dbConnection);
+            }
+
+            if (cdkCacheConnection != null) {
+                DatabaseUtils.tryClose(cdkCacheConnection);
             }
         }
     }

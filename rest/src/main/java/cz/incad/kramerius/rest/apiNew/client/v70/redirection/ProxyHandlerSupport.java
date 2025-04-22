@@ -1,39 +1,53 @@
+/*
+  * Copyright (C) 2025  Inovatika
+  *
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation, either version 3 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+  */
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection;
 
-import static cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem.LIBRARIES_KEYWORD;
-import static cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem.OWN_PID_PATH;
-import static cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem.ROOT_PID;
-
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
+import cz.incad.kramerius.security.Role;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import cz.inovatika.cdk.cache.CDKRequestItem;
+import cz.inovatika.monitoring.ApiCallEvent;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.json.JSONArray;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -41,9 +55,6 @@ import org.w3c.dom.Element;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.AlreadyRegistedPidsException;
@@ -57,34 +68,56 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-public abstract class ProxyHandlerSupport {
+ /**
+  * Base class for implementing various types of ProxyHandlers.
+  */
+ public abstract class ProxyHandlerSupport {
 
     public static final boolean DEBUG = false;
 
     public static final Logger LOGGER = Logger.getLogger(ProxyHandlerSupport.class.getName());
 
+    /** Digital library source */
     protected String source;
-    protected Client client;
+    /** Access to solr */
     protected SolrAccess solrAccess;
+    /** Requesting user */
     protected User user;
+    /** Remote address */
     protected String remoteAddr;
+    /**  Instances mangaer */
     protected Instances instances;
+    /** Reharvest manager */
     protected ReharvestManager reharvestManager;
 
-    public ProxyHandlerSupport(ReharvestManager reharvestManager, Instances instances, User user, Client client,
-            SolrAccess solrAccess, String source, String remoteAddr) {
+    protected CDKRequestCacheSupport cacheSupport;
+    protected CloseableHttpClient apacheClient;
+    protected DeleteTriggerSupport deleteTriggerSupport;
+
+    public ProxyHandlerSupport(CDKRequestCacheSupport cacheSupport, ReharvestManager reharvestManager, Instances instances, User user,
+                               CloseableHttpClient closeableHttpClient,
+                               DeleteTriggerSupport triggerSupport,
+                               SolrAccess solrAccess, String source, String remoteAddr) {
+        this.cacheSupport = cacheSupport;
         this.reharvestManager = reharvestManager;
         this.source = source;
-        this.client = client;
         this.solrAccess = solrAccess;
         this.user = user;
         this.remoteAddr = remoteAddr;
         this.instances = instances;
+        this.apacheClient = closeableHttpClient;
+        this.deleteTriggerSupport = triggerSupport;
     }
 
+     /**
+      * Method for building redirect response
+      * @param url Redirecting url
+      * @return Redirect response
+      * @throws ProxyHandlerException Malformed URL
+      */
     public Response buildRedirectResponse(String url) throws ProxyHandlerException {
         try {
-            LOGGER.info(String.format("Redirecting to %s", url));
+            LOGGER.fine(String.format("Redirecting to %s", url));
             return Response.temporaryRedirect(new URL(url).toURI()).build();
         } catch (MalformedURLException | URISyntaxException e) {
             throw new ProxyHandlerException(e);
@@ -96,290 +129,192 @@ public abstract class ProxyHandlerSupport {
     }
 
 
-    /**
-     * Build rewsponse with HEAD method
-     * 
-     * @param url
-     * @return
-     * @throws ProxyHandlerException
-     */
-    public Response buildForwardResponseHEAD(String url) throws ProxyHandlerException {
-        WebResource.Builder b = buidForwardResponse(url);
-        ClientResponse clientResponseHead = b.head();
-        if (clientResponseHead.getStatus() == 200) {
-            return Response.status(200).build();
-        } else {
-            return Response.status(clientResponseHead.getStatus()).build();
+     /**
+      * Builds a HEAD forward response using an Apache HTTP client.
+      *
+      * @param url the requested URL
+      * @param mimetype the requested MIME type, or null if not specified
+      * @param pid the requested PID
+      * @param deleteTrigger whether the handler should execute the delete trigger
+      * @param shibHeaders whether to include Shibboleth headers in the request
+      * @return a Response object representing the result of the HEAD request
+      */
+     public Response buildForwardApacheResponseHEAD(String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders) {
+        HttpHead head = apacheHead(url, shibHeaders);
+        try (CloseableHttpResponse response = apacheClient.execute(head)) {
+            int code = response.getCode();
+            return Response.status(code).build();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    public ClientResponse forwardedResponse(String url) throws ProxyHandlerException {
-        WebResource.Builder b = buidForwardResponse(url);
-        ClientResponse response = b.get(ClientResponse.class);
-        if (response.getStatus() == 200) {
-            return response;
-        } else {
-            throw new ProxyHandlerException("Bad response; status code " + response.getStatus());
-        }
-    }
+     /**
+      * Builds a GET forward response using an Apache HTTP client.
+      *
+      * @param url the requested URL
+      * @param mimetype the requested MIME type, or null if not specified
+      * @param pid the requested PID
+      * @param deleteTrigger whether the handler should execute the delete trigger
+      * @param shibHeaders whether to include Shibboleth headers in the request
+      * @return a Response object representing the result of the HEAD request
+      */
+     public Response buildForwardApacheResponseGET(String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders, ApiCallEvent event, BiConsumer<byte[], String> dataConsumer) {
+        List<Triple<String, Long, Long>> granularTimeSnapshots = event != null ?  event.getGranularTimeSnapshots() : null;
+        long start = System.currentTimeMillis();
 
-    public Response buildForwardResponseGET(String url, boolean deleteTrigger) throws ProxyHandlerException {
-        return buildForwardResponseGET(url, null, null, deleteTrigger, true);
-    }
+        HttpGet get = apacheGet(url, shibHeaders);
+        String headers = "("+Arrays.stream(get.getHeaders()).map(h-> {
+            return String.format("%s = %s", h.getName(), h.getValue());
+        }).collect(Collectors.joining(", "))+")";
+        LOGGER.log(Level.FINE,  String.format("GET %s %s", url, headers));
+        try (CloseableHttpResponse response = apacheClient.execute(get)) {
+            int code = response.getCode();
+            if (code == 200) {
+                long stop = System.currentTimeMillis();
 
-    public Response buildForwardResponseGET(String url, String pid, boolean deleteTrigger)
-            throws ProxyHandlerException {
-        return buildForwardResponseGET(url, null, pid, deleteTrigger, true);
-    }
-
-    public Response buildForwardResponseGET(String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders)
-            throws ProxyHandlerException {
-        WebResource.Builder b = buidForwardResponse(url, shibHeaders);
-        ClientResponse response = b.get(ClientResponse.class);
-        LOGGER.info("Status code response "+response.getStatus() + ",Mimetype "+mimetype+", pid "+pid+", deleteTrigger "+deleteTrigger+", shibHeaders "+shibHeaders);
-        if (response.getStatus() == 200) {
-            String responseMimeType = response.getType().toString();
-            InputStream is = response.getEntityInputStream();
-            MultivaluedMap<String, String> headers = response.getHeaders();
-
-            StreamingOutput stream = new StreamingOutput() {
-                public void write(OutputStream output) throws IOException, WebApplicationException {
-                    try {
-                        IOUtils.copy(is, output);
-                    } catch (Exception e) {
-                        throw new WebApplicationException(e);
-                    }
+                if (granularTimeSnapshots != null) {
+                    granularTimeSnapshots.add(Triple.of(String.format("http/%s", this.getSource()), start,stop));
                 }
-            };
-            ResponseBuilder respEntity = null;
-            if (mimetype != null) {
-                respEntity = Response.status(200).entity(stream).type(mimetype);
-            } else if (responseMimeType != null) {
-                respEntity = Response.status(200).entity(stream).type(responseMimeType);
-            } else {
-                respEntity = Response.status(200).entity(stream);
-            }
 
-            /*
-             * Disable header forward headers.keySet().forEach(key -> { List<String> values
-             * = headers.get(key); values.stream().forEach(val -> { respEntity.header(key,
-             * val); }); });
-             */
+                LOGGER.log(Level.FINE, String.format(" -> code %d", code));
+                HttpEntity entity = response.getEntity();
+                long length = entity.getContentLength();
+                String responseMimeType = entity.getContentType();
 
-            return respEntity.build();
-        } else {
-            // event for reharvest
-            if (response.getStatus() == 404) {
-                if (deleteTrigger)
-                    deleteTriggeToReharvest(pid);
-            }
-            return Response.status(response.getStatus()).build();
-        }
-    }
+                //TODO: Jak kopirovat data
+                byte[] bytes = IOUtils.toByteArray(entity.getContent());
+                if (dataConsumer != null) {
+                    dataConsumer.accept(bytes, responseMimeType);
+                }
 
-    public void deleteTriggeToReharvest(String pid) {
-        if (reharvestManager != null && pid != null) {
-            try {
-                
-                String cdkRootPid = null;
-                String cdkOwnPidPath = null;
-                String cdkOwnParentPid = null;
-
-                
-                Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
-                Element rootPidElm = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
-                        new XMLUtils.ElementsFilter() {
-                            @Override
-                            public boolean acceptElement(Element element) {
-                                if (element.getNodeName().equals("str")) {
-                                    String fieldName = element.getAttribute("name");
-                                    return fieldName.equals("root.pid");
-                                }
-                                return false;
-                            }
-                });
-                cdkRootPid = rootPidElm != null ? rootPidElm.getTextContent() : null;
-                Element ownPidPath = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
-                        new XMLUtils.ElementsFilter() {
-                            @Override
-                            public boolean acceptElement(Element element) {
-                                if (element.getNodeName().equals("str")) {
-                                    String fieldName = element.getAttribute("name");
-                                    return fieldName.equals("own_pid_path");
-                                }
-                                return false;
-                            }
-                });
-                cdkOwnPidPath = ownPidPath != null ? ownPidPath.getTextContent() : null;
-                
-                Element ownParentPidElm = XMLUtils.findElement(solrDataByPid.getDocumentElement(),
-                        new XMLUtils.ElementsFilter() {
-                            @Override
-                            public boolean acceptElement(Element element) {
-                                if (element.getNodeName().equals("str")) {
-                                    String fieldName = element.getAttribute("name");
-                                    return fieldName.equals("own_parent.pid");
-                                }
-                                return false;
-                            }
-                });
-                cdkOwnParentPid = ownParentPidElm != null ? ownParentPidElm.getTextContent() : null;
-
-                if (rootPidElm != null && ownPidPath != null && ownParentPidElm != null) {
-                    String pidPath = ownPidPath.getTextContent().trim();
-                    String ownParentPidText = ownParentPidElm.getTextContent().trim();
-                    int index = pidPath.indexOf(ownParentPidText);
-                    if (index >= 0) {
-                        pidPath = pidPath.substring(0, index + ownParentPidText.length()).trim();
-                    }
-                    
-                    try {
-
-                        Map<String, JSONObject> map = new HashMap<>();
-                        
-                        JSONObject jsonResult = IntrospectUtils.introspectSolr(this.client, this.instances, ownParentPidText);
-                        Set keys = jsonResult.keySet();
-                        for (Object keyObj : keys) {
-                            String key = keyObj.toString();
-                            JSONObject solrResult = jsonResult.getJSONObject(key);
-                            JSONObject response = solrResult.getJSONObject("response");
-                            int numFound = response.optInt("numFound");
-                            if (numFound > 0) {
-                                JSONObject doc =  response.getJSONArray("docs").getJSONObject(0);
-                                map.put(key, doc);
-                                
-                                /*
-                                 *  
-                                 *  {
-                                      "fedora.model": "periodical",
-                                      "root.pid": "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867",
-                                      "pid_paths": [
-                                        "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867"
-                                      ],
-                                      "PID": "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867",
-                                      "pid": "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867",
-                                      "model": "periodical",
-                                      "pid_path": [
-                                        "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867"
-                                      ],
-                                      "root_pid": "uuid:1c869c00-535b-11e3-9ea2-5ef3fc9ae867"
-                                 *  }
-                                 *   
-                                 */
-                                
-                            }
+                StreamingOutput stream = new StreamingOutput() {
+                    public void write(OutputStream output) throws IOException, WebApplicationException {
+                        try {
+                            IOUtils.copy(new ByteArrayInputStream(bytes), output);
+                        } catch (Exception e) {
+                            throw new WebApplicationException(e);
+                        } finally {
+                            EntityUtils.consumeQuietly(entity);
                         }
-                        
-                        
-                        ReharvestItem alreadyRegistredItem = this.reharvestManager.getOpenItemByPid(ownParentPidText);
-                        if (alreadyRegistredItem == null) {
-                            Document onwParentPidDocument = this.solrAccess.getSolrDataByPid(ownParentPidElm.getTextContent().trim());
-                            Element cdkModelElement = onwParentPidDocument!= null ? XMLUtils.findElement(onwParentPidDocument.getDocumentElement(),
-                                new XMLUtils.ElementsFilter() {
-                                    @Override
-                                    public boolean acceptElement(Element element) {
-                                        if (element.getNodeName().equals("str")) {
-                                            String fieldName = element.getAttribute("name");
-                                            return fieldName.equals("model");
-                                        }
-                                        return false;
-                                    }
-                            }) : null;
-                            
-                            ReharvestItem reharvestItem = new ReharvestItem(UUID.randomUUID().toString(), "Delete trigger|404 ", "open", ownParentPidElm.getTextContent().trim(), pidPath);
-                            List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-
-                            LinkedHashSet<String> uniqueRootPids = new LinkedHashSet<>();
-                            map.keySet().forEach(key-> {
-                                String rootPid = map.get(key).optString("root.pid");
-                                uniqueRootPids.add(rootPid);
-                                
-                            });                            
-                            
-                            LinkedHashSet<String> uniqueModels = new LinkedHashSet<>();
-                            map.keySet().forEach(key-> {
-                                String model = map.get(key).optString("model");
-                                uniqueModels.add(model);
-                            });
-                            
-                            
-                            if (uniqueModels.size() == 1) {
-                                String model = uniqueModels.iterator().next();
-                                if (cdkModelElement != null) {
-                                    String cdkModel = cdkModelElement.getTextContent().trim(); 
-                                    if (!cdkModel.equals(model)) {
-                                        //TODO: cdk conflict 
-                                        // delete - followed by reharvest
-                                    } 
-                                }
-                                if (topLevelModels.contains(model)) {
-                                    reharvestItem.setTypeOfReharvest(TypeOfReharvset.root);
-                                } else {
-                                    reharvestItem.setTypeOfReharvest(TypeOfReharvset.children);
-                                }
-                            } else if (uniqueModels.size() > 1){
-                                // live conflict - reharvest dle nkp 
-                            }
-                            reharvestItem.setLibraries(new ArrayList<>( map.keySet()) );
-                            //reharvestItem.setLibraries(pair.getRight());
-                            reharvestItem.setState("waiting_for_approve");
-                            this.reharvestManager.register(reharvestItem);
-                        }
-                    } catch (DOMException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    } catch (AlreadyRegistedPidsException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
+                };
+                ResponseBuilder respEntity = null;
+                if (mimetype != null) {
+                    respEntity = Response.status(200).entity(stream).type(mimetype);
+                } else if (responseMimeType != null) {
+                    respEntity = Response.status(200).entity(stream).type(responseMimeType);
                 } else {
-                    LOGGER.log(Level.SEVERE, "Cannot find root.pid element");
+                    respEntity = Response.status(200).entity(stream);
                 }
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage());
+                long contentLength = entity.getContentLength();
+                if (contentLength >= 0) {
+                    respEntity.header("Content-Length", String.valueOf(contentLength));
+                }
+                return respEntity.build();
+            } else {
+                // event for reharvest
+                if (code == 404) {
+                    if (deleteTrigger && this.deleteTriggerSupport != null) {
+                        this.deleteTriggerSupport.executeDeleteTrigger(pid);
+                    }
+                }
+                return Response.status(code).build();
             }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    //protected
+    protected boolean exists(String url) {
+        HttpGet head = apacheGet(url, false);
+        try (CloseableHttpResponse response = apacheClient.execute(head)) {
+            int code = response.getCode();
+            return code == 200;
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return false;
+    }
+    protected InputStream inputStream(String url) {
+        HttpGet head = apacheGet(url, false);
+        try (CloseableHttpResponse response = apacheClient.execute(head)) {
+            int code = response.getCode();
+            if (code == 200) {
+                HttpEntity entity = response.getEntity();
+                return entity!= null ?  entity.getContent() : null;
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+
+        return null;
+    }
+
+
+
+    protected HttpHead apacheHead(String url, boolean headers) {
+        LOGGER.fine(String.format("Requesting %s", url));
+        HttpHead head = new HttpHead(url);
+        head.setHeader("User-Agent", "CDK/1.0");
+        if (headers && isAuthenticated() && isDnntUser()) {
+            String header = prepareHeader(headers);
+            head.setHeader("CDK_TOKEN_PARAMETERS", header);
+        }
+        return head;
+    }
+
+    protected HttpGet apacheGet(String url, boolean headers) {
+        LOGGER.fine(String.format("Requesting %s", url));
+        HttpGet get = new HttpGet(url);
+        get.setHeader("User-Agent", "CDK/1.0");
+        if (headers && isAuthenticated() && isDnntUser()) {
+            String header = prepareHeader(headers);
+            get.setHeader("CDK_TOKEN_PARAMETERS", header);
+        }
+        return get;
+    }
+
+    //TODO: Fix; cannot be associated only with dnnto user
+    protected boolean isDnntUser() {
+        List<String> names = Arrays.stream(this.user.getGroups()).map(Role::getName).collect(Collectors.toList());
+        LOGGER.log(Level.FINE, String.format("Roles %s", names.toString()));
+        //TODO: Fix; use constant
+        boolean dnntUsersFlag = names.contains("dnnt_users");
+        LOGGER.log(Level.FINE, String.format("DNNT user roles %s", ""+dnntUsersFlag));
+        return dnntUsersFlag;
+    }
+
+    protected boolean isAuthenticated() {
+        boolean retval = this.user.getId() != -1;
+        LOGGER.log(Level.FINE, String.format("Authenticated user %s", ""+retval));
+        return retval;
+    }
+
+    protected String userCacheIdentification() {
+        if (isAuthenticated()) {
+            // eduPersonUniqueId
+            // preffered_user_name
+            Map<String, String> sessionAttributes = this.user.getSessionAttributes();
+            if (sessionAttributes.containsKey("eduPersonUniqueId")) {
+                String eduPersonUniquId = sessionAttributes.get("eduPersonUniqueId");
+                return eduPersonUniquId;
+            }
+            if (sessionAttributes.containsKey("preffered_user_name")) {
+                String prefferedUserName = sessionAttributes.get("preffered_user_name");
+                return prefferedUserName;
+            }
+            return prepareHeader(true);
         } else {
-            LOGGER.log(Level.SEVERE, "No reharvest manager or pid ");
+            return CDKRequestItem.COMMON_USER;
         }
     }
 
-    protected void mockSession() {
-        if (!user.getSessionAttributes().containsKey("shib-session-id")) {
-            this.user.addSessionAttribute("shib-session-id", "_dd68cbd66641c9b647b05509ac0241fa");
-        }
-        if (!user.getSessionAttributes().containsKey("shib-session-expires")) {
-            this.user.addSessionAttribute("shib-session-expires", "1592847906");
-        }
-        if (!user.getSessionAttributes().containsKey("shib-identity-provider")) {
-            this.user.addSessionAttribute("shib-identity-provider",
-                    "https://shibboleth.mzk.cz/simplesaml/metadata.xml");
-        }
-        if (!user.getSessionAttributes().containsKey("shib-authentication-method")) {
-            this.user.addSessionAttribute("shib-authentication-method",
-                    "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport");
-        }
-
-        if (!user.getSessionAttributes().containsKey("shib-handler")) {
-            this.user.addSessionAttribute("shib-handler", "https://dnnt.mzk.cz/Shibboleth.sso");
-        }
-        if (!user.getSessionAttributes().containsKey("remote_user")) {
-            this.user.addSessionAttribute("remote_user", "all_users@mzk.cz");
-        }
-        if (!user.getSessionAttributes().containsKey("affiliation")) {
-            this.user.addSessionAttribute("affiliation", "member@mzk.cz");
-        }
-        if (!user.getSessionAttributes().containsKey("entitlement")) {
-            this.user.addSessionAttribute("entitlement", "cokoliv");
-        }
-        if (!user.getSessionAttributes().containsKey("edupersonuniqueid")) {
-            this.user.addSessionAttribute("edupersonuniqueid", "user@mzk.cz");
-        }
-    }
-    protected WebResource.Builder buidForwardResponse(String url) {
-    	return buidForwardResponse(url, true);
-    }
-
-
-    
-    protected WebResource.Builder buidForwardResponse(String url, boolean headers) {
+    @NotNull
+    protected String prepareHeader(boolean headers) {
         String prefixHeaders = KConfiguration.getInstance().getConfiguration()
                 .getString("cdk.shibboleth.forward.headers");
 
@@ -404,14 +339,41 @@ public abstract class ProxyHandlerSupport {
             header = prefixHeaders + header;
         }
 
-        LOGGER.fine(String.format("Requesting %s", url));
-        WebResource r = client.resource(url);
-        if (headers) {
-            String message = String.format("URL(%s), CDK_TOKEN_PARAMETERS(%s)", url, header);
-            LOGGER.fine(message);
-            return r.header("CDK_TOKEN_PARAMETERS", header);
-        } else {
-            return r.getRequestBuilder();
+        LOGGER.log(Level.FINE,"HEADER "+header);
+        return header;
+    }
+
+
+    protected void mockSession() {
+        if (!user.getSessionAttributes().containsKey("shib-session-id")) {
+            this.user.addSessionAttribute("shib-session-id", "_dd68cbd66641c9b647b05509ac0241fa");
+        }
+        if (!user.getSessionAttributes().containsKey("shib-session-expires")) {
+            this.user.addSessionAttribute("shib-session-expires", "1592847906");
+        }
+        if (!user.getSessionAttributes().containsKey("shib-identity-provider")) {
+            this.user.addSessionAttribute("shib-identity-provider",
+                    "https://shibboleth.mzk.cz/simplesaml/metadata.xml");
+        }
+        if (!user.getSessionAttributes().containsKey("shib-authentication-method")) {
+            this.user.addSessionAttribute("shib-authentication-method",
+                    "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport");
+        }
+
+        if (!user.getSessionAttributes().containsKey("shib-handler")) {
+            this.user.addSessionAttribute("shib-handler", "https://dnnt.mzk.cz/Shibboleth.sso");
+        }
+        if (!user.getSessionAttributes().containsKey("remote_user")) {
+            this.user.addSessionAttribute("remote_user", "all_users@test.cz");
+        }
+        if (!user.getSessionAttributes().containsKey("affiliation")) {
+            this.user.addSessionAttribute("affiliation", "member@test.cz");
+        }
+        if (!user.getSessionAttributes().containsKey("entitlement")) {
+            this.user.addSessionAttribute("entitlement", "cokoliv");
+        }
+        if (!user.getSessionAttributes().containsKey("edupersonuniqueid")) {
+            this.user.addSessionAttribute("edupersonuniqueid", "user@test.cz");
         }
     }
 

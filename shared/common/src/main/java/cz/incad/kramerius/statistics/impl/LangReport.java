@@ -39,8 +39,6 @@ import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -63,6 +61,7 @@ import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 /**
  * Report poskytnutych jazyku
@@ -79,7 +78,12 @@ public class LangReport extends AbstractStatisticsReport implements StatisticRep
     @Named("kramerius4")
     Provider<Connection> connectionProvider;
 
-    
+
+    @javax.inject.Inject
+    @javax.inject.Named("solr-client")
+    javax.inject.Provider<CloseableHttpClient> provider;
+
+
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,  StatisticsFiltersContainer filters,Offset rOffset) {
         try {
@@ -96,7 +100,7 @@ public class LangReport extends AbstractStatisticsReport implements StatisticRep
 
             String facetField = "langs";
             builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
-            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(), selectEndpint, builder.toString(), "json", null);
             String string = IOUtils.toString(iStream, "UTF-8");
 
             ReportUtils.facetIterate(facetField, string, p-> {
@@ -140,7 +144,7 @@ public class LangReport extends AbstractStatisticsReport implements StatisticRep
 
             String facetField = "langs";
             builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
-            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(), selectEndpint, builder.toString(), "json", null);
             String string = IOUtils.toString(iStream, "UTF-8");
 
             ReportUtils.facetIterate(facetField, string, p-> {

@@ -55,6 +55,7 @@ import cz.incad.kramerius.statistics.utils.ReportUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.Offset;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 /**
  * Poskytnuti autori
@@ -71,7 +72,12 @@ public class AuthorReport extends AbstractStatisticsReport implements StatisticR
     @Named("kramerius4")
     Provider<Connection> connectionProvider;
 
-    
+    @javax.inject.Inject
+    @javax.inject.Named("solr-client")
+    javax.inject.Provider<CloseableHttpClient> provider;
+
+
+
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction repAction,StatisticsFiltersContainer filters, Offset rOffset) {
         try {
@@ -82,7 +88,7 @@ public class AuthorReport extends AbstractStatisticsReport implements StatisticR
             
             String facetField = "authors";
             builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
-            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpoint, builder.toString(), "json");
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(), selectEndpoint, builder.toString(), "json", null);
             String string = IOUtils.toString(iStream, "UTF-8");
 
             List<Map<String,Object>> authors = new ArrayList<>();
@@ -130,7 +136,7 @@ public class AuthorReport extends AbstractStatisticsReport implements StatisticR
             
             String facetField = "authors";
             builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
-            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpoint, builder.toString(), "json");
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(), selectEndpoint, builder.toString(), "json", null);
             String string = IOUtils.toString(iStream, "UTF-8");
 
             ReportUtils.facetIterate(facetField, string, p-> {

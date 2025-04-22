@@ -3,14 +3,12 @@ package cz.incad.kramerius.rest.apiNew.client.v70.libs.properties;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.jersey.api.client.Client;
-
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.TypeOfChangedStatus;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.V5ForwardHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.V5RedirectHandler;
@@ -20,26 +18,33 @@ import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.ProxyUserHandl
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V5ForwardUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V7ForwardUserHandler;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 public class DefaultOnePropertiesInstance implements OneInstance {
-    
+
+    private DeleteTriggerSupport triggerSupport;
     private Instances instances;
     private ReharvestManager reharvestManager;
     private String instanceAcronym;
     private ConfigManager configManager;
-
+    private CDKRequestCacheSupport cacheSupport;
     private Map<String, String> info = new HashMap<>();
 
     private boolean connectedState = true;
     private TypeOfChangedStatus typeOfChangedStatus;
 
-    public DefaultOnePropertiesInstance( ConfigManager configManager, ReharvestManager reharvestManager,
-                                        Instances instances,
-                                        String instanceAcronym,
-                                        boolean connectedState,
-                                        TypeOfChangedStatus typeOfChangedStatus) {
+    public DefaultOnePropertiesInstance(
+            Instances instances,
+            CDKRequestCacheSupport cacheSupport,
+            ConfigManager configManager,
+            ReharvestManager reharvestManager,
+            DeleteTriggerSupport triggerSupport,
+            String instanceAcronym,
+            boolean connectedState,
+            TypeOfChangedStatus typeOfChangedStatus
+    ) {
         super();
         this.reharvestManager = reharvestManager;
         this.instanceAcronym = instanceAcronym;
@@ -47,6 +52,8 @@ public class DefaultOnePropertiesInstance implements OneInstance {
         this.connectedState = connectedState;
         this.typeOfChangedStatus = typeOfChangedStatus;
         this.configManager = configManager;
+        this.cacheSupport = cacheSupport;
+        this.triggerSupport = triggerSupport;
     }
 
     @Override
@@ -69,40 +76,40 @@ public class DefaultOnePropertiesInstance implements OneInstance {
     }
 
     @Override
-    public ProxyItemHandler createProxyItemHandler(User user, Client client, SolrAccess solrAccess, String source,
+    public ProxyItemHandler createProxyItemHandler(User user,  CloseableHttpClient closeableHttpClient, DeleteTriggerSupport triggerSupport, SolrAccess solrAccess, String source,
             String pid, String remoteAddr) {
         if (hasFullAccess()) {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5ForwardHandler(this.reharvestManager, this.instances, user, client, solrAccess, source, pid, remoteAddr);
+                return new V5ForwardHandler(this.cacheSupport, this.reharvestManager, this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
             default:
-                return new V7ForwardHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, pid, remoteAddr);
+                return new V7ForwardHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
             }
         } else {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5RedirectHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, pid, remoteAddr);
+                return new V5RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
             case V7:
-                return new V7RedirectHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, pid, remoteAddr);
+                return new V7RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient,triggerSupport, solrAccess, source, pid, remoteAddr);
             default:
-                return new V5RedirectHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, pid, remoteAddr);
+                return new V5RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
             }
 
         }
     }
 
     @Override
-    public ProxyUserHandler createProxyUserHandler(User user, Client client, SolrAccess solrAccess, String source,
-            String remoteAddr) {
+    public ProxyUserHandler createProxyUserHandler(User user,  CloseableHttpClient apacheClient, SolrAccess solrAccess, String source,
+                                                   String remoteAddr) {
         if (hasFullAccess()) {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5ForwardUserHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, remoteAddr);
+                return new V5ForwardUserHandler(this.cacheSupport, this.reharvestManager,this.instances, user,  apacheClient, solrAccess, source, remoteAddr);
             default:
-                return new V7ForwardUserHandler(this.reharvestManager,this.instances, user, client, solrAccess, source, remoteAddr);
+                return new V7ForwardUserHandler(this.cacheSupport, this.reharvestManager,this.instances, user,  apacheClient, solrAccess, source, remoteAddr);
             }
 
         } else {

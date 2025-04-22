@@ -18,6 +18,7 @@ import cz.incad.kramerius.statistics.StatisticsReportSupport;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.utils.ReportUtils;
 import cz.incad.kramerius.utils.database.Offset;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 /**
  * Poskytnute licence 
@@ -29,6 +30,11 @@ public class LicenseReport extends AbstractStatisticsReport implements Statistic
 
     
     public static final String REPORT_ID = "license";
+
+    @javax.inject.Inject
+    @javax.inject.Named("solr-client")
+    javax.inject.Provider<CloseableHttpClient> provider;
+
 
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction reportedAction, StatisticsFiltersContainer filters,
@@ -42,7 +48,7 @@ public class LicenseReport extends AbstractStatisticsReport implements Statistic
             
             String facetField = "provided_by_license";
             builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
-            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(), selectEndpint, builder.toString(), "json", null);
             String string = IOUtils.toString(iStream, "UTF-8");
     
             ReportUtils.facetIterate(facetField, string, p-> {
@@ -69,7 +75,7 @@ public class LicenseReport extends AbstractStatisticsReport implements Statistic
             String facetField = "provided_by_license";
             //
             builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
-            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(), selectEndpint, builder.toString(), "json", null);
             String string = IOUtils.toString(iStream, "UTF-8");
     
             ReportUtils.facetIterate(facetField, string, p-> {
@@ -100,7 +106,7 @@ public class LicenseReport extends AbstractStatisticsReport implements Statistic
             String facetField = "provided_by_license";
             //
             builder.append(String.format("&rows=0&facet=true&facet.mincount=1&facet.field=%s", facetField));
-            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(), selectEndpint, builder.toString(), "json", null);
             String string = IOUtils.toString(iStream, "UTF-8");
     
             ReportUtils.facetIterate(facetField, string, p-> {

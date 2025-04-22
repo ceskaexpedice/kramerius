@@ -19,8 +19,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
-import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
+import cz.inovatika.monitoring.APICallMonitor;
+import cz.inovatika.monitoring.ApiCallEvent;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -42,6 +43,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 
 /**
@@ -119,7 +121,11 @@ public class ItemsResource extends ClientApiResource {
     @Named("forward-client")
     Provider<Client> clientProvider;
 
-    
+    @Inject
+    @Named("forward-client")
+    Provider<CloseableHttpClient> apacheClient;
+
+
     /**
      * Because of rights and licenses
      */
@@ -135,6 +141,9 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     APICallMonitor apiCallMonitor;
+
+    @Inject
+    DeleteTriggerSupport deleteTriggerSupport;
 
     @HEAD
     @Path("{pid}")
@@ -164,7 +173,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.info();
+                return redirectHandler.info(event);
             } else {
                 return Response.ok().build();
             }
@@ -189,7 +198,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.info();
+                return redirectHandler.info(event);
             } else {
                 return Response.ok().build();
             }
@@ -213,7 +222,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.infoData();
+                return redirectHandler.infoData(event);
             } else {
                 return Response.ok().build();
             }
@@ -239,7 +248,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.infoData();
+                return redirectHandler.infoData(event);
             } else {
                 return Response.ok().build();
             }
@@ -267,7 +276,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.providedByLicenses();
+                return redirectHandler.providedByLicenses(event);
             } else {
                 return Response.ok().build();
             }
@@ -293,7 +302,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.providedByLicenses();
+                return redirectHandler.providedByLicenses(event);
             } else {
                 return Response.ok().build();
             }
@@ -324,7 +333,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.infoStructure();
+                return redirectHandler.infoStructure(event);
             } else {
                 return Response.ok().build();
             }
@@ -349,7 +358,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.infoStructure();
+                return redirectHandler.infoStructure(event);
             } else {
                 return Response.ok().build();
             }
@@ -378,7 +387,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.infoImage();
+                return redirectHandler.infoImage(event);
             } else {
                 return Response.ok().build();
             }
@@ -403,7 +412,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.infoImage();
+                return redirectHandler.infoImage(event);
             } else {
                 return Response.ok().build();
             }
@@ -430,7 +439,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.mods(head);
+                return redirectHandler.mods(head, event);
             } else {
                 return Response.ok().build();
             }
@@ -456,7 +465,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.mods(head);
+                return redirectHandler.mods(head, event);
             } else {
                 return Response.ok().build();
             }
@@ -484,7 +493,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.mods(get);
+                return redirectHandler.mods(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -501,30 +510,6 @@ public class ItemsResource extends ClientApiResource {
         }
     }
     
-    /**
-    @GET
-    @Path("{pid}/metadata/deletetrig")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteTrigger(@PathParam("pid") String pid) {
-        try {
-            // redirect
-            checkSupportedObjectPid(pid);
-            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
-            if (redirectHandler != null) {
-                JSONObject obj = new JSONObject();
-                obj.put("msg",String.format("Delete trigger for %s", pid));
-                redirectHandler.deleteTriggeToReharvest(pid);
-                return Response.ok(obj.toString()).type(MediaType.APPLICATION_JSON).build();
-            } else {
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        }
-    }**/
 
 
     @GET
@@ -538,7 +523,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.mods(get);
+                return redirectHandler.mods(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -566,7 +551,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.dc(head);
+                return redirectHandler.dc(head, event);
             } else {
                 return Response.ok().build();
             }
@@ -592,7 +577,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.dc(head);
+                return redirectHandler.dc(head, event);
             } else {
                 return Response.ok().build();
             }
@@ -618,7 +603,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.dc(get);
+                return redirectHandler.dc(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -644,7 +629,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.dc(get);
+                return redirectHandler.dc(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -668,7 +653,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.textOCR(head);
+                return redirectHandler.textOCR(head, event);
             } else {
                 return Response.ok().build();
             }
@@ -693,7 +678,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.textOCR(head);
+                return redirectHandler.textOCR(head,event);
             } else {
                 return Response.ok().build();
             }
@@ -719,7 +704,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.textOCR(get);
+                return redirectHandler.textOCR(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -744,7 +729,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.textOCR(get);
+                return redirectHandler.textOCR(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -768,7 +753,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.altoOCR(head);
+                return redirectHandler.altoOCR(head, event);
             } else {
                 return Response.ok().build();
             }
@@ -792,7 +777,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.altoOCR(head);
+                return redirectHandler.altoOCR(head, event);
             } else {
                 return Response.ok().build();
             }
@@ -817,7 +802,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.altoOCR(get);
+                return redirectHandler.altoOCR(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -843,7 +828,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.altoOCR(get);
+                return redirectHandler.altoOCR(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -871,7 +856,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-            	return redirectHandler.image(head);
+            	return redirectHandler.image(head, event);
             } else {
                 return Response.ok().build();
             }
@@ -895,7 +880,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-            	return redirectHandler.image(head);
+            	return redirectHandler.image(head, event);
             } else {
                 return Response.ok().build();
             }
@@ -911,8 +896,6 @@ public class ItemsResource extends ClientApiResource {
         }
     }
     
-    
-    
 
     public ProxyItemHandler findRedirectHandler(String pid, String source) throws LexerException, IOException {
         if (source == null) {
@@ -921,7 +904,7 @@ public class ItemsResource extends ClientApiResource {
         OneInstance found = instances.find(source);
         if (found!= null) {
         	String remoteAddress = IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
-        	ProxyItemHandler proxyHandler = found.createProxyItemHandler(this.userProvider.get(), this.clientProvider.get(), this.solrAccess, source, pid, remoteAddress);
+        	ProxyItemHandler proxyHandler = found.createProxyItemHandler(this.userProvider.get(), this.apacheClient.get(), this.deleteTriggerSupport, this.solrAccess, source, pid, remoteAddress);
         	return proxyHandler;
         } else {
         	return null;
@@ -953,7 +936,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-            	return redirectHandler.image(get);
+            	return redirectHandler.image(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -978,7 +961,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-            	return redirectHandler.image(get);
+            	return redirectHandler.image(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -1008,7 +991,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.zoomifyImageProperties(get);
+                return redirectHandler.zoomifyImageProperties(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -1036,7 +1019,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.zoomifyImageProperties(get);
+                return redirectHandler.zoomifyImageProperties(get,event);
             } else {
                 return Response.ok().build();
             }
@@ -1079,7 +1062,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.zoomifyTile(tileGroupStr, tileStr);
+                return redirectHandler.zoomifyTile(tileGroupStr, tileStr, event);
             } else {
                 return Response.ok().build();
             }
@@ -1117,7 +1100,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.zoomifyTile(tileGroupStr, tileStr);
+                return redirectHandler.zoomifyTile(tileGroupStr, tileStr,event);
             } else {
                 return Response.ok().build();
             }
@@ -1143,11 +1126,10 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image/thumb",  pid), "", "GET", pid);
         try {
         	checkSupportedObjectPid(pid);
-
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.imageThumb(get);
+                return redirectHandler.imageThumb(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -1173,9 +1155,12 @@ public class ItemsResource extends ClientApiResource {
             //checkObjectExists(pid);
             
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
-            event.addLabel(redirectHandler.getSource());
-            return redirectHandler.imageThumb(get);
-            
+            if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
+                return redirectHandler.imageThumb(get, event);
+            } else {
+                return Response.ok().build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1200,7 +1185,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.imagePreview(get);
+                return redirectHandler.imagePreview(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -1224,7 +1209,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.imagePreview(get);
+                return redirectHandler.imagePreview(get, event);
             } else {
                 return Response.ok().build();
             }
@@ -1248,7 +1233,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioMP3();
+                return redirectHandler.audioMP3(event);
             } else {
                 return Response.ok().build();
             }
@@ -1272,7 +1257,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioMP3();
+                return redirectHandler.audioMP3(event);
             } else {
                 return Response.ok().build();
             }
@@ -1299,7 +1284,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioMP3();
+                return redirectHandler.audioMP3(event);
             } else {
                 return Response.ok().build();
             }
@@ -1324,7 +1309,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioMP3();
+                return redirectHandler.audioMP3(event);
             } else {
                 return Response.ok().build();
             }
@@ -1348,7 +1333,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioOGG();
+                return redirectHandler.audioOGG(event);
             } else {
                 return Response.ok().build();
             }
@@ -1372,7 +1357,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioOGG();
+                return redirectHandler.audioOGG(event);
             } else {
                 return Response.ok().build();
             }
@@ -1400,7 +1385,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioOGG();
+                return redirectHandler.audioOGG(event);
             } else {
                 return Response.ok().build();
             }
@@ -1424,7 +1409,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioOGG();
+                return redirectHandler.audioOGG(event);
             } else {
                 return Response.ok().build();
             }
@@ -1448,7 +1433,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioOGG();
+                return redirectHandler.audioOGG(event);
             } else {
                 return Response.ok().build();
             }
@@ -1472,7 +1457,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioOGG();
+                return redirectHandler.audioOGG(event);
             } else {
                 return Response.ok().build();
             }
@@ -1500,7 +1485,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioOGG();
+                return redirectHandler.audioOGG(event);
             } else {
                 return Response.ok().build();
             }
@@ -1525,7 +1510,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioOGG();
+                return redirectHandler.audioOGG(event);
             } else {
                 return Response.ok().build();
             }
@@ -1552,7 +1537,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.iiifInfo(RequestMethodName.get, pid);
+                return redirectHandler.iiifInfo(RequestMethodName.get, pid, event);
             } else {
                 return Response.ok().build();
             }
@@ -1578,7 +1563,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.iiifInfo(RequestMethodName.get, pid);
+                return redirectHandler.iiifInfo(RequestMethodName.get, pid, event);
             } else {
                 return Response.ok().build();
             }
@@ -1611,7 +1596,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation,qf);
+                return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation,qf, event);
             } else {
                 return Response.ok().build();
             }
@@ -1644,7 +1629,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation,qf);
+                return redirectHandler.iiifTile(RequestMethodName.get, pid, region, size, rotation,qf,event);
             } else {
                 return Response.ok().build();
             }

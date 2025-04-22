@@ -57,9 +57,13 @@ public class SolrIteratorFactory extends ProcessIteratorFactory {
         } catch(UniformInterfaceException ex) {
         	LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
         }
-        
-        
-        
+
+        //<fieldlist>
+
+        Element fieldListElm = XMLUtils.findElement(iteration, "fieldlist");
+        String fieldList = fieldListElm != null ? fieldListElm.getTextContent() : "";
+
+
         Element endpointElm = XMLUtils.findElement(iteration, "endpoint");
         String endpoint = endpointElm != null ? endpointElm.getTextContent() : "";
 
@@ -76,26 +80,11 @@ public class SolrIteratorFactory extends ProcessIteratorFactory {
         Element typeElm = XMLUtils.findElement(iteration, "type");
         TypeOfIteration typeOfIteration = typeElm != null ? TypeOfIteration.valueOf(typeElm.getTextContent()) : TypeOfIteration.CURSOR;
 
-        Element userElm = XMLUtils.findElement(iteration, "user");
-        Element passElm = XMLUtils.findElement(iteration, "pass");
-        
-        if (userElm != null && passElm !=null) {
-            String user = userElm.getTextContent();
-            String pass = passElm.getTextContent();
 
-            switch (typeOfIteration) {
-
-                case CURSOR: return new SolrCursorIterator(  url, masterQuery, filterQuery, endpoint, id, sort,rowSize,user, pass);
-                case FILTER: return new SolrFilterQueryIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize, user, pass);
-                case PAGINATION: return new SolrPageIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize, user, pass);
-            }
-
-        } else {
-            switch (typeOfIteration) {
-                case CURSOR: return new SolrCursorIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize);
-                case FILTER: return new SolrFilterQueryIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize);
-                case PAGINATION: return new SolrPageIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize);
-            }
+        switch (typeOfIteration) {
+            case CURSOR: return new SolrCursorIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize, StringUtils.isAnyString(fieldList) ?  fieldList.split(",") : new String[] {});
+            case FILTER: return new SolrFilterQueryIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize, StringUtils.isAnyString(fieldList) ? fieldList.split(",") : new String[] {});
+            case PAGINATION: return new SolrPageIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize,StringUtils.isAnyString(fieldList) ?  fieldList.split(","): new String[] {});
         }
 
         return null;

@@ -25,62 +25,56 @@
  import org.apache.hc.core5.util.Timeout;
  import org.apache.http.client.config.CookieSpecs;
 
+ import javax.inject.Inject;
+ import javax.inject.Named;
  import javax.inject.Provider;
 
- /**
-  * Provides an instance of {@link CloseableHttpClient} configured for CDK forwarding.
-  * This class initializes an HTTP client with configurable connection settings,
-  * allowing communication with remote digital libraries.
-  */
- public class ApacheCDKForwardClientProvider implements Provider<CloseableHttpClient> {
+/**
+ * Provides an instance of {@link CloseableHttpClient} configured for CDK forwarding.
+ * This class initializes an HTTP client with configurable connection settings,
+ * allowing communication with remote digital libraries. Formal name is "forward-client"
+ */
+public class ApacheCDKForwardClientProvider implements Provider<CloseableHttpClient> {
 
-     /** Maximum total connections allowed in the connection pool. */
-     public static final int MAX_CONNECTIONS_IN = 70;
-     /** Maximum number of connections per route. */
-     public static final int MAX_PER_ROUTE = 10;
-     /** Timeout for establishing a connection (in seconds). */
-     public static final int CONNECT_TIMEOUT = 5;
-     /** Timeout for receiving a response (in seconds). */
-     public static final int RESPONSE_TIMEOUT = 10;
+    /** Timeout for establishing a connection (in seconds). */
+    public static final int CONNECT_TIMEOUT = 5;
+    /** Timeout for receiving a response (in seconds). */
+    public static final int RESPONSE_TIMEOUT = 10;
 
-     private CloseableHttpClient closeableHttpClient = null;
+    private CloseableHttpClient closeableHttpClient = null;
 
-     /**
-      * Constructs an instance of ApacheCDKForwardClientProvider.
-      * Reads configuration values and initializes the HTTP client with custom settings.
-      */
-     public ApacheCDKForwardClientProvider() {
+    /**
+     * Constructs an instance of ApacheCDKForwardClientProvider.
+     * Reads configuration values and initializes the HTTP client with custom settings.
+     */
+    @Inject
+    public ApacheCDKForwardClientProvider(@Named("forward-client")Provider<PoolingHttpClientConnectionManager> poolManager) {
 
-         int maxConnections = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.max_connections", MAX_CONNECTIONS_IN);
-         int maxRoute = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.max_per_route", MAX_PER_ROUTE);
-         int connectTimeout = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.connect_timeout", CONNECT_TIMEOUT);
-         int responseTimeout = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.response_timeout", RESPONSE_TIMEOUT);
+        int connectTimeout = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.connect_timeout", CONNECT_TIMEOUT);
+        int responseTimeout = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.response_timeout", RESPONSE_TIMEOUT);
 
-         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
-         connManager.setMaxTotal(maxConnections); // Maximální počet připojení v poolu
-         connManager.setDefaultMaxPerRoute(maxRoute);
-         RequestConfig requestConfig = RequestConfig.custom()
-                 .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
-                 .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
-                 .setResponseTimeout(Timeout.ofSeconds(responseTimeout))
-                 .build();
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
+                .setResponseTimeout(Timeout.ofSeconds(responseTimeout))
+                .build();
 
-         this.closeableHttpClient = HttpClients.custom()
-                 .setConnectionManager(connManager)
-                 .disableAuthCaching()
-                 .disableCookieManagement()
-                 .setDefaultRequestConfig(requestConfig)
-                 .build();
-     }
+        this.closeableHttpClient = HttpClients.custom()
+                .setConnectionManager(poolManager.get())
+                .disableAuthCaching()
+                .disableCookieManagement()
+                .setDefaultRequestConfig(requestConfig)
+                .build();
+    }
 
 
-     /**
-      * Provides the configured instance of {@link CloseableHttpClient}.
-      *
-      * @return a configured HTTP client instance.
-      */
-     @Override
-     public CloseableHttpClient get() {
+    /**
+     * Provides the configured instance of {@link CloseableHttpClient}.
+     *
+     * @return a configured HTTP client instance.
+     */
+    @Override
+    public CloseableHttpClient get() {
          return this.closeableHttpClient;
      }
- }
+}

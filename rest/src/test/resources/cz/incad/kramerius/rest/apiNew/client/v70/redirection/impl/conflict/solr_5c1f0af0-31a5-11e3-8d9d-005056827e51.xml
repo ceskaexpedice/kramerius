@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+    <lst name="responseHeader">
+        <bool name="zkConnected">true</bool>
+        <int name="status">0</int>
+        <int name="QTime">21</int>
+        <lst name="params">
+            <str name="q">pid:"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51"</str>
+            <str name="indent">true</str>
+            <str name="q.op">OR</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="2" start="0" maxScore="7.542816" numFoundExact="true">
+        <doc>
+            <str name="compositeId">uuid:9056a3d0-fca3-11ee-96e1-005056827e51!uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            <arr name="cdk.licenses">
+                <str>mzk_dnnto</str>
+                <str>nkp_public</str>
+            </arr>
+            <arr name="licenses">
+                <str>dnnto</str>
+                <str>public</str>
+            </arr>
+            <str name="root.pid">uuid:9056a3d0-fca3-11ee-96e1-005056827e51</str>
+            <arr name="cdk.collection">
+                <str>nkp</str>
+                <str>mzk</str>
+            </arr>
+            <str name="accessibility">public</str>
+            <str name="pid">uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            <str name="model">monographunit</str>
+            <arr name="cdk.k5.marked_for_contains_licenses">
+                <str>public</str>
+            </arr>
+            <arr name="cdk.k5.license.translated">
+                <str>public</str>
+            </arr>
+            <arr name="in_collections.direct">
+                <str>uuid:fcd2c2d7-9404-45c8-8325-a827a491a892</str>
+                <str>uuid:7c9f1409-0318-4e6d-9bbb-a2438e9e600b</str>
+                <str>uuid:69af3595-5410-41e0-ad5e-e3dfd9cb085f</str>
+            </arr>
+            <arr name="titles.search">
+                <str>Milenky: román o dvou dílech</str>
+            </arr>
+            <arr name="in_collections">
+                <str>uuid:fcd2c2d7-9404-45c8-8325-a827a491a892</str>
+                <str>uuid:7c9f1409-0318-4e6d-9bbb-a2438e9e600b</str>
+                <str>uuid:69af3595-5410-41e0-ad5e-e3dfd9cb085f</str>
+            </arr>
+            <str name="title.search">Milenky: román o dvou dílech</str>
+            <str name="title.sort">MILENKY ROMA|N O DVOU DI|LEH|</str>
+            <long name="_version_">1815517136964026368</long></doc>
+        <doc>
+            <str name="accessibility">public</str>
+            <arr name="authors">
+                <str>Svobodová, Růžena, 1868-1920</str>
+                <str>Svobodová, Růžena</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Svobodová, Růžena</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Svobodová, Růžena</str>
+            </arr>
+            <int name="count_page">403</int>
+            <date name="created">2014-01-05T20:53:22.974Z</date>
+            <date name="date.max">1918-12-31T23:59:59.999Z</date>
+            <date name="date.min">1917-01-01T00:00:00.001Z</date>
+            <str name="date.str">1917-1918</str>
+            <int name="date_range_end.year">1918</int>
+            <int name="date_range_start.year">1917</int>
+            <bool name="has_tiles">false</bool>
+            <arr name="id_barcode">
+                <str>1002670727</str>
+            </arr>
+            <arr name="id_ccnb">
+                <str>cnb000901944</str>
+            </arr>
+            <arr name="id_oclc">
+                <str>85715944</str>
+            </arr>
+            <arr name="id_urnnbn">
+                <str>urn:nbn:cz:nk-000nvn</str>
+            </arr>
+            <arr name="id_uuid">
+                <str>5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">0</int>
+            <str name="model">monograph</str>
+            <date name="modified">2020-08-27T10:35:48.054Z</date>
+            <str name="own_model_path">monograph</str>
+            <str name="own_pid_path">uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            <arr name="physical_locations.facet">
+                <str>ABA001</str>
+            </arr>
+            <str name="pid">uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            <arr name="pid_paths">
+                <str>uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            </arr>
+            <arr name="publication_places.facet">
+                <str>Xr</str>
+                <str>Praha</str>
+            </arr>
+            <arr name="publication_places.search">
+                <str>xr</str>
+                <str>Praha</str>
+            </arr>
+            <arr name="publishers.facet">
+                <str>Unie</str>
+            </arr>
+            <arr name="publishers.search">
+                <str>Unie</str>
+            </arr>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            <str name="root.title">Milenky: román o dvou dílech</str>
+            <str name="root.title.sort">MILENKY ROMA|N O DVOU DI|LEH|</str>
+            <arr name="shelf_locators">
+                <str>I 023528</str>
+            </arr>
+            <str name="title.search">Milenky: román o dvou dílech</str>
+            <str name="title.sort">MILENKY ROMA|N O DVOU DI|LEH|</str>
+            <date name="indexed">2021-02-25T01:41:17.791Z</date>
+            <str name="compositeId">uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51!uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            <arr name="cdk.collection">
+                <str>mzk</str>
+                <str>nkp</str>
+            </arr>
+            <str name="cdk.leader">mzk</str>
+            <arr name="titles.search">
+                <str>Milenky: román o dvou dílech</str>
+            </arr>
+            <arr name="cdk.licenses">
+                <str>nkp_public</str>
+                <str>mzk_dnnto</str>
+            </arr>
+            <arr name="licenses">
+                <str>public</str>
+                <str>dnnto</str>
+            </arr>
+            <arr name="in_collections.direct">
+                <str>uuid:69af3595-5410-41e0-ad5e-e3dfd9cb085f</str>
+                <str>uuid:fcd2c2d7-9404-45c8-8325-a827a491a892</str>
+                <str>uuid:7c9f1409-0318-4e6d-9bbb-a2438e9e600b</str>
+            </arr>
+            <arr name="in_collections">
+                <str>uuid:69af3595-5410-41e0-ad5e-e3dfd9cb085f</str>
+                <str>uuid:fcd2c2d7-9404-45c8-8325-a827a491a892</str>
+                <str>uuid:7c9f1409-0318-4e6d-9bbb-a2438e9e600b</str>
+            </arr>
+            <arr name="cdk.k5.license.translated">
+                <str>public</str>
+            </arr>
+            <long name="_version_">1804199065552945152</long></doc>
+    </result>
+</response>

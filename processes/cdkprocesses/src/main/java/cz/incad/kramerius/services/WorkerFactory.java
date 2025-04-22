@@ -14,7 +14,7 @@ public abstract class WorkerFactory {
 
     public static final Logger LOGGER = Logger.getLogger(WorkerFactory.class.getName());
 
-    public abstract Worker createWorker(String sourceName, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> pids, WorkerFinisher finisher);
+    public abstract Worker createWorker(String sourceName, String reharvestUrl, ProcessIterator iteratorInstance, Element worker, Client client, List<IterationItem> pids, WorkerFinisher finisher);
 
     public abstract WorkerFinisher createFinisher(String timestampUrl, Element worker, Client client);
 

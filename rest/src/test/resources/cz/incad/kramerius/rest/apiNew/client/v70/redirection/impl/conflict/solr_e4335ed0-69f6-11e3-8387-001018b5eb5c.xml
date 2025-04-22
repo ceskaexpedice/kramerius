@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+    <lst name="responseHeader">
+        <bool name="zkConnected">true</bool>
+        <int name="status">0</int>
+        <int name="QTime">13</int>
+        <lst name="params">
+            <str name="q">pid:"uuid:e4335ed0-69f6-11e3-8387-001018b5eb5c"</str>
+            <str name="indent">true</str>
+            <str name="q.op">OR</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="2" start="0" maxScore="7.7980947" numFoundExact="true">
+        <doc>
+            <str name="pid">uuid:e4335ed0-69f6-11e3-8387-001018b5eb5c</str>
+            <date name="created">2013-12-30T01:48:10.788Z</date>
+            <str name="date.str">1917-1918</str>
+            <str name="title.search">155</str>
+            <arr name="titles.search">
+                <str>155</str>
+            </arr>
+            <arr name="ddt">
+                <str/>
+            </arr>
+            <str name="accessibility">public</str>
+            <str name="model">page</str>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <int name="level">1</int>
+            <date name="modified">2015-04-13T09:08:33.718Z</date>
+            <date name="indexed">2015-04-13T09:08:33.718Z</date>
+            <arr name="foster_parents.pids">
+                <str>uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            </arr>
+            <arr name="pid_paths">
+                <str>uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51/uuid:e4335ed0-69f6-11e3-8387-001018b5eb5c</str>
+            </arr>
+            <str name="root.pid">uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            <str name="root.title">Milenky: román o dvou dílech</str>
+            <str name="text_ocr">﻿Kdybych zd* nabyl v mládí šel,
+                živote, jak jsi mi uletěl.
+                Vzala aršík papíru, napsala blahopřání Ma-
+                rxi. Valtrovi psáti ještě nemohla. Srdce ji
+                pálilo chvílemi, jako by bylo naplněno řeřa-
+                vým uhlím.
+                Říkala si :
+                „Zapomenouti, zapomenouti !“
+                Ráno odjela do vesnic a za týden mu po-
+                slala list pestrý dojmy, jež ženy zamlčují jen
+                těžce, slova navlhlá slzami, mladé hrdinství
+                svoje. Zřekla se ho úplně.
+                „Pozdravuji Vás se své veselé cesty. Věř-
+                te mi, že byla veselá ! Usmívala jsem se stále.
+                Slunce mi svítilo db srdce jako do malé za-
+                hrádky na jižní stráni, plné kvetoucích slu-
+                nečnic. Toulala jsem se marně a slavně. I s ci-
+                kány jsem tančila.
+                Poslední výstava a tato krásná zem, jaké
+                jsou to slavné dary života !
+                Tančila bych ráda o půl noci na trávníku,
+                jak je mi veselo!
+                Ráda bych rozveselila i Vás, neboť se mi
+                zdá, že truchlíte. Netruchlete, prosím. Ne-
+                víme, čemu unikáme, a neznáme cenu toho,
+                co jsme získali. Přemýšlela jsem o tom, kudy
+                jsem jela. Povím Vám něco se své cesty,
+                jak jste si přál, a to jen proto, abych rozve-
+                selila i Vás,
+                ISS</str>
+            <str name="title.sort">155</str>
+            <str name="root.title.sort">MILENKY  ROMAN O DVOU DILEH|</str>
+            <str name="own_model_path">monograph/page</str>
+            <str name="own_parent.pid">uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51</str>
+            <str name="own_pid_path">uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51/uuid:e4335ed0-69f6-11e3-8387-001018b5eb5c</str>
+            <int name="rels_ext_index.sort">157</int>
+            <arr name="id_ccnb">
+                <str>cnb000901944</str>
+            </arr>
+            <date name="date.min">1917-01-01T00:00:00.001Z</date>
+            <date name="date.max">1917-01-01T00:00:00.001Z</date>
+            <int name="date_range_start.year">1917</int>
+            <int name="date_range_end.year">1918</int>
+            <str name="page.type">NormalPage</str>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+            </arr>
+            <arr name="cdk.k5.license.translated">
+                <str>public</str>
+            </arr>
+            <str name="compositeId">uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51!uuid:e4335ed0-69f6-11e3-8387-001018b5eb5c</str>
+            <arr name="cdk.licenses_of_ancestors">
+                <str>nkp_public</str>
+            </arr>
+            <arr name="cdk.collection">
+                <str>nkp</str>
+            </arr>
+            <str name="cdk.leader">nkp</str>
+            <long name="_version_">1779866633222750208</long></doc>
+        <doc>
+            <str name="compositeId">uuid:9056a3d0-fca3-11ee-96e1-005056827e51!uuid:e4335ed0-69f6-11e3-8387-001018b5eb5c</str>
+            <arr name="cdk.licenses_of_ancestors">
+                <str>nkp_public</str>
+                <str>mzk_dnnto</str>
+            </arr>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+                <str>dnnto</str>
+            </arr>
+            <str name="root.pid">uuid:9056a3d0-fca3-11ee-96e1-005056827e51</str>
+            <arr name="cdk.collection">
+                <str>nkp</str>
+                <str>mzk</str>
+            </arr>
+            <str name="accessibility">public</str>
+            <str name="pid">uuid:e4335ed0-69f6-11e3-8387-001018b5eb5c</str>
+            <str name="model">page</str>
+            <arr name="cdk.k5.license.translated">
+                <str>public</str>
+            </arr>
+            <arr name="titles.search">
+                <str>155</str>
+            </arr>
+            <arr name="in_collections">
+                <str>uuid:fcd2c2d7-9404-45c8-8325-a827a491a892</str>
+                <str>uuid:7c9f1409-0318-4e6d-9bbb-a2438e9e600b</str>
+                <str>uuid:69af3595-5410-41e0-ad5e-e3dfd9cb085f</str>
+            </arr>
+            <str name="title.search">155</str>
+            <str name="title.sort">155</str>
+            <str name="text_ocr">﻿Kdybych zd* nabyl v mládí šel, živote, jak jsi mi uletěl. Vzala aršík papíru, napsala blahopřání Marxi. Valtrovi psáti ještě nemohla. Srdce ji pálilo chvílemi, jako by bylo naplněno řeřavým uhlím. Říkala si : „Zapomenouti, zapomenouti !“ Ráno odjela do vesnic a za týden mu poslala list pestrý dojmy, jež ženy zamlčují jen těžce, slova navlhlá slzami, mladé hrdinství svoje. Zřekla se ho úplně. „Pozdravuji Vás se své veselé cesty. Věřte mi, že byla veselá ! Usmívala jsem se stále. Slunce mi svítilo db srdce jako do malé zahrádky na jižní stráni, plné kvetoucích slunečnic. Toulala jsem se marně a slavně. I s cikány jsem tančila. Poslední výstava a tato krásná zem, jaké jsou to slavné dary života ! Tančila bych ráda o půl noci na trávníku, jak je mi veselo! Ráda bych rozveselila i Vás, neboť se mi zdá, že truchlíte. Netruchlete, prosím. Nevíme, čemu unikáme, a neznáme cenu toho, co jsme získali. Přemýšlela jsem o tom, kudy jsem jela. Povím Vám něco se své cesty, jak jste si přál, a to jen proto, abych rozveselila i Vás, ISS</str>
+            <long name="_version_">1806839365189500928</long></doc>
+    </result>
+</response>

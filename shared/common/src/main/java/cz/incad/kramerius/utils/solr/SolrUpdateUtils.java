@@ -25,7 +25,6 @@ public class SolrUpdateUtils {
         try {
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
-            //XMLUtils.print(batchDoc, System.out); System.out.println(); //for debugging what is really being sent to SOLR
             String shost = updateUrl;//updateUrl();
             WebResource r = client.resource(shost);
             ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);

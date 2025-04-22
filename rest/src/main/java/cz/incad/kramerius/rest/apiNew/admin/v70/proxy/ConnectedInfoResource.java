@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.inject.Named;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -22,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -60,11 +62,13 @@ public class ConnectedInfoResource {
     @Inject
     private TimestampStore timestampStore;
 
-    private Client client;
+    @javax.inject.Inject
+    @Named("forward-client")
+    private CloseableHttpClient apacheClient;
 
     public ConnectedInfoResource() {
         super();
-        this.client = Client.create();
+        //this.client = Client.create();
     }
 
     @GET
@@ -189,10 +193,13 @@ public class ConnectedInfoResource {
         String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api");
         boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
         String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
+        boolean solrCloud = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".cloud", false);
+
         config.put("baseurl", baseurl);
         config.put("api", api);
         config.put("licenses", channelAccess);
         config.put("forwardurl", channel);
+        config.put("solrcloud", solrCloud);
         return Response.ok(config.toString()).build();
     }
 
@@ -218,7 +225,7 @@ public class ConnectedInfoResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response introspectPid(@PathParam("pid") String pid) {
         try {
-            Pair<List<String>, List<String>> intropsected = IntrospectUtils.introspectPid(this.client, this.libraries, pid);
+            Pair<List<String>, List<String>> intropsected = IntrospectUtils.introspectPid(this.apacheClient, this.libraries, pid);
             JSONObject retval = new JSONObject();
             JSONArray modelsArr = new JSONArray();
             JSONArray libsArr = new JSONArray();
@@ -248,7 +255,7 @@ public class ConnectedInfoResource {
                 // solr
                 try {
                     String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
-                    ChannelUtils.checkSolrChannelEndpoint(this.client, library, solrChannelUrl);
+                    ChannelUtils.checkSolrChannelEndpoint(this.apacheClient, library, solrChannelUrl);
                     channelObject.put("solr", true);
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -260,14 +267,14 @@ public class ConnectedInfoResource {
                 try {
                     String fullChannelUrl =  ChannelUtils.userChannelUrl(inst.getInstanceType().name(), channel);
 
-                    JSONObject notLoggedJSON = ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl, false);
+                    JSONObject notLoggedJSON = ChannelUtils.checkUserChannelEndpoint(this.apacheClient, library, fullChannelUrl, false);
                     Pair<User, List<String>> notLogged = parsedUsers(inst, notLoggedJSON);
                     
                     channelObject.put("user", true);
 
                     usersObject.put("notLogged", UsersUtils.userToJSON(notLogged.getLeft(),notLogged.getRight(),false));
 
-                    JSONObject dnntJSON = ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl, true);
+                    JSONObject dnntJSON = ChannelUtils.checkUserChannelEndpoint(this.apacheClient, library, fullChannelUrl, true);
                     Pair<User, List<String>> dnntUser = parsedUsers(inst, dnntJSON);
 
                     usersObject.put("dnnt", UsersUtils.userToJSON(dnntUser.getLeft(),dnntUser.getRight(),false));

@@ -22,6 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -35,20 +38,14 @@ import javax.xml.xpath.XPathFactory;
 import cz.incad.kramerius.impl.SolrAccessImpl;
 import cz.incad.kramerius.solr.SolrFieldsMapping;
 
+import cz.inovatika.monitoring.ApiCallEvent;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.json.JSONObject;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.hc.client5.http.HttpResponseException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -492,7 +489,7 @@ public class SolrUtils   {
         return parseDocument;
     }
 
-    public static InputStream getSolrDataInternal(String query, String format) throws IOException {
+    public static InputStream getSolrDataInternal(CloseableHttpClient client, String query, String format) throws IOException {
         String solrHost = KConfiguration.getInstance().getSolrHost();
         String uri = solrHost +"/select?" +query;
         if (!uri.endsWith("&")) {
@@ -501,29 +498,16 @@ public class SolrUtils   {
         	uri = uri+"wt="+format;
         }
         HttpGet httpGet = new HttpGet(uri);
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            try (CloseableHttpResponse response = client.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() == SC_OK) {
-                    return response.getEntity().getContent();
-                } else {
-                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-                }
+        try (CloseableHttpResponse response = client.execute(httpGet)) {
+            if (response.getCode() == SC_OK) {
+                return response.getEntity().getContent();
+            } else {
+                throw new HttpResponseException(response.getCode(), response.getReasonPhrase());
             }
         }
     }
 
-    public static InputStream getSolrTermsInternal(String query, String format) throws IOException, ParserConfigurationException, SAXException {
-        String solrHost = KConfiguration.getInstance().getSolrHost();
-        String uri = solrHost +"/terms?" +query;
-        if (!uri.endsWith("&")) {
-            uri = uri + "&wt="+format;
-        } else {
-        	uri = uri+"wt="+format;
-        }
-        InputStream inputStream = RESTHelper.inputStream(uri, "<no_user>", "<no_pass>");
-        return inputStream;
-    }
-    
+
     public static String escapeQuery(String sourceQuery) {
         char[] chars = sourceQuery.toCharArray();
         StringBuilder builder = new StringBuilder();
@@ -599,16 +583,14 @@ public class SolrUtils   {
      * @param query for example: q=model%3Amonograph&fl=pid%2Ctitle.search&start=0&sort=created+desc&fq=model%3Aperiodical+OR+model%3Amonograph&rows=24&hl.fragsize=20
      *              i.e. url encoded and without query param wt
      */
-    public static InputStream requestWithTermsReturningStream(String solrHost, String query, String type) throws IOException {
+    public static InputStream requestWithTermsReturningStream(CloseableHttpClient client, String solrHost, String query, String type) throws IOException {
         String url = String.format("%s/terms?%s&wt=%s", solrHost, query, type);
         HttpGet httpGet = new HttpGet(url);
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            try (CloseableHttpResponse response = client.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() == SC_OK) {
-                    return readContentAndProvideThroughBufferedStream(response.getEntity());
-                } else {
-                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-                }
+        try (CloseableHttpResponse response = client.execute(httpGet)) {
+            if (response.getCode() == SC_OK) {
+                return readContentAndProvideThroughBufferedStream(response.getEntity());
+            } else {
+                throw new HttpResponseException(response.getCode(), response.getReasonPhrase());
             }
         }
     }
@@ -617,22 +599,28 @@ public class SolrUtils   {
      * @param query for example: q=model%3Amonograph&fl=pid%2Ctitle.search&start=0&sort=created+desc&fq=model%3Aperiodical+OR+model%3Amonograph&rows=24&hl.fragsize=20
      *              i.e. url encoded and without query param wt
      */
-    public static InputStream requestWithSelectReturningStream(String solrHost, String query, String type) throws IOException {
+    public static InputStream requestWithSelectReturningStream(CloseableHttpClient client, String solrHost, String query, String type, ApiCallEvent event) throws IOException {
+        List<Triple<String, Long, Long>> eventGranularity = event != null ?  event.getGranularTimeSnapshots() : null;
         String url = String.format("%s/select?%s&wt=%s", solrHost, query, type);
+        long start = System.currentTimeMillis();
         HttpGet httpGet = new HttpGet(url);
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            try (CloseableHttpResponse response = client.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() == SC_OK) {
-                    return readContentAndProvideThroughBufferedStream(response.getEntity());
-                } else {
-                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-                }
+        try (CloseableHttpResponse response = client.execute(httpGet)) {
+            if (response.getCode() == SC_OK) {
+                long end = System.currentTimeMillis();
+                if (eventGranularity != null)  eventGranularity.add(Triple.of("http/solr",start,end));
+                return readContentAndProvideThroughBufferedStream(response.getEntity());
+            } else {
+                throw new HttpResponseException(response.getCode(), response.getReasonPhrase());
             }
         }
     }
 
-    public static String requestWithSelectReturningString(String solrHost, String query, String type) throws IOException {
-        InputStream in = requestWithSelectReturningStream(solrHost, query, type);
+    public static String requestWithSelectReturningString(CloseableHttpClient client, String solrHost, String query, String type, ApiCallEvent event) throws IOException {
+        List<Triple<String, Long, Long>> eventGranularity = event != null ?  event.getGranularTimeSnapshots() : null;
+        long start = System.currentTimeMillis();
+        InputStream in = requestWithSelectReturningStream(client, solrHost, query, type,event);
+        long end = System.currentTimeMillis();
+        if (eventGranularity != null)  eventGranularity.add(Triple.of("http/solr",start,end));
         BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
         StringBuilder responseStrBuilder = new StringBuilder();
         String inputStr;
@@ -642,36 +630,35 @@ public class SolrUtils   {
         return responseStrBuilder.toString();
     }
 
-    //http://localhost:8983/solr/logs/schema
-    //http://localhost:8983/solr/logs/schema/fields
-
-    public static InputStream schema(String hostWithCollection) throws IOException {
+    public static InputStream schema(CloseableHttpClient client, String hostWithCollection, ApiCallEvent event) throws IOException {
+        List<Triple<String, Long, Long>> eventGranularity = event != null ?  event.getGranularTimeSnapshots() : null;
         String url = String.format("%s/schema", hostWithCollection);
+        long start = System.currentTimeMillis();
         HttpGet httpGet = new HttpGet(url);
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            try (CloseableHttpResponse response = client.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() == SC_OK) {
-                    return readContentAndProvideThroughBufferedStream(response.getEntity());
-                } else {
-                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-                }
+        try (CloseableHttpResponse response = client.execute(httpGet)) {
+            if (response.getCode() == SC_OK) {
+                long end = System.currentTimeMillis();
+                if (eventGranularity != null) eventGranularity.add(Triple.of("http/solr/schema",start,end));
+                return readContentAndProvideThroughBufferedStream(response.getEntity());
+            } else {
+                throw new HttpResponseException(response.getCode(), response.getReasonPhrase());
             }
         }
     }
 
-    public static InputStream fields(String hostWithCollection) throws IOException {
+    public static InputStream fields(CloseableHttpClient client, String hostWithCollection, ApiCallEvent event) throws IOException {
+        List<Triple<String, Long, Long>> eventGranularity = event != null ? event.getGranularTimeSnapshots() : null;
         String url = String.format("%s/schema/fields", hostWithCollection);
+        long start = System.currentTimeMillis();
         HttpGet httpGet = new HttpGet(url);
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            try (CloseableHttpResponse response = client.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() == SC_OK) {
-                    return readContentAndProvideThroughBufferedStream(response.getEntity());
-                } else {
-                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-                }
+        try (CloseableHttpResponse response = client.execute(httpGet)) {
+            if (response.getCode() == SC_OK) {
+                long end = System.currentTimeMillis();
+                if (eventGranularity != null)  eventGranularity.add(Triple.of("http/solr/fields",start,end));
+                return readContentAndProvideThroughBufferedStream(response.getEntity());
+            } else {
+                throw new HttpResponseException(response.getCode(), response.getReasonPhrase());
             }
         }
     }
-
-    
 }

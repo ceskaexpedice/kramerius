@@ -23,21 +23,27 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.solr.SolrUtils;
 
+import cz.inovatika.monitoring.ApiCallEvent;
+import org.apache.hc.client5.http.HttpResponseException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -45,21 +51,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
 import org.apache.commons.io.IOUtils;
 
-import org.apache.http.HttpEntity;
-
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.HttpResponseException;
-
-import static org.apache.http.HttpStatus.SC_OK;
 
 
 
@@ -67,11 +60,12 @@ public class SolrAccessImplNewIndex implements SolrAccess {
 
     public static final Logger LOGGER = Logger.getLogger(SolrAccessImplNewIndex.class.getName());
     
-    private SolrUtils utils = new SolrUtils(KConfiguration.getInstance().getSolrSearchHost());
+    private SolrUtils utils = new SolrUtils( KConfiguration.getInstance().getSolrSearchHost(), SolrAccessImplNewIndex.this);
 
-    
-    
-    
+    @Inject
+    @Named("solr-client")
+    Provider<CloseableHttpClient> provider;
+
     @Override
 	public List<String> getExistingPids(List<String> pids) throws IOException {
     	List<String> pp = pids.stream().map(p->{
@@ -81,7 +75,7 @@ public class SolrAccessImplNewIndex implements SolrAccess {
     	if (!pp.isEmpty()) {
     		String collect = pp.stream().collect(Collectors.joining(" OR "));
     		String query = "q=(" + URLEncoder.encode(collect,"UTF-8")+")&fl=pid";
-        	Document document = utils.requestWithSelectReturningXml(query);
+        	Document document = utils.requestWithSelectReturningXml(query, null);
         	List<Element> docs = XMLUtils.getElementsRecursive(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
 				@Override
 				public boolean acceptElement(Element element) {
@@ -107,7 +101,7 @@ public class SolrAccessImplNewIndex implements SolrAccess {
 	@Override
 	public boolean documentExist(String pid) throws IOException {
     	String query = "q=" + URLEncoder.encode("pid:" + pid.replace(":", "\\:"), "UTF-8")+"&fl=pid";
-        Document document = utils.requestWithSelectReturningXml(query);
+        Document document = utils.requestWithSelectReturningXml(query, null);
         Element foundElement = XMLUtils.findElement(document.getDocumentElement(), "result");
         if (foundElement != null) {
         	String numFound = foundElement.getAttribute("numFound");
@@ -124,7 +118,7 @@ public class SolrAccessImplNewIndex implements SolrAccess {
         //TODO: allow special object pids?
         //TODO: allow datastreams pids?
         String query = "q=" + URLEncoder.encode("pid:" + pid.replace(":", "\\:"), "UTF-8");
-        return utils.requestWithSelectReturningXml(query);
+        return utils.requestWithSelectReturningXml(query, null);
     }
 
 	
@@ -132,7 +126,7 @@ public class SolrAccessImplNewIndex implements SolrAccess {
     @Override
 	public Document getSolrDataByPid(String pid, String fl) throws IOException {
         String query = "q=" + URLEncoder.encode("pid:" + pid.replace(":", "\\:"), "UTF-8")+"&fl="+fl;
-        return utils.requestWithSelectReturningXml(query);
+        return utils.requestWithSelectReturningXml(query,null);
 	}
 
 
@@ -282,8 +276,6 @@ public class SolrAccessImplNewIndex implements SolrAccess {
             }
             return paths.toArray(new ObjectModelsPath[0]);
         } catch (Exception e) {
-            //TODO: handle properly
-            e.printStackTrace();
             throw new IOException(e);
         }
     }
@@ -311,29 +303,29 @@ public class SolrAccessImplNewIndex implements SolrAccess {
     }
 
     @Override
-    public Document requestWithSelectReturningXml(String query) throws IOException {
-        return utils.requestWithSelectReturningXml(query);
+    public Document requestWithSelectReturningXml(String query, ApiCallEvent event) throws IOException {
+        return utils.requestWithSelectReturningXml(query,event);
     }
 
     @Override
-    public JSONObject requestWithSelectReturningJson(String query) throws IOException {
-        return utils.requestWithSelectReturningJson(query);
+    public JSONObject requestWithSelectReturningJson(String query,ApiCallEvent event) throws IOException {
+        return utils.requestWithSelectReturningJson(query, event);
     }
 
 
     @Override
-    public InputStream requestWithSelectReturningInputStream(String query, String type) throws IOException {
-        return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(KConfiguration.getInstance().getSolrSearchHost(), query, type);
+    public InputStream requestWithSelectReturningInputStream(String query, String type, ApiCallEvent event) throws IOException {
+        return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(), KConfiguration.getInstance().getSolrSearchHost(), query, type, event);
     }
 
     @Override
-    public String requestWithSelectReturningString(String query, String type) throws IOException {
-        return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(KConfiguration.getInstance().getSolrSearchHost(), query, type);
+    public String requestWithSelectReturningString(String query, String type, ApiCallEvent event) throws IOException {
+        return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(this.provider.get(),KConfiguration.getInstance().getSolrSearchHost(), query, type, event);
     }
 
     @Override
     public InputStream requestWithTerms(String query, String type) throws IOException {
-        return cz.incad.kramerius.utils.solr.SolrUtils.requestWithTermsReturningStream(KConfiguration.getInstance().getSolrSearchHost(),query, type);
+        return cz.incad.kramerius.utils.solr.SolrUtils.requestWithTermsReturningStream(this.provider.get(),KConfiguration.getInstance().getSolrSearchHost(),query, type);
     }
 
     @Override
@@ -345,15 +337,19 @@ public class SolrAccessImplNewIndex implements SolrAccess {
      * @see cz.incad.kramerius.utils.solr.SolrUtils
      */
     private static class SolrUtils {
-        private final String solrHost;
 
-        public SolrUtils(String solrHost) {
+        private final String solrHost;
+        //private final CloseableHttpClient client;
+        private SolrAccessImplNewIndex solrAccessImplNewIndex;
+
+        public SolrUtils(String solrHost, SolrAccessImplNewIndex index ) {
+            this.solrAccessImplNewIndex = index;
             this.solrHost = solrHost;
         }
 
         JSONObject getSolrDataJson(String pid) throws IOException {
             String query = "q=" + URLEncoder.encode("pid:" + pid.replace(":", "\\:"), "UTF-8");
-            JSONObject json = requestWithSelectReturningJson(query);
+            JSONObject json = requestWithSelectReturningJson(query, null);
             return getFirstResponseDoc(json);
         }
 
@@ -370,15 +366,15 @@ public class SolrAccessImplNewIndex implements SolrAccess {
          * @param query for example: q=model%3Amonograph&fl=pid%2Ctitle.search&start=0&sort=created+desc&fq=model%3Aperiodical+OR+model%3Amonograph&rows=24&hl.fragsize=20
          *              i.e. url encoded and without query param wt
          */
-        JSONObject requestWithSelectReturningJson(String query) throws IOException {
-            String jsonStr = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(this.solrHost,  query, "json");
+        JSONObject requestWithSelectReturningJson(String query, ApiCallEvent event) throws IOException {
+            String jsonStr = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(this.solrAccessImplNewIndex.provider.get(),this.solrHost,  query, "json", event);
             JSONObject jsonObject = new JSONObject(jsonStr);
             return jsonObject;
         }
 
-        Document requestWithSelectReturningXml(String query) throws IOException {
+        Document requestWithSelectReturningXml(String query, ApiCallEvent event) throws IOException {
             try {
-                InputStream in = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.solrHost,query, "xml");
+                InputStream in = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.solrAccessImplNewIndex.provider.get(),this.solrHost,query, "xml", event);
                 return XMLUtils.parseDocument(in);
             } catch (ParserConfigurationException e) {
                 throw new IOException(e);
@@ -405,19 +401,18 @@ public class SolrAccessImplNewIndex implements SolrAccess {
         InputStream requestWithSelectReturningStream(String query, String type) throws IOException {
             String url = String.format("%s/select?%s&wt=%s", solrHost, query, type);
             HttpGet httpGet = new HttpGet(url);
-            CloseableHttpClient client = HttpClients.createDefault();
-            try (CloseableHttpResponse response = client.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() == SC_OK) {
+
+            try (CloseableHttpResponse response = solrAccessImplNewIndex.provider.get().execute(httpGet)) {
+                if (response.getCode() == 200) {
                     return readContentAndProvideThroughBufferedStream(response.getEntity());
                 } else {
-                    
                     HttpEntity entity = response.getEntity();
                     if (entity != null) {
                         InputStream stream = readContentAndProvideThroughBufferedStream(entity);
                         String strEntity = IOUtils.toString(stream, "UTF-8");
                         LOGGER.log(Level.SEVERE,  String.format("Error entity %s", strEntity));
                     }
-                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                    throw new HttpResponseException(response.getCode(), response.getReasonPhrase());
                 }
             }
         }
@@ -429,18 +424,17 @@ public class SolrAccessImplNewIndex implements SolrAccess {
         InputStream requestWithTermsReturningStream(String query, String type) throws IOException {
             String url = String.format("%s/terms?%s&wt=%s", solrHost, query, type);
             HttpGet httpGet = new HttpGet(url);
-            CloseableHttpClient client = HttpClients.createDefault();
-            try (CloseableHttpResponse response = client.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() == SC_OK) {
+            try (CloseableHttpResponse response = solrAccessImplNewIndex.provider.get().execute(httpGet)) {
+                if (response.getCode() == 200) {
                     return readContentAndProvideThroughBufferedStream(response.getEntity());
                 } else {
-                    throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                    throw new HttpResponseException(response.getCode(), response.getReasonPhrase());
                 }
             }
         }
 
         //reads and closes entity's content stream
-        private InputStream readContentAndProvideThroughBufferedStream(HttpEntity entity) throws IOException {
+        private InputStream readContentAndProvideThroughBufferedStream(org.apache.hc.core5.http.HttpEntity entity) throws IOException {
             try (InputStream src = entity.getContent()) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 IOUtils.copy(src, bos);
@@ -448,11 +442,4 @@ public class SolrAccessImplNewIndex implements SolrAccess {
             }
         }
     }
-    
-    
-//    public static void main(String[] args) throws IOException {
-//		SolrAccessImplNewIndex sac = new SolrAccessImplNewIndex();
-//		List<String> ePids = sac.getExistingPids(Arrays.asList("uuid:00213e1d-4f7d-422b-83e9-9f06fa4af6d9","uuid:00213e1d-4f7d-422b-83e9-9f06fa4af6d9", "uuid:005a6735-e2d1-4e52-9093-02b19c4d2557"));
-//		System.out.println(ePids);
-//    }
 }

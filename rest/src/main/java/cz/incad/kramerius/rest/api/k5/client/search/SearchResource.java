@@ -117,7 +117,7 @@ public class SearchResource {
                 }
             }
             queryRef.set(builder.toString());
-            InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), "xml");
+            InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), "xml", null);
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
@@ -218,7 +218,7 @@ public class SearchResource {
             }
             queryRef.set(builder.toString());
             
-            InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), "json");
+            InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), "json", null);
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);

@@ -1,10 +1,5 @@
 package cz.incad.kramerius.utils;
 
-import static cz.incad.kramerius.services.iterators.solr.SolrCursorIterator.findCursorMark;
-import static cz.incad.kramerius.services.iterators.solr.SolrCursorIterator.findQueryCursorMark;
-import static cz.incad.kramerius.services.iterators.solr.SolrCursorIterator.pidsCursorQuery;
-import static cz.incad.kramerius.services.utils.SolrUtils.findAllPids;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -18,20 +13,21 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.json.JSONArray;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
 import org.json.JSONObject;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -46,7 +42,7 @@ import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.KubernetesReharvestProcess;
 import cz.incad.kramerius.TooBigException;
 import cz.incad.kramerius.cdk.ChannelUtils;
-import cz.incad.kramerius.rest.apiNew.admin.v10.reharvest.ReharvestItem;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.ParallelProcessImpl;
 import cz.incad.kramerius.services.iterators.IterationItem;
@@ -55,7 +51,7 @@ import cz.incad.kramerius.services.iterators.solr.SolrCursorIterator;
 import cz.incad.kramerius.services.iterators.solr.SolrFilterQueryIterator;
 import cz.incad.kramerius.services.iterators.solr.SolrPageIterator;
 import cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory.TypeOfIteration;
-import cz.incad.kramerius.services.utils.SolrUtils;
+import cz.incad.kramerius.services.utils.KubernetesSolrUtils;
 
 public class ReharvestUtils {
     
@@ -65,8 +61,9 @@ public class ReharvestUtils {
     private ReharvestUtils() {}
 
     /** Delete all given pids */
-    public static void deleteAllGivenPids(Client client,Map<String, String> destinationMap, List<Pair<String,String>> allPidsList, boolean onlyShowConfig)
+    public static String deleteAllGivenPids(CloseableHttpClient closeableHttpClient,Map<String, String> destinationMap, List<Pair<String,String>> allPidsList, boolean onlyDisplayCommand)
             throws ParserConfigurationException {
+        StringBuilder retBuilder = new StringBuilder();
         int batchSize = 1000;
         int batches = allPidsList.size() / batchSize;
         if (allPidsList.size() % batchSize > 0) {
@@ -84,49 +81,34 @@ public class ReharvestUtils {
                 deleteBatch.getDocumentElement().appendChild(idElm);
             });
             try {
-                if (!onlyShowConfig) {
-                    LOGGER.info("Deleting identifiers:"+batchPids);
+                if (!onlyDisplayCommand) {
+                    LOGGER.info(String.format("Deleting identifiers (%d):%s", batchPids.size(), batchPids.toString()));
                     String destinationUrl = destinationMap.get("url")+"/update?commit=true";
-                    String s = SolrUtils.sendToDest(destinationUrl, client, deleteBatch);
+                    String s = KubernetesSolrUtils.sendToDest(destinationUrl, closeableHttpClient, deleteBatch);
+                    retBuilder.append(s).append("\n");
                 } else {
                     StringWriter writer = new StringWriter();
                     XMLUtils.print(deleteBatch, writer);
                     LOGGER.info(writer.toString());
+                    retBuilder.append(writer.toString()).append("\n");
                 }
     
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
+        return retBuilder.toString();
     }
+
+
     
     /** Find all pids by given root.pid */
-    public static List<Pair<String,String>> findPidByType(Map<String, String> iterationMap, Client client, ReharvestItem item, int maxItems) {
+    public static List<Pair<String,String>> findPidByType(Map<String, String> iterationMap, CloseableHttpClient client, ReharvestItem item, int maxItems) {
         try {
             String iterationUrl = iterationMap.get("url");
             String masterQuery = "*:*";
-            String filterQuery = "none";
-            switch(item.getTypeOfReharvest()) {
-                case only_pid:
-                case delete_pid:
-                    filterQuery = "pid:\"" + item.getPid() + "\"";
-                break;
-                case new_root:
-                case root:
-                    filterQuery = "root.pid:\"" + item.getRootPid() + "\"";
-                break;
-                case delete_tree:
-                case children:
-                    String ownPidPath = item.getOwnPidPath();
-                    if (!StringUtils.isAnyString(ownPidPath)) {
-                        throw new IllegalArgumentException("own pid path is null string");
-                    }
-                    //ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"/*";
-                    ownPidPath =  ownPidPath.replaceAll(":", "\\\\:")+"*";
-                    filterQuery = String.format("own_pid_path:%s", ownPidPath);;
-                break;
-            }
-            
+            String filterQuery = fq("v7", item, false);
+
             String sRows = iterationMap.containsKey("rows")   ? iterationMap.get("rows")  : ITERATION_ROWS_STRING_VALUE  ;
             TypeOfIteration typeOfIteration = iterationMap.containsKey("type")  ? TypeOfIteration.valueOf(iterationMap.get("type")) : TypeOfIteration.CURSOR;
             ProcessIterator processIterator = null;
@@ -148,8 +130,7 @@ public class ReharvestUtils {
             final LinkedHashSet<Pair<String,String>> retvals  = new LinkedHashSet<>();
             processIterator.iterate(client, (list)-> {
                 for (IterationItem it : list) {
-                    //LOGGER.info("Iterating item "+it.toString());
-                    String compositeId = it.getPid();
+                    String compositeId = it.getId();
                     String[] arr = compositeId.split("!");
                     if (arr.length == 2) { 
                         Pair<String,String> pair = Pair.of(arr[1], compositeId);
@@ -166,7 +147,9 @@ public class ReharvestUtils {
             
         } catch (TooBigException e) {
             throw e; // Vyhození výjimky dál
-        }        
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /** Render template */
@@ -187,45 +170,172 @@ public class ReharvestUtils {
         return configuration;
     }
 
-    public static String fq(String api, String pid, ReharvestItem item) throws UnsupportedEncodingException {
+    public static String encode(String val, boolean enc) {
+        try {
+            if (enc) return URLEncoder.encode(val, "UTF-8");
+            return val;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String fq(String api, ReharvestItem item, boolean encode) throws UnsupportedEncodingException {
         switch(item.getTypeOfReharvest()) {
 
-            case only_pid: 
-            switch(api) {
-                case "v7": return "pid:\""+pid+"\""; 
-                case "v5": return "PID:\""+pid+"\""; 
-            }
-            return "PID:\""+pid+"\""; 
+            case only_pid:
+            case delete_pid:
+                if (!StringUtils.isAnyString(item.getPid())) {
+                    throw  new RuntimeException("expecting  pid ");
+                }
+                switch(api) {
+                    case "v7": return encode("pid:\""+item.getPid()+"\"", encode);
+                    case "v5": return encode("PID:\""+item.getPid()+"\"", encode);
+                }
+                return encode("PID:\""+item.getPid()+"\"",encode);
 
             case new_root:
-            case root: 
+            case delete_root:
+            case root:
+                if (!StringUtils.isAnyString(item.getRootPid())) {
+                    throw  new RuntimeException("expecting root pid ");
+                }
                 switch(api) {
-                    case "v7": return "root.pid:\""+pid+"\""; 
-                    case "v5": return "root_pid:\""+pid+"\""; 
+                    case "v7": return encode("root.pid:\""+item.getRootPid()+"\"", encode);
+                    case "v5": return encode("root_pid:\""+item.getRootPid()+"\"", encode);
                 }
-                return "root_pid:\""+pid+"\""; 
+                return encode("root_pid:\""+item.getRootPid()+"\"",encode);
 
-            case children: 
+            case new_children:
+            case delete_tree:
+            case children:
+                if (!StringUtils.isAnyString(item.getOwnPidPath())) {
+                    throw  new RuntimeException("expecting own pid path ");
+                }
 
                 switch(api) {
-                case "v7": {
-                    String ownPidPath =  item.getOwnPidPath().replaceAll(":", "\\\\:")+"*";
-                    String fq  = String.format("own_pid_path:%s", ownPidPath);
-                    return fq; 
+                    case "v7": {
+                        String ownPidPath =  item.getOwnPidPath().replaceAll(":", "\\\\:")+"*";
+                        String fq  = encode(String.format("own_pid_path:%s", ownPidPath),encode);;
+                        return fq;
+                    }
+                    case "v5": {
+                        String pidPath =  item.getOwnPidPath().replaceAll(":", "\\\\:")+"*";
+                        String fq  = encode(String.format("pid_path:%s", pidPath),encode);
+                        return fq;
+                    }
                 }
-                case "v5": {
-                    String pidPath =  item.getOwnPidPath().replaceAll(":", "\\\\:")+"*";
-                    String fq  = String.format("pid_path:%s", pidPath);
-                    return fq; 
-                }
-            }
-            return "root_pid:\""+pid+"\""; 
+                return encode("root_pid:\""+item.getPid()+"\"", encode);
 
-                
         }
-        return "root_pid:\""+pid+"\""; 
+        return encode("root_pid:\""+ item.getPid()+"\"",encode);
     }
-    
+    public static Map<String, Map<String,String>> findRootsAndPidPathsFromLibs(CloseableHttpClient client, String pid, Map<String,JSONObject> collectionConfigurations) throws UnsupportedEncodingException {
+        Map<String,Map<String,String>> retval = new HashMap<>();
+        for (String ac : collectionConfigurations.keySet()) {
+            JSONObject colObject = collectionConfigurations.get(ac);
+
+            String apiVersion = colObject.optString("api","v5");
+            if (!colObject.has("forwardurl")) {
+                LOGGER.severe(String.format("Skipping %s", ac));
+                continue;
+            }
+            String channel = colObject.optString("forwardurl");
+            String fullChannelUrl = ChannelUtils.solrChannelUrl(apiVersion, channel);
+            String pidIdentifier = "pid";
+            String rootPid ="root.pid";
+            String pidPath = "own_pid_path";
+            switch (apiVersion) {
+                case "v5":
+                    pidIdentifier="PID";
+                    rootPid="root_pid";
+                    pidPath = "pid_path";
+                    break;
+                case "v7":
+                    pidIdentifier="pid";
+                    rootPid="root.pid";
+                    pidPath = "own_pid_path";
+                    break;
+                default:
+                    pidIdentifier = "pid";
+                    rootPid="root.pid";
+                    pidPath = "pid_path";
+                    break;
+            }
+
+            String query = URLEncoder.encode(String.format("%s:\"%s\"", pidIdentifier,pid), "UTF-8");
+            HttpGet get = new HttpGet(fullChannelUrl+ String.format("/select?q=%s&rows=1&wt=xml",query));
+            try(CloseableHttpResponse response = client.execute(get)) {
+                int code = response.getCode();
+                if (code == 200) {
+                    HttpEntity entity = response.getEntity();
+                    InputStream is = entity.getContent();
+                    String str = IOUtils.toString(is, "UTF-8");
+                    try {
+                        final String finalPidIdentifier = pidIdentifier;
+                        final String finalRootPid = rootPid;
+                        final String finalPidPath = rootPid;
+
+
+                        Document parsed = XMLUtils.parseDocument(new StringReader(str));
+                        Map<String, String> map = new HashMap<>();
+
+                        Element pidElement = XMLUtils.findElement(parsed.getDocumentElement(), new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                String fieldName = element.getAttribute("name");
+                                return fieldName.equals(finalPidIdentifier);
+                            }
+                        });
+                        if (pidElement != null) {
+                            map.put("pid", pidElement.getTextContent());
+                        }
+
+                        Element pidPathElement = XMLUtils.findElement(parsed.getDocumentElement(), new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                String fieldName = element.getAttribute("name");
+                                return fieldName.equals(finalRootPid);
+                            }
+                        });
+                        if (pidPathElement != null) {
+                            List<Element> elms = XMLUtils.getElements(pidPathElement);
+                            if (!elms.isEmpty()) {
+                                List<String> pids = elms.stream().map(Element::getTextContent).collect(Collectors.toList());
+                                if (pids.size() >0 ) {
+                                    map.put("own_pid_path", pids.get(0));
+                                }
+                            } else {
+                                map.put("own_pid_path", pidPathElement.getTextContent());
+                            }
+                        }
+
+
+                        Element rootPidElm = XMLUtils.findElement(parsed.getDocumentElement(), new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                String fieldName = element.getAttribute("name");
+                                return fieldName.equals(finalPidPath);
+                            }
+                        });
+                        if (rootPidElm != null) {
+                            map.put("root.pid", rootPidElm.getTextContent());
+                        }
+
+                        retval.put(ac, map);
+
+                    } catch (DOMException | ParserConfigurationException | SAXException | IOException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    }
+
+
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return retval;
+    }
+
     public static Map<String, Map<String,String>> findRootsAndPidPathsFromLibs(Client client, String pid, Map<String,JSONObject> collectionConfigurations){
         Map<String,Map<String,String>> retval = new HashMap<>();
         for (String ac : collectionConfigurations.keySet()) {
@@ -261,7 +371,7 @@ public class ReharvestUtils {
                         break;
                 }    
                 
-                String query = String.format("%s:\"%s\"", pidIdentifier,pid);;
+                String query = String.format("%s:\"%s\"", pidIdentifier,pid);
                 WebResource solrResource = client.resource(fullChannelUrl+ String.format("/select?q=%s&rows=1&wt=xml",query));
                 ClientResponse solrREsp = solrResource.accept(MediaType.APPLICATION_JSON)
                         .get(ClientResponse.class);
@@ -346,9 +456,19 @@ public class ReharvestUtils {
                 String fullChannelUrl = ChannelUtils.solrChannelUrl(apiVersion, channel);
                 
                 iteration.put("url",  fullChannelUrl); 
-                
+                boolean cloud = colObject.optBoolean("solrcloud", false);
+                if (cloud) {
+                    iteration.put("id", "compositeId");
+                } else {
+                    if (apiVersion.toLowerCase().equals("v5")) {
+                        iteration.put("id", "PID");
+                    } else {
+                        iteration.put("id", "pid");
+                    }
+                }
+
                 iteration.put("dl", ac);
-                iteration.put("fquery", fq(apiVersion, pid, item));
+                iteration.put("fquery", fq(apiVersion, item, false));
     
                 String configuration = renderTemplate( apiVersion, iteration, destinationMap);
                 File tmpFile = File.createTempFile(String.format("%s",  ac), "reharvest");
@@ -396,24 +516,4 @@ public class ReharvestUtils {
         Client client = Client.create();
         
     }
-    
-    
-//    public static void main(String[] args) throws UnsupportedEncodingException {
-//
-//        Client client = Client.create();
-//        Map<String,String> iterationMap = new HashMap<>();
-//        iterationMap.put("url", "https://api.ceskadigitalniknihovna.cz/search/api/client/v7.0/");
-//        JSONArray array = new JSONArray();
-//        array.put("uuid:d0ca97a4-d9a3-4c9c-b171-d0625c2d3a7c");
-//        findAllPidsByGivenRootPid(iterationMap, client, array, null);
-//        
-//        client.resource("https://api.ceskadigitalniknihovna.cz/search/api/client/v7.0/search?q=*:*")
-//        String ownPidPath = "uuid\\:661bcc57-349e-47d8-a708-32fb8a93e793/*";
-//        
-//        String fq = "root.pid:\"" + "uuid:xxxxx" + "\"";
-//        String encode = URLEncoder.encode(fq,"UTF-8");
-//        System.out.println(encode);
-//        
-//    }
-    
 }

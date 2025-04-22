@@ -1,14 +1,23 @@
 package cz.incad.kramerius.cdk;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
 import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
@@ -55,7 +64,7 @@ public class ChannelUtils {
         return fullChannelUrl;
     }
     
-    public static void userChannelEndpoints(Client client, Map<String,JSONObject> collectionConfigurations) {
+    public static void userChannelEndpoints(CloseableHttpClient client, Map<String,JSONObject> collectionConfigurations) {
         for (String ac : collectionConfigurations.keySet()) {
             JSONObject colObject = collectionConfigurations.get(ac);
             String apiVersion = colObject.optString("api","v5");
@@ -71,23 +80,29 @@ public class ChannelUtils {
         }
     }
 
-    public static JSONObject checkUserChannelEndpoint(Client client, String ac,String fullChannelUrl, boolean header) {
-        WebResource configResource = client.resource(fullChannelUrl);
-        Builder builder = configResource.accept(MediaType.APPLICATION_JSON);
+    public static JSONObject checkUserChannelEndpoint(CloseableHttpClient client, String ac,String fullChannelUrl, boolean header) {
+        HttpGet get = new HttpGet(fullChannelUrl);
+        get.setHeader("Accept", "application/json");
         if (header) {
             String headerText = "header_shib-session-id=_dd68cbd66641c9b647b05509ac0241fa|header_shib-session-expires=1592847906|header_shib-identity-provider=https://shibboleth.mzk.cz/simplesaml/metadata.xml|header_shib-authentication-method=urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport|header_shib-handler=https://dnnt.mzk.cz/Shibboleth.sso|header_eppn=test|header_entitlement=cdk.entitlement|header_eduPersonEntitlement=urn:mace:dir:entitlement:common-lib-terms|header_knav_type=validuser|header_knav_session_eppn=test|header_displayName=Inovatika|header_expiration_time=1720851072|header_knav_entitlement=urn:mace:dir:entitlement:common-lib-terms|header_entitlement=urn:mace:dir:entitlement:common-lib-terms|header_remote_user=f4ca5f6c5859d882f16aea477cd64a4c5887d3df824b91c7ab29c66091fccfff.aadzzwnyzxqx1rezk8w/sgpucjhb9hbrkxz8las3xof3hlpgnr6/ocwgyi82t6vwjepzgkru4iayuqkirk8dfilp68/i9ffozxdb25+wbrr8ij10tbowcfqgooztwhoiezaug/qijsyq1iftbo9cm5zq4z+h2ivqutjhv9trbjsdtnx0svpgtim=|header_eduPersonScopedAffiliation=[employee@lib.cas.cz, member@lib.cas.cz]|header_token_id=e96c9aec-a262-4fc6-8fe1-4104bdaa8dc8|header_affiliation=[employee@lib.cas.cz, member@lib.cas.cz]|header_knav_affiliation=[employee@lib.cas.cz, member@lib.cas.cz]|header_eduPersonPrincipalName=principalname@lib.cas.cz|header_knav_dnnt_user=test|header_eduPersonUniqueId=eduperson@lib.cas.cz|header_expires_in=1801|header_preffered_user_name=f4ca5f6c5859d882f16aea477cd64a4c5887d3df824b91c7ab29c66091fccfff.aadzzwnyzxqx1rezk8w/sgpucjhb9hbrkxz8las3xof3hlpgnr6/ocwgyi82t6vwjepzgkru4iayuqkirk8dfilp68/i9ffozxdb25+wbrr8ij10tbowcfqgooztwhoiezaug/qijsyq1iftbo9cm5zq4z+h2ivqutjhv9trbjsdtnx0svpgtim=|header_email=xxx@time.com|header_authentication_time=1720849271|header_ip_address=xx.xx.xx.xx";
-            builder = builder.header("CDK_TOKEN_PARAMETERS", headerText);
-            LOGGER.info("CDK_TOKEN_PARAMETERS = "+headerText+";");
+            get.setHeader("CDK_TOKEN_PARAMETERS", headerText);
         }
-        ClientResponse userRes = builder.get(ClientResponse.class);
-        if (userRes.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-            String t = userRes.getEntity(String.class);
-            return new JSONObject(t);
-            // ok - live channel
-        } else throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
+        try (CloseableHttpResponse response = client.execute(get)) {
+            int code = response.getCode();
+            if (code == 200) {
+                HttpEntity entity = response.getEntity();
+                String content = IOUtils.toString(entity.getContent(), Charset.forName("UTF-8"));
+                return new JSONObject(content);
+            } else {
+                throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
+            }
+        }catch(IOException ex) {
+            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+            throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
+        }
     }
     
-    public static void checkSolrChannelEndpoints(Client client, Map<String,JSONObject> collectionConfigurations) {
+    public static void checkSolrChannelEndpoints(CloseableHttpClient client, Map<String,JSONObject> collectionConfigurations) {
         for (String ac : collectionConfigurations.keySet()) {
             JSONObject colObject = collectionConfigurations.get(ac);
             String apiVersion = colObject.optString("api","v5");
@@ -103,39 +118,42 @@ public class ChannelUtils {
         }
     }
 
-    
-    public static void checkSolrChannelEndpoint(Client client, String ac,String fullChannelUrl) {
-        WebResource configResource = client.resource(fullChannelUrl+"/select?q=*&rows=0&wt=json");
-        ClientResponse configReourceStatus = configResource.accept(MediaType.APPLICATION_JSON)
-                .get(ClientResponse.class);
-        if (configReourceStatus.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-            // ok - live channel
-        } else throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
+
+    public static void checkSolrChannelEndpoint(CloseableHttpClient apacheClient, String ac, String fullChannelUrl) {
+        HttpGet head = new HttpGet(fullChannelUrl+"/select?q=*&rows=0&wt=json");
+        try (CloseableHttpResponse response = apacheClient.execute(head)) {
+            int code = response.getCode();
+            if (code == 200) {
+                // ok - live channel
+            } else throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
+        } catch(IOException ex) {
+            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+            throw new IllegalStateException(String.format("Channel for %s(%s) doesnt work ", ac, fullChannelUrl));
+        }
     }
-    
-    public static String solrChannelPidExistence(Client client, String ac, String fullChannelUrl, String apiVersion, String pid) throws UnsupportedEncodingException {
-        // PID, fedora.model, pid_path, root_pid, 
+
+    public static String solrChannelPidExistence(CloseableHttpClient apacheClient, String ac, String fullChannelUrl, String apiVersion, String pid) throws UnsupportedEncodingException {
+        String query = null;
+        String url = null;
         if (apiVersion.toLowerCase().equals("v5")) {
-            String query = URLEncoder.encode( "PID:\""+pid+"\"", "UTF-8");
-            String url = fullChannelUrl+"/select?q="+query+"&rows=1&wt=json&fl=PID,fedora.model,pid_path,root_pid";
-            WebResource configResource = client.resource(url);
-            ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
-                    .get(ClientResponse.class);
-            if (solrResource.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-                String entity = solrResource.getEntity(String.class);
-                return entity;
-            } 
+            query = URLEncoder.encode("PID:\"" + pid + "\"", "UTF-8");
+            url = fullChannelUrl + "/select?q=" + query + "&rows=10&wt=json&fl=PID,fedora.model,pid_path,root_pid";
         } else {
-        // pid, model, pid_paths, root.pid
-            String query = URLEncoder.encode( "pid:\""+pid+"\"", "UTF-8");
-            String url = fullChannelUrl+"/select?q="+query+"&rows=1&wt=json&fl=pid,model,pid_paths,root.pid";
-            WebResource configResource = client.resource(url);
-            ClientResponse solrResource = configResource.accept(MediaType.APPLICATION_JSON)
-                    .get(ClientResponse.class);
-            if (solrResource.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-                String entity = solrResource.getEntity(String.class);
-                return entity;
-            } 
+            query = URLEncoder.encode( "pid:\""+pid+"\"", "UTF-8");
+            url = fullChannelUrl+"/select?q="+query+"&rows=10&wt=json&fl=pid,model,pid_paths,root.pid";
+        }
+        HttpGet head = new HttpGet(url);
+        try (CloseableHttpResponse response = apacheClient.execute(head)) {
+            int code = response.getCode();
+            if (code == 200) {
+                HttpEntity entity = response.getEntity();
+                InputStream is = entity.getContent();
+                return IOUtils.toString(is, Charset.forName("UTF-8"));
+            } else {
+                LOGGER.log(Level.SEVERE, String.format("Bad response %d", code));
+            }
+        } catch(IOException ex) {
+            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
         }
         return null;
     }

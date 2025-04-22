@@ -26,6 +26,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -59,7 +60,6 @@ public class ItemsResource extends AdminApiResource {
 
     private static final Integer DEFAULT_OFFSET = 0;
     private static final Integer DEFAULT_LIMIT = 10;
-    private final Client client;
 
 
     @javax.inject.Inject
@@ -87,10 +87,13 @@ public class ItemsResource extends AdminApiResource {
     @Inject
     private Instances libraries;
 
+    @Inject
+    @Named("forward-client")
+    private CloseableHttpClient apacheClient;
 
     public ItemsResource() {
         super();
-        this.client = Client.create();
+        //this.client = Client.create();
     }
 
 
@@ -266,7 +269,7 @@ public class ItemsResource extends AdminApiResource {
                     throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
                 }
                 try {
-                    JSONObject obj = IntrospectUtils.introspectSolr(this.client, this.libraries, pid);
+                    JSONObject obj = IntrospectUtils.introspectSolr(this.apacheClient, this.libraries, pid, true);
                     return Response.ok(obj.toString()).build();
                 } catch (UnsupportedEncodingException | JSONException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);

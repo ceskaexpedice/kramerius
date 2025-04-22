@@ -172,6 +172,8 @@ public class JDBCUpdateTemplate {
             pstm.setBoolean(i, ((Boolean) object).booleanValue());
         } else if (object instanceof NullObject) {
             setNullParam(i, (NullObject) object, pstm);
+        } else if (object instanceof byte[]) {
+            pstm.setBytes(i, (byte[]) object);
         } else if (object.getClass().isArray()) {
             int length = Array.getLength(object);
             if (length > 0) {

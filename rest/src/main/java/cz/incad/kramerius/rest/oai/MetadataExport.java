@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -94,12 +95,12 @@ public enum MetadataExport {
 			}
 		}
 
-        public Element performOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,  Document owningDocument, OAIRecord oaiRec,OAISet set) {
+        public Element performOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvider, Instances instances, HttpServletRequest request,  Document owningDocument, OAIRecord oaiRec,OAISet set) {
             try {
                 String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
-                ProxyItemHandler redirectHandler = findRedirectHandler(solrAccess, userProvider, clientProvider, instances, request, pid, null);
+                ProxyItemHandler redirectHandler = findRedirectHandler(solrAccess, userProvider,  apacheClientProvider, instances, request, pid, null);
                 if (redirectHandler != null) {
-                    InputStream directStreamDC = redirectHandler.directStreamDC();
+                    InputStream directStreamDC = redirectHandler.directStreamDC(null);
                     if (directStreamDC != null) {
                         Document dc = XMLUtils.parseDocument(directStreamDC, true);
                         Element rootElement = dc.getDocumentElement();
@@ -229,16 +230,16 @@ public enum MetadataExport {
         }
 
 		@Override
-        public Element performOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,  Document owningDocument, OAIRecord oaiRec,OAISet set) {
+        public Element performOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider,  Provider<CloseableHttpClient> apacheClientProvider, Instances instances, HttpServletRequest request,  Document owningDocument, OAIRecord oaiRec,OAISet set) {
             try {
                 
                 String baseUrl = ApplicationURL.applicationURL(request);
                 //rdf:about="uuid:6b182ad3-b9e9-11e1-1726-001143e3f55c"
                 String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
 
-                ProxyItemHandler redirectHandler = findRedirectHandler(solrAccess, userProvider, clientProvider, instances, request, pid, null);
+                ProxyItemHandler redirectHandler = findRedirectHandler(solrAccess, userProvider, apacheClientProvider, instances, request, pid, null);
                 if (redirectHandler != null) {
-                    InputStream directStreamDC = redirectHandler.directStreamDC();
+                    InputStream directStreamDC = redirectHandler.directStreamDC(null);
                     if (directStreamDC != null) {
                         Document dc = XMLUtils.parseDocument(directStreamDC, true);
                         Element dcElement = dc.getDocumentElement();
@@ -408,13 +409,13 @@ public enum MetadataExport {
 
 			
 			@Override
-			public Element performOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,  Document owningDocument, OAIRecord oaiRec,OAISet set) {
+			public Element performOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider,  Provider<CloseableHttpClient> apacheClientProvider, Instances instances, HttpServletRequest request,  Document owningDocument, OAIRecord oaiRec,OAISet set) {
                     try {
                         String baseUrl = ApplicationURL.applicationURL(request);
                         String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
-                        ProxyItemHandler redirectHandler = findRedirectHandler(solrAccess, userProvider, clientProvider, instances, request, pid, null);
+                        ProxyItemHandler redirectHandler = findRedirectHandler(solrAccess, userProvider,  apacheClientProvider, instances, request, pid, null);
                         if (redirectHandler != null) {
-                            InputStream directStreamDC = redirectHandler.directStreamDC();
+                            InputStream directStreamDC = redirectHandler.directStreamDC(null);
                             if (directStreamDC != null) {
                                 Document dc = XMLUtils.parseDocument(directStreamDC, true);
                                 Element dcElement = dc.getDocumentElement();
@@ -478,7 +479,7 @@ public enum MetadataExport {
         
                 @Override
 				public Element performOnCDKSide(SolrAccess solrAccess, Provider<User> userProvider,
-						Provider<Client> clientProvider, Instances instances, HttpServletRequest request,
+						Provider<CloseableHttpClient> apacheClientProvider, Instances instances, HttpServletRequest request,
 						Document owningDocument, OAIRecord oaiRec, OAISet set) {
 					// TODO Auto-generated method stub
 					return null;
@@ -601,14 +602,7 @@ public enum MetadataExport {
     
     
 
-    /*
-     *     @Inject
-    @Named("forward-client")
-    Provider<Client> clientProvider;
-
-     */
-    
-    public static ProxyItemHandler findRedirectHandler(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request, String pid, String source) throws LexerException, IOException {
+    public static ProxyItemHandler findRedirectHandler(SolrAccess solrAccess, Provider<User> userProvider,  Provider<CloseableHttpClient> apacheClient, Instances instances, HttpServletRequest request, String pid, String source) throws LexerException, IOException {
         if (source == null) {
             source = defaultDocumentSource(solrAccess, pid);
         }
@@ -616,7 +610,7 @@ public enum MetadataExport {
         OneInstance found = instances.find(source);
         if (found!= null) {
             String remoteAddress = IPAddressUtils.getRemoteAddress(request, KConfiguration.getInstance().getConfiguration());
-            ProxyItemHandler proxyHandler = found.createProxyItemHandler(userProvider.get(), clientProvider.get(), solrAccess, source, pid, remoteAddress);
+            ProxyItemHandler proxyHandler = found.createProxyItemHandler(userProvider.get(), apacheClient.get(), null, solrAccess, source, pid, remoteAddress);
             return proxyHandler;
         } else {
             return null;
@@ -649,7 +643,14 @@ public enum MetadataExport {
     }
 
 	/** CDK side */
-    public abstract Element performOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,   Document owningDocument, OAIRecord oaiRec, OAISet set);
+    public abstract Element performOnCDKSide(
+            SolrAccess solrAccess,
+            Provider<User> userProvider,
+            Provider<CloseableHttpClient> apacheClientProvider,
+            Instances instances,
+            HttpServletRequest request,
+            Document owningDocument,
+            OAIRecord oaiRec, OAISet set);
     
 	/** Local kramerius */
     public abstract Element perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier, OAISet set);

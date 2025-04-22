@@ -20,10 +20,12 @@ import com.google.inject.Inject;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.k5.client.JSONDecorator;
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
-import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.monitoring.APICallMonitor;
+import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
@@ -33,6 +35,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,9 +86,6 @@ public class SearchResource {
     private SolrAccess solrAccess;
 
 
-//    @Inject
-//    private JSONDecoratorsAggregate jsonDecoratorAggregates; //TODO: do we need the decorators, and which are injected?
-
     @Inject
     ProxyFilter proxyFilter;
     
@@ -94,6 +94,7 @@ public class SearchResource {
 
     @Inject
     APICallMonitor apiCallMonitor;
+
 
 
     @GET
@@ -115,9 +116,9 @@ public class SearchResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/search", "/client/v7.0/search", queryString, "GET");
         try {
             if ("json".equals(wt)) {
-                return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
+                return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo,event)).build();
             } else if ("xml".equals(wt)) {
-                return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo)).build();
+                return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo, event)).build();
             } else { //format not specified in query param "wt"
                 boolean preferXmlAccordingToHeaderAccept = false;
                 List<String> headerAcceptValues = headers.getRequestHeader("Accept");
@@ -130,9 +131,9 @@ public class SearchResource {
                     }
                 }
                 if (preferXmlAccordingToHeaderAccept) { //header Accept contains "application/xml" or "text/xml"
-                    return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo)).build();
+                    return Response.ok().type(MediaType.APPLICATION_XML + ";charset=utf-8").entity(buildSearchResponseXml(uriInfo, event)).build();
                 } else { //default format: json
-                    return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo)).build();
+                    return Response.ok().type(MediaType.APPLICATION_JSON + ";charset=utf-8").entity(buildSearchResponseJson(uriInfo, event)).build();
                 }
             }
         } catch (WebApplicationException e) {
@@ -147,15 +148,27 @@ public class SearchResource {
         }
     }
 
-    private String buildSearchResponseJson(UriInfo uriInfo) {
+    private String buildSearchResponseJson(UriInfo uriInfo, ApiCallEvent event) {
+
         AtomicReference<String> queryRef = new AtomicReference<>();
         try {
+            // identify pid query and response multiple
             String solrQuery = buildSearchSolrQueryString(uriInfo);
             queryRef.set(solrQuery);
-            // filter
-            String solrResponseJson = this.solrAccess.requestWithSelectReturningString(solrQuery, "json");
+            String solrResponseJson = this.solrAccess.requestWithSelectReturningString(solrQuery, "json", event);
             String uri = UriBuilder.fromResource(SearchResource.class).path("").build().toString();
-            JSONObject jsonObject = buildJsonFromRawSolrResponse(solrResponseJson, uri, new ArrayList<>());
+            JSONObject jsonObject = buildJsonFromRawSolrResponse(solrResponseJson, uri, new ArrayList<>(), event);
+
+            JSONObject response = jsonObject.optJSONObject("responseHeader");
+            if (response != null) {
+                int qtime = response.getInt("QTime");
+                List<Triple<String, Long, Long>> granularTimeSnapshots = event != null ? event.getGranularTimeSnapshots() : null;
+                if (granularTimeSnapshots != null) {
+                    granularTimeSnapshots.add(Triple.of("solr/qtime", event.getStartTime(), event.getStartTime() + qtime));
+                }
+            }
+
+
             return jsonObject.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
@@ -179,20 +192,19 @@ public class SearchResource {
         }
     }
 
-    private String buildSearchResponseXml(UriInfo uriInfo) {
+    private String buildSearchResponseXml(UriInfo uriInfo, ApiCallEvent event) {
         AtomicReference<String> queryRef = new AtomicReference<>();
         try {
             String solrQuery = buildSearchSolrQueryString(uriInfo);
             queryRef.set(solrQuery);
 
-            String solrResponseXml = this.solrAccess.requestWithSelectReturningString(solrQuery, "xml");
-            Document domObject = buildXmlFromRawSolrResponse(solrResponseXml);
+            String solrResponseXml = this.solrAccess.requestWithSelectReturningString(solrQuery, "xml", event);
+            Document domObject = buildXmlFromRawSolrResponse(solrResponseXml, event);
             StringWriter strWriter = new StringWriter();
             XMLUtils.print(domObject, strWriter);
             return strWriter.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                //LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
 
                 String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
                 LOGGER.log(Level.SEVERE, message);
@@ -218,17 +230,12 @@ public class SearchResource {
     }
 
     private String buildSearchSolrQueryString(UriInfo uriInfo) throws UnsupportedEncodingException {
-        //int snippets = -1;
-        //int fragsize = -1;
-        
+        boolean cdkServerMode = isOnCDKSide();
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
 
         int snippets = -1;
         int fragsize = -1;
-
         boolean fqFound = false;
-    	
-    	//MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
 
         StringBuilder builder = new StringBuilder();
         Set<String> keys = queryParameters.keySet();
@@ -240,7 +247,7 @@ public class SearchResource {
                     checkFlValueDoesNotContainFilteredField(value);
                 }
                 if (k.equals("fq")) {
-                	value = this.proxyFilter.enhancedFilter(value);
+                    if (cdkServerMode)  value = this.proxyFilter.enhancedFilter(value);
                 }
                 
                 if (k.equals("hl.fragsize")) {
@@ -265,18 +272,24 @@ public class SearchResource {
         }
         
         if (!fqFound) {
-            builder.append("&");
-            builder.append("fq=");
-            String newFilter = proxyFilter.newFilter();
-            if (newFilter != null) builder.append(URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
+            if (cdkServerMode) {
+                builder.append("&");
+                builder.append("fq=");
+                String newFilter = proxyFilter.newFilter();
+                if (newFilter != null) builder.append(URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
+            }
         }
-        
-        String eFT = this.proxyFilter.enhanceFacetsTerms();
-        if (eFT != null) {
-            builder.append("&facet.excludeTerms="+eFT);
+        if (cdkServerMode) {
+            String eFT = this.proxyFilter.enhanceFacetsTerms();
+            if (eFT != null) {
+                builder.append("&facet.excludeTerms="+eFT);
+            }
         }
-
         return builder.toString();
+    }
+
+    private static boolean isOnCDKSide() {
+        return KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
     }
 
     private void checkFlValueDoesNotContainFilteredField(String comaSeparatedValues) {
@@ -290,15 +303,6 @@ public class SearchResource {
             }
         }
     }
-
-//    private Integer normalizeHighlightFragsize(String value) {
-//        try {
-//            Integer hlFragSize = Integer.valueOf(value);
-//            return hlFragSize > MAX_FRAG_SIZE ? MAX_FRAG_SIZE : hlFragSize;
-//        } catch (NumberFormatException e) {
-//            throw new BadRequestException(e.getMessage());
-//        }
-//    }
 
 
     private Integer validateHighlightFragsize(String value) {
@@ -340,7 +344,9 @@ public class SearchResource {
      *
      * @param rawString SOLR response
      */
-    private Document buildXmlFromRawSolrResponse(String rawString) throws ParserConfigurationException, SAXException, IOException {
+    private Document buildXmlFromRawSolrResponse(String rawString, ApiCallEvent event) throws ParserConfigurationException, SAXException, IOException {
+        long start = System.currentTimeMillis();
+        List<Triple<String, Long, Long>> triples = event != null ? event.getGranularTimeSnapshots() : null;
         Document doc = XMLUtils.parseDocument(new StringReader(rawString));
         List<Element> elms = XMLUtils.getElementsRecursive(doc.getDocumentElement(), new XMLUtils.ElementsFilter() {
             @Override
@@ -350,8 +356,11 @@ public class SearchResource {
         });
         for (Element docE : elms) {
             filterOutFieldsFromDOM(docE);
-            
-            this.proxyFilter.filterValue(docE);
+            if (isOnCDKSide())  this.proxyFilter.filterValue(docE,event);
+        }
+        if (triples != null) {
+            long stop = System.currentTimeMillis();
+            triples.add(Triple.of("manipulation/xml", start,stop));
         }
         return doc;
     }
@@ -382,8 +391,10 @@ public class SearchResource {
      *
      * @param rawString SOLR response
      */
-    private JSONObject buildJsonFromRawSolrResponse(String rawString, String context, List<JSONDecorator> decs) throws UnsupportedEncodingException, JSONException {
-	//TODO: CDK Change
+    private JSONObject buildJsonFromRawSolrResponse(String rawString, String context, List<JSONDecorator> decs, ApiCallEvent event) throws UnsupportedEncodingException, JSONException {
+        List<Triple<String, Long, Long>> triples = event != null ? event.getGranularTimeSnapshots() : null;
+        long start = System.currentTimeMillis();
+
         List<String> sortedLicenses = new ArrayList<>();
         try {
             List<License> allLicenses = this.licensesManager.getAllLicenses();
@@ -398,7 +409,6 @@ public class SearchResource {
         prcStack.push(resultJSONObject);
         while (!prcStack.isEmpty()) {
             JSONObject popped = prcStack.pop();
-            //Iterator keys = popped.keys();
             for (Iterator keys = popped.keys(); keys.hasNext(); ) {
                 Object kobj = (Object) keys.next();
                 String key = (String) kobj;
@@ -427,9 +437,6 @@ public class SearchResource {
                 JSONObject docJSON = (JSONObject) docs.get(i);
                 // fiter protected fields
                 filterOutFieldsFromJSON(docJSON);
-                // decorators TODO: Delete, unused
-                //applyDecorators(context, decs, docJSON);
-                // sort keys: licenses_of_ancestors, licenses,  contains_licenses
                 if (sortedLicenses.size() > 0) {
                     List<String> keys = Arrays.asList("licenses_of_ancestors","licenses","contains_licenses");
                     for (String key : keys) {
@@ -441,12 +448,17 @@ public class SearchResource {
                         }
                     }
                 }
-                // decorators
-                //applyDecorators(context, decs, docJSON);
-                this.proxyFilter.filterValue(docJSON);
+                if (isOnCDKSide()) {
+                    this.proxyFilter.filterValue(docJSON, event);
+                }
             }
         }
-        
+
+
+        if (triples != null) {
+            long stop = System.currentTimeMillis();
+            triples.add(Triple.of("manipulation/json", start, stop));
+        }
         return resultJSONObject;
     }
     
@@ -473,22 +485,6 @@ public class SearchResource {
         return jsonArray;
     }
     
-//    private void applyDecorators(String context, List<JSONDecorator> decs, JSONObject docJSON) throws JSONException {
-//        // decorators
-//        Map<String, Object> runtimeCtx = new HashMap<String, Object>();
-//        for (JSONDecorator d : decs) {
-//            d.before(runtimeCtx);
-//        }
-//        for (JSONDecorator jsonDec : decs) {
-//            boolean canApply = jsonDec.apply(docJSON, context);
-//            if (canApply) {
-//                jsonDec.decorate(docJSON, runtimeCtx);
-//            }
-//        }
-//        for (JSONDecorator d : decs) {
-//            d.after();
-//        }
-//    }
 
     private void filterOutFieldsFromJSON(JSONObject jsonObj) {
         for (String filteredFieldName : FILTERED_FIELDS) {

@@ -1,16 +1,23 @@
-<!--  Defaultni sablona pro k5 -->
+<!--  Default template for K5-->
 <cdkprocess>
-
+    <!-- Name of library -->
     <source-name>$iteration.dl$</source-name>
+    <!-- Name of process -->
 	<name>$iteration.dl$-full</name>
+    <!-- type of process -->
 	<type>full</type>
-	
+    <!-- Working time; suitable for pausing process -->
 	<workingtime>$iteration.workingtime$</workingtime>
+    <!-- Timestamp url; storing timestamp after process -->
 	<timestamp>$timestamp.url$</timestamp>
+
+    <introspect>$introspect.url$</introspect>
+
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>
+        <!-- Iteration url; checking pids or composite ids -->
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
 
@@ -34,7 +41,6 @@
     <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
     <worker>
         <request>
-
             <endpoint>select</endpoint>
             
             <batchsize>80</batchsize>
@@ -44,14 +50,14 @@
             <user>$iteration.user$</user>
             <pass>$iteration.pass$</pass>
 
-
+            <!-- build compositeId -->
             <composite.id>true</composite.id>
             <composite.root>root_pid</composite.root>
             <composite.child>PID</composite.child>
 
 
+            <!-- check if pid exists -->
             <checkUrl>$destination.url$</checkUrl>
-
             <checkEndpoint>select</checkEndpoint>
 
             <!-- cdk source field -->
@@ -60,11 +66,10 @@
             <trasfrom>K7</trasfrom>
 
         </request>
-
+        <!-- building index response -->
         <destination>
             <url>$destination.url$/update</url>
-
-            <!-- on index -->
+            <!-- on index event -->
             <onindex>
                 <!-- remove from batch document -->
                 <remove.dest.field>
@@ -78,7 +83,7 @@
                 </update.dest.field>
             </onindex>
 
-            <!-- on update -->
+            <!-- on update event -->
             <onupdate>
                <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels dostupnost fedora.model dc.title search_autor facet_autor</fieldlist>
                <update.dest.field>

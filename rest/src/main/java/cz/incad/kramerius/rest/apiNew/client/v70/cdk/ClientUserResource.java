@@ -35,8 +35,8 @@ import javax.ws.rs.core.Response;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
-import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
+import cz.inovatika.monitoring.APICallMonitor;
+import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.DatabaseRightsManager;
 import cz.incad.kramerius.utils.IPAddressUtils;
@@ -46,6 +46,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -126,6 +127,9 @@ public class ClientUserResource {
     @Named("forward-client")
     Provider<Client> clientProvider;
 
+    @Inject
+    @Named("forward-client")
+    Provider<CloseableHttpClient> closeableHttpClientProvider;
 
     @Inject
     APICallMonitor apiCallMonitor;
@@ -143,7 +147,7 @@ public class ClientUserResource {
     		LOGGER.fine(String.format("Returning principal %s (%s)", user.getLoginname(), user.getGroups() != null ? Arrays.asList(user.getGroups()).stream().map(Role::getName).collect(Collectors.joining(",")): ""));
             if (user != null) {
             	if (user.getId() > -1) {
-                	List<String> labels = findLabels(user);
+                	List<String> labels = findLabels(user,event);
                 	return Response.ok().entity(UsersUtils.userToJSON(user,labels,flag).toString())
                             .build();
             	} else {
@@ -162,11 +166,12 @@ public class ClientUserResource {
         }
     }
 
-    private List<String> findLabels(User user) {
+    private List<String> findLabels(User user, ApiCallEvent event) {
     	List<String> licenses = new ArrayList<>();
         boolean detectLabels = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.infer.licenses", true);
         if (detectLabels) {
-            Client client = this.clientProvider.get();
+            CloseableHttpClient closeableHttpClient = this.closeableHttpClientProvider.get();
+
             String remoteAddress = IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration());
             
             List<OneInstance> userAggegations = new ArrayList<>();
@@ -179,8 +184,8 @@ public class ClientUserResource {
             
             for (OneInstance oneInstance : userAggegations) {
                 try {
-                    ProxyUserHandler proxyUserHandler = oneInstance.createProxyUserHandler(user, client, solrAccess, oneInstance.getName(), remoteAddress);
-                    Pair<User,List<String>> retval = proxyUserHandler.user();
+                    ProxyUserHandler proxyUserHandler = oneInstance.createProxyUserHandler(user,  closeableHttpClient, solrAccess, oneInstance.getName(), remoteAddress);
+                    Pair<User,List<String>> retval = proxyUserHandler.user(event);
                     if (retval != null) {
                         licenses.addAll(retval.getValue());
                         /** disabled attributes

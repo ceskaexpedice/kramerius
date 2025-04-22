@@ -3,10 +3,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.reharvest;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.json.JSONArray;
@@ -14,24 +11,119 @@ import org.json.JSONObject;
 
 import cz.incad.kramerius.utils.StringUtils;
 
-/** 
- * Represents new Reharvest item
- * @author happy
+/**
+ * Represents a reharvest task with different types and states.
+ * A reharvest task can be in one of several states (open, running, failed, finished)
+ * and can perform different types of reharvest operations (full reharvest, partial, deletion, etc.).
  */
 public class ReharvestItem {
-    
+
+    /**
+     * Enum representing the type of reharvest operation.
+     */
     public static enum TypeOfReharvset {
-        
-        root, // kompletni reharvest celeho titulu
-        children, // reharvest titulu a potomku
-        
-        new_children, // dilo v cdk smazano a je potreba stahnout z krameriu informace o detech a titulu a pak pomoci own_pid_path 
-        new_root, // dilo je v cdk smazano a je potreba stahnot z krameriu informace o korenovem dile
-        
-        only_pid, // pouze jeden pid
-        
-        delete_pid,
-        delete_tree;
+
+        /** Complete reharvest of the entire title */
+        root {
+            @Override
+            public boolean isNewHarvest() {
+                return false;
+            }
+
+            @Override
+            public boolean isDeletingReharvest() {
+                return false;
+            }
+        },
+
+        /** Reharvest children */
+        children {
+            @Override
+            public boolean isNewHarvest() {
+                return false;
+            }
+
+            @Override
+            public boolean isDeletingReharvest() {
+                return false;
+            }
+        },
+        /** Object was deleted and needs to fetch information about children and title */
+        new_children {
+            @Override
+            public boolean isNewHarvest() {
+                return true;
+            }
+
+            @Override
+            public boolean isDeletingReharvest() {
+                return false;
+            }
+        },
+        /** Object was deleted and needs to fetch information about the root title*/
+        new_root {
+            @Override
+            public boolean isNewHarvest() {
+                return true;
+            }
+
+            @Override
+            public boolean isDeletingReharvest() {
+                return false;
+            }
+        },
+        /** Only a single PID */
+        only_pid {
+            @Override
+            public boolean isNewHarvest() {
+                return false;
+            }
+
+            @Override
+            public boolean isDeletingReharvest() {
+                return false;
+            }
+        },
+        /** Delete a specific PID */
+        delete_pid {
+            @Override
+            public boolean isNewHarvest() {
+                return false;
+            }
+
+            @Override
+            public boolean isDeletingReharvest() {
+                return true;
+            }
+        },
+        /** Delete an entire subtree */
+        delete_tree {
+            @Override
+            public boolean isNewHarvest() {
+                return false;
+            }
+
+            @Override
+            public boolean isDeletingReharvest() {
+                return true;
+            }
+        },
+
+        /** Delete root pid */
+        delete_root {
+            @Override
+            public boolean isNewHarvest() {
+                return false;
+            }
+
+            @Override
+            public boolean isDeletingReharvest() {
+                return true;
+            }
+        };
+
+        public abstract boolean isNewHarvest();
+        public abstract boolean isDeletingReharvest();
     }
 
     
@@ -48,24 +140,40 @@ public class ReharvestItem {
     
     public static final String LIBRARIES_KEYWORD = "libraries";
     public static final String ERROR_MESSAGE_KEYWORD="error";
-    
-    // unique identifier 
+    public static final String CONFLICT_ID_KEYWORD = "conflict_id";
+
+    /** Unique identifier for the reharvest task */
     private String id;
+    /** Name of the reharvest task */
     private String name;
+    /** Current state of the reharvest task */
     private String state;
-    //private String type;
+    /** PID associated with this task */
     private String pid;
+    /** Root PID if applicable */
     private String rootPid;
+    /** Path to the own pid path */
     private String ownPidPath;
+    /** Type of reharvest operation */
     private TypeOfReharvset typeOfReharvest = TypeOfReharvset.root;
-    
-    
+    /** Timestamp of the last update */
     private Instant timestamp = Instant.now();
+    /** Name of the pod */
     private String podname;
-    
+    /** List of libraries associated with this reharvest */
     private List<String> libraries = new ArrayList<>();
-    
-    
+
+    private String conflictId;
+
+    /**
+     * Constructor initializing a reharvest task with required attributes.
+     *
+     * @param id Unique identifier
+     * @param name Name of the task
+     * @param state Current state
+     * @param pid PID associated with the task
+     * @param ownPidPath Path to the PID
+     */
     public ReharvestItem(String id, String name, String state, String pid, String ownPidPath) {
         super();
         this.id = id;
@@ -75,6 +183,11 @@ public class ReharvestItem {
         this.ownPidPath = ownPidPath;
     }
 
+    /**
+     * Constructor initializing a reharvest task with only an ID.
+     *
+     * @param id Unique identifier
+     */
     public ReharvestItem(String id) {
         super();
         this.id = id;
@@ -159,8 +272,21 @@ public class ReharvestItem {
     public void setRootPid(String rootPid) {
         this.rootPid = rootPid;
     }
-    
-    
+
+
+    public String getConflictId() {
+        return conflictId;
+    }
+
+    public void setConflictId(String conflictId) {
+        this.conflictId = conflictId;
+    }
+
+    /**
+     * Converts the object to a JSON representation.
+     *
+     * @return JSONObject representing the reharvest item
+     */
     public JSONObject toJSON() {
         JSONObject obj  = new JSONObject();
         obj.put(ID_KEYWORD, this.id);
@@ -186,7 +312,11 @@ public class ReharvestItem {
         if (this.rootPid != null) {
             obj.put(ROOT_PID, this.rootPid);
         }
-        
+
+        if (this.conflictId != null) {
+            obj.put(CONFLICT_ID_KEYWORD, this.conflictId);
+        }
+
         if (this.libraries != null && !this.libraries.isEmpty()) {
             JSONArray jsonArray = new JSONArray();
             this.libraries.forEach(jsonArray::put);
@@ -198,10 +328,17 @@ public class ReharvestItem {
 
         return obj;
     }
-    
+
+    /**
+     * Constructs a ReharvestItem object from a JSON representation.
+     *
+     * @param json JSONObject representing the reharvest item
+     * @return ReharvestItem instance
+     * @throws ParseException If the timestamp format is incorrect
+     */
     public static ReharvestItem fromJSON(JSONObject json) throws ParseException {
         String id = json.getString(ID_KEYWORD);
-        String name= json.getString(NAME_KEYWORD);
+        String name= json.optString(NAME_KEYWORD);
         String pid =  json.getString(PID_KEYWORD);
         String ownPidPath = json.optString(OWN_PID_PATH);
         String rootPid = json.optString(ROOT_PID);
@@ -231,6 +368,10 @@ public class ReharvestItem {
             TypeOfReharvset typeOfHarvest = TypeOfReharvset.valueOf(tt);
             item.setTypeOfReharvest(typeOfHarvest);
         }
+        if (json.has(CONFLICT_ID_KEYWORD)) {
+            String tt = json.getString(CONFLICT_ID_KEYWORD);
+            item.setConflictId(tt);
+        }
 
         if (json.has(LIBRARIES_KEYWORD)) {
             JSONArray libsArray = json.getJSONArray(LIBRARIES_KEYWORD);
@@ -238,7 +379,34 @@ public class ReharvestItem {
             for (int i = 0; i < libsArray.length(); i++) { libs.add(libsArray.getString(i));}
             item.setLibraries(libs);
         }
-        
         return item;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ReharvestItem item = (ReharvestItem) o;
+        return Objects.equals(id, item.id) && Objects.equals(name, item.name) && Objects.equals(state, item.state) && Objects.equals(pid, item.pid) && Objects.equals(rootPid, item.rootPid) && Objects.equals(ownPidPath, item.ownPidPath) && typeOfReharvest == item.typeOfReharvest && Objects.equals(timestamp, item.timestamp) && Objects.equals(podname, item.podname) && Objects.equals(libraries, item.libraries);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, state, pid, rootPid, ownPidPath, typeOfReharvest, timestamp, podname, libraries);
+    }
+
+    @Override
+    public String toString() {
+        return "ReharvestItem{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", state='" + state + '\'' +
+                ", pid='" + pid + '\'' +
+                ", rootPid='" + rootPid + '\'' +
+                ", ownPidPath='" + ownPidPath + '\'' +
+                ", typeOfReharvest=" + typeOfReharvest +
+                ", timestamp=" + timestamp +
+                ", podname='" + podname + '\'' +
+                ", libraries=" + libraries +
+                '}';
     }
 }

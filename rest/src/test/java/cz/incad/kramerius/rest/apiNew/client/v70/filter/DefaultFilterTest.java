@@ -27,17 +27,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.impl.MemoryReharvestManagerImpl;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.TypeOfChangedStatus;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.properties.DefaultOnePropertiesInstance;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.properties.DefaultPropertiesInstances;
 import cz.incad.kramerius.utils.XMLUtils;
 
 
 public class DefaultFilterTest {
-
 
 
     private List<String> cdkCollectionFromDoc(List<Element> respXML) {

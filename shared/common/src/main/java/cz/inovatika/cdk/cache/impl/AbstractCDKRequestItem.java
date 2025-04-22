@@ -22,18 +22,19 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
-public  class CDKRequestItemImpl<T> implements CDKRequestItem<T> {
+public abstract class AbstractCDKRequestItem<T> implements CDKRequestItem<T> {
 
     private T data;
     private String mimeType;
     private String url;
     private String pid;
     private String dlAcronym;
+    private String userIdentification;
     private LocalDateTime localDateTime;
 
-    public CDKRequestItemImpl() {
-    }
+    public AbstractCDKRequestItem() {}
 
     @Override
     public String getId() {
@@ -107,8 +108,36 @@ public  class CDKRequestItemImpl<T> implements CDKRequestItem<T> {
     public T getData() {
         return data;
     }
-
     public void setData(T data) {
         this.data = data;
+    }
+
+    @Override
+    public String getUserIdentification() {
+        return userIdentification;
+    }
+
+    public void setUserIdentification(String userIdentification) {
+        this.userIdentification = userIdentification;
+    }
+
+    public boolean isExpired(int days) {
+        if (this.localDateTime == null) {
+            return false;
+        }
+        return this.localDateTime.isBefore(LocalDateTime.now().minus(days, ChronoUnit.DAYS));
+    }
+
+    @Override
+    public String toString() {
+        return "AbstractCDKRequestItem{" +
+                "data=" + data +
+                ", mimeType='" + mimeType + '\'' +
+                ", url='" + url + '\'' +
+                ", pid='" + pid + '\'' +
+                ", dlAcronym='" + dlAcronym + '\'' +
+                ", userIdentification='" + userIdentification + '\'' +
+                ", localDateTime=" + localDateTime +
+                '}';
     }
 }

@@ -25,21 +25,7 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
 
 
 
-    /** find element by attribute */
-    public static Element findByAttribute(Element sourceDocElm, String attName) {
-        Element elemName = XMLUtils.findElement(sourceDocElm,  new XMLUtils.ElementsFilter() {
-            @Override
-            public boolean acceptElement(Element element) {
-                return element.getAttribute("name").equals(attName);
-            }
-        });
-        return elemName;
-    }
-
-
-
     public static void simpleValue(String pid, Document feedDoc, Element feedDocElm, Node node, String derivedName,  CopyReplicateConsumer consumer) {
-        //String attributeName = ((Element)node).getAttribute("name");
         String attributeName = derivedName != null ? derivedName : ((Element)node).getAttribute("name");
  
         Element strElm = feedDoc.createElement("field");
@@ -103,14 +89,7 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
                 }
             }
         }
-//        try {
-//            
-//            XMLUtils.print(destDocElem, System.out);
-//        } catch (TransformerException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-        
+
     }
 
     
@@ -202,5 +181,10 @@ public class BasicSourceToDestTransform extends SourceToDestTransform{
     @Override
     public String getField(String fieldId) {
         return fieldId;
+    }
+
+    @Override
+    public String resolveSourcePid(String cdkField) {
+        return cdkField;
     }
 }
