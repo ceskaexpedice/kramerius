@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+    <lst name="responseHeader">
+        <bool name="zkConnected">true</bool>
+        <int name="status">0</int>
+        <int name="QTime">33</int>
+        <lst name="params">
+            <str name="q">pid:uuid\:200171d8-8d20-11ef-a50e-001b63bd97ba</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" start="0" maxScore="6.7428203">
+        <doc>
+        <str name="accessibility">private</str>
+        <date name="created">2024-10-18T07:10:58.729Z</date>
+        <date name="date.max">1970-12-31T23:59:59.999Z</date>
+        <date name="date.min">1970-01-01T00:00:00.001Z</date>
+        <str name="date.str">1970</str>
+        <int name="date_range_end.year">1970</int>
+        <int name="date_range_start.year">1970</int>
+        <str name="ds.img_full.mime">image/jpeg</str>
+        <bool name="has_tiles">true</bool>
+        <date name="indexed">2024-10-18T07:11:08.302Z</date>
+        <int name="indexer_version">19</int>
+        <arr name="languages.facet">
+            <str>cze</str>
+        </arr>
+        <int name="level">1</int>
+        <arr name="licenses_of_ancestors">
+            <str>onsite</str>
+        </arr>
+        <str name="model">page</str>
+        <date name="modified">2024-10-18T07:11:00.628Z</date>
+        <str name="own_model_path">monograph/page</str>
+        <str name="own_parent.model">monograph</str>
+        <str name="own_parent.pid">uuid:f72ece0d-a023-44cb-a903-e69435161721</str>
+        <str name="own_parent.title">Chrán�.ná přírodní území Středočeského kraje</str>
+        <str name="own_pid_path">uuid:f72ece0d-a023-44cb-a903-e69435161721/uuid:200171d8-8d20-11ef-a50e-001b63bd97ba</str>
+        <int name="page.index">1</int>
+        <str name="page.number">[1]</str>
+        <str name="page.type">normalPage</str>
+        <str name="pid">uuid:200171d8-8d20-11ef-a50e-001b63bd97ba</str>
+        <arr name="pid_paths">
+            <str>uuid:f72ece0d-a023-44cb-a903-e69435161721/uuid:200171d8-8d20-11ef-a50e-001b63bd97ba</str>
+        </arr>
+        <int name="rels_ext_index.sort">0</int>
+        <str name="root.model">monograph</str>
+        <str name="root.pid">uuid:f72ece0d-a023-44cb-a903-e69435161721</str>
+        <str name="root.title">Chrán�.ná přírodní území Středočeského kraje</str>
+        <str name="root.title.sort">H|RA|NE|NA| PR|I|RODNI| U|ZEMI| STR|EDOC|ESKE|HO KRAJE</str>
+        <str name="title.search">[1]</str>
+        <str name="title.sort">1</str>
+        <arr name="titles.search">
+            <str>[1]</str>
+        </arr>
+        <str name="compositeId">uuid:f72ece0d-a023-44cb-a903-e69435161721!uuid:f72ece0d-a023-44cb-a903-e69435161721</str>
+        <arr name="cdk.licenses_of_ancestors">
+            <str>svkkl_onsite</str>
+        </arr>
+        <arr name="cdk.collection">
+            <str>svkkl</str>
+        </arr>
+        <str name="cdk.leader">svkkl</str>
+        <long name="_version_">1815767203482435584</long>
+        <str name="text_ocr">A</str>
+        </doc>
+    </result>
+</response>
+
+

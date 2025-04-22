@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+    <lst name="responseHeader">
+        <bool name="zkConnected">true</bool>
+        <int name="status">0</int>
+        <int name="QTime">6</int>
+        <lst name="params">
+            <str name="q">pid:"uuid:2abf3eaa-f327-44fa-8cb8-873ce3ecafa7"</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" start="0" maxScore="6.651716">
+        <doc>
+            <str name="pid">uuid:2abf3eaa-f327-44fa-8cb8-873ce3ecafa7</str>
+            <date name="created">2017-09-01T10:54:11.441Z</date>
+            <str name="date.str">2017</str>
+            <str name="title.search">239</str>
+            <arr name="titles.search">
+                <str>239</str>
+            </arr>
+            <arr name="ddt">
+                <str/>
+            </arr>
+            <str name="accessibility">private</str>
+            <str name="model">page</str>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <int name="level">1</int>
+            <date name="modified">2017-09-29T11:27:02.597Z</date>
+            <date name="indexed">2017-09-29T11:27:02.597Z</date>
+            <arr name="foster_parents.pids">
+                <str>uuid:7df204f2-731c-4e3e-9789-747718c598e3</str>
+            </arr>
+            <arr name="pid_paths">
+                <str>uuid:7df204f2-731c-4e3e-9789-747718c598e3/uuid:2abf3eaa-f327-44fa-8cb8-873ce3ecafa7</str>
+            </arr>
+            <str name="root.pid">uuid:7df204f2-731c-4e3e-9789-747718c598e3</str>
+            <str name="root.title">Neočekávané chování: příběh behaviorální ekonomie</str>
+            <str name="text_ocr">﻿OCTOMILKY, LEDOVCE A ZÁPORNÉ CENY AKCIÍ
+
+                Motors a že tržní hodnota DuPont kupodivu činí přibližně stejně jako její podíl v General Motors. Přestože byla DuPont silně ziskovou firmou, blížila se její zbytková hodnota nule. Graham nabízející se příležitosti využil, nakoupil DuPont a provedl krátký prodej General Motors, a když cena DuPont stoupla, vydělal si slušný balík.
+
+                Ne vždy se však chytrým investorům vede tak úspěšně. Řadu let existovaly dva druhy akcií petrochemického gigantu Royal Dutch Shell - akcie Royal Dutch obchodované v New Yorku a v Amsterdamu a akcie Shell obchodované v Londýně. Podle ustanovení smlouvy o propojení, jíž firma v roce 1907 vznikla, bude 60 % zisku patřit akcionářům Royal Dutch a 40 % akcionářům Shell. Ze zákona jedné ceny plyne, že poměr cen obou druhů akcií by měl být 60/40 neboli 1,5. Platil však tento poměr cen akcií při obchodování vždy? Neplatil! Někdy se akcie Royal Dutch obchodovaly až o 30% levněji, než by měly, jindy zase až o 15 % dráž. Jako by násobení 1,5 bylo pro obchodníky-šumaře zvlášť náročnou disciplínou.
+
+                V tomto případě představuje chytrý obchod nakoupit tu verzi podílu, která je právě levnější, a u té drahé zrealizovat krátký prodej. Na rozdíl od případu Palm a 3Com se oba druhy akcií hojně obchodovaly a daly se snadno vypůjčit, co tedy bránilo „smart money“ investorům, aby zajistili, že se akcie budou obchodovat v řádném poměru 1,5? Kupodivu nic! A co je zásadní, na rozdíl od příkladu s Palm, u nějž bylo jasné, že za pár měsíců skončí, mohl nepoměr cen akcií Royal Dutch Shell trvat - a také trval - celá desetiletí.* A v tom také vězí riziko. Někteří chytří obchodníci, například hedgeový fond Long Term Capital Management (LTCM), tento chytrý obchod skutečně provedli - uskutečnili krátký prodej drahých akcií Royal Dutch a nakoupili levné akcie Shell. Happyend se však nekonal. V srpnu 1998 začaly kvůli finanční krizi v Asii a krachu ruských obligací LTCM a další hedgeové fondy ztrácet peníze a potřebovaly některé své pozice omezit, včetně onoho obchodu s Royal Dutch Shell. LTCM však pochopitelně nebyl jediný hedgeový fond, který si anomálie cen Royal Dutch Shell všiml, a i tyto ostatní fondy přišly v Rusku a Asii o peníze. Když tedy chtěl LTCM ze své pozice v Royal Dutch Shell vycouvat, usilovaly o totéž i ostatní fondy a tato vlna se obrátila proti
+
+                * Když jsem někdy v 90. letech tuto anomálii popisoval řediteli jednoho velkého penzijního fondu, prohlásil, že se určitě pletu, protože by „chytří“ investoři prostě museli jasně nakupovat ten druh akcií, který byl zrovna levnější. Opáčil jsem: „Myslíte? Já si myslím, že váš fond vlastní miliony dolarů té dražší verze,“ a nabídl jsem mu, že se můžeme vsadit o fajnovou večeři, že mám pravdu. Moudře odmítl. Jeho fond byl částečně indexován na S&amp;amp;amp;amp;P 500, kam tehdy patřila holandská verze, která se momentálně prodávala s přirážkou.
+
+                239
+            </str>
+            <str name="title.sort">239</str>
+            <str name="root.title.sort">NEOC|EKAVANE H|OVANI  PR|IBEH BEHAVIORALNI EKONOMIE</str>
+            <str name="own_model_path">monograph/page</str>
+            <str name="own_parent.pid">uuid:7df204f2-731c-4e3e-9789-747718c598e3</str>
+            <str name="own_pid_path">uuid:7df204f2-731c-4e3e-9789-747718c598e3/uuid:2abf3eaa-f327-44fa-8cb8-873ce3ecafa7</str>
+            <int name="rels_ext_index.sort">242</int>
+            <date name="date.min">2017-01-01T00:00:00.001Z</date>
+            <date name="date.max">2017-01-01T00:00:00.001Z</date>
+            <int name="date_range_start.year">2017</int>
+            <int name="date_range_end.year">2017</int>
+            <arr name="licenses_of_ancestors">
+                <str>onsite</str>
+            </arr>
+            <arr name="cdk.k5.license.translated">
+                <str>onsite</str>
+            </arr>
+            <str name="compositeId">uuid:7df204f2-731c-4e3e-9789-747718c598e3!uuid:2abf3eaa-f327-44fa-8cb8-873ce3ecafa7</str>
+            <arr name="cdk.licenses_of_ancestors">
+                <str>knav_onsite</str>
+                <str>mzk_onsite</str>
+            </arr>
+            <arr name="cdk.collection">
+                <str>knav</str>
+                <str>mzk</str>
+            </arr>
+            <str name="cdk.leader">knav</str>
+            <long name="_version_">1793326640172892160</long></doc>
+    </result>
+</response>

@@ -6,9 +6,11 @@ import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.ProxyUserHandler;
 import cz.incad.kramerius.security.User;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 /**
  * Represents one instance library
@@ -76,25 +78,24 @@ public interface OneInstance {
 	/**
 	 * Creates item's proxy handler; The class responsible for handling requests from items resource and forwarding them to destination DL
 	 * @param user Requesting user
-	 * @param client Jersey client class
 	 * @param solrAccess Access to solr
 	 * @param source Digital library
 	 * @param pid PID
-	 * @param remoteAddr
+	 * @param remoteAddr Remote addr
 	 * @return
 	 */
-	public ProxyItemHandler createProxyItemHandler(User user, Client client, SolrAccess solrAccess, String source, String pid,String remoteAddr);
+	public ProxyItemHandler createProxyItemHandler(User user, CloseableHttpClient closeableHttpClient, DeleteTriggerSupport triggerSupport, SolrAccess solrAccess, String source, String pid, String remoteAddr);
 
 	/**
 	 * Creates user's proxy handler; The class responsible for handling requests from item resource forwarding them to destination DL
 	 * @param user  Requesting user
-	 * @param client Jersey client class
 	 * @param solrAccess Access to solr
 	 * @param source Digital library
 	 * @param remoteAddr
 	 * @return
 	 */
-	public ProxyUserHandler createProxyUserHandler(User user, Client client, SolrAccess solrAccess, String source, String remoteAddr);
+	public ProxyUserHandler createProxyUserHandler(User user, CloseableHttpClient closeableHttpClient,  SolrAccess solrAccess, String source, String remoteAddr);
+
 
 
 	//TODO:  Remove in future

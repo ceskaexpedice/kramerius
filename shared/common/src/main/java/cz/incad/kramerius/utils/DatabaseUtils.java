@@ -8,6 +8,31 @@ public class DatabaseUtils {
 
     private static final Logger LOGGER = Logger.getLogger(DatabaseUtils.class.getName());
 
+
+    public static boolean isColumnNotNull(Connection con, String tableName, String colName) throws SQLException {
+        String query =String.format("SELECT 1 \n" +
+                "    FROM pg_attribute \n" +
+                "    JOIN pg_class ON pg_class.oid = pg_attribute.attrelid\n" +
+                "    WHERE pg_class.relname = '%s' \n" +
+                "      AND pg_attribute.attname = '%s'\n" +
+                "      AND pg_attribute.attnotnull", tableName, colName);
+
+        PreparedStatement pstm = con.prepareStatement(query);
+        try {
+            ResultSet rs = null;
+            try {
+                rs = pstm.executeQuery();
+                boolean flag = rs.next();
+                return flag;
+            } finally {
+                tryClose(pstm);
+                if (rs != null) tryClose(rs);
+            }
+        } finally {
+            tryClose(pstm);
+        }
+    }
+
     public static boolean tableExists(Connection con, String tableName) throws SQLException {
         String[] types = {"TABLE"};
         ResultSet rs = con.getMetaData().getTables(null, null, "%", types);

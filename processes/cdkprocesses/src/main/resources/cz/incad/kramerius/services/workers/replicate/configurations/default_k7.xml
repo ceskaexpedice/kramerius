@@ -14,7 +14,7 @@
     <iteration>
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
-        <id>pid</id>
+        <id>$iteration.id$</id>
         <rows>4000</rows>
         <type>CURSOR</type>
         

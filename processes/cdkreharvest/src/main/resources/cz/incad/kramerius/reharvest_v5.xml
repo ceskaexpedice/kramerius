@@ -5,6 +5,9 @@
 	<name>$iteration.dl$-reharvest</name>
 	<type>reharvest</type>
 
+    <introspect>$introspect.url$</introspect>
+
+
     <!-- Iteration part -->
     <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
     <iteration>

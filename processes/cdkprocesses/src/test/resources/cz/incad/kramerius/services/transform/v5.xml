@@ -1,0 +1,1099 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">9</int>
+        <lst name="params">
+            <str name="q">PID:("uuid:00000834-c06c-49ed-91e9-d54a0f8c8571" OR
+                "uuid:00001fe4-1d09-42e2-845a-0201dd900e87" OR "uuid:0000211b-7c66-4730-b343-8ea2ef427f99" OR
+                "uuid:000026fa-3695-4af4-aaaa-50557d8c2c6d" OR "uuid:0000329c-2940-89be-717b-82cac72948a8" OR
+                "uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628" OR "uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628/@1" OR
+                "uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628/@2" OR "uuid:00003962-b232-4055-9a77-8d8db9487b90" OR
+                "uuid:00003bb1-429d-11e2-849c-005056a60003" OR "uuid:000040ee-eda5-49d3-ae14-510a74921cda" OR
+                "uuid:000047d7-3b67-4f08-a7cf-e843db917097" OR "uuid:000059eb-d782-4285-857a-41b370dc1afd" OR
+                "uuid:00006174-e3da-488b-9a18-eef7b3d5e527" OR "uuid:00006bd9-100d-4c89-97e6-3529e99c45be" OR
+                "uuid:00006e78-04c4-4fa0-9a9d-d7ba78f7c341" OR "uuid:00007ca2-054e-4fde-b73c-81f55a282ebc" OR
+                "uuid:00007e8c-3f3a-4f73-ab70-0f95b1024f59" OR "uuid:000091fb-dc07-4594-9300-8a503dc09210" OR
+                "uuid:0000a0c8-41b2-4fdd-9597-619b3a7ff965")
+            </str>
+            <str name="fl">PID timestamp fedora.model document_type handle status created_date modified_date
+                parent_model parent_pid parent_pid parent_title root_model root_pid root_title text_ocr pages_count
+                datum_str datum rok datum_begin datum_end datum_page issn mdt ddt dostupnost keywords geographic_names
+                collection sec model_path pid_path rels_ext_index level dc.title title_sort title_sort dc.creator
+                dc.identifier language dc.description details facet_title browse_title browse_autor img_full_mime
+                viewable virtual location range mods.shelfLocator mods.physicalLocation text dnnt
+            </str>
+            <str name="rows">20</str>
+            <arr name="wt">
+                <str>xml</str>
+                <str>xml</str>
+            </arr>
+        </lst>
+    </lst>
+    <result name="response" numFound="20" start="0">
+        <doc>
+            <str name="PID">uuid:000059eb-d782-4285-857a-41b370dc1afd</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">149</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:000059eb-d782-4285-857a-41b370dc1afd</str>
+                <str>000059eb-d782-4285-857a-41b370dc1afd</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2016-04-19T11:32:15.007Z</date>
+            <date name="modified_date">2019-03-20T12:18:27.311Z</date>
+            <str name="dostupnost">private</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>149
+                    ##NormalPage
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:40995932-98ff-41ca-a74f-c0637fa99f2f</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>150</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page</str>
+            </arr>
+            <str name="root_title">Lennonova zeď v Praze: neformální shromáždění mládeže na Kampě 1980-1989</str>
+            <str name="root_pid">uuid:24e99440-01c9-4e99-ae28-13ef5f41acbd</str>
+            <int name="level">1</int>
+            <str name="datum_str">2003</str>
+            <int name="rok">2003</int>
+            <int name="datum_begin">2003</int>
+            <int name="datum_end">2003</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:24e99440-01c9-4e99-ae28-13ef5f41acbd</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:24e99440-01c9-4e99-ae28-13ef5f41acbd/uuid:000059eb-d782-4285-857a-41b370dc1afd</str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:00003962-b232-4055-9a77-8d8db9487b90</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">45</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:00003962-b232-4055-9a77-8d8db9487b90</str>
+                <str>00003962-b232-4055-9a77-8d8db9487b90</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2015-08-20T07:04:01.562Z</date>
+            <date name="modified_date">2019-03-12T07:48:23.322Z</date>
+            <str name="dostupnost">private</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>45
+                    ##
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:26e7764d-a52f-42f4-b881-f4550de3fafa</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>44</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page</str>
+            </arr>
+            <str name="root_title">Rotunda sv. Martina a bazilika sv. Vavřince na Vyšehradě</str>
+            <str name="root_pid">uuid:25ba481b-4edc-4e6e-8e50-6243ac493773</str>
+            <int name="level">1</int>
+            <str name="datum_str">2009</str>
+            <int name="rok">2009</int>
+            <int name="datum_begin">2009</int>
+            <int name="datum_end">2009</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:25ba481b-4edc-4e6e-8e50-6243ac493773</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:25ba481b-4edc-4e6e-8e50-6243ac493773/uuid:00003962-b232-4055-9a77-8d8db9487b90</str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:00000834-c06c-49ed-91e9-d54a0f8c8571</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">256</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:00000834-c06c-49ed-91e9-d54a0f8c8571</str>
+                <str>00000834-c06c-49ed-91e9-d54a0f8c8571</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2019-04-25T07:26:16.821Z</date>
+            <date name="modified_date">2019-05-23T13:14:55.296Z</date>
+            <str name="dostupnost">private</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>256
+                    ##
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:19100de5-a1b2-4b02-9f50-246e1c2f1517</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>257</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page</str>
+            </arr>
+            <str name="root_title">Dobré vládnutí ve veřejném nezájmu: lokální politické elity jako klíčoví aktéři
+                demokratizace?
+            </str>
+            <str name="root_pid">uuid:1ef21897-8cc7-430c-bd79-76cdb9c9d3d7</str>
+            <int name="level">1</int>
+            <str name="datum_str">2018</str>
+            <int name="rok">2018</int>
+            <int name="datum_begin">2018</int>
+            <int name="datum_end">2018</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:1ef21897-8cc7-430c-bd79-76cdb9c9d3d7</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:1ef21897-8cc7-430c-bd79-76cdb9c9d3d7/uuid:00000834-c06c-49ed-91e9-d54a0f8c8571</str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:000026fa-3695-4af4-aaaa-50557d8c2c6d</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">61</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:000026fa-3695-4af4-aaaa-50557d8c2c6d</str>
+                <str>000026fa-3695-4af4-aaaa-50557d8c2c6d</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2017-11-24T11:49:36.388Z</date>
+            <date name="modified_date">2019-06-14T06:27:09.170Z</date>
+            <str name="dostupnost">public</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>61
+                    ##
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="rels_ext_index">
+                <int>20</int>
+            </arr>
+            <arr name="model_path">
+                <str>periodical/periodicalvolume/periodicalitem/page</str>
+            </arr>
+            <str name="root_title">Časopis Společnosti přátel starožitností českých v Praze</str>
+            <str name="root_pid">uuid:64442f94-6fd7-4136-8b95-73db315d4530</str>
+            <int name="level">3</int>
+            <str name="datum_str">06.1898</str>
+            <date name="datum">1898-06-14T10:14:20.825Z</date>
+            <int name="rok">1898</int>
+            <bool name="virtual">false</bool>
+            <int name="datum_begin">0</int>
+            <int name="pages_count">0</int>
+            <int name="datum_end">0</int>
+            <arr name="parent_pid">
+                <str>uuid:20becf17-0494-4b14-8f30-c8f2ee8bb567</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:64442f94-6fd7-4136-8b95-73db315d4530/uuid:7ef2079e-eb52-463e-9390-8495658e21cc/uuid:20becf17-0494-4b14-8f30-c8f2ee8bb567/uuid:000026fa-3695-4af4-aaaa-50557d8c2c6d
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:00007e8c-3f3a-4f73-ab70-0f95b1024f59</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">295</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:00007e8c-3f3a-4f73-ab70-0f95b1024f59</str>
+                <str>00007e8c-3f3a-4f73-ab70-0f95b1024f59</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2015-07-03T11:40:25.120Z</date>
+            <date name="modified_date">2019-09-16T12:36:33.354Z</date>
+            <str name="dostupnost">private</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>295
+                    ##
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:40995932-98ff-41ca-a74f-c0637fa99f2f</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>376</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/monographunit/page</str>
+            </arr>
+            <str name="root_title">Charta 77: dokumenty 1977-1989</str>
+            <str name="root_pid">uuid:fefc990f-0daa-4cc2-b419-ba2f35670049</str>
+            <int name="level">2</int>
+            <str name="datum_str">2007</str>
+            <int name="rok">2007</int>
+            <int name="datum_begin">2007</int>
+            <int name="datum_end">2007</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:92ce184c-2ab1-4799-a6b0-e91f34e10c60</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:fefc990f-0daa-4cc2-b419-ba2f35670049/uuid:92ce184c-2ab1-4799-a6b0-e91f34e10c60/uuid:00007e8c-3f3a-4f73-ab70-0f95b1024f59
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:00007ca2-054e-4fde-b73c-81f55a282ebc</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">[97a]</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:00007ca2-054e-4fde-b73c-81f55a282ebc</str>
+                <str>00007ca2-054e-4fde-b73c-81f55a282ebc</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2014-01-22T08:15:09.868Z</date>
+            <date name="modified_date">2016-02-26T00:57:48.170Z</date>
+            <str name="dostupnost">public</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>[97a]
+                    ##TitlePage
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:a3097067-7f4f-4772-af44-d03cb37aa964</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>0</int>
+            </arr>
+            <arr name="model_path">
+                <str>periodical/periodicalvolume/periodicalitem/page</str>
+            </arr>
+            <str name="root_title">Československá psychologie: časopis pro psychologickou teorii a praxi</str>
+            <str name="root_pid">uuid:3bdb9d4f-420f-11e1-9e3f-005056a60003</str>
+            <int name="level">3</int>
+            <str name="datum_str">5.2003</str>
+            <date name="datum">2003-05-28T06:23:46.007Z</date>
+            <int name="rok">2003</int>
+            <bool name="virtual">false</bool>
+            <int name="datum_begin">0</int>
+            <int name="pages_count">0</int>
+            <int name="datum_end">0</int>
+            <arr name="parent_pid">
+                <str>uuid:472a0bd1-9414-4a55-8eaf-c3e66a8929b5</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:3bdb9d4f-420f-11e1-9e3f-005056a60003/uuid:42330dc9-6e41-4414-bd9c-92d890a31603/uuid:472a0bd1-9414-4a55-8eaf-c3e66a8929b5/uuid:00007ca2-054e-4fde-b73c-81f55a282ebc
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:0000329c-2940-89be-717b-82cac72948a8</str>
+            <str name="fedora.model">article</str>
+            <arr name="document_type">
+                <str>article</str>
+            </arr>
+            <str name="dc.title">Hybridní zóny a "záhada záhad"</str>
+            <str name="title_sort"/>
+            <arr name="dc.creator">
+                <str>Macholán Miloš</str>
+                <str>Munclinger Pavel</str>
+            </arr>
+            <arr name="browse_autor">
+                <str>MAH|OLAN MILOS ##Macholán Miloš</str>
+                <str>MUNCLINGER PAVEL##Munclinger Pavel</str>
+            </arr>
+            <arr name="dc.identifier">
+                <str>uuid:0000329c-2940-89be-717b-82cac72948a8</str>
+                <str>0000329c-2940-89be-717b-82cac72948a8</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2015-07-02T11:42:55.965Z</date>
+            <date name="modified_date">2020-03-26T11:27:34.657Z</date>
+            <str name="dostupnost">private</str>
+            <arr name="language">
+                <str>cze</str>
+            </arr>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <str name="img_full_mime">application/pdf</str>
+            <bool name="viewable">true</bool>
+            <str name="browse_title">HYBRIDNI ZONY A ZAHADA ZAHAD##Hybridní zóny a "záhada záhad"</str>
+            <arr name="collection">
+                <str>vc:6a2c138e-0978-4a4c-b942-b95cb8c11845</str>
+                <str>vc:7252befa-0e8c-4875-af64-882b6ed328ef</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>37</int>
+            </arr>
+            <arr name="model_path">
+                <str>periodical/periodicalvolume/periodicalitem/article</str>
+            </arr>
+            <str name="root_title">Živa: časopis přírodnický. 1853-1914</str>
+            <str name="root_pid">uuid:46321917-5647-11e1-86bc-005056a60003</str>
+            <int name="level">3</int>
+            <str name="datum_str">2007</str>
+            <int name="rok">2007</int>
+            <int name="datum_begin">2007</int>
+            <int name="datum_end">2007</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:69c9e4bd-208b-11e5-9d24-001b21187a68</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:46321917-5647-11e1-86bc-005056a60003/uuid:69c9e4bc-208b-11e5-9d24-001b21187a68/uuid:69c9e4bd-208b-11e5-9d24-001b21187a68/uuid:0000329c-2940-89be-717b-82cac72948a8
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:000047d7-3b67-4f08-a7cf-e843db917097</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">14</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:000047d7-3b67-4f08-a7cf-e843db917097</str>
+                <str>000047d7-3b67-4f08-a7cf-e843db917097</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2016-03-09T11:58:58.151Z</date>
+            <date name="modified_date">2017-08-31T09:10:45.914Z</date>
+            <str name="dostupnost">public</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>14
+                    ##
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="rels_ext_index">
+                <int>15</int>
+            </arr>
+            <arr name="model_path">
+                <str>periodical/periodicalvolume/periodicalitem/page</str>
+            </arr>
+            <str name="root_title">Estetika</str>
+            <str name="root_pid">uuid:05559566-d56b-11e1-a706-005056a60003</str>
+            <int name="level">3</int>
+            <str name="datum_str">1994</str>
+            <int name="rok">1994</int>
+            <int name="datum_begin">1994</int>
+            <int name="datum_end">1994</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:4338be74-f0fb-49e8-900e-89546f9e53ce</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:05559566-d56b-11e1-a706-005056a60003/uuid:1a8d2462-d56b-11e1-1418-001143e3f55c/uuid:4338be74-f0fb-49e8-900e-89546f9e53ce/uuid:000047d7-3b67-4f08-a7cf-e843db917097
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:000040ee-eda5-49d3-ae14-510a74921cda</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">284</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:000040ee-eda5-49d3-ae14-510a74921cda</str>
+                <str>000040ee-eda5-49d3-ae14-510a74921cda</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2020-06-25T13:13:00.159Z</date>
+            <date name="modified_date">2020-09-02T10:34:55.439Z</date>
+            <str name="dostupnost">private</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>284
+                    ##
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:19100de5-a1b2-4b02-9f50-246e1c2f1517</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>287</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page</str>
+            </arr>
+            <str name="root_title">Dějiny české detektivky</str>
+            <str name="root_pid">uuid:fdb3e131-21f1-4bc5-a3a5-76027baab467</str>
+            <int name="level">1</int>
+            <str name="datum_str">2019</str>
+            <int name="rok">2019</int>
+            <int name="datum_begin">2019</int>
+            <int name="datum_end">2019</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:fdb3e131-21f1-4bc5-a3a5-76027baab467</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:fdb3e131-21f1-4bc5-a3a5-76027baab467/uuid:000040ee-eda5-49d3-ae14-510a74921cda</str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:0000a0c8-41b2-4fdd-9597-619b3a7ff965</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">209</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:0000a0c8-41b2-4fdd-9597-619b3a7ff965</str>
+                <str>0000a0c8-41b2-4fdd-9597-619b3a7ff965</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2020-09-10T09:14:15.858Z</date>
+            <date name="modified_date">2020-09-11T08:22:25.764Z</date>
+            <str name="dostupnost">public</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>209
+                    ##
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:175f7bc8-e51b-4fb3-b737-cfd7f3f2a43b</str>
+                <str>vc:5c2321df-2d8d-4a87-a262-15ffff990d81</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>238</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page</str>
+            </arr>
+            <str name="root_title">Staročeské životy svatých otcův</str>
+            <str name="root_pid">uuid:978371d6-a041-4fe9-88b9-178f033084fc</str>
+            <int name="level">1</int>
+            <str name="datum_str">1909</str>
+            <int name="rok">1909</int>
+            <int name="datum_begin">1909</int>
+            <int name="datum_end">1909</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:978371d6-a041-4fe9-88b9-178f033084fc</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:978371d6-a041-4fe9-88b9-178f033084fc/uuid:0000a0c8-41b2-4fdd-9597-619b3a7ff965</str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:000091fb-dc07-4594-9300-8a503dc09210</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">363</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:000091fb-dc07-4594-9300-8a503dc09210</str>
+                <str>000091fb-dc07-4594-9300-8a503dc09210</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2020-08-31T12:29:24.251Z</date>
+            <date name="modified_date">2020-10-08T09:23:39.633Z</date>
+            <str name="dostupnost">private</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>363
+                    ##
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:19100de5-a1b2-4b02-9f50-246e1c2f1517</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>366</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page</str>
+            </arr>
+            <str name="root_title">Behemot: dějiny továrny a utváření moderního světa</str>
+            <str name="root_pid">uuid:dcb41749-4985-47eb-84ab-7fe7aa89c1b2</str>
+            <int name="level">1</int>
+            <str name="datum_str">2019</str>
+            <int name="rok">2019</int>
+            <int name="datum_begin">2019</int>
+            <int name="datum_end">2019</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:dcb41749-4985-47eb-84ab-7fe7aa89c1b2</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:dcb41749-4985-47eb-84ab-7fe7aa89c1b2/uuid:000091fb-dc07-4594-9300-8a503dc09210</str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:00006174-e3da-488b-9a18-eef7b3d5e527</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">54</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:00006174-e3da-488b-9a18-eef7b3d5e527</str>
+                <str>00006174-e3da-488b-9a18-eef7b3d5e527</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2020-12-03T11:40:44.501Z</date>
+            <date name="modified_date">2021-01-18T12:50:40.744Z</date>
+            <str name="dostupnost">public</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>54
+                    ##
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:175f7bc8-e51b-4fb3-b737-cfd7f3f2a43b</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>62</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page</str>
+            </arr>
+            <str name="root_title">Soupis památek historických a uměleckých v království Českém od pravěku do počátku
+                XIX. století
+            </str>
+            <str name="root_pid">uuid:0d35e71c-d3e5-4706-93b7-2b8b9ef87f58</str>
+            <int name="level">1</int>
+            <str name="datum_str">1900</str>
+            <int name="rok">1900</int>
+            <int name="datum_begin">1900</int>
+            <int name="datum_end">1900</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <arr name="parent_pid">
+                <str>uuid:0d35e71c-d3e5-4706-93b7-2b8b9ef87f58</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:0d35e71c-d3e5-4706-93b7-2b8b9ef87f58/uuid:00006174-e3da-488b-9a18-eef7b3d5e527</str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:00006bd9-100d-4c89-97e6-3529e99c45be</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">114</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:00006bd9-100d-4c89-97e6-3529e99c45be</str>
+                <str>00006bd9-100d-4c89-97e6-3529e99c45be</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2014-10-08T10:51:12.819Z</date>
+            <date name="modified_date">2019-07-03T13:13:10.934Z</date>
+            <str name="dostupnost">private</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>114
+                    ##Blank
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:b85f4013-f1a8-4a6c-80cf-6758e34779a9</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>113</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page</str>
+            </arr>
+            <str name="root_title">České veřejné mínění: výzkum a teoretické souvislosti</str>
+            <str name="root_pid">uuid:477085e4-50f6-4893-a639-229a41fc7a3f</str>
+            <int name="level">1</int>
+            <str name="datum_str">2006</str>
+            <int name="rok">2006</int>
+            <int name="datum_begin">2006</int>
+            <int name="datum_end">2006</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <bool name="dnnt">true</bool>
+            <arr name="parent_pid">
+                <str>uuid:477085e4-50f6-4893-a639-229a41fc7a3f</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:477085e4-50f6-4893-a639-229a41fc7a3f/uuid:00006bd9-100d-4c89-97e6-3529e99c45be</str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:00001fe4-1d09-42e2-845a-0201dd900e87</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dc.title">[243]</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:00001fe4-1d09-42e2-845a-0201dd900e87</str>
+                <str>00001fe4-1d09-42e2-845a-0201dd900e87</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2019-03-18T07:02:57.527Z</date>
+            <date name="modified_date">2019-05-10T09:12:53.061Z</date>
+            <str name="dostupnost">private</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>[243]
+                    ##tableOfContents
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="rels_ext_index">
+                <int>244</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/monographunit/page</str>
+            </arr>
+            <str name="root_title">Dějiny socialistického Československa: studie a materiály</str>
+            <str name="root_pid">uuid:a03cbb5f-cc3b-4140-85e4-ea245871a32f</str>
+            <int name="level">2</int>
+            <str name="datum_str">1988</str>
+            <int name="rok">1988</int>
+            <int name="datum_begin">1988</int>
+            <int name="datum_end">1988</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <bool name="dnnt">true</bool>
+            <arr name="parent_pid">
+                <str>uuid:d02a4f59-c738-4bc7-a80b-e3872ef8d21e</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:a03cbb5f-cc3b-4140-85e4-ea245871a32f/uuid:d02a4f59-c738-4bc7-a80b-e3872ef8d21e/uuid:00001fe4-1d09-42e2-845a-0201dd900e87
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:0000211b-7c66-4730-b343-8ea2ef427f99</str>
+            <date name="created_date">2016-10-12T09:56:57.931Z</date>
+            <int name="datum_begin">1952</int>
+            <int name="datum_end">1952</int>
+            <str name="datum_str">1952</str>
+            <arr name="dc.identifier">
+                <str>uuid:0000211b-7c66-4730-b343-8ea2ef427f99</str>
+                <str>0000211b-7c66-4730-b343-8ea2ef427f99</str>
+            </arr>
+            <str name="dc.title">18</str>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>18
+                    ##
+                </str>
+            </arr>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dostupnost">private</str>
+            <str name="fedora.model">page</str>
+            <str name="handle"/>
+            <str name="img_full_mime">image/jpeg</str>
+            <str name="issn"/>
+            <int name="level">3</int>
+            <str name="mdt"/>
+            <arr name="model_path">
+                <str>periodical/periodicalvolume/periodicalitem/page</str>
+            </arr>
+            <date name="modified_date">2016-11-25T14:57:01.928Z</date>
+            <int name="pages_count">0</int>
+            <arr name="rels_ext_index">
+                <int>23</int>
+            </arr>
+            <int name="rok">1952</int>
+            <str name="root_pid">uuid:2a8803ad-a592-469a-8122-64971d172f30</str>
+            <str name="root_title">Věstník Československé společnosti zoologické</str>
+            <str name="status">Active</str>
+            <str name="title_sort"/>
+            <bool name="viewable">true</bool>
+            <bool name="virtual">false</bool>
+            <bool name="dnnt">true</bool>
+            <arr name="parent_pid">
+                <str>uuid:18308181-58bc-4861-a521-686d1af7a86b</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:2a8803ad-a592-469a-8122-64971d172f30/uuid:512fa0fa-20f7-4f50-9a5b-50d134de24de/uuid:18308181-58bc-4861-a521-686d1af7a86b/uuid:0000211b-7c66-4730-b343-8ea2ef427f99
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:00006e78-04c4-4fa0-9a9d-d7ba78f7c341</str>
+            <date name="created_date">2016-10-26T13:44:52.770Z</date>
+            <int name="datum_begin">1954</int>
+            <int name="datum_end">1954</int>
+            <str name="datum_str">1954</str>
+            <arr name="dc.identifier">
+                <str>uuid:00006e78-04c4-4fa0-9a9d-d7ba78f7c341</str>
+                <str>00006e78-04c4-4fa0-9a9d-d7ba78f7c341</str>
+            </arr>
+            <str name="dc.title">[304]</str>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>[304]
+                    ##TableOfContents
+                </str>
+            </arr>
+            <arr name="document_type">
+                <str>Text</str>
+                <str>page</str>
+            </arr>
+            <str name="dostupnost">private</str>
+            <str name="fedora.model">page</str>
+            <str name="handle"/>
+            <str name="img_full_mime">image/jpeg</str>
+            <str name="issn"/>
+            <int name="level">3</int>
+            <str name="mdt"/>
+            <arr name="model_path">
+                <str>periodical/periodicalvolume/periodicalitem/page</str>
+            </arr>
+            <date name="modified_date">2016-11-25T14:46:54.390Z</date>
+            <int name="pages_count">0</int>
+            <arr name="rels_ext_index">
+                <int>3</int>
+            </arr>
+            <int name="rok">1954</int>
+            <str name="root_pid">uuid:2a8803ad-a592-469a-8122-64971d172f30</str>
+            <str name="root_title">Věstník Československé společnosti zoologické</str>
+            <str name="status">Active</str>
+            <str name="title_sort"/>
+            <bool name="viewable">true</bool>
+            <bool name="virtual">false</bool>
+            <bool name="dnnt">true</bool>
+            <arr name="parent_pid">
+                <str>uuid:44395d02-e314-4148-b8ff-29a658971a6c</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:2a8803ad-a592-469a-8122-64971d172f30/uuid:3fc067f5-420f-46a4-9095-11d74900806d/uuid:44395d02-e314-4148-b8ff-29a658971a6c/uuid:00006e78-04c4-4fa0-9a9d-d7ba78f7c341
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628</str>
+            <str name="fedora.model">article</str>
+            <arr name="document_type">
+                <str>article</str>
+            </arr>
+            <str name="dc.title">Oľze Ovečkové k narozeninám</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628</str>
+                <str>0000338c-4dd1-4d11-bda5-4c1b44d83628</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2019-03-11T09:05:48.568Z</date>
+            <date name="modified_date">2021-07-06T11:35:54.089Z</date>
+            <str name="dostupnost">public</str>
+            <arr name="language">
+                <str>cze</str>
+            </arr>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <str name="img_full_mime">application/pdf</str>
+            <bool name="viewable">true</bool>
+            <str name="browse_title">OLZE OVEC|KOVE K NAROZENINAM##Oľze Ovečkové k narozeninám</str>
+            <arr name="rels_ext_index">
+                <int>5</int>
+            </arr>
+            <arr name="model_path">
+                <str>periodical/periodicalvolume/periodicalitem/article</str>
+            </arr>
+            <str name="root_title">Právník: časopis věnovaný vědě právní i státní, jejž vydává Právnická jednota v Praze
+                : -1956
+            </str>
+            <str name="root_pid">uuid:719be951-4eb0-11e1-9043-005056a60003</str>
+            <int name="level">3</int>
+            <str name="datum_str">02.2019</str>
+            <date name="datum">2019-02-23T03:36:23.472Z</date>
+            <int name="rok">2019</int>
+            <bool name="dnnt">true</bool>
+            <bool name="virtual">false</bool>
+            <int name="datum_begin">0</int>
+            <int name="pages_count">0</int>
+            <int name="datum_end">0</int>
+            <arr name="parent_pid">
+                <str>uuid:44f29b00-5760-4ba7-8041-e02f99e68533</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:719be951-4eb0-11e1-9043-005056a60003/uuid:3cb2bbae-ef7f-4f47-ae54-208caf687aec/uuid:44f29b00-5760-4ba7-8041-e02f99e68533/uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628@1</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>page</str>
+            </arr>
+            <bool name="virtual">true</bool>
+            <str name="dc.title">1</str>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2019-03-11T09:05:48.568Z</date>
+            <date name="modified_date">2021-07-06T11:35:54.089Z</date>
+            <str name="dostupnost">public</str>
+            <arr name="language">
+                <str>cze</str>
+            </arr>
+            <str name="img_full_mime">application/pdf</str>
+            <bool name="viewable">true</bool>
+            <arr name="rels_ext_index">
+                <int>5</int>
+            </arr>
+            <arr name="model_path">
+                <str>periodical/periodicalvolume/periodicalitem/article/page</str>
+            </arr>
+            <str name="root_title">Právník: časopis věnovaný vědě právní i státní, jejž vydává Právnická jednota v Praze
+                : -1956
+            </str>
+            <str name="root_pid">uuid:719be951-4eb0-11e1-9043-005056a60003</str>
+            <int name="level">4</int>
+            <str name="datum_str">02.2019</str>
+            <date name="datum">2019-02-23T03:36:23.472Z</date>
+            <int name="rok">2019</int>
+            <bool name="dnnt">true</bool>
+            <int name="datum_begin">0</int>
+            <int name="pages_count">0</int>
+            <int name="datum_end">0</int>
+            <arr name="parent_pid">
+                <str>uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:719be951-4eb0-11e1-9043-005056a60003/uuid:3cb2bbae-ef7f-4f47-ae54-208caf687aec/uuid:44f29b00-5760-4ba7-8041-e02f99e68533/uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628@1
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628@2</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>page</str>
+            </arr>
+            <bool name="virtual">true</bool>
+            <str name="dc.title">2</str>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2019-03-11T09:05:48.568Z</date>
+            <date name="modified_date">2021-07-06T11:35:54.089Z</date>
+            <str name="dostupnost">public</str>
+            <arr name="language">
+                <str>cze</str>
+            </arr>
+            <str name="img_full_mime">application/pdf</str>
+            <bool name="viewable">true</bool>
+            <arr name="rels_ext_index">
+                <int>5</int>
+            </arr>
+            <arr name="model_path">
+                <str>periodical/periodicalvolume/periodicalitem/article/page</str>
+            </arr>
+            <str name="root_title">Právník: časopis věnovaný vědě právní i státní, jejž vydává Právnická jednota v Praze
+                : -1956
+            </str>
+            <str name="root_pid">uuid:719be951-4eb0-11e1-9043-005056a60003</str>
+            <int name="level">4</int>
+            <str name="datum_str">02.2019</str>
+            <date name="datum">2019-02-23T03:36:23.472Z</date>
+            <int name="rok">2019</int>
+            <bool name="dnnt">true</bool>
+            <int name="datum_begin">0</int>
+            <int name="pages_count">0</int>
+            <int name="datum_end">0</int>
+            <arr name="parent_pid">
+                <str>uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628</str>
+            </arr>
+            <arr name="pid_path">
+                <str>
+                    uuid:719be951-4eb0-11e1-9043-005056a60003/uuid:3cb2bbae-ef7f-4f47-ae54-208caf687aec/uuid:44f29b00-5760-4ba7-8041-e02f99e68533/uuid:0000338c-4dd1-4d11-bda5-4c1b44d83628@2
+                </str>
+            </arr>
+        </doc>
+        <doc>
+            <str name="PID">uuid:00003bb1-429d-11e2-849c-005056a60003</str>
+            <str name="fedora.model">page</str>
+            <arr name="document_type">
+                <str>page</str>
+            </arr>
+            <str name="dc.title">37</str>
+            <str name="title_sort"/>
+            <arr name="dc.identifier">
+                <str>uuid:00003bb1-429d-11e2-849c-005056a60003</str>
+                <str>00003bb1-429d-11e2-849c-005056a60003</str>
+            </arr>
+            <str name="status">Active</str>
+            <str name="handle"/>
+            <date name="created_date">2012-12-10T08:41:25.186Z</date>
+            <date name="modified_date">2019-08-26T07:22:42.272Z</date>
+            <str name="dostupnost">private</str>
+            <str name="issn"/>
+            <str name="mdt"/>
+            <str name="ddt"/>
+            <arr name="details">
+                <str>37
+                    ##NormalPage
+                </str>
+            </arr>
+            <str name="img_full_mime">image/jpeg</str>
+            <bool name="viewable">true</bool>
+            <arr name="collection">
+                <str>vc:b85f4013-f1a8-4a6c-80cf-6758e34779a9</str>
+            </arr>
+            <arr name="rels_ext_index">
+                <int>38</int>
+            </arr>
+            <arr name="model_path">
+                <str>monograph/page</str>
+            </arr>
+            <str name="root_title">Prostředky kauzálního modelování v sociologii :</str>
+            <str name="root_pid">uuid:fa1975ba-429c-11e2-849c-005056a60003</str>
+            <int name="level">1</int>
+            <str name="datum_str">1994</str>
+            <int name="rok">1994</int>
+            <int name="datum_begin">1994</int>
+            <int name="datum_end">1994</int>
+            <bool name="virtual">false</bool>
+            <int name="pages_count">0</int>
+            <bool name="dnnt">true</bool>
+            <arr name="parent_pid">
+                <str>uuid:fa1975ba-429c-11e2-849c-005056a60003</str>
+            </arr>
+            <arr name="pid_path">
+                <str>uuid:fa1975ba-429c-11e2-849c-005056a60003/uuid:00003bb1-429d-11e2-849c-005056a60003</str>
+            </arr>
+        </doc>
+    </result>
+</response>

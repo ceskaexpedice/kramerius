@@ -1,0 +1,290 @@
+{
+  "svkhk": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "PID:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "PID,fedora.model,pid_path,root_pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "kfbz": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "svkkl": {
+    "response": {
+      "docs": [
+        {
+          "root.pid": "uuid:f72ece0d-a023-44cb-a903-e69435161721",
+          "pid_paths": [
+            "uuid:f72ece0d-a023-44cb-a903-e69435161721"
+          ],
+          "model": "monograph",
+          "pid": "uuid:f72ece0d-a023-44cb-a903-e69435161721"
+        }
+      ],
+      "numFound": 1,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "zcm": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "vse": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "knav": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "maxScore": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "zkConnected": true,
+      "QTime": 4,
+      "params": {
+        "q": "pid:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "kkp": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "nkp": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "PID:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "PID,fedora.model,pid_path,root_pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "upm": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "PID:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "PID,fedora.model,pid_path,root_pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "json"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "svkul": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "cbvk": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "_cdk_": {
+    "response": {
+      "docs": [
+        {
+          "root.pid": "uuid:f72ece0d-a023-44cb-a903-e69435161721",
+          "pid_paths": [
+            "uuid:f72ece0d-a023-44cb-a903-e69435161721"
+          ],
+          "model": "monograph",
+          "pid": "uuid:f72ece0d-a023-44cb-a903-e69435161721"
+        }
+      ],
+      "numFound": 1,
+      "start": 0,
+      "maxScore": 6.7428203
+    },
+    "responseHeader": {
+      "zkConnected": true,
+      "QTime": 7,
+      "params": {
+        "q": "pid:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": "json"
+      },
+      "status": 0
+    }
+  },
+  "mzk": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:f72ece0d-a023-44cb-a903-e69435161721\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  }
+}

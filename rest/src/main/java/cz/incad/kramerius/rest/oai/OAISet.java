@@ -18,7 +18,6 @@ package cz.incad.kramerius.rest.oai;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -26,22 +25,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.UriBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
-import cz.incad.kramerius.rest.apiNew.client.v70.SearchResource;
 
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
 
-import cz.incad.kramerius.solr.SolrFieldsMapping;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
@@ -155,7 +149,7 @@ public class OAISet {
     
     public int numberOfDocOnLocal(SolrAccess solrAccess) throws IOException, ParserConfigurationException, SAXException {
         String query = String.format("q=%s&fl=pid&rows=%d&sort=pid+asc", this.filterQuery,  0);
-        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
+        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml", null);
         Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
         Element result = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
             @Override
@@ -177,7 +171,7 @@ public class OAISet {
         if (proxyFilter.newFilter() != null) {
             query = query + String.format("&fq=%s",  URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
         }
-        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
+        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml", null);
         Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
         Element result = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
             @Override
@@ -221,7 +215,7 @@ public class OAISet {
             query = query +String.format("&fq=indexed:[%s+TO+*]", OAITools.formatForSolr(fromDate)); 
         }
 
-        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
+        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml", null);
         Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
         
         Element result = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
@@ -318,7 +312,7 @@ public class OAISet {
             query = query +String.format("&fq=indexed:[%s+TO+*]", OAITools.formatForSolr(fromDate)); 
         }
 
-            String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
+            String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml", null);
         Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
         
         Element result = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {

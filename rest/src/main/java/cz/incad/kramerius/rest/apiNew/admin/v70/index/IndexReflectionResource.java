@@ -43,6 +43,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 //@Path("/admin/v7.0/items")
 //public class ItemsResource extends AdminApiResource {
@@ -58,7 +59,11 @@ public class IndexReflectionResource extends AdminApiResource {
     @Inject
     Provider<User> userProvider;
 
-    
+    @javax.inject.Inject
+    @javax.inject.Named("solr-client")
+    javax.inject.Provider<CloseableHttpClient> provider;
+
+
     @GET
     @Path("/search/schema")
     @Produces(MediaType.APPLICATION_JSON)
@@ -66,7 +71,7 @@ public class IndexReflectionResource extends AdminApiResource {
         if (permit(this.userProvider.get(), SecuredActions.A_INDEX)) {
             try {
                 String serchHost = KConfiguration.getInstance().getSolrSearchHost();
-                InputStream schema = SolrUtils.schema(serchHost);
+                InputStream schema = SolrUtils.schema(this. provider.get(), serchHost, null);
                 String jsonVal = IOUtils.toString(schema, "UTF-8");
                 return Response.ok(jsonVal).type(MediaType.APPLICATION_JSON).build();
             } catch (IOException e) {
@@ -84,7 +89,7 @@ public class IndexReflectionResource extends AdminApiResource {
         if (permit(this.userProvider.get(), SecuredActions.A_INDEX)) {
             try {
                 String serchHost = KConfiguration.getInstance().getSolrSearchHost();
-                InputStream schema = SolrUtils.fields(serchHost);
+                InputStream schema = SolrUtils.fields(this.provider.get(), serchHost, null);
                 String jsonVal = IOUtils.toString(schema, "UTF-8");
                 return Response.ok(jsonVal).type(MediaType.APPLICATION_JSON).build();
             } catch (IOException e) {
@@ -104,7 +109,7 @@ public class IndexReflectionResource extends AdminApiResource {
         if (permit(this.userProvider.get(), SecuredActions.A_INDEX)) {
             try {
                 String loggerPoint = KConfiguration.getInstance().getProperty("k7.log.solr.point","http://localhost:8983/solr/logs");
-                InputStream schema = SolrUtils.schema(loggerPoint);
+                InputStream schema = SolrUtils.schema(this.provider.get(),loggerPoint, null);
                 String jsonVal = IOUtils.toString(schema, "UTF-8");
                 return Response.ok(jsonVal).type(MediaType.APPLICATION_JSON).build();
             } catch (IOException e) {
@@ -124,7 +129,7 @@ public class IndexReflectionResource extends AdminApiResource {
         if (permit(this.userProvider.get(), SecuredActions.A_INDEX)) {
             try {
                 String loggerPoint = KConfiguration.getInstance().getProperty("k7.log.solr.point","http://localhost:8983/solr/logs");
-                InputStream schema = SolrUtils.fields(loggerPoint);
+                InputStream schema = SolrUtils.fields(this.provider.get(), loggerPoint, null);
                 String jsonVal = IOUtils.toString(schema, "UTF-8");
                 return Response.ok(jsonVal).type(MediaType.APPLICATION_JSON).build();
             } catch (IOException e) {

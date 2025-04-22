@@ -1,22 +1,14 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.monitor;
 
 import com.google.inject.Inject;
-import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
-import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.http.client.HttpResponseException;
-import org.json.JSONException;
+import cz.inovatika.monitoring.APICallMonitor;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.*;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -25,8 +17,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 
 @Path("/admin/v7.0/monitor")
 public class APIMonitorResource {

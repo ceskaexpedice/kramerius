@@ -211,7 +211,7 @@ public class IterationUtils {
         }
 
         String query = SELECT_ENDPOINT + "?q="+mq + fullQuery +"&sort=" + URLEncoder.encode(String.format(DEFAULT_SORT_FIELD, SolrFieldsMapping.getInstance().getPidField()), "UTF-8")+"&fl=PID";
-        return solrAccess.requestWithSelectReturningXml(query).getDocumentElement();
+        return solrAccess.requestWithSelectReturningXml(query, null).getDocumentElement();
     }
 
     private static Element paginationQuery(Client client, String url, String mq, String offset, String sort) throws MigrateSolrIndexException, IOException, SAXException, ParserConfigurationException {
@@ -243,7 +243,7 @@ public class IterationUtils {
         	fullQuery = fullQuery +String.format("&sort=%s",sort);
         }
         String query = SELECT_ENDPOINT + fullQuery;
-        return solrAccess.requestWithSelectReturningXml(query).getDocumentElement();
+        return solrAccess.requestWithSelectReturningXml(query, null).getDocumentElement();
     }
 
 
@@ -256,7 +256,7 @@ public class IterationUtils {
     public static Element pidsCursorQuery(SolrAccess solrAccess,  String mq,  String cursor, IterationContext context)  throws ParserConfigurationException, SAXException, IOException, MigrateSolrIndexException {
         int rows =context.getRows();
         String query = "q="+mq + (cursor!= null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows))+"&sort=" + URLEncoder.encode(String.format(DEFAULT_SORT_FIELD, context.getIdent()), "UTF-8")+"&fl="+ URLEncoder.encode(context.getFieldsList().stream().collect(Collectors.joining(" ")), "UTF-8");
-        return solrAccess.requestWithSelectReturningXml(query).getDocumentElement();
+        return solrAccess.requestWithSelectReturningXml(query, null).getDocumentElement();
     }
 
     static int findNumberOfResults(Element elm) {

@@ -4,8 +4,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.services.WorkerFinisher;
-import cz.incad.kramerius.services.utils.SolrUtils;
-import cz.incad.kramerius.timestamps.TimestampStore;
+import cz.incad.kramerius.services.utils.KubernetesSolrUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
@@ -100,7 +99,7 @@ public class ReplicateFinisher   extends WorkerFinisher {
         if (StringUtils.isAnyString(timestampUrl) && EXCEPTION_DURING_CRAWL.isEmpty()) {
     		storeTimestamp();
     	}
-    	SolrUtils.commit(this.client, this.destinationUrl);
+    	KubernetesSolrUtils.commitJersey(this.client, this.destinationUrl);
         LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d, skipped %d", (System.currentTimeMillis() - this.start), WORKERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get(), NOT_INDEXED_COMPOSITEID.get(), NOT_INDEXED_SKIPPED.get()));
     }
 }

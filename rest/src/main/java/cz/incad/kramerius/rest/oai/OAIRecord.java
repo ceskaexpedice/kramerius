@@ -17,26 +17,20 @@
 package cz.incad.kramerius.rest.oai;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URLEncoder;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,18 +40,10 @@ import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.XMLUtils;
 
-import com.sun.jersey.api.client.Client;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.IPAddressUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 
 public class OAIRecord {
@@ -108,7 +94,7 @@ public class OAIRecord {
 
         String encodedQuery = URLEncoder.encode(String.format("pid:\"%s\"", pid),"UTF-8");
         String query = String.format("q=%s", encodedQuery);
-        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml");
+        String solrResponseXml = solrAccess.requestWithSelectReturningString(query, "xml", null);
         Document document = XMLUtils.parseDocument(new StringReader(solrResponseXml));
         
         Element result = XMLUtils.findElement(document.getDocumentElement(), new XMLUtils.ElementsFilter() {
@@ -172,11 +158,11 @@ public class OAIRecord {
     public Element toMetadataOnLocal(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export, OAISet set) {
         return export.perform(request, fa, doc, identifier, set);
     }
-    public Element toMetadataOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request,   Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set) {
-        return export.performOnCDKSide(solrAccess,userProvider,  clientProvider, instances, request,   owningDocument, this,  set);
+    public Element toMetadataOnCDKSide(SolrAccess solrAccess, Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvider , Instances instances, HttpServletRequest request, Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set) {
+        return export.performOnCDKSide(solrAccess,userProvider,  apacheClientProvider, instances, request,   owningDocument, this,  set);
 	}
     
-    public Element toHeaderOnCDKSide(Document doc, OAISet set, SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request, String source) throws IOException {
+    public Element toHeaderOnCDKSide(Document doc, OAISet set, SolrAccess solrAccess,Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvieder, Instances instances, HttpServletRequest request, String source) throws IOException {
         Element header = doc.createElement("header");
 
         Element identifier = doc.createElement("identifier");
@@ -203,9 +189,9 @@ public class OAIRecord {
 
 		try {
 			String pid = OAITools.pidFromOAIIdentifier(this.identifier);
-			ProxyItemHandler redirectHandler = MetadataExport.findRedirectHandler(solrAccess, userProvider, clientProvider, instances, request, pid, null);
+			ProxyItemHandler redirectHandler = MetadataExport.findRedirectHandler(solrAccess, userProvider, apacheClientProvieder, instances, request, pid, null);
 			if (!pid.contains("_")) {
-				if (redirectHandler != null && !redirectHandler.isStreamBiblioModsAvaiable()) {
+				if (redirectHandler != null && !redirectHandler.isStreamBiblioModsAvaiable(null)) {
 					header.setAttribute("status", "deleted");
 				// co s tim ??
 				} else if (redirectHandler == null){

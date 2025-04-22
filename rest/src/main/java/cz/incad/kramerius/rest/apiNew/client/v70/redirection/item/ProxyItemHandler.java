@@ -1,130 +1,319 @@
-package cz.incad.kramerius.rest.apiNew.client.v70.redirection.item;
+ /*
+  * Copyright (C) 2025  Inovatika
+  *
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation, either version 3 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+  */
+ package cz.incad.kramerius.rest.apiNew.client.v70.redirection.item;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
-import com.sun.jersey.api.client.Client;
-
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerSupport;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import cz.inovatika.cdk.cache.CDKRequestItem;
+import cz.inovatika.monitoring.ApiCallEvent;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 /**
- * This class is responsible for handing requests from client and pass through to kramerius instance
+ * Abstract class representing a proxy handler for forwarding HTTP requests to a Kramerius instance.
+ * This class provides an interface for handling various types of digital object requests,
+ * including images, metadata, OCR text, and IIIF tiles.
  */
 public abstract class ProxyItemHandler extends ProxyHandlerSupport {
 
-	public static final Logger LOGGER = Logger.getLogger(ProxyItemHandler.class.getName());
-	
-	public static final Boolean DEBUG_SESSION_ATTRIBUTES = true;
+    /** Logger instance. */
+    public static final Logger LOGGER = Logger.getLogger(ProxyItemHandler.class.getName());
 
-    /** Represents type of forward request HEAD or GET */
-	public static enum RequestMethodName {
-		head,get
-	}
-	
+    public static final Logger CACHE_LOGGER = Logger.getLogger(ProxyItemHandler.class.getName()+".cache");
+
+
+    /** Enum representing the request method type (HEAD or GET). */
+    public static enum RequestMethodName {
+        head,
+        get
+    }
+
+    /** Persistent Identifier (PID) of the requested digital object. */
     protected String pid;
 
-    public ProxyItemHandler(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source, String pid, String remoteAddr) {
-    	super(reharvestManager, instances,user,client,solrAccess,source, remoteAddr);
-    	this.source = source;
+    /**
+     * Constructor initializing the proxy handler with necessary dependencies.
+     *
+     * @param reharvestManager Manager for reharvesting digital objects.
+     * @param instances Instance manager for connecting with remote libraries.
+     * @param user Authenticated user making the request.
+     * @param apacheClient HTTP client for forwarding requests.
+     * @param solrAccess Interface for querying Solr index.
+     * @param source Identifier of the data source.
+     * @param pid Persistent identifier of the requested object.
+     * @param deleteTriggerSupport DeleteTriggerSupport instance
+     * @param remoteAddr Remote client IP address.
+     */
+    public ProxyItemHandler(CDKRequestCacheSupport cacheSupport, ReharvestManager reharvestManager, Instances instances, User user, CloseableHttpClient apacheClient, DeleteTriggerSupport deleteTriggerSupport, SolrAccess solrAccess, String source, String pid, String remoteAddr) {
+        super(cacheSupport, reharvestManager, instances,user, apacheClient,deleteTriggerSupport,solrAccess,source, remoteAddr);
+        this.source = source;
         this.pid = pid;
     }
 
 
     /**
-     * Returns forward response of IMG_FULL stream
-     * @param method Request method
-     * @return Returns Jersey response
-     * @throws ProxyHandlerException
+     * Returns the full image stream.
+     * @param method Request method.
+     * @return HTTP response with image data.
+     * @throws ProxyHandlerException if forwarding fails.
      */
-    public abstract Response image(RequestMethodName method) throws ProxyHandlerException;
+    public abstract Response image(RequestMethodName method,ApiCallEvent event) throws ProxyHandlerException;
 
     /**
-     * Returns forward response of IMG_PREVIEW stream
-     * @param method Request method
-     * @return
-     * @throws ProxyHandlerException
+     * Returns the preview image stream.
+     * @param method Request method.
+     * @return HTTP response with preview image.
+     * @throws ProxyHandlerException if forwarding fails.
      */
-    public abstract Response imagePreview(RequestMethodName method) throws ProxyHandlerException;
+    public abstract Response imagePreview(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException;
 
     /**
-     * Returns forward response of IMG_THUMB stream
-     * @param method Request method
-     * @return
-     * @throws ProxyHandlerException
+     * Returns the thumbnail image stream.
+     * @param method Request method.
+     * @return HTTP response with thumbnail image.
+     * @throws ProxyHandlerException if forwarding fails.
      */
-    public abstract Response imageThumb(RequestMethodName method) throws ProxyHandlerException;
+    public abstract Response imageThumb(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException;
 
     /**
-     * Returns forward response of IIIF descriptor
-     * @param method Request method
-     * @param pid
-     * @return
-     * @throws ProxyHandlerException
+     * Returns IIIF image descriptor.
+     * @param method Request method.
+     * @param pid Persistent identifier of the object.
+     * @return HTTP response with IIIF metadata.
+     * @throws ProxyHandlerException if forwarding fails.
      */
-    public abstract Response iiifInfo(RequestMethodName method, String pid) throws ProxyHandlerException;
+    public abstract Response iiifInfo(RequestMethodName method, String pid, ApiCallEvent event) throws ProxyHandlerException;
 
     /**
-     * Returns forward response of IIIF tile
-     * @param method Req
-     * @param pid
-     * @param region
-     * @param size
-     * @param rotation
-     * @param qf
-     * @return
+     * Returns a specific IIIF tile.
+     * @param method Request method.
+     * @param pid Persistent identifier of the object.
+     * @param region Region coordinates.
+     * @param size Image size.
+     * @param rotation Rotation angle.
+     * @param qf Quality factor.
+     * @return HTTP response with the requested tile.
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response iiifTile(RequestMethodName method, String pid,  String region,  String size, String rotation, String qf, ApiCallEvent event) throws ProxyHandlerException;
+
+
+    /**
+     * Returns Zoomify image properties.
+     * @param method Request method.
+     * @return HTTP response image properties.
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response zoomifyImageProperties(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns a specific zoomify tile.
+     * @param tileGroupStr Tile group.
+     * @param tileStr Tile specification.
+     * @return HTTP response with the requested tile.
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response zoomifyTile(String tileGroupStr, String tileStr, ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns OCR stream
+     * @param method Request method.
+     * @return HTTP response with the requested OCR.
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response textOCR(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns ALTO XML stream
+     * @param method Request method.
+     * @return HTTP response with the requested ALTO.
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response altoOCR(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns BIBLIO_MODS xml
+     * @param method Request method.
+     * @return HTTP response with the requested BIBLO_MODS xml.
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response mods(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns DublinCore xml
+     * @param method Request method.
+     * @return HTTP response with the requested DC xml.
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response dc(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException;
+
+
+    /**
+     * Returns info information about pid
+     * @return HTTP response with the information.
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response info(ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns information about the image in JSON representation
+     * @return JSON information
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response infoImage(ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns structure information
+     * @return JSON structure information
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response infoStructure(ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns data information
+     * @return JSON data information
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response infoData(ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns providedByLicense information
+     * @return Provided by license JSON information
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response providedByLicenses(ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns mp3 stream
+     * @return Returns mp3 stream
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response audioMP3(ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns ogg stream
+     * @return Returns ogg stream
+     * @throws ProxyHandlerException if forwarding fails.
+     */
+    public abstract Response audioOGG(ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * REturns wav stream
+     * @return Returns wav stream
      * @throws ProxyHandlerException
      */
-    public abstract Response iiifTile(RequestMethodName method, String pid,  String region,  String size, String rotation, String qf) throws ProxyHandlerException;
-    
-    
-    public abstract Response zoomifyImageProperties(RequestMethodName method) throws ProxyHandlerException;
-    public abstract Response zoomifyTile(String tileGroupStr, String tileStr) throws ProxyHandlerException;
+    public abstract Response audioWAV(ApiCallEvent event) throws ProxyHandlerException;
 
-    public abstract Response textOCR(RequestMethodName method) throws ProxyHandlerException;
-    public abstract Response altoOCR(RequestMethodName method) throws ProxyHandlerException;
 
-    public abstract Response mods(RequestMethodName method) throws ProxyHandlerException;
-    public abstract Response dc(RequestMethodName method) throws ProxyHandlerException;
-    
-    public abstract Response info() throws ProxyHandlerException;
-
-    public abstract Response infoImage() throws ProxyHandlerException;
-    public abstract Response infoStructure() throws ProxyHandlerException;
-    public abstract Response infoData() throws ProxyHandlerException;
-    public abstract Response providedByLicenses() throws ProxyHandlerException;
-    
-    public abstract Response audioMP3() throws ProxyHandlerException;
-    public abstract Response audioOGG() throws ProxyHandlerException;
-    public abstract Response audioWAV() throws ProxyHandlerException;
-
-    
     // helper methods for direct access to dc stream
-    public abstract InputStream directStreamDC() throws ProxyHandlerException;
-    public abstract InputStream directStreamBiblioMods() throws ProxyHandlerException;
-    
-    public abstract boolean isStreamDCAvaiable() throws ProxyHandlerException;
-    public abstract boolean isStreamBiblioModsAvaiable() throws ProxyHandlerException;
-    
-    
-	public boolean imageThumbForceRedirection() {
-	    boolean redirection = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + this.source + ".thumb", false);
-		return redirection;
-	}
+
+    /**
+     * Returns an InputStream containing Dublin Core (DC) metadata.
+     *
+     * @return an InputStream with Dublin Core metadata
+     * @throws ProxyHandlerException if an error occurs while obtaining the stream
+     */
+    public abstract InputStream directStreamDC(ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns an InputStream containing BIBLIO_MODS metadata.
+     *
+     * @return an InputStream with BIBLIO_MODS metadata
+     * @throws ProxyHandlerException if an error occurs while obtaining the stream
+     */
+    public abstract InputStream directStreamBiblioMods(ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns true if DC stream exists
+     * @return True if dc stream exists
+     * @throws ProxyHandlerException if an error occurs while obtaining the stream
+     */
+    public abstract boolean isStreamDCAvaiable(ApiCallEvent event) throws ProxyHandlerException;
+
+    /**
+     * Returns true if BIBLIO_MODS stream exists
+     * @return True if BIBLIO-MODS stream exists
+     * @throws ProxyHandlerException if an error occurs while obtaining the stream
+     */
+    public abstract boolean isStreamBiblioModsAvaiable(ApiCallEvent event) throws ProxyHandlerException;
+
+
+
+    /**
+     * Checks if thumbnail redirection for this instance is enabled.
+     * @return True if redirection is enabled, false otherwise.
+     */
+    public boolean imageThumbForceRedirection() {
+        boolean redirection = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + this.source + ".thumb", false);
+        return redirection;
+    }
+
+    protected CDKRequestItem cacheItemHit_PID_USER(String url, String pid, boolean user, String cacheModifier, ApiCallEvent event) {
+        long start = System.currentTimeMillis();
+        int days = KConfiguration.getInstance().getConfiguration().getInt("cdk.cache.item",30);
+        String userIdentification = user ? this.userCacheIdentification() : null;
+        LOGGER.log(Level.FINE, String.format("this.cacheSupport.find(\"%s\", \"%s\",\"%s\", \"%s\")", this.source, url, pid, userIdentification));
+        List<CDKRequestItem> cdkRequestItems = this.cacheSupport.find(this.source, url, pid, userIdentification);
+        if (!cdkRequestItems.isEmpty() && !cdkRequestItems.get(0).isExpired(days)) {
+            LOGGER.fine(String.format("Found in cache %s",cdkRequestItems.get(0)));
+            long stop = System.currentTimeMillis();
+            List<Triple<String, Long, Long>> triples = event.getGranularTimeSnapshots() != null ? event.getGranularTimeSnapshots() : null;
+            if (triples != null) {
+                triples.add(Triple.of(String.format("cache/%s", cacheModifier), start, stop));
+            }
+            return cdkRequestItems.get(0);
+        }
+        return null;
+    }
+
+    protected String cacheStringHit_PID_USER(String url, String pid, boolean user, String cacheModifier,ApiCallEvent event) {
+        long start = System.currentTimeMillis();
+        int days = KConfiguration.getInstance().getConfiguration().getInt("cdk.cache.item",30);
+        String userIdentification = user ? this.userCacheIdentification() : null;
+        LOGGER.log(Level.FINE, String.format("this.cacheSupport.find(\"%s\", \"%s\",\"%s\", \"%s\")", this.source, url, pid, userIdentification));
+        List<CDKRequestItem> cdkRequestItems = this.cacheSupport.find(this.source, url, pid, userIdentification);
+        if (!cdkRequestItems.isEmpty() && !cdkRequestItems.get(0).isExpired(days)) {
+            LOGGER.fine(String.format("Found in cache %s",cdkRequestItems.get(0)));
+            String data = (String) cdkRequestItems.get(0).getData();
+            long stop = System.currentTimeMillis();
+            List<Triple<String, Long, Long>> triples = event.getGranularTimeSnapshots() != null ? event.getGranularTimeSnapshots() : null;
+            if (triples != null) {
+                triples.add(Triple.of(String.format("cache/%s", cacheModifier), start, stop));
+            }
+
+            return data;
+        }
+        return null;
+    }
+
 }
+
+

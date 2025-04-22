@@ -48,7 +48,7 @@ public class RightRuntimeInformations {
         List<Triple<String, String, Right>> locks = new ArrayList<>();
         
         String encoded = URLEncoder.encode("pid:\"" + pid + "\"", "UTF-8");
-        JSONObject solrResponseJson = solrAccess.requestWithSelectReturningJson("q=" + encoded + "&fl=pid_paths");
+        JSONObject solrResponseJson = solrAccess.requestWithSelectReturningJson("q=" + encoded + "&fl=pid_paths", null);
     
         JSONArray docs = solrResponseJson.getJSONObject("response").getJSONArray("docs");
         if (docs.length() > 0) {

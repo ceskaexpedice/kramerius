@@ -1,0 +1,74 @@
+<response>
+    <lst name="responseHeader">
+        <bool name="zkConnected">true</bool>
+        <int name="status">0</int>
+        <int name="QTime">4</int>
+        <lst name="params">
+            <str name="q">root.model:periodical</str>
+            <str name="fq">pid:uuid\:6e4330b0-866c-11dd-a376-000d606f5dc6</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" start="0" maxScore="0.14072229">
+        <doc>
+            <str name="accessibility">private</str>
+            <int name="count_page">6</int>
+            <date name="created">2022-11-10T09:35:32.338Z</date>
+            <date name="date.max">1959-08-15T23:59:59.999Z</date>
+            <date name="date.min">1959-08-15T00:00:00.001Z</date>
+            <str name="date.str">15.8.1959</str>
+            <int name="date_range_end.day">15</int>
+            <int name="date_range_end.month">8</int>
+            <int name="date_range_end.year">1959</int>
+            <int name="date_range_start.day">15</int>
+            <int name="date_range_start.month">8</int>
+            <int name="date_range_start.year">1959</int>
+            <bool name="has_tiles">false</bool>
+            <arr name="id_other">
+                <str>urn:6e4330b0-866c-11dd-a376-000d606f5dc6</str>
+            </arr>
+            <date name="indexed">2023-06-02T13:12:26.784Z</date>
+            <int name="indexer_version">15</int>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">2</int>
+            <str name="model">periodicalitem</str>
+            <date name="modified">2022-11-11T10:59:05.755Z</date>
+            <str name="own_model_path">periodical/periodicalvolume/periodicalitem</str>
+            <str name="own_parent.model">periodicalvolume</str>
+            <str name="own_parent.pid">uuid:bf502a60-865f-11dd-95ea-000d606f5dc6</str>
+            <str name="own_pid_path">uuid:12e13290-8300-11dd-9bc3-000d606f5dc6/uuid:bf502a60-865f-11dd-95ea-000d606f5dc6/uuid:6e4330b0-866c-11dd-a376-000d606f5dc6</str>
+            <int name="part.number.sort">98</int>
+            <str name="part.number.str">98</str>
+            <str name="pid">uuid:6e4330b0-866c-11dd-a376-000d606f5dc6</str>
+            <arr name="pid_paths">
+                <str>uuid:12e13290-8300-11dd-9bc3-000d606f5dc6/uuid:bf502a60-865f-11dd-95ea-000d606f5dc6/uuid:6e4330b0-866c-11dd-a376-000d606f5dc6</str>
+            </arr>
+            <int name="rels_ext_index.sort">98</int>
+            <str name="root.model">periodical</str>
+            <str name="root.pid">uuid:12e13290-8300-11dd-9bc3-000d606f5dc6</str>
+            <str name="root.title">Naše pravda</str>
+            <str name="root.title.sort">NAS|E PRAVDA</str>
+            <str name="title.search">Naše pravda: List krajského výboru KSČ v Gottwaldově</str>
+            <str name="title.sort">NAS|E PRAVDA LIST KRAJSKE|HO VY|BORU KSC| V GOTTWALDOVE|</str>
+            <arr name="titles.search">
+                <str>Naše pravda: List krajského výboru KSČ v Gottwaldově</str>
+            </arr>
+            <arr name="licenses_of_ancestors">
+                <str>dnnto</str>
+                <str>onsite</str>
+            </arr>
+            <str name="compositeId">uuid:12e13290-8300-11dd-9bc3-000d606f5dc6!uuid:6e4330b0-866c-11dd-a376-000d606f5dc6</str>
+            <arr name="cdk.licenses_of_ancestors">
+                <str>kfbz_dnnto</str>
+                <str>kfbz_onsite</str>
+            </arr>
+            <arr name="cdk.collection">
+                <str>kfbz</str>
+            </arr>
+            <str name="cdk.leader">kfbz</str>
+            <long name="_version_">1799663254702653444</long>
+        </doc>
+    </result>
+</response>

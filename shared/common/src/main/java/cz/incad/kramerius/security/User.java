@@ -64,4 +64,7 @@ public interface User extends AbstractUser,Serializable {
     public void addSessionAttribute(String key, String value);
 
     public void removeSessionAttribute(String key);
+
+    @Override
+    int getId();
 }

@@ -520,4 +520,14 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
             return this.plainValueFields.get(fieldId).get(0);
         } else return null;
     }
+
+    @Override
+    public String resolveSourcePid(String cdkField) {
+        Set<String> keys = this.plainValueFields.keySet();
+        for (String key: keys) {
+            List<String> values = plainValueFields.get(key);
+            if (values.contains(cdkField)) return key;
+        }
+        return null;
+    }
 }

@@ -41,7 +41,7 @@ public class ConfigManager {
 
     public List<Pair<String,String>> getPropertiesByRegularExpression(String regexp) {
 
-        LOGGER.info( String.format("Returning properties by regexp %s", regexp));
+        //LOGGER.info( String.format("Returning properties by regexp %s", regexp));
 
         List<Pair<String,String>> keys = new JDBCQueryTemplate<Pair<String,String>>(this.connectionProvider.get(), true) {
             @Override
@@ -50,7 +50,7 @@ public class ConfigManager {
                 String key = rs.getString("key");
                 String value = rs.getString("value");
                 Pair<String,String> pair = Pair.of(key, value);
-                LOGGER.info(String.format("Adding pair %s", pair.toString()));
+                //LOGGER.info(String.format("Adding pair %s", pair.toString()));
                 returnsList.add(pair);
                 return true;
             }

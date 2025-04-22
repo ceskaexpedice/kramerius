@@ -87,7 +87,7 @@ public class ProcessHelper {
                 List<String> result = new ArrayList<>();
                 cursorMark = nextCursorMark;
                 String query = String.format("fl=pid&sort="+getSortField()+"+asc&rows=%d&q=%s&cursorMark=%s", BATCH_SIZE, URLEncoder.encode(q, "UTF-8"), cursorMark);
-                JSONObject jsonObject = searchIndex.requestWithSelectReturningJson(query);
+                JSONObject jsonObject = searchIndex.requestWithSelectReturningJson(query, null);
                 JSONObject response = jsonObject.getJSONObject("response");
                 nextCursorMark = jsonObject.getString("nextCursorMark");
                 total = response.getInt("numFound");

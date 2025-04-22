@@ -1,4 +1,4 @@
-<!--   Reharvest k7  -->
+<!--   Reharvest k7; with iteration id variable  -->
 <cdkprocess>
 
     <source-name>$iteration.dl$</source-name>
@@ -10,7 +10,7 @@
     <iteration>
         <url>$iteration.url$</url>
         <endpoint>select</endpoint>
-        <id>pid</id>
+        <id>$iteration.id$</id>
         <rows>4000</rows>
         <type>CURSOR</type>
         

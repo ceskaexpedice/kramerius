@@ -2,12 +2,12 @@ package cz.incad.kramerius.services.utils;
 
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ResultsUtils {
@@ -56,5 +56,24 @@ public class ResultsUtils {
         }).filter(pid -> {
             return pid != null;
         }).collect(Collectors.toList());
+    }
+
+    @NotNull
+    public static Map<String, Object> doc(Element d) {
+        List<String> simpleFields = Arrays.asList("str","date","int");
+        Map<String, Object> map = new HashMap<>();
+        List<Element> fields = XMLUtils.getElements(d);
+        fields.stream().forEach(f-> {
+           if (simpleFields.contains(f.getNodeName())) {
+               String name = f.getAttribute("name");
+               map.put(name, f.getTextContent());
+           } else {
+               String name = f.getAttribute("name");
+               List<Element> elements = XMLUtils.getElements(f);
+               List<String> contents = elements.stream().map(Element::getTextContent).collect(Collectors.toList());
+               map.put(name, contents);
+           }
+        });
+        return map;
     }
 }

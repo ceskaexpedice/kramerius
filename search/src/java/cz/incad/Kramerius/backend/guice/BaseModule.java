@@ -17,6 +17,7 @@ import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.impl.*;
 import cz.incad.kramerius.processes.GCScheduler;
 import cz.incad.kramerius.processes.ProcessScheduler;
+import cz.incad.kramerius.processes.database.CDKCacheConnectionProvider;
 import cz.incad.kramerius.processes.database.Kramerius4ConnectionProvider;
 import cz.incad.kramerius.processes.impl.GCSchedulerImpl;
 import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
@@ -24,7 +25,10 @@ import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import cz.incad.kramerius.rest.api.guice.HttpAsyncClientLifeCycleHook;
 import cz.incad.kramerius.rest.api.guice.HttpAsyncClientProvider;
-import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.impl.DeleteTriggerSupportImpl;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.monitoring.APICallMonitor;
 import cz.incad.kramerius.rest.apiNew.monitoring.impl.SolrAPICallMonitor;
 import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.service.GoogleAnalytics;
@@ -34,13 +38,11 @@ import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
 import cz.incad.kramerius.service.impl.METSServiceImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.impl.*;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.virtualcollections.Collection;
-import cz.incad.kramerius.virtualcollections.CollectionsManager;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import cz.inovatika.cdk.cache.impl.CDKRequestCacheSupportImpl;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.ehcache.CacheManager;
 
@@ -67,6 +69,8 @@ public class BaseModule extends AbstractModule {
         // api monitoring
         bind(APICallMonitor.class).to(SolrAPICallMonitor.class).asEagerSingleton();
 
+        //boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
+        bind(DeleteTriggerSupport.class).to(DeleteTriggerSupportImpl.class);
 
         Multibinder<StatisticReport> reports = Multibinder.newSetBinder(binder(), StatisticReport.class);
         reports.addBinding().to(ModelStatisticReport.class);
@@ -89,6 +93,10 @@ public class BaseModule extends AbstractModule {
         bind(METSService.class).to(METSServiceImpl.class);
 
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
+
+        // bind vzdy, vraci connection pouze v server modu
+        bind(Connection.class).annotatedWith(Names.named("cdk/cache")).toProvider(CDKCacheConnectionProvider.class);
+        bind(CDKRequestCacheSupport.class).to(CDKRequestCacheSupportImpl.class);
 
         bind(Locale.class).toProvider(LocalesProvider.class);
 

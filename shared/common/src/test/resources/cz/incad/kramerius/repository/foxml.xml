@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject VERSION="1.1" PID="uuid:64335199-d45a-4a23-bc75-2cbefff5e452"
+xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+<foxml:objectProperties>
+<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="1, 15.05.1891"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mn1218"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2021-02-16T18:15:30.446Z"/>
+<foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2022-07-26T10:31:28.056Z"/>
+</foxml:objectProperties>
+<foxml:datastream ID="AUDIT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="AUDIT.0" LABEL="Audit Trail for this object" CREATED="2021-02-16T18:15:30.446Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:format/xml.fedora.audit">
+<foxml:xmlContent>
+<audit:auditTrail xmlns:audit="info:fedora/fedora-system:def/audit#">
+<audit:record ID="AUDREC1">
+<audit:process type="Fedora API-M"/>
+<audit:action>ingest</audit:action>
+<audit:componentID></audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2022-07-26T10:31:28.056Z</audit:date>
+<audit:justification>Initial ingest</audit:justification>
+</audit:record>
+</audit:auditTrail>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="BIBLIO_MODS" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="BIBLIO_MODS.4" LABEL="Metadata Object Description" CREATED="2022-07-22T05:42:06.913Z" MIMETYPE="text/xml" FORMAT_URI="http://www.loc.gov/mods/v3" SIZE="1819">
+<foxml:xmlContent>
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3">
+                    <mods:mods xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xlink="http://www.w3.org/1999/xlink" version="3.6">
+                        <mods:genre type="normal">issue</mods:genre>
+                        <mods:identifier type="uuid">64335199-d45a-4a23-bc75-2cbefff5e452</mods:identifier>
+                        <mods:identifier invalid="yes" type="urnnbn">urn:nbn:cz:aba007-0000iv</mods:identifier>
+                        <mods:identifier type="urnnbn">urn:nbn:cz:aba007-000eda</mods:identifier>
+                        <mods:language>
+                            <mods:languageTerm authority="iso639-2b" type="code">cze</mods:languageTerm>
+  </mods:language>
+                        <mods:location>
+                            <mods:physicalLocation authority="siglaADR">ABA007</mods:physicalLocation>
+                            <mods:shelfLocator>GK P 87</mods:shelfLocator>
+  </mods:location>
+                        <mods:originInfo>
+                            <mods:dateIssued>15.05.1891</mods:dateIssued>
+  </mods:originInfo>
+                        <mods:recordInfo>
+                            <mods:recordCreationDate encoding="iso8601">20210216T191530</mods:recordCreationDate>
+                            <mods:recordChangeDate encoding="iso8601">20220722T074206</mods:recordChangeDate>
+                            <mods:descriptionStandard>rda</mods:descriptionStandard>
+  </mods:recordInfo>
+                        <mods:titleInfo>
+                            <mods:title>Praha</mods:title>
+                            <mods:subTitle>denní list výstavní</mods:subTitle>
+                            <mods:partNumber>1</mods:partNumber>
+  </mods:titleInfo>
+</mods:mods>
+                </mods:modsCollection>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="DC.4" LABEL="Dublin Core Record for this object" CREATED="2022-07-22T05:42:06.980Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="801">
+<foxml:xmlContent>
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+  <dc:title>Praha: denní list výstavní</dc:title>
+  <dc:description>1</dc:description>
+  <dc:date>15.05.1891</dc:date>
+  <dc:type>model:periodicalitem</dc:type>
+  <dc:identifier>uuid:64335199-d45a-4a23-bc75-2cbefff5e452</dc:identifier>
+  <dc:identifier>urnnbn:urn:nbn:cz:aba007-0000iv</dc:identifier>
+  <dc:identifier>urnnbn:urn:nbn:cz:aba007-000eda</dc:identifier>
+  <dc:source>ABA007</dc:source>
+  <dc:source>GK P 87</dc:source>
+  <dc:language>cze</dc:language>
+  <dc:rights>policy:public</dc:rights>
+</oai_dc:dc>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="RELS-EXT.9" LABEL="RDF Statements about this object" CREATED="2022-07-26T10:31:28.056Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="1888">
+<foxml:xmlContent>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:fedora-rels-ext="info:fedora/fedora-system:def/relations-external#" xmlns:kramerius="http://www.nsdl.org/ontologies/relationships#" xmlns:proarc-rels="http://proarc.lib.cas.cz/relations#">
+                    <rdf:Description rdf:about="info:fedora/uuid:64335199-d45a-4a23-bc75-2cbefff5e452">
+                        <fedora-model:hasModel rdf:resource="info:fedora/model:periodicalitem"></fedora-model:hasModel>
+                        <oai:itemID xmlns:oai="http://www.openarchives.org/OAI/2.0/">uuid:64335199-d45a-4a23-bc75-2cbefff5e452</oai:itemID>
+                        <kramerius:policy>policy:public</kramerius:policy>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:3b4a50d0-3dae-4085-8640-8a51853ae32a"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:7c229798-12f3-4f48-b95c-1f7d49caaa41"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:8a7a900a-a176-4420-be96-1d0afa919a27"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:38f4670c-5383-4216-801c-f4ac4d7de9f3"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:2689c17c-ea2f-432e-ad30-775a74f2141f"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:9205989b-61be-4ad5-a635-5a59536faf9a"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:27aeabc0-2e17-4e66-bb0b-7e2f48f0ac24"></kramerius:hasPage>
+                        <kramerius:hasPage rdf:resource="info:fedora/uuid:868c31be-61e8-4a3e-a64e-28fd27b09c86"></kramerius:hasPage>
+                    </rdf:Description>
+                </rdf:RDF>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+</foxml:digitalObject>

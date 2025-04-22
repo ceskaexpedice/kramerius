@@ -122,7 +122,7 @@ public class CriteriaLicenseUtils {
 
             String q = "pid:\""+pid+"\"";
             String query = "fl=pid+root.pid+licenses+own_pid_path&rows=1&q=" + URLEncoder.encode(q, "UTF-8");
-            JSONObject jsonObject = ctx.getSolrAccessNewIndex().requestWithSelectReturningJson(query);
+            JSONObject jsonObject = ctx.getSolrAccessNewIndex().requestWithSelectReturningJson(query, null);
             JSONObject response = jsonObject.getJSONObject("response");
             JSONArray docs = response.getJSONArray("docs");
             if (docs.length() > 0 ) {
@@ -135,7 +135,7 @@ public class CriteriaLicenseUtils {
                     String rootPidQ = "root.pid:\""+rootPid +"\" AND licenses:"+lic.getName();
                     String rootPidEncodedQ = "fl=pid+root.pid+licenses+own_pid_path&rows=1000&q=" + URLEncoder.encode(rootPidQ, "UTF-8");
                     // tituly, ktere maji prirazenou licenci a ktere maji stejny root.pid
-                    JSONObject rootPidObjects = ctx.getSolrAccessNewIndex().requestWithSelectReturningJson(rootPidEncodedQ);
+                    JSONObject rootPidObjects = ctx.getSolrAccessNewIndex().requestWithSelectReturningJson(rootPidEncodedQ, null);
                     JSONObject rootPidResponse = rootPidObjects.getJSONObject("response");
                     JSONArray rootPidDocs = rootPidResponse.getJSONArray("docs");
                     if (rootPidDocs.length() == 1) {

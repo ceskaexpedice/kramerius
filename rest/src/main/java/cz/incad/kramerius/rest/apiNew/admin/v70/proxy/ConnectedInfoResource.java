@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.inject.Named;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -25,6 +26,7 @@ import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -61,17 +63,20 @@ public class ConnectedInfoResource {
     @Inject
     private TimestampStore timestampStore;
 
-    @Inject
+    @javax.inject.Inject
+    @Named("forward-client")
+    private CloseableHttpClient apacheClient;
+
+  @Inject
     private RightsResolver rightsResolver;
 
     @Inject
     private Provider<User> userProvider;
 
-    private Client client;
 
     public ConnectedInfoResource() {
         super();
-        this.client = Client.create();
+        //this.client = Client.create();
     }
 
     @GET
@@ -219,16 +224,19 @@ public class ConnectedInfoResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response config(@PathParam("library") String library) {
         if (this.permit()) {
-            JSONObject config = new JSONObject();
-            String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".baseurl");
-            String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api");
-            boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
-            String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
-            config.put("baseurl", baseurl);
-            config.put("api", api);
-            config.put("licenses", channelAccess);
-            config.put("forwardurl", channel);
-            return Response.ok(config.toString()).build();
+          JSONObject config = new JSONObject();
+          String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".baseurl");
+          String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api");
+          boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
+          String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
+          boolean solrCloud = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".cloud", false);
+
+          config.put("baseurl", baseurl);
+          config.put("api", api);
+          config.put("licenses", channelAccess);
+          config.put("forwardurl", channel);
+          config.put("solrcloud", solrCloud);
+          return Response.ok(config.toString()).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
@@ -260,20 +268,21 @@ public class ConnectedInfoResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response introspectPid(@PathParam("pid") String pid) {
         if (this.permit()) {
-            try {
-                Pair<List<String>, List<String>> intropsected = IntrospectUtils.introspectPid(this.client, this.libraries, pid);
-                JSONObject retval = new JSONObject();
-                JSONArray modelsArr = new JSONArray();
-                JSONArray libsArr = new JSONArray();
-                intropsected.getLeft().forEach(modelsArr::put);
-                intropsected.getRight().forEach(libsArr::put);
-                retval.put("models", modelsArr);
-                retval.put("libraries", libsArr);
-                return Response.ok(retval.toString()).build();
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
+
+        try {
+            Pair<List<String>, List<String>> intropsected = IntrospectUtils.introspectPid(this.apacheClient, this.libraries, pid);
+            JSONObject retval = new JSONObject();
+            JSONArray modelsArr = new JSONArray();
+            JSONArray libsArr = new JSONArray();
+            intropsected.getLeft().forEach(modelsArr::put);
+            intropsected.getRight().forEach(libsArr::put);
+            retval.put("models", modelsArr);
+            retval.put("libraries", libsArr);
+            return Response.ok(retval.toString()).build();
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
@@ -294,7 +303,7 @@ public class ConnectedInfoResource {
                 // solr
                 try {
                     String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
-                    ChannelUtils.checkSolrChannelEndpoint(this.client, library, solrChannelUrl);
+                    ChannelUtils.checkSolrChannelEndpoint(this.apacheClient, library, solrChannelUrl);
                     channelObject.put("solr", true);
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -306,14 +315,14 @@ public class ConnectedInfoResource {
                 try {
                     String fullChannelUrl =  ChannelUtils.userChannelUrl(inst.getInstanceType().name(), channel);
 
-                    JSONObject notLoggedJSON = ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl, false);
+                    JSONObject notLoggedJSON = ChannelUtils.checkUserChannelEndpoint(this.apacheClient, library, fullChannelUrl, false);
                     Pair<User, List<String>> notLogged = parsedUsers(inst, notLoggedJSON);
                     
                     channelObject.put("user", true);
 
                     usersObject.put("notLogged", UsersUtils.userToJSON(notLogged.getLeft(),notLogged.getRight(),false));
 
-                    JSONObject dnntJSON = ChannelUtils.checkUserChannelEndpoint(this.client, library, fullChannelUrl, true);
+                    JSONObject dnntJSON = ChannelUtils.checkUserChannelEndpoint(this.apacheClient, library, fullChannelUrl, true);
                     Pair<User, List<String>> dnntUser = parsedUsers(inst, dnntJSON);
 
                     usersObject.put("dnnt", UsersUtils.userToJSON(dnntUser.getLeft(),dnntUser.getRight(),false));

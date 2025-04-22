@@ -5,16 +5,19 @@ import com.google.inject.Provider;
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
-import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
+import cz.inovatika.monitoring.APICallMonitor;
+import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
-import org.apache.http.client.HttpResponseException;
+import org.apache.hc.client5.http.HttpResponseException;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.json.JSONException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,6 +42,15 @@ public class SolrAPICallMonitor implements APICallMonitor  {
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
+
+    @javax.inject.Inject
+    @Named("solr-client")
+    javax.inject.Provider<CloseableHttpClient> provider;
+
+    @javax.inject.Inject
+    @Named("forward-client")
+    javax.inject.Provider<PoolingHttpClientConnectionManager> apachePoolManager;
+
 
     public SolrAPICallMonitor() {
         this.client = Client.create();
@@ -98,7 +110,7 @@ public class SolrAPICallMonitor implements APICallMonitor  {
 
         int threshold = KConfiguration.getInstance().getConfiguration().getInt("api.monitor.threshold", 1000);
         if (event.getDuration() > threshold) {
-            //to solr
+
             String apiMonitor = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/api");
             String updateUrl = apiMonitor+(apiMonitor.endsWith("/") ?  "" : "/")+"update";
             try {
@@ -117,9 +129,8 @@ public class SolrAPICallMonitor implements APICallMonitor  {
     public String apiMonitorRequestJson(String solrQuery) {
         try {
             String apiMonitor = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/monitor");
-            //String selectEndpoint = apiMonitor+(apiMonitor.endsWith("/") ?  "" : "/")+"select";
             LOGGER.info(String.format("Endpoint, querystring = %s, %s", apiMonitor,solrQuery));
-            return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(apiMonitor, solrQuery, "json");
+            return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(this.provider.get(), apiMonitor, solrQuery, "json", null);
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
                 LOGGER.log(Level.INFO, "SOLR Bad Request: " + solrQuery);
@@ -144,7 +155,7 @@ public class SolrAPICallMonitor implements APICallMonitor  {
             String apiMonitor = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/monitor");
             //String selectEndpoint = apiMonitor+(apiMonitor.endsWith("/") ?  "" : "/")+"select";
             LOGGER.info(String.format("Endpoint, querystring = %s, %s", apiMonitor,solrQuery));
-            return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(apiMonitor, solrQuery, "xml");
+            return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(this.provider.get(), apiMonitor, solrQuery, "xml", null);
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
                 LOGGER.log(Level.INFO, "SOLR Bad Request: " + solrQuery);

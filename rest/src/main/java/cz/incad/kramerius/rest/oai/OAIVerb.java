@@ -28,6 +28,7 @@ import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -87,7 +88,7 @@ public enum OAIVerb {
         }
 		
 		 @Override
-        public void performOnCDKSide(Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 
             Element requestElement = OAITools.requestElement(doc, OAIVerb.ListMetadataFormats,null,ApplicationURL.applicationURL(request),null);
             doc.getDocumentElement().appendChild(requestElement);
@@ -165,7 +166,7 @@ public enum OAIVerb {
         }
 
 		@Override
-        public void performOnCDKSide(Provider<User> userProvider,Provider<Client> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnCDKSide(Provider<User> userProvider,Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
             try {
                 Element requestElement = OAITools.requestElement(doc, OAIVerb.ListSets, null,ApplicationURL.applicationURL(request), null);
                 doc.getDocumentElement().appendChild(requestElement);
@@ -294,11 +295,10 @@ public enum OAIVerb {
         }
 		
 		@Override
-        public void performOnCDKSide(Provider<User> userProvider,Provider<Client> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException {
+        public void performOnCDKSide(Provider<User> userProvider,Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException {
 
             try {
                 String url = ApplicationURL.applicationURL(request);
-
                 Element requestElement = OAITools.requestElement(doc, OAIVerb.Identify, null,ApplicationURL.applicationURL(request), null);
                 doc.getDocumentElement().appendChild(requestElement);
                 
@@ -517,7 +517,7 @@ public enum OAIVerb {
         }
 		
 		@Override
-        public void performOnCDKSide(Provider<User> userProvider,Provider<Client> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 
             OAISet selectedSet =  null;
             MetadataExport selectedMetadata = null;
@@ -758,7 +758,7 @@ public enum OAIVerb {
             }
 		}
 
-        public void performOnCDKSide(Provider<User> userProvider,Provider<Client> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 			OAISet selectedSet =  null;
             MetadataExport selectedMetadata = null;
             try {
@@ -1071,7 +1071,7 @@ public enum OAIVerb {
             }
 		}
 		
-        public void performOnCDKSide(Provider<User> userProvider,Provider<Client> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnCDKSide(Provider<User> userProvider,Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 			MetadataExport selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
@@ -1141,7 +1141,7 @@ public enum OAIVerb {
     
     
     // Perform on CDK side 
-    public abstract void performOnCDKSide( Provider<User> userPRovider, Provider<Client> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws Exception;
-    
+    public abstract void performOnCDKSide( Provider<User> userPRovider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws Exception;
+
     public static Logger LOGGER = Logger.getLogger(OAIVerb.class.getName());
 }

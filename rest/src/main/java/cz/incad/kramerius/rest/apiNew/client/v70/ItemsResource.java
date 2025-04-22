@@ -3,7 +3,6 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
@@ -13,32 +12,19 @@ import cz.incad.kramerius.repository.ExtractStructureHelper;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownDatastreams;
 import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.repository.utils.Utils;
-import cz.incad.kramerius.rest.IIPImagesSupport;
-import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.CutItem;
 import cz.incad.kramerius.rest.apiNew.client.v70.epub.EPubFileTypes;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations.RuntimeInformation;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
-import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
-import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
-import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
+import cz.inovatika.monitoring.APICallMonitor;
+import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.rest.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
-import cz.incad.kramerius.service.ReplicateException;
-import cz.incad.kramerius.service.replication.FormatType;
-import cz.incad.kramerius.service.replication.ReplicationUtils;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
@@ -60,7 +46,6 @@ import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.dom4j.QName;
-import org.dom4j.io.DOMWriter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
@@ -71,29 +56,22 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -109,11 +87,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
 
 
 /**
@@ -219,6 +193,7 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     APICallMonitor apiCallMonitor;
+
 
     public ItemsResource() {
         super();

@@ -18,8 +18,9 @@ import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,13 +48,19 @@ public class DefaultPropertiesInstances implements Instances {
     private final Set<String> names = new HashSet<>();
     private final ReharvestManager reharvestManager;
     private final ConfigManager configManager;
-
+    private final CDKRequestCacheSupport cacheSupport;
+    private final DeleteTriggerSupport deleteTriggerSupport;
 
     @Inject
-    public DefaultPropertiesInstances(ReharvestManager reharvestManager, ConfigManager configManager) {
+    public DefaultPropertiesInstances(CDKRequestCacheSupport cacheSupport,
+                                      ReharvestManager reharvestManager,
+                                      DeleteTriggerSupport deleteTriggerSupport,
+                                      ConfigManager configManager) {
         super();
+        this.cacheSupport = cacheSupport;
         this.reharvestManager = reharvestManager;
         this.configManager = configManager;
+        this.deleteTriggerSupport = deleteTriggerSupport;
         LOGGER.info("Refreshing configuration with reharvestManager "+this.reharvestManager);
         refresh();
     }
@@ -84,7 +91,7 @@ public class DefaultPropertiesInstances implements Instances {
 
 
     private void addOneInstance(String acronym, Map<String,String> properties) {
-        LOGGER.info(String.format("Adding library %s with reharvestManager %s", acronym, reharvestManager.toString()));
+        LOGGER.fine(String.format("Adding library %s with reharvestManager %s", acronym, reharvestManager.toString()));
 
         String keyConnected = String.format("cdk.collections.sources.%s.enabled",acronym);
         String keyTypeofStatus = String.format("cdk.collections.sources.%s.status", acronym);
@@ -99,21 +106,43 @@ public class DefaultPropertiesInstances implements Instances {
 
         names.add(acronym);
 
-        DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(this.configManager,this.reharvestManager, this, acronym,
-                connected, typeOfChange);
+        /*
+    public DefaultOnePropertiesInstance(
+            CDKRequestCacheSupport cacheSupport,
+            ConfigManager configManager,
+            ReharvestManager reharvestManager,
+            DeleteTriggerSupport triggerSupport,
+            Instances instances,
+            String instanceAcronym,
+            boolean connectedState,
+            TypeOfChangedStatus typeOfChangedStatus
+    ) {
+
+         */
+
+        DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(
+                this, this.cacheSupport,
+                this.configManager,
+                this.reharvestManager,
+                this.deleteTriggerSupport,
+                acronym,
+                connected,
+                typeOfChange);
         instances.add(di);
     }
     
     @Override
     public List<OneInstance> allInstances() {
         this.refresh();
-        return this.instances;
+        List<OneInstance> snapshot = new ArrayList<>(this.instances);
+        return snapshot;
     }
 
     @Override
     public List<OneInstance> enabledInstances() {
         this.refresh();
-        return this.instances.stream().filter(it-> {
+        List<OneInstance> snapshot = new ArrayList<>(this.instances);
+        return snapshot.stream().filter(it-> {
             return it.isConnected();
         }).collect(Collectors.toList());
     }
@@ -121,7 +150,8 @@ public class DefaultPropertiesInstances implements Instances {
     @Override
     public List<OneInstance> disabledInstances() {
         this.refresh();
-        return this.instances.stream().filter(it -> {
+        List<OneInstance> snapshot = new ArrayList<>(this.instances);
+        return snapshot.stream().filter(it -> {
             return !it.isConnected();
         }).collect(Collectors.toList());
     }
@@ -136,7 +166,8 @@ public class DefaultPropertiesInstances implements Instances {
     @Override
     public OneInstance find(String acronym) {
         this.refresh();
-        List<OneInstance> collect = this.instances.stream().filter(it -> {
+        List<OneInstance> snapshot = new ArrayList<>(this.instances);
+        List<OneInstance> collect = snapshot.stream().filter(it -> {
             return it.getName().equals(acronym);
         }).collect(Collectors.toList());
 
@@ -150,7 +181,14 @@ public class DefaultPropertiesInstances implements Instances {
     @Override
     public boolean isEnabledInstance(String acronym) {
         this.refresh();
-        Optional<OneInstance> found = instances.stream().filter(instance -> instance.getName().equals(acronym)).findFirst();
+        List<OneInstance> snapshot = new ArrayList<>(this.instances);
+        Optional<OneInstance> found = snapshot.stream().filter(inst -> {
+            boolean retval = inst.getName() != null;
+            if (!retval) {
+                LOGGER.warning("Null instance is "+inst.toString());
+            }
+            return retval;
+        }).filter(instance -> instance.getName().equals(acronym)).findFirst();
         if (found.isPresent()) {
             return found.get().isConnected();
         } else {

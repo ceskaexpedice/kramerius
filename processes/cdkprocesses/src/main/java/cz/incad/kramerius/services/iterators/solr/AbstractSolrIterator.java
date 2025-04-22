@@ -13,12 +13,10 @@ public abstract class AbstractSolrIterator implements ProcessIterator {
     protected String endpoint;
     protected String id;
     protected String sorting;
-
-    protected String user;
-    protected String pass;
+    protected String[] fieldList;
 
 
-    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
+    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList) {
         this.id = id;
         this.rows = rows;
 
@@ -27,14 +25,12 @@ public abstract class AbstractSolrIterator implements ProcessIterator {
         this.endpoint = endpoint;
         this.address = address;
         this.masterQuery = masterQuery;
+        this.fieldList = fieldList;
 
-        this.user = user;
-        this.pass = pass;
-        
     }
 
     public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows) {
-        this( address,masterQuery, filterQuery, endpoint, id, sorting, rows, null, null);
+        this( address,masterQuery, filterQuery, endpoint, id, sorting, rows, new String[]{});
     }
 
 }
