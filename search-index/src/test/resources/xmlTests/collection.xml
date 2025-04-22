@@ -11,28 +11,20 @@
             </titleInfo>
             <abstract lang="cze">Kolekce map a grafik na území střední a východní Evropy</abstract>
             <abstract lang="eng">Collection of maps and graphics from the Central and Eastern Europe</abstract>
-            <note lang="cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie. Ze severu
-                jej ohraničuje Severní ledový oceán, ze západu Atlantský oceán, z jihu Středozemní a Černé moře spolu s vodními cestami, které je
-                spojují, a z východu Asie (o přesném průběhu této části hranice nepanuje konsenzus).
-
-                Jde o druhý nejmenší světadíl s rozlohou asi 10 058 912 km² (2009)[1] (asi 7 % zemského povrchu), který je zároveň druhý nejhustěji
-                zalidněný (asi 72 obyvatel/km²), takže asi 742 500 000 obyvatel Evropy (2013)[2] představuje přibližně 9,6% podíl na světové
-                populaci (údaje k roku 2009).
-
-                V Evropě se mimo jiné formovala tzv. západní civilizace. Některé evropské národy hrály roli ve světovém dění v období kolonialismu
-                od cca 16. století do počátku století 20., kdy byl jejich vliv zatlačen do pozadí Spojenými státy americkými – důvodem byla
-                politická a národnostní různorodost Evropy, válečné boje obou světových válek, čtyřicetileté rozdělení Evropy tzv. železnou oponou a
-                přijetí amerického dolaru jako základního mezinárodní platidla (tvorba měnových rezerv jednotlivých států apod.).
-            </note>
+            <note lang="cze">Evropa je ...</note>
             <note lang="eng">Europe is...</note>
         </in>
         <out>
 
             <field name="collection.desc">Kolekce map a grafik na území střední a východní Evropy</field>
             <field name="collection.desc">Collection of maps and graphics from the Central and Eastern Europe</field>
+            <field name="collection.desc">Evropa je ...</field>
+            <field name="collection.desc">Europe is...</field>
 
             <field name="collection.desc_cze">Kolekce map a grafik na území střední a východní Evropy</field>
+            <field name="collection.desc_cze">Evropa je ...</field>
             <field name="collection.desc_eng">Collection of maps and graphics from the Central and Eastern Europe</field>
+            <field name="collection.desc_eng">Europe is...</field>
 
             <field name="collection.is_standalone">false</field>
             <field name="title.search">Evropa</field>
@@ -53,22 +45,14 @@
             <titleInfo lang="eng">
                 <title>Europe</title>
             </titleInfo>
-            <note lang="cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie. Ze severu
-                jej ohraničuje Severní ledový oceán, ze západu Atlantský oceán, z jihu Středozemní a Černé moře spolu s vodními cestami, které je
-                spojují, a z východu Asie (o přesném průběhu této části hranice nepanuje konsenzus).
-
-                Jde o druhý nejmenší světadíl s rozlohou asi 10 058 912 km² (2009)[1] (asi 7 % zemského povrchu), který je zároveň druhý nejhustěji
-                zalidněný (asi 72 obyvatel/km²), takže asi 742 500 000 obyvatel Evropy (2013)[2] představuje přibližně 9,6% podíl na světové
-                populaci (údaje k roku 2009).
-
-                V Evropě se mimo jiné formovala tzv. západní civilizace. Některé evropské národy hrály roli ve světovém dění v období kolonialismu
-                od cca 16. století do počátku století 20., kdy byl jejich vliv zatlačen do pozadí Spojenými státy americkými – důvodem byla
-                politická a národnostní různorodost Evropy, válečné boje obou světových válek, čtyřicetileté rozdělení Evropy tzv. železnou oponou a
-                přijetí amerického dolaru jako základního mezinárodní platidla (tvorba měnových rezerv jednotlivých států apod.).
-            </note>
+            <note lang="cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.</note>
             <note lang="eng">Europe is...</note>
         </in>
         <out>
+            <field name="collection.desc">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.</field>
+            <field name="collection.desc">Europe is...</field>
+            <field name="collection.desc_cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.</field>
+            <field name="collection.desc_eng">Europe is...</field>
             <field name="collection.is_standalone">false</field>
             <field name="title.search">Evropa</field>
             <field name="title.search_cze">Evropa</field>
@@ -84,26 +68,18 @@
         <in>
             <abstract lang="cze">Kolekce map a grafik na území střední a východní Evropy</abstract>
             <abstract lang="eng">Collection of maps and graphics from the Central and Eastern Europe</abstract>
-            <note lang="cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie. Ze severu
-                jej ohraničuje Severní ledový oceán, ze západu Atlantský oceán, z jihu Středozemní a Černé moře spolu s vodními cestami, které je
-                spojují, a z východu Asie (o přesném průběhu této části hranice nepanuje konsenzus).
-
-                Jde o druhý nejmenší světadíl s rozlohou asi 10 058 912 km² (2009)[1] (asi 7 % zemského povrchu), který je zároveň druhý nejhustěji
-                zalidněný (asi 72 obyvatel/km²), takže asi 742 500 000 obyvatel Evropy (2013)[2] představuje přibližně 9,6% podíl na světové
-                populaci (údaje k roku 2009).
-
-                V Evropě se mimo jiné formovala tzv. západní civilizace. Některé evropské národy hrály roli ve světovém dění v období kolonialismu
-                od cca 16. století do počátku století 20., kdy byl jejich vliv zatlačen do pozadí Spojenými státy americkými – důvodem byla
-                politická a národnostní různorodost Evropy, válečné boje obou světových válek, čtyřicetileté rozdělení Evropy tzv. železnou oponou a
-                přijetí amerického dolaru jako základního mezinárodní platidla (tvorba měnových rezerv jednotlivých států apod.).
-            </note>
+            <note lang="cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.</note>
             <note lang="eng">Europe is...</note>
         </in>
         <out>
             <field name="collection.desc">Kolekce map a grafik na území střední a východní Evropy</field>
             <field name="collection.desc">Collection of maps and graphics from the Central and Eastern Europe</field>
+            <field name="collection.desc">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.</field>
+            <field name="collection.desc">Europe is...</field>
             <field name="collection.desc_cze">Kolekce map a grafik na území střední a východní Evropy</field>
+            <field name="collection.desc_cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.</field>
             <field name="collection.desc_eng">Collection of maps and graphics from the Central and Eastern Europe</field>
+            <field name="collection.desc_eng">Europe is...</field>
             <field name="collection.is_standalone">false</field>
         </out>
     </test>
@@ -142,23 +118,14 @@
                 <title>Evropa</title>
             </titleInfo>
             <abstract lang="cze">Kolekce map a grafik na území střední a východní Evropy</abstract>
-            <note lang="cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie. Ze severu
-                jej ohraničuje Severní ledový oceán, ze západu Atlantský oceán, z jihu Středozemní a Černé moře spolu s vodními cestami, které je
-                spojují, a z východu Asie (o přesném průběhu této části hranice nepanuje konsenzus).
-
-                Jde o druhý nejmenší světadíl s rozlohou asi 10 058 912 km² (2009)[1] (asi 7 % zemského povrchu), který je zároveň druhý nejhustěji
-                zalidněný (asi 72 obyvatel/km²), takže asi 742 500 000 obyvatel Evropy (2013)[2] představuje přibližně 9,6% podíl na světové
-                populaci (údaje k roku 2009).
-
-                V Evropě se mimo jiné formovala tzv. západní civilizace. Některé evropské národy hrály roli ve světovém dění v období kolonialismu
-                od cca 16. století do počátku století 20., kdy byl jejich vliv zatlačen do pozadí Spojenými státy americkými – důvodem byla
-                politická a národnostní různorodost Evropy, válečné boje obou světových válek, čtyřicetileté rozdělení Evropy tzv. železnou oponou a
-                přijetí amerického dolaru jako základního mezinárodní platidla (tvorba měnových rezerv jednotlivých států apod.).
+            <note lang="cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.
             </note>
         </in>
         <out>
             <field name="collection.desc">Kolekce map a grafik na území střední a východní Evropy</field>
+            <field name="collection.desc">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.</field>
             <field name="collection.desc_cze">Kolekce map a grafik na území střední a východní Evropy</field>
+            <field name="collection.desc_cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.</field>
             <field name="collection.is_standalone">false</field>
             <field name="title.search">Evropa</field>
             <field name="title.search_cze">Evropa</field>
@@ -178,7 +145,9 @@
         </in>
         <out>
             <field name="collection.desc">Collection of maps and graphics from the Central and Eastern Europe</field>
+            <field name="collection.desc">Europe is...</field>
             <field name="collection.desc_eng">Collection of maps and graphics from the Central and Eastern Europe</field>
+            <field name="collection.desc_eng">Europe is...</field>
             <field name="collection.is_standalone">false</field>
             <field name="title.search">Europe</field>
             <field name="title.search_eng">Europe</field>
@@ -198,6 +167,7 @@
         </in>
         <out>
             <field name="collection.desc">Kolekce map a grafik na území střední a východní Evropy</field>
+            <field name="collection.desc">Evropa je ...</field>
             <field name="collection.is_standalone">false</field>
             <field name="title.search">Evropa</field>
             <field name="title.sort">EVROPA</field>
@@ -226,18 +196,7 @@
             <abstract lang="ru">Коллекция карт и графики на территории Центральной и Восточной Европы</abstract>
             <abstract lang="de">Sammlung von Karten und Grafiken zum Gebiet Mittel- und Osteuropas</abstract>
 
-            <note lang="cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie. Ze severu
-                jej ohraničuje Severní ledový oceán, ze západu Atlantský oceán, z jihu Středozemní a Černé moře spolu s vodními cestami, které je
-                spojují, a z východu Asie (o přesném průběhu této části hranice nepanuje konsenzus).
-
-                Jde o druhý nejmenší světadíl s rozlohou asi 10 058 912 km² (2009)[1] (asi 7 % zemského povrchu), který je zároveň druhý nejhustěji
-                zalidněný (asi 72 obyvatel/km²), takže asi 742 500 000 obyvatel Evropy (2013)[2] představuje přibližně 9,6% podíl na světové
-                populaci (údaje k roku 2009).
-
-                V Evropě se mimo jiné formovala tzv. západní civilizace. Některé evropské národy hrály roli ve světovém dění v období kolonialismu
-                od cca 16. století do počátku století 20., kdy byl jejich vliv zatlačen do pozadí Spojenými státy americkými – důvodem byla
-                politická a národnostní různorodost Evropy, válečné boje obou světových válek, čtyřicetileté rozdělení Evropy tzv. železnou oponou a
-                přijetí amerického dolaru jako základního mezinárodní platidla (tvorba měnových rezerv jednotlivých států apod.).
+            <note lang="cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.
             </note>
             <note lang="eng">Europe is...</note>
             <note lang="ru">Европа is...</note>
@@ -249,11 +208,19 @@
             <field name="collection.desc">Collection of maps and graphics from the Central and Eastern Europe</field>
             <field name="collection.desc">Коллекция карт и графики на территории Центральной и Восточной Европы</field>
             <field name="collection.desc">Sammlung von Karten und Grafiken zum Gebiet Mittel- und Osteuropas</field>
+            <field name="collection.desc">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.</field>
+            <field name="collection.desc">Europe is...</field>
+            <field name="collection.desc">Европа is...</field>
+            <field name="collection.desc">Europa is...</field>
 
             <field name="collection.desc_cze">Kolekce map a grafik na území střední a východní Evropy</field>
+            <field name="collection.desc_cze">Evropa je území brané buďto jako jeden ze šesti světadílů v jejich tradičních pojetích, nebo jako západní část Eurasie.</field>
             <field name="collection.desc_de">Sammlung von Karten und Grafiken zum Gebiet Mittel- und Osteuropas</field>
+            <field name="collection.desc_de">Europa is...</field>
             <field name="collection.desc_eng">Collection of maps and graphics from the Central and Eastern Europe</field>
+            <field name="collection.desc_eng">Europe is...</field>
             <field name="collection.desc_ru">Коллекция карт и графики на территории Центральной и Восточной Европы</field>
+            <field name="collection.desc_ru">Европа is...</field>
 
             <field name="collection.is_standalone">false</field>
             <field name="title.search">Evropa</field>

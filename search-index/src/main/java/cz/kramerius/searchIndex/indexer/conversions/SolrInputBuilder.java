@@ -551,43 +551,31 @@ public class SolrInputBuilder {
         }
 
         if ("collection".equals(model)) {
-
-            List<Node> nodes = Dom4jUtils.buildXpath("mods/abstract[@lang]").selectNodes(modsRootEl);
-            List<Node> noteNodes = Dom4jUtils.buildXpath("mods/note").selectNodes(modsRootEl);
-            for (int i = 0; i < nodes.size(); i++) {
-                Element nodeElm = (Element) nodes.get(i);
-                String noteString = "";
-                if(i<noteNodes.size()){
-                    String xmlString = ((Element) noteNodes.get(i)).getStringValue();
-                    noteString = decodeXml(xmlString);
-                    //StringEscapeUtils.unescapeXml(noteString);
-                    System.out.println("nodeElm: "+noteString);
-                }
+            for (Node node : Dom4jUtils.buildXpath("mods/abstract[@lang]").selectNodes(modsRootEl))  {
+                Element nodeElm = (Element) node;
                 Attribute attribute = nodeElm.attribute("lang");
                 if (attribute != null) {
                     String desc = toStringOrNull(nodeElm);
                     addSolrField(solrInput, "collection.desc_"+attribute.getValue(),desc);
-                    addSolrField(solrInput, "collection.desc_"+attribute.getValue(),noteString);
-
                     addSolrField(solrInput, "collection.desc",desc);
-                    addSolrField(solrInput, "collection.desc", noteString);
                 }
             }
-            
-//            //TODO: Change it 
-//            String abstractFromTitleInfoCz = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract[@lang='cze']").selectSingleNode(modsRootEl));
-//            if (abstractFromTitleInfoCz != null) {
-//                addSolrField(solrInput, "collection.desc", abstractFromTitleInfoCz);
-//                //addSolrField(solrInput, "collection.desc_cz", abstractFromTitleInfoCz);
-//            }
-//            String abstractFromTitleInfoEn = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract[@lang='eng']").selectSingleNode(modsRootEl));
-//            if (abstractFromTitleInfoEn != null) {
-//                addSolrField(solrInput, "collection.desc", abstractFromTitleInfoEn);
-//                //addSolrField(solrInput, "collection.desc_en", abstractFromTitleInfoEn);
-//            }
+            for (Node node : Dom4jUtils.buildXpath("mods/note[@lang]").selectNodes(modsRootEl)) {
+                Element nodeElm = (Element) node;
+                Attribute attribute = nodeElm.attribute("lang");
+                if (attribute != null) {
+                    String desc = decodeXml(toStringOrNull(nodeElm));
+                    addSolrField(solrInput, "collection.desc_"+attribute.getValue(),desc);
+                    addSolrField(solrInput, "collection.desc",desc);
+                }
+            }
             String abstractFromTitleInfoNoLang = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract[not(@lang)]").selectSingleNode(modsRootEl));
             if (abstractFromTitleInfoNoLang != null) {
                 addSolrField(solrInput, "collection.desc", abstractFromTitleInfoNoLang);
+            }
+            String noteFromTitleInfoNoLang = toStringOrNull(Dom4jUtils.buildXpath("mods/note[not(@lang)]").selectSingleNode(modsRootEl));
+            if(noteFromTitleInfoNoLang != null) {
+                addSolrField(solrInput, "collection.desc", decodeXml(noteFromTitleInfoNoLang));
             }
             
             
