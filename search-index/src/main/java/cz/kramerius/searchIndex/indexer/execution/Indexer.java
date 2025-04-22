@@ -17,6 +17,7 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+//import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
 public class Indexer {
     private static final Logger LOGGER = Logger.getLogger(Indexer.class.getName());
 
-    public static final int INDEXER_VERSION = 19; //this should be updated after every change in logic, that affects full indexation
+    public static final int INDEXER_VERSION = 20; //this should be updated after every change in logic, that affects full indexation
 
     private final SolrConfig solrConfig;
     //only state variable
@@ -376,7 +377,8 @@ public class Indexer {
             case TREE_INDEX_ONLY_NEWER: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    boolean isNewer = true; //TODO: detect
+                    boolean isNewer = true; //TODO: detect - probably compare date modified on this and the previous indexation
+                    //krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(childPid);
                     if (isNewer) {
                         indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                     }
