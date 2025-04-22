@@ -51,6 +51,7 @@ import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+import cz.incad.kramerius.workmode.WorkModeService;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.json.JSONArray;
@@ -127,6 +128,10 @@ public class ClientUserResource {
 
     @Inject
     ExclusiveLockMaps exclusiveMaps;
+
+    @javax.inject.Inject
+    @Named("dbWorkMode")
+    WorkModeService workModeService;
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
@@ -258,12 +263,32 @@ public class ClientUserResource {
         for (SecuredActions sa : values) {
             for (ObjectPidsPath pth : pidPaths) {
                 pth = pth.injectRepository();
-                RightsReturnObject actionAllowed = this.rightsResolver.isActionAllowed(userProvider.get(), sa.getFormalName(),pid,null,pth.injectRepository());
+                RightsReturnObject actionAllowed = this.rightsResolver.isActionAllowed(
+                        userProvider.get(),
+                        sa.getFormalName(),
+                        pid,
+                        null,
+                        pth.injectRepository()
+                );
                 if (actionAllowed.getState() == EvaluatingResultState.TRUE) {
                     set.add(sa.getFormalName());
+                    break; // we only need one path to be true
                 }
             }
-        }         
+        }
+
+        // Filter out actions restricted in read-only mode
+        if (workModeService.isReadOnlyMode()) {
+            set.removeIf(actionName -> {
+                for (SecuredActions sa : values) {
+                    if (sa.getFormalName().equals(actionName) && sa.isRestrictedInReadOnly()) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
         return set;
     }
 
