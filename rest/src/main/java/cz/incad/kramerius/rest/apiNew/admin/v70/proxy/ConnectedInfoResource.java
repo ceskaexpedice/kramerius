@@ -22,6 +22,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.inject.Provider;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.security.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -43,8 +46,6 @@ import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUti
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.PhysicalLocationMap;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.timestamps.Timestamp;
 import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.timestamps.impl.SolrTimestamp;
@@ -66,6 +67,13 @@ public class ConnectedInfoResource {
     @Named("forward-client")
     private CloseableHttpClient apacheClient;
 
+  @Inject
+    private RightsResolver rightsResolver;
+
+    @Inject
+    private Provider<User> userProvider;
+
+
     public ConnectedInfoResource() {
         super();
         //this.client = Client.create();
@@ -74,12 +82,16 @@ public class ConnectedInfoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllConnected(/*@QueryParam("health")String health*/) {
-        JSONObject retval = new JSONObject();
-        this.libraries.allInstances().forEach(library -> {
-            JSONObject json = libraryJSON(library);
-            retval.put(library.getName(), json);
-        });
-        return Response.ok(retval).build();
+        if (this.permit()) {
+            JSONObject retval = new JSONObject();
+            this.libraries.allInstances().forEach(library -> {
+                JSONObject json = libraryJSON(library);
+                retval.put(library.getName(), json);
+            });
+            return Response.ok(retval).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
     }
 
     private JSONObject libraryJSON(OneInstance found) {
@@ -93,11 +105,15 @@ public class ConnectedInfoResource {
     @Path("{library}/status")
     @Produces(MediaType.APPLICATION_JSON)
     public Response library(@PathParam("library") String library) {
-        OneInstance find = this.libraries.find(library);
-        if (find != null) {
-            return Response.ok(libraryJSON(find)).build();
+        if (this.permit()) {
+            OneInstance find = this.libraries.find(library);
+            if (find != null) {
+                return Response.ok(libraryJSON(find)).build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
         } else {
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
     
@@ -107,33 +123,41 @@ public class ConnectedInfoResource {
     @Path("{library}/associations")
     @Produces(MediaType.APPLICATION_JSON)
     public Response assocations(@PathParam("library") String library) {
-        PhysicalLocationMap locationMap = new PhysicalLocationMap();
-        List<String> assocations = locationMap.getAssocations(library);
-        JSONArray restArr = new JSONArray();
+        if (this.permit()) {
+            PhysicalLocationMap locationMap = new PhysicalLocationMap();
+            List<String> assocations = locationMap.getAssocations(library);
+            JSONArray restArr = new JSONArray();
 
-        assocations.stream().forEach( sigla-> {
-            String desc = locationMap.getDescription(sigla);
-            JSONObject obj = new JSONObject();
-            obj.put("sigla", sigla);
-            if (desc == null) {
-                desc = "";
-            }
-            obj.put("description", desc);
-            restArr.put(obj);
-        });
-        return Response.ok(restArr.toString()).build();
+            assocations.stream().forEach( sigla-> {
+                String desc = locationMap.getDescription(sigla);
+                JSONObject obj = new JSONObject();
+                obj.put("sigla", sigla);
+                if (desc == null) {
+                    desc = "";
+                }
+                obj.put("description", desc);
+                restArr.put(obj);
+            });
+            return Response.ok(restArr.toString()).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
     }
 
     @PUT
     @Path("{library}/status")
     @Produces(MediaType.APPLICATION_JSON)
     public Response library(@PathParam("library") String library, @QueryParam("status") String status) {
-        OneInstance find = this.libraries.find(library);
-        if (find != null) {
-            find.setConnected(Boolean.parseBoolean(status), TypeOfChangedStatus.user);
-            return Response.ok(libraryJSON(find)).build();
+        if (this.permit()) {
+            OneInstance find = this.libraries.find(library);
+            if (find != null) {
+                find.setConnected(Boolean.parseBoolean(status), TypeOfChangedStatus.user);
+                return Response.ok(libraryJSON(find)).build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
         } else {
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
 
@@ -141,29 +165,36 @@ public class ConnectedInfoResource {
     @Path("{library}/timestamp")
     @Produces(MediaType.APPLICATION_JSON)
     public Response timestamp(@PathParam("library") String library) {
-        try {
-            Timestamp latest = this.timestampStore.findLatest(library);
-            if (latest != null) {
-                return Response.ok(latest.toJSONObject().toString()).build();
-            } else
-                return Response.status(Response.Status.NOT_FOUND).build();
-        } catch (SolrServerException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        if (this.permit()) {
+            try {
+                Timestamp latest = this.timestampStore.findLatest(library);
+                if (latest != null) {
+                    return Response.ok(latest.toJSONObject().toString()).build();
+                } else
+                    return Response.status(Response.Status.NOT_FOUND).build();
+            } catch (SolrServerException | IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
-
     }
 
     @GET
     @Path("refresh")
     @Produces(MediaType.APPLICATION_JSON)
     public Response refresh() {
-        try {
-            this.libraries.cronRefresh();
-            return Response.ok(new JSONObject()).build();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        if (this.permit()) {
+            try {
+                this.libraries.cronRefresh();
+                return Response.ok(new JSONObject()).build();
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
 
@@ -171,16 +202,20 @@ public class ConnectedInfoResource {
     @Path("{library}/timestamps")
     @Produces(MediaType.APPLICATION_JSON)
     public Response timestamps(@PathParam("library") String library) {
-        try {
-            JSONArray array = new JSONArray();
-            List<Timestamp> retrieveTimestamp = this.timestampStore.retrieveTimestamps(library);
-            retrieveTimestamp.forEach(t -> {
-                array.put(t.toJSONObject());
-            });
-            return Response.ok(array.toString()).build();
-        } catch (SolrServerException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        if (this.permit()) {
+            try {
+                JSONArray array = new JSONArray();
+                List<Timestamp> retrieveTimestamp = this.timestampStore.retrieveTimestamps(library);
+                retrieveTimestamp.forEach(t -> {
+                    array.put(t.toJSONObject());
+                });
+                return Response.ok(array.toString()).build();
+            } catch (SolrServerException | IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
 
@@ -188,19 +223,23 @@ public class ConnectedInfoResource {
     @Path("{library}/config")
     @Produces(MediaType.APPLICATION_JSON)
     public Response config(@PathParam("library") String library) {
-        JSONObject config = new JSONObject();
-        String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".baseurl");
-        String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api");
-        boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
-        String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
-        boolean solrCloud = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".cloud", false);
+        if (this.permit()) {
+          JSONObject config = new JSONObject();
+          String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".baseurl");
+          String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api");
+          boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
+          String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
+          boolean solrCloud = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".cloud", false);
 
-        config.put("baseurl", baseurl);
-        config.put("api", api);
-        config.put("licenses", channelAccess);
-        config.put("forwardurl", channel);
-        config.put("solrcloud", solrCloud);
-        return Response.ok(config.toString()).build();
+          config.put("baseurl", baseurl);
+          config.put("api", api);
+          config.put("licenses", channelAccess);
+          config.put("forwardurl", channel);
+          config.put("solrcloud", solrCloud);
+          return Response.ok(config.toString()).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
     }
 
     
@@ -208,15 +247,19 @@ public class ConnectedInfoResource {
     @Path("{library}/config/channel/health")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getChannelHealth(@PathParam("library") String library) {
-        JSONObject healthObject = new JSONObject();
-        JSONObject channelObject = new JSONObject();
-        JSONObject usersObject = new JSONObject();
+        if (this.permit()) {
+            JSONObject healthObject = new JSONObject();
+            JSONObject channelObject = new JSONObject();
+            JSONObject usersObject = new JSONObject();
 
-        healthObject.put("channel", channelObject);
-        healthObject.put("users", usersObject);
+            healthObject.put("channel", channelObject);
+            healthObject.put("users", usersObject);
 
-        channelHealth(library, channelObject,usersObject);
-        return Response.ok(healthObject.toString()).build();
+            channelHealth(library, channelObject,usersObject);
+            return Response.ok(healthObject.toString()).build();
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
     }
 
 
@@ -224,6 +267,8 @@ public class ConnectedInfoResource {
     @Path("introspect/{pid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response introspectPid(@PathParam("pid") String pid) {
+        if (this.permit()) {
+
         try {
             Pair<List<String>, List<String>> intropsected = IntrospectUtils.introspectPid(this.apacheClient, this.libraries, pid);
             JSONObject retval = new JSONObject();
@@ -237,6 +282,9 @@ public class ConnectedInfoResource {
         } catch (UnsupportedEncodingException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
     
@@ -339,17 +387,33 @@ public class ConnectedInfoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response timestamp(@PathParam("library") String library, JSONObject jsonObject) {
-        try {
-            Timestamp timestamp = SolrTimestamp.fromJSONDoc(library, jsonObject);
-            if (timestamp.getDate() == null) {
-                timestamp.updateDate(new Date());
+        if (this.permit()) {
+            try {
+                Timestamp timestamp = SolrTimestamp.fromJSONDoc(library, jsonObject);
+                if (timestamp.getDate() == null) {
+                    timestamp.updateDate(new Date());
+                }
+                timestamp.updateName(library);
+                this.timestampStore.storeTimestamp(timestamp);
+                return Response.ok(timestamp.toJSONObject().toString()).build();
+            } catch (SolrServerException | IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
-            timestamp.updateName(library);
-            this.timestampStore.storeTimestamp(timestamp);
-            return Response.ok(timestamp.toJSONObject().toString()).build();
-        } catch (SolrServerException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
+
+    boolean permit() {
+        User user = this.userProvider.get();
+        if (user != null)
+            return this.rightsResolver.isActionAllowed(user,
+                    SecuredActions.A_ADMIN_READ.getFormalName(),
+                    SpecialObjects.REPOSITORY.getPid(), null,
+                    ObjectPidsPath.REPOSITORY_PATH).flag();
+        else return false;
+    }
+
 }

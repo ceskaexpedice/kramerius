@@ -35,7 +35,9 @@ githubRepositoryUser=your user name
 
 3. ./gradlew publish
 
+To build standalone data migration application:
 
+./gradlew :processes:migration:clean :processes:migration:distZip
 
 
 

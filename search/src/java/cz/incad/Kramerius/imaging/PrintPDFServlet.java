@@ -77,9 +77,7 @@ public class PrintPDFServlet extends GuiceServlet {
                     BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);
                     BufferedImage subImage = ImageCutServlet.partOfImage(bufferedImage, req,  pid);
                     KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), os);
-                } catch (XPathExpressionException e) {
-                    LOGGER.severe(e.getMessage());
-                } catch (JSONException e) {
+                } catch (XPathExpressionException | JSONException e) {
                     LOGGER.severe(e.getMessage());
                 }
             }
@@ -129,13 +127,14 @@ public class PrintPDFServlet extends GuiceServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        List<File> filesToDelete = new ArrayList<File>();
+        List<File> filesToDelete = new ArrayList<>();
         try {
             resp.setContentType(ImageMimeType.PDF.getValue());
             String pid = req.getParameter("pid");
             String pids = req.getParameter("pids");
             String pageSize = req.getParameter("pagesize");
             String imgop = req.getParameter("imgop");
+            boolean centerImage = true;//Can be set here manually. Probably should be propagated upwards.
 
             if (StringUtils.isAnyString(pid)) {
                 if (canBeRead(pid) && canBeRenderedAsPDF(pid)) {
@@ -152,10 +151,10 @@ public class PrintPDFServlet extends GuiceServlet {
                     Image image = Image.getInstance(renderedFile.toURI().toURL());
 
                     image.scaleToFit(
-                            document.getPageSize().getWidth() - document.leftMargin()
-                                    - document.rightMargin(),
-                            document.getPageSize().getHeight() - document.topMargin()
-                                    - document.bottomMargin());
+                            document.getPageSize().getWidth()// - document.leftMargin() - document.rightMargin()
+                            ,
+                            document.getPageSize().getHeight()// - document.topMargin() - document.bottomMargin()
+                            );
                     document.add(image);
                     document.close();
                 } else {
@@ -165,15 +164,18 @@ public class PrintPDFServlet extends GuiceServlet {
                 String[] pds = pids.split(",");
                 boolean canBeRendered = false;
                 boolean canBePDFRendered = false;
-                for (int i = 0; i < pds.length; i++) {
-                    if (!canBeRendered) canBeRendered = canBeRead(pds[i]);
+                for (String pd : pds) {
+                    if (canBeRendered) break;
+                    canBeRendered = canBeRead(pd);
                 }
-                for (int i = 0; i < pds.length; i++) {
-                    if (!canBePDFRendered) canBePDFRendered = canBeRenderedAsPDF(pds[i]);
+                for (String pd : pds) {
+                    if (canBePDFRendered) break;
+                    canBePDFRendered = canBeRenderedAsPDF(pd);
                 }
-
                 if (canBeRendered && canBePDFRendered) {
-                    Document document = new Document(Page.valueOf(pageSize).getRect());
+                    Rectangle rect = Page.valueOf(pageSize).getRect();
+                    Document document = new Document(rect);
+                    document.setMargins(0, 0, 0, 0);
                     ServletOutputStream sos = resp.getOutputStream();
                     PdfWriter.getInstance(document, sos);
                     document.open();
@@ -186,10 +188,14 @@ public class PrintPDFServlet extends GuiceServlet {
                         ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pds[i], req, fos);
                         Image image = Image.getInstance(nfile.toURI().toURL());
                         image.scaleToFit(
-                                document.getPageSize().getWidth() - document.leftMargin()
-                                        - document.rightMargin(),
-                                document.getPageSize().getHeight() - document.topMargin()
-                                        - document.bottomMargin());
+                                rect.getWidth()//document.getPageSize().getWidth() - document.leftMargin()    - document.rightMargin()
+                                ,
+                                rect.getHeight()//document.getPageSize().getHeight() - document.bottomMargin() - document.topMargin()//
+                            );
+                        if(centerImage){
+                            image.setAlignment(Image.ALIGN_CENTER);
+                        }
+                            
                         document.add(image);        
                         if (i < pds.length-1) {
                             document.newPage();
@@ -200,11 +206,9 @@ public class PrintPDFServlet extends GuiceServlet {
                     resp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 }
             }
-        } catch (BadElementException e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (DocumentException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        } finally {
+        }  finally {
             for (File file : filesToDelete) {
                 if (file != null) {
                     file.delete();

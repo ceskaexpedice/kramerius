@@ -66,6 +66,17 @@ public interface ReharvestManager {
      *
      * @param status The status of the desired top item.
      * @return The top reharvest item matching the specified status.
+     * Retrieves a list of all reharvest items.
+     *
+     * @return A list of ReharvestItem objects.
+     */
+    public List<ReharvestItem> getItems();
+
+    /**
+     * Retrieves the highest-priority reharvest item with a given status.
+     *
+     * @param status The status of the item to retrieve.
+     * @return The top-priority ReharvestItem with the specified status.
      */
     public ReharvestItem getTopItem(String status);
 
@@ -79,18 +90,35 @@ public interface ReharvestManager {
 
     public List<ReharvestItem> getItemByConflictId(String id);
 
-        /**
-         * Retrieves an open reharvest item based on its persistent identifier (PID).
-         *
-         * @param pid The persistent identifier of the item.
-         * @return The open reharvest item matching the specified PID.
-         */
+    /**
+     * Retrieves an open reharvest item based on its persistent identifier (PID).
+     *
+     * @param pid The persistent identifier of the item.
+     * @return The open reharvest item matching the specified PID.
+     */
     public ReharvestItem getOpenItemByPid(String pid);
 
     /**
      * Deregisters a reharvest item, removing it from the system.
      *
      * @param id The unique identifier of the item to be deregistered.
+     * @param id The ID of the item.
+     * @return The corresponding ReharvestItem.
+     */
+    public ReharvestItem getItemById(String id);
+
+    /**
+     * Retrieves an open reharvest item by its PID.
+     *
+     * @param pid The PID of the item.
+     * @return The open ReharvestItem associated with the given PID.
+     */
+    public ReharvestItem getOpenItemByPid(String pid);
+
+    /**
+     * Deregisters a reharvest item by its ID.
+     *
+     * @param id The ID of the item to be removed.
      */
     public void deregister(String id);
 }

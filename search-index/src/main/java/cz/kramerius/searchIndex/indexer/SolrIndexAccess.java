@@ -18,7 +18,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.MapSolrParams;
 import org.apache.solr.common.params.ModifiableSolrParams;
-import org.dom4j.Document;
+//import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -28,6 +28,7 @@ import java.io.*;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,29 +110,24 @@ public class SolrIndexAccess {
     }
 
     private UpdateResponse indexFromXmlInputStream(InputStream in, boolean explicitCommit) throws IOException, SolrServerException, DocumentException {
-        List<SolrInputDocument> solrDoc = extractSolrInputDocuments(in);
         UpdateResponse addResponse = null;
-        for (SolrInputDocument doc : solrDoc) {
+        for (SolrInputDocument doc : extractSolrInputDocuments(in)) {
             //there will always only be on ADD anyway
             addResponse = solrClient.add(collection, doc, MAX_TIME_WITHOUT_COMMIT_MS);
         }
         if (explicitCommit) {
-            solrClient.commit(collection);
+            commit();
         }
         return addResponse;
     }
 
     private List<SolrInputDocument> extractSolrInputDocuments(InputStream in) throws DocumentException {
         ArrayList<SolrInputDocument> solrDocList = new ArrayList<>();
-        SAXReader reader = new SAXReader();
-        Document doc = reader.read(in);
-        List<Node> docEls = Dom4jUtils.buildXpath("add/doc").selectNodes(doc);
+        List<Node> docEls = Dom4jUtils.buildXpath("add/doc").selectNodes(new SAXReader().read(in));
         for (Node docEl : docEls) {
             SolrInputDocument solrInputDoc = new SolrInputDocument();
-            List<Node> fieldEls = docEl.selectNodes("field");
-            for (Node field : fieldEls) {
-                Element fieldEl = (Element) field;
-                String name = fieldEl.attribute("name").getValue();
+            for (Node field : docEl.selectNodes("field")) {
+                String name = ((Element) field).attribute("name").getValue();
                 String value = field.getStringValue().trim();
                 solrInputDoc.addField(name, value);
             }
@@ -142,95 +138,65 @@ public class SolrIndexAccess {
 
     public UpdateResponse deleteById(String id) throws IOException, SolrServerException {
         //System.out.println("deleting " + id);
-        if (IterationUtils.useCompositeId()) {
-            UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:" + id.replace(":", "\\:"));
-        } else {
-            UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
-        }
-        //System.out.println("delete response: " + deleteResponse);
-        UpdateResponse commitResponse = solrClient.commit(collection);
-        //System.out.println("commit response: " + commitResponse);
-        return null;
+        UpdateResponse deleteResponse = IterationUtils.useCompositeId()
+                ? solrClient.deleteByQuery(collection, "pid:" + id.replace(":", "\\:"))
+                : solrClient.deleteById(collection, id);//        UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "root.pid:\""+rootPid+"\"");
+        //System.out.println("delete response: " + deleteResponse); UpdateResponse does not have a ToString anyway
+        return commit();
     }
+    public UpdateResponse deleteByParentRootPid(String rootpid) throws IOException, SolrServerException {
+        UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "own_parent.pid:\""+rootpid+"\"");
+        return commit();
+    }
+
 
     public UpdateResponse deleteByIds(List<String> ids) throws IOException, SolrServerException {
-        //System.out.println("deleting " + id);
+        UpdateResponse updateResponse = null;
         for (String id : ids) {
-            if (IterationUtils.useCompositeId()) {
-                UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "pid:" + id.replace(":", "\\:"));
-            } else {
-                UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
-            }
-            UpdateResponse deleteResponse = solrClient.deleteById(collection, id);
+            updateResponse = deleteById(id);
         }
-        UpdateResponse commitResponse = solrClient.commit(collection);
+        //UpdateResponse commitResponse = commit();
         //System.out.println("commit response: " + commitResponse);
-        return null;
+        return commit();
     }
 
-//    public UpdateResponse deleteByRootPid(String rootPid) throws SolrServerException, IOException {
-//        //System.out.println("deleting all");
-//        UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "root.pid:\""+rootPid+"\"");
-//        //System.out.println("delete response: " + deleteResponse);
-//        UpdateResponse commitResponse = solrClient.commit(collection);
-//        //System.out.println("commit response: " + commitResponse);
-//        return null;
-//        
-//    }
-    
     public UpdateResponse deleteAll() throws IOException, SolrServerException {
         //System.out.println("deleting all");
         UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "*");
         //System.out.println("delete response: " + deleteResponse);
-        UpdateResponse commitResponse = solrClient.commit(collection);
+        //UpdateResponse commitResponse = commit();
         //System.out.println("commit response: " + commitResponse);
-        return null;
+        return commit();
     }
 
     public SolrDocumentList searchInAllFields(String query) throws IOException, SolrServerException {
-        Map<String, String> queryParamMap = new HashMap<>();
-        //queryParamMap.put("q", "title:*");
-        //queryParamMap.put("q", "*");
-        queryParamMap.put("q", query);
-        //queryParamMap.put("fl", "id, title");
-        MapSolrParams queryParams = new MapSolrParams(queryParamMap);
-
-        QueryResponse response = solrClient.query(collection, queryParams);
-        return response.getResults();
+        return solrClient.query(collection, new MapSolrParams(Collections.singletonMap("q", query))).getResults();
     }
 
     public SolrDocument getObjectByPid(String pid) throws SolrServerException, IOException {
-        String query = "pid:" + pid.replace(":", "\\:");
-        SolrDocumentList result = searchInAllFields(query);
-        return result.size() > 0 ? result.get(0) : null;
+        SolrDocumentList result = searchInAllFields("pid:" + pid.replace(":", "\\:"));
+        return !result.isEmpty() ? result.get(0) : null;
     }
 
     public String getCompositeIdByPid(String pid) throws SolrServerException, IOException {
-        String query = "pid:" + pid.replace(":", "\\:");
-        SolrDocumentList result = searchInAllFields(query, "compositeId");
-        if (result.size() > 0 ){
-            return (String) result.get(0).getFieldValue("compositeId");
-        }
-        return "";
+        SolrDocumentList result = searchInAllFields("pid:" + pid.replace(":", "\\:"), "compositeId");
+        return !result.isEmpty() ? (String) result.get(0).getFieldValue("compositeId") : "";
     }
 
-    public SolrDocumentList searchInAllFields(String query,  String outputFieldList) throws IOException, SolrServerException {
-        Map<String, String> queryParamMap = new HashMap<>();
-        queryParamMap.put("q", query);
-//        queryParamMap.put("start", Long.toString(start));
-//        if (rows != null) {
-//            queryParamMap.put("rows", Integer.toString(rows));
-//        }
+    public SolrDocumentList searchInAllFields(String query, String outputFieldList) throws IOException, SolrServerException {
+        Map<String, String> queryParamMap = Collections.singletonMap("q", query);
+        /*      queryParamMap.put("start", Long.toString(start));
+        if (rows != null) queryParamMap.put("rows", Integer.toString(rows));*/
+
         if (outputFieldList != null) {
             queryParamMap.put("fl", outputFieldList);
         }
         MapSolrParams queryParams = new MapSolrParams(queryParamMap);
-        QueryResponse response = solrClient.query(collection, queryParams);
-        return response.getResults();
+        return solrClient.query(collection, queryParams).getResults();
     }
 
-    public void commit() throws IOException, SolrServerException {
-        solrClient.commit(collection);
+    public UpdateResponse commit() throws IOException, SolrServerException {
+        return solrClient.commit(collection);
     }
 
     public void setSingleFieldValue(String pid, RepositoryNode repositoryNode, String fieldName, Object value, boolean indexTime, boolean explicitCommit) {
@@ -248,10 +214,10 @@ public class SolrIndexAccess {
                 timestamp.put("set", ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
                 updateDoc.addField("indexed", timestamp);
             }
-            
+
             solrClient.add(collection, updateDoc, MAX_TIME_WITHOUT_COMMIT_MS);
             if (explicitCommit) {
-                solrClient.commit(collection);
+                commit();
             }
         } catch (IOException | SolrServerException e) {
             e.printStackTrace();
@@ -260,71 +226,74 @@ public class SolrIndexAccess {
     }
 
     public void addSingleFieldValueForMultipleObjects(List<String> pids, String fieldName, Object value, boolean indexTime, boolean explicitCommit) {
-        if (!pids.isEmpty()) {
-            try {
-                List<SolrInputDocument> inputDocs = new ArrayList<>();
-                for (String pid : pids) {
-                    SolrInputDocument inputDoc = new SolrInputDocument();
-                    if (IterationUtils.useCompositeId()){
-                        inputDoc.addField("compositeId", getCompositeIdByPid(pid));
-                    }
-                    inputDoc.addField("pid", pid);
-
-                    Map<String, Object> updateData = new HashMap<>();
-                    updateData.put("add-distinct", value == null ? null : value.toString());
-                    inputDoc.addField(fieldName, updateData);
-
-                    if (indexTime) {
-                        Map<String, Object> timestamp = new HashMap<>();
-                        timestamp.put("set", ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
-                        inputDoc.addField("indexed", timestamp);
-                    }
-                    inputDocs.add(inputDoc);
-                    
-                    
-                }
-                solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
-                if (explicitCommit) {
-                    solrClient.commit(collection);
-                }
-            } catch (IOException | SolrServerException e) {
-                e.printStackTrace();
-                throw new RuntimeException((e));
-            }
+        if (pids.isEmpty()) {
+            return;
         }
+        try {
+            List<SolrInputDocument> inputDocs = new ArrayList<>();
+            for (String pid : pids) {
+                SolrInputDocument inputDoc = new SolrInputDocument();
+                if (IterationUtils.useCompositeId()) {
+                    inputDoc.addField("compositeId", getCompositeIdByPid(pid));
+                }
+                inputDoc.addField("pid", pid);
+
+                Map<String, Object> updateData = new HashMap<>();
+                updateData.put("add-distinct", value == null ? null : value.toString());
+                inputDoc.addField(fieldName, updateData);
+
+                if (indexTime) {
+                    Map<String, Object> timestamp = new HashMap<>();
+                    timestamp.put("set", ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
+                    inputDoc.addField("indexed", timestamp);
+                }
+                inputDocs.add(inputDoc);
+
+            }
+            solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
+            if (explicitCommit) {
+                commit();
+            }
+        } catch (IOException | SolrServerException e) {
+            e.printStackTrace();
+            throw new RuntimeException((e));
+        }
+
     }
 
     public void removeSingleFieldValueFromMultipleObjects(List<String> pids, String fieldName, Object value, boolean indexTime, boolean explicitCommit) {
-        if (!pids.isEmpty()) {
-            try {
-                List<SolrInputDocument> inputDocs = new ArrayList<>();
-                for (String pid : pids) {
-                    SolrInputDocument inputDoc = new SolrInputDocument();
-                    if (IterationUtils.useCompositeId()){
-                        inputDoc.addField("compositeId", getCompositeIdByPid(pid));
-                    }
-                    inputDoc.addField("pid", pid);
-
-                    Map<String, Object> updateData = new HashMap<>();
-                    updateData.put("removeregex", value == null ? null : value.toString()); //'remove' neodstranuje vsechny kopie stejne hodnoty (ac to tvrdi dokumentace)
-                    inputDoc.addField(fieldName, updateData);
-                    
-                    if (indexTime) {
-                        Map<String, Object> timestamp = new HashMap<>();
-                        timestamp.put("set", ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
-                        inputDoc.addField("indexed", timestamp);
-                    }
-
-                    inputDocs.add(inputDoc);
-                }
-                solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
-                if (explicitCommit) {
-                    solrClient.commit(collection);
-                }
-            } catch (IOException | SolrServerException e) {
-                e.printStackTrace();
-                throw new RuntimeException((e));
-            }
+        if (pids.isEmpty()) {
+            return;
         }
+        try {
+            List<SolrInputDocument> inputDocs = new ArrayList<>();
+            for (String pid : pids) {
+                SolrInputDocument inputDoc = new SolrInputDocument();
+                if (IterationUtils.useCompositeId()) {
+                    inputDoc.addField("compositeId", getCompositeIdByPid(pid));
+                }
+                inputDoc.addField("pid", pid);
+
+                Map<String, Object> updateData = new HashMap<>();
+                updateData.put("removeregex", value == null ? null : value.toString()); //'remove' neodstranuje vsechny kopie stejne hodnoty (ac to tvrdi dokumentace)
+                inputDoc.addField(fieldName, updateData);
+
+                if (indexTime) {
+                    Map<String, Object> timestamp = new HashMap<>();
+                    timestamp.put("set", ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
+                    inputDoc.addField("indexed", timestamp);
+                }
+
+                inputDocs.add(inputDoc);
+            }
+            solrClient.add(collection, inputDocs, MAX_TIME_WITHOUT_COMMIT_MS);
+            if (explicitCommit) {
+                commit();
+            }
+        } catch (IOException | SolrServerException e) {
+            e.printStackTrace();
+            throw new RuntimeException((e));
+        }
+
     }
 }

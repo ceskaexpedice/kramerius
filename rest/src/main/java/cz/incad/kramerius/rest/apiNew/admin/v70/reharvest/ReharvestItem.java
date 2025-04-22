@@ -15,6 +15,8 @@ import cz.incad.kramerius.utils.StringUtils;
  * Represents a reharvest task with different types and states.
  * A reharvest task can be in one of several states (open, running, failed, finished)
  * and can perform different types of reharvest operations (full reharvest, partial, deletion, etc.).
+ *
+ * @author Pavel Šťastný
  */
 public class ReharvestItem {
 
@@ -187,6 +189,7 @@ public class ReharvestItem {
      * Constructor initializing a reharvest task with only an ID.
      *
      * @param id Unique identifier
+     * Constructs a ReharvestItem with an ID only.
      */
     public ReharvestItem(String id) {
         super();
@@ -197,78 +200,57 @@ public class ReharvestItem {
     public String getId() {
         return id;
     }
-    
     public String getName() {
         return name;
     }
     public void setName(String name) {
         this.name = name;
     }
-    
     public String getState() {
         return state;
     }
-    
     public void setState(String state) {
         this.state = state;
     }
-    
     public String getPid() {
         return this.pid;
     }
-    
-    
     public void setPid(String pid) {
         this.pid = pid;
     }
-    
     public List<String> getLibraries() {
         return libraries;
     }
-    
     public void setLibraries(List<String> libraries) {
         this.libraries = libraries;
-        
     }
     public Instant getTimestamp() {
         return timestamp;
     }
-    
     public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
-    
-    
     public void setPodname(String podname) {
         this.podname = podname;
     }
-    
     public String getPodname() {
         return podname;
     }
-    
     public String getOwnPidPath() {
         return ownPidPath;
     }
-    
     public void setOwnPidPath(String ownPidPath) {
         this.ownPidPath = ownPidPath;
     }
-    
     public TypeOfReharvset getTypeOfReharvest() {
         return typeOfReharvest;
     }
-    
-    
     public void setTypeOfReharvest(TypeOfReharvset typeOfReharvest) {
         this.typeOfReharvest = typeOfReharvest;
     }
-    
-    
     public String getRootPid() {
         return rootPid;
     }
-    
     public void setRootPid(String rootPid) {
         this.rootPid = rootPid;
     }
