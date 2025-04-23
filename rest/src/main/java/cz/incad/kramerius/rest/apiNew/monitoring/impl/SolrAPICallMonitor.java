@@ -111,7 +111,8 @@ public class SolrAPICallMonitor implements APICallMonitor  {
         int threshold = KConfiguration.getInstance().getConfiguration().getInt("api.monitor.threshold", 1000);
         if (event.getDuration() > threshold) {
 
-            String apiMonitor = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/api");
+
+            String apiMonitor = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/monitor");
             String updateUrl = apiMonitor+(apiMonitor.endsWith("/") ?  "" : "/")+"update";
             try {
                 Document apiEvent = event.toSolrDocument(this.documentBuilderFactory);

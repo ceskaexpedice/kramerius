@@ -602,7 +602,12 @@ public class SolrUtils   {
      */
     public static InputStream requestWithSelectReturningStream(CloseableHttpClient client, String solrHost, String query, String type, ApiCallEvent event) throws IOException {
         List<Triple<String, Long, Long>> eventGranularity = event != null ?  event.getGranularTimeSnapshots() : null;
-        String url = String.format("%s/select?%s&wt=%s", solrHost, query, type);
+        String host = solrHost;
+        if (!host.endsWith("/")) {
+            host = host +"/";
+        }
+
+        String url = String.format("%sselect?%s&wt=%s", host, query, type);
         long start = System.currentTimeMillis();
         HttpGet httpGet = new HttpGet(url);
 //        LOGGER.info(String.format("Statistics HTTP GET %", httpGet.toString()));

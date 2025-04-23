@@ -362,4 +362,22 @@ public class ApiCallEvent {
             root.appendChild(field);
         }
     }
+
+    @Override
+    public String toString() {
+        return "ApiCallEvent{" +
+                "granularTimeSnapshots=" + granularTimeSnapshots +
+                ", labels=" + labels +
+                ", resource='" + resource + '\'' +
+                ", endpoint='" + endpoint + '\'' +
+                ", queryPart='" + queryPart + '\'' +
+                ", httpMethod='" + httpMethod + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", statusCode=" + statusCode +
+                ", userId='" + userId + '\'' +
+                ", pid='" + pid + '\'' +
+                ", ipAddress='" + ipAddress + '\'' +
+                '}';
+    }
 }
