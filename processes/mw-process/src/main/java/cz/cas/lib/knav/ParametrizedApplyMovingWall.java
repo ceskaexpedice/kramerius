@@ -31,8 +31,8 @@ public class ParametrizedApplyMovingWall {
 
         Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        SolrAccess sa = injector.getInstance(Key.get(SolrAccess.class, Names.named("new-index")));
 
-        SolrAccess sa = new SolrAccessImplNewIndex();
         CollectPidForIndexing coll = new CollectPidForIndexing();
 
         String[] pids = pidsString.split(",");

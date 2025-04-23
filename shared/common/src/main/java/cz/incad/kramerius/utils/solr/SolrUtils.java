@@ -27,6 +27,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -604,12 +605,15 @@ public class SolrUtils   {
         String url = String.format("%s/select?%s&wt=%s", solrHost, query, type);
         long start = System.currentTimeMillis();
         HttpGet httpGet = new HttpGet(url);
+//        LOGGER.info(String.format("Statistics HTTP GET %", httpGet.toString()));
         try (CloseableHttpResponse response = client.execute(httpGet)) {
             if (response.getCode() == SC_OK) {
                 long end = System.currentTimeMillis();
                 if (eventGranularity != null)  eventGranularity.add(Triple.of("http/solr",start,end));
                 return readContentAndProvideThroughBufferedStream(response.getEntity());
             } else {
+                String errContent = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
+                LOGGER.log(Level.SEVERE, String.format("Error message %s", errContent));
                 throw new HttpResponseException(response.getCode(), response.getReasonPhrase());
             }
         }

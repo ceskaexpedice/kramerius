@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.apiNew.client.v70;
+package cz.inovatika.http.clients;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -50,10 +50,10 @@ public class ApacheHTTPSolrClientProvider implements Provider<CloseableHttpClien
      */
     public ApacheHTTPSolrClientProvider() {
 
-        int maxConnections = KConfiguration.getInstance().getConfiguration().getInt("apache.client.max_connections", MAX_CONNECTIONS_IN);
-        int maxRoute = KConfiguration.getInstance().getConfiguration().getInt("apache.client.max_per_route", MAX_PER_ROUTE);
-        int connectTimeout = KConfiguration.getInstance().getConfiguration().getInt("apache.client.connect_timeout", CONNECT_TIMEOUT);
-        int responseTimeout = KConfiguration.getInstance().getConfiguration().getInt("apache.client.response_timeout", RESPONSE_TIMEOUT);
+        int maxConnections = KConfiguration.getInstance().getConfiguration().getInt("solr.apache.client.max_connections", MAX_CONNECTIONS_IN);
+        int maxRoute = KConfiguration.getInstance().getConfiguration().getInt("solr.apache.client.max_per_route", MAX_PER_ROUTE);
+        int connectTimeout = KConfiguration.getInstance().getConfiguration().getInt("solr.apache.client.connect_timeout", CONNECT_TIMEOUT);
+        int responseTimeout = KConfiguration.getInstance().getConfiguration().getInt("solr.apache.client.response_timeout", RESPONSE_TIMEOUT);
 
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
         connManager.setMaxTotal(maxConnections);

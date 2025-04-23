@@ -1,6 +1,5 @@
 package cz.incad.kramerius;
 
-import com.google.gson.JsonObject;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -100,13 +99,19 @@ public class DeleteTreeProcess {
             ignoreIncosistencies = Boolean.parseBoolean(args[argsIndex++]);
         }
 
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ResourceIndexModule());
+        Injector injector = Guice.createInjector(
+                new SolrModule(),
+                new ResourceIndexModule(),
+                new RepoModule(),
+                new NullStatisticsModule(),
+                new ResourceIndexModule());
+
         FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
         KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
 
         KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class));
+        SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccess.class, Names.named("new-index")));
 
-        SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccessImplNewIndex.class)); //FIXME: hardcoded implementation
         ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusApiRepository, ProcessUtils.getCoreBaseUrl());
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
 

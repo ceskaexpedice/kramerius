@@ -16,10 +16,13 @@
  */
 package cz.incad.kramerius.rest.api.guice;
 
+import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.impl.CachedSolrAccessImpl;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
 import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.monitor.APIMonitorResource;
@@ -57,7 +60,6 @@ import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 */
 import cz.incad.kramerius.rest.apiNew.client.v70.ApacheCDKForwardClientProvider;
 import cz.incad.kramerius.rest.apiNew.client.v70.ApacheCDKForwardPoolManagerProvider;
-import cz.incad.kramerius.rest.apiNew.client.v70.ApacheHTTPSolrClientProvider;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientProvider;
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.DefaultFilter;
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
@@ -81,7 +83,6 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * REST API module
@@ -160,10 +161,10 @@ public class ApiServletModule extends JerseyServletModule {
         // cdk forward client
         bind(CloseableHttpClient.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardClientProvider.class).asEagerSingleton();
         bind(PoolingHttpClientConnectionManager.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardPoolManagerProvider.class).asEagerSingleton();
-
-        bind(CloseableHttpClient.class).annotatedWith(Names.named("solr-client")).toProvider(ApacheHTTPSolrClientProvider.class).asEagerSingleton();
-
         bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
+
+        // solr apache client
+        bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);
 
 
         // API Admin 7.0 Resources

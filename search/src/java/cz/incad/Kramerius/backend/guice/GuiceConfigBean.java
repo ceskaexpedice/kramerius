@@ -73,7 +73,6 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
                 new SolrModule(),
 
-
                 new ResourceIndexModule(),
                 //new DatabaseStatisticsModule(),
 

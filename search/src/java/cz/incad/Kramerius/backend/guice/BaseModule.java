@@ -87,8 +87,6 @@ public class BaseModule extends AbstractModule {
 
         
         //bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
-        bind(SolrAccess.class).annotatedWith(Names.named("new-index")).to(SolrAccessImplNewIndex.class).in(Scopes.SINGLETON);
-        bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);
 
         bind(METSService.class).to(METSServiceImpl.class);
 
