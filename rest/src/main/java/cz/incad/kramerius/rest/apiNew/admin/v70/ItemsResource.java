@@ -59,7 +59,6 @@ public class ItemsResource extends AdminApiResource {
 
     private static final Integer DEFAULT_OFFSET = 0;
     private static final Integer DEFAULT_LIMIT = 10;
-    private final Client client;
 
 
     @javax.inject.Inject

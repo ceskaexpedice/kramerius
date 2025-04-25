@@ -98,7 +98,7 @@ public class StartupServlet extends GuiceServlet {
             VersionDbInitializer.initDatabase(k7dbConnection);
 
             // work mode table
-            WorkModeDbInitializer.initDatabase(connection);
+            WorkModeDbInitializer.initDatabase(k7dbConnection);
 
             // mostdesirable table
             MostDesirableDbInitializer.initDatabase(k7dbConnection, versionService);

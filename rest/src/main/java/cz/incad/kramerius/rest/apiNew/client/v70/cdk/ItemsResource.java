@@ -1232,7 +1232,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
-                return redirectHandler.audioMP3();
+                return redirectHandler.audioMP3(event);
             } else {
                 return Response.ok().build();
             }
