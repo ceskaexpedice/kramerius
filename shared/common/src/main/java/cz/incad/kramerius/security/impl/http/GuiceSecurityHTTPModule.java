@@ -30,7 +30,8 @@ public class GuiceSecurityHTTPModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(RightsResolver.class).to(RightsResolverFromRequest.class);
-        bind(RightsResolver.class).annotatedWith(Names.named("cachedRightsResolver")).to(RightsResolverFromRequestCached.class);
+
+        bind(RightsResolver.class).annotatedWith(Names.named("cachedRightsResolver")).to(RightsResolverFromRequestCached.class).asEagerSingleton();
 
         bind(User.class).toProvider(DbCurrentLoggedUser.class);
     }

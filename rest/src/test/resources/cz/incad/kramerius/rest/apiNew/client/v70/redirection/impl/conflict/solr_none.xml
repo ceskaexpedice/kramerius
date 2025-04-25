@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+    <lst name="responseHeader">
+        <bool name="zkConnected">true</bool>
+        <int name="status">0</int>
+        <int name="QTime">21</int>
+        <lst name="params">
+            <str name="q">pid:"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51"</str>
+            <str name="indent">true</str>
+            <str name="q.op">OR</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="0" start="0" maxScore="0" numFoundExact="true">
+    </result>
+</response>

@@ -208,17 +208,24 @@ public class ParallelProcessImpl {
         this.initialize(document.getDocumentElement());
 
 
+        /** Timestamp url */
         Element timestampElm = XMLUtils.findElement(document.getDocumentElement(),"timestamp");
         String timestamp = null;
         if (timestampElm != null) {
             timestamp = StringUtils.isAnyString(timestampElm.getTextContent().trim()) ? timestampElm.getTextContent() : null ;
         }
 
+        Element reharvestElm = XMLUtils.findElement(document.getDocumentElement(),"reharvest");
+        final AtomicReference<String> reharvestRef = new AtomicReference<>();
+        if (reharvestElm != null) {
+            String reharvest = StringUtils.isAnyString(reharvestElm.getTextContent().trim()) ? reharvestElm.getTextContent() : null ;
+            reharvestRef.set(reharvest);
+        }
+
         Element workingTimeElm = XMLUtils.findElement(document.getDocumentElement(),"workingtime");
         final AtomicReference<String> workingTime = new AtomicReference<>();
         if (workingTimeElm != null) {
             workingTime.set(workingTimeElm.getTextContent());
-            //workingtime = workingTimeElm.getTextContent();
         }
 
         Element sourceNameElm = XMLUtils.findElement(document.getDocumentElement(), "source-name");
@@ -241,7 +248,7 @@ public class ParallelProcessImpl {
         // Iterator instance
         Element iterationElm = XMLUtils.findElement(document.getDocumentElement(), "iteration");
 
-        this.iterator =processIteratorFactory.createProcessIterator(timestamp, iterationElm, this.client);
+        this.iterator = processIteratorFactory.createProcessIterator(timestamp, iterationElm, this.client);
 
         Element workerFactory = XMLUtils.findElement(document.getDocumentElement(),"workerFactory");
         String workerClass = workerFactory.getAttribute("class");
@@ -259,7 +266,7 @@ public class ParallelProcessImpl {
         final List<Worker>  worksWhatHasToBeDone = new ArrayList<>();
         try {
             this.iterator.iterate(this.client, (List<IterationItem> idents)->{
-                addNewWorkToWorkers(this.iterator, worksWhatHasToBeDone, idents, workingTime.get());
+                addNewWorkToWorkers(this.iterator,reharvestRef.get(), worksWhatHasToBeDone, idents, workingTime.get());
             }, ()-> {
                 finishRestWorkers(worksWhatHasToBeDone,workingTime.get());
             });
@@ -279,9 +286,9 @@ public class ParallelProcessImpl {
         this.threads = threadsElm != null ? Integer.parseInt(threadsElm.getTextContent()) : 2;
     }
 
-    private void addNewWorkToWorkers(ProcessIterator processIterator, List<Worker> worksWhatHasToBeDone, List<IterationItem> identifiers, String workingtime) {
+    private void addNewWorkToWorkers(ProcessIterator processIterator, String reharvestUrl, List<Worker> worksWhatHasToBeDone, List<IterationItem> identifiers, String workingtime) {
         try {
-            worksWhatHasToBeDone.add(createWorker(processIterator, this.workerElem, identifiers));
+            worksWhatHasToBeDone.add(createWorker(processIterator, reharvestUrl, this.workerElem, identifiers));
             if (worksWhatHasToBeDone.size() >= threads) {
                 startWorkers(worksWhatHasToBeDone, workingtime);
                 worksWhatHasToBeDone.clear();
@@ -293,9 +300,9 @@ public class ParallelProcessImpl {
 
 
 
-    private Worker createWorker(ProcessIterator iteratorInstance, Element workerElm, List<IterationItem> identifiers) {
+    private Worker createWorker(ProcessIterator iteratorInstance, String reharvestApi, Element workerElm, List<IterationItem> identifiers) {
         try {
-            return this.workerFactory.createWorker(this.sourceName, iteratorInstance, workerElm, this.client,identifiers, this.finisher);
+            return this.workerFactory.createWorker(this.sourceName, reharvestApi, iteratorInstance, workerElm, this.client,identifiers, this.finisher);
         } catch ( IllegalStateException  e ) {
             throw new RuntimeException("Cannot create worker instance "+e.getMessage());
         }

@@ -37,8 +37,14 @@ include 'processes:licenses'
 include 'processes:collections-backup'
 
 
+
+
 include 'security:authfilters'
 include 'security:oauth'
+
+// CDK Reharvest module
+include 'processes:cdkreharvest'
+include 'processes:cdkprocesses'
 
 
 //include 'authfilters'

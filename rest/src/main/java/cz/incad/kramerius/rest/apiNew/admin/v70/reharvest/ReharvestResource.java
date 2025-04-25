@@ -2,12 +2,12 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.reharvest;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 
 
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -24,6 +24,18 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
+import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.RightsResolver;
@@ -57,6 +69,15 @@ public class ReharvestResource {
     @Named("new-index")
     private SolrAccess solrAccess;
 
+    @Inject
+    DeleteTriggerSupport deleteTriggerSupport;
+
+    @javax.inject.Inject
+    @Named("forward-client")
+    private CloseableHttpClient apacheClient;
+
+    @Inject
+    private Instances libraries;
 
     @Inject
     private RightsResolver rightsResolver;
@@ -67,16 +88,20 @@ public class ReharvestResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getHarvests() {
-        if (permit()) {
-            JSONArray jsonArray = new JSONArray();
-            this.reharvestManager.getItems().forEach(ri -> {
-                jsonArray.put(ri.toJSON());
+    public Response getHarvests(@QueryParam("page") String page, @QueryParam("rows") String rows, @QueryParam("filters") String filterString) {
+        List<String> filters = new ArrayList<>();
+        if (StringUtils.isAnyString(filterString)) {
+            Arrays.asList(filterString.split(";")).stream().forEach(filter -> {
+                filters.add(filter);
             });
-            return Response.ok(jsonArray.toString()).build();
-        } else {
-            return Response.ok(Response.Status.FORBIDDEN).build();
         }
+
+
+        int iPage = StringUtils.isAnyString(page) ? Integer.parseInt(page) : 0;
+        int iRows = StringUtils.isAnyString(rows) ? Integer.parseInt(rows) : 20;
+        String str = this.reharvestManager.searchItems(iPage * iRows, iRows, filters);
+
+        return Response.ok(str).build();
     }
 
     @GET
@@ -111,6 +136,129 @@ public class ReharvestResource {
             return Response.ok(Response.Status.FORBIDDEN).build();
         }
 
+    }
+
+    @GET
+    @Path("resolveconflicts/{pids}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response resolveConflict(@PathParam("pids") String pids) {
+
+        String[] conflictIdPidsArray = pids.split(",");
+        Arrays.sort(conflictIdPidsArray);
+        String joined = String.join(",", conflictIdPidsArray).trim();
+        UUID conflictUUID = UUID.nameUUIDFromBytes(joined.getBytes(StandardCharsets.UTF_8));
+        String conflictId = conflictUUID.toString();
+
+        List<ReharvestItem> alreadySolvingConflict = this.reharvestManager.getItemByConflictId(conflictId);
+        if (alreadySolvingConflict.isEmpty() || alreadySolvingConflict.stream().noneMatch(item -> "waiting".equalsIgnoreCase(item.getState()))) {
+            String[] pidArray = pids.split(",");
+            for (String pid : pidArray) {
+
+                ReharvestItem deleteRoot = new ReharvestItem(UUID.randomUUID().toString());
+                deleteRoot.setTypeOfReharvest(ReharvestItem.TypeOfReharvset.delete_root);
+                deleteRoot.setName("Conflict - reharvest/delete invalid root");
+                deleteRoot.setRootPid(pid);
+                deleteRoot.setPid(pid);
+                deleteRoot.setState("waiting_for_approve");
+                deleteRoot.setConflictId(conflictId);
+                try {
+                    this.reharvestManager.register(deleteRoot);
+                } catch (AlreadyRegistedPidsException e) {
+                    throw new BadRequestException();
+                }
+            }
+
+            List<ReharvestItem> rootItems = new ArrayList<>();
+            List<ReharvestItem> childItems = new ArrayList<>();
+
+            List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
+            Arrays.stream(pidArray).forEach(pid -> {
+                try {
+                    Set<String> models = new HashSet<>();
+                    Set<String> rootPids = new HashSet<>();
+                    Set<String> pidPaths = new HashSet<>();
+                    Set<String> libs = new HashSet<>();
+                    JSONObject introspectResult = IntrospectUtils.introspectSolr(this.apacheClient, this.libraries, pid);
+                    for (Object keyo : introspectResult.keySet()) {
+                        String key = keyo.toString();
+
+                        JSONObject response = introspectResult.getJSONObject(key).optJSONObject("response");
+                        int numFound = response != null ? response.getInt("numFound") : 0;
+                        if (numFound > 0) {
+
+                            libs.add(key);
+
+                            JSONArray docs = response.getJSONArray("docs");
+                            JSONObject doc = docs.getJSONObject(0);
+                            String model = doc.optString("model");
+                            if (StringUtils.isAnyString(model)) {
+                                models.add(model);
+                            }
+                            String rootPid = doc.optString("root.pid");
+                            if (StringUtils.isAnyString(rootPid)) {
+                                rootPids.add(rootPid);
+                            }
+
+                            JSONArray oPidPaths = doc.optJSONArray("pid_paths");
+                            if (oPidPaths != null && oPidPaths.length() > 0) {
+                                pidPaths.add(oPidPaths.getString(0));
+                            }
+                        }
+                    }
+
+                    if (models.size() == 1) {
+                        // ok
+                        String model = models.iterator().next();
+
+                        ReharvestItem rItem = new ReharvestItem(UUID.randomUUID().toString());
+                        String rPid = rootPids.iterator().next();
+                        rItem.setRootPid(rPid);
+                        rItem.setLibraries(new ArrayList<>(libs));
+                        rItem.setTypeOfReharvest(topLevelModels.contains(model) ? TypeOfReharvset.root : TypeOfReharvset.children);
+                        rItem.setName(topLevelModels.contains(model) ? "Conflict - reharvest/root" : "Conflict - reharvest/children");
+                        rItem.setConflictId(conflictId);
+                        rItem.setState("waiting_for_approve");
+                        rItem.setPid(rPid);
+                        rItem.setOwnPidPath(pidPaths.iterator().next());
+
+                        if (topLevelModels.contains(model)) {
+                            rootItems.add(rItem);
+                        } else {
+                            childItems.add(rItem);
+                        }
+
+                        // root items first
+                        rootItems.forEach(item -> {
+                            try {
+                                this.reharvestManager.register(item, false);
+                            } catch (AlreadyRegistedPidsException e) {
+                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                            }
+                        });
+
+                        // child items second
+                        childItems.forEach(item -> {
+                            try {
+                                this.reharvestManager.register(item, false);
+                            } catch (AlreadyRegistedPidsException e) {
+                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                            }
+                        });
+                    } else {
+                        // live conflict
+                        throw new BadRequestException("Live conflict");
+                    }
+
+                } catch (UnsupportedEncodingException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            });
+            return Response.ok().build();
+        } else {
+            // bad request ??
+            throw new BadRequestException("Already registered");
+        }
     }
 
 
@@ -206,7 +354,7 @@ public class ReharvestResource {
 
                         case delete_tree:
                         case children:
-                            if (item != null && StringUtils.isAnyString(item.getRootPid()) && StringUtils.isAnyString(item.getOwnPidPath())) {
+                            if (item != null) {
                                 item.setTimestamp(Instant.now());
                                 this.reharvestManager.register(item, registrationFlag);
                                 return Response.ok(item.toJSON().toString()).build();
@@ -217,6 +365,7 @@ public class ReharvestResource {
                             }
 
 
+                        case delete_root:
                         case root:
                         case new_root:
                             if (item != null && StringUtils.isAnyString(item.getRootPid())) {
@@ -338,10 +487,19 @@ public class ReharvestResource {
     boolean permit() {
         User user = this.userProvider.get();
         if (user != null)
-            return this.rightsResolver.isActionAllowed(user,
-                    SecuredActions.A_ADMIN_READ.getFormalName(),
-                    SpecialObjects.REPOSITORY.getPid(), null,
-                    ObjectPidsPath.REPOSITORY_PATH).flag();
+            return this.rightsResolver.isActionAllowed(user, SecuredActions.A_ADMIN_READ.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag();
         else return false;
     }
+
+
+    @GET
+    @Path("deleteTrigger")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteTrigger(@QueryParam("pid") String pid) {
+        deleteTriggerSupport.executeDeleteTrigger(pid);
+        JSONObject retval = new JSONObject();
+        retval.put("message", "planned");
+        return Response.ok(retval.toString()).build();
+    }
+
 }

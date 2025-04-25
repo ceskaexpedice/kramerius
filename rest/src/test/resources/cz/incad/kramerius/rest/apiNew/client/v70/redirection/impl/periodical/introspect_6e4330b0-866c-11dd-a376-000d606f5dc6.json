@@ -1,0 +1,305 @@
+{
+  "svkhk": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "PID:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "PID,fedora.model,pid_path,root_pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "json"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "kfbz": {
+    "response": {
+      "docs": [
+        {
+          "root.pid": "uuid:12e13290-8300-11dd-9bc3-000d606f5dc6",
+          "pid_paths": [
+            "uuid:12e13290-8300-11dd-9bc3-000d606f5dc6/uuid:bf502a60-865f-11dd-95ea-000d606f5dc6/uuid:6e4330b0-866c-11dd-a376-000d606f5dc6"
+          ],
+          "model": "periodicalitem",
+          "pid": "uuid:6e4330b0-866c-11dd-a376-000d606f5dc6"
+        }
+      ],
+      "numFound": 1,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "svkkl": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "zcm": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "vse": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "knav": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "maxScore": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "zkConnected": true,
+      "QTime": 3,
+      "params": {
+        "q": "pid:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "kkp": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "nkp": {
+    "response": {
+      "docs": [
+        {
+          "fedora.model": "periodicalitem",
+          "root.pid": "uuid:12e13290-8300-11dd-9bc3-000d606f5dc6",
+          "pid_paths": [
+            "uuid:12e13290-8300-11dd-9bc3-000d606f5dc6/uuid:bf502a60-865f-11dd-95ea-000d606f5dc6/uuid:6e4330b0-866c-11dd-a376-000d606f5dc6"
+          ],
+          "PID": "uuid:6e4330b0-866c-11dd-a376-000d606f5dc6",
+          "pid": "uuid:6e4330b0-866c-11dd-a376-000d606f5dc6",
+          "model": "periodicalitem",
+          "pid_path": [
+            "uuid:12e13290-8300-11dd-9bc3-000d606f5dc6/uuid:bf502a60-865f-11dd-95ea-000d606f5dc6/uuid:6e4330b0-866c-11dd-a376-000d606f5dc6"
+          ],
+          "root_pid": "uuid:12e13290-8300-11dd-9bc3-000d606f5dc6"
+        }
+      ],
+      "numFound": 1,
+      "start": 0
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "PID:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "PID,fedora.model,pid_path,root_pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "upm": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "PID:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "PID,fedora.model,pid_path,root_pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "json"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "svkul": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "cbvk": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "_cdk_": {
+    "response": {
+      "docs": [
+        {
+          "root.pid": "uuid:12e13290-8300-11dd-9bc3-000d606f5dc6",
+          "pid_paths": [
+            "uuid:12e13290-8300-11dd-9bc3-000d606f5dc6/uuid:bf502a60-865f-11dd-95ea-000d606f5dc6/uuid:6e4330b0-866c-11dd-a376-000d606f5dc6"
+          ],
+          "model": "periodicalitem",
+          "pid": "uuid:6e4330b0-866c-11dd-a376-000d606f5dc6"
+        }
+      ],
+      "numFound": 1,
+      "start": 0,
+      "maxScore": 6.732386
+    },
+    "responseHeader": {
+      "zkConnected": true,
+      "QTime": 4,
+      "params": {
+        "q": "pid:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": "json"
+      },
+      "status": 0
+    }
+  },
+  "mzk": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:6e4330b0-866c-11dd-a376-000d606f5dc6\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  }
+}

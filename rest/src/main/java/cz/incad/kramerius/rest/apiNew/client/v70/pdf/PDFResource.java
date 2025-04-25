@@ -11,8 +11,8 @@ import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 //TODO: move exceptions from cz.incad.kramerius.rest.api.k5
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceBadRequestException;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceNotReadyException;
-import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
-import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
+import cz.inovatika.monitoring.APICallMonitor;
+import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.utils.FedoraUtils;

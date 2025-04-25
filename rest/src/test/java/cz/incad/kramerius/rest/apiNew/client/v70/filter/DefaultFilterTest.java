@@ -25,7 +25,6 @@ import cz.incad.kramerius.utils.XMLUtils;
 public class DefaultFilterTest {
 
 
-
     private List<String> cdkCollectionFromDoc(List<Element> respXML) {
         Element cdkCollection = XMLUtils.findElement(respXML.get(0), new  XMLUtils.ElementsFilter() {
             @Override

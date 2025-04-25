@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius;
 
+import cz.inovatika.monitoring.ApiCallEvent;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,6 +56,10 @@ public interface SolrAccess {
      * @throws IOException
      */
     public Document getSolrDataByPid(String pid) throws IOException;
+
+
+
+
 
     public Document getSolrDataByPid(String pid, String fl) throws IOException;
 
@@ -172,7 +177,7 @@ public interface SolrAccess {
      * @return
      * @throws IOException
      */
-    public Document requestWithSelectReturningXml(String query) throws IOException;
+    public Document requestWithSelectReturningXml(String query, ApiCallEvent event) throws IOException;
 
     /**
      * Returns SOLR data document (in json) for given SELECT query.
@@ -184,7 +189,7 @@ public interface SolrAccess {
      * @return
      * @throws IOException
      */
-    public JSONObject requestWithSelectReturningJson(String query) throws IOException;
+    public JSONObject requestWithSelectReturningJson(String query, ApiCallEvent event) throws IOException;
 
     /**
      * Returns SOLR data document (in xml or json) for given SELECT query.
@@ -200,7 +205,7 @@ public interface SolrAccess {
      * @deprecated instead use requestWithSelectReturningJson(), requestWithSelectReturningXml(query), or requestWithSelectReturningString(query,type)
      */
     @Deprecated
-    public InputStream requestWithSelectReturningInputStream(String query, String type) throws IOException;
+    public InputStream requestWithSelectReturningInputStream(String query, String type, ApiCallEvent event) throws IOException;
 
     /**
      * Returns SOLR data document (in xml or json) for given SELECT query.
@@ -211,10 +216,11 @@ public interface SolrAccess {
      *              for example: start=0&wt=json&fl=pid&q=indexed:%5B2021-02-01T18%5C:18%5C:00.000Z%20TO%20*%5D&rows=10
      *              notice the url encoding of query param content, here demonstrated on "indexed:[2021-02-01T18\:18\:00.000Z TO *]"
      * @param type  value "xml" or "json", this will be passed to query param wt
+     * @param event
      * @return
      * @throws IOException
      */
-    public String requestWithSelectReturningString(String query, String type) throws IOException;
+    public String requestWithSelectReturningString(String query, String type, ApiCallEvent event) throws IOException;
 
     /**
      * Returns SOLR data document (in xml or json) for given TERMS query.

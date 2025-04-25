@@ -30,7 +30,7 @@ public class KibanaMessageUtils {
 
     public static JSONObject basicPIDMessage(IterationItem item) {
         JSONObject jObject = new JSONObject();
-        jObject.put("pid",item.getPid());
+        jObject.put("pid",item.getId());
         jObject.put("source",item.getSource());
         return jObject;
     }

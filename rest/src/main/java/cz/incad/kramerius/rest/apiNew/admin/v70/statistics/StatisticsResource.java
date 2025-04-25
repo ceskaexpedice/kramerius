@@ -64,7 +64,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.http.client.HttpResponseException;
+import org.apache.hc.client5.http.HttpResponseException;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -149,7 +150,12 @@ public class StatisticsResource {
     @Named("new-index")
     private SolrAccess solrAccess;
 
-    
+
+    @javax.inject.Inject
+    @javax.inject.Named("solr-client")
+    javax.inject.Provider<CloseableHttpClient> provider;
+
+
     @DELETE
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response cleanData(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo) {
@@ -646,7 +652,7 @@ public class StatisticsResource {
                 fquery.append("fq").append("=").append(URLEncoder.encode(""+fq, "UTF-8")).append("&");
                 
                 
-                JSONObject obj =  this.solrAccess.requestWithSelectReturningJson(fquery.toString());
+                JSONObject obj =  this.solrAccess.requestWithSelectReturningJson(fquery.toString(), null);
                 JSONObject resp =  obj.optJSONObject("response");
                 if (resp != null) {
                     JSONArray docs = resp.getJSONArray("docs");
@@ -995,7 +1001,7 @@ public class StatisticsResource {
     
     private String buildSearchResponseJson(UriInfo uriInfo, String solrQuery) {
         try {
-            return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(logsEndpoint(), solrQuery, "json");
+            return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(this.provider.get(),logsEndpoint(), solrQuery, "json", null);
             
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
@@ -1017,7 +1023,7 @@ public class StatisticsResource {
 
     private String buildSearchResponseXml(UriInfo uriInfo,String solrQuery) {
         try {
-            return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(logsEndpoint(), solrQuery, "xml");
+            return cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningString(this.provider.get(), this. logsEndpoint(), solrQuery, "xml", null);
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
                 LOGGER.log(Level.INFO, "SOLR Bad Request: " + uriInfo.getRequestUri());
@@ -1059,7 +1065,7 @@ public class StatisticsResource {
                         
                         String encoded = URLEncoder.encode(String.format("date:[%s TO %s]", dateFrom, dateTo), "UTF-8");
                         builder.append("&fq="+encoded);
-                        InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpint, builder.toString(), "json");
+                        InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(),selectEndpint, builder.toString(), "json", null);
                         String string = org.apache.commons.io.IOUtils.toString(iStream, "UTF-8");
                         
                         JSONObject allResp = new JSONObject(string);

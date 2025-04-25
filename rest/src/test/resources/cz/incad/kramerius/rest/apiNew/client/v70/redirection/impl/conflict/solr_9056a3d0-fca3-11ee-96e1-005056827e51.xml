@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+<lst name="responseHeader">
+  <bool name="zkConnected">true</bool>
+  <int name="status">0</int>
+  <int name="QTime">60</int>
+  <lst name="params">
+    <str name="q">pid:"uuid:9056a3d0-fca3-11ee-96e1-005056827e51"</str>
+    <str name="indent">true</str>
+    <str name="q.op">OR</str>
+    <str name="wt">xml</str>
+  </lst>
+</lst>
+<result name="response" numFound="1" start="0" maxScore="7.391674" numFoundExact="true">
+  <doc>
+    <str name="pid">uuid:9056a3d0-fca3-11ee-96e1-005056827e51</str>
+    <str name="model">monograph</str>
+    <str name="title.search">Milenky: román o dvou dílech</str>
+    <arr name="titles.search">
+      <str>Milenky: román o dvou dílech</str>
+    </arr>
+    <date name="created">2024-04-17T18:50:27.568Z</date>
+    <date name="modified">2024-04-17T18:50:27.568Z</date>
+    <date name="indexed">2024-04-17T18:50:27.568Z</date>
+    <str name="accessibility">public</str>
+    <arr name="ddt">
+      <str/>
+    </arr>
+    <arr name="pid_paths">
+      <str>uuid:9056a3d0-fca3-11ee-96e1-005056827e51</str>
+    </arr>
+    <arr name="foster_parents.pids">
+      <str>uuid:9056a3d0-fca3-11ee-96e1-005056827e51</str>
+    </arr>
+    <str name="root.title">Milenky : román o dvou dílech</str>
+    <str name="root.pid">uuid:9056a3d0-fca3-11ee-96e1-005056827e51</str>
+    <int name="level">0</int>
+    <str name="date.str"/>
+    <str name="title.sort">MILENKY ROMA|N O DVOU DI|LEH|</str>
+    <str name="root.title.sort">MILENKY   ROMAN O DVOU DILEH|</str>
+    <str name="own_pid_path">uuid:9056a3d0-fca3-11ee-96e1-005056827e51</str>
+    <str name="own_parent.pid">uuid:9056a3d0-fca3-11ee-96e1-005056827e51</str>
+    <int name="rels_ext_index.sort">0</int>
+    <str name="own_model_path">monograph</str>
+    <arr name="id_oclc">
+      <str>85715944</str>
+    </arr>
+    <arr name="id_ccnb">
+      <str>cnb000901944</str>
+    </arr>
+    <arr name="licenses">
+      <str>public</str>
+    </arr>
+    <arr name="cdk.k5.license.translated">
+      <str>public</str>
+    </arr>
+    <str name="compositeId">uuid:9056a3d0-fca3-11ee-96e1-005056827e51!uuid:9056a3d0-fca3-11ee-96e1-005056827e51</str>
+    <arr name="cdk.licenses">
+      <str>nkp_public</str>
+    </arr>
+    <arr name="cdk.collection">
+      <str>nkp</str>
+      <str>mzk</str>
+    </arr>
+    <str name="cdk.leader">nkp</str>
+    <arr name="cdk.contains_licenses">
+      <str>mzk_public</str>
+    </arr>
+    <arr name="contains_licenses">
+      <str>public</str>
+    </arr>
+    <long name="_version_">1806829734731972608</long></doc>
+</result>
+</response>

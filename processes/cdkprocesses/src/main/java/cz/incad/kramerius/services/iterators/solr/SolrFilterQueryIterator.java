@@ -3,20 +3,22 @@ package cz.incad.kramerius.services.iterators.solr;
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.iterators.ProcessIterationCallback;
 import cz.incad.kramerius.services.iterators.ProcessIterationEndCallback;
-import cz.incad.kramerius.services.utils.SolrUtils;
-import cz.incad.kramerius.timestamps.TimestampStore;
+import cz.incad.kramerius.services.utils.KubernetesSolrUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static cz.incad.kramerius.services.utils.SolrUtils.*;
+import static cz.incad.kramerius.services.utils.KubernetesSolrUtils.*;
 import static cz.incad.kramerius.services.iterators.utils.IterationUtils.*;
 
 
@@ -34,21 +36,32 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
     }
 
 
-    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String user, String pass) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, user, pass);
+    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldsParam) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldsParam);
     }
 
-    public static Element pidsFilterQuery(Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint, String user, String pass)
+    public static Element pidsFilterApache(CloseableHttpClient client, String url, String mq, String lastPid, int rows, String fq, String endpoint,String[] fieldsParam)
             throws ParserConfigurationException, SAXException, IOException {
+        String query = pidsFilterQuery(mq, lastPid, rows, fq, endpoint, fieldsParam);
+        return KubernetesSolrUtils.executeQueryApache(client, url, query);
+    }
+
+    public static Element pidsFilterJersey(Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint,String[] fieldsParam)
+            throws ParserConfigurationException, SAXException, IOException {
+        String query = pidsFilterQuery(mq, lastPid, rows, fq, endpoint, fieldsParam);
+        return KubernetesSolrUtils.executeQueryJersey(client, url, query);
+    }
+
+    @NotNull
+    private static String pidsFilterQuery(String mq, String lastPid, int rows, String fq, String endpoint, String[] fieldsList) throws UnsupportedEncodingException {
         String fullQuery = null;
         if (StringUtils.isAnyString(fq)) {
-            fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *] AND "+fq, "UTF-8")) : String.format("&rows=%d&fq=%s", rows, URLEncoder.encode(fq,"UTF-8")));
+            fullQuery = (lastPid != null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+ lastPid +"\" TO *] AND "+ fq, "UTF-8")) : String.format("&rows=%d&fq=%s", rows, URLEncoder.encode(fq,"UTF-8")));
         } else {
-            fullQuery = (lastPid!= null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+lastPid+"\" TO *]", "UTF-8")) : String.format("&rows=%d", rows));
+            fullQuery = (lastPid != null ? String.format("&rows=%d&fq=PID:%s", rows, URLEncoder.encode("[\""+ lastPid +"\" TO *]", "UTF-8")) : String.format("&rows=%d", rows));
         }
-        String query = endpoint + "?q="+mq + fullQuery +"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID&wt=xml";
-        
-        return SolrUtils.executeQuery(client, url, query, user, pass);
+        String query = endpoint + "?q="+ mq + fullQuery +"&sort=" + URLEncoder.encode(DEFAULT_SORT_FIELD, "UTF-8")+"&fl=PID&wt=xml";
+        return query;
     }
 
     public static String findLastPid(Element elm) {
@@ -87,6 +100,24 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
         return null;
     }
 
+    @Override
+    public void iterate(CloseableHttpClient client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
+        try {
+            String lastPid = null;
+            String previousPid = null;
+            do {
+                Element element = pidsFilterApache( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.fieldList);
+                previousPid = lastPid;
+                lastPid = findLastPid(element);
+                iterationCallback.call(findAllPids(element, this.address, this.id));
+            }while(lastPid != null  && !lastPid.equals(previousPid));
+            // callback after iteration
+            endCallback.end();
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
     @Override
     public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
@@ -95,10 +126,10 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
             String previousPid = null;
             do {
                 //    private static Element pidsFilterQuery(ConfigurationBase configuration, Client client, String url, String mq, String lastPid, int rows, String fq)
-                Element element = pidsFilterQuery( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.user, this.pass);
+                Element element = pidsFilterJersey( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, fieldList);
                 previousPid = lastPid;
                 lastPid = findLastPid(element);
-                iterationCallback.call(pidsToIterationItem(this.address,findAllPids(element)));
+                iterationCallback.call(findAllPids(element, this.address, this.id));
             }while(lastPid != null  && !lastPid.equals(previousPid));
             // callback after iteration
             endCallback.end();

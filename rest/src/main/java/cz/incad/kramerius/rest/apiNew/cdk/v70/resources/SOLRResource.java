@@ -309,7 +309,7 @@ public class SOLRResource {
                 builder.append("&");
             }
         }
-        InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), format);
+        InputStream istream = this.solrAccess.requestWithSelectReturningInputStream(builder.toString(), format, null);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         IOUtils.copyStreams(istream, bos);
         String rawString = new String(bos.toByteArray(), "UTF-8");

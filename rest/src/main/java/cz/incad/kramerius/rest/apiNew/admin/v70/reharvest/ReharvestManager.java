@@ -6,38 +6,61 @@ import java.util.List;
 
 import org.json.JSONException;
 
+
+
 /**
- * Interface for managing reharvest operations in the digital library system.
- * Provides methods to register, update, retrieve, and deregister reharvest items.
+ * Interface for managing the reharvesting process in the Czech Digital Library (CDK).
+ * Reharvesting involves deleting and re-downloading digital works from all connected libraries
+ * to ensure data consistency and synchronization.
  */
 public interface ReharvestManager {
 
     /**
      * Registers a new reharvest item.
      *
-     * @param item The ReharvestItem to be registered.
-     * @param registerIfAlreadyExists  TA flag indicating whether registration is allowed if the PID is already in the reharvesting list.
-     * @throws AlreadyRegistedPidsException If the PID is already registered.
+     * @param item The reharvest item to be registered.
+     * @throws AlreadyRegistedPidsException If the item is already registered.
      */
-    public void register(ReharvestItem item, boolean registerIfAlreadyExists ) throws AlreadyRegistedPidsException;
+    public void register(ReharvestItem item) throws AlreadyRegistedPidsException;
+
+    /**
+     * Registers a new reharvest item, with an option to prevent multiple registrations.
+     *
+     * @param item The reharvest item to be registered.
+     * @param preventMultipleRegistrationFlag If true, prevents the item from being registered multiple times.
+     * @throws AlreadyRegistedPidsException If the item is already registered and multiple registration is not allowed.
+     */
+    public void register(ReharvestItem item, boolean preventMultipleRegistrationFlag) throws AlreadyRegistedPidsException;
 
     /**
      * Updates an existing reharvest item.
      *
-     * @param item The ReharvestItem with updated data.
-     * @return The updated ReharvestItem.
+     * @param item The reharvest item to be updated.
+     * @return The updated reharvest item.
      * @throws UnsupportedEncodingException If encoding issues occur.
      * @throws JSONException If JSON processing fails.
-     * @throws ParseException If date parsing fails.
+     * @throws ParseException If a parsing error occurs.
      */
     public ReharvestItem update(ReharvestItem item) throws UnsupportedEncodingException, JSONException, ParseException;
 
     /**
-     * Retrieves a list of all reharvest items.
+     * Retrieves a list of all registered reharvest items.
      *
-     * @return A list of ReharvestItem objects.
+     * @return A list of all reharvest items.
      */
-    public List<ReharvestItem> getItems();
+    public List<ReharvestItem> getAllItems();
+
+
+    /**
+     * Searches for reharvest items based on filters.
+     *
+     * @param start The starting index for pagination.
+     * @param rows The number of results to return.
+     * @param filters A list of filters to apply to the search.
+     * @return A JSON string containing the search results.
+     */
+    public String searchItems(int start, int rows, List<String> filters);
+
 
     /**
      * Retrieves the highest-priority reharvest item with a given status.
@@ -50,18 +73,21 @@ public interface ReharvestManager {
     /**
      * Retrieves a reharvest item by its unique identifier.
      *
-     * @param id The ID of the item.
-     * @return The corresponding ReharvestItem.
+     * @param id The unique identifier of the item.
+     * @return The corresponding reharvest item.
      */
     public ReharvestItem getItemById(String id);
 
+    public List<ReharvestItem> getItemByConflictId(String id);
+
     /**
-     * Retrieves an open reharvest item by its PID.
+     * Retrieves an open reharvest item based on its persistent identifier (PID).
      *
-     * @param pid The PID of the item.
-     * @return The open ReharvestItem associated with the given PID.
+     * @param pid The persistent identifier of the item.
+     * @return The open reharvest item matching the specified PID.
      */
     public ReharvestItem getOpenItemByPid(String pid);
+
 
     /**
      * Deregisters a reharvest item by its ID.

@@ -14,8 +14,8 @@ import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations.
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
-import cz.incad.kramerius.rest.apiNew.monitoring.APICallMonitor;
-import cz.incad.kramerius.rest.apiNew.monitoring.ApiCallEvent;
+import cz.inovatika.monitoring.APICallMonitor;
+import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.rest.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.licenses.LicensesManager;
@@ -169,6 +169,7 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     APICallMonitor apiCallMonitor;
+
 
     public ItemsResource() {
         super();
@@ -1211,7 +1212,7 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
-    
+
     private void checkIIIFSize(String pid, String size) {
      
         org.apache.commons.lang3.tuple.Pair<String, String> iiifValues = iiifValues(size);
@@ -1284,7 +1285,7 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
-    
+
     @GET
     @Path("{pid}/introspect/{data}")
     public Response introspect(@PathParam("pid") String pid,@PathParam("data") String data) {
@@ -1381,7 +1382,7 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
-    
+
     // =========== EPub specific endpoints
     @HEAD
     @Path("{pid}/epub")
@@ -1413,7 +1414,7 @@ public class ItemsResource extends ClientApiResource {
         boolean epub = datastreamMimetype != null  && datastreamMimetype.equals(ImageMimeType.EPUB.getValue());
         return epub;
     }
-    
+
     @GET
     @Path("{pid}/epub/{path: .*}")
     public Response getPaths(@PathParam("pid") String pid, @PathParam("path") PathSegment pathSegment,@Context UriInfo info ) {
@@ -1431,7 +1432,7 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
-    
+
     private Response getEpubInternalPart(String pid, List<String> paths) {
         try {
             String path = paths.stream().collect(Collectors.joining("/"));

@@ -36,6 +36,7 @@ import java.util.logging.Logger;
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -76,7 +77,11 @@ public class ModelStatisticReport extends AbstractStatisticsReport implements St
 
     public static final String REPORT_ID = "model";
 
-    
+
+    @javax.inject.Inject
+    @javax.inject.Named("solr-client")
+    private javax.inject.Provider<CloseableHttpClient> provider;
+
     @Inject
     @Named("new-index")
     SolrAccess solrAccess;
@@ -96,7 +101,7 @@ public class ModelStatisticReport extends AbstractStatisticsReport implements St
             String facetValue = "pids_"+modelFilter.getModel();
             builder.append("&rows=0&facet=true&facet.mincount=1&facet.field="+facetValue);
             
-            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpoint, builder.toString(), "json");
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(), selectEndpoint, builder.toString(), "json", null);
             String string = IOUtils.toString(iStream, "UTF-8");
             
             ReportUtils.facetIterate(facetValue, string, p-> {
@@ -127,7 +132,7 @@ public class ModelStatisticReport extends AbstractStatisticsReport implements St
     }
 
     private String titleFromSolr(Object key) throws IOException {
-        JSONObject result = solrAccess.requestWithSelectReturningJson(String.format("q=%s", URLEncoder.encode("pid:\""+key.toString()+"\"", "UTF-8")) );
+        JSONObject result = solrAccess.requestWithSelectReturningJson(String.format("q=%s", URLEncoder.encode("pid:\""+key.toString()+"\"", "UTF-8")), null );
         if (result.has("response")) {
             JSONObject response = result.getJSONObject("response");
             JSONArray docs = response.getJSONArray("docs");
@@ -170,7 +175,7 @@ public class ModelStatisticReport extends AbstractStatisticsReport implements St
             String facetValue = "pids_"+modelFilter.getModel();
             builder.append("&rows=0&facet=true&facet.mincount=1&facet.field="+facetValue);
             
-            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(selectEndpoint, builder.toString(), "json");
+            InputStream iStream = cz.incad.kramerius.utils.solr.SolrUtils.requestWithSelectReturningStream(this.provider.get(), selectEndpoint, builder.toString(), "json", null);
             String string = IOUtils.toString(iStream, "UTF-8");
             
             ReportUtils.facetIterate(facetValue, string, p-> {

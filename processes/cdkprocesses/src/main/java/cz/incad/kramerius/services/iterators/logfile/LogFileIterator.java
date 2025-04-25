@@ -7,6 +7,7 @@ import cz.incad.kramerius.services.iterators.ProcessIterator;
 import cz.incad.kramerius.services.iterators.utils.IterationUtils;
 import cz.incad.kramerius.timestamps.TimestampStore;
 
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONObject;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -31,6 +32,10 @@ public class LogFileIterator implements ProcessIterator{
 
     @Override
     public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
+        iterate(iterationCallback, endCallback);
+    }
+
+    private void iterate(ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
         try {
             URL url = new URL(this.address);
             InputStream is = url.openStream();
@@ -51,5 +56,10 @@ public class LogFileIterator implements ProcessIterator{
         } catch (IOException | ParserConfigurationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void iterate(CloseableHttpClient client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
+        iterate(iterationCallback, endCallback);
     }
 }

@@ -1,22 +1,31 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection.user;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import javax.ws.rs.core.Response;
-
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import cz.inovatika.cdk.cache.CDKRequestItem;
+import cz.inovatika.cdk.cache.impl.CDKRequestItemFactory;
+import cz.inovatika.monitoring.ApiCallEvent;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
@@ -30,9 +39,15 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class V5ForwardUserHandler extends ProxyUserHandler {
 
-    public V5ForwardUserHandler(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source,
-            String remoteAddr) {
-        super(reharvestManager,instances, user, client, solrAccess, source, remoteAddr);
+    public V5ForwardUserHandler(CDKRequestCacheSupport cacheSupport,
+                                ReharvestManager reharvestManager,
+                                Instances instances,
+                                User user,
+                                CloseableHttpClient closeableHttpClient,
+                                SolrAccess solrAccess,
+                                String source,
+                                String remoteAddr) {
+        super(cacheSupport,reharvestManager,instances, user, closeableHttpClient,  solrAccess, source, remoteAddr);
     }
 
     protected String forwardUrl() {
@@ -42,22 +57,55 @@ public class V5ForwardUserHandler extends ProxyUserHandler {
     }
 
     @Override
-    public Pair<User, List<String>> user() throws ProxyHandlerException {
-        try {
-            String baseurl = forwardUrl();
-            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/user";
-            ClientResponse fResponse = super.forwardedResponse(url);
+    public Pair<User, List<String>> user(ApiCallEvent event) throws ProxyHandlerException {
+        String baseurl = forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/user";
 
-            if (fResponse.getStatus() != 200) {
-                String errorMessage = "Chyba při volání API: Status code " + fResponse.getStatus() + ", URL: " + url;
-                LOGGER.log(Level.SEVERE, errorMessage);
-                throw new ProxyHandlerException(errorMessage);
+        String userData = super.cacheHit(url, event);
+        if (userData != null) {
+            return userFromJSON(new JSONObject(userData));
+        }
+
+        List<Triple<String, Long, Long>> granularTimeSnapshots = event != null ?  event.getGranularTimeSnapshots() : null;
+        long start = System.currentTimeMillis();
+
+
+        HttpGet httpGet = super.apacheGet(url, true);
+        try (CloseableHttpResponse response = apacheClient.execute(httpGet)) {
+            int code = response.getCode();
+            if (code == 200) {
+
+                long stop = System.currentTimeMillis();
+                if (granularTimeSnapshots != null) {
+                    granularTimeSnapshots.add(Triple.of(String.format("http/v5/%s", this.getSource()), start, stop));
+                }
+
+                HttpEntity entity = response.getEntity();
+                InputStream is = entity.getContent();
+                String jsonUser = IOUtils.toString(is, Charset.forName("UTF-8"));
+                try {
+                    CDKRequestItem<String> cacheItem = (CDKRequestItem<String>)  CDKRequestItemFactory.createCacheItem(
+                            jsonUser,
+                            "application/json",
+                            url,
+                            null,
+                            source,
+                            LocalDateTime.now(),
+                            userCacheIdentification()
+                    );
+                    LOGGER.info( String.format("Cache item is %s", cacheItem.toString()));
+                    this.cacheSupport.save(cacheItem);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                }
+
+                JSONObject jObject = new JSONObject(jsonUser);
+                return userFromJSON(jObject);
+            } else {
+                LOGGER.warning(String.format("Cannot connect %s",url));
+                return null;
             }
-
-            String entity = fResponse.getEntity(String.class);
-            JSONObject jObject = new JSONObject(entity);
-            return userFromJSON(jObject);
-        } catch (ClientHandlerException | UniformInterfaceException | JSONException | ProxyHandlerException e) {
+        }catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return null;
         }

@@ -24,6 +24,7 @@ import org.ceskaexpedice.akubra.processingindex.CursorItemsPair;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -82,10 +83,13 @@ public class ItemsResource extends AdminApiResource {
     @Inject
     private Instances libraries;
 
+    @Inject
+    @Named("forward-client")
+    private CloseableHttpClient apacheClient;
 
     public ItemsResource() {
         super();
-        this.client = Client.create();
+        //this.client = Client.create();
     }
 
 
@@ -266,7 +270,7 @@ public class ItemsResource extends AdminApiResource {
                     throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
                 }
                 try {
-                    JSONObject obj = IntrospectUtils.introspectSolr(this.client, this.libraries, pid, true);
+                    JSONObject obj = IntrospectUtils.introspectSolr(this.apacheClient, this.libraries, pid, true);
                     return Response.ok(obj.toString()).build();
                 } catch (UnsupportedEncodingException | JSONException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);

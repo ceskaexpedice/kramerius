@@ -1,0 +1,298 @@
+{
+  "svkhk": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "PID:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "PID,fedora.model,pid_path,root_pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "json"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "kfbz": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "svkkl": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 1,
+      "params": {
+        "q": "pid:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "zcm": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "vse": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "knav": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "maxScore": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "zkConnected": true,
+      "QTime": 4,
+      "params": {
+        "q": "pid:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "kkp": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "nkp": {
+    "response": {
+      "docs": [
+        {
+          "fedora.model": "monographunit",
+          "root.pid": "uuid:9056a3d0-fca3-11ee-96e1-005056827e51",
+          "pid_paths": [
+            "uuid:9056a3d0-fca3-11ee-96e1-005056827e51/uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51"
+          ],
+          "PID": "uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51",
+          "pid": "uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51",
+          "model": "monographunit",
+          "pid_path": [
+            "uuid:9056a3d0-fca3-11ee-96e1-005056827e51/uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51"
+          ],
+          "root_pid": "uuid:9056a3d0-fca3-11ee-96e1-005056827e51"
+        }
+      ],
+      "numFound": 1,
+      "start": 0
+    },
+    "responseHeader": {
+      "QTime": 3,
+      "params": {
+        "q": "PID:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "PID,fedora.model,pid_path,root_pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "upm": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "PID:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "PID,fedora.model,pid_path,root_pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "json"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "svkul": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "cbvk": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 0,
+      "params": {
+        "q": "pid:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  },
+  "_cdk_": {
+    "response": {
+      "docs": [],
+      "numFound": 0,
+      "start": 0,
+      "maxScore": 0
+    },
+    "responseHeader": {
+      "zkConnected": true,
+      "QTime": 8,
+      "params": {
+        "q": "pid:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": "json"
+      },
+      "status": 0
+    }
+  },
+  "mzk": {
+    "response": {
+      "docs": [
+        {
+          "root.pid": "uuid:9056a3d0-fca3-11ee-96e1-005056827e51",
+          "pid_paths": [
+            "uuid:9056a3d0-fca3-11ee-96e1-005056827e51/uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51",
+            "uuid:7c9f1409-0318-4e6d-9bbb-a2438e9e600b/uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51",
+            "uuid:69af3595-5410-41e0-ad5e-e3dfd9cb085f/uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51"
+          ],
+          "model": "monographunit",
+          "pid": "uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51"
+        }
+      ],
+      "numFound": 1,
+      "start": 0,
+      "numFoundExact": true
+    },
+    "responseHeader": {
+      "QTime": 1,
+      "params": {
+        "q": "pid:\"uuid:5c1f0af0-31a5-11e3-8d9d-005056827e51\"",
+        "fl": "pid,model,pid_paths,root.pid",
+        "rows": "10",
+        "wt": [
+          "json",
+          "xml"
+        ]
+      },
+      "status": 0
+    }
+  }
+}

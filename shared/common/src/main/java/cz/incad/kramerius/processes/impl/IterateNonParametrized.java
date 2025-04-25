@@ -106,7 +106,7 @@ public class IterateNonParametrized {
                         }
                     }
 
-                    Document resp = solrAccess.requestWithSelectReturningXml(request);
+                    Document resp = solrAccess.requestWithSelectReturningXml(request, null);
                     Element resultelm = XMLUtils.findElement(resp.getDocumentElement(), "result");
                     // define size
                     size = Integer.parseInt(resultelm.getAttribute("numFound"));

@@ -9,8 +9,6 @@ import java.util.TimeZone;
 public class MyDateTimeUtils {
 
     private static final String TIMEZONE = "UTC";
-    //private static final String TIMEZONE = "GMT";
-    //private static final String TIMEZONE="CET";
 
     /**
      * @param day

@@ -16,13 +16,14 @@
  */
 package cz.incad.kramerius.rest.api.guice;
 
-import com.google.inject.multibindings.Multibinder;
+import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.impl.CachedSolrAccessImpl;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
-import cz.incad.kramerius.rest.apiNew.admin.v70.files.GenerateDownloadLinks;
 import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.monitor.APIMonitorResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.proxy.ConnectedInfoResource;
@@ -57,13 +58,13 @@ import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.rights.ClientRightsResource;
 import cz.incad.kramerius.rest.api.k5.client.search.SearchResource;
 */
+import cz.incad.kramerius.rest.apiNew.client.v70.ApacheCDKForwardClientProvider;
+import cz.incad.kramerius.rest.apiNew.client.v70.ApacheCDKForwardPoolManagerProvider;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientProvider;
-import cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.DefaultFilter;
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.properties.DefaultPropertiesInstances;
-import cz.incad.kramerius.rest.apiNew.exts.v70.ExtsTokensResource;
 import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.timestamps.impl.SolrTimestampStore;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -77,6 +78,8 @@ import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyReader;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyWriter;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -154,14 +157,16 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.AsyncPDFResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.LocksResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.res.EmbeddedFilesResource.class);
-        
-        
-        bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
-        // only in cdk
-        //bind(cz.incad.kramerius.rest.apiNew.client.v60.ItemsResource.class);
 
-        
-        
+        // cdk forward client
+        bind(CloseableHttpClient.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardClientProvider.class).asEagerSingleton();
+        bind(PoolingHttpClientConnectionManager.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardPoolManagerProvider.class).asEagerSingleton();
+        bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
+
+        // solr apache client
+        bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);
+
+
         // API Admin 7.0 Resources
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.collections.CollectionsResource.class);
@@ -174,8 +179,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.conf.Configurations.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.AdminLockResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.index.IndexReflectionResource.class);
-        //bind(cz.incad.kramerius.rest.apiNew.admin.v70.processing.ProcessingSupportResource.class);
-        
+
         // OAI endpoint
         bind(cz.incad.kramerius.rest.oai.OAIEndpoint.class);
         
@@ -194,7 +198,6 @@ public class ApiServletModule extends JerseyServletModule {
         // debug resource
         //bind(HTTPHeaders.class);
 
-        	
         bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
 					.asEagerSingleton();
 
@@ -205,16 +208,15 @@ public class ApiServletModule extends JerseyServletModule {
         // decorators
         //decorators();
 
-        // cdk
+        /** CDK Part */
         bind(TimestampStore.class).to(SolrTimestampStore.class).asEagerSingleton();
         bind(Instances.class).to(DefaultPropertiesInstances.class).asEagerSingleton();
         bind(ReharvestManager.class).to(SolrReharvestManagerImpl.class).asEagerSingleton();
         bind(ProxyFilter.class).to(DefaultFilter.class);
-        
+
         // config 
         if (cdkServerMode) {
             bind(ConnectedInfoResource.class);
-            bind(ReharvestResource.class);
             bind(ReharvestResource.class);
         }
 

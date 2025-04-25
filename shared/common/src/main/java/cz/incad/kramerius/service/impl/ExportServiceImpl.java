@@ -175,6 +175,7 @@ public class ExportServiceImpl implements ExportService {
      */
     public static void main(String[] args) throws IOException, TransformerException, SAXException, ParserConfigurationException {
         LOGGER.info("Export service: " + Arrays.toString(args));
+
         com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
         SecuredAkubraRepository akubraRepository = injector.getInstance(com.google.inject.Key.get(SecuredAkubraRepository.class));
         Boolean exportParents = null;

@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -73,7 +74,7 @@ public class OAIEndpoint extends ClientApiResource {
 
     @Inject
     @Named("forward-client")
-    Provider<Client> clientProvider;
+    Provider<CloseableHttpClient> clientProvider;
     
     @Inject
     Provider<User> userProvider;

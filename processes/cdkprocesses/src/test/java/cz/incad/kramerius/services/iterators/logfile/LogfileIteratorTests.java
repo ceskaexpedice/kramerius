@@ -4,7 +4,6 @@ import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.iterators.ProcessIterator;
 import cz.incad.kramerius.services.iterators.ProcessIteratorFactory;
-import cz.incad.kramerius.services.iterators.solr.SolrCursorIterator;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.fcrepo.utilities.FileUtils;
 import org.junit.Assert;
@@ -56,7 +55,7 @@ public class LogfileIteratorTests {
 
         List<String> iteratedPids = new ArrayList<>();
         processIterator.iterate(client, (List<IterationItem> idents)->{
-            iteratedPids.addAll(idents.stream().map(IterationItem::getPid).collect(Collectors.toList()));
+            iteratedPids.addAll(idents.stream().map(IterationItem::getId).collect(Collectors.toList()));
         }, ()-> { });
 
         Assert.assertTrue(iteratedPids.size() == 2000);

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+    <lst name="responseHeader">
+        <bool name="zkConnected">true</bool>
+        <int name="status">0</int>
+        <int name="QTime">9</int>
+        <lst name="params">
+            <str name="q">pid:uuid\:f72ece0d-a023-44cb-a903-e69435161721</str>
+            <str name="wt">xml</str>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" start="0" maxScore="6.7428203">
+        <doc>
+            <str name="accessibility">private</str>
+            <int name="count_page">2</int>
+            <date name="created">2024-10-18T07:10:58.724Z</date>
+            <date name="date.max">1970-12-31T23:59:59.999Z</date>
+            <date name="date.min">1970-01-01T00:00:00.001Z</date>
+            <str name="date.str">1970</str>
+            <int name="date_range_end.year">1970</int>
+            <int name="date_range_start.year">1970</int>
+            <bool name="has_tiles">false</bool>
+            <arr name="id_ccnb">
+                <str>cnb003581996</str>
+            </arr>
+            <arr name="id_urnnbn">
+                <str>urn:nbn:cz:klg001-0007xv</str>
+            </arr>
+            <arr name="id_uuid">
+                <str>f72ece0d-a023-44cb-a903-e69435161721</str>
+            </arr>
+            <date name="indexed">2024-10-18T07:11:08.203Z</date>
+            <int name="indexer_version">19</int>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">0</int>
+            <arr name="licenses">
+                <str>onsite</str>
+            </arr>
+            <str name="model">monograph</str>
+            <date name="modified">2024-10-18T07:11:00.179Z</date>
+            <str name="own_model_path">monograph</str>
+            <str name="own_pid_path">uuid:f72ece0d-a023-44cb-a903-e69435161721</str>
+            <arr name="physical_locations.facet">
+                <str>KLG001</str>
+            </arr>
+            <str name="pid">uuid:f72ece0d-a023-44cb-a903-e69435161721</str>
+            <arr name="pid_paths">
+                <str>uuid:f72ece0d-a023-44cb-a903-e69435161721</str>
+            </arr>
+            <arr name="publication_places.facet">
+                <str>Praha</str>
+            </arr>
+            <arr name="publication_places.search">
+                <str>Praha</str>
+            </arr>
+            <arr name="publishers.facet">
+                <str>Středisko státní památkové péče a ochrany přírody Středočeského kraje</str>
+            </arr>
+            <arr name="publishers.search">
+                <str>Středisko státní památkové péče a ochrany přírody Středočeského kraje</str>
+            </arr>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:f72ece0d-a023-44cb-a903-e69435161721</str>
+            <str name="root.title">Chráněná přírodní území Středočeského kraje</str>
+            <str name="root.title.sort">H|RA|NE|NA| PR|I|RODNI| U|ZEMI| STR|EDOC|ESKE|HO KRAJE</str>
+            <arr name="shelf_locators">
+                <str>R 5194</str>
+            </arr>
+            <str name="title.search">Chráněná přírodní území Středočeského kraje</str>
+            <str name="title.sort">H|RA|NE|NA| PR|I|RODNI| U|ZEMI| STR|EDOC|ESKE|HO KRAJE</str>
+            <arr name="titles.search">
+                <str>Chráněná přírodní území Středočeského kraje</str>
+            </arr>
+            <str name="compositeId">uuid:f72ece0d-a023-44cb-a903-e69435161721!uuid:f72ece0d-a023-44cb-a903-e69435161721</str>
+            <arr name="cdk.licenses">
+                <str>svkkl_onsite</str>
+            </arr>
+            <arr name="cdk.collection">
+                <str>svkkl</str>
+            </arr>
+            <str name="cdk.leader">svkkl</str>
+            <long name="_version_">1815769588232617984</long></doc>
+    </result>
+</response>

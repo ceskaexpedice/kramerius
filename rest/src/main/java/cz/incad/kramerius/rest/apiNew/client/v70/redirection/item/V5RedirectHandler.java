@@ -25,30 +25,81 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.core.Response;
+
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import cz.inovatika.monitoring.ApiCallEvent;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.UniformInterfaceException;
+
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.fedora.om.RepositoryException;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi.FosterRelationsMapping;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownRelations;
+import cz.incad.kramerius.repository.KrameriusRepositoryApi.OwnRelationsMapping;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+
 public class V5RedirectHandler extends ProxyItemHandler {
 
     public static final Logger LOGGER = Logger.getLogger(V5RedirectHandler.class.getName());
 
-    public V5RedirectHandler(ReharvestManager reharvestManager, Instances instances, User user, Client client, SolrAccess solrAccess, String source,
-            String pid, String remoteAddr) {
-        super(reharvestManager, instances, user, client, solrAccess, source, pid, remoteAddr);
+
+    public V5RedirectHandler(CDKRequestCacheSupport cacheSupport,
+                             ReharvestManager reharvestManager,
+                             Instances instances,
+                             User user,
+                             CloseableHttpClient closeableHttpClient,
+                             DeleteTriggerSupport deleteTriggerSupport,
+                             SolrAccess solrAccess,
+                             String source,
+                             String pid,
+                             String remoteAddr) {
+        super(cacheSupport,
+                reharvestManager,
+                instances,
+                user,
+                closeableHttpClient,
+                deleteTriggerSupport,
+                solrAccess,
+                source,
+                pid,
+                remoteAddr);
     }
 
     @Override
-    public Response image(RequestMethodName method) throws ProxyHandlerException {
+    public Response image(RequestMethodName method, ApiCallEvent callEvent) throws ProxyHandlerException {
         String baseurl = super.baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/IMG_FULL";
         return buildRedirectResponse(url);
     }
 
     @Override
-    public Response imagePreview(RequestMethodName method) throws ProxyHandlerException {
+    public Response imagePreview(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = super.baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid
                 + "/streams/IMG_PREVIEW";
@@ -56,28 +107,28 @@ public class V5RedirectHandler extends ProxyItemHandler {
     }
 
     @Override
-    public Response textOCR(RequestMethodName method) throws ProxyHandlerException {
+    public Response textOCR(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = super.baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/TEXT_OCR";
         return buildRedirectResponse(url);
     }
 
     @Override
-    public Response altoOCR(RequestMethodName method) throws ProxyHandlerException {
+    public Response altoOCR(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = super.baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/ALTO";
         return buildRedirectResponse(url);
     }
 
     @Override
-    public Response zoomifyImageProperties(RequestMethodName method) throws ProxyHandlerException {
+    public Response zoomifyImageProperties(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "zoomify/" + this.pid + "/ImageProperties.xml";
         return buildRedirectResponse(url);
     }
 
     @Override
-    public Response mods(RequestMethodName method) throws ProxyHandlerException {
+    public Response mods(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = super.baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid
                 + "/streams/BIBLIO_MODS";
@@ -85,7 +136,7 @@ public class V5RedirectHandler extends ProxyItemHandler {
     }
 
     @Override
-    public Response dc(RequestMethodName method) throws ProxyHandlerException {
+    public Response dc(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = super.baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/DC";
         return buildRedirectResponse(url);
@@ -93,14 +144,14 @@ public class V5RedirectHandler extends ProxyItemHandler {
 
 
     @Override
-    public InputStream directStreamDC() throws ProxyHandlerException {
+    public InputStream directStreamDC(ApiCallEvent event) throws ProxyHandlerException {
         return directStream("DC");
     }
     
     
     
     @Override
-    public InputStream directStreamBiblioMods() throws ProxyHandlerException {
+    public InputStream directStreamBiblioMods(ApiCallEvent event) throws ProxyHandlerException {
         return directStream("BIBLIO_MODS");
     }
     
@@ -108,37 +159,28 @@ public class V5RedirectHandler extends ProxyItemHandler {
     private InputStream directStream(String stream) throws ProxyHandlerException {
         String baseurl = super.baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/"+stream;
-        WebResource.Builder b = buidForwardResponse(url);
-        ClientResponse response = b.get(ClientResponse.class);
-        if (response.getStatus() == 200) {
-            InputStream is = response.getEntityInputStream();
-            return is;
-        } else return null;
-        
+        return inputStream(url);
+
     }
 
     private boolean isStreamAvailable(String stream) throws ProxyHandlerException {
         String baseurl = super.baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/"+stream;
-        WebResource.Builder b = buidForwardResponse(url);
-        ClientResponse response = b.head();
-        if (response.getStatus() == 200) {
-            return true;
-        } else return false;
+        return exists(url);
     }
     
     @Override
-    public boolean isStreamDCAvaiable() throws ProxyHandlerException {
+    public boolean isStreamDCAvaiable(ApiCallEvent event) throws ProxyHandlerException {
         return isStreamAvailable("DC");
     }
 
     @Override
-    public boolean isStreamBiblioModsAvaiable() throws ProxyHandlerException {
+    public boolean isStreamBiblioModsAvaiable(ApiCallEvent event) throws ProxyHandlerException {
         return isStreamAvailable("BIBLIO_MODS");
     }
 
     @Override
-    public Response zoomifyTile(String tileGroupStr, String tileStr) throws ProxyHandlerException {
+    public Response zoomifyTile(String tileGroupStr, String tileStr, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = baseUrl();
         String formatted = String.format("zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
@@ -148,7 +190,7 @@ public class V5RedirectHandler extends ProxyItemHandler {
     
     
     @Override
-    public Response iiifInfo(RequestMethodName method, String pid) throws ProxyHandlerException {
+    public Response iiifInfo(RequestMethodName method, String pid, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = baseUrl();
         String formatted = String.format("iiif/%s/info.json", this.pid );
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
@@ -156,7 +198,7 @@ public class V5RedirectHandler extends ProxyItemHandler {
     }
 
     @Override
-    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation, String qf)
+    public Response iiifTile(RequestMethodName method, String pid, String region, String size, String rotation, String qf, ApiCallEvent event)
             throws ProxyHandlerException {
         String baseurl = baseUrl();
         String postfix = String.format("%s/%s/%s/%s", region, size, rotation, qf);
@@ -165,11 +207,10 @@ public class V5RedirectHandler extends ProxyItemHandler {
     }
 
     @Override
-    public Response imageThumb(RequestMethodName method) throws ProxyHandlerException {
+    public Response imageThumb(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = baseUrl();
         boolean streamsThumb = KConfiguration.getInstance().getConfiguration()
                 .getBoolean("cdk.collections.sources." + this.source + ".thumb_streams", false);
-        LOGGER.info("cdk.collections.sources."+ this.source + ".thumb_streams  = "+streamsThumb);
         if (streamsThumb) {
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams/IMG_THUMB";
             return buildRedirectResponse(url);
@@ -181,10 +222,13 @@ public class V5RedirectHandler extends ProxyItemHandler {
     }
 
     @Override
-    public Response infoData() throws ProxyHandlerException {
+    public Response infoData(ApiCallEvent event) throws ProxyHandlerException {
         try {
-            JSONObject streams = new JSONObject(retrieveStreams());
+            //TODO: Cache
+            JSONObject streams = new JSONObject(retrieveStreams(event));
             JSONObject dataInfo = extractAvailableDataInfo(streams);
+            // TODO: providedByLicense - pid, source, user
+            // TODO: Store datainfo -> pid, source, user ??
             return Response.ok(dataInfo).build();
         } catch (JSONException | LexerException e) {
             throw new ProxyHandlerException(e);
@@ -192,19 +236,20 @@ public class V5RedirectHandler extends ProxyItemHandler {
     }
 
     @Override
-    public Response providedByLicenses() throws ProxyHandlerException {
+    public Response providedByLicenses(ApiCallEvent event) throws ProxyHandlerException {
         JSONObject responseJson = new JSONObject();
-        responseJson.put("licenses", providedByLicense());
+        responseJson.put("licenses", providedByLicense(event));
         return Response.ok(responseJson).build();
     }
 
     @Override
-    public Response info() throws ProxyHandlerException {
+    public Response info(ApiCallEvent event) throws ProxyHandlerException {
         try {
+            //TODO: Cache
             JSONObject basicDoc = retrieveBasicDoc(this.pid);
             if (basicDoc != null) {
-                JSONObject streams = new JSONObject(retrieveStreams());
-                JSONObject info = new JSONObject(retrieveInfo());
+                JSONObject streams = new JSONObject(retrieveStreams(event));
+                JSONObject info = new JSONObject(retrieveInfo(event));
                 JSONObject data = extractAvailableDataInfo(streams);
                 JSONObject image = extractImageSourceInfo(info, streams, basicDoc);
                 JSONObject struct = extractStructureInfo(this.source, info, basicDoc);
@@ -213,11 +258,12 @@ public class V5RedirectHandler extends ProxyItemHandler {
                 json.put("data", data);
                 json.put("structure", struct);
                 json.put("image", image);
-                // TODO: providedByLicenses
-                json.put("providedByLicenses", providedByLicense());
+                json.put("providedByLicenses", providedByLicense(event));
                 return Response.ok(json).build();
             } else {
-                this.deleteTriggeToReharvest(this.pid);
+                if (this.deleteTriggerSupport != null) {
+                    this.deleteTriggerSupport.executeDeleteTrigger(pid);
+                }
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
             
@@ -227,7 +273,7 @@ public class V5RedirectHandler extends ProxyItemHandler {
         }
     }
 
-    protected JSONArray providedByLicense() {
+    protected JSONArray providedByLicense(ApiCallEvent event) {
         return new JSONArray();
     }
 
@@ -379,35 +425,82 @@ public class V5RedirectHandler extends ProxyItemHandler {
 
     }
 
-    protected String retrieveStreams() {
+
+
+    protected String retrieveStreams(ApiCallEvent event) {
         String baseurl = super.baseUrl();
+        List<Triple<String, Long, Long>> granularTimeSnapshots = event != null ? event.getGranularTimeSnapshots() : null;
+        long start = System.currentTimeMillis();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/streams";
-        WebResource r = this.client.resource(url);
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        HttpGet httpGet = apacheGet(url, false);
+        httpGet.setHeader("Accept", "application/json");
+        try (CloseableHttpResponse response = this.apacheClient.execute(httpGet)) {
+            int code = response.getCode();
+            if (code  == 200) {
+                long stop = System.currentTimeMillis();
+                if (granularTimeSnapshots != null) granularTimeSnapshots.add(Triple.of("http/v5/streams",start, stop));
+                HttpEntity entity = response.getEntity();
+                InputStream is = entity.getContent();
+                return IOUtils.toString(is, Charset.forName("UTF-8"));
+            } else {
+                LOGGER.log(Level.SEVERE, String.format("Bad status code %d", code));
+                return null;
+            }
+        } catch(IOException ex) {
+            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+            return null;
+        }
     }
 
-    protected String retrieveInfo() {
+    protected String retrieveInfo(ApiCallEvent event) {
         String baseurl = super.baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid;
-        WebResource r = this.client.resource(url);
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        List<Triple<String, Long, Long>> granularTimeSnapshots = event != null ? event.getGranularTimeSnapshots() : null;
+
+        long start = System.currentTimeMillis();
+        HttpGet httpGet = apacheGet(url, false);
+        httpGet.setHeader("Accept", "application/json");
+        try (CloseableHttpResponse response = this.apacheClient.execute(httpGet)) {
+            long stop = System.currentTimeMillis();
+            if (granularTimeSnapshots != null) {
+                granularTimeSnapshots.add(Triple.of("http/v5/item/pid", start, stop));
+            }
+            HttpEntity entity = response.getEntity();
+            InputStream is = entity.getContent();
+            return IOUtils.toString(is, Charset.forName("UTF-8"));
+        } catch(IOException ex) {
+            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+        }
+        return null;
     }
 
+    //TODO Chache
     protected JSONObject retrieveBasicDoc(String pid) throws ProxyHandlerException {
         try {
             String baseurl = super.baseUrl();
             String query = URLEncoder.encode("PID:\"" + pid + "\"", "UTF-8");
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/search?q=" + query + "&wt=json&fl="
                     + URLEncoder.encode("img_full_mime fedora.model pid_path parent_pid", "UTF-8");
-            WebResource r = this.client.resource(url);
-            String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-            JSONObject solrResponse = new JSONObject(t);
-            JSONArray docs = solrResponse.getJSONObject("response").getJSONArray("docs");
-            if (docs.length() >= 1) {
-                return docs.getJSONObject(0);
+
+
+
+            HttpGet httpGet = apacheGet(url, false);
+            httpGet.setHeader("Accept", "application/json");
+            try (CloseableHttpResponse response = this.apacheClient.execute(httpGet)) {
+                HttpEntity entity = response.getEntity();
+                InputStream is = entity.getContent();
+                String t = IOUtils.toString(is, Charset.forName("UTF-8"));
+                JSONObject solrResponse = new JSONObject(t);
+                JSONArray docs = solrResponse.getJSONObject("response").getJSONArray("docs");
+                if (docs.length() >= 1) {
+                    return docs.getJSONObject(0);
+                }
+
+            } catch(IOException ex) {
+                LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
             }
+            return null;
+
         } catch (UnsupportedEncodingException | UniformInterfaceException | ClientHandlerException | JSONException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -433,31 +526,38 @@ public class V5RedirectHandler extends ProxyItemHandler {
             url = baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "api/v5.0/search?q=*&fq=" + encoded + "&wt=json&rows="
                     + maxRows + "&fl="
                     + URLEncoder.encode("img_full_mime model_path fedora.model pid_path PID rels_ext_index", "UTF-8");
+            HttpGet httpGet = apacheGet(url, false);
+            httpGet.setHeader("Accept", "application/json");
+            try (CloseableHttpResponse response = this.apacheClient.execute(httpGet)) {
+                HttpEntity entity = response.getEntity();
+                InputStream is = entity.getContent();
+                String t = IOUtils.toString(is, Charset.forName("UTF-8"));
+                JSONObject solrResponse = new JSONObject(t);
+                JSONArray docs = solrResponse.getJSONObject("response").getJSONArray("docs");
 
-            WebResource r = client.resource(url);
-            String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-            JSONObject solrResponse = new JSONObject(t);
-            JSONArray docs = solrResponse.getJSONObject("response").getJSONArray("docs");
+                List<JSONObject> ll = new ArrayList<>();
+                for (int i = 0; i < docs.length(); i++) {
+                    ll.add(docs.getJSONObject(i));
+                }
 
-            List<JSONObject> ll = new ArrayList<>();
-            for (int i = 0; i < docs.length(); i++) {
-                ll.add(docs.getJSONObject(i));
+                ll.sort((JSONObject left, JSONObject right) -> {
+                    JSONArray leftArr = left.optJSONArray("rels_ext_index");
+                    JSONArray rightArr = right.optJSONArray("rels_ext_index");
+                    if (leftArr != null && leftArr.length() > 0 && rightArr != null && rightArr.length() > 0) {
+                        return Integer.valueOf(leftArr.getInt(0)).compareTo(Integer.valueOf(rightArr.getInt(0)));
+                    } else {
+                        return 0;
+                    }
+                });
+
+                JSONArray sorted = new JSONArray();
+                ll.forEach(sorted::put);
+                return Pair.of(new JSONArray(), sorted);
+            } catch(IOException ex) {
+                LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+                return null;
             }
 
-            ll.sort((JSONObject left, JSONObject right) -> {
-                JSONArray leftArr = left.optJSONArray("rels_ext_index");
-                JSONArray rightArr = right.optJSONArray("rels_ext_index");
-                if (leftArr != null && leftArr.length() > 0 && rightArr != null && rightArr.length() > 0) {
-                    return Integer.valueOf(leftArr.getInt(0)).compareTo(Integer.valueOf(rightArr.getInt(0)));
-                } else {
-                    return 0;
-                }
-            });
-
-            JSONArray sorted = new JSONArray();
-            ll.forEach(sorted::put);
-
-            return Pair.of(new JSONArray(), sorted);
         } else {
             // String pPid = parentPid.getString(0);
             String query = URLEncoder.encode(
@@ -466,32 +566,41 @@ public class V5RedirectHandler extends ProxyItemHandler {
                     + maxRows + "&fl="
                     + URLEncoder.encode("img_full_mime model_path fedora.model pid_path PID rels_ext_index", "UTF-8");
 
-            WebResource r = client.resource(url);
-            String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-            JSONObject solrResponse = new JSONObject(t);
-            JSONArray docs = solrResponse.getJSONObject("response").getJSONArray("docs");
+            HttpGet httpGet = apacheGet(url, false);
+            httpGet.setHeader("Accept", "application/json");
+            try (CloseableHttpResponse response = this.apacheClient.execute(httpGet)) {
+                HttpEntity entity = response.getEntity();
+                InputStream is = entity.getContent();
+                String t = IOUtils.toString(is, Charset.forName("UTF-8"));
 
-            List<JSONObject> ll = new ArrayList<>();
-            for (int i = 0; i < docs.length(); i++) {
-                ll.add(docs.getJSONObject(i));
-            }
+                JSONObject solrResponse = new JSONObject(t);
+                JSONArray docs = solrResponse.getJSONObject("response").getJSONArray("docs");
 
-            ll.sort((JSONObject left, JSONObject right) -> {
-                JSONArray leftArr = left.optJSONArray("rels_ext_index");
-                JSONArray rightArr = right.optJSONArray("rels_ext_index");
-                if (leftArr != null && leftArr.length() > 0 && rightArr != null && rightArr.length() > 0) {
-                    return Integer.valueOf(leftArr.getInt(0)).compareTo(Integer.valueOf(rightArr.getInt(0)));
-                } else {
-                    return 0;
+                List<JSONObject> ll = new ArrayList<>();
+                for (int i = 0; i < docs.length(); i++) {
+                    ll.add(docs.getJSONObject(i));
                 }
-            });
 
-            JSONArray sorted = new JSONArray();
-            ll.forEach(sorted::put);
+                ll.sort((JSONObject left, JSONObject right) -> {
+                    JSONArray leftArr = left.optJSONArray("rels_ext_index");
+                    JSONArray rightArr = right.optJSONArray("rels_ext_index");
+                    if (leftArr != null && leftArr.length() > 0 && rightArr != null && rightArr.length() > 0) {
+                        return Integer.valueOf(leftArr.getInt(0)).compareTo(Integer.valueOf(rightArr.getInt(0)));
+                    } else {
+                        return 0;
+                    }
+                });
 
-            return Pair.of(sorted, new JSONArray());
+                JSONArray sorted = new JSONArray();
+                ll.forEach(sorted::put);
+
+                return Pair.of(sorted, new JSONArray());
+
+            } catch(IOException ex) {
+                LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+                return null;
+            }
         }
-
     }
 
     private List<List<Pair<String, String>>> paths(JSONObject info) {
@@ -518,10 +627,10 @@ public class V5RedirectHandler extends ProxyItemHandler {
     }
 
     @Override
-    public Response infoImage() throws ProxyHandlerException {
+    public Response infoImage(ApiCallEvent event) throws ProxyHandlerException {
         try {
-            JSONObject streams = new JSONObject(retrieveStreams());
-            JSONObject info = new JSONObject(retrieveInfo());
+            JSONObject streams = new JSONObject(retrieveStreams(event));
+            JSONObject info = new JSONObject(retrieveInfo(event));
             JSONObject basicDoc = retrieveBasicDoc(this.pid);
             JSONObject extractImageSourceInfo = extractImageSourceInfo(info, streams, basicDoc);
             return Response.ok(extractImageSourceInfo).build();
@@ -531,30 +640,30 @@ public class V5RedirectHandler extends ProxyItemHandler {
     }
 
     @Override
-    public Response infoStructure() throws ProxyHandlerException {
+    public Response infoStructure(ApiCallEvent event) throws ProxyHandlerException {
         long start = System.currentTimeMillis();
-        JSONObject info = new JSONObject(retrieveInfo());
+        JSONObject info = new JSONObject(retrieveInfo(event));
         JSONObject basicSolrDoc = retrieveBasicDoc(this.pid);
         JSONObject extractStructureInfo = extractStructureInfo(this.source, info, basicSolrDoc);
         return Response.ok(extractStructureInfo).build();
     }
 
     @Override
-    public Response audioMP3() throws ProxyHandlerException {
+    public Response audioMP3(ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/strams/MP3";
         return buildRedirectResponse(url);
     }
 
     @Override
-    public Response audioOGG() throws ProxyHandlerException {
+    public Response audioOGG(ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/strams/OGG";
         return buildRedirectResponse(url);
     }
 
     @Override
-    public Response audioWAV() throws ProxyHandlerException {
+    public Response audioWAV(ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/item/" + this.pid + "/strams/WAV";
         return buildRedirectResponse(url);

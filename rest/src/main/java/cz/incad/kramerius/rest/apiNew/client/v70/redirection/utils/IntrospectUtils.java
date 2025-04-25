@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import cz.incad.kramerius.SolrAccess;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,7 +26,8 @@ public class IntrospectUtils {
     
     private IntrospectUtils() {}
 
-    public static Pair<List<String>, List<String>> introspectPid(Client client, Instances instancesObject,  String pid) throws UnsupportedEncodingException {
+
+    public static Pair<List<String>, List<String>> introspectPid(CloseableHttpClient client, Instances instancesObject,  String pid) throws UnsupportedEncodingException {
         List<String> models = new ArrayList<>();
         List<String> liveInstances = new ArrayList<>();
         List<OneInstance> instances = instancesObject.enabledInstances();
@@ -58,13 +60,14 @@ public class IntrospectUtils {
         }
         return Pair.of(models, liveInstances);
     }
+    public static JSONObject introspectSolr(CloseableHttpClient  client, Instances libraries, String pid) throws UnsupportedEncodingException {
+        return introspectSolr(client, libraries, pid, false);
+    }
 
-    /** introspect utils */
-    public static JSONObject introspectSolr(Client client, Instances libraries, String pid, boolean cdkInclude) throws UnsupportedEncodingException {
+    public static JSONObject introspectSolr(CloseableHttpClient  client, Instances libraries, String pid, boolean checkCKDSolr) throws UnsupportedEncodingException {
         JSONObject obj = new JSONObject();
-
         /** cdk request */
-        if (cdkInclude) {
+        if (checkCKDSolr) {
             String solrSearchHost = KConfiguration.getInstance().getSolrSearchHost();
             String response = ChannelUtils.solrChannelPidExistence(client, null, solrSearchHost, "v7", pid);
             obj.put("_cdk_", new JSONObject(response));

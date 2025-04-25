@@ -104,8 +104,8 @@ allprojects {
     ext.generatedSources = "generated-sources"
 
 
-    //sourceCompatibility = 1.8
-    //targetCompatibility= 1.8
+//    sourceCompatibility = 1.8
+//    targetCompatibility= 1.8
 
     configurations {
         database
