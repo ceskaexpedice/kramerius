@@ -51,6 +51,7 @@ import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+import cz.incad.kramerius.workmode.WorkMode;
 import cz.incad.kramerius.workmode.WorkModeService;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
@@ -278,7 +279,8 @@ public class ClientUserResource {
         }
 
         // Filter out actions restricted in read-only mode
-        if (workModeService.isReadOnlyMode()) {
+        WorkMode workMode = workModeService.getWorkMode();
+        if (workMode != null && workMode.isReadOnly()) {
             set.removeIf(actionName -> {
                 for (SecuredActions sa : values) {
                     if (sa.getFormalName().equals(actionName) && sa.isRestrictedInReadOnly()) {

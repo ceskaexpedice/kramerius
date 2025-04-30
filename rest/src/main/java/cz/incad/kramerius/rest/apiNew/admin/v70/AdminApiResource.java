@@ -2,6 +2,8 @@ package cz.incad.kramerius.rest.apiNew.admin.v70;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.workmode.ReadOnlyWorkModeException;
+import cz.incad.kramerius.workmode.WorkMode;
+import cz.incad.kramerius.workmode.WorkModeReason;
 import cz.incad.kramerius.workmode.WorkModeService;
 import cz.incad.kramerius.rest.apiNew.ApiResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
@@ -129,7 +131,8 @@ public abstract class AdminApiResource extends ApiResource {
     }*/
 
     protected final void checkReadOnlyWorkMode() {
-        if (workModeService.isReadOnlyMode()) {
+        WorkMode workMode = workModeService.getWorkMode();
+        if (workMode != null && workMode.isReadOnly()) {
             throw new ReadOnlyWorkModeException();
         }
     }
@@ -215,7 +218,7 @@ public abstract class AdminApiResource extends ApiResource {
 
     protected void handleWorkMode(DistributedLocksException dle) {
         if (!dle.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)) {
-            workModeService.setReadOnlyMode(true);
+            workModeService.setWorkMode(new WorkMode(true, WorkModeReason.distributedLocksException));
         }
     }
 

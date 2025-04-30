@@ -45,7 +45,7 @@ public class DbWorkModeServiceImpl implements WorkModeService {
     }
 
     @Override
-    public void setReadOnlyMode(boolean readOnlyMode) {
+    public void setWorkMode(WorkMode workMode) {
         List<Boolean> result = new JDBCQueryTemplate<Boolean>(this.connectionProvider.get(), true) {
             @Override
             public boolean handleRow(ResultSet rs, List<Boolean> returnsList) throws SQLException {
@@ -56,12 +56,13 @@ public class DbWorkModeServiceImpl implements WorkModeService {
         try {
             JDBCUpdateTemplate template = new JDBCUpdateTemplate(this.connectionProvider.get(), true);
             if (result.isEmpty()) {
-                template.executeUpdate("INSERT INTO workmode (id, readOnly) VALUES ('singleton', ?)", readOnlyMode);
+                template.executeUpdate("INSERT INTO workmode (id, readOnly, reason) VALUES ('singleton', ?, ?)",
+                        workMode.isReadOnly(), workMode.getReason() == null ? WorkModeReason.noReason.name() : workMode.getReason().name());
             } else {
-                String sql = "UPDATE workmode SET readOnly = ? WHERE id = 'singleton'";
-                template.executeUpdate(sql, readOnlyMode);
+                String sql = "UPDATE workmode SET readOnly = ?, reason = ? WHERE id = 'singleton'";
+                template.executeUpdate(sql, workMode.isReadOnly(),  workMode.getReason() == null ? WorkModeReason.noReason.name() : workMode.getReason().name());
             }
-            LOGGER.log(Level.INFO, "workmode status update as readOnly: {0}", readOnlyMode);
+            LOGGER.log(Level.INFO, "workmode status update as readOnly: {0}", workMode.isReadOnly());
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
@@ -69,16 +70,18 @@ public class DbWorkModeServiceImpl implements WorkModeService {
     }
 
     @Override
-    public boolean isReadOnlyMode() {
-        List<Boolean> result = new JDBCQueryTemplate<Boolean>(this.connectionProvider.get(), true) {
+    public WorkMode getWorkMode() {
+        List<WorkMode> result = new JDBCQueryTemplate<WorkMode>(this.connectionProvider.get(), true) {
             @Override
-            public boolean handleRow(ResultSet rs, List<Boolean> returnsList) throws SQLException {
-                returnsList.add(rs.getBoolean("readOnly"));
+            public boolean handleRow(ResultSet rs, List<WorkMode> returnsList) throws SQLException {
+                boolean readOnly = rs.getBoolean("readOnly");
+                String reason = rs.getString("reason");
+                returnsList.add(new WorkMode(readOnly, WorkModeReason.valueOf(reason)));
                 return false; // Stop after first row
             }
-        }.executeQuery("SELECT readOnly FROM workmode WHERE id = 'singleton'");
+        }.executeQuery("SELECT readOnly, reason FROM workmode WHERE id = 'singleton'");
 
-        return !result.isEmpty() && Boolean.TRUE.equals(result.get(0));
+        return result.isEmpty() ? null : result.get(0);
     }
 
 }

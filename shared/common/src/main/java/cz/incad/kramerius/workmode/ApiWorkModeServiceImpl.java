@@ -40,9 +40,10 @@ public class ApiWorkModeServiceImpl implements WorkModeService {
     }
 
     @Override
-    public void setReadOnlyMode(boolean readOnlyMode) {
+    public void setWorkMode(WorkMode workMode) {
         JSONObject requestJson = new JSONObject();
-        requestJson.put("readOnly", readOnlyMode);
+        requestJson.put("readOnly", workMode.isReadOnly());
+        requestJson.put("reason", workMode.getReason().name());
 
         Client client = Client.create();
         WebResource resource = client.resource(workModeUrl);
@@ -58,7 +59,7 @@ public class ApiWorkModeServiceImpl implements WorkModeService {
     }
 
     @Override
-    public boolean isReadOnlyMode() {
+    public WorkMode getWorkMode() {
         Client c = Client.create();
         WebResource resource = c.resource(workModeUrl);
 
@@ -68,7 +69,9 @@ public class ApiWorkModeServiceImpl implements WorkModeService {
                 .get(String.class);
 
         JSONObject collectionObject = new JSONObject(collectionJSON);
-        return collectionObject.optBoolean("readOnly", false);
+        boolean readOnly = collectionObject.optBoolean("readOnly", false);
+        String reason = collectionObject.optString("reason");
+        return new WorkMode(readOnly, WorkModeReason.valueOf(reason));
     }
 
 }

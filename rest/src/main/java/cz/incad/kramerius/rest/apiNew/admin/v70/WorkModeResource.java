@@ -20,6 +20,8 @@ package cz.incad.kramerius.rest.apiNew.admin.v70;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.workmode.WorkMode;
+import cz.incad.kramerius.workmode.WorkModeReason;
 import cz.incad.kramerius.workmode.WorkModeService;
 
 import javax.inject.Named;
@@ -51,7 +53,7 @@ public class WorkModeResource  extends AdminApiResource{
 
 
     /**
-     * client receives: { "readOnly": true }
+     * client receives: { "readOnly": true, "reason" : "xxx" }
      * @return
      */
     @GET
@@ -59,8 +61,11 @@ public class WorkModeResource  extends AdminApiResource{
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getWorkModeStatus() {
         try {
-            boolean readOnly = workModeService.isReadOnlyMode();
-            return Response.ok(new WorkModeStatusResponse(readOnly)).build();
+            WorkMode workMode = workModeService.getWorkMode();
+            if(workMode == null){
+                workMode = new WorkMode(false, WorkModeReason.noReason);
+            }
+            return Response.ok(workMode).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -70,42 +75,22 @@ public class WorkModeResource  extends AdminApiResource{
     }
 
     /**
-     * json from client: { "readOnly": true }
+     * json from client: { "readOnly": true, "reason": "xxx" }
      * @param request
      * @return
      */
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateWorkMode(WorkModeUpdateRequest request) {
+    public Response updateWorkMode(WorkMode request) {
         try {
-            workModeService.setReadOnlyMode(request.readOnly);
-            return Response.ok(new WorkModeStatusResponse(request.readOnly)).build();
+            workModeService.setWorkMode(request);
+            return Response.ok(request).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
-        }
-    }
-
-    // DTO for request body
-    public static class WorkModeUpdateRequest {
-        public boolean readOnly;
-
-        public WorkModeUpdateRequest() {}
-        public WorkModeUpdateRequest(boolean readOnly) {
-            this.readOnly = readOnly;
-        }
-    }
-
-    // DTO for response
-    public static class WorkModeStatusResponse {
-        public boolean readOnly;
-
-        public WorkModeStatusResponse() {}
-        public WorkModeStatusResponse(boolean readOnly) {
-            this.readOnly = readOnly;
         }
     }
 

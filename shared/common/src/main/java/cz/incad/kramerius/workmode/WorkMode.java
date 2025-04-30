@@ -16,14 +16,33 @@
  */
 package cz.incad.kramerius.workmode;
 
-/**
- * WorkModeManager
- * @author ppodsednik
- */
-public interface WorkModeService {
+public class WorkMode {
 
-    void setWorkMode(WorkMode workMode);
+    private boolean readOnly;
+    private WorkModeReason reason;
 
-    WorkMode getWorkMode();
+    public WorkMode() {
+        // Required for frameworks like Jackson
+    }
 
+    public WorkMode(boolean readOnly, WorkModeReason reason) {
+        this.readOnly = readOnly;
+        this.reason = reason;
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    public WorkModeReason getReason() {
+        return reason;
+    }
+
+    public void setReason(WorkModeReason reason) {
+        this.reason = reason;
+    }
 }

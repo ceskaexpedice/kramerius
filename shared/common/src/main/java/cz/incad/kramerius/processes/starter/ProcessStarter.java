@@ -16,9 +16,7 @@
  */
 package cz.incad.kramerius.processes.starter;
 
-import cz.incad.kramerius.workmode.ApiWorkModeServiceImpl;
-import cz.incad.kramerius.workmode.ReadOnlyWorkModeException;
-import cz.incad.kramerius.workmode.WorkModeService;
+import cz.incad.kramerius.workmode.*;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.annotations.ParameterName;
@@ -110,7 +108,8 @@ public class ProcessStarter {
                 }
             }));
 
-            if(workModeService.isReadOnlyMode()){
+            WorkMode workMode = workModeService.getWorkMode();
+            if(workMode != null && workMode.isReadOnly()){
                 throw new ReadOnlyWorkModeException();
             }
 
@@ -368,7 +367,7 @@ public class ProcessStarter {
 
     private static void handleWorkMode(DistributedLocksException dle, WorkModeService workModeService) {
         if(!dle.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
-            workModeService.setReadOnlyMode(true);
+            workModeService.setWorkMode(new WorkMode(true, WorkModeReason.distributedLocksException));
         }
     }
 

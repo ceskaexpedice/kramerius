@@ -16,14 +16,8 @@
  */
 package cz.incad.kramerius.workmode;
 
-/**
- * WorkModeManager
- * @author ppodsednik
- */
-public interface WorkModeService {
-
-    void setWorkMode(WorkMode workMode);
-
-    WorkMode getWorkMode();
-
+public enum WorkModeReason {
+    maintenance,
+    distributedLocksException,
+    noReason
 }
