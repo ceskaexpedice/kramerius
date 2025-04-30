@@ -16,19 +16,23 @@
  */
 package cz.incad.kramerius.processes.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.starter.ProcessUpdatingChannel;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Utility class for processes.  <br>
@@ -38,6 +42,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
  */
 public class ProcessUtils {
 
+    public static final String PIDLIST_FILE_PREFIX = "pidlist_file:";
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessUtils.class.getName());
 
     /** Lr servlet name.  This coresponds with web.xml  */
@@ -177,5 +182,39 @@ public class ProcessUtils {
             ProcessUpdatingChannel.LOGGER.severe("Problem connecting to REST URL: " + restURL + " - " + ex);
             throw new RuntimeException(ex);
         }
+    }
+
+    public static List<String> extractPids(String argument) {
+        if (argument.startsWith("pid:")) {
+            String pid = argument.substring("pid:".length());
+            List<String> result = new ArrayList<>();
+            result.add(pid);
+            return result;
+        } else if (argument.startsWith("pidlist:")) {
+            List<String> pids = Arrays.stream(argument.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+            return pids;
+        } else if (argument.startsWith(PIDLIST_FILE_PREFIX)) {
+            String filePath  = argument.substring(PIDLIST_FILE_PREFIX.length());
+            File file = new File(filePath);
+            if (file.exists()) {
+                try {
+                    return IOUtils.readLines(new FileInputStream(file), Charset.forName("UTF-8"));
+                } catch (IOException e) {
+                    throw new RuntimeException("IOException " + e.getMessage());
+                }
+            } else {
+                throw new RuntimeException("file " + file.getAbsolutePath()+" doesnt exist ");
+            }
+        } else {
+            // expecting list of pids tokenized by ;
+            List<String> tokens = new ArrayList<>();
+            StringTokenizer tokenizer = new StringTokenizer(argument,";");
+            while(tokenizer.hasMoreTokens()) {
+                String token = tokenizer.nextToken();
+                tokens.add(token);
+            }
+            return tokens;
+        }
+
     }
 }
