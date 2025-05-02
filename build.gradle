@@ -223,6 +223,22 @@ allprojects {
             url "http://download.java.net/maven/2/"
         }*/
 
+
+		maven {
+			url "https://maven.pkg.github.com/ceskaexpedice/hazelcast-locks-server"
+			credentials {
+				username = System.getenv("USERNAME")
+				password = System.getenv("TOKEN")
+			}
+		}
+
+		maven {
+			url "https://maven.pkg.github.com/ceskaexpedice/akubra"
+			credentials {
+				username = System.getenv("USERNAME")
+				password = System.getenv("TOKEN")
+			}
+		}
     }
 
     tasks.withType(Javadoc) {
