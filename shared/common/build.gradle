@@ -9,6 +9,7 @@ sourceSets {
 }
 
 dependencies {
+    api 'org.ceskaexpedice:hazelcast-locks-server:1.0-SNAPSHOT'
     api 'org.ceskaexpedice:akubra:1.0-SNAPSHOT'
 //    api project(':processes:import-jaxb')
     // Nullable annotation
