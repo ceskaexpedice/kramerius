@@ -53,6 +53,7 @@ public class SortingServiceImpl implements SortingService {
             AkubraRepository akubraRepository,
             RelationService relationService) {
         this.akubraRepository = akubraRepository;
+        this.relationService = relationService;
         initSortingConfigMap();
     }
 
