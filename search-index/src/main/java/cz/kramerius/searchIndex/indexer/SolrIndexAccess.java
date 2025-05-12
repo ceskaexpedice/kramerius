@@ -11,14 +11,12 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpClientUtil;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.MapSolrParams;
 import org.apache.solr.common.params.ModifiableSolrParams;
-//import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -144,16 +142,18 @@ public class SolrIndexAccess {
         //System.out.println("delete response: " + deleteResponse); UpdateResponse does not have a ToString anyway
         return commit();
     }
+
     public UpdateResponse deleteByParentRootPid(String rootpid) throws IOException, SolrServerException {
-        UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "own_parent.pid:\""+rootpid+"\"");
+        //UpdateResponse deleteResponse = 
+        solrClient.deleteByQuery(collection, "own_parent.pid:\"" + rootpid + "\"");
         return commit();
     }
 
-
     public UpdateResponse deleteByIds(List<String> ids) throws IOException, SolrServerException {
-        UpdateResponse updateResponse = null;
+        //UpdateResponse updateResponse;
         for (String id : ids) {
-            updateResponse = deleteById(id);
+            //updateResponse = 
+            deleteById(id);
         }
         //UpdateResponse commitResponse = commit();
         //System.out.println("commit response: " + commitResponse);
@@ -162,7 +162,8 @@ public class SolrIndexAccess {
 
     public UpdateResponse deleteAll() throws IOException, SolrServerException {
         //System.out.println("deleting all");
-        UpdateResponse deleteResponse = solrClient.deleteByQuery(collection, "*");
+        //UpdateResponse deleteResponse = 
+        solrClient.deleteByQuery(collection, "*");
         //System.out.println("delete response: " + deleteResponse);
         //UpdateResponse commitResponse = commit();
         //System.out.println("commit response: " + commitResponse);
@@ -184,10 +185,8 @@ public class SolrIndexAccess {
     }
 
     public SolrDocumentList searchInAllFields(String query, String outputFieldList) throws IOException, SolrServerException {
-        Map<String, String> queryParamMap = Collections.singletonMap("q", query);
-        /*      queryParamMap.put("start", Long.toString(start));
-        if (rows != null) queryParamMap.put("rows", Integer.toString(rows));*/
-
+        Map<String, String> queryParamMap = new HashMap<>();
+        queryParamMap.put("q", query);
         if (outputFieldList != null) {
             queryParamMap.put("fl", outputFieldList);
         }
@@ -220,7 +219,7 @@ public class SolrIndexAccess {
                 commit();
             }
         } catch (IOException | SolrServerException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             throw new RuntimeException((e));
         }
     }
@@ -255,7 +254,7 @@ public class SolrIndexAccess {
                 commit();
             }
         } catch (IOException | SolrServerException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             throw new RuntimeException((e));
         }
 
@@ -291,7 +290,7 @@ public class SolrIndexAccess {
                 commit();
             }
         } catch (IOException | SolrServerException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             throw new RuntimeException((e));
         }
 
