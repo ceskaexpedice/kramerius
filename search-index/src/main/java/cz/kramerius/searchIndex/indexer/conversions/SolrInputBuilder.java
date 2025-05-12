@@ -12,6 +12,7 @@ import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Title;
 import org.dom4j.*;
 
+import org.apache.commons.text.StringEscapeUtils;
 import java.io.File;
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -550,33 +551,31 @@ public class SolrInputBuilder {
         }
 
         if ("collection".equals(model)) {
-
-            List<Node> nodes = Dom4jUtils.buildXpath("mods/abstract[@lang]").selectNodes(modsRootEl);
-            for (int i = 0; i < nodes.size(); i++) {
-                Element nodeElm = (Element) nodes.get(i);
+            for (Node node : Dom4jUtils.buildXpath("mods/abstract[@lang]").selectNodes(modsRootEl))  {
+                Element nodeElm = (Element) node;
                 Attribute attribute = nodeElm.attribute("lang");
                 if (attribute != null) {
                     String desc = toStringOrNull(nodeElm);
-                    addSolrField(solrInput, "collection.desc_"+attribute.getValue(), desc);
-                    
-                    addSolrField(solrInput, "collection.desc", desc);
+                    addSolrField(solrInput, "collection.desc_"+attribute.getValue(),desc);
+                    addSolrField(solrInput, "collection.desc",desc);
                 }
             }
-            
-//            //TODO: Change it 
-//            String abstractFromTitleInfoCz = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract[@lang='cze']").selectSingleNode(modsRootEl));
-//            if (abstractFromTitleInfoCz != null) {
-//                addSolrField(solrInput, "collection.desc", abstractFromTitleInfoCz);
-//                //addSolrField(solrInput, "collection.desc_cz", abstractFromTitleInfoCz);
-//            }
-//            String abstractFromTitleInfoEn = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract[@lang='eng']").selectSingleNode(modsRootEl));
-//            if (abstractFromTitleInfoEn != null) {
-//                addSolrField(solrInput, "collection.desc", abstractFromTitleInfoEn);
-//                //addSolrField(solrInput, "collection.desc_en", abstractFromTitleInfoCz);
-//            }
+            for (Node node : Dom4jUtils.buildXpath("mods/note[@lang]").selectNodes(modsRootEl)) {
+                Element nodeElm = (Element) node;
+                Attribute attribute = nodeElm.attribute("lang");
+                if (attribute != null) {
+                    String desc = decodeXml(toStringOrNull(nodeElm));
+                    addSolrField(solrInput, "collection.desc_"+attribute.getValue(),desc);
+                    addSolrField(solrInput, "collection.desc",desc);
+                }
+            }
             String abstractFromTitleInfoNoLang = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract[not(@lang)]").selectSingleNode(modsRootEl));
             if (abstractFromTitleInfoNoLang != null) {
                 addSolrField(solrInput, "collection.desc", abstractFromTitleInfoNoLang);
+            }
+            String noteFromTitleInfoNoLang = toStringOrNull(Dom4jUtils.buildXpath("mods/note[not(@lang)]").selectSingleNode(modsRootEl));
+            if(noteFromTitleInfoNoLang != null) {
+                addSolrField(solrInput, "collection.desc", decodeXml(noteFromTitleInfoNoLang));
             }
             
             
@@ -653,7 +652,9 @@ public class SolrInputBuilder {
 
         return solrInput;
     }
-
+    public static String decodeXml(String encodedXml) {
+        return StringEscapeUtils.unescapeHtml4​(StringEscapeUtils.unescapeXml(encodedXml));
+    }
     private Integer extractLeadingNumber(String stringPossiblyStartingWithNumber) {
         if (stringPossiblyStartingWithNumber != null && !stringPossiblyStartingWithNumber.isEmpty()) {
             StringBuilder builder = new StringBuilder();
@@ -775,7 +776,7 @@ public class SolrInputBuilder {
         for (Node node : versionEls) {
             Element versionEl = (Element) node;
             String ID = Dom4jUtils.stringOrNullFromAttributeByName(versionEl, "ID");
-            int versionNumber = Integer.valueOf(ID.split("\\.")[1]);
+            int versionNumber = Integer.parseInt(ID.split("\\.")[1]);
             if (latestVersionEl == null || versionNumber > maxVersion) {
                 latestVersionEl = versionEl;
             }
