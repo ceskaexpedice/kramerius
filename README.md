@@ -58,11 +58,7 @@ lhotak@knav.cz
 
 ## Financování
 
-V současné době je financování vývoje zajištěno zejména z grantů MK ČR prostřednictvím dotačních programů NAKI (projekt RightLib 2018-2022) a VISK (individuální roční projekty). Od roku 2019 je vývoj provázán i s rozvojem výzkumné infrastruktury LINDAT/CLARIAH-CZ umístěné na národní cestovní mapě velkých výzkumných infrastruktur. 
-
-V letech 2012 - 2015 bylo financování vývoje zajištěno díky projektu "Česká digitální knihovna a nástroje pro zajištění komplexních digitalizačních procesů" - DF12P01OVV002 z Programu aplikovaného výzkumu a vývoje národní a kulturní identity (NAKI) Ministerstva kultury ČR
-
-V předchozích letech byl vývoj systému Kramerius průběžně financován z různých dotačních programů Akademie věd ČR a Ministerstva kultury ČR. Počátek vývoje se datuje do roku 2003, kdy byl vývoj iniciován Národní knihovnou ČR ve spolupráci s Knihovnou AV ČR. 
+Financování vývoje je zajištěno zejména z grantů MK ČR prostřednictvím dotačních programů NAKI, VISK a NPO. Od roku 2019 je vývoj provázán i s rozvojem výzkumné infrastruktury LINDAT/CLARIAH-CZ umístěné na národní cestovní mapě velkých výzkumných infrastruktur. 
 
 
 ## Komunikace
