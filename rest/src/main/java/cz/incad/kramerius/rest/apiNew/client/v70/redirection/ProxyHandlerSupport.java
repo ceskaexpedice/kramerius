@@ -245,7 +245,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
             int code = response.getCode();
             if (code == 200) {
                 HttpEntity entity = response.getEntity();
-                return entity!= null ?  entity.getContent() : null;
+                InputStream is = entity.getContent();
+                return new ByteArrayInputStream(IOUtils.toByteArray(is));
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

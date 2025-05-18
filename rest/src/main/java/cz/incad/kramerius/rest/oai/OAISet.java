@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -51,6 +52,8 @@ public class OAISet {
     private String setDescription;
     private String filterQuery;
 
+    private CDKRequestCacheSupport cacheSupport;
+
     private Map<String, String> additionalsInfo = new HashMap<>();
     
     public OAISet(
@@ -58,8 +61,8 @@ public class OAISet {
             String setSpec, 
             String setName, 
             String setDescription, 
-            String filterQuery) {
-        this(host, setSpec, setName, setDescription, filterQuery, new HashMap<>());
+            String filterQuery, CDKRequestCacheSupport support) {
+        this(host, setSpec, setName, setDescription, filterQuery, new HashMap<>(), support);
     }
 
     public OAISet(
@@ -67,13 +70,14 @@ public class OAISet {
             String setSpec, 
             String setName, 
             String setDescription, 
-            String filterQuery, Map<String, String> map) {
+            String filterQuery, Map<String, String> map, CDKRequestCacheSupport support) {
         this.setSpec = setSpec;
         this.setName = setName;
         this.setDescription = setDescription;
         this.filterQuery = filterQuery;
         this.host = host;
         this.additionalsInfo = map;
+        this.cacheSupport  = support;
     }
     
     
@@ -280,7 +284,7 @@ public class OAISet {
                 
                 List<String> cdkCollections = collections.stream().map(Element::getTextContent).collect(Collectors.toList());
                 String oaiIdentifier =  OAITools.oaiIdentfier(host, pidElm.getTextContent());
-                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier,dateElm != null ? dateElm.getTextContent() : "");
+                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier,dateElm != null ? dateElm.getTextContent() : "", this.cacheSupport);
                 oaiRecord.setCdkCollections(cdkCollections);
 
                 
@@ -377,7 +381,7 @@ public class OAISet {
                 
                 List<String> cdkCollections = collections.stream().map(Element::getTextContent).collect(Collectors.toList());
                 String oaiIdentifier =  OAITools.oaiIdentfier(host, pidElm.getTextContent());
-                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier,dateElm != null ? dateElm.getTextContent() : "");
+                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier,dateElm != null ? dateElm.getTextContent() : "", this.cacheSupport);
                 oaiRecord.setCdkCollections(cdkCollections);
 
                 

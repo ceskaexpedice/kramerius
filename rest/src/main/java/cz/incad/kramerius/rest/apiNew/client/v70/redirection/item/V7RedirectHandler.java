@@ -190,14 +190,20 @@ public class V7RedirectHandler extends ProxyItemHandler{
 
     @Override
     public InputStream directStreamDC(ApiCallEvent event) throws ProxyHandlerException {
-        return inputStream("dc");
+        throw new UnsupportedOperationException("unsupported");
+//        String baseurl = this.forwardUrl();
+//        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
+//                + "/streams/BIBLIO_MODS";
+//
+//        return inputStream("dc");
     }
 
 
 
     @Override
     public InputStream directStreamBiblioMods(ApiCallEvent event) throws ProxyHandlerException {
-        return inputStream("mods");
+        throw new UnsupportedOperationException("unsupported");
+        //return inputStream("mods");
     }
 
 
@@ -227,12 +233,14 @@ public class V7RedirectHandler extends ProxyItemHandler{
     
     @Override
     public boolean isStreamDCAvaiable(ApiCallEvent event) throws ProxyHandlerException {
-        return exists("dc");
+        //return exists("dc");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean isStreamBiblioModsAvaiable(ApiCallEvent event) throws ProxyHandlerException {
-        return exists("mods");
+        //return exists("mods");
+        throw new UnsupportedOperationException();
     }
 
 

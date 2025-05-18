@@ -263,7 +263,7 @@ public abstract class AbstractReplicateWorker extends Worker {
         });
         String query = "?q=" + idIdentifier + ":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl="
                 + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + pids.size();
-
+        LOGGER.info(String.format("Requesting uri %s, %s",this.requestUrl, query));
         return KubernetesSolrUtils.executeQueryJersey(client, this.requestUrl, query);
     }
 }

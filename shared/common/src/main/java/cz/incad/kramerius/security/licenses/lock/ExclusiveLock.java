@@ -50,14 +50,52 @@ public interface ExclusiveLock {
             return null;
         }
     }
-    
+
+    /**
+     * Returns the refresh interval in seconds that the client must maintain
+     * by sending periodic refresh requests in order to retain access.
+     *
+     * @return refresh interval in seconds
+     */
     public int getRefreshInterval();
-    
+
+    /**
+     * Returns the maximum interval in seconds that a user is allowed
+     * to continuously read the content under the lock.
+     *
+     * @return maximum reading duration in seconds
+     */
     public int getMaxInterval();
-    
+
+    /**
+     * Returns the maximum number of users (readers) allowed to access
+     * the licensed content concurrently.
+     *
+     * @return maximum number of concurrent readers
+     */
     public int getMaxReaders();
-    
+
+    /**
+     * Returns the type of the exclusive lock.
+     * The type defines how the reader counter is maintained:
+     * <ul>
+     *     <li>{@code RULE} - separate counter for each rule using the lock</li>
+     *     <li>{@code INSTANCE} - single shared counter for the entire Kramerius instance</li>
+     * </ul>
+     *
+     * @return type of the lock
+     */
     public ExclusiveLockType getType();
 
+    /**
+     * Creates a hash code used to identify the lock instance.
+     * This hash is used for lookups and uniquely represents the lock based on
+     * the license, user right, and document PID.
+     *
+     * @param license the license associated with the lock
+     * @param right the right being evaluated
+     * @param pid the PID of the document
+     * @return a unique hash string representing the lock instance
+     */
     public String createLockHash(License license, Right right, String pid);
 }

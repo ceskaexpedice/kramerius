@@ -17,26 +17,32 @@
 package cz.incad.kramerius.security.licenses.impl;
 
 import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
 import cz.incad.kramerius.security.licenses.impl.lock.ExclusiveLockImpl;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import org.w3c.dom.Document;
 
 import java.io.Serializable;
 
 public class LicenseImpl implements License, Serializable {
 
-    
     private int priorityHint = -1;
     
     private int id = -1;
     private String name;
     private String group;
     private String description;
-    private int labelPrirority = DEFAULT_PRIORITY;
-    
+
+    /** is runtime license */
+    private boolean runtimeLicense = false;
+
+    /** document predicate */
+    private RuntimeLicenseType runtimeLicenseType;
+
     private ExclusiveLock exclusiveLock;
-    
-    
+    private int labelPrirority = DEFAULT_PRIORITY;
+
     public LicenseImpl(int id, String name, String description, String group, int labelPrirority) {
         this.id = id;
         this.name = name;
@@ -153,5 +159,33 @@ public class LicenseImpl implements License, Serializable {
                 + exclusiveLock + "]";
     }
 
-    
+    @Override
+    public void initRuntime(RuntimeLicenseType type) {
+        this.runtimeLicenseType = type;
+        this.runtimeLicense = true;
+    }
+
+    @Override
+    public void disableRuntime(boolean flag) {
+        this.runtimeLicenseType = null;
+        this.runtimeLicense = false;
+    }
+
+    @Override
+    public boolean isRuntimeLicense() {
+        return this.runtimeLicense;
+    }
+
+    @Override
+    public RuntimeLicenseType getRuntimeLicenseType() {
+        return runtimeLicenseType;
+    }
+
+    @Override
+    public boolean acceptByLicense(Document doc) {
+        if (this.runtimeLicense && this.runtimeLicenseType != null) {
+            return this.runtimeLicenseType.accept(doc);
+        }
+        return false;
+    }
 }

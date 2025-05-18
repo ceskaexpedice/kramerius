@@ -16,6 +16,7 @@ public abstract class AbstractSolrIterator implements ProcessIterator {
     protected String[] fieldList;
 
 
+
     public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList) {
         this.id = id;
         this.rows = rows;

@@ -1,5 +1,6 @@
 package cz.incad.kramerius.processes;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
@@ -18,19 +19,22 @@ public class SchedulersLifeCycleHook implements LifeCycleHook {
 
     @Override
     public void shutdownNotification() {
-        LOGGER.info("shutting down process schedulers");
-        this.gcScheduler.shutdown();
-        this.processScheduler.shutdown();
-
+        boolean enabled  = KConfiguration.getInstance().getConfiguration().getBoolean("processQueue.enabled",true);
+        if (enabled) {
+            LOGGER.info("shutting down process schedulers");
+            this.gcScheduler.shutdown();
+            this.processScheduler.shutdown();
+        }
     }
 
     @Override
     public void startNotification() {
-        LOGGER.info("starting process schedulers");
-        // find dead process
-        this.gcScheduler.scheduleFindGCCandidates();
-        // find process to start
-        this.processScheduler.scheduleNextTask();
+        boolean enabled  = KConfiguration.getInstance().getConfiguration().getBoolean("processQueue.enabled",true);
+        if (enabled) {
+            LOGGER.info("starting process schedulers");
+            this.gcScheduler.scheduleFindGCCandidates();
+            this.processScheduler.scheduleNextTask();
+        }
     }
 
 }
