@@ -229,7 +229,8 @@ public class SetLicenseProcess {
         List<String> result = new ArrayList<>();
         String pidOfCurrentNode = targetPid;
         String pidOfCurrentNodesOwnParent;
-        while ((pidOfCurrentNodesOwnParent = akubraRepository.pi().getOwnedAndFosteredParents(pidOfCurrentNode).own().source()) != null) {
+        ProcessingIndexItem own = null ;//= akubraRepository.pi().getOwnedAndFosteredParents(pidOfCurrentNode).own();
+        while ( (own = akubraRepository.pi().getOwnedAndFosteredParents(pidOfCurrentNode).own()) != null &&  (pidOfCurrentNodesOwnParent = own.source()) != null) {
             result.add(pidOfCurrentNodesOwnParent);
             pidOfCurrentNode = pidOfCurrentNodesOwnParent;
         }
