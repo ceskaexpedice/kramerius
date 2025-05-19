@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONObject;
@@ -159,7 +160,7 @@ public class OAIEndpoint extends ClientApiResource {
 				 boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
 				 if (cdkServerMode) {
 					// cdk
-					oaiVerb.performOnCDKSide(this.userProvider, clientProvider,  instances, configManager, this.proxyFilter, this.solrAccess, this.requestProvider.get(), oai, oaiRoot);
+					oaiVerb.performOnCDKSide(this.userProvider, clientProvider,  instances, configManager, this.proxyFilter, this.solrAccess, this.requestProvider.get(), oai, oaiRoot, this.cacheSupport);
 				 } else {
 					// local	
 					oaiVerb.performOnLocal(configManager, akubraRepository, solrAccess, this.requestProvider.get(), oai, oaiRoot);

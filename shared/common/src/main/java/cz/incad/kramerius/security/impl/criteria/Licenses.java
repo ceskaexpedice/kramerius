@@ -57,8 +57,8 @@ public class Licenses extends AbstractCriterium implements RightCriteriumLabelAw
                     License lic = getLicense();
                     if (lic.isRuntimeLicense() && lic.acceptByLicense(doc)) {
                         // akceptuji runtime licenci
-                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LABEL, getLicense().getName());
-                        getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LICENSE, getLicense().getName());
+                        getEvaluateContext().getEvaluateInfoMap().put(PROVIDED_BY_LABEL, getLicense().getName());
+                        getEvaluateContext().getEvaluateInfoMap().put(PROVIDED_BY_LICENSE, getLicense().getName());
                         return EvaluatingResultState.TRUE;
                     } else {
                         boolean applied =  CriteriaLicenseUtils.matchLicense(doc, lic);
@@ -66,8 +66,8 @@ public class Licenses extends AbstractCriterium implements RightCriteriumLabelAw
                             if (lic.exclusiveLockPresent()) {
                                 return CriteriaLicenseUtils.licenseLock(right, ctx, pid, lic);
                             } else {
-                                getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LABEL, getLicense().getName());
-                                getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LICENSE, getLicense().getName());
+                                getEvaluateContext().getEvaluateInfoMap().put(PROVIDED_BY_LABEL, getLicense().getName());
+                                getEvaluateContext().getEvaluateInfoMap().put(PROVIDED_BY_LICENSE, getLicense().getName());
                                 return EvaluatingResultState.TRUE;
                             }
                         }

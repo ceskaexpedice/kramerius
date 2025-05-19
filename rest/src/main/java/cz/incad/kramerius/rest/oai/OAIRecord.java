@@ -16,10 +16,14 @@
  */
 package cz.incad.kramerius.rest.oai;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -37,6 +41,11 @@ import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.utils.ApplicationURL;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import cz.inovatika.cdk.cache.CDKRequestItem;
+import cz.inovatika.cdk.cache.impl.CDKRequestItemFactory;
+import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.pid.LexerException;
@@ -75,9 +84,9 @@ public class OAIRecord {
     private List<String> cdkCollections = new ArrayList<>();
     
     private String dateTimeStamp;
+    private CDKRequestCacheSupport cacheSupport;
     
-    
-    public OAIRecord(String solrIdentifier, String identifier, String dateTimeStamp) {
+    public OAIRecord(String solrIdentifier, String identifier, String dateTimeStamp, CDKRequestCacheSupport support) {
         super();
         this.solrIdentifier = solrIdentifier;
         this.identifier = identifier;
@@ -170,14 +179,14 @@ public class OAIRecord {
     }
 
     /** render metadata */
-    public Element toMetadataOnLocal(HttpServletRequest request, AkubraRepository fa, Document doc, MetadataExport export, OAISet set) {
+    public List<Element> toMetadataOnLocal(HttpServletRequest request, AkubraRepository fa, Document doc, MetadataExport export, OAISet set) {
         return export.perform(request, fa, doc, identifier, set);
     }
-    public Element toMetadataOnCDKSide(SolrAccess solrAccess, Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvider , Instances instances, HttpServletRequest request, Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set) {
-        return export.performOnCDKSide(solrAccess,userProvider,  apacheClientProvider, instances, request,   owningDocument, this,  set);
+    public List<Element> toMetadataOnCDKSide(SolrAccess solrAccess, Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvider , Instances instances, HttpServletRequest request, Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set,CDKRequestCacheSupport support) {
+        return export.performOnCDKSide(solrAccess,userProvider,  apacheClientProvider, instances, request,   owningDocument, this,  set, support);
 	}
     
-    public Element toHeaderOnCDKSide(Document doc, OAISet set, SolrAccess solrAccess,Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvieder, Instances instances, HttpServletRequest request, String source) throws IOException {
+    public Element toHeaderOnCDKSide(Document doc, OAISet set, SolrAccess solrAccess,Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvieder, Instances instances, HttpServletRequest request, String source, CDKRequestCacheSupport cacheSupport) throws IOException {
         Element header = doc.createElement("header");
 
         Element identifier = doc.createElement("identifier");
@@ -266,53 +275,6 @@ public class OAIRecord {
 	}	
 
     
-    /** render header */
-	/*
-    public Element toHeader(Document doc, OAISet set, SolrAccess solrAccess,Provider<User> userProvider, Provider<Client> clientProvider, Instances instances, HttpServletRequest request, String source) {
-        Element header = doc.createElement("header");
-        Element identifier = doc.createElement("identifier");
-        identifier.setTextContent(this.identifier);
-        header.appendChild(identifier);
-        
-        //OffsetDateTime now = OffsetDateTime.now();
-        Element datestamp = doc.createElement("datestamp");
-        datestamp.setTextContent(this.dateTimeStamp);
-        header.appendChild(datestamp);
-        datestamp.setTextContent(this.dateTimeStamp);
-        
-        if (set != null) {
-            Element setSpecElm = doc.createElement("setSpec");
-            setSpecElm.setTextContent(set.getSetSpec());
-            header.appendChild(setSpecElm);
-        }
-		
-		boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
-		if (cdkServerMode) {
-			// cdk
-			try {
-				String pid = OAITools.pidFromOAIIdentifier(this.identifier);
-				ProxyItemHandler redirectHandler = MetadataExport.findRedirectHandler(solrAccess, userProvider, clientProvider, instances, request, pid, null);
-				if (!pid.contains("_")) {
-					if (redirectHandler != null && !redirectHandler.isStreamBiblioModsAvaiable()) {
-						header.setAttribute("status", "deleted");
-					// co s tim ??
-					} else if (redirectHandler == null){
-						header.setAttribute("status", "deleted");
-						
-					}
-				}
-			} catch (DOMException | LexerException | IOException | ProxyHandlerException e) {
-				LOGGER.log(Level.SEVERE,e.getMessage(),e);
-			}
-		} else {
-			// local 
-			String pid = OAITools.pidFromOAIIdentifier(this.identifier);
-			if (!fa.isObjectAvailable(pid) && (!pid.contains("_"))) {
-				header.setAttribute("status", "deleted");
-			}
-		}
-        return header;
-    }*/
 
 
     protected void saveToCache(String data, String url, String pid, CDKRequestCacheSupport cacheSupport) {
