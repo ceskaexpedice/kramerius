@@ -101,9 +101,13 @@ public class DeleteTreeProcess {
             throw new RuntimeException(String.format("object %s not found in repository", pid));
         }
 
-        boolean noErrors = deleteTree(pid, true, akubraRepository, akubraRepository, indexerAccess, searchIndex, ignoreIncosistencies);
-        if (!noErrors) {
-            throw new WarningException("failed to delete some objects");
+        try {
+            boolean noErrors = deleteTree(pid, true, akubraRepository, akubraRepository, indexerAccess, searchIndex, ignoreIncosistencies);
+            if (!noErrors) {
+                throw new WarningException("failed to delete some objects");
+            }
+        }finally {
+            akubraRepository.shutdown();
         }
     }
 

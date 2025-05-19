@@ -140,16 +140,19 @@ public class DeleteServiceImpl implements DeleteService {
         DCConent dcConent = DCConent.collectFirstWin(list);
         ProcessStarter.updateName("Mazání objektu '" + (dcConent != null ? dcConent.getTitle() : "bez názvu") + "'");
 
-
-        akubraRepository.pi().doWithCommit(() -> {
-            try {
-                inst.deleteTree(akubraRepository, args[0], args[1], "Marked as deleted", args.length > 2 ? Boolean.parseBoolean(args[2]) : false, args.length > 3 ? Boolean.parseBoolean(args[3]) : true);
-            } catch (IOException e) {
-                throw new RepositoryException(e);
-            } catch (SolrServerException e) {
-                throw new RepositoryException(e);
-            }
-        });
+        try {
+            akubraRepository.pi().doWithCommit(() -> {
+                try {
+                    inst.deleteTree(akubraRepository, args[0], args[1], "Marked as deleted", args.length > 2 ? Boolean.parseBoolean(args[2]) : false, args.length > 3 ? Boolean.parseBoolean(args[3]) : true);
+                } catch (IOException e) {
+                    throw new RepositoryException(e);
+                } catch (SolrServerException e) {
+                    throw new RepositoryException(e);
+                }
+            });
+        }finally {
+            akubraRepository.shutdown();
+        }
 
         LOGGER.info("DeleteService finished.");
     }

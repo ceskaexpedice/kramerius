@@ -34,16 +34,20 @@ public class ProcessingIndexCheck {
                 .cursorMark(ProcessingIndex.CURSOR_MARK_START)
                 .fieldsToFetch(List.of("source"))
                 .build();
-        akubraRepository.pi().iterate(params, processingIndexItem -> {
-            if (!akubraRepository.exists(processingIndexItem.source())) {
-                LOGGER.info("Object marked for delete :" + processingIndexItem.source());
-                pidsToDelete.add(processingIndexItem.source());
-            }
-        });
-        pidsToDelete.stream().forEach(pid -> {
-            LOGGER.info("Deleting pid :" + pid);
-            akubraRepository.pi().deleteByPid(pid);
-        });
-        akubraRepository.pi().commit();
+        try {
+            akubraRepository.pi().iterate(params, processingIndexItem -> {
+                if (!akubraRepository.exists(processingIndexItem.source())) {
+                    LOGGER.info("Object marked for delete :" + processingIndexItem.source());
+                    pidsToDelete.add(processingIndexItem.source());
+                }
+            });
+            pidsToDelete.stream().forEach(pid -> {
+                LOGGER.info("Deleting pid :" + pid);
+                akubraRepository.pi().deleteByPid(pid);
+            });
+            akubraRepository.pi().commit();
+        }finally {
+            akubraRepository.shutdown();
+        }
     }
 }

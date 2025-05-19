@@ -217,8 +217,8 @@ public class SecondPhase extends AbstractPhase  {
     public void ingest(File foxmlfile) throws PhaseException{
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
         //Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         try {
-            AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             Import.ingest(akubraRepository, foxmlfile, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
         } catch (RepositoryException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
@@ -226,6 +226,8 @@ public class SecondPhase extends AbstractPhase  {
         } catch (RuntimeException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
             else throw new PhaseException(this,e);
+        }finally {
+            akubraRepository.shutdown();
         }
     }
     

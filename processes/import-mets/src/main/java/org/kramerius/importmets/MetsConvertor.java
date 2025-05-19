@@ -172,19 +172,23 @@ public class MetsConvertor {
                 log.error(e.getMessage(), e);
             }
         }
-        
-        Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,
-                KConfiguration.getInstance().getProperty("ingest.url"),
-                KConfiguration.getInstance().getProperty("ingest.user"),
-                KConfiguration.getInstance().getProperty("ingest.password"),
-                exportRoot, startIndexer, authToken,addToCollections);
-        
-        
-        if (deleteContractSubfolder()) {
-            File exportFolder = new File(exportRoot);
-            FileUtils.deleteDirectory(exportFolder);
+
+        try {
+            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,
+                    KConfiguration.getInstance().getProperty("ingest.url"),
+                    KConfiguration.getInstance().getProperty("ingest.user"),
+                    KConfiguration.getInstance().getProperty("ingest.password"),
+                    exportRoot, startIndexer, authToken,addToCollections);
+
+
+            if (deleteContractSubfolder()) {
+                File exportFolder = new File(exportRoot);
+                FileUtils.deleteDirectory(exportFolder);
+            }
+        }finally {
+            akubraRepository.shutdown();
         }
-        
+
     }
 
     private void checkAndConvertDirectory(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {

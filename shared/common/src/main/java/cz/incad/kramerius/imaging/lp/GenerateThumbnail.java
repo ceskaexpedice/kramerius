@@ -46,7 +46,11 @@ public class GenerateThumbnail {
             AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             DeepZoomTileSupport tileSupport = injector.getInstance(DeepZoomTileSupport.class);
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
-            prepareCacheForUUID(args[0], akubraRepository, discStruct, tileSupport);
+            try {
+                prepareCacheForUUID(args[0], akubraRepository, discStruct, tileSupport);
+            }finally {
+                akubraRepository.shutdown();
+            }
         }
     }
 

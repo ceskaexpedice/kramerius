@@ -192,26 +192,30 @@ public class ExportServiceImpl implements ExportService {
             args = restArgs(args, 1);
         }
 
-        for (int i = 0; i < args.length; i++) {
-            ExportServiceImpl inst = new ExportServiceImpl();
-            inst.akubraRepository = akubraRepository;
-            inst.configuration = KConfiguration.getInstance();
-            inst.solrAccess = new SolrAccessImplNewIndex();
-            inst.exportTree(args[i]);
+        try {
+            for (int i = 0; i < args.length; i++) {
+                ExportServiceImpl inst = new ExportServiceImpl();
+                inst.akubraRepository = akubraRepository;
+                inst.configuration = KConfiguration.getInstance();
+                inst.solrAccess = new SolrAccessImplNewIndex();
+                inst.exportTree(args[i]);
 
-            if (exportParents == null) {
-                String property = inst.configuration.getProperty("export.parents");
-                if (Boolean.valueOf(property)) {
-                   inst.exportParents(args[i]);
+                if (exportParents == null) {
+                    String property = inst.configuration.getProperty("export.parents");
+                    if (Boolean.valueOf(property)) {
+                        inst.exportParents(args[i]);
+                    }
+                } else {
+                    ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + exportParents + ", pro titul " + args[i]);
+                    if (exportParents == true) {
+                        inst.exportParents(args[i]);
+                    }
                 }
-            } else {
-                ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + exportParents + ", pro titul " + args[i]);
-                if (exportParents == true) {
-                    inst.exportParents(args[i]);
-                }
+
+                LOGGER.info("ExportService finished.");
             }
-
-            LOGGER.info("ExportService finished.");
+        }finally {
+            akubraRepository.shutdown();
         }
     }
     

@@ -169,41 +169,45 @@ public class Import {
         }
 
 
-        if (license != null && !license.equals(NON_KEYWORD)) {
+        try {
+            if (license != null && !license.equals(NON_KEYWORD)) {
 
-            File importFolder = new File(importDirectory);
-            File importParentFolder = importFolder.getParentFile();
-            File licensesImportFile = new File(importParentFolder, importFolder.getName() + "-" + license);
-            licensesImportFile.mkdirs();
-            log.info(String.format("Copy data from  %s to %s", importFolder.getAbsolutePath(), licensesImportFile.getAbsolutePath()));
-            FileUtils.copyDirectory(importFolder, licensesImportFile);
+                File importFolder = new File(importDirectory);
+                File importParentFolder = importFolder.getParentFile();
+                File licensesImportFile = new File(importParentFolder, importFolder.getName() + "-" + license);
+                licensesImportFile.mkdirs();
+                log.info(String.format("Copy data from  %s to %s", importFolder.getAbsolutePath(), licensesImportFile.getAbsolutePath()));
+                FileUtils.copyDirectory(importFolder, licensesImportFile);
 
 
-            log.info(String.format("Applying license %s", license));
-            try {
-                foxmlService.appendLicense(licensesImportFile.getAbsolutePath(), license);
-            } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException |
-                     LexerException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                log.info(String.format("Applying license %s", license));
+                try {
+                    foxmlService.appendLicense(licensesImportFile.getAbsolutePath(), license);
+                } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException |
+                         LexerException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+
+                ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
+                log.info("import dir: " + licensesImportFile);
+                log.info("start indexer: " + startIndexer);
+                log.info("license : " + license);
+
+                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection);
+
+                log.info(String.format("Deleting import folder %s", licensesImportFile));
+                FileUtils.deleteDirectory(licensesImportFile);
+
+            } else {
+
+                ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
+                log.info("import dir: " + importDirectory);
+                log.info("start indexer: " + startIndexer);
+
+                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection);
             }
-
-            ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
-            log.info("import dir: " + licensesImportFile);
-            log.info("start indexer: " + startIndexer);
-            log.info("license : " + license);
-
-            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection);
-
-            log.info(String.format("Deleting import folder %s", licensesImportFile));
-            FileUtils.deleteDirectory(licensesImportFile);
-
-        } else {
-
-            ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
-            log.info("import dir: " + importDirectory);
-            log.info("start indexer: " + startIndexer);
-
-            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection);
+        }finally {
+            akubraRepository.shutdown();
         }
     }
 

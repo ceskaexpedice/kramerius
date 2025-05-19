@@ -32,6 +32,7 @@ public enum AkubraMigrationParts {
         @Override
         public void doMigrationPart(String[] args) throws SQLException, IOException, SAXException {
             long start = System.currentTimeMillis();
+            AkubraRepository akubraRepository = null;
             try {
                 String objectSource = KConfiguration.getInstance().getProperty("objectStore.migrationsource");
                 String objectPaths = KConfiguration.getInstance().getProperty("objectStore.path");
@@ -43,7 +44,7 @@ public enum AkubraMigrationParts {
                 String datastreamPattern = KConfiguration.getInstance().getProperty("datastreamStore.pattern");
 
                 Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-                final AkubraRepository akubraRepository = injector.getInstance(AkubraRepository.class);
+                akubraRepository = injector.getInstance(AkubraRepository.class);
                 final boolean rebuildProcessingIndex = "true".equalsIgnoreCase(args[1]);
                 processRoot(akubraRepository, datastreamSource, datastreamPaths, datastreamPattern, false);
                 processRoot(akubraRepository, objectSource, objectPaths, objectPattern, rebuildProcessingIndex);
@@ -51,6 +52,7 @@ public enum AkubraMigrationParts {
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             } finally {
+                akubraRepository.shutdown();
                 long stop = System.currentTimeMillis();
                 LOGGER.info("AKubra repository restructured in " + (stop - start) + " ms");
             }
